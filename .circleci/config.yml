@@ -56,7 +56,7 @@ jobs:
   test:
     working_directory: ~/rails_template
     docker:
-      - image: circleci/ruby:2.6.5-node-browsers
+      - image: circleci/ruby:3.0.3-node-browsers
         environment:
           RAILS_ENV: test
       - image: postgres:10.6-alpine

@@ -5,7 +5,7 @@ Cataloging application for PDC content and more
 [![Coverage Status](https://coveralls.io/repos/github/pulibrary/pdc_describe/badge.svg?branch=main)](https://coveralls.io/github/pulibrary/pdc_describe?branch=main)
 
 ## Dependencies
-* Ruby: 3.0.0
+* Ruby: 3.0.3
 * nodejs: 12.18.3
 * yarn: 1.22.10
 * Lando: 3.0.0
