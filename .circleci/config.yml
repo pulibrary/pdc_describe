@@ -2,7 +2,7 @@ version: 2.1
 commands:
   install_dependencies:
     steps:
-      - run: gem install bundler -v '2.2.14'
+      - run: gem install bundler -v '2.2.32'
       - run: cp Gemfile.lock Gemfile.lock.bak
       - restore_cache:
           keys:
@@ -28,7 +28,7 @@ jobs:
   build:
     working_directory: ~/rails_template
     docker:
-      - image: circleci/ruby:2.6.5-node-browsers
+      - image: circleci/ruby:3.0.3-node-browsers
         environment:
           RAILS_ENV: test
     steps:
@@ -42,7 +42,7 @@ jobs:
   rubocop:
     working_directory: ~/rails_template
     docker:
-      - image: circleci/ruby:2.6.5-node-browsers
+      - image: circleci/ruby:3.0.3-node-browsers
         environment:
           RAILS_ENV: test
     steps:
