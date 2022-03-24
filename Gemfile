@@ -49,7 +49,7 @@ end
 group :test do
   # Adds support for Capybara system testing and selenium driver
   gem "capybara", ">= 3.26"
-  gem 'coveralls', require: false
+  gem "coveralls", require: false
   gem "selenium-webdriver"
   # Use simplecov for coverage analysis
   gem "simplecov", require: false
