@@ -6,9 +6,9 @@ Cataloging application for PDC content and more
 
 ## Dependencies
 * Ruby: 3.0.3
-* nodejs: 12.18.3
-* yarn: 1.22.10
-* Lando: 3.0.0
+* nodejs: lts-fermium
+* yarn: 1.22.18
+* Lando: 3.6.2
 
 ## Local development
 
