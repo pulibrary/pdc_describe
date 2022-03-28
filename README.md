@@ -49,3 +49,7 @@ This is convenient when you need to step through the code as `byebug` does not a
 pulbot: `pulbot deploy pdc_describe to [staging|production]`
 
 To create a tagged release use the [steps in the RDSS handbook](https://github.com/pulibrary/rdss-handbook/blob/main/release_process.md)
+
+
+## Design
+An early stages Entity-Relationship Diagram (ERD) is available in the `./docs` folder and it's also available in read-only mode via [this link](https://lucid.app/lucidchart/f25fc093-2ba7-4012-b17a-bc576c41e403/view?page=0_0&invitationId=inv_fdcb4690-957f-4915-b5fd-08c1927158d0#).
