@@ -6,34 +6,35 @@ commands:
       - run: cp Gemfile.lock Gemfile.lock.bak
       - restore_cache:
           keys:
-            - rails_template-{{ checksum "Gemfile.lock.bak" }}
+            - rails_template-cimg-{{ checksum "Gemfile.lock.bak" }}
       - run: bundle install --path ./vendor/bundle
       - save_cache:
-          key: rails_template-{{ checksum "Gemfile.lock.bak" }}
+          key: rails_template-cimg-{{ checksum "Gemfile.lock.bak" }}
           paths:
             - ./vendor/bundle
       - restore_cache:
           name: Restore Yarn Package Cache
-          key: rails_template-yarn-{{ checksum "yarn.lock" }}
+          key: rails_template-yarn-cimg-{{ checksum "yarn.lock" }}
       - run:
           name: Install NPM Dependencies via Yarn
           command: yarn install --frozen-lockfile
       - save_cache:
           name: Save Yarn Package Cache
-          key: rails_template-yarn-{{ checksum "yarn.lock" }}
+          key: rails_template-yarn-cimg-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
-
+orbs:
+  browser-tools: circleci/browser-tools@1.2
 jobs:
   build:
     working_directory: ~/rails_template
     docker:
-      - image: circleci/ruby:3.0.3-node-browsers
+      - image: cimg/ruby:3.0.3-browsers
         environment:
           RAILS_ENV: test
     steps:
       - checkout
-      - run: sudo apt update && sudo apt install postgresql-client
+      - run: sudo apt update && sudo apt install postgresql-client libmsgpack-dev
       - install_dependencies
       - persist_to_workspace:
           root: '~/rails_template'
@@ -42,7 +43,7 @@ jobs:
   rubocop:
     working_directory: ~/rails_template
     docker:
-      - image: circleci/ruby:3.0.3-node-browsers
+      - image: cimg/ruby:3.0.3-browsers
         environment:
           RAILS_ENV: test
     steps:
@@ -56,7 +57,7 @@ jobs:
   test:
     working_directory: ~/rails_template
     docker:
-      - image: circleci/ruby:3.0.3-node-browsers
+      - image: cimg/ruby:3.0.3-browsers
         environment:
           RAILS_ENV: test
       - image: postgres:10.6-alpine
@@ -68,6 +69,7 @@ jobs:
       - attach_workspace:
           at: '~/rails_template'
       - install_dependencies
+      - browser-tools/install-browser-tools
       - run:
           name: Wait for PostgreSQL
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
