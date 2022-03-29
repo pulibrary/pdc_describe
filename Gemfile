@@ -2,6 +2,7 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
+gem "honeybadger", "~> 4.0"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem "rails", "~> 6.1.3", ">= 6.1.3.2"
 # Use sqlite3 as the database for Active Record
@@ -20,6 +21,7 @@ gem "jbuilder", "~> 2.7"
 # gem 'redis', '~> 4.0'
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
+gem "whenever"
 
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
@@ -35,6 +37,9 @@ group :development, :test do
 end
 
 group :development do
+  gem "capistrano", "~> 3.10", require: false
+  gem "capistrano-passenger", require: false
+  gem "capistrano-rails", "~> 1.4", require: false
   gem "foreman"
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
   gem "web-console", ">= 4.1.0"
