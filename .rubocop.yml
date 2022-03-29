@@ -31,6 +31,9 @@ Style/IfUnlessModifier:
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
+Rails/UnknownEnv:
+  Enabled: false
+
 RSpec/DescribeClass:
   Exclude:
     - "spec/views/**/*"

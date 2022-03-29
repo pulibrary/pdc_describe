@@ -35,7 +35,7 @@ class VersionFooter
     return false if @@stale == false
     # Only read the file when version information is stale
     if File.exist?(revision_file)
-      local_sha = File.read(revision_file).chomp.gsub(/\)$/, '')
+      local_sha = File.read(revision_file).chomp.gsub(/\)$/, "")
       @@stale = local_sha != git_sha
     else
       @@stale = true
@@ -46,7 +46,7 @@ class VersionFooter
   def self.git_sha
     @@git_sha ||= begin
       if File.exist?(revisions_logfile)
-        `tail -1 #{revisions_logfile}`.chomp.split(" ")[3].gsub(/\)$/, '')
+        `tail -1 #{revisions_logfile}`.chomp.split(" ")[3].gsub(/\)$/, "")
       elsif Rails.env.development? || Rails.env.test?
         `git rev-parse HEAD`.chomp
       else
