@@ -3,5 +3,12 @@
 
 require_relative "config/environment"
 
-run Rails.application
+if Rails.env.production? || Rails.env.staging?
+  map "/describe/" do
+    run Rails.application
+  end
+else
+  run Rails.application
+end
+
 Rails.application.load_server
