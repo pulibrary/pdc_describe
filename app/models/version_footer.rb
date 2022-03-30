@@ -40,7 +40,6 @@ class VersionFooter
     else
       @@stale = true
     end
-    @@stale
   end
 
   def self.git_sha
@@ -97,10 +96,12 @@ class VersionFooter
 
   # These assignment methods are needed to facilitate testing
   def self.revision_file=(x)
+    @@stale = true
     @@revision_file = x
   end
 
   def self.revisions_logfile=(x)
+    @@stale = true
     @@revisions_logfile = x
   end
 end
