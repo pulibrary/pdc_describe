@@ -31,6 +31,7 @@ gem "bootsnap", ">= 1.4.4", require: false
 
 # Devise for authentication
 gem "devise"
+gem 'omniauth-shibboleth', '~> 1.3'
 
 group :development, :test do
   gem "bixby"
