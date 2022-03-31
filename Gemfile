@@ -35,6 +35,7 @@ gem "bootsnap", ">= 1.4.4", require: false
 
 group :development, :test do
   gem "bixby"
+  gem "byebug"
   gem "pry-byebug"
   gem "pry-rails"
   gem "rspec-rails", "~> 5.0.0"

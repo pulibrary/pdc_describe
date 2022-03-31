@@ -365,6 +365,7 @@ DEPENDENCIES
   axe-core-rspec
   bixby
   bootsnap (>= 1.4.4)
+  byebug
   capistrano (~> 3.10)
   capistrano-passenger
   capistrano-rails (~> 1.4)

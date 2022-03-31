@@ -6,14 +6,10 @@
     </div>
 <% else %>
     <div>
-        Please sign-in
+        Please sign-in (good luck)
 
-        <!-- This does not work yet,
-            user_cas_omniauth_callback_path is not yet defined
+        <%= button_to "Login", user_cas_omniauth_authorize_path %>
 
-            < % = button_to "Login", user_cas_omniauth_callback_path % >
-
-        -->
     </div>
 <% end %>
 
