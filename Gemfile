@@ -23,6 +23,10 @@ gem "jbuilder", "~> 2.7"
 # gem 'bcrypt', '~> 3.1.7'
 gem "whenever"
 
+# Reference: https://github.com/pulibrary/pul-the-hard-way/blob/main/services/cas.md
+gem "devise"
+gem "omniauth-cas"
+
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 

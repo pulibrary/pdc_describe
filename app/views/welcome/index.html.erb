@@ -1,1 +1,19 @@
-Welcome
+<h1>PDC Describe</h1>
+
+<% if current_user %>
+    <div>
+        Welcome: <%= current_user.email %>
+    </div>
+<% else %>
+    <div>
+        Please sign-in
+
+        <!-- This does not work yet,
+            user_cas_omniauth_callback_path is not yet defined
+
+            < % = button_to "Login", user_cas_omniauth_callback_path % >
+
+        -->
+    </div>
+<% end %>
+
