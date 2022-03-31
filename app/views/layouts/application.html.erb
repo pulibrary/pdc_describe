@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html>
+<%= content_tag :html, **html_tag_attributes do %>
   <head>
-    <title>DrdsRailsTemplate</title>
+    <title>Princeton Data Commons Describe</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -14,4 +14,4 @@
     <%= yield %>
     <%= render partial: 'shared/footer' %>
   </body>
-</html>
+<% end %>

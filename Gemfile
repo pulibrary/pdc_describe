@@ -52,6 +52,7 @@ group :development do
 end
 
 group :test do
+  gem "axe-core-rspec"
   # Adds support for Capybara system testing and selenium driver
   gem "capybara", ">= 3.26"
   gem "coveralls_reborn", "~> 0.24", require: false
