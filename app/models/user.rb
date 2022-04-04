@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 class User < ApplicationRecord
   devise :rememberable, :omniauthable
 
   def self.from_cas(access_token)
-    user = User.where(provider: access_token.provider, uid: access_token.uid).first
+    user = User.find_by(provider: access_token.provider, uid: access_token.uid)
     if user.nil?
       # Create the user with some basic information from CAS.
       #

@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   root to: "welcome#index"
 
   # Per https://github.com/pulibrary/pul-the-hard-way/blob/main/services/cas.md
-  devise_for :users, :controllers => { :omniauth_callbacks => "users/omniauth_callbacks" }
+  devise_for :users, controllers: { omniauth_callbacks: "users/omniauth_callbacks" }
 
   devise_scope :user do
     get "sign_in", to: "devise/sessions#new", as: :new_user_session
