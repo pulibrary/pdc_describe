@@ -10,14 +10,11 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 # Add additional requires below this line. Rails is not loaded until this point!
 
 require "rspec/rails"
-<<<<<<< HEAD
 require "axe-rspec"
-=======
 
 # note: require 'devise' after require 'rspec/rails'
 require "devise"
 
->>>>>>> Added tests
 require "simplecov"
 require "coveralls"
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(

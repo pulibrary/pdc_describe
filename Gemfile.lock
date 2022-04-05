@@ -65,10 +65,10 @@ GEM
     airbrussh (1.4.0)
       sshkit (>= 1.6.1, != 1.7.0)
     ast (2.4.2)
-    axe-core-api (4.4.0)
+    axe-core-api (4.3.2)
       dumb_delegator
       virtus
-    axe-core-rspec (4.4.0)
+    axe-core-rspec (4.3.2)
       axe-core-api
       dumb_delegator
       virtus
@@ -76,6 +76,7 @@ GEM
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
       thread_safe (~> 0.3, >= 0.3.1)
+    bcrypt (3.1.17)
     bindex (0.8.1)
     bixby (3.0.2)
       rubocop (= 0.85.1)
@@ -122,6 +123,12 @@ GEM
     crass (1.0.6)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
+    devise (4.8.1)
+      bcrypt (~> 3.0)
+      orm_adapter (~> 0.1)
+      railties (>= 4.1.0)
+      responders
+      warden (~> 1.2.3)
     diff-lcs (1.5.0)
     docile (1.4.0)
     dumb_delegator (1.0.0)
@@ -162,8 +169,6 @@ GEM
     net-ssh (6.1.0)
     nio4r (2.5.8)
     nokogiri (1.13.3-x86_64-darwin)
-      racc (~> 1.4)
-    nokogiri (1.13.3-x86_64-linux)
       racc (~> 1.4)
     omniauth (1.9.1)
       hashie (>= 3.4.6)
@@ -320,6 +325,8 @@ GEM
       axiom-types (~> 0.1)
       coercible (~> 1.0)
       descendants_tracker (~> 0.0, >= 0.0.3)
+    warden (1.2.9)
+      rack (>= 2.0.9)
     web-console (4.2.0)
       actionview (>= 6.0.0)
       activemodel (>= 6.0.0)
@@ -345,8 +352,6 @@ GEM
 
 PLATFORMS
   x86_64-darwin-19
-  x86_64-darwin-20
-  x86_64-linux
 
 DEPENDENCIES
   axe-core-rspec
@@ -384,4 +389,4 @@ DEPENDENCIES
   whenever
 
 BUNDLED WITH
-   2.2.32
+   2.2.21
