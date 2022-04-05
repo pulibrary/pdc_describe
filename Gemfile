@@ -23,6 +23,10 @@ gem "jbuilder", "~> 2.7"
 # gem 'bcrypt', '~> 3.1.7'
 gem "whenever"
 
+# Reference: https://github.com/pulibrary/pul-the-hard-way/blob/main/services/cas.md
+gem "devise"
+gem "omniauth-cas"
+
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 
@@ -31,6 +35,7 @@ gem "bootsnap", ">= 1.4.4", require: false
 
 group :development, :test do
   gem "bixby"
+  gem "byebug"
   gem "pry-byebug"
   gem "pry-rails"
   gem "rspec-rails", "~> 5.0.0"
@@ -61,6 +66,10 @@ group :test do
   gem "simplecov", require: false
   # Easy installation and use of web drivers to run system tests with browsers
   gem "webdrivers"
+end
+
+group :development, :test do
+  gem "factory_bot_rails", require: false
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

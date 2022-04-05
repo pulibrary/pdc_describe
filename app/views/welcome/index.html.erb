@@ -1,1 +1,12 @@
-Welcome
+<h1>Welcome to PDC Describe</h1>
+
+<% if current_user %>
+  <div>
+    Welcome: <%= current_user.email %>
+  </div>
+<% else %>
+  <div>
+    <%= button_to "Login", user_cas_omniauth_authorize_path %>
+  </div>
+<% end %>
+
