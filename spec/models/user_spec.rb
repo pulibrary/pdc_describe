@@ -25,4 +25,23 @@ RSpec.describe User, type: :model do
       expect(normal_user.superadmin?).to eq false
     end
   end
+
+  describe "#orcid" do
+    let(:normal_user) { described_class.new }
+    let(:orcid) { "0000-0003-1279-3709" }
+
+    it "mutates the ORCID for a given User" do
+      expect(normal_user.orcid).to be nil
+      normal_user.orcid = orcid
+      expect(normal_user.orcid).to eq(orcid)
+    end
+
+    context "with an existing ORCID" do
+      let(:normal_user) { described_class.new(orcid: orcid) }
+
+      it "accesses an existing ORCID for a given User" do
+        expect(normal_user.orcid).to eq(orcid)
+      end
+    end
+  end
 end
