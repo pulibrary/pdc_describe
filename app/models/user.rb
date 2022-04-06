@@ -23,4 +23,14 @@ class User < ApplicationRecord
     end
     user
   end
+
+  ##
+  # Is this user a superadmin? Superadmins automatically get admin status in every
+  # collection, and they can make new collections.
+  # @return [Boolean]
+  def superadmin?
+    Rails.configuration.superadmins.include? uid
+  rescue
+    false
+  end
 end
