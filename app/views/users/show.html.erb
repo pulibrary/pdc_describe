@@ -1,0 +1,13 @@
+<p id="notice"><%= notice %></p>
+
+<h2>Welcome, <%= @user.uid %></h2>
+
+
+<% if @user.orcid %>
+<p>Your ORCiD is <%= @user.orcid %></p>
+<% else %>
+<p>You do not have an ORCiD on file. Please add one.</p>
+<% end %>
+
+<%= link_to 'Edit', edit_user_path(@user) %> |
+<%= link_to 'Main Application', root_path %>
