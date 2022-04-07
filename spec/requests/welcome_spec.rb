@@ -4,14 +4,15 @@ require "rails_helper"
 RSpec.describe "Home Page", type: :request do
   describe "GET /" do
     context "Authenticated user" do
-      let(:user) { FactoryBot.create :user }
+      let(:email) { "pul123@princeton.edu" }
+      let(:user) { FactoryBot.create :user, email: email }
       before do
         sign_in user
       end
 
       it "displays the user's email" do
         get root_path
-        expect(response.body.include?("pul123@princeton.edu")).to be true
+        expect(response.body.include?(email)).to be true
       end
     end
 

@@ -2,8 +2,8 @@
 
 FactoryBot.define do
   factory :user do
-    sequence(:uid) { "pul123" }
-    sequence(:email) { "pul123@princeton.edu" }
+    sequence(:uid) { FFaker::Internet.user_name }
+    sequence(:email) { FFaker::Internet.email }
     provider { :cas }
   end
 end
