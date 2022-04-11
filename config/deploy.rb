@@ -9,3 +9,6 @@ set :linked_dirs, %w[log public/system public/assets]
 set :branch, ENV["BRANCH"] || "main"
 
 set :deploy_to, "/opt/pdc_describe"
+
+# Workaround for this issue: https://github.com/capistrano/rails/issues/235
+Rake::Task["deploy:assets:backup_manifest"].clear_actions
