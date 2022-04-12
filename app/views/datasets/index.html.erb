@@ -1,0 +1,17 @@
+<h1>Datasets</h1>
+<p>Hi <%= current_user.email %></p>
+
+<% if @my_datasets.count > 0 %>
+  <h2>Your Datasets</h2>
+  <% @my_datasets.each do |ds| %>
+    <p><%= link_to(ds.title, dataset_path(ds)) %></p>
+  <% end %>
+<% end %>
+
+<h2>All Datasets</h2>
+<% @datasets.each do |ds| %>
+  <p><%= link_to(ds.title, dataset_path(ds)) %></p>
+<% end %>
+
+<h2>Options</h2>
+<%= link_to "Create a New Dataset", new_dataset_path %>

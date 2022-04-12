@@ -33,6 +33,9 @@ gem "omniauth-cas"
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", ">= 1.4.4", require: false
 
+# EZID for ARK generation
+gem "ezid-client"
+
 group :development, :test do
   gem "bixby"
   gem "byebug"

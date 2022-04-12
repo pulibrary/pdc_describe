@@ -133,6 +133,8 @@ GEM
     docile (1.4.0)
     dumb_delegator (1.0.0)
     erubi (1.10.0)
+    ezid-client (1.4.3)
+      hashie
     factory_bot (6.2.1)
       activesupport (>= 5.0.0)
     factory_bot_rails (6.2.0)
@@ -370,6 +372,7 @@ DEPENDENCIES
   capybara (>= 3.26)
   coveralls_reborn (~> 0.24)
   devise
+  ezid-client
   factory_bot_rails
   ffaker
   foreman

@@ -12,6 +12,8 @@ Rails.application.routes.draw do
     get "sign_out", to: "devise/sessions#destroy", as: :destroy_user_session
   end
 
+  resources :datasets
+
   get "demo", to: "demo#index"
 
   # Anything still unmatched by the end of the routes file should go to the not_found page
