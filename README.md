@@ -43,7 +43,7 @@ This is convenient when you need to step through the code as `byebug` does not a
 
 1. Terminal one: `bin/rails s -p 3000`
 2. Terminal two: `bin/webpack-dev-server`
-3. Access pdc_discovery at [http://localhost:3000/](http://localhost:3000/)
+3. Access pdc_describe at [http://localhost:3000/](http://localhost:3000/)
 
 ## Deploying
 pulbot: `pulbot deploy pdc_describe to [staging|production]`
