@@ -13,7 +13,7 @@ require "rspec/rails"
 require "axe-rspec"
 require "ffaker"
 
-# note: require 'devise' after require 'rspec/rails'
+# NOTE: require 'devise' after require 'rspec/rails'
 require "devise"
 
 require "simplecov"
