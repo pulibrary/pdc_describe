@@ -11,7 +11,7 @@ class Dataset < ApplicationRecord
       created_by_user_id: user_id,
       collection_id: collection_id
     )
-    ds.save
+    ds.save!
     ds
   end
 
