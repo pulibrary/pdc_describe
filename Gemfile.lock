@@ -1,3 +1,12 @@
+GIT
+  remote: https://github.com/duke-libraries/ezid-client.git
+  revision: dfcf7f49995560ed48df407560c4fe3fb6dbfa7b
+  ref: dfcf7f49995560ed48df407560c4fe3fb6dbfa7b
+  specs:
+    ezid-client (1.9.2)
+      hashie (~> 3.4, >= 3.4.3)
+      nokogiri
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -133,8 +142,6 @@ GEM
     docile (1.4.0)
     dumb_delegator (1.0.0)
     erubi (1.10.0)
-    ezid-client (1.4.3)
-      hashie
     factory_bot (6.2.1)
       activesupport (>= 5.0.0)
     factory_bot_rails (6.2.0)
@@ -372,7 +379,7 @@ DEPENDENCIES
   capybara (>= 3.26)
   coveralls_reborn (~> 0.24)
   devise
-  ezid-client
+  ezid-client!
   factory_bot_rails
   ffaker
   foreman
