@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 class DatasetsController < ApplicationController
   def index
-    @datasets = Dataset.all
     @my_datasets = Dataset.where(created_by_user_id: current_user.id)
+    @other_datasets = Dataset.where("created_by_user_id != :user_id", {user_id: current_user.id})
   end
 
   def new

@@ -50,4 +50,5 @@ ActiveRecord::Schema.define(version: 2022_04_12_182606) do
   end
 
   add_foreign_key "datasets", "collections"
+  add_foreign_key "datasets", "users", column: "created_by_user_id"
 end

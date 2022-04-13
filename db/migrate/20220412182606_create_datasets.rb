@@ -11,5 +11,6 @@ class CreateDatasets < ActiveRecord::Migration[6.1]
     end
 
     add_foreign_key :datasets, :collections
+    add_foreign_key :datasets, :users, column: :created_by_user_id
   end
 end
