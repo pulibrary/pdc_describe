@@ -7,7 +7,7 @@ class DatasetsController < ApplicationController
 
   def new
     default_collection_id = current_user.default_collection.id
-    @dataset = Dataset.create_skeleton("title", current_user.id, default_collection_id)
+    @dataset = Dataset.create_skeleton("New Dataset", current_user.id, default_collection_id)
     redirect_to dataset_url(@dataset)
   end
 

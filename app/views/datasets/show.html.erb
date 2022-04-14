@@ -2,6 +2,6 @@
 
 <div>
   <p>ARK: <%= link_to(@dataset.ark, @dataset.ark_url) %></p>
-  <p>Created by: <%= @dataset.created_by_user_id %></p>
-  <p>Collection: <%= @dataset.collection_id %></p>
+  <p>Created by: <%= @dataset.created_by_user.uid %></p>
+  <p>Collection: <%= @dataset.collection.title %></p>
 </div>
