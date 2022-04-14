@@ -1,0 +1,7 @@
+<h1><%= @dataset.title %></h1>
+
+<div>
+  <p>ARK: <%= link_to(@dataset.ark, @dataset.ark_url) %></p>
+  <p>Created by: <%= @dataset.created_by_user.uid %></p>
+  <p>Collection: <%= @dataset.collection.title %></p>
+</div>

@@ -3,6 +3,11 @@
 class User < ApplicationRecord
   devise :rememberable, :omniauthable
 
+  def default_collection
+    # TODO: This should be a value stored in the User table.
+    Collection.first
+  end
+
   def self.from_cas(access_token)
     user = User.find_by(provider: access_token.provider, uid: access_token.uid)
     if user.nil?

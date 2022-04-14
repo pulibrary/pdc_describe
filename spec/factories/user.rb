@@ -6,4 +6,8 @@ FactoryBot.define do
     sequence(:email) { FFaker::Internet.email }
     provider { :cas }
   end
+
+  factory :collection do
+    title { "default test collection" }
+  end
 end
