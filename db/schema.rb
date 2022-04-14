@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_12_182606) do
+ActiveRecord::Schema.define(version: 2022_04_14_130226) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -44,6 +44,7 @@ ActiveRecord::Schema.define(version: 2022_04_12_182606) do
     t.string "provider"
     t.string "uid"
     t.string "orcid"
+    t.integer "default_collection_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider"], name: "index_users_on_provider"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -52,4 +53,5 @@ ActiveRecord::Schema.define(version: 2022_04_12_182606) do
 
   add_foreign_key "datasets", "collections"
   add_foreign_key "datasets", "users", column: "created_by_user_id"
+  add_foreign_key "users", "collections", column: "default_collection_id"
 end

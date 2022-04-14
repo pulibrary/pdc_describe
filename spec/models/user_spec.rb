@@ -3,12 +3,23 @@
 require "rails_helper"
 
 RSpec.describe User, type: :model do
+  before { Collection.create_defaults }
+
   let(:access_token) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu" }) }
+  let(:access_token_pppl) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu", departmentnumber: "31000" }) }
 
   describe "#from_cas" do
-    # Notice that we return an object even if it does not exist (yet) in the database
-    it "returns a user object" do
-      expect(described_class.from_cas(access_token)).to be_a described_class
+    it "returns a user object with a default collection" do
+      user = described_class.from_cas(access_token)
+      expect(user).to be_a described_class
+      expect(user.default_collection.id).to eq Collection.default.id
+    end
+
+    it "sets the proper default collection for a PPPL user" do
+      pppl_collection = Collection.where(code: "PPPL").first
+      pppl_user = described_class.from_cas(access_token_pppl)
+      expect(pppl_user).to be_a described_class
+      expect(pppl_user.default_collection.id).to eq pppl_collection.id
     end
   end
 
