@@ -180,6 +180,8 @@ GEM
     nio4r (2.5.8)
     nokogiri (1.13.4-x86_64-darwin)
       racc (~> 1.4)
+    nokogiri (1.13.4-x86_64-linux)
+      racc (~> 1.4)
     omniauth (1.9.1)
       hashie (>= 3.4.6)
       rack (>= 1.6.2, < 3)
@@ -363,6 +365,8 @@ GEM
 
 PLATFORMS
   x86_64-darwin-19
+  x86_64-darwin-20
+  x86_64-linux
 
 DEPENDENCIES
   axe-core-rspec
@@ -402,4 +406,4 @@ DEPENDENCIES
   whenever
 
 BUNDLED WITH
-   2.2.32
+   2.3.11
