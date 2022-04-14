@@ -3,6 +3,7 @@
 require "rails_helper"
 
 RSpec.describe DatasetsController do
+  before { Collection.create_defaults }
   let(:user) { FactoryBot.create(:user) }
 
   context "valid user login" do
