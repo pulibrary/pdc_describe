@@ -10,6 +10,11 @@ RSpec.describe Collection, type: :model do
     default_count = described_class.count
     expect(default_count).to be > 0
 
+    expect(Collection.where(code: "PPPL").count).to be 1
+    expect(Collection.where(code: "RD").count).to be 1
+    expect(Collection.where(code: "ETD").count).to be 1
+    expect(Collection.where(code: "LIB").count).to be 1
+
     described_class.create_defaults
     expect(described_class.count).to be default_count
   end

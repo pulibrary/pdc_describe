@@ -18,6 +18,7 @@ ActiveRecord::Schema.define(version: 2022_04_12_182606) do
   create_table "collections", force: :cascade do |t|
     t.string "title"
     t.text "description"
+    t.string "code"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
