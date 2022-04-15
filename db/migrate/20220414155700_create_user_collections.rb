@@ -1,4 +1,4 @@
-class CreateUsersCollections < ActiveRecord::Migration[6.1]
+class CreateUserCollections < ActiveRecord::Migration[6.1]
     def change
       create_table :user_collections do |t|
         t.string :role # submitter, approver, admin
