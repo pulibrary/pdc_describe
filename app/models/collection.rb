@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class Collection < ApplicationRecord
-  # rubocop:disable Style/NumericPredicate
   def self.create_defaults
     return if Collection.count > 0
     Rails.logger.info "Creating default Collections"
@@ -10,7 +9,6 @@ class Collection < ApplicationRecord
     Collection.create(title: "Electronic Theses and Dissertations", code: "ETD")
     Collection.create(title: "Library Resources", code: "LIB")
   end
-  # rubocop:enable Style/NumericPredicate
 
   # Returns the default collection.
   # Used when we don't have anything else to determine a more specific collection for a user.

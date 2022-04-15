@@ -5,3 +5,8 @@
   <p>Created by: <%= @dataset.created_by_user.uid %></p>
   <p>Collection: <%= @dataset.collection.title %></p>
 </div>
+
+<div>
+  <%= link_to("Edit", edit_dataset_path(@dataset), class: "btn btn-primary") %>
+  <%= link_to 'Home', root_path %>
+</div>
