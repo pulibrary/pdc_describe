@@ -7,6 +7,14 @@ RSpec.describe User, type: :model do
 
   let(:access_token) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu" }) }
   let(:access_token_pppl) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu", departmentnumber: "31000" }) }
+  let(:access_token_superadmin) { OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" }) }
+
+  let(:normal_user) { described_class.from_cas(access_token) }
+  let(:pppl_user) { described_class.from_cas(access_token_pppl) }
+  let(:superadmin_user) { described_class.from_cas(access_token_superadmin) }
+
+  let(:rd_collection) { Collection.where(code: "RD").first }
+  let(:pppl_collection) { Collection.where(code: "PPPL").first }
 
   describe "#from_cas" do
     it "returns a user object with a default collection" do
@@ -34,6 +42,32 @@ RSpec.describe User, type: :model do
 
     it "is false if the user is not in the superadmin config" do
       expect(normal_user.superadmin?).to eq false
+    end
+  end
+
+  describe "collection access" do
+    it "gives full rights to superadmin users" do
+      expect(superadmin_user.can_admin?(pppl_collection.id)).to be true
+      expect(superadmin_user.can_submit?(pppl_collection.id)).to be true
+      expect(superadmin_user.can_admin?(rd_collection.id)).to be true
+      expect(superadmin_user.can_submit?(rd_collection.id)).to be true
+      expect(superadmin_user.submitter_collections.count).to eq Collection.count
+    end
+
+    it "gives access to research data collection to normal users" do
+      expect(normal_user.can_admin?(pppl_collection)).to be false
+      expect(normal_user.can_submit?(pppl_collection)).to be false
+      expect(normal_user.can_admin?(rd_collection)).to be false
+      expect(normal_user.can_submit?(rd_collection)).to be true
+      expect(normal_user.submitter_collections.count).to eq 1
+    end
+
+    it "gives submit access PPPL collection to PPPL users" do
+      expect(pppl_user.can_admin?(pppl_collection)).to be false
+      expect(pppl_user.can_submit?(pppl_collection)).to be true
+      expect(pppl_user.can_admin?(rd_collection)).to be false
+      expect(pppl_user.can_submit?(rd_collection)).to be false
+      expect(pppl_user.submitter_collections.count).to eq 1
     end
   end
 
