@@ -12,6 +12,7 @@ Rails.application.routes.draw do
     get "sign_out", to: "devise/sessions#destroy", as: :destroy_user_session
   end
 
+  get "/datasets/dashboard", to: "datasets#dashboard", as: :datasets_dashboard
   resources :datasets
 
   get "demo", to: "demo#index"

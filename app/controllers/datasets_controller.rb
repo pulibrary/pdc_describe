@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 class DatasetsController < ApplicationController
   def index
+    @datasets = Dataset.all
+  end
+
+  def dashboard
     @my_datasets = Dataset.where(created_by_user_id: current_user.id)
-    @other_datasets = Dataset.where("created_by_user_id != :user_id", { user_id: current_user.id })
+    @my_collections = current_user.submitter_collections
   end
 
   def new

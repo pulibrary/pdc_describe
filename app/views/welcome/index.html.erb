@@ -1,12 +1,14 @@
-<h1>Welcome to PDC Describe</h1>
-
 <% if current_user %>
   <div>
     Welcome: <%= current_user.email %>
+    <div>
+      <%= link_to "My Dashboard", datasets_dashboard_path, class: "btn btn-primary" %>
+    </div>
   </div>
 <% else %>
   <div>
-    <%= button_to "Login", user_cas_omniauth_authorize_path %>
+    <p>Welcome to PDC Describe, please login to view or create new datasets</p>
+    <%= button_to "Login", user_cas_omniauth_authorize_path, class: "btn btn-primary" %>
   </div>
 <% end %>
 

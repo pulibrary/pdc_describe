@@ -25,7 +25,10 @@
     <%= form.text_field :ark %>
   </div>
 
+  <br />
+
   <div class="actions">
     <%= form.submit class: "btn btn-primary" %>
+    <%= link_to 'Cancel', @dataset, class: "btn btn-secondary" %>
   </div>
 <% end %>

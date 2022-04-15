@@ -1,18 +1,7 @@
 <h1>Datasets</h1>
-<p>Hi <%= current_user.email %></p>
 
-<% if @my_datasets.count > 0 %>
-  <h2>Your Datasets</h2>
-  <% @my_datasets.each do |ds| %>
-    <p><%= link_to(ds.title, dataset_path(ds)) %></p>
-  <% end %>
-<% end %>
-
-<% if @other_datasets.count > 0 %>
-  <h2>All Other Datasets</h2>
-  <% @other_datasets.each do |ds| %>
-    <p><%= link_to(ds.title, dataset_path(ds)) %> (<%= ds.created_by_user.uid %>)</p>
-  <% end %>
+<% @datasets.each do |ds| %>
+  <p><%= link_to(ds.title, dataset_path(ds)) %> (<%= ds.created_by_user.uid %>)</p>
 <% end %>
 
 <div>
