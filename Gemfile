@@ -68,9 +68,10 @@ group :test do
   gem "selenium-webdriver"
   # Use simplecov for coverage analysis
   gem "simplecov", require: false
+  # Used for detecting what a controller rendered
+  gem "rails-controller-testing"
   # Easy installation and use of web drivers to run system tests with browsers
   gem "webdrivers"
-  gem "rails-controller-testing"
 end
 
 group :development, :test do
