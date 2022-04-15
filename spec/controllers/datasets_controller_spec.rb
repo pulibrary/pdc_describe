@@ -11,6 +11,7 @@ RSpec.describe DatasetsController do
       sign_in user
       get :index
       expect(response.status).to eq(200)
+      expect(response).to render_template("index")
     end
 
     it "handles the show page" do
@@ -18,13 +19,14 @@ RSpec.describe DatasetsController do
       sign_in user
       get :show, params: { id: ds.id }
       expect(response.status).to eq(200)
+      expect(response).to render_template("show")
     end
 
-    it "redirects to show page when creating a new dataset" do
+    it "renders the edit page when creating a new dataset" do
       sign_in user
       post :new
-      expect(response.status).to eq(302)
-      expect(response.location.start_with?("http://test.host/datasets/")).to be true
+      expect(response.status).to eq(200)
+      expect(response).to render_template("edit")
     end
   end
 end

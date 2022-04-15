@@ -70,6 +70,7 @@ group :test do
   gem "simplecov", require: false
   # Easy installation and use of web drivers to run system tests with browsers
   gem "webdrivers"
+  gem "rails-controller-testing"
 end
 
 group :development, :test do
