@@ -1,4 +1,7 @@
+@import "./variables/typography";
+
 #footer {
+  font-family: "Open Sans", sans-serif;
   padding: 0px;
   border-top: #cecece solid 15px;
   border-bottom: #cecece solid 3px;
@@ -32,9 +35,17 @@
 }
 
 #copyright {
+  font-family: "Open Sans", sans-serif;
   background-color: #cecece;
   width: 100%;
   padding-right: 10px;
   text-align: right;
   font-size: 10px;
+}
+
+.deployment-version {
+  font-family: "Open Sans", sans-serif;
+  text-align: right;
+  font-size: 14px;
+  padding: 5px;
 }

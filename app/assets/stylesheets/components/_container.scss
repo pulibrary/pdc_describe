@@ -1,22 +1,21 @@
 @import "./variables/typography";
 
-header {
+.container, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+  max-height: 100%;
+  padding: 20px;
   font-family: "Open Sans", sans-serif;
-  .navbar-logo {
-    background-image: asset_url("logo.png");
-    background-size: cover;
-    display: block;
-    height: 80px;
-    width: 500px;
-    margin: 20px 0px;
-    font-size: 0px;
-  }
 
+  .field {
+    padding: 10px 0px;
+    label {
+      font-weight: bold;
+    }
+  }
   .btn-primary {
     background-color: #F57E21;
     border-color: #914810;
+    margin: 20px 0px;
   }
-
   .btn-primary:hover {
     background-color: #914810;
     border-color: #914810;

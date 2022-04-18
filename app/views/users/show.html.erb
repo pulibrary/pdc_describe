@@ -9,5 +9,6 @@
 <p>You do not have an ORCiD on file. Please add one.</p>
 <% end %>
 
-<%= link_to 'Edit', edit_user_path(@user) %> |
-<%= link_to 'Main Application', root_path %>
+<div class="p-5 text-left">
+  <%= link_to 'Edit', edit_user_path(@user), :class => "btn btn-primary", :role => "button" %>
+</div>
