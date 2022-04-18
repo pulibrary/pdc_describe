@@ -1,6 +1,11 @@
 @import "./variables/typography";
 
-.container, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+.container,
+.container-lg,
+.container-md,
+.container-sm,
+.container-xl,
+.container-xxl {
   max-height: 100%;
   padding: 20px;
   font-family: "Open Sans", sans-serif;
@@ -12,7 +17,7 @@
     }
   }
   .btn-primary {
-    background-color: #F57E21;
+    background-color: #f57e21;
     border-color: #914810;
     margin: 20px 0px;
   }
