@@ -21,16 +21,9 @@ class User < ApplicationRecord
       user.email = access_token.extra.mail
       user.default_collection_id = Collection.default_for_department(access_token.extra.departmentnumber)&.id
       user.save!
+      user.setup_user_default_collections
     end
     user
-  end
-
-  def default_collection
-    if default_collection_id.nil?
-      Collection.default
-    else
-      Collection.find(default_collection_id)
-    end
   end
 
   ##
@@ -41,5 +34,39 @@ class User < ApplicationRecord
     Rails.configuration.superadmins.include? uid
   rescue
     false
+  end
+
+  # Returns a reference to the user's default collection.
+  def default_collection
+    if default_collection_id.nil?
+      Collection.default
+    else
+      Collection.find(default_collection_id)
+    end
+  end
+
+  # Adds the user to the collections that they should have access by default
+  def setup_user_default_collections
+    return if UserCollection.where(user_id: id).count > 0
+    # Give users submitter access to their default collection
+    UserCollection.add_submitter(id, default_collection_id)
+  end
+
+  # True if the user can submit datasets to the collection
+  def can_submit?(collection_id)
+    return true if superadmin?
+    UserCollection.can_submit?(id, collection_id)
+  end
+
+  # Returns true if the user can admin the collection
+  def can_admin?(collection_id)
+    return true if superadmin?
+    UserCollection.can_admin?(id, collection_id)
+  end
+
+  # Returns the list of collections where the user can submit datasets
+  def submitter_collections
+    return Collection.all.to_a if superadmin?
+    UserCollection.where(user_id: id).filter(&:can_submit?).map(&:collection)
   end
 end

@@ -23,26 +23,4 @@ RSpec.describe "Home Page", type: :request do
       end
     end
   end
-
-  # We could replace this demo page and route with a real page once we have more features in the system
-  describe "GET /demo" do
-    context "Authenticated user" do
-      let(:user) { FactoryBot.create :user }
-      before do
-        sign_in user
-      end
-
-      it "displays the page" do
-        get "/demo"
-        expect(response.body.include?("Authenticated Demo")).to be true
-      end
-    end
-    context "Unauthenticated user" do
-      it "redirects the user to the login page" do
-        get "/demo"
-        expect(response.redirect?).to be true
-        expect(response.redirect_url).to eq "http://www.example.com/sign_in"
-      end
-    end
-  end
 end

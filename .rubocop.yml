@@ -41,3 +41,6 @@ RSpec/DescribeClass:
 
 RSpec/ExampleLength:
   Enabled: false
+
+Style/NumericPredicate:
+  Enabled: false

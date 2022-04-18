@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_14_130226) do
+ActiveRecord::Schema.define(version: 2022_04_14_155700) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -28,6 +28,14 @@ ActiveRecord::Schema.define(version: 2022_04_14_130226) do
     t.string "profile"
     t.string "ark"
     t.integer "created_by_user_id"
+    t.integer "collection_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "user_collections", force: :cascade do |t|
+    t.string "role"
+    t.integer "user_id"
     t.integer "collection_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -53,5 +61,7 @@ ActiveRecord::Schema.define(version: 2022_04_14_130226) do
 
   add_foreign_key "datasets", "collections"
   add_foreign_key "datasets", "users", column: "created_by_user_id"
+  add_foreign_key "user_collections", "collections"
+  add_foreign_key "user_collections", "users"
   add_foreign_key "users", "collections", column: "default_collection_id"
 end

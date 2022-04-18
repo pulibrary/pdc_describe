@@ -1,0 +1,22 @@
+<h1>My Dashboard</h1>
+<p>Hi <%= current_user.email %></p>
+
+<% if @my_datasets.count > 0 %>
+  <h2>My Datasets</h2>
+  <% @my_datasets.each do |ds| %>
+    <p><%= link_to(ds.title, dataset_path(ds)) %></p>
+  <% end %>
+<% end %>
+<div>
+  <%= link_to "Create New Dataset", new_dataset_path, class: "btn btn-primary" %>
+</div>
+
+<% if @my_collections.count > 0 %>
+  <h2>My Collections</h2>
+  <% @my_collections.each do |c| %>
+    <p><%= link_to(c.title, "#") %></p>
+  <% end %>
+<% end %>
+
+
+<hr />

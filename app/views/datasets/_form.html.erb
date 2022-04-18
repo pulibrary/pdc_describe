@@ -1,0 +1,34 @@
+<%= form_with(model: dataset) do |form| %>
+  <% if dataset.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(dataset.errors.count, "error") %> prohibited this dataset from being saved:</h2>
+      <ul>
+        <% dataset.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :title %><br>
+    <%= form.text_field :title %>
+  </div>
+
+  <div class="field">
+    <%= form.label :collection %><br>
+    <%= form.collection_select :collection_id, current_user.submitter_collections, :id, :title, {:include_blank => true}, {:class => 'form-control'} %>
+  </div>
+
+  <div class="field">
+    <%= form.label :ark %><br>
+    <%= form.text_field :ark %>
+  </div>
+
+  <br />
+
+  <div class="actions">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to 'Cancel', @dataset, class: "btn btn-secondary" %>
+  </div>
+<% end %>
