@@ -1,3 +1,11 @@
-<h1>PDC Describe</h1>
-<%= link_to "Home", root_url %>
-<hr />
+<header>
+  <div>
+    <%= link_to "Home", root_url, class: 'mb-0 navbar-brand navbar-logo' %>
+  </div>
+
+  <div class="p-5 text-left bg-light">
+    <h1 class="mb-3">PDC Describe</h1>
+    <%= link_to "Home", root_url, :class => "btn btn-primary", :role => "button" %>
+    <%= link_to "Dashboard", "/dashboard", :class => "btn btn-primary", :role => "button" %>
+  </div>
+</header>

@@ -1,0 +1,40 @@
+#footer {
+  padding: 0px;
+  border-top: #cecece solid 15px;
+  border-bottom: #cecece solid 3px;
+  .content {
+    background-color: #ffffff;
+    padding: 5px 0px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+
+    img {
+      display: block;
+      margin: auto;
+      width: 100%;
+      max-width: 200px;
+    }
+
+    a {
+      margin: 1rem;
+
+      @media all and (max-width: 764px) {
+        flex-basis: calc(50% - 2rem);
+      }
+
+      @media all and (min-width: 765px) {
+        flex-basis: calc(25% - 2rem);
+      }
+    }
+  }
+}
+
+#copyright {
+  background-color: #cecece;
+  width: 100%;
+  padding-right: 10px;
+  text-align: right;
+  font-size: 10px;
+}
