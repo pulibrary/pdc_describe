@@ -7,9 +7,7 @@ RSpec.describe Dataset, type: :model do
   let(:collection) { Collection.default }
   let(:user) { FactoryBot.create :user }
   let(:user_other) { FactoryBot.create :user }
-  let(:superadmin_user) {
-    User.from_cas(OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" }))
-  }
+  let(:superadmin_user) { User.from_cas(OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" })) }
 
   it "creates a skeleton dataset and links it to a new work" do
     ds = described_class.create_skeleton("test title", user.id, collection.id)
@@ -19,8 +17,8 @@ RSpec.describe Dataset, type: :model do
   end
 
   it "returns datasets waiting for approval depending on the user" do
-    my_ds = described_class.create_skeleton("test title", user.id, collection.id)
-    other_ds =  described_class.create_skeleton("test title", user_other.id, collection.id)
+    described_class.create_skeleton("test title", user.id, collection.id)
+    described_class.create_skeleton("test title", user_other.id, collection.id)
 
     # Superadmins can approve pending works
     awaiting = described_class.admin_datasets_by_user_state(superadmin_user, "AWAITING-APPROVAL")
