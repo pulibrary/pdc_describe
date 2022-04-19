@@ -1,0 +1,28 @@
+@import "./variables/typography";
+
+.container,
+.container-lg,
+.container-md,
+.container-sm,
+.container-xl,
+.container-xxl {
+  max-height: 100%;
+  padding: 20px;
+  font-family: "Open Sans", sans-serif;
+
+  .field {
+    padding: 10px 0px;
+    label {
+      font-weight: bold;
+    }
+  }
+  .btn-primary {
+    background-color: #f57e21;
+    border-color: #914810;
+    margin: 20px 0px;
+  }
+  .btn-primary:hover {
+    background-color: #914810;
+    border-color: #914810;
+  }
+}

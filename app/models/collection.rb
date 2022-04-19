@@ -13,11 +13,13 @@ class Collection < ApplicationRecord
   # Returns the default collection.
   # Used when we don't have anything else to determine a more specific collection for a user.
   def self.default
+    create_defaults
     Collection.where(code: "RD").first
   end
 
   # Returns the default collection for a given department number.
   def self.default_for_department(department_number)
+    create_defaults
     # Reference: https://docs.google.com/spreadsheets/d/1_Elxs3Ex-2wCbbKUzD4ii3k16zx36sYf/edit#gid=1484576831
     if department_number.nil?
       default

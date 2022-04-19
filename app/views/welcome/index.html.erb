@@ -1,9 +1,7 @@
 <% if current_user %>
-  <div>
-    Welcome: <%= current_user.email %>
-    <div>
-      <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-primary" %>
-    </div>
+  <div class="content">
+    <h2>Welcome, <%= current_user.email %></h2>
+    <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-primary" %>
   </div>
 <% else %>
   <div>
@@ -11,4 +9,3 @@
     <%= button_to "Login", user_cas_omniauth_authorize_path, class: "btn btn-primary" %>
   </div>
 <% end %>
-
