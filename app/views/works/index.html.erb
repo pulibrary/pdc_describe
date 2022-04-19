@@ -1,0 +1,10 @@
+<h1>Works</h1>
+
+<% @works.each do |work| %>
+  <p><%= link_to(work.title, work_path(work)) %> (<%= work.created_by_user.uid %>)</p>
+<% end %>
+
+<div>
+  <%= link_to "New Dataset", new_dataset_path, class: "btn btn-primary" %>
+</div>
+<hr />

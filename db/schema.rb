@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_14_155700) do
+ActiveRecord::Schema.define(version: 2022_04_19_132637) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,16 +27,23 @@ ActiveRecord::Schema.define(version: 2022_04_14_155700) do
     t.string "title"
     t.string "profile"
     t.string "ark"
-    t.integer "created_by_user_id"
-    t.integer "collection_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "work_id"
   end
 
   create_table "user_collections", force: :cascade do |t|
     t.string "role"
     t.integer "user_id"
     t.integer "collection_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "user_works", force: :cascade do |t|
+    t.string "state"
+    t.integer "user_id"
+    t.integer "work_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -59,9 +66,22 @@ ActiveRecord::Schema.define(version: 2022_04_14_155700) do
     t.index ["uid"], name: "index_users_on_uid"
   end
 
-  add_foreign_key "datasets", "collections"
-  add_foreign_key "datasets", "users", column: "created_by_user_id"
+  create_table "works", force: :cascade do |t|
+    t.string "title"
+    t.string "work_type"
+    t.string "state"
+    t.integer "collection_id"
+    t.integer "created_by_user_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  add_foreign_key "datasets", "works"
   add_foreign_key "user_collections", "collections"
   add_foreign_key "user_collections", "users"
+  add_foreign_key "user_works", "users"
+  add_foreign_key "user_works", "works"
   add_foreign_key "users", "collections", column: "default_collection_id"
+  add_foreign_key "works", "collections"
+  add_foreign_key "works", "users", column: "created_by_user_id"
 end

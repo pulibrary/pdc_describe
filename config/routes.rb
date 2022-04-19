@@ -12,8 +12,11 @@ Rails.application.routes.draw do
     get "sign_out", to: "devise/sessions#destroy", as: :destroy_user_session
   end
 
-  get "/datasets/dashboard", to: "datasets#dashboard", as: :datasets_dashboard
+  post "dataset/:id/approve", to: "datasets#approve", as: :approve_dataset
+  post "dataset/:id/withdraw", to: "datasets#withdraw", as: :withdraw_dataset
+  post "dataset/:id/resubmit", to: "datasets#resubmit", as: :resubmit_dataset
   resources :datasets
+  resources :works
 
   # Anything still unmatched by the end of the routes file should go to the not_found page
   # match '*a', to: redirect('/404'), via: :get

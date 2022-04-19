@@ -3,9 +3,16 @@
 <div>
   <p>ARK: <%= link_to(@dataset.ark, @dataset.ark_url) %></p>
   <p>Created by: <%= @dataset.created_by_user.uid %></p>
-  <p>Collection: <%= @dataset.collection.title %></p>
+  <p>Collection: <%= @dataset.collection_title %></p>
 </div>
 
 <div>
   <%= link_to("Edit", edit_dataset_path(@dataset), class: "btn btn-primary") %>
+  <% if @dataset.state == "AWAITING-APPROVAL" %>
+    <%= link_to("Approve Dataset", approve_dataset_path(@dataset), class: "btn btn-secondary", method: :post) %>
+  <% elsif @dataset.state == "APPROVED" %>
+    <%= link_to("Withdraw Dataset", withdraw_dataset_path(@dataset), class: "btn btn-secondary", method: :post) %>
+  <% elsif @dataset.state == "WITHDRAWN" %>
+    <%= link_to("Resubmit for approval", resubmit_dataset_path(@dataset), class: "btn btn-secondary", method: :post) %>
+  <% end %>
 </div>

@@ -2,7 +2,7 @@
   <div>
     Welcome: <%= current_user.email %>
     <div>
-      <%= link_to "My Dashboard", datasets_dashboard_path, class: "btn btn-primary" %>
+      <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-primary" %>
     </div>
   </div>
 <% else %>
