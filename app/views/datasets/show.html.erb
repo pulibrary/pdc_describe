@@ -9,11 +9,11 @@
 <div>
   <%= link_to("Edit", edit_dataset_path(@dataset), class: "btn btn-primary") %>
   <% if @dataset.state == "AWAITING-APPROVAL" %>
-    <%= link_to("Approve Dataset", approve_dataset_path(@dataset), class: "btn btn-secondary", method: :post) %>
+    <%= button_to("Approve Dataset", approve_dataset_path(@dataset), class: "btn btn-secondary", method: :post) %>
   <% elsif @dataset.state == "APPROVED" %>
-    <%= link_to("Withdraw Dataset", withdraw_dataset_path(@dataset), class: "btn btn-secondary", method: :post) %>
+    <%= button_to("Withdraw Dataset", withdraw_dataset_path(@dataset), class: "btn btn-secondary", method: :post) %>
   <% elsif @dataset.state == "WITHDRAWN" %>
-    <%= link_to("Resubmit for approval", resubmit_dataset_path(@dataset), class: "btn btn-secondary", method: :post) %>
+    <%= button_to("Resubmit for approval", resubmit_dataset_path(@dataset), class: "btn btn-secondary", method: :post) %>
   <% end %>
 </div>
 
