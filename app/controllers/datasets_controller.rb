@@ -70,6 +70,6 @@ class DatasetsController < ApplicationController
     end
 
     def dataset_params
-      form_params.reject { |x| x.in?(["title", "work_id"]) }
+      form_params.reject { |x| x.in?(["title", "collection_id"]) }
     end
 end

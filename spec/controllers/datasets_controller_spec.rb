@@ -20,16 +20,11 @@ RSpec.describe DatasetsController do
       expect(response).to render_template("show")
     end
 
-    it "handles the dashboard page" do
-      sign_in user
-      get :dashboard
-      expect(response).to render_template("dashboard")
-    end
-
     it "renders the edit page when creating a new dataset" do
       sign_in user
       post :new
-      expect(response).to render_template("edit")
+      expect(response.status).to be 302
+      expect(response.location.start_with?("http://test.host/datasets/")).to be true
     end
 
     it "renders the edit page on edit" do
@@ -44,7 +39,8 @@ RSpec.describe DatasetsController do
       params = {
         "dataset" => {
           "title" => "test dataset updated",
-          "collection_id" => ds.collection_id.to_s,
+          "collection_id" => ds.work.collection.id,
+          "work_id" => ds.work.id,
           "ark" => ds.ark
         },
         "commit" => "Update Dataset",
