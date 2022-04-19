@@ -16,3 +16,13 @@
     <%= link_to("Resubmit for approval", resubmit_dataset_path(@dataset), class: "btn btn-secondary", method: :post) %>
   <% end %>
 </div>
+
+<% if @dataset.work.state_history.count > 0 %>
+  <br/>
+  <h2>Approval History</h2>
+  <ul>
+  <% @dataset.work.state_history.each do |history| %>
+    <li>On <%= history.created_at %> <%= history.user.uid %> changed to <%= history.state %>
+  <% end %>
+  </ul>
+<% end %>

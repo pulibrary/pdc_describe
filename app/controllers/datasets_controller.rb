@@ -39,19 +39,19 @@ class DatasetsController < ApplicationController
 
   def approve
     dataset = Dataset.find(params[:id])
-    dataset.work.approve
+    dataset.work.approve(current_user)
     redirect_to dataset_path(dataset)
   end
 
   def withdraw
     dataset = Dataset.find(params[:id])
-    dataset.work.withdraw
+    dataset.work.withdraw(current_user)
     redirect_to dataset_path(dataset)
   end
 
   def resubmit
     dataset = Dataset.find(params[:id])
-    dataset.work.resubmit
+    dataset.work.resubmit(current_user)
     redirect_to dataset_path(dataset)
   end
 

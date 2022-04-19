@@ -27,19 +27,31 @@ class Work < ApplicationRecord
     Dataset.where(work_id: id).first&.id
   end
 
-  def approve
+  def approve(user)
     self.state = "APPROVED"
     save!
+    track_state_change(user, "APPROVED")
   end
 
-  def withdraw
+  def withdraw(user)
     self.state = "WITHDRAWN"
     save!
+    track_state_change(user, "WITHDRAWN")
   end
 
-  def resubmit
+  def resubmit(user)
     self.state = "AWAITING-APPROVAL"
     save!
+    track_state_change(user, "AWAITING-APPROVAL")
+  end
+
+  def track_state_change(user, state)
+    uw = UserWork.new(user_id: user.id, work_id: self.id, state: state)
+    uw.save!
+  end
+
+  def state_history
+    UserWork.where(work_id: self.id)
   end
 
   def created_by_user
