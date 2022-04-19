@@ -15,14 +15,6 @@ class Work < ApplicationRecord
     work
   end
 
-  def dataset?
-    work_type == "DATASET"
-  end
-
-  def etd?
-    work_type == "ETD"
-  end
-
   def dataset_id
     Dataset.where(work_id: id).first&.id
   end
