@@ -46,12 +46,12 @@ class Work < ApplicationRecord
   end
 
   def track_state_change(user, state)
-    uw = UserWork.new(user_id: user.id, work_id: self.id, state: state)
+    uw = UserWork.new(user_id: user.id, work_id: id, state: state)
     uw.save!
   end
 
   def state_history
-    UserWork.where(work_id: self.id)
+    UserWork.where(work_id: id)
   end
 
   def created_by_user
