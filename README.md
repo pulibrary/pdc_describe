@@ -52,4 +52,4 @@ To create a tagged release use the [steps in the RDSS handbook](https://github.c
 
 
 ## Design
-An early stages Entity-Relationship Diagram (ERD) is available in the `./docs` folder and it's also available in read-only mode via [this link](https://lucid.app/lucidchart/f25fc093-2ba7-4012-b17a-bc576c41e403/view?page=0_0&invitationId=inv_fdcb4690-957f-4915-b5fd-08c1927158d0#).
+An early stages Entity-Relationship Diagram (ERD) is available in [this Google Doc](https://docs.google.com/drawings/d/1q2sfj8rrcNVgqQPK5uT_t79A9SYqncinh3HbnCSGMyQ/edit).
