@@ -8,7 +8,7 @@ RSpec.describe Dataset, type: :model do
   it "creates a skeleton dataset" do
     ds = described_class.create_skeleton("test title", user.id, collection.id)
     expect(ds.created_by_user.id).to eq user.id
-    expect(ds.collection.id).to eq collection.id
+    expect(ds.work.collection.id).to eq collection.id
   end
 
   it "prevents datasets with no users" do

@@ -14,7 +14,7 @@ RSpec.describe "Add an ORCiD" do
     it "takes a user to their homepage after login", js: true do
       visit user_path(user)
       expect(page).to have_content "Welcome"
-      expect(page).to have_content "You do not have an ORCiD on file. Please add one."
+      expect(page).to have_content "You do not have an ORCiD on file."
       click_on "Edit"
       expect(page).to have_content "Editing User"
       fill_in "user_orcid", with: orcid
