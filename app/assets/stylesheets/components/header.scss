@@ -1,0 +1,28 @@
+@import "./variables/typography";
+
+header {
+  font-family: "Open Sans", sans-serif;
+  .navbar-logo {
+    background-image: asset_url("logo.png");
+    background-size: cover;
+    display: block;
+    height: 80px;
+    width: 500px;
+    margin: 20px 0px;
+    font-size: 0px;
+  }
+
+  .btn-primary {
+    background-color: #f57e21;
+    border-color: #914810;
+  }
+
+  .btn-primary:hover {
+    background-color: #914810;
+    border-color: #914810;
+  }
+
+  .menu {
+    float: right;
+  }
+}
