@@ -1,46 +1,16 @@
 <p id="notice"><%= notice %></p>
 
-<h2>Welcome, <%= @user.uid %></h2>
+<h2><%= @user.uid %></h2>
 
 <% if @user.orcid.present? %>
-    <p>Your ORCiD is <%= @user.orcid %></p>
-<% else %>
-    <p>You do not have an ORCiD on file. Click <%= link_to("here", edit_user_path(@user)) %> to add one to your profile.</p>
+  <p>ORCiD: <%= @user.orcid %></p>
 <% end %>
 
-<% if @my_dashboard %>
-
-  <h2>My Datasets</h2>
-  <% @my_datasets.each do |ds| %>
-      <p><%= link_to(ds.title, dataset_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
-  <% end %>
-  <%= link_to 'Add New Dataset', new_dataset_path, class: "btn btn-primary" %>
-
-  <% if @awaiting_datasets.count > 0 %>
-    <h2>Datasets waiting to be approved</h2>
-    <% @awaiting_datasets.each do |ds| %>
-      <p><%= link_to(ds.title, dataset_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
-    <% end %>
-  <% end %>
-
-  <% if @withdrawn_datasets.count > 0 %>
-    <h2>Datasets to have been withdrawn</h2>
-    <% @withdrawn_datasets.each do |ds| %>
-        <p><%= link_to(ds.title, dataset_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
-    <% end %>
-  <% end %>
-
-<% else %>
-
-  <!-- Viewing somebody else's user profile -->
-  <h2>Datasets</h2>
-  <% @datasets.each do |ds| %>
-      <p><%= link_to(ds.title, dataset_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
-  <% end %>
-
+<!-- Viewing somebody else's user profile -->
+<h2>Datasets</h2>
+<% @datasets.each do |ds| %>
+    <p><%= link_to(ds.title, dataset_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
 <% end %>
-
-<!-- ETDS, Lib PDFs, and such could be added here as separate sections -->
 
 <div class="p-5 text-left">
   <%= link_to 'Edit', edit_user_path(@user), :class => "btn btn-primary", :role => "button" %>

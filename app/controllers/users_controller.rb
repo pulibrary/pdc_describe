@@ -4,17 +4,14 @@ class UsersController < ApplicationController
 
   # GET /users/1 or /users/1.json
   def show
-    @my_datasets = []
-    @awaiting_datasets = []
-    @withdrawn_datasets = []
-    @datasets = []
-    @my_dashboard = current_user.id == @user.id
-    if @my_dashboard
+    if current_user.id == @user.id
       @my_datasets = Dataset.my_datasets(current_user)
       @awaiting_datasets = Dataset.admin_awaiting_datasets(current_user)
       @withdrawn_datasets = Dataset.admin_withdrawn_datasets(current_user)
+      render "dashboard"
     else
       @datasets = Dataset.my_datasets(@user)
+      render "show"
     end
   end
 
