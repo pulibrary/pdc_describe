@@ -3,9 +3,7 @@
 require "rails_helper"
 
 RSpec.describe "Add an ORCiD" do
-  before do
-    sign_in user
-  end
+  before { sign_in user }
 
   describe "When the user does not have an ORCiD yet" do
     let(:user) { FactoryBot.create :user }
@@ -19,7 +17,7 @@ RSpec.describe "Add an ORCiD" do
       expect(page).to have_content "Editing User"
       fill_in "user_orcid", with: orcid
       click_on "Update User"
-      expect(page).to have_content "Your ORCiD is #{orcid}"
+      expect(page).to have_content "ORCiD: #{orcid}"
     end
   end
 
@@ -38,7 +36,7 @@ RSpec.describe "Add an ORCiD" do
     it "takes a user to their homepage after login", js: true do
       visit user_path(user)
       expect(page).to have_content "Welcome"
-      expect(page).to have_content "Your ORCiD is #{orcid}"
+      expect(page).to have_content "ORCiD: #{orcid}"
     end
   end
 end

@@ -3,6 +3,12 @@
 class User < ApplicationRecord
   devise :rememberable, :omniauthable
 
+  validate do |user|
+    if user.orcid.present? && Orcid.invalid?(user.orcid)
+      user.errors.add :base, "Invalid format for ORCID"
+    end
+  end
+
   def self.from_cas(access_token)
     user = User.find_by(provider: access_token.provider, uid: access_token.uid)
     if user.nil?

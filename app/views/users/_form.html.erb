@@ -1,3 +1,12 @@
+<style>
+  .hidden {
+    display: none;
+  }
+  .orcid-hint {
+    font-size: smaller;
+  }
+</style>
+
 <%= form_with(model: user) do |form| %>
   <% if user.errors.any? %>
     <div id="error_explanation">
@@ -12,11 +21,45 @@
   <% end %>
 
   <div class="field">
-    <%= form.label :orcid %><br>
-    <%= form.text_field :orcid %>
+    ORCID
+    <span id="orcid-bad" class="hidden text-muted orcid-hint"> - use format 0000-0000-0000-0000</span>
+    <span id="orcid-ok" class="hidden"><img alt="ORCID logo" src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height="16" /></span>
+    <br />
+    <%= form.text_field :orcid, placeholder: "0000-0000-0000-0000" %>
   </div>
 
   <div class="actions">
     <%= form.submit %>
   </div>
 <% end %>
+
+<script>
+
+$(function() {
+  var isOrcid = function(value) {
+    const regex = new RegExp(/^\d\d\d\d-\d\d\d\d-\d\d\d\d-\d\d\d\d$/);
+    return regex.test(value);
+  };
+
+  var validateOrcid = function() {
+    var value = $("#user_orcid").val();
+    if (value == "") {
+      $("#orcid-bad").addClass("hidden");
+      $("#orcid-ok").addClass("hidden");
+      return;
+    }
+
+    if (isOrcid(value)) {
+      $("#orcid-bad").addClass("hidden");
+      $("#orcid-ok").removeClass("hidden");
+    } else {
+      $("#orcid-bad").removeClass("hidden");
+      $("#orcid-ok").addClass("hidden");
+    }
+  }
+
+  $("#user_orcid").on("input", function() { validateOrcid(); });
+  validateOrcid();
+});
+
+</script>
