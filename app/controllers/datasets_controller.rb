@@ -59,7 +59,7 @@ class DatasetsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def form_params
-      params.require(:dataset).permit([:title, :work_id, :collection_id, :ark])
+      params.require(:dataset).permit([:title, :work_id, :collection_id])
     end
 
     def work_params

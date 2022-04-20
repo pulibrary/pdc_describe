@@ -13,7 +13,17 @@ RSpec.describe Dataset, type: :model do
     ds = described_class.create_skeleton("test title", user.id, collection.id)
     expect(ds.created_by_user.id).to eq user.id
     expect(ds.work.collection.id).to eq collection.id
+    expect(ds.ark).to be_blank
+  end
+
+  it "mints an ARK on save (and only when needed)" do
+    ds = described_class.create_skeleton("test title", user.id, collection.id)
+    expect(ds.ark).to be_blank
+    ds.save
     expect(ds.ark).to be_present
+    original_ark = ds.ark
+    ds.save
+    expect(ds.ark).to eq original_ark
   end
 
   it "returns datasets waiting for approval depending on the user" do
