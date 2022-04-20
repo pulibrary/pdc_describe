@@ -3,10 +3,14 @@
 <h2>Welcome, <%= @user.uid %></h2>
 
 <% if @user.orcid.present? %>
-    <p>Your ORCiD is <%= @user.orcid %></p>
+    <p>ORCiD: <%= link_to(@user.orcid, Orcid.url(@user.orcid), target: "_blank") %></p>
 <% else %>
     <p>You do not have an ORCiD on file. Click <%= link_to("here", edit_user_path(@user)) %> to add one to your profile.</p>
 <% end %>
+
+<div class="text-left">
+  <%= link_to 'Edit', edit_user_path(@user), :class => "btn btn-primary", :role => "button" %>
+</div>
 
 <h2>My Datasets</h2>
 <% @my_datasets.each do |ds| %>
@@ -30,6 +34,4 @@
 
 <!-- ETDS, Lib PDFs, and such could be added here as separate sections -->
 
-<div class="p-5 text-left">
-  <%= link_to 'Edit', edit_user_path(@user), :class => "btn btn-primary", :role => "button" %>
-</div>
+

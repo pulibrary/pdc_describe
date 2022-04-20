@@ -89,4 +89,18 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe "ORCID validation" do
+    let(:user) { described_class.new }
+    it "performs ORCID validation on save" do
+      user.orcid = "1234-1234-1234-1234"
+      expect(user.save).to be true
+
+      user.orcid = "1234-1234-1234-ABCD"
+      expect(user.save).to be false
+
+      user.orcid = ""
+      expect(user.save).to be true
+    end
+  end
 end

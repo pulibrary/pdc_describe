@@ -7,6 +7,12 @@ FactoryBot.define do
     provider { :cas }
   end
 
+  factory :admin_user, class: "User" do
+    sequence(:uid) { "fake1" }
+    sequence(:email) { "fake1@princeton.edu" }
+    provider { :cas }
+  end
+
   factory :collection do
     title { "default test collection" }
   end

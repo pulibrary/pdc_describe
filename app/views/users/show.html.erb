@@ -3,7 +3,13 @@
 <h2><%= @user.uid %></h2>
 
 <% if @user.orcid.present? %>
-  <p>ORCiD: <%= @user.orcid %></p>
+  <p>ORCiD: <%= link_to(@user.orcid, Orcid.url(@user.orcid)) %></p>
+<% end %>
+
+<% if @can_edit %>
+  <div class="text-left">
+    <%= link_to 'Edit', edit_user_path(@user), :class => "btn btn-primary", :role => "button" %>
+  </div>
 <% end %>
 
 <!-- Viewing somebody else's user profile -->
@@ -11,7 +17,3 @@
 <% @datasets.each do |ds| %>
     <p><%= link_to(ds.title, dataset_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
 <% end %>
-
-<div class="p-5 text-left">
-  <%= link_to 'Edit', edit_user_path(@user), :class => "btn btn-primary", :role => "button" %>
-</div>
