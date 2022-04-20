@@ -36,6 +36,8 @@ gem "bootsnap", ">= 1.4.4", require: false
 # EZID client from Duke since it has been upgraded to support Ruby 3.
 gem "ezid-client", git: "https://github.com/duke-libraries/ezid-client.git", ref: "dfcf7f49995560ed48df407560c4fe3fb6dbfa7b"
 
+gem 'friendly_id', '~> 5.4.0'
+
 group :development, :test do
   gem "bixby"
   gem "byebug"
