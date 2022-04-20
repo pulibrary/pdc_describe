@@ -4,20 +4,14 @@ class DatasetsController < ApplicationController
     @datasets = Dataset.all
   end
 
-  def dashboard
-    @my_datasets = Dataset.where(created_by_user_id: current_user.id)
-    @my_collections = current_user.submitter_collections
-  end
-
   def new
     default_collection_id = current_user.default_collection.id
-    @dataset = Dataset.create_skeleton("New Dataset", current_user.id, default_collection_id)
-    render "edit"
+    dataset = Dataset.create_skeleton("New Dataset", current_user.id, default_collection_id)
+    redirect_to edit_dataset_path(dataset)
   end
 
   def show
-    id = params[:id]
-    @dataset = Dataset.find(id)
+    @dataset = Dataset.find(params[:id])
   end
 
   def edit
@@ -27,6 +21,12 @@ class DatasetsController < ApplicationController
   def update
     @dataset = Dataset.find(params[:id])
     respond_to do |format|
+      # Update the values in the work table
+      work = Work.find(form_params[:work_id])
+      work.update(work_params)
+      work.save!
+
+      # And then update the dataset
       if @dataset.update(dataset_params)
         format.html { redirect_to dataset_url(@dataset), notice: "Dataset was successfully updated." }
         format.json { render :show, status: :ok, location: @dataset }
@@ -37,10 +37,39 @@ class DatasetsController < ApplicationController
     end
   end
 
+  def approve
+    dataset = Dataset.find(params[:id])
+    dataset.work.approve(current_user)
+    redirect_to dataset_path(dataset)
+  end
+
+  def withdraw
+    dataset = Dataset.find(params[:id])
+    dataset.work.withdraw(current_user)
+    redirect_to dataset_path(dataset)
+  end
+
+  def resubmit
+    dataset = Dataset.find(params[:id])
+    dataset.work.resubmit(current_user)
+    redirect_to dataset_path(dataset)
+  end
+
   private
 
     # Only allow a list of trusted parameters through.
+    def form_params
+      params.require(:dataset).permit([:title, :work_id, :collection_id, :ark])
+    end
+
+    def work_params
+      {
+        title: form_params[:title],
+        collection_id: form_params[:collection_id]
+      }
+    end
+
     def dataset_params
-      params.require(:dataset).permit([:title, :collection_id, :ark])
+      form_params.reject { |x| x.in?(["title", "collection_id"]) }
     end
 end

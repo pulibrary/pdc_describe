@@ -5,6 +5,7 @@ require "rails_helper"
 RSpec.describe DatasetsController do
   before { Collection.create_defaults }
   let(:user) { FactoryBot.create(:user) }
+  let(:ds) { Dataset.create_skeleton("test dataset", user.id, Collection.first.id) }
 
   context "valid user login" do
     it "handles the index page" do
@@ -14,37 +15,30 @@ RSpec.describe DatasetsController do
     end
 
     it "handles the show page" do
-      ds = Dataset.create_skeleton("test dataset", user.id, Collection.first.id)
       sign_in user
       get :show, params: { id: ds.id }
       expect(response).to render_template("show")
     end
 
-    it "handles the dashboard page" do
-      sign_in user
-      get :dashboard
-      expect(response).to render_template("dashboard")
-    end
-
     it "renders the edit page when creating a new dataset" do
       sign_in user
       post :new
-      expect(response).to render_template("edit")
+      expect(response.status).to be 302
+      expect(response.location.start_with?("http://test.host/datasets/")).to be true
     end
 
     it "renders the edit page on edit" do
-      ds = Dataset.create_skeleton("test dataset", user.id, Collection.first.id)
       sign_in user
       get :edit, params: { id: ds.id }
       expect(response).to render_template("edit")
     end
 
     it "handles the update page" do
-      ds = Dataset.create_skeleton("test dataset", user.id, Collection.first.id)
       params = {
         "dataset" => {
           "title" => "test dataset updated",
-          "collection_id" => ds.collection_id.to_s,
+          "collection_id" => ds.work.collection.id,
+          "work_id" => ds.work.id,
           "ark" => ds.ark
         },
         "commit" => "Update Dataset",
@@ -54,6 +48,27 @@ RSpec.describe DatasetsController do
       }
       sign_in user
       post :update, params: params
+      expect(response.status).to be 302
+      expect(response.location).to eq "http://test.host/datasets/#{ds.id}"
+    end
+
+    it "handles aprovals" do
+      sign_in user
+      post :approve, params: { id: ds.id }
+      expect(response.status).to be 302
+      expect(response.location).to eq "http://test.host/datasets/#{ds.id}"
+    end
+
+    it "handles withdraw" do
+      sign_in user
+      post :withdraw, params: { id: ds.id }
+      expect(response.status).to be 302
+      expect(response.location).to eq "http://test.host/datasets/#{ds.id}"
+    end
+
+    it "handles resubmit" do
+      sign_in user
+      post :resubmit, params: { id: ds.id }
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/datasets/#{ds.id}"
     end
