@@ -16,7 +16,7 @@ RSpec.describe "Add an ORCiD" do
       click_on "Edit"
       expect(page).to have_content "Editing User"
       fill_in "user_orcid", with: orcid
-      click_on "Update User"
+      click_on "Save"
       expect(page).to have_content "ORCiD: #{orcid}"
     end
   end

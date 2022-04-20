@@ -28,8 +28,9 @@
     <%= form.text_field :orcid, placeholder: "0000-0000-0000-0000" %>
   </div>
 
-  <div class="actions">
-    <%= form.submit %>
+  <div class="text-left">
+    <%= form.submit "Save", class: "btn btn-primary" %>
+    <%= link_to 'Cancel', @user, :class => "btn btn-secondary", :role => "button" %>
   </div>
 <% end %>
 
