@@ -7,6 +7,12 @@ class Dataset < ApplicationRecord
   delegate :created_by_user, to: :work
   delegate :state, to: :work
 
+  before_update do |ds|
+    if ds.ark.blank?
+      ds.ark = Ark.mint
+    end
+  end
+
   def self.my_datasets(user)
     datasets = []
     Work.where(created_by_user_id: user).find_each do |work|
@@ -57,11 +63,7 @@ class Dataset < ApplicationRecord
     work = Work.create_skeleton(title, user_id, collection_id, "DATASET")
 
     # ...and then the dataset
-    ds = Dataset.new(
-      work_id: work.id,
-      profile: "DublinCore",
-      ark: Ark.mint
-    )
+    ds = Dataset.new(work_id: work.id, profile: "DublinCore")
     ds.save!
     ds
   end
