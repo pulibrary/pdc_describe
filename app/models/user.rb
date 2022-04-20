@@ -25,6 +25,8 @@ class User < ApplicationRecord
       user.provider = access_token.provider
       user.uid = access_token.uid # this is the netid
       user.email = access_token.extra.mail
+      user.display_name = access_token.extra.givenname || access_token.uid # Harriet
+      user.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
       user.default_collection_id = Collection.default_for_department(access_token.extra.departmentnumber)&.id
       user.save!
       user.setup_user_default_collections

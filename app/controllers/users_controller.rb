@@ -53,7 +53,7 @@ class UsersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
-      params.require(:user).permit(:orcid)
+      params.require(:user).permit([:display_name, :full_name, :orcid])
     end
 
     def can_edit?
