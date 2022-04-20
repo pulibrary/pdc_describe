@@ -1,19 +1,27 @@
 <p id="notice"><%= notice %></p>
 
-<h2><%= @user.uid %></h2>
+<h2><%= @user.full_name %></h2>
 
 <% if @user.orcid.present? %>
   <p>ORCiD: <%= link_to(@user.orcid, Orcid.url(@user.orcid)) %></p>
 <% end %>
 
+<p>Net ID: <%= @user.uid %></p>
+<p>Display name: <%= @user.display_name %></p>
+<p>Full name: <%= @user.full_name %></p>
+<p>Default collection: <%= @user.default_collection.title %></p>
+
 <% if @can_edit %>
   <div class="text-left">
-    <%= link_to 'Edit', edit_user_path(@user), :class => "btn btn-primary", :role => "button" %>
+    <%= link_to "Edit User", edit_user_path(@user), :class => "btn btn-primary", :role => "button" %>
   </div>
 <% end %>
 
-<!-- Viewing somebody else's user profile -->
-<h2>Datasets</h2>
-<% @datasets.each do |ds| %>
-    <p><%= link_to(ds.title, dataset_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
+<% if @datasets.count == 0 %>
+  <p>This user has not deposited datasets.</p>
+<% else %>
+  <h2>Datasets</h2>
+  <% @datasets.each do |ds| %>
+      <p><%= link_to(ds.title, dataset_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
+  <% end %>
 <% end %>

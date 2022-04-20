@@ -5,14 +5,14 @@ RSpec.describe "Home Page", type: :request do
   describe "GET /" do
     context "Authenticated user" do
       let(:email) { "pul123@princeton.edu" }
-      let(:user) { FactoryBot.create :user, email: email }
+      let(:user) { FactoryBot.create :user, email: email, uid: "pul123", display_name: "Toni", full_name: "Toni Morrison" }
       before do
         sign_in user
       end
 
       it "displays the user's email" do
         get root_path
-        expect(response.body.include?(email)).to be true
+        expect(response.body.include?("Welcome, Toni")).to be true
       end
     end
 

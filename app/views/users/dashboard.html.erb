@@ -1,22 +1,32 @@
 <p id="notice"><%= notice %></p>
 
-<h2>Welcome, <%= @user.uid %></h2>
+<h2>Welcome, <%= @user.display_name %></h2>
 
 <% if @user.orcid.present? %>
     <p>ORCiD: <%= link_to(@user.orcid, Orcid.url(@user.orcid), target: "_blank") %></p>
 <% else %>
-    <p>You do not have an ORCiD on file. Click <%= link_to("here", edit_user_path(@user)) %> to add one to your profile.</p>
+    <p>You do not have an ORCiD on file. <%= link_to("Add one", edit_user_path(@user)) %> to your profile.</p>
 <% end %>
+
+<p>Net ID: <%= @user.uid %></p>
+<p>Display name: <%= @user.display_name %></p>
+<p>Full name: <%= @user.full_name %></p>
+<p>Default collection: <%= @user.default_collection.title %></p>
 
 <div class="text-left">
   <%= link_to 'Edit', edit_user_path(@user), :class => "btn btn-primary", :role => "button" %>
 </div>
 
-<h2>My Datasets</h2>
-<% @my_datasets.each do |ds| %>
+<% if @my_datasets.count > 0 %>
+  <h2>My Datasets</h2>
+  <% @my_datasets.each do |ds| %>
     <p><%= link_to(ds.title, dataset_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
+  <% end %>
 <% end %>
-<%= link_to 'Add New Dataset', new_dataset_path, class: "btn btn-primary" %>
+
+<div class="text-left">
+  <%= link_to 'Add New Dataset', new_dataset_path, class: "btn btn-primary", :role => "button" %>
+</div>
 
 <% if @awaiting_datasets.count > 0 %>
 <h2>Datasets waiting to be approved</h2>
