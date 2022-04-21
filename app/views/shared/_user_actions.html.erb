@@ -1,0 +1,9 @@
+<div class="dropdown">
+  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <%= current_user.uid %>
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" role="menu">
+    <%= link_to "My Dashboard", user_path(current_user), class: "dropdown-item", role: "menuitem" %>
+    <%= link_to "Log Out", main_app.destroy_user_session_path, class: 'dropdown-item', role: "menuitem" %>
+  </div>
+</div>
