@@ -25,8 +25,8 @@ RSpec.describe "Add an ORCiD" do
     let(:orcid) { "1234-5678-1234-5678" }
     let(:valid_attributes) do
       {
-        uid: FFaker::Internet.user_name,
-        email: FFaker::Internet.email,
+        uid: FFaker::InternetSE.login_user_name,
+        email: FFaker::InternetSE.email,
         provider: :cas,
         orcid: orcid
       }

@@ -2,8 +2,8 @@
 
 FactoryBot.define do
   factory :user do
-    sequence(:uid) { FFaker::Internet.user_name }
-    sequence(:email) { FFaker::Internet.email }
+    sequence(:uid) { FFaker::InternetSE.login_user_name }
+    sequence(:email) { FFaker::InternetSE.email }
     provider { :cas }
   end
 

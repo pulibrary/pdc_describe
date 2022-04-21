@@ -6,8 +6,8 @@ RSpec.describe "/users", type: :request do
   # adjust the attributes here as well.
   let(:valid_attributes) do
     {
-      uid: FFaker::Internet.user_name,
-      email: FFaker::Internet.email,
+      uid: FFaker::InternetSE.login_user_name,
+      email: FFaker::InternetSE.email,
       provider: :cas
     }
   end

@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
+  extend FriendlyId
+  friendly_id :uid
+
   devise :rememberable, :omniauthable
 
   validate do |user|
