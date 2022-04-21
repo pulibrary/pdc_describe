@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require "rails_helper"
-
 RSpec.describe "Editing users" do
   describe "Admin users can edit other users data" do
     before { sign_in user_admin }
@@ -33,4 +32,4 @@ RSpec.describe "Editing users" do
       expect(page).to_not have_content "Edit"
     end
   end
-end 
+end
