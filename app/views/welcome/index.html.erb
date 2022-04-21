@@ -5,7 +5,6 @@
   </div>
 <% else %>
   <div>
-    <p>Welcome to PDC Describe, please login to view or create new datasets</p>
-    <%= button_to "Login", user_cas_omniauth_authorize_path, class: "btn btn-primary" %>
+    <p>Welcome to PDC Describe, please <%= link_to "log in", user_cas_omniauth_authorize_path %> to view or create new datasets</p>
   </div>
 <% end %>
