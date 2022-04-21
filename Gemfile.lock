@@ -150,6 +150,8 @@ GEM
     ffaker (2.21.0)
     ffi (1.15.5)
     foreman (0.87.2)
+    friendly_id (5.4.2)
+      activerecord (>= 4.0.0)
     globalid (1.0.0)
       activesupport (>= 5.0)
     hashie (3.6.0)
@@ -392,6 +394,7 @@ DEPENDENCIES
   factory_bot_rails
   ffaker
   foreman
+  friendly_id (~> 5.4.0)
   honeybadger (~> 4.0)
   jbuilder (~> 2.7)
   listen (~> 3.3)
