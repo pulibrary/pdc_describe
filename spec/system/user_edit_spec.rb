@@ -33,4 +33,4 @@ RSpec.describe "Editing users" do
       expect(page).to_not have_content "Edit"
     end
   end
-end
+end 
