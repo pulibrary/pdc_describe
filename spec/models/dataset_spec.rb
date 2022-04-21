@@ -8,12 +8,14 @@ RSpec.describe Dataset, type: :model do
   let(:user) { FactoryBot.create :user }
   let(:user_other) { FactoryBot.create :user }
   let(:superadmin_user) { User.from_cas(OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" })) }
+  let(:doi) { "https://doi.org/10.34770/0q6b-cj27" }
 
   it "creates a skeleton dataset and links it to a new work" do
     ds = described_class.create_skeleton("test title", user.id, collection.id)
     expect(ds.created_by_user.id).to eq user.id
     expect(ds.work.collection.id).to eq collection.id
     expect(ds.ark).to be_blank
+    expect(ds.doi).to be_blank
   end
 
   it "mints an ARK on save (and only when needed)" do
@@ -37,5 +39,13 @@ RSpec.describe Dataset, type: :model do
     # Normal users don't get anything
     awaiting = described_class.admin_datasets_by_user_state(user, "AWAITING-APPROVAL")
     expect(awaiting.count).to be 0
+  end
+
+  context "linked to a work" do
+    let(:dataset) { FactoryBot.create(:shakespeare_and_company_dataset) }
+    it "has a DOI" do
+      expect(dataset.title).to eq "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events"
+      expect(dataset.doi).to eq "https://doi.org/10.34770/pe9w-x904"
+    end
   end
 end

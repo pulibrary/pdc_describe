@@ -12,8 +12,4 @@ FactoryBot.define do
     sequence(:email) { "fake1@princeton.edu" }
     provider { :cas }
   end
-
-  factory :collection do
-    title { "default test collection" }
-  end
 end
