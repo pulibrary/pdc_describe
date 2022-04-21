@@ -9,7 +9,7 @@
         <% if current_user %>
         <%= render 'shared/user_actions' %>
         <% else %>
-        <%= button_to "Log In", user_cas_omniauth_authorize_path, class: "btn btn-primary" %>
+        <%= button_to "Log In", user_cas_omniauth_authorize_path, class: "btn btn-primary", :role => "menuitem" %>
         <% end %>
       </nav>
     </div>
