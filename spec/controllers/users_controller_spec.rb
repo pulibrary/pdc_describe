@@ -7,13 +7,13 @@ RSpec.describe UsersController do
 
   it "renders the user dashboard when viewing my own user page" do
     sign_in user
-    get :show, params: { id: user.id }
+    get :show, params: { id: user.friendly_id }
     expect(response).to render_template("dashboard")
   end
 
   it "renders the show page when viewing others' users page" do
     sign_in user
-    get :show, params: { id: user_other.id }
+    get :show, params: { id: user_other.friendly_id }
     expect(response).to render_template("show")
   end
 end

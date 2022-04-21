@@ -49,7 +49,7 @@ class UsersController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_user
       @user = User.friendly.find(params[:id])
-      redirect_to action: action_name, id: @user.friendly_id, status: 301 unless @user.friendly_id == params[:id]
+      redirect_to action: action_name, id: @user.friendly_id, status: :moved_permanently unless @user.friendly_id == params[:id]
     end
 
     # Only allow a list of trusted parameters through.
