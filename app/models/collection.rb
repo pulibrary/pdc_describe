@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 class Collection < ApplicationRecord
+  validate do |collection|
+    if collection.title.blank?
+      collection.errors.add :base, "Title cannot be empty"
+    end
+  end
+
   def self.create_defaults
     return if Collection.count > 0
     Rails.logger.info "Creating default Collections"

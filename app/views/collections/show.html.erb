@@ -1,0 +1,13 @@
+<h1><%= @collection.title %></h1>
+
+<p>Code: <%= @collection.code %></p>
+<p>Description: <%= @collection.description %></p>
+
+<% if @can_edit == true %>
+  <div>
+    <%= link_to("Edit", edit_collection_path(@collection), class: "btn btn-primary") %>
+  </div>
+<% end %>
+
+<%= link_to("View all collections", collections_path) %>
+
