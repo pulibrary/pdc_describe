@@ -14,6 +14,11 @@ RSpec.describe "Home Page", type: :request do
         get root_path
         expect(response.body.include?("Welcome, Toni")).to be true
       end
+
+      it "displays the user actions menu" do
+        get root_path
+        expect(response.body.include?("Log Out")).to be true
+      end
     end
 
     context "Unauthenticated user" do
