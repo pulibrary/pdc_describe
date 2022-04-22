@@ -2,7 +2,17 @@
   <div class="p-5 text-left bg-light">
     <%= link_to "PDC Describe", root_path, class: 'navbar-logo' %>
     <div class="menu">
-      <%= link_to "About", "/about", :class => "btn btn-primary", :role => "button" %>
+      <nav id="menu" class="col-md-6" role="menu">
+        <%= link_to "About", "/about", :class => "btn btn-primary", :role => "menuitem" %>
+      </nav>
+      <nav id="user-actions" class="col-md-6" role="menu">
+        <% if current_user %>
+        <%= render 'shared/user_actions' %>
+        <% else %>
+        <%= button_to "Log In", user_cas_omniauth_authorize_path, class: "btn btn-primary", :role => "menuitem" %>
+        <% end %>
+      </nav>
     </div>
+
   </div>
 </header>
