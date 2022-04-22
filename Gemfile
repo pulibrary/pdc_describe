@@ -2,6 +2,7 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
+gem "aws-sdk-s3"
 gem "honeybadger", "~> 4.0"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem "rails", "~> 6.1.3", ">= 6.1.3.2"
@@ -74,6 +75,7 @@ group :test do
   gem "rails-controller-testing"
   # Easy installation and use of web drivers to run system tests with browsers
   gem "webdrivers"
+  gem "webmock"
 end
 
 group :development, :test do

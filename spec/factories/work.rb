@@ -5,6 +5,7 @@ FactoryBot.define do
     factory :shakespeare_and_company_work do
       title { "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events" }
       collection { FactoryBot.create(:research_data) }
+      created_by_user_id { FactoryBot.create(:user).id }
     end
   end
 end
