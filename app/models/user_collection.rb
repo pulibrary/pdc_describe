@@ -8,8 +8,6 @@ class UserCollection < ApplicationRecord
     if uc.count == 0
       uc = UserCollection.new(user_id: user_id, collection_id: collection_id, role: "SUBMITTER")
       uc.save!
-    else
-      uc.first
     end
   end
 
@@ -18,8 +16,6 @@ class UserCollection < ApplicationRecord
     if uc.count == 0
       uc = UserCollection.new(user_id: user_id, collection_id: collection_id, role: "ADMIN")
       uc.save!
-    else
-      uc.first
     end
   end
 

@@ -32,8 +32,8 @@ class User < ApplicationRecord
       user.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
       user.default_collection_id = Collection.default_for_department(access_token.extra.departmentnumber)&.id
       user.save!
-      user.setup_user_default_collections
     end
+    user.setup_user_default_collections
     user
   end
 
@@ -58,9 +58,14 @@ class User < ApplicationRecord
 
   # Adds the user to the collections that they should have access by default
   def setup_user_default_collections
-    return if UserCollection.where(user_id: id).count > 0
-    # Give users submitter access to their default collection
+    # Makes sure the user has submit access to their default collection
     UserCollection.add_submitter(id, default_collection_id)
+
+    # Setup the default submit/admin collection access for the user
+    Collection.all.each do |collection|
+      UserCollection.add_admin(id, collection.id) if collection.admin_list.include? uid
+      UserCollection.add_submitter(id, collection.id) if collection.submit_list.include? uid
+    end
   end
 
   # True if the user can submit datasets to the collection

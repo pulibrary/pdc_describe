@@ -7,6 +7,20 @@ class Collection < ApplicationRecord
     end
   end
 
+  def admin_list
+    if code == "PPPL"
+      ["hc8719", "pp2", "pp3"]
+    elsif code == "ETD"
+      ["etd1", "etd2", "hc8719"]
+    else
+      []
+    end
+  end
+
+  def submit_list
+    admin_list
+  end
+
   def self.create_defaults
     return if Collection.count > 0
     Rails.logger.info "Creating default Collections"
