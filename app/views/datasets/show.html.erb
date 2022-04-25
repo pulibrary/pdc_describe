@@ -6,6 +6,18 @@
   <p>Collection: <%= @dataset.collection_title %></p>
 </div>
 
+<!-- TODO: Move this logic to a helper -->
+<div>
+  <h3>Files in S3</h3>
+  <% if @files %>
+    <% @files.each do |file| %>
+      <%= file.filename %>
+    <% end %>
+  <% else %>
+    <p>No files in S3</p>
+  <% end %>
+</div>
+
 <div>
   <%= link_to("Edit", edit_dataset_path(@dataset), class: "btn btn-primary") %>
   <% if @dataset.state == "AWAITING-APPROVAL" %>

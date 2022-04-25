@@ -12,6 +12,10 @@ class DatasetsController < ApplicationController
 
   def show
     @dataset = Dataset.find(params[:id])
+    if @dataset.doi
+      service = S3QueryService.new(@dataset.doi)
+      @files = service.data_profile
+    end
   end
 
   def edit
