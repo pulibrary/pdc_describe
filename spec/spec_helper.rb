@@ -26,9 +26,9 @@ RSpec.configure do |config|
   # connections within tests, toggle the WebMock.disable_net_connect! /
   # WebMock.enable_net_connect! setting.
   # Allow connections to local services / localhost
-  # allowed_sites = ["localhost", "chromedriver.storage.googleapis.com", "127.0.0.1"]
-  # WebMock.disable_net_connect!(allow: allowed_sites)
-  WebMock.enable_net_connect!
+  allowed_sites = ["localhost", "chromedriver.storage.googleapis.com", "127.0.0.1"]
+  WebMock.disable_net_connect!(allow: allowed_sites)
+  # WebMock.enable_net_connect!
 
   # FactoryBot
   config.include FactoryBot::Syntax::Methods
