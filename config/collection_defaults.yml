@@ -1,0 +1,28 @@
+---
+shared:
+  pppl:
+    admin:
+      - bs3097 # Bess Sadler
+      - jrg5 # James Griffin
+      - kl37 # Kate Lynch
+      - hc8719 # Hector Correa
+      - hh4079 # Hannah Hadley
+    submit:
+      - xx123
+      - yy123
+  rd:
+    admin:
+      - rda123
+      - rda456
+    submit:
+      - rds123
+      - rds456
+  etd:
+    admin:
+      - eta123
+      - eta456
+  lib:
+    submit:
+      - lis123
+
+

@@ -63,8 +63,8 @@ class User < ApplicationRecord
 
     # Setup the default submit/admin collection access for the user
     Collection.all.each do |collection|
-      UserCollection.add_admin(id, collection.id) if collection.admin_list.include? uid
-      UserCollection.add_submitter(id, collection.id) if collection.submit_list.include? uid
+      UserCollection.add_admin(id, collection.id) if collection.default_admin_list.include? uid
+      UserCollection.add_submitter(id, collection.id) if collection.default_submit_list.include? uid
     end
   end
 

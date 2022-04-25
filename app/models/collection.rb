@@ -7,18 +7,13 @@ class Collection < ApplicationRecord
     end
   end
 
-  def admin_list
-    if code == "PPPL"
-      ["hc8719", "pp2", "pp3"]
-    elsif code == "ETD"
-      ["etd1", "etd2", "hc8719"]
-    else
-      []
-    end
+  def default_admin_list
+    return [] if code.blank?
+    Rails.configuration.collection_defaults.dig(code.to_sym, "admin") || []
   end
 
-  def submit_list
-    admin_list
+  def default_submit_list
+    Rails.configuration.collection_defaults.dig(code.to_sym, "submit") || []
   end
 
   def self.create_defaults
