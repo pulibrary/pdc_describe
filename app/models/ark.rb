@@ -9,6 +9,46 @@ class Ark
     identifier.id
   end
 
+  def self.find(ezid)
+    Ezid::Identifier.find(ezid)
+  rescue Net::HTTPServerException
+    nil
+  rescue StandardError => error
+    Rails.logger.error("Failed to find the EZID #{ezid}: #{error.message}")
+    nil
+  end
+
+  # Determines whether or not a given EZID string is a valid ARK
+  # @param [ezid] [String] the EZID being validated
+  # @return [Boolean]
+  def self.valid?(ezid)
+    resolved = find(ezid)
+    !resolved.nil?
+  end
+
+  def initialize(ezid)
+    @object = self.class.find(ezid)
+    raise(ArgumentError, "Invalid EZID provided for an ARK: #{ezid}") if @object.nil?
+  end
+
+  def object
+    @object ||= self.class.find(ezid)
+  end
+
+  delegate :id, :metadata, to: :object
+
+  def target
+    metadata[Ezid::Metadata::TARGET]
+  end
+
+  def target=(value)
+    metadata[Ezid::Metadata::TARGET] = value
+  end
+
+  def save!
+    object.modify(id, metadata)
+  end
+
   # ======================
   # If in the future we want to update the information of the ARK we can
   # implement a few methods as follow:

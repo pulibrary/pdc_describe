@@ -1,15 +1,33 @@
 # frozen_string_literal: true
 
 class Dataset < ApplicationRecord
+  include Rails.application.routes.url_helpers
+
   belongs_to :work
 
   delegate :title, to: :work
   delegate :created_by_user, to: :work
   delegate :state, to: :work
 
+  validate do |ds|
+    if ds.ark.present?
+      ds.errors.add(:base, "Invalid ARK provided for the Dataset: #{ds.ark}") unless Ark.valid?(ds.ark)
+    end
+  end
+
   before_update do |ds|
     if ds.ark.blank?
       ds.ark = Ark.mint
+    end
+  end
+
+  after_save do |ds|
+    if ds.ark.present?
+      # Ensure that the ARK metadata is updated for the new URL
+      if ark_object.target != ds.url
+        ark_object.target = ds.url
+        ark_object.save!
+      end
     end
   end
 
@@ -70,5 +88,15 @@ class Dataset < ApplicationRecord
 
   def ark_url
     "https://ezid.cdlib.org/id/#{ark}"
+  end
+
+  def ark_object
+    @ark_object ||= Ark.new(ark)
+  end
+
+  def url
+    return unless persisted?
+
+    @url ||= url_for(self)
   end
 end
