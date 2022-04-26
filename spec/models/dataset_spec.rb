@@ -87,4 +87,25 @@ RSpec.describe Dataset, type: :model, mock_ezid_api: true do
       expect(dataset.doi).to eq "https://doi.org/10.34770/pe9w-x904"
     end
   end
+
+  describe ".my_datasets" do
+    subject(:datasets) { described_class.my_datasets(user) }
+    let(:ds1) { described_class.create_skeleton("test title", user.id, collection.id) }
+    let(:ds2) { described_class.create_skeleton("test title", user.id, collection.id) }
+    let(:works) do
+      [
+        ds1.work,
+        ds2.work
+      ]
+    end
+
+    before do
+      works
+    end
+
+    it "retrieves Dataset models associated with a given User" do
+      expect(datasets).to be_an(Array)
+      expect(datasets.length).to eq(2)
+    end
+  end
 end

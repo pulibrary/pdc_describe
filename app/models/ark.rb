@@ -10,10 +10,8 @@ class Ark
 
   def self.find(ezid)
     Ezid::Identifier.find(ezid)
-  rescue Net::HTTPServerException
-    nil
   rescue StandardError => error
-    Rails.logger.error("Failed to find the EZID #{ezid}: #{error.message}")
+    Rails.logger.error("Failed to find the EZID #{ezid}: #{error.class}: #{error.message}")
     nil
   end
 
