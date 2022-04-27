@@ -2,6 +2,7 @@
 
 class UserCollection < ApplicationRecord
   belongs_to :collection
+  belongs_to :user
 
   def self.add_submitter(user_id, collection_id)
     uc = UserCollection.where(user_id: user_id, collection_id: collection_id, role: "SUBMITTER")

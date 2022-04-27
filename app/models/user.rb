@@ -13,17 +13,9 @@ class User < ApplicationRecord
   end
 
   def self.from_cas(access_token)
-    user = User.find_by(provider: access_token.provider, uid: access_token.uid)
+    user = User.find_by(uid: access_token.uid)
     if user.nil?
       # Create the user with some basic information from CAS.
-      #
-      # Other bits of information that we could use are:
-      #
-      #   access_token.extra.department (e.g. "Library - Information Technology")
-      #   access_token.extra.departmentnumber (e.g. "41006")
-      #   access_token.extra.givenname (e.g. "Harriet")
-      #   access_token.extra.displayname (e.g. "Harriet Tubman")
-      #
       user = User.new
       user.provider = access_token.provider
       user.uid = access_token.uid # this is the netid
@@ -32,9 +24,51 @@ class User < ApplicationRecord
       user.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
       user.default_collection_id = Collection.default_for_department(access_token.extra.departmentnumber)&.id
       user.save!
+    elsif user.provider.blank?
+      # Record already exist but this is the first time logging
+      # setup some default information from CAS for the user.
+      user.provider = access_token.provider
+      user.email = access_token.extra.mail
+      user.display_name = access_token.extra.givenname || access_token.uid # Harriet
+      user.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
+      user.default_collection_id = Collection.default_for_department(access_token.extra.departmentnumber)&.id
+      user.save!
     end
     user.setup_user_default_collections
     user
+  end
+
+  def self.new_for_uid(uid)
+    user = User.find_by(uid: uid)
+    if user.nil?
+      # TODO: Is it OK to have an empty default_collection in the new user?
+      user = User.new(uid: uid, email: "#{uid}@princeton.edu")
+      user.save!
+    end
+    user
+  end
+
+  def self.create_default_users
+    # Create records for the super admins
+    Rails.logger.info "Setting super administrators"
+    Rails.configuration.superadmins.each do |uid|
+      user = User.new_for_uid(uid)
+    end
+
+    # Creates user records for default collection administrators and submitters
+    Collection.all.each do |collection|
+      Rails.logger.info "Setting up admins for collection #{collection.title}"
+      collection.default_admins_list.each do |uid|
+        user = User.new_for_uid(uid)
+        UserCollection.add_admin(user.id, collection.id)
+      end
+
+      Rails.logger.info "Setting up submitters for collection #{collection.title}"
+      collection.default_submitters_list.each do |uid|
+        user = User.new_for_uid(uid)
+        UserCollection.add_submitter(user.id, collection.id)
+      end
+    end
   end
 
   ##
@@ -59,12 +93,8 @@ class User < ApplicationRecord
   # Adds the user to the collections that they should have access by default
   def setup_user_default_collections
     # Makes sure the user has submit access to their default collection
-    UserCollection.add_submitter(id, default_collection_id)
-
-    # Setup the default submit/admin collection access for the user
-    Collection.all.each do |collection|
-      UserCollection.add_admin(id, collection.id) if collection.default_admin_list.include? uid
-      UserCollection.add_submitter(id, collection.id) if collection.default_submit_list.include? uid
+    if UserCollection.can_submit?(id, default_collection_id) == false
+      UserCollection.add_submitter(id, default_collection_id)
     end
   end
 

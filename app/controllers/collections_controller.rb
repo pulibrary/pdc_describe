@@ -37,6 +37,46 @@ class CollectionsController < ApplicationController
   end
   # rubocop:enable Metrics/MethodLength
 
+  def add_admin
+    uid = params[:uid]
+    collection_id = params[:id]
+    user = User.new_for_uid(uid)
+    if user.can_admin?(collection_id)
+      render status: 400, json: {message: "User has already been added"}
+    else
+      UserCollection.add_admin(user.id, collection_id)
+      render status: 200, json: {message: "OK"}
+    end
+  end
+
+  def add_submitter
+    uid = params[:uid]
+    collection_id = params[:id]
+    user = User.new_for_uid(uid)
+    if user.can_submit?(collection_id)
+      render status: 400, json: {message: "User has already been added"}
+    else
+      UserCollection.add_submitter(user.id, collection_id)
+      render status: 200, json: {message: "OK"}
+    end
+  end
+
+  def delete_user_from_collection
+    uid = params[:uid]
+    if uid == current_user.uid
+      render status: 400, json: {message: "Cannot remove yourself from a collection. Contact a super-admin for help."}
+    else
+      collection_id = params[:id]
+      user = User.where(uid: uid).first
+      if user.nil?
+        render status: 400, json: {message: "User was not found"}
+      else
+        UserCollection.where(user_id: user.id, collection_id: collection_id).each { |uc| uc.delete }
+        render status: 200, json: {message: "OK"}
+      end
+    end
+  end
+
   private
 
     # Only allow trusted parameters through.

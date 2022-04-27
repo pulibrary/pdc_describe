@@ -7,13 +7,23 @@ class Collection < ApplicationRecord
     end
   end
 
-  def default_admin_list
+  def default_admins_list
     return [] if code.blank?
-    Rails.configuration.collection_defaults.dig(code.to_sym, "admin") || []
+    key = code.downcase.to_sym
+    Rails.configuration.collection_defaults.dig(key, :admin) || []
   end
 
-  def default_submit_list
-    Rails.configuration.collection_defaults.dig(code.to_sym, "submit") || []
+  def default_submitters_list
+    key = code.downcase.to_sym
+    Rails.configuration.collection_defaults.dig(key, :submit) || []
+  end
+
+  def administrators
+    UserCollection.where(collection_id: id, role: "ADMIN").map { |uc| uc.user }
+  end
+
+  def submitters
+    UserCollection.where(collection_id: id, role: "SUBMITTER").map { |uc| uc.user }
   end
 
   def self.create_defaults
