@@ -48,10 +48,10 @@ class User < ApplicationRecord
     save!
   end
 
+  # Creates a new user by uid. If the user already exists it returns the existing user.
   def self.new_for_uid(uid)
     user = User.find_by(uid: uid)
     if user.nil?
-      # TODO: Is it OK to have an empty default_collection in the new user?
       user = User.new(uid: uid, email: "#{uid}@princeton.edu")
       user.save!
     end
