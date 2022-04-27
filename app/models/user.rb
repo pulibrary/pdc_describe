@@ -15,27 +15,37 @@ class User < ApplicationRecord
   def self.from_cas(access_token)
     user = User.find_by(uid: access_token.uid)
     if user.nil?
-      # Create the user with some basic information from CAS.
-      user = User.new
-      user.provider = access_token.provider
-      user.uid = access_token.uid # this is the netid
-      user.email = access_token.extra.mail
-      user.display_name = access_token.extra.givenname || access_token.uid # Harriet
-      user.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
-      user.default_collection_id = Collection.default_for_department(access_token.extra.departmentnumber)&.id
-      user.save!
+      user = new_from_cas(access_token)
     elsif user.provider.blank?
-      # Record already exist but this is the first time logging
-      # setup some default information from CAS for the user.
-      user.provider = access_token.provider
-      user.email = access_token.extra.mail
-      user.display_name = access_token.extra.givenname || access_token.uid # Harriet
-      user.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
-      user.default_collection_id = Collection.default_for_department(access_token.extra.departmentnumber)&.id
-      user.save!
+      user.update_with_cas(access_token)
     end
     user.setup_user_default_collections
     user
+  end
+
+  # Create a new user with some basic information from CAS.
+  def self.new_from_cas(access_token)
+    user = User.new
+    user.provider = access_token.provider
+    user.uid = access_token.uid # this is the netid
+    user.email = access_token.extra.mail
+    user.display_name = access_token.extra.givenname || access_token.uid # Harriet
+    user.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
+    user.default_collection_id = Collection.default_for_department(access_token.extra.departmentnumber)&.id
+    user.save!
+    user
+  end
+
+  # Updates an existing User record with some information from CAS. This is useful
+  # for records created before the user ever logged in (e.g. to gran them permissions
+  # to collections).
+  def update_with_cas(access_token)
+    self.provider = access_token.provider
+    self.email = access_token.extra.mail
+    self.display_name = access_token.extra.givenname || access_token.uid # Harriet
+    self.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
+    self.default_collection_id = Collection.default_for_department(access_token.extra.departmentnumber)&.id
+    save!
   end
 
   def self.new_for_uid(uid)
@@ -48,15 +58,16 @@ class User < ApplicationRecord
     user
   end
 
+  # Creates the default users as indicated in the superadmin config file
+  # and the default administrators and submitters for each collection.
+  # It only creates missing records, i.e. if the records already exist it
+  # will not create a duplicate. It also does _not_ remove already configured
+  # access to other collections.
   def self.create_default_users
-    # Create records for the super admins
     Rails.logger.info "Setting super administrators"
-    Rails.configuration.superadmins.each do |uid|
-      user = User.new_for_uid(uid)
-    end
+    Rails.configuration.superadmins.each { |uid| User.new_for_uid(uid) }
 
-    # Creates user records for default collection administrators and submitters
-    Collection.all.each do |collection|
+    Collection.find_each do |collection|
       Rails.logger.info "Setting up admins for collection #{collection.title}"
       collection.default_admins_list.each do |uid|
         user = User.new_for_uid(uid)

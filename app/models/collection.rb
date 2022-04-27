@@ -19,11 +19,11 @@ class Collection < ApplicationRecord
   end
 
   def administrators
-    UserCollection.where(collection_id: id, role: "ADMIN").map { |uc| uc.user }
+    UserCollection.where(collection_id: id, role: "ADMIN").map(&:user)
   end
 
   def submitters
-    UserCollection.where(collection_id: id, role: "SUBMITTER").map { |uc| uc.user }
+    UserCollection.where(collection_id: id, role: "SUBMITTER").map(&:user)
   end
 
   def self.create_defaults
