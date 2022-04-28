@@ -48,6 +48,8 @@ RSpec.describe S3QueryService do
     expect(data_profile.count).to eq 2
     expect(data_profile.first).to be_instance_of(S3File)
     expect(data_profile.first.filename).to match(/README/)
+    expect(data_profile.first.last_modified).to eq Time.parse("2022-04-21T18:29:40.000Z")
+    expect(data_profile.first.size).to eq 10_759
   end
 
   describe "#client" do
