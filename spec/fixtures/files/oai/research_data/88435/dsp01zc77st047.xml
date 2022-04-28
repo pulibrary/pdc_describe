@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="static/style.xsl"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+   <responseDate>2022-04-28T14:30:58Z</responseDate>
+   <request verb="GetRecord" identifier="oai:dataspace.princeton.edu:88435/dsp01zc77st047" metadataPrefix="oai_dc">https://dataspace.princeton.edu/oai/request</request>
+   <GetRecord>
+      <record>
+         <header>
+            <identifier>oai:dataspace.princeton.edu:88435/dsp01zc77st047</identifier>
+            <datestamp>2021-04-02T13:01:19Z</datestamp>
+            <setSpec>com_88435_dsp018p58pg869</setSpec>
+            <setSpec>col_88435_dsp014x51hm942</setSpec>
+         </header>
+         <metadata>
+            <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:doc="http://www.lyncode.com/xoai" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+               <dc:title>Shakespeare and Company Project Dataset: Lending Library Members, Books, Events</dc:title>
+               <dc:creator>Kotin, Joshua</dc:creator>
+               <dc:creator>Koeser, Rebecca Sutton</dc:creator>
+               <dc:creator>Adair, Carl</dc:creator>
+               <dc:creator>Alagappan, Serena</dc:creator>
+               <dc:creator>Bauer, Jean</dc:creator>
+               <dc:creator>Browne, Oliver J.</dc:creator>
+               <dc:creator>Budak, Nick</dc:creator>
+               <dc:creator>Calver, Harriet</dc:creator>
+               <dc:creator>Chow, Jin</dc:creator>
+               <dc:creator>Davis, Ian</dc:creator>
+               <dc:creator>Doroudian, Gissoo</dc:creator>
+               <dc:creator>Engel, Currie</dc:creator>
+               <dc:creator>Green, Elspeth</dc:creator>
+               <dc:creator>Hicks, Benjamin</dc:creator>
+               <dc:creator>Joelson, Madeleine E.</dc:creator>
+               <dc:creator>Kelly, Carolyn</dc:creator>
+               <dc:creator>Krolewski, Sara</dc:creator>
+               <dc:creator>Li, Xinyi</dc:creator>
+               <dc:creator>Maag, Ellie</dc:creator>
+               <dc:creator>Mahoney, Cate</dc:creator>
+               <dc:creator>McCarthy, Jesse D.</dc:creator>
+               <dc:creator>Naydan, Mary</dc:creator>
+               <dc:creator>Ruehl, Isabel</dc:creator>
+               <dc:creator>Thode, Sylvie</dc:creator>
+               <dc:creator>VanSant, Camey</dc:creator>
+               <dc:creator>Wulfman, Clifford E.</dc:creator>
+               <dc:subject>Beach, Sylvia—Archives</dc:subject>
+               <dc:subject>Shakespeare and Company (Paris, France)—History—Sources</dc:subject>
+               <dc:subject>Libraries—France—Paris—History—20th century—Sources</dc:subject>
+               <dc:subject>Expatriate authors—France—Paris—Books and reading—History—20th century—Sources</dc:subject>
+               <dc:subject>Paris (France)—Intellectual life—20th century—Sources</dc:subject>
+               <dc:description>All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.</dc:description>
+               <dc:description>The Shakespeare and Company Project makes three datasets available to download in CSV and JSON formats. The datasets provide information about lending library members; the books that circulated in the lending library; and lending library events, including borrows, purchases, memberships, and renewals. The datasets may be used individually or in combination site URLs are consistent identifiers across all three. The DOIs for each dataset are as follows: Members (https://doi.org/10.34770/ht30-g395); Books (https://doi.org/10.34770/g467-3w07); Events (https://doi.org/10.34770/2r93-0t85).</dc:description>
+               <dc:description>The Shakespeare and Company Project has received support from Princeton University’s Center for Digital Humanities; Humanities Council and the David A. Gardner ’69 Magic Project Fund; University Committee on Research in the Humanities and Social Sciences; the Dean’s Innovation Fund for New Ideas in the Humanities; the Bain-Swiggett Fund, Department of English; and the Princeton-Mellon Initiative in Architecture, Urbanism, and the Humanities.</dc:description>
+               <dc:description>1.0</dc:description>
+               <dc:date>2020-07-29T19:47:23Z</dc:date>
+               <dc:date>2020-07-29T19:47:23Z</dc:date>
+               <dc:date>2020-07</dc:date>
+               <dc:type>Dataset</dc:type>
+               <dc:identifier>http://arks.princeton.edu/ark:/88435/dsp01zc77st047</dc:identifier>
+               <dc:identifier>https://doi.org/10.34770/pe9w-x904</dc:identifier>
+               <dc:language>en_US</dc:language>
+               <dc:relation>https://doi.org/10.34770/ht30-g395</dc:relation>
+               <dc:relation>https://doi.org/10.34770/g467-3w07</dc:relation>
+               <dc:relation>https://doi.org/10.34770/2r93-0t85</dc:relation>
+               <dc:relation>https://doi.org/10.34770/39sq-bm51</dc:relation>
+               <dc:relation>https://shakespeareandco.princeton.edu/</dc:relation>
+               <dc:relation>https://doi.org/10.34770/ht30-g395</dc:relation>
+               <dc:relation>https://doi.org/10.34770/g467-3w07</dc:relation>
+               <dc:relation>https://doi.org/10.34770/2r93-0t85</dc:relation>
+               <dc:relation>https://shakespeareandco.princeton.edu/</dc:relation>
+               <dc:relation>https://doi.org/10.5281/zenodo.3944796</dc:relation>
+            </oai_dc:dc>
+         </metadata>
+      </record>
+   </GetRecord>
+</OAI-PMH>

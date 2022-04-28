@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="static/style.xsl"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+   <responseDate>2022-04-28T14:30:58Z</responseDate>
+   <request verb="GetRecord" identifier="oai:dataspace.princeton.edu:88435/dsp01xp68kk27p" metadataPrefix="oai_dc">https://dataspace.princeton.edu/oai/request</request>
+   <GetRecord>
+      <record>
+         <header>
+            <identifier>oai:dataspace.princeton.edu:88435/dsp01xp68kk27p</identifier>
+            <datestamp>2021-04-12T13:11:19Z</datestamp>
+            <setSpec>com_88435_dsp0147429c369</setSpec>
+            <setSpec>col_88435_dsp010g354h44r</setSpec>
+         </header>
+         <metadata>
+            <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:doc="http://www.lyncode.com/xoai" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+               <dc:title>Attention and awareness in the dorsal attention network</dc:title>
+               <dc:creator>Wilterson, Andrew</dc:creator>
+               <dc:creator>Nastase, Samuel</dc:creator>
+               <dc:creator>Bio, Branden</dc:creator>
+               <dc:creator>Guterstam, Arvid</dc:creator>
+               <dc:creator>Graziano, Michael</dc:creator>
+               <dc:description>This dataset contains structural and functional MRI images from human subjects learning to use subliminal and superliminal stimuli to perform a Posner-like reaction time task. Download the README.txt file for a detailed description of this dataset's content</dc:description>
+               <dc:description>This dataset is too large to download directly from this item page. You can access and download the data via Globus at this link:https://app.globus.org/file-manager?origin_id=dc43f461-0ca7-4203-848c-33a9fc00a464&amp;origin_path=%2F9425-b553%2F
+(See https://docs.globus.org/how-to/get-started/ for instructions on how to use Globus, sign-in is required).</dc:description>
+               <dc:description>The attention schema theory (AST) posits a specific relationship between subjective awareness and attention, in which awareness is the control model that the brain uses to aid in the endogenous control of attention. We proposed that the right temporoparietal junction (TPJ) is involved in that interaction between awareness and attention. In previous experiments, we developed a behavioral paradigm in human subjects to manipulate awareness and attention. The paradigm involved a visual cue that could be used to guide a shift of attention to a target stimulus. In task 1, subjects were aware of the visual cue, and their endogenous control mechanism was able to use the cue to help control attention. In task 2, subjects were unaware of the visual cue, and their endogenous control mechanism was no longer able to use it to control attention, even though the cue still had a measurable effect on other aspects of behavior. Here we tested the two tasks while scanning brain activity in human volunteers. We predicted that the right TPJ would be active in relation to the cue in task 1, but not in task 2. This prediction was confirmed. The right TPJ was active in relation to the cue in task 1; it was not measurably active in task 2; the difference was significant. In our interpretation, the right TPJ is involved in a complex interaction in which awareness aids in the control of attention.</dc:description>
+               <dc:date>2020-11-20T21:30:08Z</dc:date>
+               <dc:date>2020-11-20T21:30:08Z</dc:date>
+               <dc:date>2020</dc:date>
+               <dc:type>Dataset</dc:type>
+               <dc:identifier>http://arks.princeton.edu/ark:/88435/dsp01xp68kk27p</dc:identifier>
+               <dc:identifier>https://doi.org/10.34770/9425-b553</dc:identifier>
+               <dc:identifier>https://app.globus.org/file-manager?origin_id=dc43f461-0ca7-4203-848c-33a9fc00a464&amp;origin_path=%2F9425-b553%2F</dc:identifier>
+               <dc:publisher>Princeton University</dc:publisher>
+            </oai_dc:dc>
+         </metadata>
+      </record>
+   </GetRecord>
+</OAI-PMH>

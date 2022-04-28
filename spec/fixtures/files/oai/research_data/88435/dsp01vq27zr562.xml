@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="static/style.xsl"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2022-04-28T14:30:58Z</responseDate>
+  <request verb="GetRecord" identifier="oai:dataspace.princeton.edu:88435/dsp01vq27zr562" metadataPrefix="oai_dc">https://dataspace.princeton.edu/oai/request</request>
+  <GetRecord>
+    <record>
+      <header>
+        <identifier>oai:dataspace.princeton.edu:88435/dsp01vq27zr562</identifier>
+        <datestamp>2021-11-08T18:31:29Z</datestamp>
+        <setSpec>com_88435_dsp01xs55mf93x</setSpec>
+        <setSpec>col_88435_dsp01t148fk99d</setSpec>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Supplementary data for thesis: The Evolution and Regulation of Morphological Complexity in the Vibrios</dc:title>
+          <dc:creator>Martin, Nicholas</dc:creator>
+          <dc:creator>Gitai, Zemer</dc:creator>
+          <dc:subject>Supplementary data</dc:subject>
+          <dc:description>This entry contains video files and tabular data associated with the PhD dissertation titled: The Evolution and Regulation of Morphological Complexity in the Vibrios.</dc:description>
+          <dc:description>README.txt, Supplementary Video 5.avi, Supplementary Video 6.avi, Supplementary Video 7.avi, Table C.2.xlsx</dc:description>
+          <dc:date>2021-10-28T13:46:58Z</dc:date>
+          <dc:date>2021-10-28T13:46:58Z</dc:date>
+          <dc:date>2021</dc:date>
+          <dc:date>2021-10-28</dc:date>
+          <dc:type>Dataset</dc:type>
+          <dc:identifier>http://arks.princeton.edu/ark:/88435/dsp01vq27zr562</dc:identifier>
+          <dc:identifier>https://doi.org/10.34770/gk6n-gj34</dc:identifier>
+          <dc:language>en_US</dc:language>
+          <dc:publisher>Princeton University</dc:publisher>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+  </GetRecord>
+</OAI-PMH>

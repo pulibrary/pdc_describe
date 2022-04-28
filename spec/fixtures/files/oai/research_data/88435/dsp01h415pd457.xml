@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="static/style.xsl"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+   <responseDate>2022-04-28T18:41:58Z</responseDate>
+   <request verb="GetRecord" identifier="oai:dataspace.princeton.edu:88435/dsp01h415pd457" metadataPrefix="oai_dc">https://dataspace.princeton.edu/oai/request</request>
+   <GetRecord>
+      <record>
+         <header>
+            <identifier>oai:dataspace.princeton.edu:88435/dsp01h415pd457</identifier>
+            <datestamp>2021-04-02T13:01:19Z</datestamp>
+            <setSpec>com_88435_dsp013t945t431</setSpec>
+            <setSpec>col_88435_dsp0105741v361</setSpec>
+         </header>
+         <metadata>
+            <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:doc="http://www.lyncode.com/xoai" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+               <dc:title>Distinct cytoskeletal proteins define zones of enhanced cell wall synthesis in Helicobacter pylori</dc:title>
+               <dc:creator>Taylor, Jenny A.</dc:creator>
+               <dc:creator>Bratton, Benjamin P.</dc:creator>
+               <dc:creator>Sichel, Sophie R.</dc:creator>
+               <dc:creator>Blair, Kris M.</dc:creator>
+               <dc:creator>Jacobs, Holly M.</dc:creator>
+               <dc:creator>DeMeester, Kristen E.</dc:creator>
+               <dc:creator>Kuru, Erkin</dc:creator>
+               <dc:creator>Gray, Joe</dc:creator>
+               <dc:creator>Biboy, Jacob</dc:creator>
+               <dc:creator>VanNieuwenhze, Michael S.</dc:creator>
+               <dc:creator>Vollmer, Waldemar</dc:creator>
+               <dc:creator>Grimes, Catherine L.</dc:creator>
+               <dc:creator>Shaevitz, Joshua W.</dc:creator>
+               <dc:creator>Salama, Nina R.</dc:creator>
+               <dc:description>This dataset includes structured illumination fluorescence microscopy images (SIM) and their associated cell shape reconstructions, phase contrast micrographs, and transmission electron micrographs. See the README.txt for detailed description of the strains and conditions represented in each data file.</dc:description>
+               <dc:description>Helical cell shape is necessary for efficient stomach colonization by Helicobacter pylori, but the molecular mechanisms for generating helical shape remain unclear. We show that the helical centerline pitch and radius of wild-type H. pylori cells dictate surface curvatures of considerably higher positive and negative Gaussian curvatures than those present in straight- or curved-rod bacteria. Quantitative 3D microscopy analysis of short pulses with either N-acetylmuramic acid or D-alanine metabolic probes showed that cell wall growth is enhanced at both sidewall curvature extremes. Immunofluorescence revealed MreB is most abundant at negative Gaussian curvature, while the bactofilin CcmA is most abundant at positive Gaussian curvature. Strains expressing CcmA variants with altered polymerization properties lose helical shape and associated positive Gaussian curvatures. We thus propose a model where CcmA and MreB promote PG synthesis at positive and negative Gaussian curvatures, respectively, and that this patterning is one mechanism necessary for maintaining helical shape.</dc:description>
+               <dc:date>2020-02-07T14:15:09Z</dc:date>
+               <dc:date>2020-02-07T14:15:09Z</dc:date>
+               <dc:date>2019-04</dc:date>
+               <dc:type>Dataset</dc:type>
+               <dc:type>Image</dc:type>
+               <dc:identifier>http://arks.princeton.edu/ark:/88435/dsp01h415pd457</dc:identifier>
+               <dc:identifier>https://doi.org/10.34770/r2dz-ys12</dc:identifier>
+               <dc:relation>https://www.biorxiv.org/content/10.1101/545517v1</dc:relation>
+               <dc:relation>https://doi.org/10.7554/eLife.52482</dc:relation>
+            </oai_dc:dc>
+         </metadata>
+      </record>
+   </GetRecord>
+</OAI-PMH>

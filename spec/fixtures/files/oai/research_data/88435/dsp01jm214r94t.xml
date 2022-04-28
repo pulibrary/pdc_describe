@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="static/style.xsl"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2022-04-28T14:30:58Z</responseDate>
+  <request verb="GetRecord" identifier="oai:dataspace.princeton.edu:88435/dsp01jm214r94t" metadataPrefix="oai_dc">https://dataspace.princeton.edu/oai/request</request>
+  <GetRecord>
+    <record>
+      <header>
+        <identifier>oai:dataspace.princeton.edu:88435/dsp01jm214r94t</identifier>
+        <datestamp>2019-04-03T08:10:10Z</datestamp>
+        <setSpec>com_88435_dsp01j6731612k</setSpec>
+        <setSpec>com_88435_dsp01pz50gz45g</setSpec>
+        <setSpec>col_88435_dsp011v53k0334</setSpec>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Design and simulation of the snowflake divertor control for NSTX-U</dc:title>
+          <dc:creator>Vail, P. J.</dc:creator>
+          <dc:creator>Boyer, M. D.</dc:creator>
+          <dc:creator>Welander, A. S.</dc:creator>
+          <dc:creator>Kolemen, E.</dc:creator>
+          <dc:creator>U.S. Department of Energy contract number DE-AC02-09CH11466</dc:creator>
+          <dc:contributor>U. S. Department of Energy</dc:contributor>
+          <dc:subject>snowflake divertor, MIMO feedback control, nonlinear simulation, NSTX-U</dc:subject>
+          <dc:description>This paper presents the development of a physics-based multiple-input-multiple-output algorithm for real-time feedback control of snowflake divertor (SFD) configurations on the National Spherical Torus eXperiment Upgrade (NSTX-U). A model of the SFD configuration response to applied voltages on the divertor control coils is first derived and then used, in conjunction with multivariable control synthesis techniques, to design an optimal state feedback controller for the configuration. To demonstrate the capabilities of the controller, a nonlinear simulator for axisymmetric shape control was developed for NSTX-U which simultaneously evolves the currents in poloidal field coils based upon a set of feedback-computed voltage commands, calculates the induced currents in passive conducting structures, and updates the plasma equilibrium by solving the free-boundary Grad-Shafranov problem. Closed-loop simulations demonstrate that the algorithm enables controlled operations in a variety of SFD configurations and provides capabilities for accurate tracking of time-dependent target trajectories for the divertor geometry. In particular, simulation results suggest that a time-varying controller which can properly account for the evolving SFD dynamical response is not only desirable but necessary for achieving acceptable control performance. The algorithm presented in this paper has been implemented in the NSTX-U Plasma Control System in preparation for future control and divertor physics experiments.</dc:description>
+          <dc:description>readme and digital data files</dc:description>
+          <dc:date>2019-04-02T11:50:17Z</dc:date>
+          <dc:date>2019-04-02T11:50:17Z</dc:date>
+          <dc:date>2019-04</dc:date>
+          <dc:type>Dataset</dc:type>
+          <dc:identifier>http://arks.princeton.edu/ark:/88435/dsp01jm214r94t</dc:identifier>
+          <dc:language>en_US</dc:language>
+          <dc:relation>Plasma Physics and Controlled Fusion</dc:relation>
+          <dc:publisher>Princeton Plasma Physics Laboratory, Princeton University</dc:publisher>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+  </GetRecord>
+</OAI-PMH>

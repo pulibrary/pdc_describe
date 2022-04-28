@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="static/style.xsl"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2022-04-28T14:30:58Z</responseDate>
+  <request verb="GetRecord" identifier="oai:dataspace.princeton.edu:88435/dsp015999n653h" metadataPrefix="oai_dc">https://dataspace.princeton.edu/oai/request</request>
+  <GetRecord>
+    <record>
+      <header>
+        <identifier>oai:dataspace.princeton.edu:88435/dsp015999n653h</identifier>
+        <datestamp>2022-03-24T20:20:53Z</datestamp>
+        <setSpec>com_88435_dsp01w95053563</setSpec>
+        <setSpec>col_88435_dsp01rj430764j</setSpec>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>bitKlavier Grand Sample Library—Piano Bar Mic Image</dc:title>
+          <dc:creator>Trueman, Daniel</dc:creator>
+          <dc:contributor>Wang, Matthew</dc:contributor>
+          <dc:contributor>Villalta, Andrés</dc:contributor>
+          <dc:contributor>Gordon, Jeffrey</dc:contributor>
+          <dc:contributor>Chou, Katie</dc:contributor>
+          <dc:contributor>Ayers, Christien</dc:contributor>
+          <dc:subject>bitKlavier</dc:subject>
+          <dc:subject>sample library</dc:subject>
+          <dc:subject>piano</dc:subject>
+          <dc:description>Piano Bar: Earthworks—omni-directionals.
+            This microphone system suspends omnidirectional microphones within the piano. The bar is placed across the harp near the hammers and provides a low string / high string player’s perspective. It also produces a close sound without room or lid interactions. It can be panned across an artificial stereophonic perspective effectively in post-production.
+
+            File Naming Convention: C4 = middle C .  Main note names: [note name][octave]v[velocity].wav  -- e.g., “D#5v13.wav” .  Release resonance notes: harm[note name][octave]v[velocity].wav   -- e.g., “harmC2v2.wav” .  Hammer samples:  rel[1-88].wav (one per key)  -- e.g., “rel23.wav” .  Pedal samples:  pedal[D/U][velocity].wav  -- e.g., “pedalU2.wav” =&gt; pedal release (U = up), velocity = 2 (quicker release than velocity = 1) .</dc:description>
+            <dc:description>This dataset is too large to download directly from this item page. You can access and download the data via Globus (See "https://www.youtube.com/watch?v=uf2c7Y1fiFs" for instructions on how to use Globus).</dc:description>
+            <dc:description>The bitKlavier Grand consists of sample collections of a new Steinway D grand piano from nine different stereo mic images, with: 16 velocity layers, at every minor 3rd (starting at A0); Hammer release samples; Release resonance samples; Pedal samples.
+              Release packages at 96k/24bit, 88.2k/24bit, 48k/24bit, 44.1k/16bit are available for various applications.</dc:description>
+              <dc:description>bitKlavierGrand_PianoBar_44k16b, bitKlavierGrand_PianoBar_48k24b, bitKlavierGrand_PianoBar_88k24b, bitKlavierGrand_PianoBar_96k24b</dc:description>
+              <dc:date>2021-10-20T19:54:25Z</dc:date>
+              <dc:date>2021-10-20T19:54:25Z</dc:date>
+              <dc:date>2021-09-01</dc:date>
+              <dc:date>2021-10-20</dc:date>
+              <dc:type>Dataset</dc:type>
+              <dc:type>Sound</dc:type>
+              <dc:identifier>http://arks.princeton.edu/ark:/88435/dsp015999n653h</dc:identifier>
+              <dc:identifier>https://doi.org/10.34770/r75s-9j74</dc:identifier>
+              <dc:identifier>https://app.globus.org/file-manager?origin_id=dc43f461-0ca7-4203-848c-33a9fc00a464&amp;origin_path=%2Fr75s-9j74%2F</dc:identifier>
+              <dc:language>en_US</dc:language>
+              <dc:rights>CC BY 4.0 International</dc:rights>
+              <dc:publisher>Princeton University</dc:publisher>
+            </oai_dc:dc>
+          </metadata>
+        </record>
+      </GetRecord>
+    </OAI-PMH>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="static/style.xsl"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2022-04-28T14:30:58Z</responseDate>
+  <request verb="GetRecord" identifier="oai:dataspace.princeton.edu:88435/dsp01rj4307478" metadataPrefix="oai_dc">https://dataspace.princeton.edu/oai/request</request>
+  <GetRecord>
+    <record>
+      <header>
+        <identifier>oai:dataspace.princeton.edu:88435/dsp01rj4307478</identifier>
+        <datestamp>2020-02-02T20:27:10Z</datestamp>
+        <setSpec>com_88435_dsp012b88qf40b</setSpec>
+        <setSpec>col_88435_dsp01xk81jn606</setSpec>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Femtosecond X-ray Diffraction of Laser-shocked Forsterite (Mg2SiO4) to 122 GPa</dc:title>
+          <dc:creator>Kim, Donghoon</dc:creator>
+          <dc:creator>Tracy, Sally J.</dc:creator>
+          <dc:creator>Smith, Raymond F.</dc:creator>
+          <dc:creator>Gleason, Arianna E.</dc:creator>
+          <dc:creator>Bolme, Cindy A.</dc:creator>
+          <dc:creator>Prakapenka, Vitali B.</dc:creator>
+          <dc:creator>Appel, Karen</dc:creator>
+          <dc:creator>Speziable, Sergio</dc:creator>
+          <dc:creator>Wicks, June K.</dc:creator>
+          <dc:creator>Berryman, Eleanor J.</dc:creator>
+          <dc:creator>Han, Sirus K.</dc:creator>
+          <dc:creator>Schoelmerich, Markus O.</dc:creator>
+          <dc:creator>Lee, Hae Ja</dc:creator>
+          <dc:creator>Nagler, Bob</dc:creator>
+          <dc:creator>Cunningham, Eric F.</dc:creator>
+          <dc:creator>Akin, Minta C.</dc:creator>
+          <dc:creator>Asimow, Paul D.</dc:creator>
+          <dc:creator>Eggert, Jon H.</dc:creator>
+          <dc:creator>Duffy, Thomas S.</dc:creator>
+          <dc:subject>shock compression</dc:subject>
+          <dc:subject>forsterite</dc:subject>
+          <dc:subject>phase transition</dc:subject>
+          <dc:subject>amorphization</dc:subject>
+          <dc:description>The behavior of forsterite, Mg2SiO4, under dynamic compression is of fundamental importance for understanding its phase transformations and high-pressure behavior. Here, we have carried out an in situ X-ray diffraction study of laser-shocked poly- and single-crystal forsterite (a-, b-, and c- orientations) from 19 to 122 GPa using the Matter in Extreme Conditions end-station of the Linac Coherent Light Source. Under laser-based shock loading, forsterite does not transform to the high-pressure equilibrium assemblage of MgSiO3 bridgmanite and MgO periclase, as was suggested previously. Instead, we observe forsterite and forsterite III, a metastable polymorph of Mg2SiO4, coexisting in a mixed-phase region from 33 to 75 GPa for both polycrystalline and single-crystal samples. Densities inferred from X-ray diffraction data are consistent with earlier gas-gun shock data. At higher stress, the behavior observed is sample-dependent. Polycrystalline samples undergo amorphization above 79 GPa. For [010]- and [001]-oriented crystals, a mixture of crystalline and amorphous material is observed to 108 GPa, whereas the [100]-oriented crystal adopts an unknown crystal structure at 122 GPa. The Q values of the first two sharp diffraction peaks of amorphous Mg2SiO4 show a similar trend with compression as those observed for MgSiO3 glass in both recent static and laser-compression experiments. Upon release to ambient pressure, all samples retain or revert to forsterite with evidence for amorphous material also present in some cases. This study demonstrates the utility of femtosecond free-electron laser X-ray sources for probing the time evolution of high-pressure silicates through the nanosecond-scale events of shock compression and release.</dc:description>
+          <dc:description>The U.S. Department of Energy (DE-SC0018925,DE-AC02-76SF00515), the National Science Foundation (NSF) (EAR-1644614, EAR-1446969, EAR-1725349), and the German Research Foundation DFG (AP 262/2-1 and FOR2440).</dc:description>
+          <dc:date>2020-06-08T15:15:03Z</dc:date>
+          <dc:date>2020-06-08T15:15:03Z</dc:date>
+          <dc:date>2020-11</dc:date>
+          <dc:type>Dataset</dc:type>
+          <dc:identifier>http://arks.princeton.edu/ark:/88435/dsp01rj4307478</dc:identifier>
+          <dc:identifier>https://doi.org/10.34770/gg40-tc15</dc:identifier>
+          <dc:language>en_US</dc:language>
+          <dc:relation>https://doi.org/10.1029/2020JB020337</dc:relation>
+          <dc:publisher>Princeton University</dc:publisher>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+  </GetRecord>
+</OAI-PMH>
