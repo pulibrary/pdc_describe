@@ -2,37 +2,16 @@
 
 require "rails_helper"
 
-RSpec.describe DatasetsController do
+RSpec.describe DatasetsController, mock_ezid_api: true do
   before do
     Collection.create_defaults
     user
-
-    # this is a work-around due to an issue with webmock
-    allow(Ezid::Identifier).to receive(:find).and_return(identifier)
-
-    allow(identifier).to receive(:metadata).and_return(ezid_metadata)
-    allow(identifier).to receive(:id).and_return(ezid)
-    allow(identifier).to receive(:modify)
-  end
-  let(:identifier) { double(Ezid::Identifier) }
-  let(:ezid_metadata_values) do
-    {
-      "_updated" => "1611860047",
-      "_target" => "http://arks.princeton.edu/ark:/88435/dsp01zc77st047",
-      "_profile" => "erc",
-      "_export" => "yes",
-      "_owner" => "pudiglib",
-      "_ownergroup" => "pudiglib",
-      "_created" => "1611860047",
-      "_status" => "public"
-    }
-  end
-  let(:ezid_metadata) do
-    Ezid::Metadata.new(ezid_metadata_values)
   end
   let(:user) { FactoryBot.create(:user) }
-  let(:ds) { Dataset.create_skeleton("test dataset", user.id, Collection.first.id) }
+  let(:collection) { Collection.first }
+  let(:ds) { Dataset.create_skeleton("test dataset", user.id, collection.id) }
   let(:ezid) { ds.ark }
+  let(:work) { ds.work }
 
   context "valid user login" do
     it "handles the index page" do
@@ -98,6 +77,58 @@ RSpec.describe DatasetsController do
       post :resubmit, params: { id: ds.id }
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/datasets/#{ds.id}"
+    end
+  end
+
+  describe "#update" do
+    let(:params) do
+      {
+        id: ds.id,
+        dataset: {
+          id: ds.id,
+          title: ds.title,
+          collection_id: collection.id,
+          work_id: work.id,
+          format: format
+        }
+      }
+    end
+
+    context "when authenticated" do
+      context "when requesting a HTML representation" do
+        let(:format) { :html }
+
+        context "when the update fails" do
+          before do
+            sign_in user
+            allow(Work).to receive(:find).and_return(work)
+            allow_any_instance_of(Dataset).to receive(:update).and_return(false)
+            patch :update, params: params
+          end
+
+          it "renders the edit view with a 422 response status code" do
+            expect(response.code).to eq("422")
+            expect(response).to render_template(:edit)
+          end
+        end
+      end
+
+      context "when requesting a JSON representation" do
+        let(:format) { :json }
+
+        context "when the update fails" do
+          before do
+            sign_in user
+            allow(Work).to receive(:find).and_return(work)
+            allow_any_instance_of(Dataset).to receive(:update).and_return(false)
+            patch :update, params: params
+          end
+
+          it "renders JSON-serialized error messages with a 422 response status code" do
+            expect(response.code).to eq("422")
+          end
+        end
+      end
     end
   end
 end

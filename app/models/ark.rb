@@ -4,17 +4,14 @@ require "ezid-client"
 class Ark
   # Mints a new EZID identifier, returns the id (e.g. "ark:/99999/fk4tq65d6k")
   def self.mint
-    return "ark:/99999/fk4tq65d6k" if Rails.env.test?
     identifier = Ezid::Identifier.mint
     identifier.id
   end
 
   def self.find(ezid)
     Ezid::Identifier.find(ezid)
-  rescue Net::HTTPServerException
-    nil
   rescue StandardError => error
-    Rails.logger.error("Failed to find the EZID #{ezid}: #{error.message}")
+    Rails.logger.error("Failed to find the EZID #{ezid}: #{error.class}: #{error.message}")
     nil
   end
 
