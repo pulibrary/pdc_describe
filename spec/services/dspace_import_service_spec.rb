@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require "rails_helper"
 
+# rubocop:disable Layout/LineLength
 describe DspaceImportService do
   subject(:dspace_import_service_library_pdfs) { described_class.new(url: url_library_pdf, collection: collection, user: user) }
   let(:ark_library_pdf) { "88435/dsp01h415pd635" }
@@ -12,7 +13,6 @@ describe DspaceImportService do
   let(:response_body_library_pdf) do
     file_fixture("oai/88435/dsp01h415pd635.xml").read
   end
-
 
   subject(:dspace_import_service_research_data) { described_class.new(url: url_research_data, collection: collection, user: user) }
 
@@ -112,3 +112,4 @@ describe DspaceImportService do
     end
   end
 end
+# rubocop:enable Layout/LineLength
