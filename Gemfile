@@ -4,6 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 gem "aws-sdk-s3"
 gem "factory_bot_rails", require: false
+gem "ffaker"
 gem "honeybadger", "~> 4.0"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem "rails", "~> 6.1.3", ">= 6.1.3.2"
@@ -45,7 +46,6 @@ gem "friendly_id", "~> 5.4.0"
 group :development, :test do
   gem "bixby"
   gem "byebug"
-  gem "ffaker"
   gem "pry-byebug"
   gem "pry-rails"
 end
