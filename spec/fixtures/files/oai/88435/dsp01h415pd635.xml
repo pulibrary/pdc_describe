@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="static/style.xsl"?><OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd"><responseDate>2022-04-28T14:30:58Z</responseDate><request verb="GetRecord" identifier="oai:dataspace.princeton.edu:88435/dsp01h415pd635" metadataPrefix="oai_dc">https://dataspace.princeton.edu/oai/request</request><GetRecord><record><header><identifier>oai:dataspace.princeton.edu:88435/dsp01h415pd635</identifier><datestamp>2021-04-02T13:01:19Z</datestamp><setSpec>com_88435_dsp01g732d9019</setSpec><setSpec>col_88435_dsp01bg257f09p</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>The U.S. National Pandemic Emotional Impact Report</dc:title>
+<dc:title>Findings of a nationwide survey assessing the effects of the COVID-19 pandemic on the emotional wellbeing of the U.S. adult population.</dc:title>
+<dc:creator>Palsson, Olafur</dc:creator>
+<dc:creator>Ballou, Sarah</dc:creator>
+<dc:creator>Gray, Sarah</dc:creator>
+<dc:subject>Pandemics and COVID-19</dc:subject>
+<dc:subject>Survey research.</dc:subject>
+<dc:date>2021-04-02T12:53:32Z</dc:date>
+<dc:date>2021-04-02T12:53:32Z</dc:date>
+<dc:date>2020-06</dc:date>
+<dc:identifier>http://arks.princeton.edu/ark:/88435/dsp01h415pd635</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>PandemicImpactReport.com</dc:relation>
+<dc:publisher>Cambridge</dc:publisher>
+<dc:publisher>Harvard Medical School</dc:publisher>
+</oai_dc:dc>
+</metadata></record></GetRecord></OAI-PMH>
