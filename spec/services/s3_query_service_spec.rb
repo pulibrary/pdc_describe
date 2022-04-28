@@ -49,4 +49,15 @@ RSpec.describe S3QueryService do
     expect(data_profile.first).to be_instance_of(S3File)
     expect(data_profile.first.filename).to match(/README/)
   end
+
+  describe "#client" do
+    before do
+      allow(Aws::S3::Client).to receive(:new)
+      subject.client
+    end
+
+    it "constructs the AWS S3 API client object" do
+      expect(Aws::S3::Client).to have_received(:new).with(region: "us-east-1")
+    end
+  end
 end

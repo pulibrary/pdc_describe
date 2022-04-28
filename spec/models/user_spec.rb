@@ -43,6 +43,16 @@ RSpec.describe User, type: :model do
     it "is false if the user is not in the superadmin config" do
       expect(normal_user.superadmin?).to eq false
     end
+
+    context "when an error is raised parsing the user IDs of superadmin users" do
+      before do
+        allow(Rails.configuration.superadmins).to receive(:include?).and_raise(StandardError)
+      end
+
+      it "returns nil" do
+        expect(normal_user.superadmin?).to eq false
+      end
+    end
   end
 
   describe "collection access" do

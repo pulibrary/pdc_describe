@@ -36,4 +36,22 @@ RSpec.describe Work, type: :model do
     work.resubmit(user)
     expect(work.state_history.first.state).to eq "AWAITING-APPROVAL"
   end
+
+  describe "#created_by_user" do
+    context "when the ID is invalid" do
+      subject(:work) { described_class.create_skeleton(title, user_id, collection_id, work_type) }
+      let(:title) { "test title" }
+      let(:user_id) { user.id }
+      let(:collection_id) { collection.id }
+      let(:work_type) { "DATASET" }
+
+      before do
+        allow(User).to receive(:find).and_raise(ActiveRecord::RecordNotFound)
+      end
+
+      it "returns a nil" do
+        expect(work.created_by_user).to be nil
+      end
+    end
+  end
 end
