@@ -24,6 +24,7 @@ gem "jbuilder", "~> 2.7"
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 gem "rspec-rails", "~> 5.0.0"
+gem "webmock"
 gem "whenever"
 
 # Reference: https://github.com/pulibrary/pul-the-hard-way/blob/main/services/cas.md
@@ -76,7 +77,6 @@ group :test do
   gem "rails-controller-testing"
   # Easy installation and use of web drivers to run system tests with browsers
   gem "webdrivers"
-  gem "webmock"
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
