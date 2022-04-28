@@ -27,6 +27,7 @@ describe DspaceImportService do
 
     it "creates a new Work from imported Dublin Core XML metadata" do
       expect(imported.title).to eq("The U.S. National Pandemic Emotional Impact Report")
+      expect(imported.dublin_core.title).to eq("The U.S. National Pandemic Emotional Impact Report")
     end
   end
 end

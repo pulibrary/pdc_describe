@@ -10,24 +10,55 @@ class DspaceImportService
       @attributes = {}
 
       self.class.attribute_xpaths.each_pair do |attr, xpath|
-        elements = dc_element.xpath(xpath, self.class.namespaces)
+        elements = root.xpath(xpath, self.class.namespaces)
         attributes[attr] = elements.map(&:content)
       end
-    end
-
-    def dc_element
-      @dc_element ||= root.at_xpath("./oai:GetRecord/oai:record/oai:metadata/oai_dc:dc", self.class.namespaces)
     end
 
     delegate :each_pair, to: :attributes
     delegate :root, to: :@document
 
     def self.namespaces
-      {
-        oai: "http://www.openarchives.org/OAI/2.0/",
-        oai_dc: "http://www.openarchives.org/OAI/2.0/oai_dc/",
-        dc: "http://purl.org/dc/elements/1.1/"
-      }
+      {}
+    end
+
+    def self.attribute_xpaths
+      {}
+    end
+  end
+
+  class OAIPMHDocument < MetadataDocument
+    def initialize(document)
+      super(document)
+
+      self.class.attribute_xpaths.each_pair do |attr, xpath|
+        elements = dc_element.xpath(xpath, self.class.namespaces)
+        attributes[attr] = elements.map(&:content)
+      end
+    end
+
+    def oai_get_record
+      @oai_get_record ||= root.at_xpath("./oai:GetRecord", self.class.namespaces)
+    end
+
+    def oai_record
+      @oai_record ||= oai_get_record.at_xpath("./oai:record", self.class.namespaces)
+    end
+
+    def oai_metadata
+      @oai_metadata ||= oai_record.at_xpath("./oai:metadata", self.class.namespaces)
+    end
+
+    def dc_element
+      @dc_element ||= oai_metadata.at_xpath("./oai_dc:dc", self.class.namespaces)
+    end
+
+    def self.namespaces
+      super.merge({
+                    oai: "http://www.openarchives.org/OAI/2.0/",
+                    oai_dc: "http://www.openarchives.org/OAI/2.0/oai_dc/",
+                    dc: "http://purl.org/dc/elements/1.1/"
+                  })
     end
 
     def self.attribute_xpaths
@@ -47,8 +78,12 @@ class DspaceImportService
   class Metadata
     attr_reader :document, :attributes
 
+    def self.document_class
+      OAIPMHDocument
+    end
+
     def self.from_xml(source)
-      document = MetadataDocument.new(source)
+      document = document_class.new(source)
       metadata = new
       document.attributes.each_pair do |key, value|
         metadata[key] = value
@@ -74,16 +109,7 @@ class DspaceImportService
     end
 
     def self.attribute_names
-      [
-        :title,
-        :creator,
-        :subject,
-        :date,
-        :identifier,
-        :language,
-        :relation,
-        :publisher
-      ]
+      []
     end
 
     def self.define_attribute_methods
@@ -102,9 +128,16 @@ class DspaceImportService
 
   class DublinCoreMetadata < Metadata
     def self.attribute_names
-      super.merge([
-                    :title
-                  ])
+      super + [
+        :title,
+        :creator,
+        :subject,
+        :date,
+        :identifier,
+        :language,
+        :relation,
+        :publisher
+      ]
     end
   end
 
@@ -117,23 +150,34 @@ class DspaceImportService
     @work_type = work_type
   end
 
-  def metadata
-    @metadata ||= Metadata.from_xml(document)
+  def self.metadata_class
+    DublinCoreMetadata
   end
 
-  delegate :title, to: :metadata
+  def metadata
+    @metadata ||= self.class.metadata_class.from_xml(document)
+  end
+
+  def title
+    value = metadata.title
+
+    return value.first if value.is_a?(Enumerable)
+    value
+  end
 
   def import!
     request!
 
     metadata.each_pair do |attr, value|
-      attr_type = Work.attribute_types[attr.to_s]
-      if value.is_a?(Enumerable) && attr_type.is_a?(ActiveModel::Type::String)
-        Rails.logger.warn("The value for the attribute `#{attr}` is an enumerable, but the Work Model defines this only for scalar string values. Importing only the first value into the attribute.")
-        work.write_attribute(attr, value.first)
+      dc_metadata = work.dublin_core
+      if dc_metadata.key?(attr)
+        dc_metadata[attr] << value
       else
-        work.write_attribute(attr, value)
+        dc_metadata[attr] = [value]
       end
+
+      work.dublin_core = dc_metadata
+      work.save!
     rescue ActiveModel::MissingAttributeError
       # raise(NotImplementedError, "Failed to import the attribute `#{attr}`: This attribute is not defined on the Work Model.")
       Rails.logger.warn("Failed to import the attribute `#{attr}`: This attribute is not defined on the Work Model.")
