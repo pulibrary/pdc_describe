@@ -14,7 +14,11 @@ class Work < ApplicationRecord
       attributes.to_h.key?(key)
     end
 
-    delegate :[], :[]=, :to_json, to: :attributes
+    def to_json(options = nil)
+      attributes.to_h.to_json(options)
+    end
+
+    delegate :[], :[]=, to: :attributes
     delegate(
       :title,
       :creator,

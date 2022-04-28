@@ -27,7 +27,33 @@ describe DspaceImportService do
 
     it "creates a new Work from imported Dublin Core XML metadata" do
       expect(imported.title).to eq("The U.S. National Pandemic Emotional Impact Report")
-      expect(imported.dublin_core.title).to eq("The U.S. National Pandemic Emotional Impact Report")
+      expect(imported.dublin_core.title).to be_an(Array)
+      expect(imported.dublin_core.title).to include("The U.S. National Pandemic Emotional Impact Report")
+      expect(imported.dublin_core.title).to include("Findings of a nationwide survey assessing the effects of the COVID-19 pandemic on the emotional wellbeing of the U.S. adult population.")
+
+      expect(imported.dublin_core.creator).to be_an(Array)
+      expect(imported.dublin_core.creator).to include("Palsson, Olafur")
+      expect(imported.dublin_core.creator).to include("Ballou, Sarah")
+      expect(imported.dublin_core.creator).to include("Gray, Sarah")
+
+      expect(imported.dublin_core.subject).to be_an(Array)
+      expect(imported.dublin_core.subject).to include("Pandemics and COVID-19")
+      expect(imported.dublin_core.subject).to include("Survey research.")
+
+      expect(imported.dublin_core.date).to be_an(Array)
+      expect(imported.dublin_core.date).to include("2021-04-02T12:53:32Z")
+
+      expect(imported.dublin_core.identifier).to be_an(Array)
+      expect(imported.dublin_core.identifier).to include("http://arks.princeton.edu/ark:/88435/dsp01h415pd635")
+
+      expect(imported.dublin_core.language).to be_an(Array)
+      # expect(imported.dublin_core.language).to include("The U.S. National Pandemic Emotional Impact Report")
+
+      expect(imported.dublin_core.relation).to be_an(Array)
+      # expect(imported.dublin_core.relation).to include("The U.S. National Pandemic Emotional Impact Report")
+
+      expect(imported.dublin_core.publisher).to be_an(Array)
+      # expect(imported.dublin_core.publisher).to include("The U.S. National Pandemic Emotional Impact Report")
     end
   end
 end
