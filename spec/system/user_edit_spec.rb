@@ -5,7 +5,7 @@ RSpec.describe "Editing users" do
     before { sign_in user_admin }
 
     let(:user) { FactoryBot.create :user }
-    let(:user_admin) { FactoryBot.create :admin_user }
+    let(:user_admin) { FactoryBot.create :super_admin_user }
     let(:orcid) { "1234-5678-1234-5678" }
 
     it "allows an admin to edit other users ORCID", js: true do

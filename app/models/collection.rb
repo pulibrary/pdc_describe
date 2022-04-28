@@ -1,11 +1,36 @@
 # frozen_string_literal: true
 
 class Collection < ApplicationRecord
+  validate do |collection|
+    if collection.title.blank?
+      collection.errors.add :base, "Title cannot be empty"
+    end
+  end
+
+  def default_admins_list
+    return [] if code.blank?
+    key = code.downcase.to_sym
+    Rails.configuration.collection_defaults.dig(key, :admin) || []
+  end
+
+  def default_submitters_list
+    key = code.downcase.to_sym
+    Rails.configuration.collection_defaults.dig(key, :submit) || []
+  end
+
+  def administrators
+    UserCollection.where(collection_id: id, role: "ADMIN").map(&:user)
+  end
+
+  def submitters
+    UserCollection.where(collection_id: id, role: "SUBMITTER").map(&:user)
+  end
+
   def self.create_defaults
     return if Collection.count > 0
     Rails.logger.info "Creating default Collections"
     Collection.create(title: "Research Data", code: "RD")
-    Collection.create(title: "Princeton Plasma Physics Laboratory ", code: "PPPL")
+    Collection.create(title: "Princeton Plasma Physics Laboratory", code: "PPPL")
     Collection.create(title: "Electronic Theses and Dissertations", code: "ETD")
     Collection.create(title: "Library Resources", code: "LIB")
   end
