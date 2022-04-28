@@ -38,26 +38,36 @@ class CollectionsController < ApplicationController
   # rubocop:enable Metrics/MethodLength
 
   def add_admin
-    uid = params[:uid]
-    collection_id = params[:id]
-    user = User.new_for_uid(uid)
-    if user.can_admin?(collection_id)
-      render status: :bad_request, json: { message: "User has already been added" }
+    @collection = Collection.find(params[:id])
+    if can_edit?
+      uid = params[:uid]
+      collection_id = params[:id]
+      user = User.new_for_uid(uid)
+      if user.can_admin?(collection_id)
+        render status: :bad_request, json: { message: "User has already been added" }
+      else
+        UserCollection.add_admin(user.id, collection_id)
+        render status: :ok, json: { message: "OK" }
+      end
     else
-      UserCollection.add_admin(user.id, collection_id)
-      render status: :ok, json: { message: "OK" }
+      render status: :unauthorized, json: { message: "Unauthorized" }
     end
   end
 
   def add_submitter
-    uid = params[:uid]
-    collection_id = params[:id]
-    user = User.new_for_uid(uid)
-    if user.can_submit?(collection_id)
-      render status: :bad_request, json: { message: "User has already been added" }
+    @collection = Collection.find(params[:id])
+    if can_edit?
+      uid = params[:uid]
+      collection_id = params[:id]
+      user = User.new_for_uid(uid)
+      if user.can_submit?(collection_id)
+        render status: :bad_request, json: { message: "User has already been added" }
+      else
+        UserCollection.add_submitter(user.id, collection_id)
+        render status: :ok, json: { message: "OK" }
+      end
     else
-      UserCollection.add_submitter(user.id, collection_id)
-      render status: :ok, json: { message: "OK" }
+      render status: :unauthorized, json: { message: "Unauthorized" }
     end
   end
 
