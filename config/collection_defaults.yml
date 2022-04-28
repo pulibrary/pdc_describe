@@ -20,3 +20,13 @@ shared:
     admin:
     submit:
       - tbd-008
+test:
+  rd:
+    admin:
+      - user1
+    submit:
+      - user2
+  lib:
+    admin:
+    submit:
+      - user3
