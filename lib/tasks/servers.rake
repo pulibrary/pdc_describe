@@ -17,10 +17,4 @@ namespace :servers do
   task stop: :environment do
     system "lando stop"
   end
-
-  task reset_users: :environment do
-    # UserCollection.delete_all
-    # User.delete_all
-    User.create_default_users
-  end
 end
