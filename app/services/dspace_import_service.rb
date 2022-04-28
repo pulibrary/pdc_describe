@@ -168,12 +168,12 @@ class DspaceImportService
   def import!
     request!
 
-    metadata.each_pair do |attr, value|
+    metadata.each_pair do |attr, values|
       dc_metadata = work.dublin_core
       if dc_metadata.key?(attr)
-        dc_metadata[attr] << value
+        dc_metadata[attr] += values
       else
-        dc_metadata[attr] = [value]
+        dc_metadata[attr] = values
       end
 
       work.dublin_core = dc_metadata
