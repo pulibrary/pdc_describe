@@ -60,7 +60,7 @@ jobs:
       - image: cimg/ruby:3.0.3-browsers
         environment:
           RAILS_ENV: test
-      - image: postgres:10.6-alpine
+      - image: postgres:13.5-alpine
         environment:
           POSTGRES_USER: rails_template_user
           POSTGRES_DB: test_db
