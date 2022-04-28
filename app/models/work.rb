@@ -1,7 +1,50 @@
 # frozen_string_literal: true
 
 class Work < ApplicationRecord
+  class DublinCore
+    def initialize(json)
+      @json = json
+    end
+
+    def attributes
+      @attributes ||= json_object
+    end
+
+    def key?(key)
+      attributes.to_h.key?(key)
+    end
+
+    delegate :[], :[]=, :to_json, to: :attributes
+    delegate(
+      :title,
+      :creator,
+      :subject,
+      :date,
+      :identifier,
+      :language,
+      :relation,
+      :publisher,
+      to: :attributes
+    )
+
+    private
+
+      def json_object
+        return {} if @json.nil?
+
+        parsed = JSON.parse(@json)
+        OpenStruct.new(parsed)
+      end
+  end
+
   belongs_to :collection
+
+  before_save do |work|
+    # Ensure that the metadata JSON is persisted properly
+    if work.dublin_core.present?
+      work.dublin_core = work.dublin_core.to_json
+    end
+  end
 
   def self.create_skeleton(title, user_id, collection_id, work_type)
     work = Work.new(
@@ -50,5 +93,22 @@ class Work < ApplicationRecord
     User.find(created_by_user_id)
   rescue ActiveRecord::RecordNotFound
     nil
+  end
+
+  def dublin_core
+    DublinCore.new(super)
+  end
+
+  def dublin_core=(value)
+    parsed = if value.is_a?(String)
+               JSON.parse(value)
+             else
+               json_value = JSON.generate(value)
+               JSON.parse(json_value)
+             end
+
+    super(parsed.to_json)
+  rescue JSON::ParserError => parse_error
+    raise(ArgumentError, "Invalid JSON passed to Work#dublin_core=: #{parse_error}")
   end
 end
