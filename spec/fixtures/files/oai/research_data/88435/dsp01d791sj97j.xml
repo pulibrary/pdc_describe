@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="static/style.xsl"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+   <responseDate>2022-04-28T14:30:58Z</responseDate>
+   <request verb="GetRecord" identifier="oai:dataspace.princeton.edu:88435/dsp01d791sj97j" metadataPrefix="oai_dc">https://dataspace.princeton.edu/oai/request</request>
+   <GetRecord>
+      <record>
+         <header>
+            <identifier>oai:dataspace.princeton.edu:88435/dsp01d791sj97j</identifier>
+            <datestamp>2021-04-02T13:01:19Z</datestamp>
+            <setSpec>com_88435_dsp01g732d9019</setSpec>
+            <setSpec>col_88435_dsp01zw12z7787</setSpec>
+         </header>
+         <metadata>
+            <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:doc="http://www.lyncode.com/xoai" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+               <dc:creator>Abrams, Samantha</dc:creator>
+               <dc:creator>Antracoli, Alexis</dc:creator>
+               <dc:creator>Appel, Rachel</dc:creator>
+               <dc:creator>Caust-Ellenbogen, Celia</dc:creator>
+               <dc:creator>Dennison, Sarah</dc:creator>
+               <dc:creator>Duncan, Sumitra</dc:creator>
+               <dc:creator>Ramsay, Stefanie</dc:creator>
+               <dc:date>2019-04-29T14:54:20Z</dc:date>
+               <dc:date>2019-04-29T14:54:20Z</dc:date>
+               <dc:date>2019</dc:date>
+               <dc:identifier>http://arks.princeton.edu/ark:/88435/dsp01d791sj97j</dc:identifier>
+               <dc:description>Download the README.txt for a detailed description of this dataset's content.</dc:description>
+               <dc:description>In 2017, seven members of the Archive-It Mid-Atlantic Users Group (AITMA) conducted a study of 14 subjects representative of their stakeholder populations to assess the usability of Archive-It, a web archiving subscription service of the Internet Archive. While Archive-It is the most widely-used tool for web archiving, little is known about how users interact with the service. This study intended to teach us what users expect from web archives, which exist as another form of archival material. End-user subjects executed four search tasks using the public Archive-It interface and the Wayback Machine to access archived information on websites from the facilitators’ own harvested collections and provide feedback about their experiences. The tasks were designed to have straightforward pass or fail outcomes, and the facilitators took notes on the subjects’ behavior and commentary during the sessions. Overall, participants reported mildly positive impressions of Archive-It public user interface based on their session. The study identified several key areas of improvement for the Archive-It service pertaining to metadata options, terminology display, indexing of dates, and the site’s search box.</dc:description>
+               <dc:relation>Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It, Fall/Winter 2019, Vol. 82, No. 2.</dc:relation>
+               <dc:title>Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It</dc:title>
+               <dc:type>Dataset</dc:type>
+            </oai_dc:dc>
+         </metadata>
+      </record>
+   </GetRecord>
+</OAI-PMH>
