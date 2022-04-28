@@ -38,6 +38,22 @@ RSpec.describe "Editing collections" do
     expect(page).to have_content "Editing Collection"
   end
 
+  it "allows a collection admin to add a submitter to the collection", js: true do
+    sign_in collection_admin_user
+    visit collection_path(collection)
+    fill_in "submitter-uid-to-add", with: "submiter123"
+    click_on "Add Submitter"
+    expect(page).to have_content "submiter123"
+  end
+
+  it "allows a collection admin to add an admin to the collection", js: true do
+    sign_in collection_admin_user
+    visit collection_path(collection)
+    fill_in "admin-uid-to-add", with: "admin123"
+    click_on "Add Administrator"
+    expect(page).to have_content "admin123"
+  end
+
   it "does not a collection admin to edit another collection", js: true do
     sign_in collection_admin_user
     visit collection_path(collection_other)
