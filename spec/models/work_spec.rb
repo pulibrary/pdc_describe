@@ -54,4 +54,18 @@ RSpec.describe Work, type: :model do
       end
     end
   end
+
+  describe "#dublin_core=" do
+    subject(:work) { described_class.create_skeleton(title, user_id, collection_id, work_type) }
+    let(:title) { "test title" }
+    let(:user_id) { user.id }
+    let(:collection_id) { collection.id }
+    let(:work_type) { "DATASET" }
+
+    context "when it is mutated with invalid JSON" do
+      it "raises an error" do
+        expect { work.dublin_core = "{" }.to raise_error(ArgumentError, "Invalid JSON passed to Work#dublin_core=: 809: unexpected token at '{'")
+      end
+    end
+  end
 end
