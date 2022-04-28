@@ -62,6 +62,12 @@ RSpec.describe Dataset, type: :model do
     subject(:data_set) { described_class.create_skeleton("test title", user.id, collection.id) }
 
     context "and when the ARK is valid" do
+      around do |example|
+        Rails.configuration.update_ark_url = true
+        example.run
+        Rails.configuration.update_ark_url = false
+      end
+
       before do
         # stub_request(:get, "https://ezid.cdlib.org/id/#{ezid}").to_return(status: 200, body: response_body)
       end

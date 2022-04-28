@@ -48,7 +48,7 @@ class S3QueryService
     objects = []
     resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
     resp.to_h[:contents].each do |object|
-      s3_file = S3File.new(filename: object[:key])
+      s3_file = S3File.new(filename: object[:key], last_modified: object[:last_modified], size: object[:size])
       objects << s3_file
     end
     objects

@@ -1,0 +1,9 @@
+---
+production:
+  false
+staging:
+  false
+development:
+  false
+test:
+  false
