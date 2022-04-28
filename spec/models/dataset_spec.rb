@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-RSpec.describe Dataset, type: :model do
+RSpec.describe Dataset, type: :model, mock_ezid_api: true do
   before { Collection.create_defaults }
 
   let(:collection) { Collection.default }
@@ -9,6 +9,9 @@ RSpec.describe Dataset, type: :model do
   let(:user_other) { FactoryBot.create :user }
   let(:superadmin_user) { User.from_cas(OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" })) }
   let(:doi) { "https://doi.org/10.34770/0q6b-cj27" }
+  # Please see spec/support/ezid_specs.rb
+  let(:ezid) { @ezid }
+  let(:identifier) { @identifier }
 
   it "creates a skeleton dataset and links it to a new work" do
     ds = described_class.create_skeleton("test title", user.id, collection.id)
@@ -26,6 +29,42 @@ RSpec.describe Dataset, type: :model do
     original_ark = ds.ark
     ds.save
     expect(ds.ark).to eq original_ark
+  end
+
+  context "when created with an existing ARK" do
+    subject(:data_set) { described_class.create_skeleton("test title", user.id, collection.id) }
+
+    context "and when the ARK is valid" do
+      it "does not mint a new ARK" do
+        expect(data_set.persisted?).not_to be false
+        data_set.ark = ezid
+        data_set.save
+
+        expect(data_set.persisted?).to be true
+        expect(data_set.ark).to eq(ezid)
+      end
+
+      it "updates the ARK metadata" do
+        data_set = described_class.create_skeleton("test title", user.id, collection.id)
+
+        data_set.ark = ezid
+        data_set.save
+
+        expect(identifier).to have_received(:modify)
+      end
+    end
+
+    context "and when the ARK is invalid" do
+      before do
+        allow(Ezid::Identifier).to receive(:find).and_raise(Net::HTTPServerException, '400 "Bad Request"')
+      end
+
+      it "raises an error" do
+        expect(data_set.persisted?).not_to be false
+        data_set.ark = ezid
+        expect { data_set.save! }.to raise_error("Validation failed: Invalid ARK provided for the Dataset: #{ezid}")
+      end
+    end
   end
 
   it "returns datasets waiting for approval depending on the user" do
@@ -46,6 +85,27 @@ RSpec.describe Dataset, type: :model do
     it "has a DOI" do
       expect(dataset.title).to eq "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events"
       expect(dataset.doi).to eq "https://doi.org/10.34770/pe9w-x904"
+    end
+  end
+
+  describe ".my_datasets" do
+    subject(:datasets) { described_class.my_datasets(user) }
+    let(:ds1) { described_class.create_skeleton("test title", user.id, collection.id) }
+    let(:ds2) { described_class.create_skeleton("test title", user.id, collection.id) }
+    let(:works) do
+      [
+        ds1.work,
+        ds2.work
+      ]
+    end
+
+    before do
+      works
+    end
+
+    it "retrieves Dataset models associated with a given User" do
+      expect(datasets).to be_an(Array)
+      expect(datasets.length).to eq(2)
     end
   end
 end

@@ -24,5 +24,14 @@ header {
 
   .menu {
     float: right;
+
+    nav {
+      float: left;
+      padding: 0px 5px;
+    }
+  }
+
+  .user-actions {
+    float: right;
   }
 }

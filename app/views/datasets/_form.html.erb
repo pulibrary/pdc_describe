@@ -22,11 +22,9 @@
     <%= form.collection_select :collection_id, current_user.submitter_collections, :id, :title, {:include_blank => true}, {:class => 'form-control'} %>
   </div>
 
-  <% if form.object.ark.present? %>
-    <div class="field">
-      ARK: <%= form.object.ark %>
-    </div>
-  <% end %>
+  <div class="field">
+    ARK: <%= form.object.ark %>
+  </div>
   <br />
 
   <div class="actions">

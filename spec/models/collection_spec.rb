@@ -28,4 +28,16 @@ RSpec.describe Collection, type: :model do
     expect(described_class.count).to be 0
     expect(Collection.default_for_department("41000")).to_not be nil
   end
+
+  describe ".default_for_department" do
+    subject(:collection) { described_class.default_for_department(department_number) }
+    let(:department_number) { "30000" }
+
+    context "when the department number is less than 31000" do
+      it "provides the default collection" do
+        expect(collection).to be_a(Collection)
+        expect(collection.code).to eq("RD")
+      end
+    end
+  end
 end
