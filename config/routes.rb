@@ -17,6 +17,11 @@ Rails.application.routes.draw do
   post "dataset/:id/resubmit", to: "datasets#resubmit", as: :resubmit_dataset
   resources :datasets
 
+  delete "collections/:id/:uid", to: "collections#delete_user_from_collection", as: :delete_user_from_collection
+  post "collections/:id/add-submitter/:uid", to: "collections#add_submitter", as: :add_submitter
+  post "collections/:id/add-admin/:uid", to: "collections#add_admin", as: :add_admin
+  resources :collections
+
   # Anything still unmatched by the end of the routes file should go to the not_found page
   # match '*a', to: redirect('/404'), via: :get
 end

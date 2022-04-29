@@ -1,0 +1,32 @@
+---
+shared:
+  rd:
+    admin:
+      - tbd-004
+    submit:
+      - tbd-005
+      - tbd-006
+  pppl:
+    admin:
+      - tbd-001
+    submit:
+      - tbd-002
+      - tbd-003
+  etd:
+    admin:
+      - tbd-007
+    submit:
+  lib:
+    admin:
+    submit:
+      - tbd-008
+test:
+  rd:
+    admin:
+      - user1
+    submit:
+      - user2
+  lib:
+    admin:
+    submit:
+      - user3

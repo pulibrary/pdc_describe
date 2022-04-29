@@ -1,0 +1,186 @@
+<style>
+  .delete_icon {
+    color: #bb6c6c;
+  }
+</style>
+<h1><%= @collection.title.strip %></h1>
+
+<p>Code: <%= @collection.code %></p>
+<p>Description: <%= @collection.description %></p>
+
+
+<h2>Submitters</h2>
+<p>Users that are allowed to add new works to this collection</p>
+<ul id="submitter-list">
+<% @collection.submitters.each do |user| %>
+  <!--
+    Notice that we render the list of submitters and admins as hidden spans that are then
+    picked up by the JavaScript on the page and turned into visible HTMLs with all the bells
+    and whistles. This is so that we have a single way of rendering the data (both the user
+    permissions already on the database *and* the user permissions added on the fly by an
+    administrator).
+  -->
+  <span class="hidden submitter-data"
+    data-uid="<%= user.uid %>"
+    data-collection-id="<%= @collection.id %>"
+    data-can-delete="<%= @can_edit && user.uid != current_user.uid %>"
+    data-you="<%= user.uid == current_user.uid %>"></span>
+<% end %>
+</ul>
+
+<% if @can_edit == true %>
+  <div>
+      <input id="submitter-uid-to-add" placeholder="netid"></input>
+      <%= link_to "Add Submitter", "#", id: "btn-add-submitter", class: "btn btn-secondary" %>
+      <span id="add-submitter-message"></span>
+  </div>
+<% end %>
+
+
+<h2>Administrators</h2>
+<p>Users that are allowed to admininister this collection</p>
+<ul id="admin-list">
+<% @collection.administrators.each do |user| %>
+  <span class="hidden admin-data"
+    data-uid="<%= user.uid %>"
+    data-collection-id="<%= @collection.id %>"
+    data-can-delete="<%= @can_edit && user.uid != current_user.uid %>"
+    data-you="<%= user.uid == current_user.uid %>"></span>
+<% end %>
+</ul>
+
+<% if @can_edit == true %>
+  <div>
+      <input id="admin-uid-to-add" placeholder="netid"></input>
+      <%= link_to "Add Administrator", "#", id: "btn-add-admin", class: "btn btn-secondary" %>
+      <span id="add-admin-message"></span>
+  </div>
+<% end %>
+
+<% if @can_edit == true %>
+  <div>
+    <%= link_to("Edit", edit_collection_path(@collection), class: "btn btn-primary") %>
+  </div>
+<% end %>
+
+<%= link_to("View all collections", collections_path) %>
+
+<script>
+$(function() {
+
+  // Issues the HTTP DELETE to remove a user's access from a collection
+  var deleteUserFromCollection = function(el, url, uid) {
+    $.ajax({
+      type: "DELETE",
+      url: url.replace("uid-placeholder", uid),
+      data: { authenticity_token: "<%= form_authenticity_token %>" },
+      success: function() {
+        // Remove the <li> for the user
+        $(".li-user-" + uid).remove();
+      },
+      error: function(x) {
+        alert(x.responseJSON.message);
+      }
+    });
+  }
+
+  // Adds the information for a given user to the lists of administrators/submitters
+  // for the collection.
+  // `elList` is the reference to the <ul> HTML element that hosts the list.
+  var addUserHtml = function(elList, uid, collectionId, role, canDelete, isYou) {
+    var base_user_url = "<%= user_path('user-placeholder') %>";
+    var show_user_url = base_user_url.replace("user-placeholder", uid);
+    var html = `<li class="li-user-${uid}"> <a href="${show_user_url}">${uid}</a>`;
+    if (isYou == true) {
+      html += ` (you)`;
+    }
+    if (canDelete == true) {
+      html += `
+        <span>
+        <a class="delete-user-from-collection" data-collection-id="${collectionId}" data-uid="${uid}"
+          href="#" title="Revoke user's ${role} access this collection">
+          <i class="bi bi-trash delete_icon" data-collection-id="${collectionId}" data-uid="${uid}"></i>
+        </a>
+      </span>`;
+    }
+    $(elList).append(html);
+  }
+
+  // Issues the HTTP POST to add a user to a collection and updates the UI
+  var addUserToCollection = function(url, elTxt, elError, elList, role) {
+    var collectionId = "<%= @collection.id %>";
+    var uid = $(elTxt).val().trim();
+    if (uid == "") {
+      $(elError).text("Enter netid of user to add");
+      return;
+    }
+
+    $.ajax({
+      type: "POST",
+      url: url.replace("uid-placeholder", uid),
+      data: { authenticity_token: "<%= form_authenticity_token %>" },
+      success: function() {
+        $(elTxt).val("");
+        $(elError).text("");
+        var canDelete = true;
+        var isYou = false;
+        addUserHtml(elList, uid, collectionId, role, canDelete, isYou);
+      },
+      error: function(x) {
+        $(elError).text(x.responseJSON.message);
+      }
+    });
+  }
+
+  // Adds a submitter to the collection
+  $("#btn-add-submitter").on("click", function(x) {
+    var url = '<%= add_submitter_url(id: @collection.id, uid: "uid-placeholder") %>';
+    addUserToCollection(url, "#submitter-uid-to-add", "#add-submitter-message", "#submitter-list", "submit");
+    return false;
+  });
+
+  // Adds an administrator to the collection
+  $("#btn-add-admin").on("click", function(x) {
+    var url = '<%= add_admin_url(id: @collection.id, uid: "uid-placeholder") %>';
+    addUserToCollection(url, "#admin-uid-to-add", "#add-admin-message", "#admin-list", "admin");
+    return false;
+  });
+
+  // Displays the initial list of submitters.
+  $(".submitter-data").each(function(ix, el) {
+    var elList = $("#submitter-list");
+    var uid = $(el).data("uid");
+    var collectionId = $(el).data("collectionId");
+    var canDelete = $(el).data("canDelete");
+    var isYou = $(el).data("you");
+    addUserHtml(elList, uid, collectionId, "submit", canDelete, isYou);
+  });
+
+  // Displays the initial list of administrators.
+  $(".admin-data").each(function(ix, el) {
+    var elList = $("#admin-list");
+    var uid = $(el).data("uid");
+    var collectionId = $(el).data("collectionId");
+    var canDelete = $(el).data("canDelete");
+    var isYou = $(el).data("you");
+    addUserHtml(elList, uid, collectionId, "admin", canDelete, isYou);
+  });
+
+  // Wire up the delete button for all users listed in the collection.
+  //
+  // Notice the use of $(document).on("click", selector, ...) instead of the
+  // typical $(selector).on("click", ...). This syntax is required so that
+  // we can detect the click even on HTML elements _added on the fly_ which
+  // is the case when a user adds a new submitter or admin to the collection.
+  // Reference: https://stackoverflow.com/a/17086311/446681
+  $(document).on("click", ".delete-user-from-collection", function(el) {
+    var url = '<%= delete_user_from_collection_url(id: @collection.id, uid: "uid-placeholder") %>'
+    var uid = $(el.target).data("uid");
+    var message = "Revoke access to user " + uid;
+    if (confirm(message)) {
+      deleteUserFromCollection(el, url, uid);
+    }
+    return false;
+  });
+});
+</script>

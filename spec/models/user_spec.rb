@@ -29,6 +29,19 @@ RSpec.describe User, type: :model do
       expect(pppl_user).to be_a described_class
       expect(pppl_user.default_collection.id).to eq pppl_collection.id
     end
+
+    it "updates an existing user with CAS info" do
+      # Create a user without CAS info
+      described_class.where(uid: "test123").delete_all
+      user = described_class.new(uid: "test123", email: "test123@princeton.edu")
+      user.save!
+      expect(user.display_name).to be nil
+
+      # ...make sure it's updated with CAS info
+      cas_info = OmniAuth::AuthHash.new(provider: "cas", uid: "test123", extra: { mail: "test123@princeton.edu", displayname: "Test User 123" })
+      user = described_class.from_cas(cas_info)
+      expect(user.full_name).to eq "Test User 123"
+    end
   end
 
   describe "#superadmin?" do
@@ -52,6 +65,30 @@ RSpec.describe User, type: :model do
       it "returns nil" do
         expect(normal_user.superadmin?).to eq false
       end
+    end
+  end
+
+  describe "#new_for_uid" do
+    it "creates the user only once" do
+      described_class.where(uid: "test222").delete_all
+      user1 = described_class.new_for_uid("test222")
+      user2 = described_class.new_for_uid("test222")
+      expect(user1.id).to eq user2.id
+    end
+  end
+
+  describe "#create_default_users" do
+    it "creates the default users/collection records" do
+      # The data for these tests comes from `default_collections.yml`
+      described_class.create_default_users
+      user1 = described_class.new_for_uid("user1")
+      user2 = described_class.new_for_uid("user2")
+      rd = Collection.where(code: "RD").first
+      lib = Collection.where(code: "LIB").first
+      expect(user1.can_admin?(rd.id)).to be true
+      expect(user1.can_admin?(lib.id)).to be false
+      expect(user2.can_submit?(rd.id)).to be true
+      expect(user2.can_admin?(rd.id)).to be false
     end
   end
 

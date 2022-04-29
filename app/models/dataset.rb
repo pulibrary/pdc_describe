@@ -22,11 +22,15 @@ class Dataset < ApplicationRecord
   end
 
   after_save do |ds|
-    if ds.ark.present?
-      # Ensure that the ARK metadata is updated for the new URL
-      if ark_object.target != ds.url
-        ark_object.target = ds.url
-        ark_object.save!
+    # We only want to update the ark url under certain conditions.
+    # Set this value in config/update_ark_url.yml
+    if Rails.configuration.update_ark_url
+      if ds.ark.present?
+        # Ensure that the ARK metadata is updated for the new URL
+        if ark_object.target != ds.url
+          ark_object.target = ds.url
+          ark_object.save!
+        end
       end
     end
   end
