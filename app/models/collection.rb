@@ -60,4 +60,9 @@ class Collection < ApplicationRecord
       default
     end
   end
+
+  def self.research_data
+    create_defaults
+    Collection.where(code: "RD").first
+  end
 end
