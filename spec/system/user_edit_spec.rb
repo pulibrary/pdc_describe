@@ -20,10 +20,7 @@ RSpec.describe "Editing users" do
   end
 
   describe "Non-admin users cannot edit others people data" do
-    before do
-      Collection.create_defaults
-      sign_in user
-    end
+    before { sign_in user }
 
     let(:user) { FactoryBot.create :user }
     let(:user_other) { FactoryBot.create :user }
