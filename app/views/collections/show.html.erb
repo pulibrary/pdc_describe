@@ -47,6 +47,15 @@
     data-can-delete="<%= @can_edit && user.uid != current_user.uid %>"
     data-you="<%= user.uid == current_user.uid %>"></span>
 <% end %>
+
+<% @collection.super_administrators.each do |user| %>
+  <span class="hidden admin-data"
+    data-uid="<%= user.uid %>"
+    data-collection-id="<%= @collection.id %>"
+    data-can-delete="false"
+    data-super-admin="true"
+    data-you="<%= user.uid == current_user.uid %>"></span>
+<% end %>
 </ul>
 
 <% if @can_edit == true %>
@@ -87,12 +96,15 @@ $(function() {
   // Adds the information for a given user to the lists of administrators/submitters
   // for the collection.
   // `elList` is the reference to the <ul> HTML element that hosts the list.
-  var addUserHtml = function(elList, uid, collectionId, role, canDelete, isYou) {
+  var addUserHtml = function(elList, uid, collectionId, role, canDelete, isYou, isSuperAdmin) {
     var base_user_url = "<%= user_path('user-placeholder') %>";
     var show_user_url = base_user_url.replace("user-placeholder", uid);
     var html = `<li class="li-user-${uid}"> <a href="${show_user_url}">${uid}</a>`;
     if (isYou == true) {
       html += ` (you)`;
+    }
+    if (isSuperAdmin == true) {
+      html += ` <i title="This is a system administrator, access cannot be changed." class="bi bi-person-workspace"></i>`;
     }
     if (canDelete == true) {
       html += `
@@ -124,7 +136,8 @@ $(function() {
         $(elError).text("");
         var canDelete = true;
         var isYou = false;
-        addUserHtml(elList, uid, collectionId, role, canDelete, isYou);
+        var isSuperAdmin = false;
+        addUserHtml(elList, uid, collectionId, role, canDelete, isYou, isSuperAdmin);
       },
       error: function(x) {
         $(elError).text(x.responseJSON.message);
@@ -146,25 +159,33 @@ $(function() {
     return false;
   });
 
-  // Displays the initial list of submitters.
-  $(".submitter-data").each(function(ix, el) {
-    var elList = $("#submitter-list");
-    var uid = $(el).data("uid");
-    var collectionId = $(el).data("collectionId");
-    var canDelete = $(el).data("canDelete");
-    var isYou = $(el).data("you");
-    addUserHtml(elList, uid, collectionId, "submit", canDelete, isYou);
-  });
+  if ($("#data-loaded").text() != "true") {
+    // Displays the initial list of submitters.
+    $(".submitter-data").each(function(ix, el) {
+      var elList = $("#submitter-list");
+      var uid = $(el).data("uid");
+      var collectionId = $(el).data("collectionId");
+      var canDelete = $(el).data("canDelete");
+      var isYou = $(el).data("you");
+      var isSuperAdmin = false;
+      addUserHtml(elList, uid, collectionId, "submit", canDelete, isYou, isSuperAdmin);
+    });
 
-  // Displays the initial list of administrators.
-  $(".admin-data").each(function(ix, el) {
-    var elList = $("#admin-list");
-    var uid = $(el).data("uid");
-    var collectionId = $(el).data("collectionId");
-    var canDelete = $(el).data("canDelete");
-    var isYou = $(el).data("you");
-    addUserHtml(elList, uid, collectionId, "admin", canDelete, isYou);
-  });
+    // Displays the initial list of administrators.
+    $(".admin-data").each(function(ix, el) {
+      var elList = $("#admin-list");
+      var uid = $(el).data("uid");
+      var collectionId = $(el).data("collectionId");
+      var canDelete = $(el).data("canDelete");
+      var isYou = $(el).data("you") == "true";
+      var isSuperAdmin = $(el).data("super-admin");
+      addUserHtml(elList, uid, collectionId, "admin", canDelete, isYou, isSuperAdmin);
+    });
+
+    // Track that we have displayed this information. This prevents re-display when
+    // user click the Back/Forward button on their browser.
+    $('<span id="data-loaded" class="hidden">true</span>').appendTo("body");
+  }
 
   // Wire up the delete button for all users listed in the collection.
   //

@@ -22,6 +22,10 @@ class Collection < ApplicationRecord
     UserCollection.where(collection_id: id, role: "ADMIN").map(&:user)
   end
 
+  def super_administrators
+    Rails.configuration.superadmins.map { |uid| User.new_for_uid(uid) }
+  end
+
   def submitters
     UserCollection.where(collection_id: id, role: "SUBMITTER").map(&:user)
   end
