@@ -3,7 +3,7 @@ require "rails_helper"
 
 RSpec.describe Work, type: :model do
   let(:user) { FactoryBot.create :user }
-  let(:collection) { FactoryBot.create :research_data }
+  let(:collection) { Collection.research_data }
 
   it "creates a skeleton dataset" do
     work = described_class.create_skeleton("test title", user.id, collection.id, "DATASET")
