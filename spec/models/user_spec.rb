@@ -118,6 +118,28 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe "#setup_user_default_collections" do
+    it "does not add records for super admins" do
+      admin = described_class.from_cas(superadmin_user)
+      admin.setup_user_default_collections
+      expect(UserCollection.where(user_id: admin.id).count).to be 0
+    end
+
+    it "gives a user submit access to their default collection" do
+      user = described_class.from_cas(normal_user)
+      user.setup_user_default_collections
+      expect(UserCollection.where(user_id: user.id, collection_id: user.default_collection_id).count).to be 1
+    end
+
+    it "handles nil values in the default collection" do
+      user = described_class.from_cas(normal_user)
+      user.default_collection_id = nil
+      user.save!
+      user.setup_user_default_collections
+      expect(UserCollection.where(user_id: user.id, collection_id: user.default_collection_id).count).to be 0
+    end
+  end
+
   describe "#orcid" do
     let(:normal_user) { described_class.new }
     let(:orcid) { "0000-0003-1279-3709" }
