@@ -103,6 +103,12 @@ class User < ApplicationRecord
 
   # Adds the user to the collections that they should have access by default
   def setup_user_default_collections
+    # No need to add records for super admins.
+    return if superadmin?
+
+    # Nothing to do in this case (this should never happen, but it did once so...)
+    return if default_collection_id.nil?
+
     # Makes sure the user has submit access to their default collection
     if UserCollection.can_submit?(id, default_collection_id) == false
       UserCollection.add_submitter(id, default_collection_id)
