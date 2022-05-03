@@ -27,6 +27,7 @@ gem "jbuilder", "~> 2.7"
 gem "rspec-rails", "~> 5.0.0"
 gem "webmock"
 gem "whenever"
+gem "nokogiri", ">= 1.13.4"
 
 # Reference: https://github.com/pulibrary/pul-the-hard-way/blob/main/services/cas.md
 gem "devise"
