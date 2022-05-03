@@ -64,7 +64,7 @@ RSpec.describe Work, type: :model do
 
     context "when it is mutated with invalid JSON" do
       it "raises an error" do
-        expect { work.dublin_core = "{" }.to raise_error(ArgumentError, "Invalid JSON passed to Work#dublin_core=: 783: unexpected token at '{'")
+        expect { work.dublin_core = "{" }.to raise_error(ArgumentError, "Invalid JSON passed to Work#dublin_core=: 809: unexpected token at '{'")
       end
     end
   end
