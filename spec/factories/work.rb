@@ -8,6 +8,54 @@ FactoryBot.define do
       created_by_user_id { FactoryBot.create(:user).id }
     end
 
+    factory :sowing_the_seeds_work do
+      title { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
+      collection { Collection.research_data }
+      created_by_user_id { FactoryBot.create(:user).id }
+    end
+
+    factory :distinct_cytoskeletal_proteins_work do
+      title { "Distinct cytoskeletal proteins define zones of enhanced cell wall synthesis in Helicobacter pylori" }
+      collection { Collection.research_data }
+      created_by_user_id { FactoryBot.create(:user).id }
+    end
+
+    factory :attention_and_awareness_work do
+      title { "Attention and awareness in the dorsal attention network" }
+      collection { Collection.research_data }
+      created_by_user_id { FactoryBot.create(:user).id }
+    end
+
+    factory :femtosecond_xray_work do
+      title { "Femtosecond X-ray Diffraction of Laser-shocked Forsterite (Mg2SiO4) to 122 GPa" }
+      collection { Collection.research_data }
+      created_by_user_id { FactoryBot.create(:user).id }
+    end
+
+    factory :bitklavier_work do
+      title { "bitKlavier Grand Sample Library—Piano Bar Mic Image" }
+      collection { Collection.research_data }
+      created_by_user_id { FactoryBot.create(:user).id }
+    end
+
+    factory :design_and_simulation_of_the_snowflake_work do
+      title { "Design and simulation of the snowflake divertor control for NSTX-U" }
+      collection { Collection.research_data }
+      created_by_user_id { FactoryBot.create(:user).id }
+    end
+
+    factory :whistler_wave_generation_work do
+      title { "Whistler wave generation by anisotropic tail electrons during asymmetric magnetic reconnection in space and laboratory" }
+      collection { Collection.research_data }
+      created_by_user_id { FactoryBot.create(:user).id }
+    end
+
+    factory :supplemental_data_work do
+      title { "Supplementary data for thesis: The Evolution and Regulation of Morphological Complexity in the Vibrios" }
+      collection { Collection.research_data }
+      created_by_user_id { FactoryBot.create(:user).id }
+    end
+
     factory :us_national_pandemic_report_work do
       title { "The U.S. National Pandemic Emotional Impact Report" }
       ark { "ark:/88435/dsp01h415pd635" }
