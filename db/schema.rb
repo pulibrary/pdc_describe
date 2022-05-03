@@ -78,6 +78,7 @@ ActiveRecord::Schema.define(version: 2022_04_29_133012) do
     t.integer "created_by_user_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.json "dublin_core"
   end
 
   add_foreign_key "datasets", "works"

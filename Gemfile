@@ -43,6 +43,8 @@ gem "ezid-client", git: "https://github.com/duke-libraries/ezid-client.git", ref
 
 gem "friendly_id", "~> 5.4.0"
 
+gem "faraday"
+
 group :development, :test do
   gem "bixby"
   gem "byebug"
