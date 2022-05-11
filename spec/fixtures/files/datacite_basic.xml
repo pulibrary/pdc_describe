@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<resource xsi:schemaLocation="http://datacite.org/schema/kernel-4 https://schema.datacite.org/meta/kernel-4.4/metadata.xsd">
+  <identifier identifierType="DOI">10.5072/example-full</identifier>
+  <creators>
+    <creator nameType="Personal">
+      <creatorName>Miller, Elizabeth</creatorName>
+      <givenName>Elizabeth</givenName>
+      <familyName>Miller</familyName>
+    </creator>
+    <creator nameType="Organization">
+      <creatorName>Princeton University</creatorName>
+    </creator>
+  </creators>
+</resource>
