@@ -82,7 +82,7 @@ class DatasetsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def form_params
-      params.require(:dataset).permit([:title, :work_id, :collection_id, :title_AlternativeTitle, :AlternativeTitle])
+      params.require(:dataset).permit([:title, :work_id, :collection_id, :alternative_title])
     end
 
     def work_params
@@ -93,6 +93,6 @@ class DatasetsController < ApplicationController
     end
 
     def dataset_params
-      form_params.reject { |x| x.in?(["title", "collection_id", "title_AlternativeTitle", "AlternativeTitle"]) }
+      form_params.reject { |x| x.in?(["title", "collection_id", "alternative_title"]) }
     end
 end

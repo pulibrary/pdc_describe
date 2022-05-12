@@ -46,7 +46,7 @@ module Datacite
     end
     # rubocop:enable Metrics/MethodLength
 
-    # Creates a Datacite::Resource from a hash
+    # Creates a Datacite::Resource from a JSON string
     def self.new_from_json_string(json_string)
       resource = Datacite::Resource.new
       hash = json_string.blank? ? {} : JSON.parse(json_string)
