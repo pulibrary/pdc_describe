@@ -12,6 +12,9 @@ class DatasetsController < ApplicationController
 
   def show
     @dataset = Dataset.find(params[:id])
+    work = Work.find(@dataset.work_id)
+    @datacite = Datacite::Resource.new_from_json_string(work.data_cite)
+
     if @dataset.doi
       service = S3QueryService.new(@dataset.doi)
       @files = service.data_profile
@@ -20,14 +23,28 @@ class DatasetsController < ApplicationController
 
   def edit
     @dataset = Dataset.find(params[:id])
+    work = Work.find(@dataset.work_id)
+    @datacite = Datacite::Resource.new_from_json_string(work.data_cite)
   end
 
+  # rubocop:disable Metrics/AbcSize
+  # rubocop:disable Metrics/MethodLength
   def update
     @dataset = Dataset.find(params[:id])
     respond_to do |format|
       # Update the values in the work table
       work = Work.find(form_params[:work_id])
-      work.update(work_params)
+
+      work_data = work_params
+      resource = Datacite::Resource.new(title: form_params[:title])
+
+      # Add the secondary title to the work.data_cite JSON field
+      if params["alternative_title"].present?
+        resource.titles << Datacite::Title.new(title: params["alternative_title"], title_type: "AlternativeTitle")
+      end
+      work_data[:data_cite] = resource.to_json
+
+      work.update(work_data)
       work.save!
 
       # And then update the dataset
@@ -40,6 +57,8 @@ class DatasetsController < ApplicationController
       end
     end
   end
+  # rubocop:enable Metrics/MethodLength
+  # rubocop:enable Metrics/AbcSize
 
   def approve
     dataset = Dataset.find(params[:id])
@@ -63,7 +82,7 @@ class DatasetsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def form_params
-      params.require(:dataset).permit([:title, :work_id, :collection_id])
+      params.require(:dataset).permit([:title, :work_id, :collection_id, :title_AlternativeTitle, :AlternativeTitle])
     end
 
     def work_params
@@ -74,6 +93,6 @@ class DatasetsController < ApplicationController
     end
 
     def dataset_params
-      form_params.reject { |x| x.in?(["title", "collection_id"]) }
+      form_params.reject { |x| x.in?(["title", "collection_id", "title_AlternativeTitle", "AlternativeTitle"]) }
     end
 end

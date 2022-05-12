@@ -22,10 +22,19 @@
 
         <%= form.hidden_field :work_id %>
 
-        <div class="field">
-          <%= form.label :title %><br>
-          <%= form.text_field :title %>
-        </div>
+        <% @datacite.titles.each do |title| %>
+          <% if title.main? %>
+            <div class="field">
+              <%= form.label :title %><br>
+              <%= form.text_field :title %>
+            </div>
+          <% elsif title.alternative? %>
+            <div class="field">
+              <%= form.label :alternative_title %><br>
+              <input type="text" id="alternative_title" name="alternative_title" value="<%= title.title %>" />
+            </div>
+          <% end %>
+        <% end %>
 
         <div class="field">
           <%= form.label :collection %><br>

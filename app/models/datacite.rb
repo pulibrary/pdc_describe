@@ -45,6 +45,16 @@ module Datacite
       builder.to_xml
     end
     # rubocop:enable Metrics/MethodLength
+
+    # Creates a Datacite::Resource from a hash
+    def self.new_from_json_string(json_string)
+      resource = Datacite::Resource.new
+      hash = json_string.blank? ? {} : JSON.parse(json_string)
+      hash["titles"]&.each do |title|
+        resource.titles << Datacite::Title.new(title: title["title"], title_type: title["title_type"])
+      end
+      resource
+    end
   end
 
   # value: "Miller, Elizabeth"
@@ -97,6 +107,22 @@ module Datacite
     def initialize(title:, title_type: nil)
       @title = title
       @title_type = title_type
+    end
+
+    def main?
+      @title_type.blank?
+    end
+
+    def alternative?
+      @title_type == "AlternativeTitle"
+    end
+
+    def self.title_types
+      t1 = OpenStruct.new(id: "AlternativeTitle", value: "Alternative Title")
+      t2 = OpenStruct.new(id: "Subtitle", value: "Subtitle")
+      t3 = OpenStruct.new(id: "TranslatedTitle", value: "Translated Title")
+      t4 = OpenStruct.new(id: "Other", value: "Other")
+      [t1, t2, t3, t4]
     end
   end
 end
