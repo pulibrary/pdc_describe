@@ -32,18 +32,20 @@ class DatasetsController < ApplicationController
   def update
     @dataset = Dataset.find(params[:id])
     respond_to do |format|
-      # Update the values in the work table
+      # Populate the data_cite field with the data from the data entry
       work = Work.find(form_params[:work_id])
-
       work_data = work_params
       resource = Datacite::Resource.new(title: form_params[:title])
 
-      # Add the secondary title to the work.data_cite JSON field
       if params["alternative_title"].present?
         resource.titles << Datacite::Title.new(title: params["alternative_title"], title_type: "AlternativeTitle")
       end
-      work_data[:data_cite] = resource.to_json
 
+      if params["new_given_name"].present?
+        resource.creators << Datacite::Creator.new_person(params["new_given_name"], params["new_family_name"], params["new_orcid"])
+      end
+
+      work_data[:data_cite] = resource.to_json
       work.update(work_data)
       work.save!
 
@@ -82,7 +84,8 @@ class DatasetsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def form_params
-      params.require(:dataset).permit([:title, :work_id, :collection_id, :alternative_title])
+      valid_list = [:title, :work_id, :collection_id, :alternative_title, :new_orcid, :new_family_name, :new_given_name]
+      params.require(:dataset).permit(valid_list)
     end
 
     def work_params

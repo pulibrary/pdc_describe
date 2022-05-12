@@ -6,9 +6,11 @@
     <button class="nav-link" id="v-pills-publisher-tab" data-bs-toggle="pill" data-bs-target="#v-pills-publisher" type="button" role="tab" aria-controls="v-pills-publisher" aria-selected="false">Publisher</button>
     <button class="nav-link" id="v-pills-type-tab" data-bs-toggle="pill" data-bs-target="#v-pills-type" type="button" role="tab" aria-controls="v-pills-type" aria-selected="false">Resource Type</button>
   </div>
+
+  <%= form_with(model: dataset) do |form| %>
   <div class="tab-content" id="v-pills-tabContent">
+
     <div class="tab-pane fade show active" id="v-pills-title" role="tabpanel" aria-labelledby="v-pills-title-tab">
-      <%= form_with(model: dataset) do |form| %>
         <% if dataset.errors.any? %>
           <div id="error_explanation">
             <h2><%= pluralize(dataset.errors.count, "error") %> prohibited this dataset from being saved:</h2>
@@ -46,14 +48,42 @@
         </div>
         <br />
 
-        <div class="actions">
-          <%= form.submit class: "btn btn-primary" %>
-          <%= link_to 'Cancel', @dataset, class: "btn btn-secondary" %>
-        </div>
-      <% end %>
+
     </div>
     <div class="tab-pane fade" id="v-pills-creator" role="tabpanel" aria-labelledby="v-pills-creator-tab">
-      creators go here
+      <b>Creator(s)</b>
+      <% @datacite.creators.each do |creator| %>
+        <div class="field">
+          <%= form.label :given_name %><br>
+          <input type="text" id="given_name" name="given_name" value="<%= creator.given_name %>" />
+        </div>
+
+        <div class="field">
+          <%= form.label :family_name %><br>
+          <input type="text" id="family_name" name="family_name" value="<%= creator.family_name %>" />
+        </div>
+
+        <div class="field">
+          <%= form.label :orcid %><br>
+          <input type="text" id="orcid" name="orcid" value="<%= creator.orcid %>" />
+        </div>
+      <% end %>
+
+      <div class="field">
+        <%= form.label :new_orcid %><br>
+        <input type="text" id="new_orcid" name="new_orcid" value="" />
+      </div>
+
+      <div class="field">
+        <%= form.label :new_given_name %><br>
+        <input type="text" id="new_given_name" name="new_given_name" value="" />
+      </div>
+
+      <div class="field">
+        <%= form.label :new_family_name %><br>
+        <input type="text" id="new_family_name" name="new_family_name" value="" />
+      </div>
+
     </div>
     <div class="tab-pane fade" id="v-pills-identifiers" role="tabpanel" aria-labelledby="v-pills-identifiers-tab">
       identifiers go here
@@ -65,4 +95,10 @@
       resource type goes here
     </div>
   </div>
+
+  <div class="actions">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to 'Cancel', @dataset, class: "btn btn-secondary" %>
+  </div>
+  <% end %>
 </div>
