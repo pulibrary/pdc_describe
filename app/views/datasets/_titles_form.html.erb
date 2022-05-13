@@ -1,0 +1,47 @@
+<h2>Title(s)</h2>
+
+<!-- Render the existing titles in the record -->
+<% @datacite.titles.each_with_index do |title, i| %>
+  <% if title.main? %>
+    <div class="field">
+      <!-- notice that we don't display a dropdown to select a title type for the main title -->
+      Title:<br>
+      <input type="text" id="title_main" name="title_main" value="<%= title.title %>" />
+    </div>
+  <% else %>
+    <div class="field">
+      <!-- todo: this should go into a helper -->
+      <select id="title_type_<%= i + 1 %>" name="title_type_<%= i + 1 %>">
+        <option value="AlternativeTitle" <%= title.title_type == "AlternativeTitle" ? "selected" : "" %>>Alternative</option>
+        <option value="Subtitle" <%= title.title_type == "Subtitle" ? "selected" : "" %> >Subtitle</option>
+        <option value="TranslatedTitle" <%= title.title_type == "TranslatedTitle" ? "selected" : "" %>>Translated</option>
+        <option value="Other" <%= title.title_type == "Other" ? "selected" : "" %>>Other</option>
+      </select>
+      <br>
+      <input type="text" id="title_<%= i + 1 %>" name="title_<%= i + 1 %>" value="<%= title.title %>" />
+    </div>
+  <% end %>
+<% end %>
+
+<!-- Let the user add new titles -->
+<div>
+<%= link_to "Add Title", "#", id: "btn-add-title", class: "btn btn-secondary" %>
+</div>
+<div id="new-titles-anchor">...</div>
+
+<!-- Collection field (unrelated to title) -->
+<div class="field">
+  Collection<br>
+  <select id="collection_id" name="collection_id">
+    <% current_user.submitter_collections.each do |collection| %>
+      <option value="<%=collection.id%>"><%=collection.title%></option>
+    <% end %>
+  </select>
+</div>
+
+<!-- ARK field (unrelated to title) -->
+<div class="field">
+  ARK: <!-- TODO -->
+</div>
+
+<br />

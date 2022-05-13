@@ -25,6 +25,9 @@ class DatasetsController < ApplicationController
     @dataset = Dataset.find(params[:id])
     work = Work.find(@dataset.work_id)
     @datacite = Datacite::Resource.new_from_json(work.data_cite)
+    if @datacite.main_title.nil?
+      @datacite.titles << Datacite::Title.new(title: "Enter title here")
+    end
   end
 
   # rubocop:disable Metrics/AbcSize
@@ -82,8 +85,8 @@ class DatasetsController < ApplicationController
 
     def work_params
       {
-        title: form_params[:title],
-        collection_id: form_params[:collection_id]
+        title: params[:title],
+        collection_id: params[:collection_id]
       }
     end
 
@@ -100,12 +103,23 @@ class DatasetsController < ApplicationController
     def update_work_record
       work = Work.find(form_params[:work_id])
       work_data = work_params
-      resource = Datacite::Resource.new(title: form_params[:title])
+      resource = Datacite::Resource.new(title: params["title"])
 
-      if params["alternative_title"].present?
-        resource.titles << Datacite::Title.new(title: params["alternative_title"], title_type: "AlternativeTitle")
+      # Process the titles
+      resource.titles << Datacite::Title.new(title: params["title_main"])
+      for i in 1..params["existing_title_count"].to_i do
+        if params["title_#{i}"].present?
+          resource.titles << Datacite::Title.new(title: params["title_#{i}"], title_type: params["title_type_#{i}"])
+        end
       end
 
+      for i in 1..params["new_title_count"].to_i do
+        if params["new_title_#{i}"].present?
+          resource.titles << Datacite::Title.new(title: params["new_title_#{i}"], title_type: params["new_title_type_#{i}"])
+        end
+      end
+
+      # Process the creators
       for i in 1..params["existing_creator_count"].to_i do
         creator = new_creator(params["given_name_#{i}"], params["family_name_#{i}"], params["orcid_#{i}"])
         resource.creators << creator unless creator.nil?

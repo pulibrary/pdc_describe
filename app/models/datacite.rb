@@ -14,8 +14,8 @@ module Datacite
       @resource_type = resource_type || "Dataset"
     end
 
-    def title
-      @titles.first&.title
+    def main_title
+      @titles.find(&:main?)
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -162,10 +162,6 @@ module Datacite
 
     def main?
       @title_type.blank?
-    end
-
-    def alternative?
-      @title_type == "AlternativeTitle"
     end
 
     def self.title_types
