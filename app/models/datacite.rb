@@ -21,9 +21,24 @@ module Datacite
     # rubocop:disable Metrics/MethodLength
     def to_xml
       builder = Nokogiri::XML::Builder.new do |xml|
-        xml.resource("xsi:schemaLocation" => "http://datacite.org/schema/kernel-4 https://schema.datacite.org/meta/kernel-4.4/metadata.xsd") do
+        xml.resource("xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
+          "xmlns" => "http://datacite.org/schema/kernel-4",
+          "xsi:schemaLocation" => "http://datacite.org/schema/kernel-4 https://schema.datacite.org/meta/kernel-4.4/metadata.xsd") do
           xml.identifier("identifierType" => @identifier_type) do
             xml.text @identifier
+          end
+          xml.titles do
+            @titles.each do |title|
+              if title.main?
+                xml.title do
+                  xml.text title.title
+                end
+              else
+                xml.title("titleType" => title.title_type) do
+                  xml.text title.title
+                end
+              end
+            end
           end
           xml.creators do
             @creators.each do |creator|
@@ -47,7 +62,7 @@ module Datacite
     # rubocop:enable Metrics/MethodLength
 
     # Creates a Datacite::Resource from a JSON string
-    def self.new_from_json_string(json_string)
+    def self.new_from_json(json_string)
       resource = Datacite::Resource.new
       hash = json_string.blank? ? {} : JSON.parse(json_string)
       hash["titles"]&.each do |title|
@@ -86,7 +101,7 @@ module Datacite
     end
 
     def self.new_person(given_name, family_name, orcid_id = nil)
-      full_name = "#{given_name}, #{family_name}"
+      full_name = "#{family_name}, #{given_name}"
       creator = Creator.new(value: full_name, name_type: "Personal", given_name: given_name, family_name: family_name)
       if orcid_id.present?
         creator.name_identifier = NameIdentifier.new_orcid(orcid_id)

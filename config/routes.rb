@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   post "dataset/:id/approve", to: "datasets#approve", as: :approve_dataset
   post "dataset/:id/withdraw", to: "datasets#withdraw", as: :withdraw_dataset
   post "dataset/:id/resubmit", to: "datasets#resubmit", as: :resubmit_dataset
+  get "datasets/:id/datacite", to: "datasets#datacite", as: :dataset_datacite
   resources :datasets
 
   delete "collections/:id/:uid", to: "collections#delete_user_from_collection", as: :delete_user_from_collection

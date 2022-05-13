@@ -1,3 +1,8 @@
+<!--
+  Information about Bootstrap tabs
+  https://getbootstrap.com/docs/5.0/components/navs-tabs/
+  https://getbootstrap.com/docs/5.0/components/navs-tabs/#javascript-behavior
+-->
 <div class="d-flex align-items-start">
   <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
     <button class="nav-link active" id="v-pills-title-tab" data-bs-toggle="pill" data-bs-target="#v-pills-title" type="button" role="tab" aria-controls="v-pills-title" aria-selected="true">Title</button>
@@ -51,38 +56,39 @@
 
     </div>
     <div class="tab-pane fade" id="v-pills-creator" role="tabpanel" aria-labelledby="v-pills-creator-tab">
-      <b>Creator(s)</b>
-      <% @datacite.creators.each do |creator| %>
+      <h2>Creator(s)</h2>
+
+      <!-- Render the existing creators in the record -->
+      <% @datacite.creators.each_with_index do |creator, i| %>
+        <div class="field">
+          <%= form.label :orcid %><br>
+          <input type="text" id="orcid_<%= i %>" name="orcid_<%= i + 1 %>" value="<%= creator.orcid %>" />
+        </div>
+
         <div class="field">
           <%= form.label :given_name %><br>
-          <input type="text" id="given_name" name="given_name" value="<%= creator.given_name %>" />
+          <input type="text" id="given_name_<%= i %>" name="given_name_<%= i + 1 %>" value="<%= creator.given_name %>" />
         </div>
 
         <div class="field">
           <%= form.label :family_name %><br>
-          <input type="text" id="family_name" name="family_name" value="<%= creator.family_name %>" />
-        </div>
-
-        <div class="field">
-          <%= form.label :orcid %><br>
-          <input type="text" id="orcid" name="orcid" value="<%= creator.orcid %>" />
+          <input type="text" id="family_name_<%= i %>" name="family_name_<%= i + 1 %>" value="<%= creator.family_name %>" />
         </div>
       <% end %>
 
-      <div class="field">
-        <%= form.label :new_orcid %><br>
-        <input type="text" id="new_orcid" name="new_orcid" value="" />
+      <div>
+        <%= link_to "Add Creator", "#", id: "btn-add-creator", class: "btn btn-secondary" %>
       </div>
 
-      <div class="field">
-        <%= form.label :new_given_name %><br>
-        <input type="text" id="new_given_name" name="new_given_name" value="" />
-      </div>
+      <!--
+        We use these hidden fields to keep track of how many creators are on the form
+        initially and how many are added on the fly. This helps to process the data
+        when the form is submitted.
+       -->
+      <input type="text" id="existing_creator_count" name="existing_creator_count" value="<%= @datacite.creators.count %>" />
+      <input type="text" id="new_creator_count" name="new_creator_count" value="0" />
 
-      <div class="field">
-        <%= form.label :new_family_name %><br>
-        <input type="text" id="new_family_name" name="new_family_name" value="" />
-      </div>
+      <div id="new-creators-anchor">...</div>
 
     </div>
     <div class="tab-pane fade" id="v-pills-identifiers" role="tabpanel" aria-labelledby="v-pills-identifiers-tab">
@@ -102,3 +108,43 @@
   </div>
   <% end %>
 </div>
+
+
+<script>
+  $(function() {
+    var incrementNewCreatorCount = function() {
+      var counter = parseInt($("#new_creator_count")[0].value, 10);
+      counter++
+      $("#new_creator_count")[0].value = counter
+      return counter
+    }
+
+    var addCreatorPlaceholder = function(el) {
+      var newCreatorCount = incrementNewCreatorCount();
+      var orcidId = `new_orcid_${newCreatorCount}`;
+      var familyNameId = `new_family_name_${newCreatorCount}`;
+      var givenNameId = `new_given_name_${newCreatorCount}`;
+      var html = `
+      <div class="field">
+        ORCID:<br>
+        <input type="text" id="${orcidId}" name="${orcidId}" value="" />
+      </div>
+
+      <div class="field">
+        Given name:<br>
+        <input type="text" id="${givenNameId}" name="${givenNameId}" value="" />
+      </div>
+
+      <div class="field">
+        Family name:<br>
+        <input type="text" id="${familyNameId}" name="${familyNameId}" value="" />
+      </div>`;
+      $("#new-creators-anchor").append(html);
+    }
+
+    $("#btn-add-creator").on("click", function(el) {
+      addCreatorPlaceholder(el);
+      return false;
+    });
+  });
+</script>
