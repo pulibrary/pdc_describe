@@ -1,11 +1,15 @@
 <?xml version="1.0"?>
-<resource xsi:schemaLocation="http://datacite.org/schema/kernel-4 https://schema.datacite.org/meta/kernel-4.4/metadata.xsd">
+<resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://datacite.org/schema/kernel-4" xsi:schemaLocation="http://datacite.org/schema/kernel-4 https://schema.datacite.org/meta/kernel-4.4/metadata.xsd">
   <identifier identifierType="DOI">10.5072/example-full</identifier>
+  <titles>
+    <title>hello world</title>
+  </titles>
   <creators>
     <creator nameType="Personal">
       <creatorName>Miller, Elizabeth</creatorName>
       <givenName>Elizabeth</givenName>
       <familyName>Miller</familyName>
+      <nameIdentifier schemeURI="https://orcid.org" nameIdentifierScheme="ORCID">1234-5678-9012-1234</nameIdentifier>
     </creator>
     <creator nameType="Organization">
       <creatorName>Princeton University</creatorName>

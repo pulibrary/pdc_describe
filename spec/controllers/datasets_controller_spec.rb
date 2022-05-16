@@ -42,11 +42,10 @@ RSpec.describe DatasetsController, mock_ezid_api: true do
     it "handles the update page" do
       params = {
         "dataset" => {
-          "title" => "test dataset updated",
-          "collection_id" => ds.work.collection.id,
-          "work_id" => ds.work.id,
-          "ark" => ds.ark
+          "work_id" => ds.work.id
         },
+        "title" => "test dataset updated",
+        "collection_id" => ds.work.collection.id,
         "commit" => "Update Dataset",
         "controller" => "datasets",
         "action" => "update",
@@ -78,19 +77,36 @@ RSpec.describe DatasetsController, mock_ezid_api: true do
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/datasets/#{ds.id}"
     end
+
+    it "handles the show page" do
+      sign_in user
+      get :datacite, params: { id: ds.id }
+      expect(response.body.start_with?('<?xml version="1.0"?>')).to be true
+    end
   end
 
   describe "#update" do
     let(:params) do
       {
         id: ds.id,
+        title: ds.title,
+        collection_id: collection.id,
         dataset: {
           id: ds.id,
-          title: ds.title,
-          collection_id: collection.id,
           work_id: work.id,
           format: format
-        }
+        },
+        new_title_1: "the subtitle",
+        new_title_type_1: "Subtitle",
+        existing_title_count: "1",
+        new_title_count: "1",
+        given_name_1: "Toni",
+        family_name_1: "Morrison",
+        new_given_name_1: "Sonia",
+        new_family_name_1: "Sotomayor",
+        new_orcid_1: "1234-1234-1234-1234",
+        existing_creator_count: "1",
+        new_creator_count: "1"
       }
     end
 

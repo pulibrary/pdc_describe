@@ -14,16 +14,35 @@ module Datacite
       @resource_type = resource_type || "Dataset"
     end
 
-    def title
-      @titles.first&.title
+    def main_title
+      @titles.find(&:main?)&.title
     end
 
     # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/BlockLength
+    # rubocop:disable Metrics/AbcSize
     def to_xml
       builder = Nokogiri::XML::Builder.new do |xml|
-        xml.resource("xsi:schemaLocation" => "http://datacite.org/schema/kernel-4 https://schema.datacite.org/meta/kernel-4.4/metadata.xsd") do
+        xml.resource(
+          "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
+          "xmlns" => "http://datacite.org/schema/kernel-4",
+          "xsi:schemaLocation" => "http://datacite.org/schema/kernel-4 https://schema.datacite.org/meta/kernel-4.4/metadata.xsd"
+        ) do
           xml.identifier("identifierType" => @identifier_type) do
             xml.text @identifier
+          end
+          xml.titles do
+            @titles.each do |title|
+              if title.main?
+                xml.title do
+                  xml.text title.title
+                end
+              else
+                xml.title("titleType" => title.title_type) do
+                  xml.text title.title
+                end
+              end
+            end
           end
           xml.creators do
             @creators.each do |creator|
@@ -32,6 +51,14 @@ module Datacite
                   xml.creatorName creator.value
                   xml.givenName creator.given_name
                   xml.familyName creator.family_name
+                  unless creator.name_identifier.nil?
+                    xml.nameIdentifier(
+                      "schemeURI" => creator.name_identifier.scheme_uri,
+                      "nameIdentifierScheme" => creator.name_identifier.scheme
+                    ) do
+                      xml.text creator.name_identifier.value
+                    end
+                  end
                 end
               else
                 xml.creator("nameType" => "Organization") do
@@ -45,6 +72,22 @@ module Datacite
       builder.to_xml
     end
     # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/BlockLength
+    # rubocop:enable Metrics/AbcSize
+
+    # Creates a Datacite::Resource from a JSON string
+    def self.new_from_json(json_string)
+      resource = Datacite::Resource.new
+      hash = json_string.blank? ? {} : JSON.parse(json_string)
+      hash["titles"]&.each do |title|
+        resource.titles << Datacite::Title.new(title: title["title"], title_type: title["title_type"])
+      end
+      hash["creators"]&.each do |creator|
+        orcid = creator.dig("name_identifier", "scheme") == "ORCID" ? creator.dig("name_identifier", "value") : nil
+        resource.creators << Datacite::Creator.new_person(creator["given_name"], creator["family_name"], orcid)
+      end
+      resource
+    end
   end
 
   # value: "Miller, Elizabeth"
@@ -62,6 +105,23 @@ module Datacite
       @name_identifier = name_identifier
       @affiliations = []
     end
+
+    def orcid_url
+      name_identifier&.orcid_url
+    end
+
+    def orcid
+      name_identifier&.orcid
+    end
+
+    def self.new_person(given_name, family_name, orcid_id = nil)
+      full_name = "#{family_name}, #{given_name}"
+      creator = Creator.new(value: full_name, name_type: "Personal", given_name: given_name, family_name: family_name)
+      if orcid_id.present?
+        creator.name_identifier = NameIdentifier.new_orcid(orcid_id)
+      end
+      creator
+    end
   end
 
   # value:      "0000-0001-5000-0007"
@@ -73,6 +133,21 @@ module Datacite
       @value = value
       @scheme = scheme
       @scheme_uri = scheme_uri
+    end
+
+    def orcid_url
+      return nil unless scheme == "ORCID"
+      "#{scheme_uri}/#{value}"
+    end
+
+    def orcid
+      return nil unless scheme == "ORCID"
+      value
+    end
+
+    # Convenience method since this is the most common (only?) identifier that we are currently supporting
+    def self.new_orcid(value)
+      NameIdentifier.new(value: value, scheme: "ORCID", scheme_uri: "https://orcid.org")
     end
   end
 
@@ -97,6 +172,10 @@ module Datacite
     def initialize(title:, title_type: nil)
       @title = title
       @title_type = title_type
+    end
+
+    def main?
+      @title_type.blank?
     end
   end
 end

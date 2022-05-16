@@ -3,7 +3,7 @@ require "rails_helper"
 
 RSpec.describe Datacite::Resource, type: :model do
   let(:creatorPerson) do
-    Datacite::Creator.new(value: "Miller, Elizabeth", name_type: "Personal", given_name: "Elizabeth", family_name: "Miller")
+    Datacite::Creator.new_person("Elizabeth", "Miller", "1234-5678-9012-1234")
   end
 
   let(:creatorOrganization) do
@@ -20,7 +20,7 @@ RSpec.describe Datacite::Resource, type: :model do
 
   it "handles basic fields" do
     expect(ds.identifier).to eq "10.5072/example-full"
-    expect(ds.title).to eq "hello world"
+    expect(ds.main_title).to eq "hello world"
     expect(ds.resource_type).to eq "Dataset"
     expect(ds.creators.count).to be 2
     expect(ds.creators.first.affiliations.count).to be 0
@@ -36,5 +36,13 @@ RSpec.describe Datacite::Resource, type: :model do
     # Eventually we might want to support a complete example like this
     # https://schema.datacite.org/meta/kernel-4.4/example/datacite-example-full-v4.xml
     expect(ds.to_xml).to eq(file_fixture("datacite_basic.xml").read)
+  end
+
+  it "handles ORCID values" do
+    expect(creatorPerson.orcid).to eq "1234-5678-9012-1234"
+    expect(creatorPerson.orcid_url).to eq "https://orcid.org/1234-5678-9012-1234"
+
+    no_orcid = Datacite::Creator.new_person("Elizabeth", "Miller")
+    expect(no_orcid.orcid).to be nil
   end
 end

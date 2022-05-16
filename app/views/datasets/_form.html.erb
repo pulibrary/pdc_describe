@@ -1,4 +1,11 @@
+<!--
+  Information about Bootstrap tabs
+  https://getbootstrap.com/docs/5.0/components/navs-tabs/
+  https://getbootstrap.com/docs/5.0/components/navs-tabs/#javascript-behavior
+-->
 <div class="d-flex align-items-start">
+
+  <!-- This div holds the "tabs menu" section that we display on the left -->
   <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
     <button class="nav-link active" id="v-pills-title-tab" data-bs-toggle="pill" data-bs-target="#v-pills-title" type="button" role="tab" aria-controls="v-pills-title" aria-selected="true">Title</button>
     <button class="nav-link" id="v-pills-creator-tab" data-bs-toggle="pill" data-bs-target="#v-pills-creator" type="button" role="tab" aria-controls="v-pills-creator" aria-selected="false">Creator(s)</button>
@@ -6,9 +13,16 @@
     <button class="nav-link" id="v-pills-publisher-tab" data-bs-toggle="pill" data-bs-target="#v-pills-publisher" type="button" role="tab" aria-controls="v-pills-publisher" aria-selected="false">Publisher</button>
     <button class="nav-link" id="v-pills-type-tab" data-bs-toggle="pill" data-bs-target="#v-pills-type" type="button" role="tab" aria-controls="v-pills-type" aria-selected="false">Resource Type</button>
   </div>
-  <div class="tab-content" id="v-pills-tabContent">
-    <div class="tab-pane fade show active" id="v-pills-title" role="tabpanel" aria-labelledby="v-pills-title-tab">
-      <%= form_with(model: dataset) do |form| %>
+
+  <%= form_with(model: dataset) do |form| %>
+    <!-- This div holds the actual tabs content (displayed on the right) -->
+    <div class="tab-content" id="v-pills-tabContent">
+
+      <div class="tab-pane fade show active" id="v-pills-title" role="tabpanel" aria-labelledby="v-pills-title-tab">
+        <!--
+          These are "form level" errors, not specific to the title and perhaps we should move those outside
+          the tabs to a "form level" section, but for now we keep them here.
+        -->
         <% if dataset.errors.any? %>
           <div id="error_explanation">
             <h2><%= pluralize(dataset.errors.count, "error") %> prohibited this dataset from being saved:</h2>
@@ -21,39 +35,103 @@
         <% end %>
 
         <%= form.hidden_field :work_id %>
+        <%= render 'titles_form', dataset: @dataset %>
+      </div>
 
-        <div class="field">
-          <%= form.label :title %><br>
-          <%= form.text_field :title %>
-        </div>
+      <div class="tab-pane fade" id="v-pills-creator" role="tabpanel" aria-labelledby="v-pills-creator-tab">
+        <%= render 'creators_form', dataset: @dataset %>
+      </div>
 
-        <div class="field">
-          <%= form.label :collection %><br>
-          <%= form.collection_select :collection_id, current_user.submitter_collections, :id, :title, {:include_blank => true}, {:class => 'form-control'} %>
-        </div>
+      <div class="tab-pane fade" id="v-pills-identifiers" role="tabpanel" aria-labelledby="v-pills-identifiers-tab">
+        identifiers go here
+      </div>
 
-        <div class="field">
-          ARK: <%= form.object.ark %>
-        </div>
-        <br />
+      <div class="tab-pane fade" id="v-pills-publisher" role="tabpanel" aria-labelledby="v-pills-publisher-tab">
+        publisher goes here
+      </div>
 
-        <div class="actions">
-          <%= form.submit class: "btn btn-primary" %>
-          <%= link_to 'Cancel', @dataset, class: "btn btn-secondary" %>
-        </div>
-      <% end %>
+      <div class="tab-pane fade" id="v-pills-type" role="tabpanel" aria-labelledby="v-pills-type-tab">
+        resource type goes here
+      </div>
     </div>
-    <div class="tab-pane fade" id="v-pills-creator" role="tabpanel" aria-labelledby="v-pills-creator-tab">
-      creators go here
+
+    <div class="actions">
+      <%= form.submit class: "btn btn-primary" %>
+      <%= link_to 'Cancel', @dataset, class: "btn btn-secondary" %>
     </div>
-    <div class="tab-pane fade" id="v-pills-identifiers" role="tabpanel" aria-labelledby="v-pills-identifiers-tab">
-      identifiers go here
+
+    <!--
+      We use these hidden fields to keep track of how many creators and titles are on the form
+      initially and how many are added on the fly. This helps to process the data when the form
+      is submitted.
+    -->
+    <div>
+      <input type="text" id="existing_title_count" name="existing_title_count" value="<%= @datacite.titles.count %>" class="hidden" />
+      <input type="text" id="new_title_count" name="new_title_count" value="0" class="hidden" />
+      <input type="text" id="existing_creator_count" name="existing_creator_count" value="<%= @datacite.creators.count %>" class="hidden" />
+      <input type="text" id="new_creator_count" name="new_creator_count" value="0" class="hidden" />
     </div>
-    <div class="tab-pane fade" id="v-pills-publisher" role="tabpanel" aria-labelledby="v-pills-publisher-tab">
-      publisher goes here
-    </div>
-    <div class="tab-pane fade" id="v-pills-type" role="tabpanel" aria-labelledby="v-pills-type-tab">
-      resource type goes here
-    </div>
-  </div>
+  <% end %>
 </div>
+
+<script>
+  $(function() {
+    var incrementCounter = function(elementId) {
+      var counter = parseInt($(elementId)[0].value, 10);
+      counter++
+      $(elementId)[0].value = counter
+      return counter
+    }
+
+    var addCreatorPlaceholder = function(el) {
+      var newCreatorCount = incrementCounter("#new_creator_count");
+      var orcidId = `new_orcid_${newCreatorCount}`;
+      var familyNameId = `new_family_name_${newCreatorCount}`;
+      var givenNameId = `new_given_name_${newCreatorCount}`;
+      var html = `
+      <div class="field">
+        ORCID:<br>
+        <input type="text" id="${orcidId}" name="${orcidId}" value="" />
+      </div>
+
+      <div class="field">
+        Given name:<br>
+        <input type="text" id="${givenNameId}" name="${givenNameId}" value="" />
+      </div>
+
+      <div class="field">
+        Family name:<br>
+        <input type="text" id="${familyNameId}" name="${familyNameId}" value="" />
+      </div>`;
+      $("#new-creators-anchor").append(html);
+    }
+
+    var addTitlePlaceholder = function(el) {
+      var newTitleCount = incrementCounter("#new_title_count");
+      var titleId = `new_title_${newTitleCount}`;
+      var typeId = `new_title_type_${newTitleCount}`;
+      var html = `
+        <div class="field">
+          <select id="${typeId}" name="${typeId}">
+            <option value="AlternativeTitle">Alternative</option>
+            <option value="Subtitle">Subtitle</option>
+            <option value="TranslatedTitle">Translated</option>
+            <option value="Other">Other</option>
+          </select>
+          <br>
+          <input type="text" id="${titleId}" name="${titleId}" value="" />
+        </div>`;
+      $("#new-titles-anchor").append(html);
+    }
+
+    $("#btn-add-creator").on("click", function(el) {
+      addCreatorPlaceholder(el);
+      return false;
+    });
+
+    $("#btn-add-title").on("click", function(el) {
+      addTitlePlaceholder(el);
+      return false;
+    });
+  });
+</script>
