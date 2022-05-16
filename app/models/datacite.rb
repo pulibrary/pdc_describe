@@ -15,15 +15,18 @@ module Datacite
     end
 
     def main_title
-      @titles.find(&:main?)
+      @titles.find(&:main?)&.title
     end
 
     # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/BlockLength
     def to_xml
       builder = Nokogiri::XML::Builder.new do |xml|
-        xml.resource("xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
+        xml.resource(
+          "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
           "xmlns" => "http://datacite.org/schema/kernel-4",
-          "xsi:schemaLocation" => "http://datacite.org/schema/kernel-4 https://schema.datacite.org/meta/kernel-4.4/metadata.xsd") do
+          "xsi:schemaLocation" => "http://datacite.org/schema/kernel-4 https://schema.datacite.org/meta/kernel-4.4/metadata.xsd"
+        ) do
           xml.identifier("identifierType" => @identifier_type) do
             xml.text @identifier
           end
@@ -47,6 +50,14 @@ module Datacite
                   xml.creatorName creator.value
                   xml.givenName creator.given_name
                   xml.familyName creator.family_name
+                  if !creator.name_identifier.nil?
+                    xml.nameIdentifier(
+                      "schemeURI" => creator.name_identifier.scheme_uri,
+                      "nameIdentifierScheme" => creator.name_identifier.scheme
+                    ) do
+                      xml.text creator.name_identifier.value
+                    end
+                  end
                 end
               else
                 xml.creator("nameType" => "Organization") do
@@ -60,6 +71,7 @@ module Datacite
       builder.to_xml
     end
     # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/BlockLength
 
     # Creates a Datacite::Resource from a JSON string
     def self.new_from_json(json_string)
