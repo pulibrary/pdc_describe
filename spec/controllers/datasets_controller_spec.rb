@@ -98,11 +98,15 @@ RSpec.describe DatasetsController, mock_ezid_api: true do
         },
         new_title_1: "the subtitle",
         new_title_type_1: "Subtitle",
+        existing_title_count: "1",
+        new_title_count: "1",
         given_name_1: "Toni",
         family_name_1: "Morrison",
         new_given_name_1: "Sonia",
         new_family_name_1: "Sotomayor",
-        new_orcid_1: "1234-1234-1234-1234"
+        new_orcid_1: "1234-1234-1234-1234",
+        existing_creator_count: "1",
+        new_creator_count: "1"
       }
     end
 
