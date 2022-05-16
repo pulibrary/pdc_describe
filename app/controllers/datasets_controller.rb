@@ -1,4 +1,9 @@
 # frozen_string_literal: true
+
+# rubocop:disable Metrics/ClassLength
+# rubocop:disable Metrics/AbcSize
+# rubocop:disable Metrics/MethodLength
+# rubocop:disable Style/For
 class DatasetsController < ApplicationController
   def index
     @datasets = Dataset.all
@@ -30,8 +35,6 @@ class DatasetsController < ApplicationController
     end
   end
 
-  # rubocop:disable Metrics/AbcSize
-  # rubocop:disable Metrics/MethodLength
   def update
     @dataset = Dataset.find(params[:id])
     respond_to do |format|
@@ -46,8 +49,6 @@ class DatasetsController < ApplicationController
       end
     end
   end
-  # rubocop:enable Metrics/MethodLength
-  # rubocop:enable Metrics/AbcSize
 
   def approve
     dataset = Dataset.find(params[:id])
@@ -79,7 +80,7 @@ class DatasetsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def form_params
-      valid_list = [:title, :work_id, :collection_id, :alternative_title, :new_orcid, :new_family_name, :new_given_name]
+      valid_list = [:work_id]
       params.require(:dataset).permit(valid_list)
     end
 
@@ -91,7 +92,7 @@ class DatasetsController < ApplicationController
     end
 
     def dataset_params
-      form_params.reject { |x| x.in?(["title", "collection_id", "alternative_title"]) }
+      form_params.select { |x| x == "work_id" }
     end
 
     def new_creator(given_name, family_name, orcid)
@@ -135,3 +136,7 @@ class DatasetsController < ApplicationController
       work.save!
     end
 end
+# rubocop:enable Metrics/ClassLength
+# rubocop:enable Metrics/AbcSize
+# rubocop:enable Metrics/MethodLength
+# rubocop:enable Style/For

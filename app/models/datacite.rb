@@ -20,6 +20,7 @@ module Datacite
 
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/BlockLength
+    # rubocop:disable Metrics/AbcSize
     def to_xml
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.resource(
@@ -50,7 +51,7 @@ module Datacite
                   xml.creatorName creator.value
                   xml.givenName creator.given_name
                   xml.familyName creator.family_name
-                  if !creator.name_identifier.nil?
+                  unless creator.name_identifier.nil?
                     xml.nameIdentifier(
                       "schemeURI" => creator.name_identifier.scheme_uri,
                       "nameIdentifierScheme" => creator.name_identifier.scheme
@@ -72,6 +73,7 @@ module Datacite
     end
     # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/BlockLength
+    # rubocop:enable Metrics/AbcSize
 
     # Creates a Datacite::Resource from a JSON string
     def self.new_from_json(json_string)

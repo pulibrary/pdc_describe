@@ -20,7 +20,7 @@ RSpec.describe Datacite::Resource, type: :model do
 
   it "handles basic fields" do
     expect(ds.identifier).to eq "10.5072/example-full"
-    expect(ds.title).to eq "hello world"
+    expect(ds.main_title).to eq "hello world"
     expect(ds.resource_type).to eq "Dataset"
     expect(ds.creators.count).to be 2
     expect(ds.creators.first.affiliations.count).to be 0

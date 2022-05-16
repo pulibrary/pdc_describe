@@ -42,11 +42,10 @@ RSpec.describe DatasetsController, mock_ezid_api: true do
     it "handles the update page" do
       params = {
         "dataset" => {
-          "title" => "test dataset updated",
-          "collection_id" => ds.work.collection.id,
-          "work_id" => ds.work.id,
-          "ark" => ds.ark
+          "work_id" => ds.work.id
         },
+        "title" => "test dataset updated",
+        "collection_id" => ds.work.collection.id,
         "commit" => "Update Dataset",
         "controller" => "datasets",
         "action" => "update",
@@ -84,10 +83,10 @@ RSpec.describe DatasetsController, mock_ezid_api: true do
     let(:params) do
       {
         id: ds.id,
+        title: ds.title,
+        collection_id: collection.id,
         dataset: {
           id: ds.id,
-          title: ds.title,
-          collection_id: collection.id,
           work_id: work.id,
           format: format
         }
