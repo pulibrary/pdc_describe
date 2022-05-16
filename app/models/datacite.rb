@@ -147,7 +147,7 @@ module Datacite
 
     # Convenience method since this is the most common (only?) identifier that we are currently supporting
     def self.new_orcid(value)
-      NameIdentifier.new(value: value, scheme: "ORCID", scheme_uri: "http://orcid.org")
+      NameIdentifier.new(value: value, scheme: "ORCID", scheme_uri: "https://orcid.org")
     end
   end
 
@@ -176,14 +176,6 @@ module Datacite
 
     def main?
       @title_type.blank?
-    end
-
-    def self.title_types
-      t1 = OpenStruct.new(id: "AlternativeTitle", value: "Alternative Title")
-      t2 = OpenStruct.new(id: "Subtitle", value: "Subtitle")
-      t3 = OpenStruct.new(id: "TranslatedTitle", value: "Translated Title")
-      t4 = OpenStruct.new(id: "Other", value: "Other")
-      [t1, t2, t3, t4]
     end
   end
 end
