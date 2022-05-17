@@ -21,7 +21,7 @@
   <p>This user has not deposited datasets.</p>
 <% else %>
   <h2>Datasets</h2>
-  <% @datasets.each do |ds| %>
-      <p><%= link_to(ds.title, dataset_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
+  <% @works.each do |ds| %>
+      <p><%= link_to(ds.title, work_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
   <% end %>
 <% end %>

@@ -4,108 +4,88 @@
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Metrics/MethodLength
 # rubocop:disable Style/For
-class DatasetsController < ApplicationController
+class WorksController < ApplicationController
   def index
-    @datasets = Dataset.all
+    @works = Work.all
   end
 
   def new
     default_collection_id = current_user.default_collection.id
-    dataset = Dataset.create_skeleton("New Dataset", current_user.id, default_collection_id)
-    redirect_to edit_dataset_path(dataset)
+    work = Work.create_skeleton("New Work", current_user.id, default_collection_id, "DATASET")
+    redirect_to edit_work_path(work)
   end
 
   def show
-    @dataset = Dataset.find(params[:id])
-    work = Work.find(@dataset.work_id)
-    @datacite = Datacite::Resource.new_from_json(work.data_cite)
+    @work = Work.find(params[:id])
+    @datacite = Datacite::Resource.new_from_json(@work.data_cite)
 
-    if @dataset.doi
-      service = S3QueryService.new(@dataset.doi)
+    if @work.doi
+      service = S3QueryService.new(@work.doi)
       @files = service.data_profile
     end
   end
 
   def edit
-    @dataset = Dataset.find(params[:id])
-    work = Work.find(@dataset.work_id)
-    @datacite = Datacite::Resource.new_from_json(work.data_cite)
+    @work = Work.find(params[:id])
+    @datacite = Datacite::Resource.new_from_json(@work.data_cite)
     if @datacite.main_title.nil?
       @datacite.titles << Datacite::Title.new(title: "Enter title here")
     end
   end
 
   def update
-    @dataset = Dataset.find(params[:id])
+    @work = Work.find(params[:id])
     respond_to do |format|
-      update_work_record
-      # And then update the dataset
-      if @dataset.update(dataset_params)
-        format.html { redirect_to dataset_url(@dataset), notice: "Dataset was successfully updated." }
-        format.json { render :show, status: :ok, location: @dataset }
+      work_params = {
+        title: params[:title_main],
+        collection_id: params[:collection_id],
+        data_cite: datacite_resource_from_form
+      }
+      if @work.update(work_params)
+        format.html { redirect_to work_url(@work), notice: "Work was successfully updated." }
+        format.json { render :show, status: :ok, location: @work }
       else
         work = Work.find(@dataset.work_id)
         @datacite = Datacite::Resource.new_from_json(work.data_cite)
         format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @dataset.errors, status: :unprocessable_entity }
+        format.json { render json: @work.errors, status: :unprocessable_entity }
       end
     end
   end
 
   def approve
-    dataset = Dataset.find(params[:id])
-    dataset.work.approve(current_user)
-    redirect_to dataset_path(dataset)
+    work = Work.find(params[:id])
+    work.approve(current_user)
+    redirect_to work_path(work)
   end
 
   def withdraw
-    dataset = Dataset.find(params[:id])
-    dataset.work.withdraw(current_user)
-    redirect_to dataset_path(dataset)
+    work = Work.find(params[:id])
+    work.withdraw(current_user)
+    redirect_to work_path(work)
   end
 
   def resubmit
-    dataset = Dataset.find(params[:id])
-    dataset.work.resubmit(current_user)
-    redirect_to dataset_path(dataset)
+    work = Work.find(params[:id])
+    work.resubmit(current_user)
+    redirect_to work_path(work)
   end
 
-  # Outputs the Datacite XML representation of the dataset
+  # Outputs the Datacite XML representation of the work
   def datacite
-    @dataset = Dataset.find(params[:id])
-    work = Work.find(@dataset.work_id)
+    work = Work.find(params[:id])
     resource = Datacite::Resource.new_from_json(work.data_cite)
     render xml: resource.to_xml
   end
 
   private
 
-    # Only allow a list of trusted parameters through.
-    def form_params
-      valid_list = [:work_id]
-      params.require(:dataset).permit(valid_list)
-    end
-
-    def work_params
-      {
-        title: params[:title],
-        collection_id: params[:collection_id]
-      }
-    end
-
-    def dataset_params
-      form_params.select { |x| x == "work_id" }
-    end
-
     def new_creator(given_name, family_name, orcid)
       return if family_name.blank? && given_name.blank? && orcid.blank?
       Datacite::Creator.new_person(given_name, family_name, orcid)
     end
 
-    # Populate the work.data_cite field
-    def update_work_record
-      work = Work.find(form_params[:work_id])
-      work_data = work_params
+    def datacite_resource_from_form
       resource = Datacite::Resource.new(title: params["title"])
 
       # Process the titles
@@ -133,9 +113,7 @@ class DatasetsController < ApplicationController
         resource.creators << creator unless creator.nil?
       end
 
-      work_data[:data_cite] = resource.to_json
-      work.update(work_data)
-      work.save!
+      resource.to_json
     end
 end
 # rubocop:enable Metrics/ClassLength

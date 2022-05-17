@@ -1,12 +1,40 @@
 # frozen_string_literal: true
 
 class Work < ApplicationRecord
+  include Rails.application.routes.url_helpers
+
   belongs_to :collection
 
   before_save do |work|
     # Ensure that the metadata JSON is persisted properly
     if work.dublin_core.present?
       work.dublin_core = work.dublin_core.to_json
+    end
+  end
+
+  before_update do |ds|
+    if ds.ark.blank?
+      ds.ark = Ark.mint
+    end
+  end
+
+  after_save do |ds|
+    # We only want to update the ark url under certain conditions.
+    # Set this value in config/update_ark_url.yml
+    if Rails.configuration.update_ark_url
+      if ds.ark.present?
+        # Ensure that the ARK metadata is updated for the new URL
+        if ark_object.target != ds.url
+          ark_object.target = ds.url
+          ark_object.save!
+        end
+      end
+    end
+  end
+
+  validate do |ds|
+    if ds.ark.present?
+      ds.errors.add(:base, "Invalid ARK provided for the Dataset: #{ds.ark}") unless Ark.valid?(ds.ark)
     end
   end
 
@@ -74,5 +102,51 @@ class Work < ApplicationRecord
     super(parsed.to_json)
   rescue JSON::ParserError => parse_error
     raise(ArgumentError, "Invalid JSON passed to Work#dublin_core=: #{parse_error}")
+  end
+
+  def ark_url
+    "https://ezid.cdlib.org/id/#{ark}"
+  end
+
+  def ark_object
+    @ark_object ||= Ark.new(ark)
+  end
+
+  def url
+    return unless persisted?
+
+    @url ||= url_for(self)
+  end
+
+  def self.my_works(user)
+    Work.where(created_by_user_id: user)
+  end
+
+  def self.admin_awaiting_works(user)
+    admin_works_by_user_state(user, "AWAITING-APPROVAL")
+  end
+
+  def self.admin_withdrawn_works(user)
+    admin_works_by_user_state(user, "WITHDRAWN")
+  end
+
+  # Returns that datasets that an admin user has in a given state.
+  #
+  # Notice that it *excludes* the datasets created by the admin user
+  # (since their own datasets will already be shown on their dashboard)
+  def self.admin_works_by_user_state(user, state)
+    admin_collections = []
+    Collection.all.find_each do |collection|
+      admin_collections << collection if user.can_admin?(collection.id)
+    end
+
+    works = []
+    admin_collections.each do |collection|
+      condition = "collection_id = :collection_id AND state = :state AND (created_by_user_id != :user_id)"
+      values = { collection_id: collection.id, state: state, user_id: user.id }
+      works += Work.where([condition, values])
+    end
+
+    works
   end
 end

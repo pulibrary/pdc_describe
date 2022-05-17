@@ -14,7 +14,7 @@
     <button class="nav-link" id="v-pills-type-tab" data-bs-toggle="pill" data-bs-target="#v-pills-type" type="button" role="tab" aria-controls="v-pills-type" aria-selected="false">Resource Type</button>
   </div>
 
-  <%= form_with(model: dataset) do |form| %>
+  <%= form_with(model: @work) do |form| %>
     <!-- This div holds the actual tabs content (displayed on the right) -->
     <div class="tab-content" id="v-pills-tabContent">
 
@@ -23,11 +23,11 @@
           These are "form level" errors, not specific to the title and perhaps we should move those outside
           the tabs to a "form level" section, but for now we keep them here.
         -->
-        <% if dataset.errors.any? %>
+        <% if @work.errors.any? %>
           <div id="error_explanation">
             <h2><%= pluralize(dataset.errors.count, "error") %> prohibited this dataset from being saved:</h2>
             <ul>
-              <% dataset.errors.each do |error| %>
+              <% @work.errors.each do |error| %>
                 <li><%= error.full_message %></li>
               <% end %>
             </ul>
@@ -35,11 +35,11 @@
         <% end %>
 
         <%= form.hidden_field :work_id %>
-        <%= render 'titles_form', dataset: @dataset %>
+        <%= render 'titles_form' %>
       </div>
 
       <div class="tab-pane fade" id="v-pills-creator" role="tabpanel" aria-labelledby="v-pills-creator-tab">
-        <%= render 'creators_form', dataset: @dataset %>
+        <%= render 'creators_form' %>
       </div>
 
       <div class="tab-pane fade" id="v-pills-identifiers" role="tabpanel" aria-labelledby="v-pills-identifiers-tab">
@@ -57,7 +57,7 @@
 
     <div class="actions">
       <%= form.submit class: "btn btn-primary" %>
-      <%= link_to 'Cancel', @dataset, class: "btn btn-secondary" %>
+      <%= link_to 'Cancel', @work, class: "btn btn-secondary" %>
     </div>
 
     <!--

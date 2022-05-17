@@ -20,25 +20,25 @@
 <% if @my_datasets.count > 0 %>
   <h2>My Datasets</h2>
   <% @my_datasets.each do |ds| %>
-    <p><%= link_to(ds.title, dataset_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
+    <p><%= link_to(ds.title, work_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
   <% end %>
 <% end %>
 
 <div class="text-left">
-  <%= link_to 'Add New Dataset', new_dataset_path, class: "btn btn-primary", :role => "button" %>
+  <%= link_to 'Add New Dataset', new_work_path, class: "btn btn-primary", :role => "button" %>
 </div>
 
 <% if @awaiting_datasets.count > 0 %>
 <h2>Datasets waiting to be approved</h2>
 <% @awaiting_datasets.each do |ds| %>
-    <p><%= link_to(ds.title, dataset_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
+    <p><%= link_to(ds.title, work_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
 <% end %>
 <% end %>
 
 <% if @withdrawn_datasets.count > 0 %>
 <h2>Datasets to have been withdrawn</h2>
 <% @withdrawn_datasets.each do |ds| %>
-    <p><%= link_to(ds.title, dataset_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
+    <p><%= link_to(ds.title, work_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
 <% end %>
 <% end %>
 
