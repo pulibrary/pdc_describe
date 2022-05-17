@@ -119,23 +119,15 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
     context "and when the ARK is invalid" do
       before do
+        # The HTTP call to EZID will fail because the id is invalid
         allow(Ezid::Identifier).to receive(:find).and_raise(Net::HTTPServerException, '400 "Bad Request"')
       end
 
-      # TODO: re-enable this once we fix the ARK validation to account for test ARKs
-      # See https://github.com/pulibrary/pdc_describe/issues/124
-      # it "raises an error" do
-      #   expect(data_set.persisted?).not_to be false
-      #   data_set.ark = ezid
-      #   expect { data_set.save! }.to raise_error("Validation failed: Invalid ARK provided for the Dataset: #{ezid}")
-      # end
-    end
-
-    context "and when the ARK is valid but minted for the test environment" do
       it "raises an error" do
         expect(data_set.persisted?).not_to be false
-        data_set.ark = ezid
-        expect { data_set.save! }.to raise_error("Validation failed: Invalid ARK provided for the Dataset: #{ezid}")
+        bad_ezid = "ark:/bad-99999/fk4tq65d6k"
+        data_set.ark = bad_ezid
+        expect { data_set.save! }.to raise_error(ActiveRecord::RecordInvalid, "Validation failed: Invalid ARK provided for the Work: #{bad_ezid}")
       end
     end
   end

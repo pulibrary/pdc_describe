@@ -37,7 +37,7 @@ class Work < ApplicationRecord
 
   validate do |ds|
     if ds.ark.present?
-      ds.errors.add(:base, "Invalid ARK provided for the Dataset: #{ds.ark}") unless Ark.valid?(ds.ark)
+      ds.errors.add(:base, "Invalid ARK provided for the Work: #{ds.ark}") unless Ark.valid?(ds.ark)
     end
   end
 
@@ -66,10 +66,6 @@ class Work < ApplicationRecord
     )
     work.save!
     work
-  end
-
-  def dataset_id
-    Dataset.where(work_id: id).first&.id
   end
 
   def approve(user)
@@ -148,10 +144,10 @@ class Work < ApplicationRecord
     admin_works_by_user_state(user, "WITHDRAWN")
   end
 
-  # Returns that datasets that an admin user has in a given state.
+  # Returns that works that an admin user has in a given state.
   #
-  # Notice that it *excludes* the datasets created by the admin user
-  # (since their own datasets will already be shown on their dashboard)
+  # Notice that it *excludes* the works created by the admin user
+  # (since their own works will already be shown on their dashboard)
   def self.admin_works_by_user_state(user, state)
     admin_collections = []
     Collection.all.find_each do |collection|

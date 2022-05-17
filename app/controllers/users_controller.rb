@@ -6,12 +6,12 @@ class UsersController < ApplicationController
   def show
     @can_edit = can_edit?
     if current_user.id == @user.id
-      @my_datasets = Work.my_works(current_user)
-      @awaiting_datasets = Work.admin_awaiting_works(current_user)
-      @withdrawn_datasets = Work.admin_withdrawn_works(current_user)
+      @my_works = Work.my_works(current_user)
+      @awaiting_works = Work.admin_awaiting_works(current_user)
+      @withdrawn_works = Work.admin_withdrawn_works(current_user)
       render "dashboard"
     else
-      @datasets = Work.my_works(@user)
+      @works = Work.my_works(@user)
       render "show"
     end
   end
