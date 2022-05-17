@@ -2,6 +2,8 @@
 require "ezid-client"
 
 class Ark
+  EZID_INVALID_SHOULDER = "ark:/99999"
+
   # Mints a new EZID identifier, returns the id (e.g. "ark:/99999/fk4tq65d6k")
   def self.mint
     identifier = Ezid::Identifier.mint
@@ -19,14 +21,20 @@ class Ark
   # @param [ezid] [String] the EZID being validated
   # @return [Boolean]
   def self.valid?(ezid)
-    return true if ezid.start_with?("ark:/99999/")
-    resolved = find(ezid)
-    !resolved.nil?
+    # Try and retrieve the ARK
+    new(ezid)
+    true
+  rescue ArgumentError
+    false
+  end
+
+  def self.valid_shoulder?(ezid)
+    !ezid.include?(self::EZID_INVALID_SHOULDER)
   end
 
   def initialize(ezid)
     @object = self.class.find(ezid)
-    raise(ArgumentError, "Invalid EZID provided for an ARK: #{ezid}") if @object.nil?
+    raise(ArgumentError, "Invalid EZID provided for an ARK: #{ezid}") if @object.nil? || !self.class.valid_shoulder?(ezid)
   end
 
   def object

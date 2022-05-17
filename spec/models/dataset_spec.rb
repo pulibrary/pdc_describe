@@ -35,14 +35,12 @@ RSpec.describe Dataset, type: :model, mock_ezid_api: true do
     subject(:data_set) { described_class.create_skeleton("test title", user.id, collection.id) }
 
     context "and when the ARK is valid" do
+      let(:ezid) { "ark:/88435/dsp01qb98mj541" }
+
       around do |example|
         Rails.configuration.update_ark_url = true
         example.run
         Rails.configuration.update_ark_url = false
-      end
-
-      before do
-        # stub_request(:get, "https://ezid.cdlib.org/id/#{ezid}").to_return(status: 200, body: response_body)
       end
 
       it "does not mint a new ARK" do
@@ -76,6 +74,14 @@ RSpec.describe Dataset, type: :model, mock_ezid_api: true do
       #   data_set.ark = ezid
       #   expect { data_set.save! }.to raise_error("Validation failed: Invalid ARK provided for the Dataset: #{ezid}")
       # end
+    end
+
+    context "and when the ARK is valid but minted for the test environment" do
+      it "raises an error" do
+        expect(data_set.persisted?).not_to be false
+        data_set.ark = ezid
+        expect { data_set.save! }.to raise_error("Validation failed: Invalid ARK provided for the Dataset: #{ezid}")
+      end
     end
   end
 
