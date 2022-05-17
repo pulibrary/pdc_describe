@@ -19,6 +19,7 @@ class Ark
   # @param [ezid] [String] the EZID being validated
   # @return [Boolean]
   def self.valid?(ezid)
+    return true if ezid.start_with?("ark:/99999/")
     resolved = find(ezid)
     !resolved.nil?
   end

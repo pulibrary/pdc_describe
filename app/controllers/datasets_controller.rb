@@ -44,6 +44,8 @@ class DatasetsController < ApplicationController
         format.html { redirect_to dataset_url(@dataset), notice: "Dataset was successfully updated." }
         format.json { render :show, status: :ok, location: @dataset }
       else
+        work = Work.find(@dataset.work_id)
+        @datacite = Datacite::Resource.new_from_json(work.data_cite)
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @dataset.errors, status: :unprocessable_entity }
       end
