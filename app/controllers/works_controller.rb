@@ -85,7 +85,7 @@ class WorksController < ApplicationController
     end
 
     def datacite_resource_from_form
-      resource = Datacite::Resource.new(title: params["title"])
+      resource = Datacite::Resource.new
 
       # Process the titles
       resource.titles << Datacite::Title.new(title: params["title_main"])
