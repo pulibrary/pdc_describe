@@ -12,7 +12,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:identifier) { @identifier }
 
   it "creates a skeleton dataset" do
-    work = described_class.create_skeleton("test title", user.id, collection.id, "DATASET")
+    work = described_class.create_dataset("test title", user.id, collection.id)
     expect(work.created_by_user.id).to eq user.id
     expect(work.collection.id).to eq collection.id
     expect(work.ark).to be_blank
@@ -20,7 +20,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   it "mints an ARK on save (and only when needed)" do
-    work = described_class.create_skeleton("test title", user.id, collection.id, "DATASET")
+    work = described_class.create_dataset("test title", user.id, collection.id)
     expect(work.ark).to be_blank
     work.save
     expect(work.ark).to be_present
@@ -30,38 +30,37 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   it "prevents datasets with no users" do
-    expect { described_class.create_skeleton("test title", 0, collection.id, "DATASET") }.to raise_error
+    expect { described_class.create_dataset("test title", 0, collection.id) }.to raise_error
   end
 
   it "prevents datasets with no collections" do
-    expect { described_class.create_skeleton("test title", user.id, 0, "DATASET") }.to raise_error
+    expect { described_class.create_dataset("test title", user.id, 0) }.to raise_error
   end
 
   it "approves works and records the change history" do
-    work = described_class.create_skeleton("test title", user.id, collection.id, "DATASET")
+    work = described_class.create_dataset("test title", user.id, collection.id)
     work.approve(user)
     expect(work.state_history.first.state).to eq "APPROVED"
   end
 
   it "withdraw works and records the change history" do
-    work = described_class.create_skeleton("test title", user.id, collection.id, "DATASET")
+    work = described_class.create_dataset("test title", user.id, collection.id)
     work.withdraw(user)
     expect(work.state_history.first.state).to eq "WITHDRAWN"
   end
 
   it "resubmit works and records the change history" do
-    work = described_class.create_skeleton("test title", user.id, collection.id, "DATASET")
+    work = described_class.create_dataset("test title", user.id, collection.id)
     work.resubmit(user)
     expect(work.state_history.first.state).to eq "AWAITING-APPROVAL"
   end
 
   describe "#created_by_user" do
     context "when the ID is invalid" do
-      subject(:work) { described_class.create_skeleton(title, user_id, collection_id, work_type) }
+      subject(:work) { described_class.create_dataset(title, user_id, collection_id) }
       let(:title) { "test title" }
       let(:user_id) { user.id }
       let(:collection_id) { collection.id }
-      let(:work_type) { "DATASET" }
 
       before do
         allow(User).to receive(:find).and_raise(ActiveRecord::RecordNotFound)
@@ -74,7 +73,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   describe "#dublin_core=" do
-    subject(:work) { described_class.create_skeleton(title, user_id, collection_id, work_type) }
+    subject(:work) { described_class.create_skeleton(title, user_id, collection_id, work_type, "DUBLINCORE") }
     let(:title) { "test title" }
     let(:user_id) { user.id }
     let(:collection_id) { collection.id }
@@ -88,7 +87,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   context "when created with an existing ARK" do
-    subject(:data_set) { described_class.create_skeleton("test title", user.id, collection.id, "DATASET") }
+    subject(:data_set) { described_class.create_dataset("test title", user.id, collection.id) }
 
     context "and when the ARK is valid" do
       let(:ezid) { "ark:/88435/dsp01qb98mj541" }
@@ -109,7 +108,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       end
 
       it "updates the ARK metadata" do
-        data_set = described_class.create_skeleton("test title", user.id, collection.id, "DATASET")
+        data_set = described_class.create_dataset("test title", user.id, collection.id)
 
         data_set.ark = ezid
         data_set.save
@@ -142,8 +141,8 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   it "returns datasets waiting for approval depending on the user" do
-    described_class.create_skeleton("test title", user.id, collection.id, "DATASET")
-    described_class.create_skeleton("test title", user_other.id, collection.id, "DATASET")
+    described_class.create_dataset("test title", user.id, collection.id)
+    described_class.create_dataset("test title", user_other.id, collection.id)
 
     # Superadmins can approve pending works
     awaiting = described_class.admin_works_by_user_state(superadmin_user, "AWAITING-APPROVAL")
@@ -164,8 +163,8 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe ".my_datasets" do
     before do
-      described_class.create_skeleton("test title", user.id, collection.id, "DATASET")
-      described_class.create_skeleton("test title", user.id, collection.id, "DATASET")
+      described_class.create_dataset("test title", user.id, collection.id)
+      described_class.create_dataset("test title", user.id, collection.id)
     end
 
     it "retrieves Dataset models associated with a given User" do

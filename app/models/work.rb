@@ -41,29 +41,32 @@ class Work < ApplicationRecord
     end
   end
 
-  def self.create_skeleton(title, user_id, collection_id, work_type)
+  def self.create_skeleton(title, user_id, collection_id, work_type, profile)
     work = Work.new(
       title: title,
       created_by_user_id: user_id,
       collection_id: collection_id,
       work_type: work_type,
-      state: "AWAITING-APPROVAL"
+      state: "AWAITING-APPROVAL",
+      profile: profile
     )
     work.save!
     work
   end
 
-  # def self.create_dataset(title, user_id, collection_id, work_type)
-  #   work = Work.new(
-  #     title: title,
-  #     created_by_user_id: user_id,
-  #     collection_id: collection_id,
-  #     work_type: "DATASET",
-  #     state: "AWAITING-APPROVAL"
-  #   )
-  #   work.save!
-  #   work
-  # end
+  # Convenience method to create Datasets with the DataCite profile
+  def self.create_dataset(title, user_id, collection_id)
+    work = Work.new(
+      title: title,
+      created_by_user_id: user_id,
+      collection_id: collection_id,
+      work_type: "DATASET",
+      state: "AWAITING-APPROVAL",
+      profile: "DATACITE"
+    )
+    work.save!
+    work
+  end
 
   def dataset_id
     Dataset.where(work_id: id).first&.id

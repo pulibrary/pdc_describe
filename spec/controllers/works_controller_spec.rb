@@ -9,7 +9,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
   end
   let(:user) { FactoryBot.create(:user) }
   let(:collection) { Collection.first }
-  let(:work) { Work.create_skeleton("test dataset", user.id, collection.id, "DATASET") }
+  let(:work) { Work.create_dataset("test dataset", user.id, collection.id) }
 
   context "valid user login" do
     it "handles the index page" do

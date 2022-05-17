@@ -11,7 +11,7 @@ class WorksController < ApplicationController
 
   def new
     default_collection_id = current_user.default_collection.id
-    work = Work.create_skeleton("New Dataset", current_user.id, default_collection_id, "DATASET")
+    work = Work.create_dataset("New Dataset", current_user.id, default_collection_id)
     redirect_to edit_work_path(work)
   end
 
