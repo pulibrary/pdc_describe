@@ -4,6 +4,8 @@ class DublinCore
     @json = json
   end
 
+  delegate :present?, to: :attributes
+
   def attributes
     @attributes ||= json_object
   end

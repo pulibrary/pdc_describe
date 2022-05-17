@@ -65,4 +65,9 @@ class Collection < ApplicationRecord
     create_defaults
     Collection.where(code: "RD").first
   end
+
+  def self.library_resources
+    create_defaults
+    Collection.where(code: "LIB").first
+  end
 end

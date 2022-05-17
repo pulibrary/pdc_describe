@@ -11,7 +11,7 @@ class WorksController < ApplicationController
 
   def new
     default_collection_id = current_user.default_collection.id
-    work = Work.create_skeleton("New Work", current_user.id, default_collection_id, "DATASET")
+    work = Work.create_skeleton("New Dataset", current_user.id, default_collection_id, "DATASET")
     redirect_to edit_work_path(work)
   end
 
@@ -45,8 +45,7 @@ class WorksController < ApplicationController
         format.html { redirect_to work_url(@work), notice: "Work was successfully updated." }
         format.json { render :show, status: :ok, location: @work }
       else
-        work = Work.find(@dataset.work_id)
-        @datacite = Datacite::Resource.new_from_json(work.data_cite)
+        @datacite = Datacite::Resource.new_from_json(@work.data_cite)
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @work.errors, status: :unprocessable_entity }
       end

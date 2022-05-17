@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
 class Work < ApplicationRecord
   include Rails.application.routes.url_helpers
 
@@ -13,7 +14,9 @@ class Work < ApplicationRecord
   end
 
   before_update do |ds|
-    if ds.ark.blank?
+    if dublin_core.present?
+      # we don't mint ARKs for these records
+    elsif ds.ark.blank?
       ds.ark = Ark.mint
     end
   end
@@ -49,6 +52,18 @@ class Work < ApplicationRecord
     work.save!
     work
   end
+
+  # def self.create_dataset(title, user_id, collection_id, work_type)
+  #   work = Work.new(
+  #     title: title,
+  #     created_by_user_id: user_id,
+  #     collection_id: collection_id,
+  #     work_type: "DATASET",
+  #     state: "AWAITING-APPROVAL"
+  #   )
+  #   work.save!
+  #   work
+  # end
 
   def dataset_id
     Dataset.where(work_id: id).first&.id
@@ -150,3 +165,4 @@ class Work < ApplicationRecord
     works
   end
 end
+# rubocop:ensable Metrics/ClassLength

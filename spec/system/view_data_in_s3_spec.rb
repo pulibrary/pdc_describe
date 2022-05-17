@@ -9,7 +9,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
 
   describe "when a dataset has a DOI and its data is in S3" do
     let(:user) { FactoryBot.create :user }
-    let(:dataset) { FactoryBot.create :shakespeare_and_company_dataset }
+    let(:work) { FactoryBot.create :shakespeare_and_company_work }
     let(:s3_query_service_double) { instance_double(S3QueryService) }
     let(:file1) do
       S3File.new(
@@ -33,8 +33,8 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
     end
 
     it "shows data from S3", js: true do
-      visit dataset_path(dataset)
-      expect(page).to have_content dataset.title
+      visit work_path(work)
+      expect(page).to have_content work.title
 
       expect(page).to have_content file1.filename
       expect(page).to have_content file1.last_modified
