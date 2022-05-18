@@ -94,13 +94,8 @@ class WorksController < ApplicationController
       end
 
       # Process the creators
-      for i in 1..params["existing_creator_count"].to_i do
+      for i in 1..params["creator_count"].to_i do
         creator = new_creator(params["given_name_#{i}"], params["family_name_#{i}"], params["orcid_#{i}"])
-        resource.creators << creator unless creator.nil?
-      end
-
-      for i in 1..params["new_creator_count"].to_i do
-        creator = new_creator(params["new_given_name_#{i}"], params["new_family_name_#{i}"], params["new_orcid_#{i}"])
         resource.creators << creator unless creator.nil?
       end
 

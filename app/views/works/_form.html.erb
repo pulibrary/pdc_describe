@@ -68,8 +68,7 @@
     <div>
       <input type="text" id="existing_title_count" name="existing_title_count" value="<%= @work.datacite_resource.titles.count %>" class="hidden" />
       <input type="text" id="new_title_count" name="new_title_count" value="0" class="hidden" />
-      <input type="text" id="existing_creator_count" name="existing_creator_count" value="<%= @work.datacite_resource.creators.count %>" class="hidden" />
-      <input type="text" id="new_creator_count" name="new_creator_count" value="0" class="hidden" />
+      <input type="text" id="creator_count" name="creator_count" value="<%= @work.datacite_resource.creators.count %>" class="hidden" />
     </div>
   <% end %>
 </div>
@@ -83,31 +82,30 @@
       return counter
     }
 
-    var addCreatorPlaceholder = function(_el) {
-      var newCreatorCount = incrementCounter("#new_creator_count");
-      var rowId = `new_creator_${newCreatorCount}`;
-      var orcidId = `new_orcid_${newCreatorCount}`;
-      var familyNameId = `new_family_name_${newCreatorCount}`;
-      var givenNameId = `new_given_name_${newCreatorCount}`;
-      var html = `<tr id="${rowId}">
+    var addCreatorHtml = function(num, orcid, givenName, familyName) {
+      var rowId = `creator_row_${num}`;
+      var orcidId = `orcid_${num}`;
+      var givenNameId = `given_name_${num}`;
+      var familyNameId = `family_name_${num}`;
+      var rowHtml = `<tr id="${rowId}">
         <td>
-          <input type="text" id="${orcidId}" name="${orcidId}" value="" />
+          <input type="text" id="${orcidId}" name="${orcidId}" value="${orcid}" />
         </td>
         <td>
-          <input type="text" id="${givenNameId}" name="${givenNameId}" value="" />
+          <input type="text" id="${givenNameId}" name="${givenNameId}" value="${givenName}" />
         </td>
         <td>
-          <input type="text" id="${familyNameId}" name="${familyNameId}" value="" />
+          <input type="text" id="${familyNameId}" name="${familyNameId}" value="${familyName}" />
         </td>
         <td>
           <span>
-            <a class="delete-new-creator" data-creator-num="${newCreatorCount}" href="#" title="Remove this creator">
-              <i class="bi bi-trash delete_icon" data-creator-num="${newCreatorCount}"></i>
+            <a class="delete-creator" data-creator-num="${num}" href="#" title="Remove this creator">
+              <i class="bi bi-trash delete_icon" data-creator-num="${num}"></i>
             </a>
           </span>
         </td>
       </tr>`;
-      $("#new-creators-anchor").append(html);
+      $("#creators-table").append(rowHtml);
       $("#" + orcidId).focus();
     }
 
@@ -130,7 +128,8 @@
     }
 
     $("#btn-add-creator").on("click", function(el) {
-      addCreatorPlaceholder(el);
+      var num = incrementCounter("#creator_count");
+      addCreatorHtml(num, "", "", "");
       return false;
     });
 
@@ -140,24 +139,19 @@
     });
 
     var deleteCreator = function(num, existing) {
-      var rowToDelete = "";
-      var orcidId, givenNameId, familyNameId;
-      if (existing) {
-        rowToDelete = `#existing_creator_${num}`;
-        orcidId = `#orcid_${num}`;
-        givenNameId = `#given_name_${num}`;
-        familyNameId = `#family_name_${num}`;
-      } else {
-        rowToDelete = `#new_creator_${num}`;
-        orcidId = `#new_orcid_${num}`;
-        givenNameId = `#new_given_name_${num}`;
-        familyNameId = `#new_family_name_${num}`;
-      }
-
+      var rowToDelete = `#creator_row_${num}`;
+      var orcidId = `#orcid_${num}`;
+      var givenNameId = `#given_name_${num}`;
+      var familyNameId = `#family_name_${num}`;
       var name = $(orcidId).val() + " " + $(givenNameId).val() + " " + $(familyNameId).val();
-      var message = `Remove creator ${name}`;
-      if (confirm(message)) {
+      var emptyName = name.trim().length == 0;
+      if (emptyName) {
+        // delete it without asking
         $(rowToDelete).remove();
+      } else {
+        if (confirm(`Remove creator ${name}`)) {
+          $(rowToDelete).remove();
+        }
       }
     }
 
@@ -168,16 +162,19 @@
     // we can detect the click even on HTML elements _added on the fly_ which
     // is the case when a user adds a new creator.
     // Reference: https://stackoverflow.com/a/17086311/446681
-    $(document).on("click", ".delete-existing-creator", function(el) {
+    $(document).on("click", ".delete-creator", function(el) {
       var num = $(el.target).data("creator-num");
-      deleteCreator(num, true);
+      deleteCreator(num);
       return false;
     });
 
-    $(document).on("click", ".delete-new-creator", function(el) {
-      var num = $(el.target).data("creator-num");
-      deleteCreator(num, false);
-      return false;
+    // Display the initial list of creators
+    $(".creator-data").each(function(ix, el) {
+      var num = $(el).data("num");
+      var orcid = $(el).data("orcid");
+      var givenName = $(el).data("given-name");
+      var familyName = $(el).data("family-name");
+      addCreatorHtml(num, orcid, givenName, familyName);
     });
 
   });

@@ -1,7 +1,12 @@
 <h2>Creator(s)</h2>
 
-<!-- Render the existing creators in the record -->
-<table id="new-creators-anchor">
+<!--
+  Render the list of creators a hidden SPANs that are then added to
+  the HTML TABLE via JavaScript. This is so that we have a single way
+  of rendering creators already on the record *and* creators added
+  on the fly.
+-->
+<table id="creators-table">
   <tr>
     <th>ORCID</th>
     <th>Given name</th>
@@ -9,24 +14,11 @@
     <th>&nbsp;</th>
   </tr>
   <% @work.datacite_resource.creators.each_with_index do |creator, i| %>
-    <tr id="existing_creator_<%= i %>">
-      <td>
-        <input type="text" id="orcid_<%= i %>" name="orcid_<%= i + 1 %>" value="<%= creator.orcid %>" />
-      </td>
-      <td>
-        <input type="text" id="given_name_<%= i %>" name="given_name_<%= i + 1 %>" value="<%= creator.given_name %>" />
-      </td>
-      <td>
-        <input type="text" id="family_name_<%= i %>" name="family_name_<%= i + 1 %>" value="<%= creator.family_name %>" />
-      </td>
-      <td>
-        <span>
-          <a class="delete-existing-creator" data-creator-num="<%= i %>" href="#" title="Remove this creator">
-            <i class="bi bi-trash delete_icon" data-creator-num="<%= i %>"></i>
-          </a>
-        </span>
-      </td>
-    </tr>
+    <span class="hidden creator-data"
+      data-num="<%= i + 1 %>"
+      data-orcid="<%= creator.orcid %>"
+      data-given-name="<%= creator.given_name %>"
+      data-family-name="<%= creator.family_name %>"></span>
   <% end %>
 </table>
 
