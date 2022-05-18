@@ -1,7 +1,7 @@
 <h2>Creator(s)</h2>
 
 <!-- Render the existing creators in the record -->
-<% @datacite.creators.each_with_index do |creator, i| %>
+<% @work.datacite_resource.creators.each_with_index do |creator, i| %>
   <div class="field">
     ORCID:<br>
     <input type="text" id="orcid_<%= i %>" name="orcid_<%= i + 1 %>" value="<%= creator.orcid %>" />

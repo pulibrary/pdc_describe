@@ -1,7 +1,7 @@
 <h2>Title(s)</h2>
 
 <!-- Render the existing titles in the record -->
-<% @datacite.titles.each_with_index do |title, i| %>
+<% @work.datacite_resource.titles.each_with_index do |title, i| %>
   <% if title.main? %>
     <div class="field">
       <!-- notice that we don't display a dropdown to select a title type for the main title -->

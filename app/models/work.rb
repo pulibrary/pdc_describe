@@ -13,22 +13,22 @@ class Work < ApplicationRecord
     end
   end
 
-  before_update do |ds|
+  before_update do |work|
     if dublin_core.present?
       # we don't mint ARKs for these records
-    elsif ds.ark.blank?
-      ds.ark = Ark.mint
+    elsif work.ark.blank?
+      work.ark = Ark.mint
     end
   end
 
-  after_save do |ds|
+  after_save do |work|
     # We only want to update the ark url under certain conditions.
     # Set this value in config/update_ark_url.yml
     if Rails.configuration.update_ark_url
-      if ds.ark.present?
+      if work.ark.present?
         # Ensure that the ARK metadata is updated for the new URL
-        if ark_object.target != ds.url
-          ark_object.target = ds.url
+        if ark_object.target != work.url
+          ark_object.target = work.url
           ark_object.save!
         end
       end
@@ -40,10 +40,8 @@ class Work < ApplicationRecord
       work.errors.add(:base, "Invalid ARK provided for the Work: #{work.ark}") unless Ark.valid?(work.ark)
     end
 
-    unless datacite_resource.nil?
-      if datacite_resource.main_title.blank?
-        work.errors.add(:base, "Must provide a title")
-      end
+    if work.title.blank?
+      work.errors.add(:base, "Must provide a title")
     end
   end
 
@@ -68,7 +66,8 @@ class Work < ApplicationRecord
       collection_id: collection_id,
       work_type: "DATASET",
       state: "AWAITING-APPROVAL",
-      profile: "DATACITE"
+      profile: "DATACITE",
+      data_cite: Datacite::Resource.new(title: title).to_json
     )
     work.save!
     work
@@ -125,7 +124,6 @@ class Work < ApplicationRecord
   end
 
   def datacite_resource
-    return nil if data_cite.blank?
     @datacite_resource ||= Datacite::Resource.new_from_json(data_cite)
   end
 

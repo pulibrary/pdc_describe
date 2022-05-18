@@ -23,6 +23,7 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
   it "Prevents empty title", js: true do
     sign_in user
     visit new_work_path
+    fill_in "title_main", with: ""
     click_on "Update Work"
     expect(page).to have_content "Must provide a title"
   end

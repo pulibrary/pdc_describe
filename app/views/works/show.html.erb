@@ -1,10 +1,10 @@
 <h1><%= @work.title %></h1>
 
-<% @datacite.other_titles.each do |title| %>
+<% @work.datacite_resource.other_titles.each do |title| %>
   <p><b><%= title.title_type %></b>: <%= title.title %></p>
 <% end %>
 
-<p><%= @datacite.creators.map(&:value).join("; ") %></p>
+<p><%= @work.datacite_resource.creators.map(&:value).join("; ") %></p>
 
 <div>
   <p>DOI: <%= link_to(@work.doi, @work.doi) %></p>

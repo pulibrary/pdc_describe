@@ -66,9 +66,9 @@
       is submitted.
     -->
     <div>
-      <input type="text" id="existing_title_count" name="existing_title_count" value="<%= @datacite.titles.count %>" class="hidden" />
+      <input type="text" id="existing_title_count" name="existing_title_count" value="<%= @work.datacite_resource.titles.count %>" class="hidden" />
       <input type="text" id="new_title_count" name="new_title_count" value="0" class="hidden" />
-      <input type="text" id="existing_creator_count" name="existing_creator_count" value="<%= @datacite.creators.count %>" class="hidden" />
+      <input type="text" id="existing_creator_count" name="existing_creator_count" value="<%= @work.datacite_resource.creators.count %>" class="hidden" />
       <input type="text" id="new_creator_count" name="new_creator_count" value="0" class="hidden" />
     </div>
   <% end %>

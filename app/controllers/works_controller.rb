@@ -17,8 +17,6 @@ class WorksController < ApplicationController
 
   def show
     @work = Work.find(params[:id])
-    @datacite = Datacite::Resource.new_from_json(@work.data_cite)
-
     if @work.doi
       service = S3QueryService.new(@work.doi)
       @files = service.data_profile
@@ -27,7 +25,6 @@ class WorksController < ApplicationController
 
   def edit
     @work = Work.find(params[:id])
-    @datacite = Datacite::Resource.new_from_json(@work.data_cite)
   end
 
   def update
@@ -42,7 +39,6 @@ class WorksController < ApplicationController
         format.html { redirect_to work_url(@work), notice: "Work was successfully updated." }
         format.json { render :show, status: :ok, location: @work }
       else
-        @datacite = Datacite::Resource.new_from_json(@work.data_cite)
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @work.errors, status: :unprocessable_entity }
       end
@@ -70,8 +66,7 @@ class WorksController < ApplicationController
   # Outputs the Datacite XML representation of the work
   def datacite
     work = Work.find(params[:id])
-    resource = Datacite::Resource.new_from_json(work.data_cite)
-    render xml: resource.to_xml
+    render xml: work.datacite_resource.to_xml
   end
 
   private
