@@ -35,9 +35,15 @@ class Work < ApplicationRecord
     end
   end
 
-  validate do |ds|
-    if ds.ark.present?
-      ds.errors.add(:base, "Invalid ARK provided for the Work: #{ds.ark}") unless Ark.valid?(ds.ark)
+  validate do |work|
+    if work.ark.present?
+      work.errors.add(:base, "Invalid ARK provided for the Work: #{work.ark}") unless Ark.valid?(work.ark)
+    end
+
+    unless datacite_resource.nil?
+      if datacite_resource.main_title.blank?
+        work.errors.add(:base, "Must provide a title")
+      end
     end
   end
 
@@ -116,6 +122,11 @@ class Work < ApplicationRecord
     super(parsed.to_json)
   rescue JSON::ParserError => parse_error
     raise(ArgumentError, "Invalid JSON passed to Work#dublin_core=: #{parse_error}")
+  end
+
+  def datacite_resource
+    return nil if data_cite.blank?
+    @datacite_resource ||= Datacite::Resource.new_from_json(data_cite)
   end
 
   def ark_url

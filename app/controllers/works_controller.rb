@@ -28,9 +28,6 @@ class WorksController < ApplicationController
   def edit
     @work = Work.find(params[:id])
     @datacite = Datacite::Resource.new_from_json(@work.data_cite)
-    if @datacite.main_title.nil?
-      @datacite.titles << Datacite::Title.new(title: "Enter title here")
-    end
   end
 
   def update

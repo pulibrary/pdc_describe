@@ -18,6 +18,10 @@ module Datacite
       @titles.find(&:main?)&.title
     end
 
+    def other_titles
+      @titles.select { |title| title.main? == false }
+    end
+
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/BlockLength
     # rubocop:disable Metrics/AbcSize
