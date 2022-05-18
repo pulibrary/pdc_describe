@@ -1,25 +1,28 @@
 <h2>Creator(s)</h2>
 
 <!-- Render the existing creators in the record -->
-<% @work.datacite_resource.creators.each_with_index do |creator, i| %>
-  <div class="field">
-    ORCID:<br>
-    <input type="text" id="orcid_<%= i %>" name="orcid_<%= i + 1 %>" value="<%= creator.orcid %>" />
-  </div>
-
-  <div class="field">
-    Given name:<br>
-    <input type="text" id="given_name_<%= i %>" name="given_name_<%= i + 1 %>" value="<%= creator.given_name %>" />
-  </div>
-
-  <div class="field">
-    Family name:<br>
-    <input type="text" id="family_name_<%= i %>" name="family_name_<%= i + 1 %>" value="<%= creator.family_name %>" />
-  </div>
-<% end %>
+<table id="new-creators-anchor">
+  <tr>
+    <th>ORCID</th>
+    <th>Given name</th>
+    <th>Family name</th>
+  </tr>
+  <% @work.datacite_resource.creators.each_with_index do |creator, i| %>
+    <tr>
+      <td>
+        <input type="text" id="orcid_<%= i %>" name="orcid_<%= i + 1 %>" value="<%= creator.orcid %>" />
+      </td>
+      <td>
+        <input type="text" id="given_name_<%= i %>" name="given_name_<%= i + 1 %>" value="<%= creator.given_name %>" />
+      </td>
+      <td>
+        <input type="text" id="family_name_<%= i %>" name="family_name_<%= i + 1 %>" value="<%= creator.family_name %>" />
+      </td>
+    </tr>
+  <% end %>
+</table>
 
 <!-- Let the user add new creators -->
 <div>
   <%= link_to "Add Creator", "#", id: "btn-add-creator", class: "btn btn-secondary" %>
 </div>
-<div id="new-creators-anchor">...</div>

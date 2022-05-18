@@ -83,30 +83,27 @@
       return counter
     }
 
-    var addCreatorPlaceholder = function(el) {
+    var addCreatorPlaceholder = function(_el) {
       var newCreatorCount = incrementCounter("#new_creator_count");
       var orcidId = `new_orcid_${newCreatorCount}`;
       var familyNameId = `new_family_name_${newCreatorCount}`;
       var givenNameId = `new_given_name_${newCreatorCount}`;
-      var html = `
-      <div class="field">
-        ORCID:<br>
-        <input type="text" id="${orcidId}" name="${orcidId}" value="" />
-      </div>
-
-      <div class="field">
-        Given name:<br>
-        <input type="text" id="${givenNameId}" name="${givenNameId}" value="" />
-      </div>
-
-      <div class="field">
-        Family name:<br>
-        <input type="text" id="${familyNameId}" name="${familyNameId}" value="" />
-      </div>`;
+      var html = `<tr>
+        <td>
+          <input type="text" id="${orcidId}" name="${orcidId}" value="" />
+        </td>
+        <td>
+          <input type="text" id="${givenNameId}" name="${givenNameId}" value="" />
+        </td>
+        <td>
+          <input type="text" id="${familyNameId}" name="${familyNameId}" value="" />
+        </td>
+      </tr>`;
       $("#new-creators-anchor").append(html);
+      $("#" + orcidId).focus();
     }
 
-    var addTitlePlaceholder = function(el) {
+    var addTitlePlaceholder = function(_el) {
       var newTitleCount = incrementCounter("#new_title_count");
       var titleId = `new_title_${newTitleCount}`;
       var typeId = `new_title_type_${newTitleCount}`;
