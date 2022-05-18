@@ -16,3 +16,7 @@
 .hidden {
   display: none;
 }
+
+.delete_icon {
+  color: #bb6c6c;
+}

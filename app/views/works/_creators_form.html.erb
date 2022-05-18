@@ -6,9 +6,10 @@
     <th>ORCID</th>
     <th>Given name</th>
     <th>Family name</th>
+    <th>&nbsp;</th>
   </tr>
   <% @work.datacite_resource.creators.each_with_index do |creator, i| %>
-    <tr>
+    <tr id="existing_creator_<%= i %>">
       <td>
         <input type="text" id="orcid_<%= i %>" name="orcid_<%= i + 1 %>" value="<%= creator.orcid %>" />
       </td>
@@ -17,6 +18,13 @@
       </td>
       <td>
         <input type="text" id="family_name_<%= i %>" name="family_name_<%= i + 1 %>" value="<%= creator.family_name %>" />
+      </td>
+      <td>
+        <span>
+          <a class="delete-existing-creator" data-creator-num="<%= i %>" href="#" title="Remove this creator">
+            <i class="bi bi-trash delete_icon" data-creator-num="<%= i %>"></i>
+          </a>
+        </span>
       </td>
     </tr>
   <% end %>

@@ -85,10 +85,11 @@
 
     var addCreatorPlaceholder = function(_el) {
       var newCreatorCount = incrementCounter("#new_creator_count");
+      var rowId = `new_creator_${newCreatorCount}`;
       var orcidId = `new_orcid_${newCreatorCount}`;
       var familyNameId = `new_family_name_${newCreatorCount}`;
       var givenNameId = `new_given_name_${newCreatorCount}`;
-      var html = `<tr>
+      var html = `<tr id="${rowId}">
         <td>
           <input type="text" id="${orcidId}" name="${orcidId}" value="" />
         </td>
@@ -97,6 +98,13 @@
         </td>
         <td>
           <input type="text" id="${familyNameId}" name="${familyNameId}" value="" />
+        </td>
+        <td>
+          <span>
+            <a class="delete-new-creator" data-creator-num="${newCreatorCount}" href="#" title="Remove this creator">
+              <i class="bi bi-trash delete_icon" data-creator-num="${newCreatorCount}"></i>
+            </a>
+          </span>
         </td>
       </tr>`;
       $("#new-creators-anchor").append(html);
@@ -130,5 +138,47 @@
       addTitlePlaceholder(el);
       return false;
     });
+
+    var deleteCreator = function(num, existing) {
+      var rowToDelete = "";
+      var orcidId, givenNameId, familyNameId;
+      if (existing) {
+        rowToDelete = `#existing_creator_${num}`;
+        orcidId = `#orcid_${num}`;
+        givenNameId = `#given_name_${num}`;
+        familyNameId = `#family_name_${num}`;
+      } else {
+        rowToDelete = `#new_creator_${num}`;
+        orcidId = `#new_orcid_${num}`;
+        givenNameId = `#new_given_name_${num}`;
+        familyNameId = `#new_family_name_${num}`;
+      }
+
+      var name = $(orcidId).val() + " " + $(givenNameId).val() + " " + $(familyNameId).val();
+      var message = `Remove creator ${name}`;
+      if (confirm(message)) {
+        $(rowToDelete).remove();
+      }
+    }
+
+    // Delete button for creators.
+    //
+    // Notice the use of $(document).on("click", selector, ...) instead of the
+    // typical $(selector).on("click", ...). This syntax is required so that
+    // we can detect the click even on HTML elements _added on the fly_ which
+    // is the case when a user adds a new creator.
+    // Reference: https://stackoverflow.com/a/17086311/446681
+    $(document).on("click", ".delete-existing-creator", function(el) {
+      var num = $(el.target).data("creator-num");
+      deleteCreator(num, true);
+      return false;
+    });
+
+    $(document).on("click", ".delete-new-creator", function(el) {
+      var num = $(el.target).data("creator-num");
+      deleteCreator(num, false);
+      return false;
+    });
+
   });
 </script>
