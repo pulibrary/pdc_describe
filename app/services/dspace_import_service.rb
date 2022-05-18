@@ -41,7 +41,7 @@ class DspaceImportService
   end
 
   def work
-    @work ||= Work.create_skeleton(title, user.id, collection.id, work_type)
+    @work ||= Work.create_skeleton(title, user.id, collection.id, work_type, "DUBLINCORE")
   end
 
   private

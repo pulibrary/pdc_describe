@@ -2,16 +2,14 @@
 
 require "rails_helper"
 
-RSpec.describe DatasetsController, mock_ezid_api: true do
+RSpec.describe WorksController, mock_ezid_api: true do
   before do
     Collection.create_defaults
     user
   end
   let(:user) { FactoryBot.create(:user) }
   let(:collection) { Collection.first }
-  let(:ds) { Dataset.create_skeleton("test dataset", user.id, collection.id) }
-  let(:ezid) { ds.ark }
-  let(:work) { ds.work }
+  let(:work) { Work.create_dataset("test dataset", user.id, collection.id) }
 
   context "valid user login" do
     it "handles the index page" do
@@ -22,7 +20,7 @@ RSpec.describe DatasetsController, mock_ezid_api: true do
 
     it "handles the show page" do
       sign_in user
-      get :show, params: { id: ds.id }
+      get :show, params: { id: work.id }
       expect(response).to render_template("show")
     end
 
@@ -30,57 +28,54 @@ RSpec.describe DatasetsController, mock_ezid_api: true do
       sign_in user
       post :new
       expect(response.status).to be 302
-      expect(response.location.start_with?("http://test.host/datasets/")).to be true
+      expect(response.location.start_with?("http://test.host/works/")).to be true
     end
 
     it "renders the edit page on edit" do
       sign_in user
-      get :edit, params: { id: ds.id }
+      get :edit, params: { id: work.id }
       expect(response).to render_template("edit")
     end
 
     it "handles the update page" do
       params = {
-        "dataset" => {
-          "work_id" => ds.work.id
-        },
         "title" => "test dataset updated",
-        "collection_id" => ds.work.collection.id,
+        "collection_id" => work.collection.id,
         "commit" => "Update Dataset",
-        "controller" => "datasets",
+        "controller" => "works",
         "action" => "update",
-        "id" => ds.id.to_s
+        "id" => work.id.to_s
       }
       sign_in user
       post :update, params: params
       expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/datasets/#{ds.id}"
+      expect(response.location).to eq "http://test.host/works/#{work.id}"
     end
 
     it "handles aprovals" do
       sign_in user
-      post :approve, params: { id: ds.id }
+      post :approve, params: { id: work.id }
       expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/datasets/#{ds.id}"
+      expect(response.location).to eq "http://test.host/works/#{work.id}"
     end
 
     it "handles withdraw" do
       sign_in user
-      post :withdraw, params: { id: ds.id }
+      post :withdraw, params: { id: work.id }
       expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/datasets/#{ds.id}"
+      expect(response.location).to eq "http://test.host/works/#{work.id}"
     end
 
     it "handles resubmit" do
       sign_in user
-      post :resubmit, params: { id: ds.id }
+      post :resubmit, params: { id: work.id }
       expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/datasets/#{ds.id}"
+      expect(response.location).to eq "http://test.host/works/#{work.id}"
     end
 
     it "handles the show page" do
       sign_in user
-      get :datacite, params: { id: ds.id }
+      get :datacite, params: { id: work.id }
       expect(response.body.start_with?('<?xml version="1.0"?>')).to be true
     end
   end
@@ -88,14 +83,9 @@ RSpec.describe DatasetsController, mock_ezid_api: true do
   describe "#update" do
     let(:params) do
       {
-        id: ds.id,
-        title: ds.title,
+        id: work.id,
+        title: work.title,
         collection_id: collection.id,
-        dataset: {
-          id: ds.id,
-          work_id: work.id,
-          format: format
-        },
         new_title_1: "the subtitle",
         new_title_type_1: "Subtitle",
         existing_title_count: "1",
@@ -118,7 +108,7 @@ RSpec.describe DatasetsController, mock_ezid_api: true do
           before do
             sign_in user
             allow(Work).to receive(:find).and_return(work)
-            allow_any_instance_of(Dataset).to receive(:update).and_return(false)
+            allow_any_instance_of(Work).to receive(:update).and_return(false)
             patch :update, params: params
           end
 
@@ -136,7 +126,7 @@ RSpec.describe DatasetsController, mock_ezid_api: true do
           before do
             sign_in user
             allow(Work).to receive(:find).and_return(work)
-            allow_any_instance_of(Dataset).to receive(:update).and_return(false)
+            allow_any_instance_of(Work).to receive(:update).and_return(false)
             patch :update, params: params
           end
 

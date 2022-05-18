@@ -2,7 +2,7 @@
 require "ezid-client"
 
 class Ark
-  EZID_INVALID_SHOULDER = "ark:/99999"
+  EZID_TEST_SHOULDER = "ark:/99999"
 
   # Mints a new EZID identifier, returns the id (e.g. "ark:/99999/fk4tq65d6k")
   def self.mint
@@ -21,6 +21,8 @@ class Ark
   # @param [ezid] [String] the EZID being validated
   # @return [Boolean]
   def self.valid?(ezid)
+    # Always consider test ARKs valid
+    return true if ezid.start_with?(EZID_TEST_SHOULDER)
     # Try and retrieve the ARK
     new(ezid)
     true
@@ -29,7 +31,7 @@ class Ark
   end
 
   def self.valid_shoulder?(ezid)
-    !ezid.include?(self::EZID_INVALID_SHOULDER)
+    !ezid.include?(self::EZID_TEST_SHOULDER)
   end
 
   def initialize(ezid)

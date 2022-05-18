@@ -12,11 +12,11 @@ Rails.application.routes.draw do
     get "sign_out", to: "devise/sessions#destroy", as: :destroy_user_session
   end
 
-  post "dataset/:id/approve", to: "datasets#approve", as: :approve_dataset
-  post "dataset/:id/withdraw", to: "datasets#withdraw", as: :withdraw_dataset
-  post "dataset/:id/resubmit", to: "datasets#resubmit", as: :resubmit_dataset
-  get "datasets/:id/datacite", to: "datasets#datacite", as: :dataset_datacite
-  resources :datasets
+  post "work/:id/approve", to: "works#approve", as: :approve_work
+  post "work/:id/withdraw", to: "works#withdraw", as: :withdraw_work
+  post "work/:id/resubmit", to: "works#resubmit", as: :resubmit_work
+  get "works/:id/datacite", to: "works#datacite", as: :dataset_work
+  resources :works
 
   delete "collections/:id/:uid", to: "collections#delete_user_from_collection", as: :delete_user_from_collection
   post "collections/:id/add-submitter/:uid", to: "collections#add_submitter", as: :add_submitter
