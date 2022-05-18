@@ -39,7 +39,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
 
     it "handles the update page" do
       params = {
-        "title" => "test dataset updated",
+        "title_main" => "test dataset updated",
         "collection_id" => work.collection.id,
         "commit" => "Update Dataset",
         "controller" => "works",
