@@ -4,7 +4,11 @@
   <p><b><%= title.title_type %></b>: <%= title.title %></p>
 <% end %>
 
-<p><%= @work.datacite_resource.creators.map(&:value).join("; ") %></p>
+<p>
+<% @work.datacite_resource.creators.each_with_index do |creator, ix| %>
+  <%= person_orcid_link(creator.value, creator.orcid, ix < (@work.datacite_resource.creators.count-1) ) %>
+<% end %>
+</p>
 
 <div>
   <p>Publisher: <%= @work.datacite_resource.publisher %></p>
