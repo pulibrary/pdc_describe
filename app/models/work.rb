@@ -40,10 +40,12 @@ class Work < ApplicationRecord
       work.errors.add(:base, "Invalid ARK provided for the Work: #{work.ark}") unless Ark.valid?(work.ark)
     end
 
-    work.errors.add(:base, "Must provide Title") if work.title.blank?
-    work.errors.add(:base, "Must provide at least one Creator") if work.datacite_resource.creators.count == 0
-    work.errors.add(:base, "Must indicate the Publisher") if work.datacite_resource.publisher.blank?
-    work.errors.add(:base, "Must indicate the Publication Year") if work.datacite_resource.publication_year.blank?
+    if work.data_cite.present?
+      work.errors.add(:base, "Must provide a title") if work.title.blank?
+      work.errors.add(:base, "Must provide at least one Creator") if work.datacite_resource.creators.count == 0
+      work.errors.add(:base, "Must indicate the Publisher") if work.datacite_resource.publisher.blank?
+      work.errors.add(:base, "Must indicate the Publication Year") if work.datacite_resource.publication_year.blank?
+    end
   end
 
   def self.create_skeleton(title, user_id, collection_id, work_type, profile)
@@ -60,7 +62,8 @@ class Work < ApplicationRecord
   end
 
   # Convenience method to create Datasets with the DataCite profile
-  def self.create_dataset(title, user_id, collection_id)
+  def self.create_dataset(title, user_id, collection_id, datacite_resource = nil)
+    datacite_resource = Datacite::Resource.new(title: title) if datacite_resource.nil?
     work = Work.new(
       title: title,
       created_by_user_id: user_id,
@@ -68,9 +71,10 @@ class Work < ApplicationRecord
       work_type: "DATASET",
       state: "AWAITING-APPROVAL",
       profile: "DATACITE",
-      data_cite: Datacite::Resource.new(title: title).to_json
+      data_cite: datacite_resource.to_json
     )
-    work.save!
+    # We skip the validation since we don't have all the required fields yet
+    work.save!(validate: false)
     work
   end
 

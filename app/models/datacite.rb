@@ -13,7 +13,7 @@ module Datacite
       @creators = []
       @resource_type = resource_type || "Dataset"
       @publisher = "Princeton University"
-      @publication_year = Date.today.year
+      @publication_year = Time.zone.today.year
     end
 
     def main_title
