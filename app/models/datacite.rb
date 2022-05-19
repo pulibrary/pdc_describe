@@ -12,6 +12,8 @@ module Datacite
       @titles << Datacite::Title.new(title: title) unless title.nil?
       @creators = []
       @resource_type = resource_type || "Dataset"
+      @publisher = "Princeton University"
+      @publication_year = Date.today.year
     end
 
     def main_title
@@ -71,6 +73,12 @@ module Datacite
               end
             end
           end
+          xml.publisher do
+            xml.text @publisher
+          end
+          xml.publicationYear do
+            xml.text @publication_year
+          end
         end
       end
       builder.to_xml
@@ -90,6 +98,8 @@ module Datacite
         orcid = creator.dig("name_identifier", "scheme") == "ORCID" ? creator.dig("name_identifier", "value") : nil
         resource.creators << Datacite::Creator.new_person(creator["given_name"], creator["family_name"], orcid)
       end
+      resource.publisher = hash["publisher"]
+      resource.publication_year = hash["publication_year"]
       resource
     end
   end

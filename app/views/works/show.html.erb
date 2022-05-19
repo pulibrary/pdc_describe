@@ -7,6 +7,8 @@
 <p><%= @work.datacite_resource.creators.map(&:value).join("; ") %></p>
 
 <div>
+  <p>Publisher: <%= @work.datacite_resource.publisher %></p>
+  <p>Publication Year: <%= @work.datacite_resource.publication_year %></p>
   <p>DOI: <%= link_to(@work.doi, @work.doi) %></p>
   <p>ARK: <%= link_to(@work.ark, @work.ark_url) %></p>
   <p>Added by: <%= @work.created_by_user.uid %></p>

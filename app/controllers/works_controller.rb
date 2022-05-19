@@ -79,6 +79,9 @@ class WorksController < ApplicationController
     def datacite_resource_from_form
       resource = Datacite::Resource.new
 
+      resource.publisher = params["publisher"]
+      resource.publication_year = params["publication_year"]
+
       # Process the titles
       resource.titles << Datacite::Title.new(title: params["title_main"])
       for i in 1..params["existing_title_count"].to_i do

@@ -40,9 +40,10 @@ class Work < ApplicationRecord
       work.errors.add(:base, "Invalid ARK provided for the Work: #{work.ark}") unless Ark.valid?(work.ark)
     end
 
-    if work.title.blank?
-      work.errors.add(:base, "Must provide a title")
-    end
+    work.errors.add(:base, "Must provide Title") if work.title.blank?
+    work.errors.add(:base, "Must provide at least one Creator") if work.datacite_resource.creators.count == 0
+    work.errors.add(:base, "Must indicate the Publisher") if work.datacite_resource.publisher.blank?
+    work.errors.add(:base, "Must indicate the Publication Year") if work.datacite_resource.publication_year.blank?
   end
 
   def self.create_skeleton(title, user_id, collection_id, work_type, profile)

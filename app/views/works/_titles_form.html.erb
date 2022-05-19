@@ -23,13 +23,24 @@
   <% end %>
 <% end %>
 
+<div id="new-titles-anchor"></div>
+
 <!-- Let the user add new titles -->
 <div>
-<%= link_to "Add Title", "#", id: "btn-add-title", class: "btn btn-secondary" %>
+  <%= link_to "Add Title", "#", id: "btn-add-title", class: "btn btn-secondary" %>
 </div>
-<div id="new-titles-anchor">...</div>
 
-<!-- Collection field (unrelated to title) -->
+<div class="field">
+  Publisher:<br>
+  <input type="text" id="publisher" name="publisher" value="<%= @work.datacite_resource.publisher %>" />
+</div>
+
+<div class="field">
+  Publication Year:<br>
+  <input type="text" id="publication_year" name="publication_year" value="<%= @work.datacite_resource.publication_year %>" />
+</div>
+
+<!-- Collection field -->
 <div class="field">
   Collection<br>
   <select id="collection_id" name="collection_id">
@@ -39,7 +50,7 @@
   </select>
 </div>
 
-<!-- ARK field (unrelated to title) -->
+<!-- ARK field  -->
 <div class="field">
   ARK: <%= @work.ark %>
 </div>
