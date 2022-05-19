@@ -1,26 +1,24 @@
 <h2>Title(s)</h2>
 
-<!-- Render the existing titles in the record -->
-<% @work.datacite_resource.titles.each_with_index do |title, i| %>
-  <% if title.main? %>
-    <div class="field">
-      <!-- notice that we don't display a dropdown to select a title type for the main title -->
-      Title:<br>
-      <input type="text" id="title_main" name="title_main" value="<%= title.title %>" />
-    </div>
-  <% else %>
-    <div class="field">
-      <!-- todo: this should go into a helper -->
-      <select id="title_type_<%= i + 1 %>" name="title_type_<%= i + 1 %>">
-        <option value="AlternativeTitle" <%= title.title_type == "AlternativeTitle" ? "selected" : "" %>>Alternative</option>
-        <option value="Subtitle" <%= title.title_type == "Subtitle" ? "selected" : "" %> >Subtitle</option>
-        <option value="TranslatedTitle" <%= title.title_type == "TranslatedTitle" ? "selected" : "" %>>Translated</option>
-        <option value="Other" <%= title.title_type == "Other" ? "selected" : "" %>>Other</option>
-      </select>
-      <br>
-      <input type="text" id="title_<%= i + 1 %>" name="title_<%= i + 1 %>" value="<%= title.title %>" />
-    </div>
-  <% end %>
+<!-- Render the main title (notice that we don't display a dropdown for this title) -->
+<div class="field">
+  Title:<br>
+  <input type="text" id="title_main" name="title_main" value="<%= @work.datacite_resource.main_title %>" />
+</div>
+
+<!-- Render other titles in the record -->
+<% @work.datacite_resource.other_titles.each_with_index do |title, i| %>
+  <div class="field">
+    <!-- todo: this should go into a helper -->
+    <select id="title_type_<%= i + 1 %>" name="title_type_<%= i + 1 %>">
+      <option value="AlternativeTitle" <%= title.title_type == "AlternativeTitle" ? "selected" : "" %>>Alternative</option>
+      <option value="Subtitle" <%= title.title_type == "Subtitle" ? "selected" : "" %> >Subtitle</option>
+      <option value="TranslatedTitle" <%= title.title_type == "TranslatedTitle" ? "selected" : "" %>>Translated</option>
+      <option value="Other" <%= title.title_type == "Other" ? "selected" : "" %>>Other</option>
+    </select>
+    <br>
+    <input type="text" id="title_<%= i + 1 %>" name="title_<%= i + 1 %>" value="<%= title.title %>" />
+  </div>
 <% end %>
 
 <div id="new-titles-anchor"></div>
