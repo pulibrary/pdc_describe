@@ -67,6 +67,11 @@
 
 <script>
   $(function() {
+    var isOrcid = function(value) {
+      const regex = new RegExp(/^\d\d\d\d-\d\d\d\d-\d\d\d\d-\d\d\d\d$/);
+      return regex.test(value);
+    };
+
     var incrementCounter = function(elementId) {
       var counter = parseInt($(elementId)[0].value, 10);
       counter++
@@ -81,7 +86,7 @@
       var familyNameId = `family_name_${num}`;
       var rowHtml = `<tr id="${rowId}">
         <td>
-          <input type="text" id="${orcidId}" name="${orcidId}" value="${orcid}" placeholder="0000-0000-0000-0000" />
+          <input class="orcid-entry" type="text" id="${orcidId}" name="${orcidId}" value="${orcid}" data-num="${num}" placeholder="0000-0000-0000-0000" />
         </td>
         <td>
           <input type="text" id="${givenNameId}" name="${givenNameId}" value="${givenName}" />
@@ -172,5 +177,27 @@
       addCreatorHtml(num, orcid, givenName, familyName);
     });
 
+    // Fetch name information for a given ORCID via ORCID's public API
+    $(document).on("input", ".orcid-entry", function(el) {
+      var num = el.target.attributes["data-num"].value;
+      var orcid = $(el.target).val();
+      if (isOrcid(orcid)) {
+        $.ajax({
+          url: `https://pub.orcid.org/v2.0/${orcid}`,
+          dataType: 'jsonp'
+        })
+        .done(function(data) {
+          var givenName = data.person.name["given-names"].value;
+          var familyName = data.person.name["family-name"].value;
+          var givenNameId = `#given_name_${num}`;
+          var familyNameId = `#family_name_${num}`;
+          $(givenNameId).val(givenName);
+          $(familyNameId).val(familyName);
+        })
+        .fail(function() {
+          console.log(`Error fetching ORCID for ${value}`);
+        });
+      }
+    });
   });
 </script>
