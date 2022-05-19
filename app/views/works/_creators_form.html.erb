@@ -1,25 +1,28 @@
 <h2>Creator(s)</h2>
 
-<!-- Render the existing creators in the record -->
-<% @work.datacite_resource.creators.each_with_index do |creator, i| %>
-  <div class="field">
-    ORCID:<br>
-    <input type="text" id="orcid_<%= i %>" name="orcid_<%= i + 1 %>" value="<%= creator.orcid %>" />
-  </div>
-
-  <div class="field">
-    Given name:<br>
-    <input type="text" id="given_name_<%= i %>" name="given_name_<%= i + 1 %>" value="<%= creator.given_name %>" />
-  </div>
-
-  <div class="field">
-    Family name:<br>
-    <input type="text" id="family_name_<%= i %>" name="family_name_<%= i + 1 %>" value="<%= creator.family_name %>" />
-  </div>
-<% end %>
+<!--
+  Render the list of creators a hidden SPANs that are then added to
+  the HTML TABLE via JavaScript. This is so that we have a single way
+  of rendering creators already on the record *and* creators added
+  on the fly.
+-->
+<table id="creators-table">
+  <tr>
+    <th>ORCID</th>
+    <th>Given name</th>
+    <th>Family name</th>
+    <th>&nbsp;</th>
+  </tr>
+  <% @work.datacite_resource.creators.each_with_index do |creator, i| %>
+    <span class="hidden creator-data"
+      data-num="<%= i + 1 %>"
+      data-orcid="<%= creator.orcid %>"
+      data-given-name="<%= creator.given_name %>"
+      data-family-name="<%= creator.family_name %>"></span>
+  <% end %>
+</table>
 
 <!-- Let the user add new creators -->
 <div>
   <%= link_to "Add Creator", "#", id: "btn-add-creator", class: "btn btn-secondary" %>
 </div>
-<div id="new-creators-anchor">...</div>

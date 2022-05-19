@@ -9,9 +9,7 @@
   <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
     <button class="nav-link active" id="v-pills-title-tab" data-bs-toggle="pill" data-bs-target="#v-pills-title" type="button" role="tab" aria-controls="v-pills-title" aria-selected="true">Title</button>
     <button class="nav-link" id="v-pills-creator-tab" data-bs-toggle="pill" data-bs-target="#v-pills-creator" type="button" role="tab" aria-controls="v-pills-creator" aria-selected="false">Creator(s)</button>
-    <button class="nav-link" id="v-pills-identifiers-tab" data-bs-toggle="pill" data-bs-target="#v-pills-identifiers" type="button" role="tab" aria-controls="v-pills-identifiers" aria-selected="false">Identifiers</button>
-    <button class="nav-link" id="v-pills-publisher-tab" data-bs-toggle="pill" data-bs-target="#v-pills-publisher" type="button" role="tab" aria-controls="v-pills-publisher" aria-selected="false">Publisher</button>
-    <button class="nav-link" id="v-pills-type-tab" data-bs-toggle="pill" data-bs-target="#v-pills-type" type="button" role="tab" aria-controls="v-pills-type" aria-selected="false">Resource Type</button>
+    <button class="nav-link" id="v-pills-additional-tab" data-bs-toggle="pill" data-bs-target="#v-pills-additional" type="button" role="tab" aria-controls="v-pills-additional" aria-selected="false">Additional Metadata</button>
   </div>
 
   <%= form_with(model: @work) do |form| %>
@@ -42,19 +40,13 @@
         <%= render 'creators_form' %>
       </div>
 
-      <div class="tab-pane fade" id="v-pills-identifiers" role="tabpanel" aria-labelledby="v-pills-identifiers-tab">
-        identifiers go here
-      </div>
-
-      <div class="tab-pane fade" id="v-pills-publisher" role="tabpanel" aria-labelledby="v-pills-publisher-tab">
-        publisher goes here
-      </div>
-
-      <div class="tab-pane fade" id="v-pills-type" role="tabpanel" aria-labelledby="v-pills-type-tab">
-        resource type goes here
+      <div class="tab-pane fade" id="v-pills-additional" role="tabpanel" aria-labelledby="v-pills-additional-tab">
+        <h2>Additional Metadata</h2>
+        <p>yada yada yada</p>
       </div>
     </div>
 
+    <hr />
     <div class="actions">
       <%= form.submit class: "btn btn-primary" %>
       <%= link_to 'Cancel', @work, class: "btn btn-secondary" %>
@@ -68,8 +60,7 @@
     <div>
       <input type="text" id="existing_title_count" name="existing_title_count" value="<%= @work.datacite_resource.titles.count %>" class="hidden" />
       <input type="text" id="new_title_count" name="new_title_count" value="0" class="hidden" />
-      <input type="text" id="existing_creator_count" name="existing_creator_count" value="<%= @work.datacite_resource.creators.count %>" class="hidden" />
-      <input type="text" id="new_creator_count" name="new_creator_count" value="0" class="hidden" />
+      <input type="text" id="creator_count" name="creator_count" value="<%= @work.datacite_resource.creators.count %>" class="hidden" />
     </div>
   <% end %>
 </div>
@@ -83,30 +74,34 @@
       return counter
     }
 
-    var addCreatorPlaceholder = function(el) {
-      var newCreatorCount = incrementCounter("#new_creator_count");
-      var orcidId = `new_orcid_${newCreatorCount}`;
-      var familyNameId = `new_family_name_${newCreatorCount}`;
-      var givenNameId = `new_given_name_${newCreatorCount}`;
-      var html = `
-      <div class="field">
-        ORCID:<br>
-        <input type="text" id="${orcidId}" name="${orcidId}" value="" />
-      </div>
-
-      <div class="field">
-        Given name:<br>
-        <input type="text" id="${givenNameId}" name="${givenNameId}" value="" />
-      </div>
-
-      <div class="field">
-        Family name:<br>
-        <input type="text" id="${familyNameId}" name="${familyNameId}" value="" />
-      </div>`;
-      $("#new-creators-anchor").append(html);
+    var addCreatorHtml = function(num, orcid, givenName, familyName) {
+      var rowId = `creator_row_${num}`;
+      var orcidId = `orcid_${num}`;
+      var givenNameId = `given_name_${num}`;
+      var familyNameId = `family_name_${num}`;
+      var rowHtml = `<tr id="${rowId}">
+        <td>
+          <input type="text" id="${orcidId}" name="${orcidId}" value="${orcid}" placeholder="0000-0000-0000-0000" />
+        </td>
+        <td>
+          <input type="text" id="${givenNameId}" name="${givenNameId}" value="${givenName}" />
+        </td>
+        <td>
+          <input type="text" id="${familyNameId}" name="${familyNameId}" value="${familyName}" />
+        </td>
+        <td>
+          <span>
+            <a class="delete-creator" data-creator-num="${num}" href="#" title="Remove this creator">
+              <i class="bi bi-trash delete_icon" data-creator-num="${num}"></i>
+            </a>
+          </span>
+        </td>
+      </tr>`;
+      $("#creators-table").append(rowHtml);
+      $("#" + orcidId).focus();
     }
 
-    var addTitlePlaceholder = function(el) {
+    var addTitlePlaceholder = function(_el) {
       var newTitleCount = incrementCounter("#new_title_count");
       var titleId = `new_title_${newTitleCount}`;
       var typeId = `new_title_type_${newTitleCount}`;
@@ -125,7 +120,8 @@
     }
 
     $("#btn-add-creator").on("click", function(el) {
-      addCreatorPlaceholder(el);
+      var num = incrementCounter("#creator_count");
+      addCreatorHtml(num, "", "", "");
       return false;
     });
 
@@ -133,5 +129,48 @@
       addTitlePlaceholder(el);
       return false;
     });
+
+    var deleteCreator = function(num, existing) {
+      var rowToDelete = `#creator_row_${num}`;
+      var orcidId = `#orcid_${num}`;
+      var givenNameId = `#given_name_${num}`;
+      var familyNameId = `#family_name_${num}`;
+      var name = $(orcidId).val() + " " + $(givenNameId).val() + " " + $(familyNameId).val();
+      var emptyName = name.trim().length == 0;
+      if (emptyName) {
+        // delete it without asking
+        $(rowToDelete).remove();
+      } else {
+        if (confirm(`Remove creator ${name}`)) {
+          $(rowToDelete).remove();
+        }
+      }
+    }
+
+    // Delete button for creators.
+    //
+    // Notice the use of $(document).on("click", selector, ...) instead of the
+    // typical $(selector).on("click", ...). This syntax is required so that
+    // we can detect the click even on HTML elements _added on the fly_ which
+    // is the case when a user adds a new creator.
+    // Reference: https://stackoverflow.com/a/17086311/446681
+    $(document).on("click", ".delete-creator", function(el) {
+      var num = $(el.target).data("creator-num");
+      deleteCreator(num);
+      return false;
+    });
+
+    // Display the initial list of creators.
+    //
+    // Eventually we will need to render them in a predefined
+    // order but we don't have order data availble yet.
+    $(".creator-data").each(function(ix, el) {
+      var num = $(el).data("num");
+      var orcid = $(el).data("orcid");
+      var givenName = $(el).data("given-name");
+      var familyName = $(el).data("family-name");
+      addCreatorHtml(num, orcid, givenName, familyName);
+    });
+
   });
 </script>

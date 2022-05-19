@@ -9,7 +9,11 @@ RSpec.describe WorksController, mock_ezid_api: true do
   end
   let(:user) { FactoryBot.create(:user) }
   let(:collection) { Collection.first }
-  let(:work) { Work.create_dataset("test dataset", user.id, collection.id) }
+  let(:work) do
+    datacite_resource = Datacite::Resource.new
+    datacite_resource.creators << Datacite::Creator.new_person("Harriet", "Tubman")
+    Work.create_dataset("test dataset", user.id, collection.id, datacite_resource)
+  end
 
   context "valid user login" do
     it "handles the index page" do
@@ -44,7 +48,12 @@ RSpec.describe WorksController, mock_ezid_api: true do
         "commit" => "Update Dataset",
         "controller" => "works",
         "action" => "update",
-        "id" => work.id.to_s
+        "id" => work.id.to_s,
+        "publisher" => "Princeton University",
+        "publication_year" => "2022",
+        "given_name_1" => "Jane",
+        "family_name_1" => "Smith",
+        "creator_count" => "1"
       }
       sign_in user
       post :update, params: params
