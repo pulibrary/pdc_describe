@@ -7,6 +7,12 @@ FactoryBot.define do
       collection { Collection.research_data }
       doi { "https://doi.org/10.34770/pe9w-x904" }
       ark { "ark:/88435/dsp01zc77st047" }
+      data_cite do
+        # Works must have at least one creator
+        datacite_resource = Datacite::Resource.new
+        datacite_resource.creators << Datacite::Creator.new_person("Harriet", "Tubman")
+        datacite_resource.to_json
+      end
       created_by_user_id { FactoryBot.create(:user).id }
     end
 

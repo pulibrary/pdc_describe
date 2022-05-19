@@ -7,12 +7,17 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:user_other) { FactoryBot.create :user }
   let(:superadmin_user) { User.from_cas(OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" })) }
   let(:doi) { "https://doi.org/10.34770/0q6b-cj27" }
+  let(:work) do
+    datacite_resource = Datacite::Resource.new
+    datacite_resource.creators << Datacite::Creator.new_person("Harriet", "Tubman")
+    described_class.create_dataset("test title", user.id, collection.id, datacite_resource)
+  end
+
   # Please see spec/support/ezid_specs.rb
   let(:ezid) { @ezid }
   let(:identifier) { @identifier }
 
   it "creates a skeleton dataset" do
-    work = described_class.create_dataset("test title", user.id, collection.id)
     expect(work.created_by_user.id).to eq user.id
     expect(work.collection.id).to eq collection.id
     expect(work.ark).to be_blank
@@ -20,7 +25,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   it "mints an ARK on save (and only when needed)" do
-    work = described_class.create_dataset("test title", user.id, collection.id)
     expect(work.ark).to be_blank
     work.save
     expect(work.ark).to be_present
@@ -38,19 +42,16 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   it "approves works and records the change history" do
-    work = described_class.create_dataset("test title", user.id, collection.id)
     work.approve(user)
     expect(work.state_history.first.state).to eq "APPROVED"
   end
 
   it "withdraw works and records the change history" do
-    work = described_class.create_dataset("test title", user.id, collection.id)
     work.withdraw(user)
     expect(work.state_history.first.state).to eq "WITHDRAWN"
   end
 
   it "resubmit works and records the change history" do
-    work = described_class.create_dataset("test title", user.id, collection.id)
     work.resubmit(user)
     expect(work.state_history.first.state).to eq "AWAITING-APPROVAL"
   end
@@ -87,8 +88,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   context "when created with an existing ARK" do
-    subject(:data_set) { described_class.create_dataset("test title", user.id, collection.id) }
-
     context "and when the ARK is valid" do
       let(:ezid) { "ark:/88435/dsp01qb98mj541" }
 
@@ -99,19 +98,17 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       end
 
       it "does not mint a new ARK" do
-        expect(data_set.persisted?).not_to be false
-        data_set.ark = ezid
-        data_set.save
+        expect(work.persisted?).not_to be false
+        work.ark = ezid
+        work.save
 
-        expect(data_set.persisted?).to be true
-        expect(data_set.ark).to eq(ezid)
+        expect(work.persisted?).to be true
+        expect(work.ark).to eq(ezid)
       end
 
       it "updates the ARK metadata" do
-        data_set = described_class.create_dataset("test title", user.id, collection.id)
-
-        data_set.ark = ezid
-        data_set.save
+        work.ark = ezid
+        work.save
 
         expect(identifier).to have_received(:modify)
       end
@@ -124,10 +121,10 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       end
 
       it "raises an error" do
-        expect(data_set.persisted?).not_to be false
+        expect(work.persisted?).not_to be false
         bad_ezid = "ark:/bad-99999/fk4tq65d6k"
-        data_set.ark = bad_ezid
-        expect { data_set.save! }.to raise_error(ActiveRecord::RecordInvalid, "Validation failed: Invalid ARK provided for the Work: #{bad_ezid}")
+        work.ark = bad_ezid
+        expect { work.save! }.to raise_error(ActiveRecord::RecordInvalid, "Validation failed: Invalid ARK provided for the Work: #{bad_ezid}")
       end
     end
   end
