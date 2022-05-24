@@ -9,8 +9,7 @@ class WorksController < ApplicationController
     @works = Work.all
   end
 
-  def new_submission
-  end
+  def new_submission; end
 
   def new
     default_collection_id = current_user.default_collection.id
