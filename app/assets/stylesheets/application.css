@@ -20,3 +20,33 @@
 .delete_icon {
   color: #bb6c6c;
 }
+
+/*
+ *  Uses CSS flexbox https://www.w3schools.com/csS/css3_flexbox.asp
+ */
+.wizard-progress {
+  display: flex;
+}
+
+.wizard-step {
+  margin-right: 10px;
+}
+.wizard-step-info {
+  font-size: smaller;
+}
+
+.wizard-step-bar {
+  background-color: #f6d69e;
+  width: 80px;
+  height: 15px;
+  display:block;
+  border-radius: 5px;
+}
+
+.wizard-step-bar-active {
+  background-color: #c28f36;
+  width: 80px;
+  height: 15px;
+  display:block;
+  border-radius: 5px;
+}
