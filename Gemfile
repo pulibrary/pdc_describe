@@ -46,6 +46,8 @@ gem "friendly_id", "~> 5.4.0"
 
 gem "faraday"
 
+gem "datacite"
+
 group :development, :test do
   gem "bixby"
   gem "byebug"
