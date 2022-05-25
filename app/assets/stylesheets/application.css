@@ -21,6 +21,14 @@
   color: #bb6c6c;
 }
 
+.required-field {
+  color: red;
+}
+
+.text-not-editable {
+  background: #f4f4f4;
+}
+
 /*
  *  Uses CSS flexbox https://www.w3schools.com/csS/css3_flexbox.asp
  */

@@ -1,0 +1,21 @@
+<div class="d-flex align-items-start">
+  <%= form_with(model: @work) do |form| %>
+    <div>
+      <%= render 'form_errors' %>
+      <%= form.hidden_field :work_id %>
+      <%= render 'titles_form' %>
+    </div>
+
+    <%= render 'creators_form' %>
+
+    <hr />
+    <div class="actions">
+      <%= form.submit "Save Work", class: "btn btn-primary" %>
+      <%= link_to 'Cancel', @work, class: "btn btn-secondary" %>
+    </div>
+
+    <%= render 'form_hidden_fields' %>
+  <% end %>
+</div>
+
+

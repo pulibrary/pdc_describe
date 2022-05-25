@@ -71,6 +71,7 @@ class Work < ApplicationRecord
       work_type: "DATASET",
       state: "AWAITING-APPROVAL",
       profile: "DATACITE",
+      doi: "10.1234/tbd",
       data_cite: datacite_resource.to_json
     )
     # We skip the validation since we don't have all the required fields yet
