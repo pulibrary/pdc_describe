@@ -17,21 +17,7 @@
     <div class="tab-content" id="v-pills-tabContent">
 
       <div class="tab-pane fade show active" id="v-pills-title" role="tabpanel" aria-labelledby="v-pills-title-tab">
-        <!--
-          These are "form level" errors, not specific to the title and perhaps we should move those outside
-          the tabs to a "form level" section, but for now we keep them here.
-        -->
-        <% if @work.errors.any? %>
-          <div id="error_explanation">
-            <h2><%= pluralize(@work.errors.count, "error") %> prohibited this dataset from being saved:</h2>
-            <ul>
-              <% @work.errors.each do |error| %>
-                <li><%= error.full_message %></li>
-              <% end %>
-            </ul>
-          </div>
-        <% end %>
-
+        <%= render 'form_errors' %>
         <%= form.hidden_field :work_id %>
         <%= render 'titles_form' %>
       </div>
@@ -52,16 +38,7 @@
       <%= link_to 'Cancel', @work, class: "btn btn-secondary" %>
     </div>
 
-    <!--
-      We use these hidden fields to keep track of how many creators and titles are on the form
-      initially and how many are added on the fly. This helps to process the data when the form
-      is submitted.
-    -->
-    <div>
-      <input type="text" id="existing_title_count" name="existing_title_count" value="<%= @work.datacite_resource.titles.count %>" class="hidden" />
-      <input type="text" id="new_title_count" name="new_title_count" value="0" class="hidden" />
-      <input type="text" id="creator_count" name="creator_count" value="<%= @work.datacite_resource.creators.count %>" class="hidden" />
-    </div>
+    <%= render 'form_hidden_fields' %>
   <% end %>
 </div>
 
