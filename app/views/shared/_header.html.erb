@@ -5,11 +5,11 @@
       <nav id="menu" class="col-md-6" role="menu">
         <%= link_to "About", "/about", :class => "btn btn-primary", :role => "menuitem" %>
       </nav>
-      <nav id="user-actions" class="col-md-6" role="menu">
+      <nav id="user-actions" class="col-md-6">
         <% if current_user %>
         <%= render 'shared/user_actions' %>
         <% else %>
-        <%= button_to "Log In", user_cas_omniauth_authorize_path, class: "btn btn-primary", :role => "menuitem" %>
+        <%= button_to "Log In", user_cas_omniauth_authorize_path, class: "btn btn-primary" %>
         <% end %>
       </nav>
     </div>
