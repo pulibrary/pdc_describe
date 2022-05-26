@@ -77,3 +77,5 @@ Rails.application.configure do
 
   routes.default_url_options[:host] = "www.example.com"
 end
+
+ORCID_URL = "https://pub.orcid.org/v2.0"

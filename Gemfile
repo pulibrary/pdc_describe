@@ -78,6 +78,7 @@ group :test do
   gem "simplecov", require: false
   # Used for detecting what a controller rendered
   gem "rails-controller-testing"
+  gem "sinatra"
   # Easy installation and use of web drivers to run system tests with browsers
   gem "webdrivers"
 end

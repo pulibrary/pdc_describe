@@ -183,7 +183,7 @@
       var orcid = $(el.target).val();
       if (isOrcid(orcid)) {
         $.ajax({
-          url: `https://pub.orcid.org/v2.0/${orcid}`,
+          url: `<%= ORCID_URL %>/${orcid}`,
           dataType: 'jsonp'
         })
         .done(function(data) {
@@ -194,8 +194,8 @@
           $(givenNameId).val(givenName);
           $(familyNameId).val(familyName);
         })
-        .fail(function() {
-          console.log(`Error fetching ORCID for ${value}`);
+        .fail(function(XMLHttpRequest, textStatus, errorThrown) {
+          console.log(`Error fetching ORCID for ${errorThrown}`);
         });
       }
     });
