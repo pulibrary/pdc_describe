@@ -28,6 +28,19 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
     expect(page).to have_content "Must provide a title"
   end
 
+  # this test depends of the fake ORCID server defined in spec/support/orcid_specs.rb
+  it "Fills in the creator based on an ORCID ID", js: true do
+    sign_in user
+    visit new_work_path
+    click_on "Creator(s)"
+    click_on "Add Creator"
+    within("#creator_row_1") do
+      fill_in "orcid_1", with: "0000-0000-1111-2222"
+    end
+    expect(page.find_by_id("given_name_1").value).to eq "Sally"
+    expect(page.find_by_id("family_name_1").value).to eq "Smith"
+  end
+
   it "Renders ORCID links for creators", js: true do
     datacite_resource = Datacite::Resource.new(title: "Test dataset")
     datacite_resource.creators << Datacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")
