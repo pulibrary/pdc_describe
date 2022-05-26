@@ -1,126 +1,151 @@
 <script>
-  console.log("edit javascript ");
-$(function() {
-  var incrementCounter = function(elementId) {
-    var counter = parseInt($(elementId)[0].value, 10);
-    counter++
-    $(elementId)[0].value = counter
-    return counter
-  }
+  $(function() {
+    var isOrcid = function(value) {
+      const regex = new RegExp(/^\d\d\d\d-\d\d\d\d-\d\d\d\d-\d\d\d\d$/);
+      return regex.test(value);
+    };
 
-  var addCreatorHtml = function(num, orcid, givenName, familyName) {
-    var rowId = `creator_row_${num}`;
-    var orcidId = `orcid_${num}`;
-    var givenNameId = `given_name_${num}`;
-    var familyNameId = `family_name_${num}`;
-    var rowHtml = `<tr id="${rowId}">
-      <td>
-        <input type="text" id="${orcidId}" name="${orcidId}" value="${orcid}" placeholder="0000-0000-0000-0000" />
-      </td>
-      <td>
-        <input type="text" id="${givenNameId}" name="${givenNameId}" value="${givenName}" />
-      </td>
-      <td>
-        <input type="text" id="${familyNameId}" name="${familyNameId}" value="${familyName}" />
-      </td>
-      <td>
-        <span>
-          <a class="delete-creator" data-creator-num="${num}" href="#" title="Remove this creator">
-            <i class="bi bi-trash delete_icon" data-creator-num="${num}"></i>
-          </a>
-        </span>
-      </td>
-    </tr>`;
-    $("#creators-table").append(rowHtml);
-    $("#" + orcidId).focus();
-  }
+    var incrementCounter = function(elementId) {
+      var counter = parseInt($(elementId)[0].value, 10);
+      counter++
+      $(elementId)[0].value = counter
+      return counter
+    }
 
-  var addTitlePlaceholder = function(_el) {
-    var newTitleCount = incrementCounter("#new_title_count");
-    var titleId = `new_title_${newTitleCount}`;
-    var typeId = `new_title_type_${newTitleCount}`;
-    var html = `
-      <div class="field">
-        <select id="${typeId}" name="${typeId}">
-          <option value="AlternativeTitle">Alternative</option>
-          <option value="Subtitle">Subtitle</option>
-          <option value="TranslatedTitle">Translated</option>
-          <option value="Other">Other</option>
-        </select>
-        <br>
-        <input type="text" id="${titleId}" name="${titleId}" value="" />
-      </div>`;
-    $("#new-titles-anchor").append(html);
-  }
+    var addCreatorHtml = function(num, orcid, givenName, familyName) {
+      var rowId = `creator_row_${num}`;
+      var orcidId = `orcid_${num}`;
+      var givenNameId = `given_name_${num}`;
+      var familyNameId = `family_name_${num}`;
+      var rowHtml = `<tr id="${rowId}">
+        <td>
+          <input class="orcid-entry" type="text" id="${orcidId}" name="${orcidId}" value="${orcid}" data-num="${num}" placeholder="0000-0000-0000-0000" />
+        </td>
+        <td>
+          <input type="text" id="${givenNameId}" name="${givenNameId}" value="${givenName}" />
+        </td>
+        <td>
+          <input type="text" id="${familyNameId}" name="${familyNameId}" value="${familyName}" />
+        </td>
+        <td>
+          <span>
+            <a class="delete-creator" data-creator-num="${num}" href="#" title="Remove this creator">
+              <i class="bi bi-trash delete_icon" data-creator-num="${num}"></i>
+            </a>
+          </span>
+        </td>
+      </tr>`;
+      $("#creators-table").append(rowHtml);
+      $("#" + orcidId).focus();
+    }
 
-  $("#btn-add-creator").on("click", function(el) {
-    var num = incrementCounter("#creator_count");
-    addCreatorHtml(num, "", "", "");
-    return false;
-  });
+    var addTitlePlaceholder = function(_el) {
+      var newTitleCount = incrementCounter("#new_title_count");
+      var titleId = `new_title_${newTitleCount}`;
+      var typeId = `new_title_type_${newTitleCount}`;
+      var html = `
+        <div class="field">
+          <select id="${typeId}" name="${typeId}">
+            <option value="AlternativeTitle">Alternative</option>
+            <option value="Subtitle">Subtitle</option>
+            <option value="TranslatedTitle">Translated</option>
+            <option value="Other">Other</option>
+          </select>
+          <br>
+          <input type="text" id="${titleId}" name="${titleId}" value="" />
+        </div>`;
+      $("#new-titles-anchor").append(html);
+    }
 
-  $("#btn-add-me-creator").on("click", function(el) {
-    var num = incrementCounter("#creator_count");
-    var orcid = $("#user_orcid").val()
-    var givenName = $("#user_given_name").val()
-    var familyName = $("#user_family_name").val()
-    addCreatorHtml(num, orcid, givenName, familyName);
-    return false;
-  });
+    $("#btn-add-creator").on("click", function(el) {
+      var num = incrementCounter("#creator_count");
+      addCreatorHtml(num, "", "", "");
+      return false;
+    });
 
-  $("#btn-add-title").on("click", function(el) {
-    addTitlePlaceholder(el);
-    return false;
-  });
+    $("#btn-add-me-creator").on("click", function(el) {
+      var num = incrementCounter("#creator_count");
+      var orcid = $("#user_orcid").val()
+      var givenName = $("#user_given_name").val()
+      var familyName = $("#user_family_name").val()
+      addCreatorHtml(num, orcid, givenName, familyName);
+      return false;
+    });
 
-  var deleteCreator = function(num) {
-    var rowToDelete = `#creator_row_${num}`;
-    var orcidId = `#orcid_${num}`;
-    var givenNameId = `#given_name_${num}`;
-    var familyNameId = `#family_name_${num}`;
-    debugger;
-    var name = $(orcidId).val() + " " + $(givenNameId).val() + " " + $(familyNameId).val();
-    var emptyName = name.trim().length == 0;
-    if (emptyName) {
-      // delete it without asking
-      $(rowToDelete).remove();
-    } else {
-      if (confirm(`Remove creator ${name}`)) {
+    $("#btn-add-title").on("click", function(el) {
+      addTitlePlaceholder(el);
+      return false;
+    });
+
+    var deleteCreator = function(num) {
+      var rowToDelete = `#creator_row_${num}`;
+      var orcidId = `#orcid_${num}`;
+      var givenNameId = `#given_name_${num}`;
+      var familyNameId = `#family_name_${num}`;
+      var name = $(orcidId).val() + " " + $(givenNameId).val() + " " + $(familyNameId).val();
+      var emptyName = (name === undefined) || (name.trim().length == 0);
+      if (emptyName) {
+        // delete it without asking
         $(rowToDelete).remove();
+      } else {
+        if (confirm(`Remove creator ${name}`)) {
+          $(rowToDelete).remove();
+        }
       }
     }
-  }
 
-  // Delete button for creators.
-  //
-  // Notice the use of $(document).on("click", selector, ...) instead of the
-  // typical $(selector).on("click", ...). This syntax is required so that
-  // we can detect the click even on HTML elements _added on the fly_ which
-  // is the case when a user adds a new creator.
-  // Reference: https://stackoverflow.com/a/17086311/446681
-  $(document).on("click", ".delete-creator", function(el) {
-    var num = $(el.target).data("creator-num");
-    console.log(`deleting ${num}`);
-    deleteCreator(num);
-    return false;
-  });
-
-  if ($(".creator-data").length ==0) {
-    // Add an empty creator for the use to fill it out
-    var num = incrementCounter("#creator_count");
-    addCreatorHtml(num, "", "", "");
-  } else {
-    // Display the initial list of creators.
+    // Delete button for creators.
     //
-    // Eventually we will need to render them in a predefined
-    // order but we don't have order data availble yet.
-    $(".creator-data").each(function(ix, el) {
-      var num = $(el).data("num");
-      var orcid = $(el).data("orcid");
-      var givenName = $(el).data("given-name");
-      var familyName = $(el).data("family-name");
-      addCreatorHtml(num, orcid, givenName, familyName);
+    // Notice the use of $(document).on("click", selector, ...) instead of the
+    // typical $(selector).on("click", ...). This syntax is required so that
+    // we can detect the click even on HTML elements _added on the fly_ which
+    // is the case when a user adds a new creator.
+    // Reference: https://stackoverflow.com/a/17086311/446681
+    $(document).on("click", ".delete-creator", function(el) {
+      var num = $(el.target).data("creator-num");
+      deleteCreator(num);
+      return false;
     });
-  }
-});
+
+    if ($(".creator-data").length ==0) {
+      // Add an empty creator for the use to fill it out
+      var num = incrementCounter("#creator_count");
+      addCreatorHtml(num, "", "", "");
+    } else {
+      // Display the initial list of creators.
+      //
+      // Eventually we will need to render them in a predefined
+      // order but we don't have order data availble yet.
+      $(".creator-data").each(function(ix, el) {
+        var num = $(el).data("num");
+        var orcid = $(el).data("orcid");
+        var givenName = $(el).data("given-name");
+        var familyName = $(el).data("family-name");
+        addCreatorHtml(num, orcid, givenName, familyName);
+      });
+    }
+
+    // Fetch name information for a given ORCID via ORCID's public API
+    $(document).on("input", ".orcid-entry", function(el) {
+      var num = el.target.attributes["data-num"].value;
+      var orcid = $(el.target).val();
+      if (isOrcid(orcid)) {
+        $.ajax({
+          url: `<%= ORCID_URL %>/${orcid}`,
+          dataType: 'jsonp'
+        })
+        .done(function(data) {
+          var givenName = data.person.name["given-names"].value;
+          var familyName = data.person.name["family-name"].value;
+          var givenNameId = `#given_name_${num}`;
+          var familyNameId = `#family_name_${num}`;
+          $(givenNameId).val(givenName);
+          $(familyNameId).val(familyName);
+        })
+        .fail(function(XMLHttpRequest, textStatus, errorThrown) {
+          console.log(`Error fetching ORCID for ${errorThrown}`);
+        });
+      }
+    });
+  });
 </script>

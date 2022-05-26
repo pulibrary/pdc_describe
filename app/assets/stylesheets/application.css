@@ -29,6 +29,16 @@
   background: #f4f4f4;
 }
 
+.wizard-area {
+  max-width: 960px; /* does this value need bang important too? */
+}
+
+.wizard-next-button {
+  float: right;
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+}
+
 /*
  *  Uses CSS flexbox https://www.w3schools.com/csS/css3_flexbox.asp
  */

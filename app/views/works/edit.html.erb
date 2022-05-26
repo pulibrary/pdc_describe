@@ -1,12 +1,10 @@
-<% if @wizard_mode %>
-  <div class="wizard-area">
+<div class="wizard-area">
+  <% if @wizard_mode %>
     <h1>New Submission</h1>
     <%= render "wizard_progress", wizard_step: 1 %>
-    <%= render 'form_wizard' %>
-  </div>
-<% else %>
-  <h1>Editing Dataset</h1>
+  <% else %>
+    <h1>Editing Dataset</h1>
+  <% end %>
   <%= render 'form' %>
-<% end %>
-
+</div>
 <%= render 'edit_javascript' %>

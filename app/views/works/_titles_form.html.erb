@@ -5,11 +5,7 @@
     <input class="text-not-editable" type="text" id="doi" name="doi" value="<%= @work.doi %>" readonly/>
   </div>
   <div>&nbsp;</div>
-<% end %>
-
-<h2>Required Information</h2>
-
-<% if !@wizard_mode %>
+<% else %>
   <div class="field">
     DOI: <%= @work.doi %>
   </div>
