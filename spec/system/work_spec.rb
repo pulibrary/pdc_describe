@@ -15,7 +15,7 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
     sign_in user
     visit new_work_path
     expect(page).to have_content "ARK"
-    click_on "Update Work"
+    click_on "Save Work"
     expect(page).to have_content "ARK"
     expect(page).to have_content Work.last.ark
   end
@@ -24,7 +24,7 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
     sign_in user
     visit new_work_path
     fill_in "title_main", with: ""
-    click_on "Update Work"
+    click_on "Save Work"
     expect(page).to have_content "Must provide a title"
   end
 
@@ -33,7 +33,7 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
     sign_in user
     visit new_work_path
     click_on "Creator(s)"
-    click_on "Add Creator"
+    click_on "Add Another Creator"
     within("#creator_row_1") do
       fill_in "orcid_1", with: "0000-0000-1111-2222"
     end

@@ -17,6 +17,13 @@ class Ark
     nil
   end
 
+  def self.update(ezid, new_url)
+    return if ezid.start_with?(EZID_TEST_SHOULDER)
+    identifier = Ezid::Identifier.find(ezid)
+    identifier.target = new_url
+    identifier.save!
+  end
+
   # Determines whether or not a given EZID string is a valid ARK
   # @param [ezid] [String] the EZID being validated
   # @return [Boolean]

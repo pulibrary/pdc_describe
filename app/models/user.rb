@@ -135,6 +135,6 @@ class User < ApplicationRecord
 
   def family_name
     # Hard-coded for now until we fetch the data from CAS, it comes in the [sn] attribute.
-    return "family-name"
+    "family-name"
   end
 end

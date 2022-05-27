@@ -17,20 +17,11 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:ezid) { @ezid }
   let(:identifier) { @identifier }
 
-  it "creates a skeleton dataset" do
+  it "creates a skeleton dataset with a DOI and an ARK" do
     expect(work.created_by_user.id).to eq user.id
     expect(work.collection.id).to eq collection.id
-    expect(work.ark).to be_blank
-    expect(work.doi).to be_blank
-  end
-
-  it "mints an ARK on save (and only when needed)" do
-    expect(work.ark).to be_blank
-    work.save
+    expect(work.doi).to be_present
     expect(work.ark).to be_present
-    original_ark = work.ark
-    work.save
-    expect(work.ark).to eq original_ark
   end
 
   it "prevents datasets with no users" do
@@ -89,7 +80,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   context "when created with an existing ARK" do
     context "and when the ARK is valid" do
-      let(:ezid) { "ark:/88435/dsp01qb98mj541" }
+      let(:ezid) { "ark:/99999/dsp01qb98mj541" }
 
       around do |example|
         Rails.configuration.update_ark_url = true
@@ -105,13 +96,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
         expect(work.persisted?).to be true
         expect(work.ark).to eq(ezid)
       end
-
-      it "updates the ARK metadata" do
-        work.ark = ezid
-        work.save
-
-        expect(identifier).to have_received(:modify)
-      end
     end
 
     context "and when the ARK is invalid" do
@@ -126,6 +110,24 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
         work.ark = bad_ezid
         expect { work.save! }.to raise_error(ActiveRecord::RecordInvalid, "Validation failed: Invalid ARK provided for the Work: #{bad_ezid}")
       end
+    end
+  end
+
+  context "when updating the ARK" do
+    before { allow(Ark).to receive(:update) }
+    let(:ezid) { "ark:/99999/dsp01qb98mj541" }
+
+    around do |example|
+      Rails.configuration.update_ark_url = true
+      example.run
+      Rails.configuration.update_ark_url = false
+    end
+
+    it "updates the ARK metadata" do
+      work.ark = ezid
+      work.save
+      # one on create + one on update
+      expect(Ark).to have_received(:update).exactly(2).times
     end
   end
 
