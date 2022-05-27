@@ -20,8 +20,10 @@ class Ark
   def self.update(ezid, new_url)
     return if ezid.start_with?(EZID_TEST_SHOULDER)
     identifier = Ezid::Identifier.find(ezid)
-    identifier.target = new_url
-    identifier.save!
+    if identifier.target != new_url
+      identifier.target = new_url
+      identifier.save!
+    end
   end
 
   # Determines whether or not a given EZID string is a valid ARK
