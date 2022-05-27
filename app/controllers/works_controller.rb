@@ -75,26 +75,26 @@ class WorksController < ApplicationController
 
     def new_creator(given_name, family_name, orcid)
       return if family_name.blank? && given_name.blank? && orcid.blank?
-      Datacite::Creator.new_person(given_name, family_name, orcid)
+      PULDatacite::Creator.new_person(given_name, family_name, orcid)
     end
 
     def datacite_resource_from_form
-      resource = Datacite::Resource.new
+      resource = PULDatacite::Resource.new
 
       resource.publisher = params["publisher"]
       resource.publication_year = params["publication_year"]
 
       # Process the titles
-      resource.titles << Datacite::Title.new(title: params["title_main"])
+      resource.titles << PULDatacite::Title.new(title: params["title_main"])
       for i in 1..params["existing_title_count"].to_i do
         if params["title_#{i}"].present?
-          resource.titles << Datacite::Title.new(title: params["title_#{i}"], title_type: params["title_type_#{i}"])
+          resource.titles << PULDatacite::Title.new(title: params["title_#{i}"], title_type: params["title_type_#{i}"])
         end
       end
 
       for i in 1..params["new_title_count"].to_i do
         if params["new_title_#{i}"].present?
-          resource.titles << Datacite::Title.new(title: params["new_title_#{i}"], title_type: params["new_title_type_#{i}"])
+          resource.titles << PULDatacite::Title.new(title: params["new_title_#{i}"], title_type: params["new_title_type_#{i}"])
         end
       end
 

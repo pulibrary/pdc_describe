@@ -10,8 +10,8 @@ RSpec.describe WorksController, mock_ezid_api: true do
   let(:user) { FactoryBot.create(:user) }
   let(:collection) { Collection.first }
   let(:work) do
-    datacite_resource = Datacite::Resource.new
-    datacite_resource.creators << Datacite::Creator.new_person("Harriet", "Tubman")
+    datacite_resource = PULDatacite::Resource.new
+    datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
     Work.create_dataset("test dataset", user.id, collection.id, datacite_resource)
   end
 

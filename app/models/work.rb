@@ -63,7 +63,7 @@ class Work < ApplicationRecord
 
   # Convenience method to create Datasets with the DataCite profile
   def self.create_dataset(title, user_id, collection_id, datacite_resource = nil)
-    datacite_resource = Datacite::Resource.new(title: title) if datacite_resource.nil?
+    datacite_resource = PULDatacite::Resource.new(title: title) if datacite_resource.nil?
     work = Work.new(
       title: title,
       created_by_user_id: user_id,
@@ -129,7 +129,7 @@ class Work < ApplicationRecord
   end
 
   def datacite_resource
-    @datacite_resource ||= Datacite::Resource.new_from_json(data_cite)
+    @datacite_resource ||= PULDatacite::Resource.new_from_json(data_cite)
   end
 
   def ark_url

@@ -9,8 +9,8 @@ FactoryBot.define do
       ark { "ark:/88435/dsp01zc77st047" }
       data_cite do
         # Works must have at least one creator
-        datacite_resource = Datacite::Resource.new
-        datacite_resource.creators << Datacite::Creator.new_person("Harriet", "Tubman")
+        datacite_resource = PULDatacite::Resource.new
+        datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
         datacite_resource.to_json
       end
       created_by_user_id { FactoryBot.create(:user).id }
