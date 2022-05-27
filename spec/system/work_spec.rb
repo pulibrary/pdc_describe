@@ -50,4 +50,14 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
     visit work_path(work)
     expect(page.html.include?('<a href="https://orcid.org/1234-5678-9012-3456"')).to be true
   end
+
+  it "Renders in wizard mode when requested", js: true do
+    datacite_resource = PULDatacite::Resource.new(title: "Test dataset")
+    datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")
+    work = Work.create_dataset("Test dataset", user.id, user.default_collection_id, datacite_resource)
+
+    sign_in user
+    visit edit_work_path(work, wizard: true)
+    expect(page.html.include?("By initiating this new submission, we have reserved a draft DOI for your use")).to be true
+  end
 end
