@@ -8,8 +8,8 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:superadmin_user) { User.from_cas(OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" })) }
   let(:doi) { "https://doi.org/10.34770/0q6b-cj27" }
   let(:work) do
-    datacite_resource = Datacite::Resource.new
-    datacite_resource.creators << Datacite::Creator.new_person("Harriet", "Tubman")
+    datacite_resource = PULDatacite::Resource.new
+    datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
     described_class.create_dataset("test title", user.id, collection.id, datacite_resource)
   end
 

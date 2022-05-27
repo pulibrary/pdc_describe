@@ -42,8 +42,8 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
   end
 
   it "Renders ORCID links for creators", js: true do
-    datacite_resource = Datacite::Resource.new(title: "Test dataset")
-    datacite_resource.creators << Datacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")
+    datacite_resource = PULDatacite::Resource.new(title: "Test dataset")
+    datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")
     work = Work.create_dataset("Test dataset", user.id, user.default_collection_id, datacite_resource)
 
     sign_in user

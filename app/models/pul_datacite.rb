@@ -1,6 +1,6 @@
 # frozen_string_literal: true
-module Datacite
-  # Represents a Datacite resource
+module PULDatacite
+  # Represents a PUL Datacite resource
   # https://support.datacite.org/docs/datacite-metadata-schema-v44-properties-overview
   class Resource
     attr_accessor :identifier, :identifier_type, :creators, :titles, :publisher, :publication_year, :resource_type
@@ -9,7 +9,7 @@ module Datacite
       @identifier = identifier
       @identifier_type = identifier_type
       @titles = []
-      @titles << Datacite::Title.new(title: title) unless title.nil?
+      @titles << PULDatacite::Title.new(title: title) unless title.nil?
       @creators = []
       @resource_type = resource_type || "Dataset"
       @publisher = "Princeton University"
@@ -87,16 +87,16 @@ module Datacite
     # rubocop:enable Metrics/BlockLength
     # rubocop:enable Metrics/AbcSize
 
-    # Creates a Datacite::Resource from a JSON string
+    # Creates a PULDatacite::Resource from a JSON string
     def self.new_from_json(json_string)
-      resource = Datacite::Resource.new
+      resource = PULDatacite::Resource.new
       hash = json_string.blank? ? {} : JSON.parse(json_string)
       hash["titles"]&.each do |title|
-        resource.titles << Datacite::Title.new(title: title["title"], title_type: title["title_type"])
+        resource.titles << PULDatacite::Title.new(title: title["title"], title_type: title["title_type"])
       end
       hash["creators"]&.each do |creator|
         orcid = creator.dig("name_identifier", "scheme") == "ORCID" ? creator.dig("name_identifier", "value") : nil
-        resource.creators << Datacite::Creator.new_person(creator["given_name"], creator["family_name"], orcid)
+        resource.creators << PULDatacite::Creator.new_person(creator["given_name"], creator["family_name"], orcid)
       end
       resource.publisher = hash["publisher"]
       resource.publication_year = hash["publication_year"]
