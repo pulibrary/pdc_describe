@@ -132,4 +132,9 @@ class User < ApplicationRecord
     return Collection.all.to_a if superadmin?
     UserCollection.where(user_id: id).filter(&:can_submit?).map(&:collection)
   end
+
+  def family_name
+    # Hard-coded for now until we fetch the data from CAS, it comes in the [sn] attribute.
+    "family-name"
+  end
 end

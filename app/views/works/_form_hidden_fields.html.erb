@@ -1,0 +1,18 @@
+<div>
+  <!--
+  We use these hidden fields to keep track of how many creators and titles are on the form
+  initially and how many are added on the fly. This helps to process the data when the form
+  is submitted.
+  -->
+  <input type="text" id="existing_title_count" name="existing_title_count" value="<%= @work.datacite_resource.titles.count %>" class="hidden" />
+  <input type="text" id="new_title_count" name="new_title_count" value="0" class="hidden" />
+  <input type="text" id="creator_count" name="creator_count" value="<%= @work.datacite_resource.creators.count %>" class="hidden" />
+
+  <% if @wizard_mode %>
+    <input type="text" id="wizard" name="wizard" value="true" class="hidden" />
+  <% end %>
+
+  <input type="text" id="user_orcid" name="user_orcid" value="<%= current_user.orcid %>" class="hidden" />
+  <input type="text" id="user_given_name" name="user_given_name" value="<%= current_user.display_name %>" class="hidden" />
+  <input type="text" id="user_family_name" name="user_family_name" value="<%= current_user.family_name %>" class="hidden" />
+</div>

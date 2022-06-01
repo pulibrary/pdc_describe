@@ -15,7 +15,7 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
     sign_in user
     visit new_work_path
     expect(page).to have_content "ARK"
-    click_on "Update Work"
+    click_on "Save Work"
     expect(page).to have_content "ARK"
     expect(page).to have_content Work.last.ark
   end
@@ -24,7 +24,7 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
     sign_in user
     visit new_work_path
     fill_in "title_main", with: ""
-    click_on "Update Work"
+    click_on "Save Work"
     expect(page).to have_content "Must provide a title"
   end
 
@@ -33,7 +33,7 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
     sign_in user
     visit new_work_path
     click_on "Creator(s)"
-    click_on "Add Creator"
+    click_on "Add Another Creator"
     within("#creator_row_1") do
       fill_in "orcid_1", with: "0000-0000-1111-2222"
     end
@@ -49,5 +49,15 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
     sign_in user
     visit work_path(work)
     expect(page.html.include?('<a href="https://orcid.org/1234-5678-9012-3456"')).to be true
+  end
+
+  it "Renders in wizard mode when requested", js: true do
+    datacite_resource = PULDatacite::Resource.new(title: "Test dataset")
+    datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")
+    work = Work.create_dataset("Test dataset", user.id, user.default_collection_id, datacite_resource)
+
+    sign_in user
+    visit edit_work_path(work, wizard: true)
+    expect(page.html.include?("By initiating this new submission, we have reserved a draft DOI for your use")).to be true
   end
 end

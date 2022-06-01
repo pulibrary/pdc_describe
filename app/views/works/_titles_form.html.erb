@@ -1,8 +1,19 @@
-<h2>Title(s)</h2>
+<% if @wizard_mode %>
+  <div>
+    <p style="font-size: smaller;">By initiating this new submission, we have reserved a draft DOI for your use. This unique
+      identifier will become searchable at the completion of this process.</p>
+    <input class="text-not-editable" type="text" id="doi" name="doi" value="<%= @work.doi %>" readonly/>
+  </div>
+  <div>&nbsp;</div>
+<% else %>
+  <div class="field">
+    DOI: <%= @work.doi %>
+  </div>
+<% end %>
 
 <!-- Render the main title (notice that we don't display a dropdown for this title) -->
 <div class="field">
-  Title:<br>
+  Title:<span class="required-field">*</span><br>
   <input type="text" id="title_main" name="title_main" value="<%= @work.datacite_resource.main_title %>" />
 </div>
 
@@ -25,22 +36,22 @@
 
 <!-- Let the user add new titles -->
 <div>
-  <%= link_to "Add Title", "#", id: "btn-add-title", class: "btn btn-secondary" %>
+  <%= link_to "Add Another Title", "#", id: "btn-add-title", class: "btn btn-secondary" %>
 </div>
 
 <div class="field">
-  Publisher:<br>
+  Publisher:<span class="required-field">*</span><br>
   <input type="text" id="publisher" name="publisher" value="<%= @work.datacite_resource.publisher %>" />
 </div>
 
 <div class="field">
-  Publication Year:<br>
+  Publication Year:<span class="required-field">*</span><br>
   <input type="text" id="publication_year" name="publication_year" value="<%= @work.datacite_resource.publication_year %>" />
 </div>
 
 <!-- Collection field -->
 <div class="field">
-  Collection<br>
+  Collection: <span class="required-field">*</span><br>
   <select id="collection_id" name="collection_id">
     <% current_user.submitter_collections.each do |collection| %>
       <option value="<%=collection.id%>"><%=collection.title%></option>
@@ -49,8 +60,10 @@
 </div>
 
 <!-- ARK field  -->
-<div class="field">
-  ARK: <%= @work.ark %>
-</div>
+<% if @work.ark.present? %>
+  <div class="field">
+    ARK: <%= @work.ark %>
+  </div>
+<% end %>
 
 <br />

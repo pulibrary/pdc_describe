@@ -2,14 +2,6 @@
   p {
     font-size: larger;
   }
-
-  .wizard-area {
-    max-width: 960px;
-  }
-
-  .next-button {
-    float: right;
-  }
 </style>
 
 <div class="wizard-area">
@@ -21,12 +13,12 @@
   <p>If you have already started a submission for this deposit, then please go back
   to the home page and complete the existing submission. If you would like to talk to a
   specialist about your submission, we may be reached at
-  <a href="mailto:1-800-go-hannah@princeton.edu">1-800-go-hannah@princeton.edu</a>
+  <a href="mailto:prds@princeton.edu">prds@princeton.edu</a>
   </p>
 
   <div>
     <%= link_to "Go Back", root_path, class: "btn btn-secondary" %>
-    <%= link_to "Create New", new_work_path, class: "btn btn-primary next-button" %>
+    <%= link_to "Create New", new_work_path, class: "btn btn-primary wizard-next-button" %>
   </div>
 </div>
 

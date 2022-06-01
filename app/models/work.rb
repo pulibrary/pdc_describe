@@ -10,13 +10,7 @@ class Work < ApplicationRecord
     # Ensure that the metadata JSON is persisted properly
     if work.dublin_core.present?
       work.dublin_core = work.dublin_core.to_json
-    end
-  end
-
-  before_update do |work|
-    if dublin_core.present?
-      # we don't mint ARKs for these records
-    elsif work.ark.blank?
+    elsif work.profile == "DATACITE" && work.ark.blank?
       work.ark = Ark.mint
     end
   end
@@ -26,11 +20,7 @@ class Work < ApplicationRecord
     # Set this value in config/update_ark_url.yml
     if Rails.configuration.update_ark_url
       if work.ark.present?
-        # Ensure that the ARK metadata is updated for the new URL
-        if ark_object.target != work.url
-          ark_object.target = work.url
-          ark_object.save!
-        end
+        Ark.update(work.ark, work.url)
       end
     end
   end
@@ -62,7 +52,7 @@ class Work < ApplicationRecord
   end
 
   # Convenience method to create Datasets with the DataCite profile
-  def self.create_dataset(title, user_id, collection_id, datacite_resource = nil)
+  def self.create_dataset(title, user_id, collection_id, datacite_resource = nil, ark = nil)
     datacite_resource = PULDatacite::Resource.new(title: title) if datacite_resource.nil?
     work = Work.new(
       title: title,
@@ -71,7 +61,9 @@ class Work < ApplicationRecord
       work_type: "DATASET",
       state: "AWAITING-APPROVAL",
       profile: "DATACITE",
-      data_cite: datacite_resource.to_json
+      doi: "10.1234/tbd",
+      data_cite: datacite_resource.to_json,
+      ark: ark
     )
     # We skip the validation since we don't have all the required fields yet
     work.save!(validate: false)

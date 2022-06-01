@@ -9,12 +9,13 @@ class WorksController < ApplicationController
     @works = Work.all
   end
 
+  # Renders the "step 0" information page before creating a new dataset
   def new_submission; end
 
   def new
     default_collection_id = current_user.default_collection.id
     work = Work.create_dataset("New Dataset", current_user.id, default_collection_id)
-    redirect_to edit_work_path(work)
+    redirect_to edit_work_path(work, wizard: true)
   end
 
   def show
@@ -27,10 +28,12 @@ class WorksController < ApplicationController
 
   def edit
     @work = Work.find(params[:id])
+    @wizard_mode = params[:wizard] == "true"
   end
 
   def update
     @work = Work.find(params[:id])
+    @wizard_mode = params[:wizard] == "true"
     respond_to do |format|
       work_params = {
         title: params[:title_main],
