@@ -29,5 +29,8 @@ RSpec.configure do |config|
     allow(@identifier).to receive(:metadata).and_return(@ezid_metadata)
     allow(@identifier).to receive(:id).and_return(@ezid)
     allow(@identifier).to receive(:modify)
+    allow(@identifier).to receive(:target).and_return(@ezid_metadata_values["_target"])
+    allow(@identifier).to receive(:target=)
+    allow(@identifier).to receive(:save!)
   end
 end
