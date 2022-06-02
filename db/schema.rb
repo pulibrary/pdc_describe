@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_05_17_105612) do
+ActiveRecord::Schema.define(version: 2022_06_02_105600) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -83,6 +83,9 @@ ActiveRecord::Schema.define(version: 2022_05_17_105612) do
     t.string "profile"
     t.string "ark"
     t.string "doi"
+    t.text "location_notes"
+    t.text "submission_notes"
+    t.string "files_location"
   end
 
   add_foreign_key "datasets", "works"
