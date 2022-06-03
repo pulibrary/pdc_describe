@@ -81,13 +81,11 @@ class WorksController < ApplicationController
   # Allow user to indicate where their files are located in the PUL Research Cluster
   def file_cluster
     @work = Work.find(params[:id])
-    @work.save!
   end
 
   # Allow user to indicate where their files are located in the WWW
   def file_other
     @work = Work.find(params[:id])
-    @work.save!
   end
 
   def review
