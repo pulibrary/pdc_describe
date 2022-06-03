@@ -1,0 +1,16 @@
+<div class="wizard-area">
+  <h1>New Submission (<%= @work.title %>)</h1>
+  <%= render "wizard_progress", wizard_step: 2 %>
+  <p><i style="font-size: 50px;" class="bi bi-paperclip"></i>Please attach your submission of under 100GB here.
+    If you made the wrong selection, please select the "go back" button.</p>
+
+  <p>Once you have uploaded your files, select the "continue" button.</p>
+
+  <%= form_tag(action: "review", id: @work) do %>
+    <div class="actions">
+      <%= link_to "Go Back", work_attachment_select_url(@work, wizard: true), class: "btn btn-secondary" %>
+      <%= submit_tag "Continue", class: "btn btn-primary wizard-next-button" %>
+    </div>
+  <% end %>
+</div>
+

@@ -138,6 +138,18 @@ class Work < ApplicationRecord
     @url ||= url_for(self)
   end
 
+  def files_location_upload?
+    files_location.blank? || files_location == "file_upload"
+  end
+
+  def files_location_cluster?
+    files_location == "file_cluster"
+  end
+
+  def files_location_other?
+    files_location == "file_other"
+  end
+
   def self.my_works(user)
     Work.where(created_by_user_id: user)
   end

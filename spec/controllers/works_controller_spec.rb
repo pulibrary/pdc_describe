@@ -67,6 +67,60 @@ RSpec.describe WorksController, mock_ezid_api: true do
       expect(response.location).to eq "http://test.host/works/#{work.id}"
     end
 
+    it "renders view to select the kind of attachment to use" do
+      sign_in user
+      get :attachment_select, params: { id: work.id }
+      expect(response).to render_template(:attachment_select)
+    end
+
+    it "redirects to the proper step depending on the attachment type" do
+      sign_in user
+      post :attachment_selected, params: { id: work.id, attachment_type: "file_upload" }
+      expect(response.status).to be 302
+      expect(response.location).to eq "http://test.host/works/#{work.id}/file-upload"
+
+      post :attachment_selected, params: { id: work.id, attachment_type: "file_cluster" }
+      expect(response.status).to be 302
+      expect(response.location).to eq "http://test.host/works/#{work.id}/file-cluster"
+
+      post :attachment_selected, params: { id: work.id, attachment_type: "file_other" }
+      expect(response.status).to be 302
+      expect(response.location).to eq "http://test.host/works/#{work.id}/file-other"
+    end
+
+    it "renders the page to upload files directly" do
+      sign_in user
+      get :file_upload, params: { id: work.id }
+      expect(response).to render_template(:file_upload)
+    end
+
+    it "renders the page to indicate instructions on files on the PUL Research Cluster" do
+      sign_in user
+      get :file_cluster, params: { id: work.id }
+      expect(response).to render_template(:file_cluster)
+    end
+
+    it "renders the page to indicate instructions on files on a different location" do
+      sign_in user
+      get :file_other, params: { id: work.id }
+      expect(response).to render_template(:file_other)
+    end
+
+    it "renders the review page and saves the location notes" do
+      sign_in user
+      post :review, params: { id: work.id, location_notes: "my files can be found at http://aws/my/data" }
+      expect(response).to render_template(:review)
+      expect(Work.find(work.id).location_notes).to eq "my files can be found at http://aws/my/data"
+    end
+
+    it "renders the complete page and saves the submission notes" do
+      sign_in user
+      post :completed, params: { id: work.id, submission_notes: "I need this processed ASAP" }
+      expect(response.status).to be 302
+      expect(response.location).to eq "http://test.host/works/#{work.id}"
+      expect(Work.find(work.id).submission_notes).to eq "I need this processed ASAP"
+    end
+
     it "handles aprovals" do
       sign_in user
       post :approve, params: { id: work.id }

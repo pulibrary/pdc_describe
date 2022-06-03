@@ -17,6 +17,18 @@
   <p>ARK: <%= link_to(@work.ark, @work.ark_url) %></p>
   <p>Added by: <%= @work.created_by_user.uid %></p>
   <p>Collection: <%= @work.collection.title %></p>
+
+  <% if @work.files_location_cluster? %>
+    <p>Location: PUL Research Cluster</p>
+    <p>Location notes: <%= @work.location_notes %></p>
+  <% elsif @work.files_location_other? %>
+    <p>Location: Other</p>
+    <p>Location notes: <%= @work.location_notes %></p>
+  <% end %>
+
+  <% if @work.submission_notes.present? %>
+    <p>Notes: <%= @work.submission_notes %></p>
+  <% end %>
 </div>
 
 

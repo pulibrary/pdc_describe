@@ -1,0 +1,15 @@
+<div class="wizard-area">
+  <h1>New Submission (<%= @work.title %>)</h1>
+  <%= render "wizard_progress", wizard_step: 2 %>
+  <p>Please indicate how we may access your submission in the Princeton Research Cluster:</p>
+
+  <%= form_tag(action: "review", id: @work) do %>
+    <textarea id="location_notes" name="location_notes" cols="80", rows="10"
+      placeholder="How we may access your files in the Princeton Research Cluster"><%= @work.location_notes %></textarea>
+    <div class="actions">
+      <%= link_to "Go Back", work_attachment_select_url(@work, wizard: true), class: "btn btn-secondary" %>
+      <%= submit_tag "Continue", class: "btn btn-primary wizard-next-button" %>
+    </div>
+  <% end %>
+</div>
+
