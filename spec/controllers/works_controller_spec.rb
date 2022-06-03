@@ -6,6 +6,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
   before do
     Collection.create_defaults
     user
+    stub_datacite(user: "foo", password: "bar", encoded_user: "Zm9vOmJhcg==", host: "api.datacite.org")
   end
   let(:user) { FactoryBot.create(:user) }
   let(:collection) { Collection.first }
@@ -23,6 +24,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
     end
 
     it "handles the show page" do
+      stub_s3
       sign_in user
       get :show, params: { id: work.id }
       expect(response).to render_template("show")
