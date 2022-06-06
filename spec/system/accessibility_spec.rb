@@ -55,7 +55,7 @@ describe "application accessibility", type: :system, js: true do
 
   context "when viewing an individual work show page" do
     it "complies with WCAG 2.0 AA and Section 508" do
-      stub_datacite(user: "foo", password: "bar", encoded_user: "Zm9vOmJhcg==", host: "api.datacite.org")
+      stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
       stub_s3
       datacite_resource = PULDatacite::Resource.new(title: "Test dataset")
       datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")

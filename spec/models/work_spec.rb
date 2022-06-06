@@ -18,7 +18,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:identifier) { @identifier }
 
   before do
-    stub_datacite(user: "foo", password: "bar", encoded_user: "Zm9vOmJhcg==", host: "api.datacite.org")
+    stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
 
   it "creates a skeleton dataset with a DOI and an ARK" do
