@@ -6,7 +6,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
   before do
     Collection.create_defaults
     user
-    stub_datacite(user: "foo", password: "bar", encoded_user: "Zm9vOmJhcg==", host: "api.datacite.org")
+    stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
   let(:user) { FactoryBot.create(:user) }
   let(:collection) { Collection.first }

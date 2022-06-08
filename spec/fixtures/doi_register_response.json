@@ -1,0 +1,111 @@
+{
+  "data": {
+    "id": "10.80021/af9j-at09",
+    "type": "dois",
+    "attributes": {
+      "doi": "10.80021/af9j-at09",
+      "prefix": "10.80021",
+      "suffix": "af9j-at09",
+      "identifiers": [],
+      "alternateIdentifiers": [],
+      "creators": [
+        {
+          "name": "DataCite Metadata Working Group",
+          "affiliation": [],
+          "nameIdentifiers": []
+        }
+      ],
+      "titles": [
+        {
+          "title": "testing doi"
+        }
+      ],
+      "publisher": "DataCite e.V.",
+      "container": {},
+      "publicationYear": 2016,
+      "subjects": [],
+      "contributors": [],
+      "dates": [],
+      "language": null,
+      "types": {
+        "schemaOrg": "ScholarlyArticle",
+        "citeproc": "article-journal",
+        "bibtex": "article",
+        "ris": "RPRT",
+        "resourceTypeGeneral": "Text",
+        "resourceType": "acb"
+      },
+      "relatedIdentifiers": [],
+      "sizes": [],
+      "formats": [],
+      "version": null,
+      "rightsList": [],
+      "descriptions": [],
+      "geoLocations": [],
+      "fundingReferences": [],
+      "xml": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHJlc291cmNlIHhtbG5zOnhzaT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEtaW5zdGFuY2UiIHhtbG5zPSJodHRwOi8vZGF0YWNpdGUub3JnL3NjaGVtYS9rZXJuZWwtNCIgeHNpOnNjaGVtYUxvY2F0aW9uPSJodHRwOi8vZGF0YWNpdGUub3JnL3NjaGVtYS9rZXJuZWwtNCBodHRwOi8vc2NoZW1hLmRhdGFjaXRlLm9yZy9tZXRhL2tlcm5lbC00L21ldGFkYXRhLnhzZCI+CiAgPGlkZW50aWZpZXIgaWRlbnRpZmllclR5cGU9IkRPSSI+MTAuODAwMjEvQUY5Si1BVDA5PC9pZGVudGlmaWVyPgogIDxjcmVhdG9ycz4KICAgIDxjcmVhdG9yPgogICAgICA8Y3JlYXRvck5hbWU+RGF0YUNpdGUgTWV0YWRhdGEgV29ya2luZyBHcm91cDwvY3JlYXRvck5hbWU+CiAgICA8L2NyZWF0b3I+CiAgPC9jcmVhdG9ycz4KICA8dGl0bGVzPgogICAgPHRpdGxlPnRlc3RpbmcgZG9pPC90aXRsZT4KICA8L3RpdGxlcz4KICA8cHVibGlzaGVyPkRhdGFDaXRlIGUuVi48L3B1Ymxpc2hlcj4KICA8cHVibGljYXRpb25ZZWFyPjIwMTY8L3B1YmxpY2F0aW9uWWVhcj4KICA8cmVzb3VyY2VUeXBlIHJlc291cmNlVHlwZUdlbmVyYWw9IlRleHQiPmFjYjwvcmVzb3VyY2VUeXBlPgogIDxzaXplcy8+CiAgPGZvcm1hdHMvPgogIDx2ZXJzaW9uLz4KPC9yZXNvdXJjZT4K",
+      "url": "https://schema.datacite.org/meta/kernel-4.0/index.html",
+      "contentUrl": null,
+      "metadataVersion": 0,
+      "schemaVersion": "http://datacite.org/schema/kernel-4",
+      "source": "api",
+      "isActive": false,
+      "state": "registered",
+      "reason": null,
+      "landingPage": null,
+      "viewCount": 0,
+      "viewsOverTime": [],
+      "downloadCount": 0,
+      "downloadsOverTime": [],
+      "referenceCount": 0,
+      "citationCount": 0,
+      "citationsOverTime": [],
+      "partCount": 0,
+      "partOfCount": 0,
+      "versionCount": 0,
+      "versionOfCount": 0,
+      "created": "2022-06-06T17:27:02.000Z",
+      "registered": "2022-06-07T11:39:34.000Z",
+      "published": "2016",
+      "updated": "2022-06-07T11:39:34.000Z"
+    },
+    "relationships": {
+      "client": {
+        "data": {
+          "id": "drqc.khinnm",
+          "type": "clients"
+        }
+      },
+      "provider": {
+        "data": {
+          "id": "drqc",
+          "type": "providers"
+        }
+      },
+      "media": {
+        "data": {
+          "id": "10.80021/af9j-at09",
+          "type": "media"
+        }
+      },
+      "references": {
+        "data": []
+      },
+      "citations": {
+        "data": []
+      },
+      "parts": {
+        "data": []
+      },
+      "partOf": {
+        "data": []
+      },
+      "versions": {
+        "data": []
+      },
+      "versionOf": {
+        "data": []
+      }
+    }
+  }
+}
