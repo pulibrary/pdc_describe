@@ -12,7 +12,7 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
   end
 
   before do
-    stub_datacite(user: "foo", password: "bar", encoded_user: "Zm9vOmJhcg==", host: "api.datacite.org")
+    stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
 
   it "Creates ARK when a new work is saved", js: true do

@@ -6,10 +6,12 @@
       "doi": "10.34770/doc-1",
       "prefix": "10.34770",
       "suffix": "0012",
-      "identifiers": [{
-        "identifier": "https://doi.org/10.34770/doc-1",
-        "identifierType": "DOI"
-      }],
+      "identifiers": [
+        {
+          "identifier": "https://doi.org/10.34770/doc-1",
+          "identifierType": "DOI"
+        }
+      ],
       "creators": [],
       "titles": [],
       "publisher": null,
@@ -29,7 +31,7 @@
       "geoLocations": [],
       "fundingReferences": [],
       "xml": null,
-      "url":null,
+      "url": null,
       "contentUrl": null,
       "metadataVersion": 1,
       "schemaVersion": "http://datacite.org/schema/kernel-4",
@@ -53,36 +55,40 @@
       }
     }
   },
-  "included": [{
-    "id": "datacite.datacite",
-    "type": "clients",
-    "attributes": {
-      "name": "DataCite",
-      "symbol": "DATACITE.DATACITE",
-      "year": 2011,
-      "contactName": "DataCite",
-      "contactEmail": "support@datacite.org",
-      "description": null,
-      "domains": "*",
-      "url": null,
-      "created": "2011-12-07T13:43:39.000Z",
-      "updated": "2019-01-02T17:33:06.000Z",
-      "isActive": true,
-      "hasPassword": true
-    },
-    "relationships": {
-      "provider": {
-        "data": {
-          "id": "datacite",
-          "type": "providers"
-        }
+  "included": [
+    {
+      "id": "datacite.datacite",
+      "type": "clients",
+      "attributes": {
+        "name": "DataCite",
+        "symbol": "DATACITE.DATACITE",
+        "year": 2011,
+        "contactName": "DataCite",
+        "contactEmail": "support@datacite.org",
+        "description": null,
+        "domains": "*",
+        "url": null,
+        "created": "2011-12-07T13:43:39.000Z",
+        "updated": "2019-01-02T17:33:06.000Z",
+        "isActive": true,
+        "hasPassword": true
       },
-      "prefixes": {
-        "data": [{
-          "id": "10.34770",
-          "type": "prefixes"
-        }]
+      "relationships": {
+        "provider": {
+          "data": {
+            "id": "datacite",
+            "type": "providers"
+          }
+        },
+        "prefixes": {
+          "data": [
+            {
+              "id": "10.34770",
+              "type": "prefixes"
+            }
+          ]
+        }
       }
     }
-  }]
+  ]
 }

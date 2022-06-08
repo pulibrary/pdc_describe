@@ -1,19 +1,45 @@
 # frozen_string_literal: true
-def stub_datacite(user: "foo", password: "bar", encoded_user: "Zm9vOmJhcg==", host: "api.datacite.org")
-  response = File.read(Pathname.new(fixture_path).join("doi_response.json").to_s)
 
-  datacite_env(user: user, password: password, host: host)
+def datacite_register_body(prefix: "10.80021")
+  "{\"data\":{\"type\":\"dois\",\"attributes\":{\"prefix\":\"#{prefix}\"}}}"
+end
+
+def datacite_update_body(attributes:)
+  "{\"data\":{\"attributes\":#{attributes.to_json}}}"
+end
+
+def stub_datacite(host: "api.datacite.org", body: datacite_register_body, fixture: "doi_response.json")
+  response = File.read(Pathname.new(fixture_path).join(fixture).to_s)
+
+  datacite_env(user: "foo", password: "bar", host: host)
   stub_request(:post, ENV["DATACITE_URL"])
     .with(
-    body: "{\"data\":{\"type\":\"dois\",\"attributes\":{\"prefix\":\"10.34770\"}}}",
+    body: body,
     headers: {
       "Accept" => "*/*",
       "Accept-Encoding" => "gzip;q=1.0,deflate;q=0.6,identity;q=0.3",
-      "Authorization" => "Basic #{encoded_user}",
+      "Authorization" => "Basic Zm9vOmJhcg==",
       "Content-Type" => "application/vnd.api+json",
       "User-Agent" => "Datacite Ruby client version 0.3.0"
     }
   )
+    .to_return(status: 200, body: response, headers: { "Content-Type" => "application/json" })
+end
+
+def stub_datacite_update(doi:, body:, fixture:, host: "api.datacite.org")
+  response = File.read(Pathname.new(fixture_path).join(fixture).to_s)
+  datacite_env(user: "foo", password: "bar", host: host)
+  stub_request(:put, "https://api.datacite.org/dois/#{doi}")
+    .with(
+           body: body,
+           headers: {
+             "Accept" => "*/*",
+             "Accept-Encoding" => "gzip;q=1.0,deflate;q=0.6,identity;q=0.3",
+             "Authorization" => "Basic Zm9vOmJhcg==",
+             "Content-Type" => "application/vnd.api+json",
+             "User-Agent" => "Datacite Ruby client version 0.3.0"
+           }
+         )
     .to_return(status: 200, body: response, headers: { "Content-Type" => "application/json" })
 end
 
