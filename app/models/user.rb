@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require "csv"
 
 class User < ApplicationRecord
   extend FriendlyId
@@ -56,6 +57,35 @@ class User < ApplicationRecord
       user.save!
     end
     user
+  end
+
+  def self.new_from_csv_params(csv_params)
+    email = "#{csv_params["Net ID"]}@princeton.edu"
+    uid = csv_params["Net ID"]
+    full_name = "#{csv_params["First Name"]} #{csv_params["Last Name"]}"
+    display_name = csv_params["First Name"]
+    orcid = csv_params["ORCID ID"]
+    user = User.where(:email => email).first_or_create
+    params_hash = {
+      :email => email,
+      :uid => uid,
+      :orcid => orcid,
+      full_name: (full_name unless user.full_name.present?),
+      display_name: (display_name unless user.display_name.present?)
+    }.compact
+
+    user.update(params_hash)
+    puts "Updates #{user.email}"
+    user
+  end
+
+  def self.create_users_from_csv(csv)
+    users = []
+    CSV.foreach(csv, :headers => true) do |row|
+      next if row["Net ID"] == "N/A"
+      users << new_from_csv_params(row.to_hash)
+    end
+    users
   end
 
   # Creates the default users as indicated in the superadmin config file
