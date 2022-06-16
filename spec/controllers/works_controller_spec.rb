@@ -69,6 +69,55 @@ RSpec.describe WorksController, mock_ezid_api: true do
       expect(response.location).to eq "http://test.host/works/#{work.id}"
     end
 
+    it "handles the update page" do
+      params = {
+        "title_main" => "test dataset updated",
+        "collection_id" => work.collection.id,
+        "commit" => "Update Dataset",
+        "controller" => "works",
+        "action" => "update",
+        "id" => work.id.to_s,
+        "publisher" => "Princeton University",
+        "publication_year" => "2022",
+        "given_name_1" => "Jane",
+        "family_name_1" => "Smith",
+        "sequence_1" => "1",
+        "given_name_2" => "Ada",
+        "family_name_2" => "Lovelace",
+        "sequence_2" => "2",
+        "creator_count" => "2"
+      }
+      sign_in user
+      post :update, params: params
+
+      saved_work = Work.find(work.id)
+      expect(saved_work.datacite_resource.creators[0].value).to eq "Smith, Jane"
+      expect(saved_work.datacite_resource.creators[1].value).to eq "Lovelace, Ada"
+
+      params_reordered = {
+        "title_main" => "test dataset updated",
+        "collection_id" => work.collection.id,
+        "commit" => "Update Dataset",
+        "controller" => "works",
+        "action" => "update",
+        "id" => work.id.to_s,
+        "publisher" => "Princeton University",
+        "publication_year" => "2022",
+        "given_name_1" => "Jane",
+        "family_name_1" => "Smith",
+        "sequence_1" => "2",
+        "given_name_2" => "Ada",
+        "family_name_2" => "Lovelace",
+        "sequence_2" => "1",
+        "creator_count" => "2"
+      }
+
+      post :update, params: params_reordered
+      reordered_work = Work.find(work.id)
+      expect(reordered_work.datacite_resource.creators[0].value).to eq "Lovelace, Ada"
+      expect(reordered_work.datacite_resource.creators[1].value).to eq "Smith, Jane"
+    end
+
     it "renders view to select the kind of attachment to use" do
       sign_in user
       get :attachment_select, params: { id: work.id }

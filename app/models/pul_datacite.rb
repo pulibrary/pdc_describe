@@ -88,20 +88,30 @@ module PULDatacite
     # rubocop:enable Metrics/AbcSize
 
     # Creates a PULDatacite::Resource from a JSON string
+    # rubocop:disable Metrics/MethodLength
     def self.new_from_json(json_string)
       resource = PULDatacite::Resource.new
       hash = json_string.blank? ? {} : JSON.parse(json_string)
+
       hash["titles"]&.each do |title|
         resource.titles << PULDatacite::Title.new(title: title["title"], title_type: title["title_type"])
       end
+
       hash["creators"]&.each do |creator|
+        given_name = creator["given_name"]
+        family_name = creator["family_name"]
         orcid = creator.dig("name_identifier", "scheme") == "ORCID" ? creator.dig("name_identifier", "value") : nil
-        resource.creators << PULDatacite::Creator.new_person(creator["given_name"], creator["family_name"], orcid)
+        sequence = (creator["sequence"] || "").to_i
+        resource.creators << PULDatacite::Creator.new_person(given_name, family_name, orcid, sequence)
       end
+      resource.creators.sort_by!(&:sequence)
+
       resource.publisher = hash["publisher"]
       resource.publication_year = hash["publication_year"]
+
       resource
     end
+    # rubocop:enable Metrics/MethodLength
   end
 
   # value: "Miller, Elizabeth"
@@ -109,16 +119,19 @@ module PULDatacite
   # given_name: "Elizabeth"
   # family_name: "Miller"
   class Creator
-    attr_accessor :value, :name_type, :given_name, :family_name, :name_identifier, :affiliations
+    attr_accessor :value, :name_type, :given_name, :family_name, :name_identifier, :affiliations, :sequence
 
-    def initialize(value: nil, name_type: nil, given_name: nil, family_name: nil, name_identifier: nil)
+    # rubocop:disable Metrics/ParameterLists
+    def initialize(value: nil, name_type: nil, given_name: nil, family_name: nil, name_identifier: nil, sequence: 0)
       @value = value
       @name_type = name_type
       @given_name = given_name
       @family_name = family_name
       @name_identifier = name_identifier
       @affiliations = []
+      @sequence = sequence
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def orcid_url
       name_identifier&.orcid_url
@@ -128,9 +141,9 @@ module PULDatacite
       name_identifier&.orcid
     end
 
-    def self.new_person(given_name, family_name, orcid_id = nil)
+    def self.new_person(given_name, family_name, orcid_id = nil, sequence = 0)
       full_name = "#{family_name}, #{given_name}"
-      creator = Creator.new(value: full_name, name_type: "Personal", given_name: given_name, family_name: family_name)
+      creator = Creator.new(value: full_name, name_type: "Personal", given_name: given_name, family_name: family_name, sequence: sequence)
       if orcid_id.present?
         creator.name_identifier = NameIdentifier.new_orcid(orcid_id)
       end

@@ -129,9 +129,9 @@ class WorksController < ApplicationController
 
   private
 
-    def new_creator(given_name, family_name, orcid)
+    def new_creator(given_name, family_name, orcid, sequence)
       return if family_name.blank? && given_name.blank? && orcid.blank?
-      PULDatacite::Creator.new_person(given_name, family_name, orcid)
+      PULDatacite::Creator.new_person(given_name, family_name, orcid, sequence)
     end
 
     def datacite_resource_from_form
@@ -156,7 +156,7 @@ class WorksController < ApplicationController
 
       # Process the creators
       for i in 1..params["creator_count"].to_i do
-        creator = new_creator(params["given_name_#{i}"], params["family_name_#{i}"], params["orcid_#{i}"])
+        creator = new_creator(params["given_name_#{i}"], params["family_name_#{i}"], params["orcid_#{i}"], params["sequence_#{i}"])
         resource.creators << creator unless creator.nil?
       end
 
