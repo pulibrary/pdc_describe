@@ -45,7 +45,7 @@ class S3QueryService
   # * https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/S3/Client.html#get_object_attributes-instance_method
   # @return [<S3File>] An Array of S3File objects
   def data_profile
-    return [] if @doi == "10.1234/tbd"
+    return [] if @doi == "10.34770/tbd"
     objects = []
     resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
     resp.to_h[:contents].each do |object|
