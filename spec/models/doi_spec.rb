@@ -46,12 +46,13 @@ RSpec.describe "DOI", type: :model do
 
   describe "SPIKE" do
     it "mints a new DOI" do
-      stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: prefix))
+      #stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: prefix))
       #
       # Comment out the above stub and uncomment the below code to send a real request and create an DOI
       # you must have the datacite host, user name, and password in your environment
       #
-      # WebMock.enable_net_connect!
+      WebMock.enable_net_connect!
+      byebug
       result = client.autogenerate_doi(prefix: prefix)
       doi = result.either(
               ->(response) { response.doi },
