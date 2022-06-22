@@ -16,8 +16,10 @@ RSpec.describe User, type: :model do
   let(:rd_collection) { Collection.where(code: "RD").first }
   let(:pppl_collection) { Collection.where(code: "PPPL").first }
 
-  let(:csv) { "#{file_fixture('orcid.csv')}" }
-  let(:csv_params) { {"First Name"=>"Darryl", "Last Name"=>"Williamson", "Net ID"=>"fake_netid_dw1234", "PPPL Email"=>"fake_email_dwilliamson1234@pppl.gov", "ORCID ID"=>"0000-0000-0000-0000"} }
+  let(:csv) { file_fixture("orcid.csv").to_s }
+  # rubocop:disable Layout/LineLength
+  let(:csv_params) { Hash.new("First Name" => "Darryl", "Last Name" => "Williamson", "Net ID" => "fake_netid_dw1234", "PPPL Email" => "fake_email_dwilliamson1234@pppl.gov", "ORCID ID" => "0000-0000-0000-0000") }
+  # rubocop:enable Layout/LineLength
 
   describe "#from_cas" do
     it "returns a user object with a default collection" do
@@ -106,8 +108,8 @@ RSpec.describe User, type: :model do
     it "creates users from values supplied in a CSV file" do
       users = described_class.create_users_from_csv(csv)
       expect(users.length).to eq 3
-      expect(users.first.full_name).to eq 'Jackie Alvarez'
-      expect(users.last.full_name).to eq 'Kent Jenson'
+      expect(users.first.full_name).to eq "Jackie Alvarez"
+      expect(users.last.full_name).to eq "Kent Jenson"
     end
   end
 
