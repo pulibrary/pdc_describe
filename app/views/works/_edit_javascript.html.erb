@@ -172,9 +172,15 @@
     });
 
     // Allows the creators to be reordered via drag and drop.
-    // The `cancel` property is used to prevent reordering the header (https://stackoverflow.com/a/17897706/446681)
+    // The `cancel` property "prevents sorting if you start on elements matching the selector"
+    // https://api.jqueryui.com/sortable/#method-cancel
+    //
+    //  tr:has(th)      - prevents reordering the header (https://stackoverflow.com/a/17897706/446681)
+    //  input           - prevents reordering on the textboxes (so they are still editable)
+    //  .delete-creator - prevents reording on the delete icon
+    //
     $("#creators-table-sortable").sortable({
-      cancel: "tr:has(th)"
+      cancel: "tr:has(th), input, .delete-creator"
     });
   });
 </script>
