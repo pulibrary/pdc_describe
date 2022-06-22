@@ -1,5 +1,7 @@
 # frozen_string_literal: true
+require "csv"
 
+# rubocop:disable Metrics/ClassLength
 class User < ApplicationRecord
   extend FriendlyId
   friendly_id :uid
@@ -58,6 +60,37 @@ class User < ApplicationRecord
       user.save!
     end
     user
+  end
+
+  # rubocop:disable Metrics/MethodLength
+  def self.new_from_csv_params(csv_params)
+    email = "#{csv_params['Net ID']}@princeton.edu"
+    uid = csv_params["Net ID"]
+    full_name = "#{csv_params['First Name']} #{csv_params['Last Name']}"
+    display_name = csv_params["First Name"]
+    orcid = csv_params["ORCID ID"]
+    user = User.where(email: email).first_or_create
+    params_hash = {
+      email: email,
+      uid: uid,
+      orcid: orcid,
+      full_name: (full_name if user.full_name.blank?),
+      display_name: (display_name if user.display_name.blank?)
+    }.compact
+
+    user.update(params_hash)
+    Rails.logger.info "Successfully created or updated #{user.email}"
+    user
+  end
+  # rubocop:enable Metrics/MethodLength
+
+  def self.create_users_from_csv(csv)
+    users = []
+    CSV.foreach(csv, headers: true) do |row|
+      next if row["Net ID"] == "N/A"
+      users << new_from_csv_params(row.to_hash)
+    end
+    users
   end
 
   # Creates the default users as indicated in the superadmin config file
@@ -135,3 +168,4 @@ class User < ApplicationRecord
     UserCollection.where(user_id: id).filter(&:can_submit?).map(&:collection)
   end
 end
+# rubocop:enable Metrics/ClassLength
