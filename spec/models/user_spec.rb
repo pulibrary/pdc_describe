@@ -29,6 +29,11 @@ RSpec.describe User, type: :model do
   let(:rd_collection) { Collection.where(code: "RD").first }
   let(:pppl_collection) { Collection.where(code: "PPPL").first }
 
+  let(:csv) { file_fixture("orcid.csv").to_s }
+  # rubocop:disable Layout/LineLength
+  let(:csv_params) { { "First Name" => "Darryl", "Last Name" => "Williamson", "Net ID" => "fake_netid_dw1234", "PPPL Email" => "fake_email_dwilliamson1234@pppl.gov", "ORCID ID" => "0000-0000-0000-0000" } }
+  # rubocop:enable Layout/LineLength
+
   describe "#from_cas" do
     it "returns a user object with a default collection" do
       user = described_class.from_cas(access_token)
@@ -97,6 +102,37 @@ RSpec.describe User, type: :model do
       user1 = described_class.new_for_uid("test222")
       user2 = described_class.new_for_uid("test222")
       expect(user1.id).to eq user2.id
+    end
+  end
+
+  describe "#new_from_csv" do
+    it "creates the user only once" do
+      described_class.where(uid: "fake_netid_dw1234").delete_all
+      user1 = described_class.new_from_csv_params(csv_params)
+      user2 = described_class.new_from_csv_params(csv_params)
+      expect(user1.id).to eq user2.id
+    end
+
+    it "updates the ORCID ID but not the name values if they exist" do
+      described_class.where(uid: "fake_netid_dw1234").delete_all
+      user = described_class.new_from_csv_params(csv_params)
+      user.full_name = "Darryl Arthur Williamson"
+      user.display_name = "D. Williamson"
+      user.orcid = "0000-0000-0000-1111"
+      user.save!
+      user = described_class.new_from_csv_params(csv_params)
+      expect(user.full_name).to eq "Darryl Arthur Williamson"
+      expect(user.display_name).to eq "D. Williamson"
+      expect(user.orcid).to eq "0000-0000-0000-0000"
+    end
+  end
+
+  describe "#create_users_from_csv" do
+    it "creates users from values supplied in a CSV file" do
+      users = described_class.create_users_from_csv(csv)
+      expect(users.length).to eq 3
+      expect(users.first.full_name).to eq "Jackie Alvarez"
+      expect(users.last.full_name).to eq "Kent Jenson"
     end
   end
 
