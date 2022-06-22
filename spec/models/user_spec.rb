@@ -9,6 +9,19 @@ RSpec.describe User, type: :model do
   let(:access_token_pppl) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu", departmentnumber: "31000" }) }
   let(:access_token_superadmin) { OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" }) }
 
+  let(:access_token_full_extras) do
+    OmniAuth::AuthHash.new(provider: "cas", uid: "test123",
+                           extra: OmniAuth::AuthHash.new(mail: "who@princeton.edu", user: "test123", authnContextClass: "mfa-duo",
+                                                         campusid: "who.areyou", puresidentdepartmentnumber: "41999",
+                                                         title: "The Developer, Library - Information Technology.", uid: "test123",
+                                                         universityid: "999999999", displayname: "Areyou, Who", pudisplayname: "Areyou, Who",
+                                                         edupersonaffiliation: "staff", givenname: "Who",
+                                                         sn: "Areyou", department: "Library - Information Technology",
+                                                         edupersonprincipalname: "who@princeton.edu",
+                                                         puresidentdepartment: "Library - Information Technology",
+                                                         puaffiliation: "stf", departmentnumber: "41999", pustatus: "stf"))
+  end
+
   let(:normal_user) { described_class.from_cas(access_token) }
   let(:pppl_user) { described_class.from_cas(access_token_pppl) }
   let(:superadmin_user) { described_class.from_cas(access_token_superadmin) }
@@ -35,6 +48,14 @@ RSpec.describe User, type: :model do
       expect(pppl_user.default_collection.id).to eq pppl_collection.id
     end
 
+    it "sets the CAS info on new" do
+      user = described_class.from_cas(access_token_full_extras)
+      expect(user.email).to eq "who@princeton.edu"
+      expect(user.full_name).to eq "Areyou, Who"
+      expect(user.display_name).to eq "Who"
+      expect(user.family_name).to eq "Areyou"
+    end
+
     it "updates an existing user with CAS info" do
       # Create a user without CAS info
       described_class.where(uid: "test123").delete_all
@@ -43,9 +64,11 @@ RSpec.describe User, type: :model do
       expect(user.display_name).to be nil
 
       # ...make sure it's updated with CAS info
-      cas_info = OmniAuth::AuthHash.new(provider: "cas", uid: "test123", extra: { mail: "test123@princeton.edu", displayname: "Test User 123" })
-      user = described_class.from_cas(cas_info)
-      expect(user.full_name).to eq "Test User 123"
+      user = described_class.from_cas(access_token_full_extras)
+      expect(user.email).to eq "who@princeton.edu"
+      expect(user.full_name).to eq "Areyou, Who"
+      expect(user.display_name).to eq "Who"
+      expect(user.family_name).to eq "Areyou"
     end
   end
 

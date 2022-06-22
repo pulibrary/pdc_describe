@@ -2,6 +2,80 @@
 
 # rubocop:disable Metrics/ClassLength
 class Work < ApplicationRecord
+  class << self
+    def create_skeleton(title, user_id, collection_id, work_type, profile)
+      work = Work.new(
+        title: title,
+        created_by_user_id: user_id,
+        collection_id: collection_id,
+        work_type: work_type,
+        state: "AWAITING-APPROVAL",
+        profile: profile
+      )
+      work.save!
+      work
+    end
+
+    # Convenience method to create Datasets with the DataCite profile
+    def create_dataset(title, user_id, collection_id, datacite_resource = nil, ark = nil)
+      datacite_resource = PULDatacite::Resource.new(title: title) if datacite_resource.nil?
+      work = default_work(title, user_id, collection_id, datacite_resource, ark)
+      work.draft_doi
+
+      # We skip the validation since we don't have all the required fields yet
+      work.save!(validate: false)
+      work
+    end
+
+    def my_works(user)
+      Work.where(created_by_user_id: user)
+    end
+
+    def admin_awaiting_works(user)
+      admin_works_by_user_state(user, "AWAITING-APPROVAL")
+    end
+
+    def admin_withdrawn_works(user)
+      admin_works_by_user_state(user, "WITHDRAWN")
+    end
+
+    # Returns that works that an admin user has in a given state.
+    #
+    # Notice that it *excludes* the works created by the admin user
+    # (since their own works will already be shown on their dashboard)
+    def admin_works_by_user_state(user, state)
+      admin_collections = []
+      Collection.all.find_each do |collection|
+        admin_collections << collection if user.can_admin?(collection.id)
+      end
+
+      works = []
+      admin_collections.each do |collection|
+        condition = "collection_id = :collection_id AND state = :state AND (created_by_user_id != :user_id)"
+        values = { collection_id: collection.id, state: state, user_id: user.id }
+        works += Work.where([condition, values])
+      end
+
+      works
+    end
+
+    private
+
+      def default_work(title, user_id, collection_id, datacite_resource, ark)
+        Work.new(
+          title: title,
+          created_by_user_id: user_id,
+          collection_id: collection_id,
+          work_type: "DATASET",
+          state: "AWAITING-APPROVAL",
+          profile: "DATACITE",
+          doi: nil,
+          data_cite: datacite_resource.to_json,
+          ark: ark
+        )
+      end
+  end
+
   include Rails.application.routes.url_helpers
 
   belongs_to :collection
@@ -38,36 +112,16 @@ class Work < ApplicationRecord
     end
   end
 
-  def self.create_skeleton(title, user_id, collection_id, work_type, profile)
-    work = Work.new(
-      title: title,
-      created_by_user_id: user_id,
-      collection_id: collection_id,
-      work_type: work_type,
-      state: "AWAITING-APPROVAL",
-      profile: profile
-    )
-    work.save!
-    work
-  end
-
-  # Convenience method to create Datasets with the DataCite profile
-  def self.create_dataset(title, user_id, collection_id, datacite_resource = nil, ark = nil)
-    datacite_resource = PULDatacite::Resource.new(title: title) if datacite_resource.nil?
-    work = Work.new(
-      title: title,
-      created_by_user_id: user_id,
-      collection_id: collection_id,
-      work_type: "DATASET",
-      state: "AWAITING-APPROVAL",
-      profile: "DATACITE",
-      doi: "10.1234/tbd",
-      data_cite: datacite_resource.to_json,
-      ark: ark
-    )
-    # We skip the validation since we don't have all the required fields yet
-    work.save!(validate: false)
-    work
+  def draft_doi
+    self.doi ||= "10.34770/tbd"
+    # TODO: Set up the doi to have  a variable prefix.  Test and production do not have the same one
+    # self.doi ||= begin
+    #                result = data_cite_connection.autogenerate_doi(prefix: "10.34770")
+    #                result.either(
+    #                   ->(response) { response.doi },
+    #                   ->(response) { raise("Something went wrong", response.status) }
+    #                 )
+    #              end
   end
 
   def approve(user)
@@ -138,36 +192,24 @@ class Work < ApplicationRecord
     @url ||= url_for(self)
   end
 
-  def self.my_works(user)
-    Work.where(created_by_user_id: user)
+  def files_location_upload?
+    files_location.blank? || files_location == "file_upload"
   end
 
-  def self.admin_awaiting_works(user)
-    admin_works_by_user_state(user, "AWAITING-APPROVAL")
+  def files_location_cluster?
+    files_location == "file_cluster"
   end
 
-  def self.admin_withdrawn_works(user)
-    admin_works_by_user_state(user, "WITHDRAWN")
+  def files_location_other?
+    files_location == "file_other"
   end
 
-  # Returns that works that an admin user has in a given state.
-  #
-  # Notice that it *excludes* the works created by the admin user
-  # (since their own works will already be shown on their dashboard)
-  def self.admin_works_by_user_state(user, state)
-    admin_collections = []
-    Collection.all.find_each do |collection|
-      admin_collections << collection if user.can_admin?(collection.id)
+  private
+
+    def data_cite_connection
+      @data_cite_connection ||= Datacite::Client.new(username: ENV["DATACITE_USER"],
+                                                     password: ENV["DATACITE_PASSWORD"],
+                                                     host: ENV["DATACITE_HOST"])
     end
-
-    works = []
-    admin_collections.each do |collection|
-      condition = "collection_id = :collection_id AND state = :state AND (created_by_user_id != :user_id)"
-      values = { collection_id: collection.id, state: state, user_id: user.id }
-      works += Work.where([condition, values])
-    end
-
-    works
-  end
 end
 # rubocop:ensable Metrics/ClassLength

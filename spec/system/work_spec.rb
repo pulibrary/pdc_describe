@@ -11,6 +11,10 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
     User.from_cas(hash)
   end
 
+  before do
+    stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+  end
+
   it "Creates ARK when a new work is saved", js: true do
     sign_in user
     visit new_work_path
@@ -42,6 +46,7 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
   end
 
   it "Renders ORCID links for creators", js: true do
+    stub_s3
     datacite_resource = PULDatacite::Resource.new(title: "Test dataset")
     datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")
     work = Work.create_dataset("Test dataset", user.id, user.default_collection_id, datacite_resource)

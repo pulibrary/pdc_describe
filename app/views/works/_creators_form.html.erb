@@ -1,26 +1,32 @@
 <b>Creator(s)<span class="required-field" title="At least one creator must be indicated">*</span></b>
 
 <!--
-  Render the list of creators a hidden SPANs that are then added to
+  Render the list of creators a hidden SPANs that are then added below
   the HTML TABLE via JavaScript. This is so that we have a single way
   of rendering creators already on the record *and* creators added
   on the fly.
 -->
 <table id="creators-table">
-  <tr>
-    <th>ORCID</th>
-    <th>Given name</th>
-    <th>Family name</th>
-    <th>&nbsp;</th>
-  </tr>
-  <% @work.datacite_resource.creators.each_with_index do |creator, i| %>
-    <span class="hidden creator-data"
-      data-num="<%= i + 1 %>"
-      data-orcid="<%= creator.orcid %>"
-      data-given-name="<%= creator.given_name %>"
-      data-family-name="<%= creator.family_name %>"></span>
-  <% end %>
+  <tbody id="creators-table-sortable">
+    <tr class="header-row">
+      <th>ORCID</th>
+      <th>Given name</th>
+      <th>Family name</th>
+      <th>&nbsp;</th> <!-- move icon-->
+      <th>&nbsp;</th> <!-- delete icon-->
+    </tr>
+  </tbody>
 </table>
+
+<% @work.datacite_resource.creators.each_with_index do |creator, i| %>
+<span class="hidden creator-data"
+  data-num="<%= i + 1 %>"
+  data-orcid="<%= creator.orcid %>"
+  data-given-name="<%= creator.given_name %>"
+  data-family-name="<%= creator.family_name %>"
+  data-sequence="<%= creator.sequence %>"
+  ></span>
+<% end %>
 
 <!-- Let the user add new creators -->
 <div>

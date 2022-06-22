@@ -35,7 +35,7 @@
     <hr />
     <div class="actions">
       <%= link_to 'Cancel', @work, class: "btn btn-secondary" %>
-      <%= form.submit "Save Work", class: "btn btn-primary wizard-next-button" %>
+      <%= form.submit "Save Work", class: "btn btn-primary wizard-next-button", id: "btn-submit" %>
     </div>
 
     <%= render 'form_hidden_fields' %>

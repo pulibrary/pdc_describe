@@ -32,6 +32,7 @@ class User < ApplicationRecord
     user.uid = access_token.uid # this is the netid
     user.email = access_token.extra.mail
     user.display_name = access_token.extra.givenname || access_token.uid # Harriet
+    user.family_name = access_token.extra.sn || access_token.uid # Tubman
     user.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
     user.default_collection_id = Collection.default_for_department(access_token.extra.departmentnumber)&.id
     user.save!
@@ -45,6 +46,7 @@ class User < ApplicationRecord
     self.provider = access_token.provider
     self.email = access_token.extra.mail
     self.display_name = access_token.extra.givenname || access_token.uid # Harriet
+    self.family_name = access_token.extra.sn || access_token.uid # Tubman
     self.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
     self.default_collection_id = Collection.default_for_department(access_token.extra.departmentnumber)&.id
     save!
@@ -164,11 +166,6 @@ class User < ApplicationRecord
   def submitter_collections
     return Collection.all.to_a if superadmin?
     UserCollection.where(user_id: id).filter(&:can_submit?).map(&:collection)
-  end
-
-  def family_name
-    # Hard-coded for now until we fetch the data from CAS, it comes in the [sn] attribute.
-    "family-name"
   end
 end
 # rubocop:enable Metrics/ClassLength

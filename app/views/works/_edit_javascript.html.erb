@@ -12,20 +12,27 @@
       return counter
     }
 
-    var addCreatorHtml = function(num, orcid, givenName, familyName) {
+    var addCreatorHtml = function(num, orcid, givenName, familyName, sequence) {
       var rowId = `creator_row_${num}`;
       var orcidId = `orcid_${num}`;
       var givenNameId = `given_name_${num}`;
       var familyNameId = `family_name_${num}`;
-      var rowHtml = `<tr id="${rowId}">
+      var sequenceId = `sequence_${num}`;
+      var rowHtml = `<tr id="${rowId}" class="creators-table-row">
         <td>
           <input class="orcid-entry" type="text" id="${orcidId}" name="${orcidId}" value="${orcid}" data-num="${num}" placeholder="0000-0000-0000-0000" />
         </td>
         <td>
           <input type="text" id="${givenNameId}" name="${givenNameId}" value="${givenName}" />
         </td>
-        <td>
+        <td class="creators-table-row-family-name">
           <input type="text" id="${familyNameId}" name="${familyNameId}" value="${familyName}" />
+        </td>
+        <td>
+          <input class="sequence hidden" type="text" id="${sequenceId}" name="${sequenceId}" value="${sequence}" />
+        </td>
+        <td>
+          <i class="bi bi-arrow-down-up" style="color: gray;" title="Click and drag to reorder"></i>
         </td>
         <td>
           <span>
@@ -37,6 +44,34 @@
       </tr>`;
       $("#creators-table").append(rowHtml);
       $("#" + orcidId).focus();
+    }
+
+    var deleteCreator = function(num) {
+      var rowToDelete = `#creator_row_${num}`;
+      var orcidId = `#orcid_${num}`;
+      var givenNameId = `#given_name_${num}`;
+      var familyNameId = `#family_name_${num}`;
+      var name = $(orcidId).val() + " " + $(givenNameId).val() + " " + $(familyNameId).val();
+      var emptyName = (name === undefined) || (name.trim().length == 0);
+      if (emptyName) {
+        // delete it without asking
+        $(rowToDelete).remove();
+      } else {
+        if (confirm(`Remove creator ${name}`)) {
+          $(rowToDelete).remove();
+        }
+      }
+    }
+
+    // Updates the creators sequence value to match the order
+    // in which they are displayed. This is needed if the user
+    // reordered the creators (via drag and drop).
+    var updateCreatorsSequence = function() {
+      var i;
+      var sequences = $(".creators-table-row > td > input.sequence")
+      for(i = 0; i < sequences.length; i++) {
+        sequences[i].value = i + 1;
+      }
     }
 
     var addTitlePlaceholder = function(_el) {
@@ -77,22 +112,9 @@
       return false;
     });
 
-    var deleteCreator = function(num) {
-      var rowToDelete = `#creator_row_${num}`;
-      var orcidId = `#orcid_${num}`;
-      var givenNameId = `#given_name_${num}`;
-      var familyNameId = `#family_name_${num}`;
-      var name = $(orcidId).val() + " " + $(givenNameId).val() + " " + $(familyNameId).val();
-      var emptyName = (name === undefined) || (name.trim().length == 0);
-      if (emptyName) {
-        // delete it without asking
-        $(rowToDelete).remove();
-      } else {
-        if (confirm(`Remove creator ${name}`)) {
-          $(rowToDelete).remove();
-        }
-      }
-    }
+    $("#btn-submit").on("click", function(el) {
+      updateCreatorsSequence();
+    });
 
     // Delete button for creators.
     //
@@ -121,7 +143,8 @@
         var orcid = $(el).data("orcid");
         var givenName = $(el).data("given-name");
         var familyName = $(el).data("family-name");
-        addCreatorHtml(num, orcid, givenName, familyName);
+        var sequence = $(el).data("sequence");
+        addCreatorHtml(num, orcid, givenName, familyName, sequence);
       });
     }
 
@@ -146,6 +169,12 @@
           console.log(`Error fetching ORCID for ${errorThrown}`);
         });
       }
+    });
+
+    // Allows the creators to be reordered via drag and drop.
+    // The `cancel` property is used to prevent reordering the header (https://stackoverflow.com/a/17897706/446681)
+    $("#creators-table-sortable").sortable({
+      cancel: "tr:has(th)"
     });
   });
 </script>

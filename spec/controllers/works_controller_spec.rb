@@ -6,6 +6,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
   before do
     Collection.create_defaults
     user
+    stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
   let(:user) { FactoryBot.create(:user) }
   let(:collection) { Collection.first }
@@ -23,6 +24,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
     end
 
     it "handles the show page" do
+      stub_s3
       sign_in user
       get :show, params: { id: work.id }
       expect(response).to render_template("show")
@@ -65,6 +67,109 @@ RSpec.describe WorksController, mock_ezid_api: true do
       post :update, params: params
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/works/#{work.id}"
+    end
+
+    it "handles the update page" do
+      params = {
+        "title_main" => "test dataset updated",
+        "collection_id" => work.collection.id,
+        "commit" => "Update Dataset",
+        "controller" => "works",
+        "action" => "update",
+        "id" => work.id.to_s,
+        "publisher" => "Princeton University",
+        "publication_year" => "2022",
+        "given_name_1" => "Jane",
+        "family_name_1" => "Smith",
+        "sequence_1" => "1",
+        "given_name_2" => "Ada",
+        "family_name_2" => "Lovelace",
+        "sequence_2" => "2",
+        "creator_count" => "2"
+      }
+      sign_in user
+      post :update, params: params
+
+      saved_work = Work.find(work.id)
+      expect(saved_work.datacite_resource.creators[0].value).to eq "Smith, Jane"
+      expect(saved_work.datacite_resource.creators[1].value).to eq "Lovelace, Ada"
+
+      params_reordered = {
+        "title_main" => "test dataset updated",
+        "collection_id" => work.collection.id,
+        "commit" => "Update Dataset",
+        "controller" => "works",
+        "action" => "update",
+        "id" => work.id.to_s,
+        "publisher" => "Princeton University",
+        "publication_year" => "2022",
+        "given_name_1" => "Jane",
+        "family_name_1" => "Smith",
+        "sequence_1" => "2",
+        "given_name_2" => "Ada",
+        "family_name_2" => "Lovelace",
+        "sequence_2" => "1",
+        "creator_count" => "2"
+      }
+
+      post :update, params: params_reordered
+      reordered_work = Work.find(work.id)
+      expect(reordered_work.datacite_resource.creators[0].value).to eq "Lovelace, Ada"
+      expect(reordered_work.datacite_resource.creators[1].value).to eq "Smith, Jane"
+    end
+
+    it "renders view to select the kind of attachment to use" do
+      sign_in user
+      get :attachment_select, params: { id: work.id }
+      expect(response).to render_template(:attachment_select)
+    end
+
+    it "redirects to the proper step depending on the attachment type" do
+      sign_in user
+      post :attachment_selected, params: { id: work.id, attachment_type: "file_upload" }
+      expect(response.status).to be 302
+      expect(response.location).to eq "http://test.host/works/#{work.id}/file-upload"
+
+      post :attachment_selected, params: { id: work.id, attachment_type: "file_cluster" }
+      expect(response.status).to be 302
+      expect(response.location).to eq "http://test.host/works/#{work.id}/file-cluster"
+
+      post :attachment_selected, params: { id: work.id, attachment_type: "file_other" }
+      expect(response.status).to be 302
+      expect(response.location).to eq "http://test.host/works/#{work.id}/file-other"
+    end
+
+    it "renders the page to upload files directly" do
+      sign_in user
+      get :file_upload, params: { id: work.id }
+      expect(response).to render_template(:file_upload)
+    end
+
+    it "renders the page to indicate instructions on files on the PUL Research Cluster" do
+      sign_in user
+      get :file_cluster, params: { id: work.id }
+      expect(response).to render_template(:file_cluster)
+    end
+
+    it "renders the page to indicate instructions on files on a different location" do
+      sign_in user
+      get :file_other, params: { id: work.id }
+      expect(response).to render_template(:file_other)
+    end
+
+    it "renders the review page and saves the location notes" do
+      sign_in user
+      post :review, params: { id: work.id, location_notes: "my files can be found at http://aws/my/data" }
+      expect(response).to render_template(:review)
+      expect(Work.find(work.id).location_notes).to eq "my files can be found at http://aws/my/data"
+    end
+
+    it "renders the complete page and saves the submission notes" do
+      sign_in user
+      post :completed, params: { id: work.id, submission_notes: "I need this processed ASAP" }
+      expect(response.status).to be 302
+      expect(response.location).to eq "http://test.host/works/#{work.id}"
+      expect(Work.find(work.id).submission_notes).to eq "I need this processed ASAP"
     end
 
     it "handles aprovals" do

@@ -34,20 +34,73 @@ class WorksController < ApplicationController
   def update
     @work = Work.find(params[:id])
     @wizard_mode = params[:wizard] == "true"
-    respond_to do |format|
-      work_params = {
-        title: params[:title_main],
-        collection_id: params[:collection_id],
-        data_cite: datacite_resource_from_form
-      }
-      if @work.update(work_params)
-        format.html { redirect_to work_url(@work), notice: "Work was successfully updated." }
-        format.json { render :show, status: :ok, location: @work }
+    work_params = {
+      title: params[:title_main],
+      collection_id: params[:collection_id],
+      data_cite: datacite_resource_from_form
+    }
+    if @work.update(work_params)
+      if @wizard_mode
+        redirect_to work_attachment_select_url(@work)
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @work.errors, status: :unprocessable_entity }
+        redirect_to work_url(@work), notice: "Work was successfully updated."
       end
+    else
+      render :edit, status: :unprocessable_entity
     end
+  end
+
+  # Prompt to select how to submit their files
+  def attachment_select
+    @work = Work.find(params[:id])
+    @wizard_mode = true
+  end
+
+  # User selected a specific way to submit their files
+  def attachment_selected
+    @work = Work.find(params[:id])
+    @wizard_mode = true
+    @work.files_location = params["attachment_type"]
+    @work.save!
+    next_url = case @work.files_location
+               when "file_upload"
+                 work_file_upload_url(@work)
+               when "file_cluster"
+                 work_file_cluster_url(@work)
+               else
+                 work_file_other_url(@work)
+               end
+    redirect_to next_url
+  end
+
+  # Allow user to upload files directly
+  def file_upload
+    @work = Work.find(params[:id])
+  end
+
+  # Allow user to indicate where their files are located in the PUL Research Cluster
+  def file_cluster
+    @work = Work.find(params[:id])
+  end
+
+  # Allow user to indicate where their files are located in the WWW
+  def file_other
+    @work = Work.find(params[:id])
+  end
+
+  def review
+    @work = Work.find(params[:id])
+    if request.method == "POST"
+      @work.location_notes = params["location_notes"]
+      @work.save!
+    end
+  end
+
+  def completed
+    @work = Work.find(params[:id])
+    @work.submission_notes = params["submission_notes"]
+    @work.save!
+    redirect_to work_url(@work)
   end
 
   def approve
@@ -76,9 +129,9 @@ class WorksController < ApplicationController
 
   private
 
-    def new_creator(given_name, family_name, orcid)
+    def new_creator(given_name, family_name, orcid, sequence)
       return if family_name.blank? && given_name.blank? && orcid.blank?
-      PULDatacite::Creator.new_person(given_name, family_name, orcid)
+      PULDatacite::Creator.new_person(given_name, family_name, orcid, sequence)
     end
 
     def datacite_resource_from_form
@@ -103,7 +156,7 @@ class WorksController < ApplicationController
 
       # Process the creators
       for i in 1..params["creator_count"].to_i do
-        creator = new_creator(params["given_name_#{i}"], params["family_name_#{i}"], params["orcid_#{i}"])
+        creator = new_creator(params["given_name_#{i}"], params["family_name_#{i}"], params["orcid_#{i}"], params["sequence_#{i}"])
         resource.creators << creator unless creator.nil?
       end
 

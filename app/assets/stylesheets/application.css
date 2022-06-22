@@ -39,6 +39,10 @@
   margin-bottom: 0px !important;
 }
 
+.wizard-radio-button {
+  margin-right: 5px;
+}
+
 /*
  *  Uses CSS flexbox https://www.w3schools.com/csS/css3_flexbox.asp
  */
