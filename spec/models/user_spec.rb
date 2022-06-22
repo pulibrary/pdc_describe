@@ -31,7 +31,7 @@ RSpec.describe User, type: :model do
 
   let(:csv) { file_fixture("orcid.csv").to_s }
   # rubocop:disable Layout/LineLength
-  let(:csv_params) { Hash.new("First Name" => "Darryl", "Last Name" => "Williamson", "Net ID" => "fake_netid_dw1234", "PPPL Email" => "fake_email_dwilliamson1234@pppl.gov", "ORCID ID" => "0000-0000-0000-0000") }
+  let(:csv_params) { { "First Name" => "Darryl", "Last Name" => "Williamson", "Net ID" => "fake_netid_dw1234", "PPPL Email" => "fake_email_dwilliamson1234@pppl.gov", "ORCID ID" => "0000-0000-0000-0000" } }
   # rubocop:enable Layout/LineLength
 
   describe "#from_cas" do
