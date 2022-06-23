@@ -21,6 +21,13 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
 
+  it "checks the format of the ORCID of the creators" do
+    # Add a new creator with an incomplete ORCID
+    work.datacite_resource.creators << PULDatacite::Creator.new_person("Williams", "Serena", "1234-12")
+    expect(work.save).to be false
+    expect(work.errors.find { |error| error.type.include?("ORCID") }).to be_present
+  end
+
   it "creates a skeleton dataset with a DOI and an ARK" do
     expect(work.created_by_user.id).to eq user.id
     expect(work.collection.id).to eq collection.id

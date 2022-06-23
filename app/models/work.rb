@@ -106,9 +106,17 @@ class Work < ApplicationRecord
 
     if work.data_cite.present?
       work.errors.add(:base, "Must provide a title") if work.title.blank?
-      work.errors.add(:base, "Must provide at least one Creator") if work.datacite_resource.creators.count == 0
       work.errors.add(:base, "Must indicate the Publisher") if work.datacite_resource.publisher.blank?
       work.errors.add(:base, "Must indicate the Publication Year") if work.datacite_resource.publication_year.blank?
+      if work.datacite_resource.creators.count == 0
+        work.errors.add(:base, "Must provide at least one Creator")
+      else
+        work.datacite_resource.creators.each do |creator|
+          if creator.orcid.present? && Orcid.invalid?(creator.orcid)
+            work.errors.add(:base, "ORCID for creator #{creator.value} is not in format 0000-0000-0000-0000")
+          end
+        end
+      end
     end
   end
 
