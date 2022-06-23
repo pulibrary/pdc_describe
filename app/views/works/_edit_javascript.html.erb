@@ -48,18 +48,23 @@
 
     var deleteCreator = function(num) {
       var rowToDelete = `#creator_row_${num}`;
+      var rowExists = $(rowToDelete).length > 0;
       var orcidId = `#orcid_${num}`;
       var givenNameId = `#given_name_${num}`;
       var familyNameId = `#family_name_${num}`;
       var name = $(orcidId).val() + " " + $(givenNameId).val() + " " + $(familyNameId).val();
-      var emptyName = (name === undefined) || (name.trim().length == 0);
-      if (emptyName) {
-        // delete it without asking
-        $(rowToDelete).remove();
-      } else {
-        if (confirm(`Remove creator ${name}`)) {
+      var emptyName = (name.trim().length == 0);
+      if (rowExists) {
+        if (emptyName) {
+          // delete it without asking
           $(rowToDelete).remove();
+        } else {
+          if (confirm(`Remove creator ${name}`)) {
+            $(rowToDelete).remove();
+          }
         }
+      } else {
+        console.log(`${rowToDelete} does not exist - nothing to do`);
       }
     }
 
@@ -92,6 +97,62 @@
       $("#new-titles-anchor").append(html);
     }
 
+    var sortedCreators = function() {
+      var i, el, creator;
+      var creatorSpans = $(".creator-data");
+      var creators = [];
+      for(i = 0; i < creatorSpans.length; i++) {
+        el = $(creatorSpans[i]);
+        creator = {
+          num: el.data("num"),
+          orcid: el.data("orcid"),
+          givenName: el.data("given-name"),
+          familyName: el.data("family-name"),
+          sequence: el.data("sequence")
+        }
+        creators.push(creator);
+      }
+      creators.sort(function(a, b) { return a.sequence - b.sequence});
+      return creators;
+    }
+
+    // Returns true if the "user entered" textboxes for the row are empty.
+    var isEmptyRow = function(rowId) {
+      var selector, textboxes, i, textboxId, value;
+      selector = `#${rowId} > td > input`;
+      textboxes = $(selector);
+      for(i = 0; i < textboxes.length; i++) {
+        textboxId = textboxes[i].id;
+        if (textboxId.startsWith("orcid_") || textboxId.startsWith("given_name_") || textboxId.startsWith("family_name_")) {
+          value = $("#" + textboxId).val().trim();
+          if (value!= "") {
+            return false;
+          };
+        }
+      }
+      return true;
+    }
+
+    // Returns the ID of the first row that has an empty creator (if any)
+    var findEmptyCreator = function() {
+      var i;
+      var rows = $(".creators-table-row");
+      for(i = 0; i < rows.length; i++) {
+        if (isEmptyRow(rows[i].id)) {
+          return rows[i].id;
+        }
+      };
+      return null;
+    }
+
+    // Sets the values of a creator given a rowId
+    var setCreatorValues = function(rowId, orcid, givenName, familyName) {
+      var suffix = rowId.replace("creator_row_", "");
+      $("#orcid_" + suffix).val(orcid);
+      $("#given_name_" + suffix).val(givenName);
+      $("#family_name_" + suffix).val(familyName);
+    }
+
     $("#btn-add-creator").on("click", function(el) {
       var num = incrementCounter("#creator_count");
       addCreatorHtml(num, "", "", "");
@@ -103,7 +164,12 @@
       var orcid = $("#user_orcid").val()
       var givenName = $("#user_given_name").val()
       var familyName = $("#user_family_name").val()
-      addCreatorHtml(num, orcid, givenName, familyName);
+      var emptyRowId = findEmptyCreator();
+      if (emptyRowId == null) {
+        addCreatorHtml(num, orcid, givenName, familyName);
+      } else {
+        setCreatorValues(emptyRowId, orcid, givenName, familyName)
+      }
       return false;
     });
 
@@ -134,18 +200,12 @@
       var num = incrementCounter("#creator_count");
       addCreatorHtml(num, "", "", "");
     } else {
-      // Display the initial list of creators.
-      //
-      // Eventually we will need to render them in a predefined
-      // order but we don't have order data availble yet.
-      $(".creator-data").each(function(ix, el) {
-        var num = $(el).data("num");
-        var orcid = $(el).data("orcid");
-        var givenName = $(el).data("given-name");
-        var familyName = $(el).data("family-name");
-        var sequence = $(el).data("sequence");
-        addCreatorHtml(num, orcid, givenName, familyName, sequence);
-      });
+      // Adds the existing creators making sure we honor the ordering.
+      var creators = sortedCreators();
+      for(i = 0; i < creators.length; i++) {
+        var creator = creators[i];
+        addCreatorHtml(creator.num, creator.orcid, creator.givenName, creator.familyName, creator.sequence);
+      }
     }
 
     // Fetch name information for a given ORCID via ORCID's public API
