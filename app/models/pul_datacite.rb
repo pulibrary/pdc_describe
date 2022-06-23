@@ -90,6 +90,7 @@ module PULDatacite
 
     # Creates a PULDatacite::Resource from a JSON string
     # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/AbcSize
     def self.new_from_json(json_string)
       resource = PULDatacite::Resource.new
       hash = json_string.blank? ? {} : JSON.parse(json_string)
@@ -114,6 +115,7 @@ module PULDatacite
 
       resource
     end
+    # rubocop:enable Metrics/AbcSize
     # rubocop:enable Metrics/MethodLength
   end
 

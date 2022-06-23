@@ -15,12 +15,14 @@
     <!-- This div holds the actual tabs content (displayed on the right) -->
     <div class="tab-content" id="v-pills-tabContent">
 
+      <!-- tab: required fields -->
       <div class="tab-pane fade show active" id="v-pills-required" role="tabpanel" aria-labelledby="v-pills-required-tab">
         <%= render 'form_errors' %>
         <%= form.hidden_field :work_id %>
         <%= render 'required_form' %>
       </div>
 
+      <!-- tab: additional fields -->
       <div class="tab-pane fade" id="v-pills-additional" role="tabpanel" aria-labelledby="v-pills-additional-tab">
         <%= render 'additional_form' %>
       </div>

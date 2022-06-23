@@ -10,6 +10,7 @@ FactoryBot.define do
       data_cite do
         # Works must have at least one creator
         datacite_resource = PULDatacite::Resource.new
+        datacite_resource.description = "All data is related to the Shakespeare and Company bookshop and lending library opened..."
         datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
         datacite_resource.to_json
       end

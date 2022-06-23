@@ -106,6 +106,7 @@ class Work < ApplicationRecord
 
     if work.data_cite.present?
       work.errors.add(:base, "Must provide a title") if work.title.blank?
+      work.errors.add(:base, "Must provide a description") if work.datacite_resource.description.blank?
       work.errors.add(:base, "Must indicate the Publisher") if work.datacite_resource.publisher.blank?
       work.errors.add(:base, "Must indicate the Publication Year") if work.datacite_resource.publication_year.blank?
       if work.datacite_resource.creators.count == 0

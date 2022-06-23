@@ -13,6 +13,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
   let(:work) do
     datacite_resource = PULDatacite::Resource.new
     datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
+    datacite_resource.description = "description of the test dataset"
     Work.create_dataset("test dataset", user.id, collection.id, datacite_resource)
   end
 
@@ -52,6 +53,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
     it "handles the update page" do
       params = {
         "title_main" => "test dataset updated",
+        "description" => "a new description",
         "collection_id" => work.collection.id,
         "commit" => "Update Dataset",
         "controller" => "works",
@@ -72,6 +74,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
     it "handles the update page" do
       params = {
         "title_main" => "test dataset updated",
+        "description" => "a new description",
         "collection_id" => work.collection.id,
         "commit" => "Update Dataset",
         "controller" => "works",
@@ -96,6 +99,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
 
       params_reordered = {
         "title_main" => "test dataset updated",
+        "description" => "a new description",
         "collection_id" => work.collection.id,
         "commit" => "Update Dataset",
         "controller" => "works",
