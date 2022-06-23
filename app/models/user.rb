@@ -9,7 +9,7 @@ class User < ApplicationRecord
   devise :rememberable, :omniauthable
 
   validate do |user|
-    user.orcid.strip! unless user.orcid.nil?
+    user.orcid&.strip!
     if user.orcid.present? && Orcid.invalid?(user.orcid)
       user.errors.add :base, "Invalid format for ORCID"
     end
