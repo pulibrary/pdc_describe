@@ -1,0 +1,91 @@
+<% if @wizard_mode %>
+  <div>
+    <p class="doi-text">By initiating this new submission, we have reserved a draft DOI for your use. This unique
+      identifier will become searchable at the completion of this process.</p>
+    <input class="text-not-editable" type="text" id="doi" name="doi" value="<%= @work.doi %>" readonly/>
+  </div>
+  <div>&nbsp;</div>
+<% else %>
+  <div class="field">
+    <p class="doi-text">By initiating this new submission, we have reserved a draft DOI for your use.<br/>
+      This unique identifier will become fully minted and searchable at the completion of this process.</p>
+    <p>DOI: <%= @work.doi %></p>
+  </div>
+<% end %>
+
+<!-- Render the main title (notice that we don't display a dropdown for this title) -->
+<div class="field">
+  Title:<span class="required-field">*</span><br>
+  <input type="text" id="title_main" name="title_main" class="input-text-long" value="<%= @work.datacite_resource.main_title %>" />
+  <span>
+    <a id="btn-add-title" class="add-title-button" href="#" title="Add an additional title for this dataset, like a subtitle or a translated title">
+      <i class="bi bi-plus-circle"></i>
+    </a>
+  </span>
+</div>
+
+<!-- Render other titles in the record -->
+<% @work.datacite_resource.other_titles.each_with_index do |title, i| %>
+  <div class="field">
+    <!-- todo: this should go into a helper -->
+    <select id="title_type_<%= i + 1 %>" name="title_type_<%= i + 1 %>">
+      <option value="AlternativeTitle" <%= title.title_type == "AlternativeTitle" ? "selected" : "" %>>Alternative Title</option>
+      <option value="Subtitle" <%= title.title_type == "Subtitle" ? "selected" : "" %> >Subtitle</option>
+      <option value="TranslatedTitle" <%= title.title_type == "TranslatedTitle" ? "selected" : "" %>>Translated Title</option>
+      <option value="Other" <%= title.title_type == "Other" ? "selected" : "" %>>Other Title</option>
+    </select>
+    <br>
+    <input type="text" id="title_<%= i + 1 %>" name="title_<%= i + 1 %>" value="<%= title.title %>" class="input-text-long" />
+  </div>
+<% end %>
+
+<div id="new-titles-anchor"></div>
+
+<!-- Description (one for now)-->
+<div class="field">
+  Description:<span class="required-field">*</span><br>
+  <textarea type="text" id="description" name="description"
+    class="input-text-long" rows="5" cols="120"
+    value="<%= @work.datacite_resource.description %>"></textarea>
+</div>
+
+<!-- Creators section -->
+<div class="section-title">
+  <b>Creator(s)<span class="required-field" title="At least one creator must be indicated">*</span></b>
+</div>
+
+<!--
+  Render the list of creators a hidden SPANs that are then added below
+  the HTML TABLE via JavaScript. This is so that we have a single way
+  of rendering creators already on the record *and* creators added
+  on the fly.
+-->
+<table id="creators-table">
+  <tbody id="creators-table-sortable">
+    <tr class="header-row">
+      <th>ORCID</th>
+      <th>Given name</th>
+      <th>Family name</th>
+      <th>&nbsp;</th> <!-- move icon-->
+      <th>&nbsp;</th> <!-- delete icon-->
+    </tr>
+  </tbody>
+</table>
+
+<% @work.datacite_resource.creators.each_with_index do |creator, i| %>
+<span class="hidden creator-data"
+  data-num="<%= i + 1 %>"
+  data-orcid="<%= creator.orcid %>"
+  data-given-name="<%= creator.given_name %>"
+  data-family-name="<%= creator.family_name %>"
+  data-sequence="<%= creator.sequence %>"
+  ></span>
+<% end %>
+
+<!-- Let the user add new creators -->
+<div>
+  <%= link_to "Add Another Creator", "#", id: "btn-add-creator", class: "btn btn-secondary" %>
+  <%= link_to "Add me as a Creator", "#", id: "btn-add-me-creator", class: "btn btn-secondary" %>
+</div>
+
+<br />

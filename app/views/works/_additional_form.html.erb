@@ -1,0 +1,28 @@
+<div class="section-title">
+  <div class="field">
+    Publisher:<span class="required-field">*</span><br>
+    <input type="text" id="publisher" name="publisher" class="input-text-long" value="<%= @work.datacite_resource.publisher %>" />
+  </div>
+
+  <div class="field">
+    Publication Year:<span class="required-field">*</span><br>
+    <input type="text" id="publication_year" name="publication_year" class="input-text-long" value="<%= @work.datacite_resource.publication_year %>" />
+  </div>
+
+  <!-- Collection field -->
+  <div class="field">
+    Collection: <span class="required-field">*</span><br>
+    <select id="collection_id" name="collection_id" class="input-text-long" >
+      <% current_user.submitter_collections.each do |collection| %>
+        <option value="<%=collection.id%>"><%=collection.title%></option>
+      <% end %>
+    </select>
+  </div>
+
+  <!-- ARK field  -->
+  <% if @work.ark.present? %>
+    <div class="field">
+      ARK: <%= @work.ark %>
+    </div>
+  <% end %>
+</div>

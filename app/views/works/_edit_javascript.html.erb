@@ -80,18 +80,24 @@
 
     var addTitlePlaceholder = function(_el) {
       var newTitleCount = incrementCounter("#new_title_count");
+      var containerId = `new_title_container_${newTitleCount}`;
       var titleId = `new_title_${newTitleCount}`;
       var typeId = `new_title_type_${newTitleCount}`;
       var html = `
-        <div class="field">
+        <div id="${containerId}" class="field">
           <select id="${typeId}" name="${typeId}">
-            <option value="AlternativeTitle">Alternative</option>
+            <option value="AlternativeTitle">Alternative Title</option>
             <option value="Subtitle">Subtitle</option>
-            <option value="TranslatedTitle">Translated</option>
-            <option value="Other">Other</option>
+            <option value="TranslatedTitle">Translated Title</option>
+            <option value="Other">Other Title</option>
           </select>
           <br>
-          <input type="text" id="${titleId}" name="${titleId}" value="" />
+          <input type="text" id="${titleId}" name="${titleId}" value="" class="input-text-long" />
+          <span>
+            <a class="delete-title" data-title-num="${newTitleCount}" href="#" title="Remove this title">
+              <i class="bi bi-trash delete_icon" data-title-num="${newTitleCount}"></i>
+            </a>
+          </span>
         </div>`;
       $("#new-titles-anchor").append(html);
     }
@@ -191,6 +197,13 @@
     $(document).on("click", ".delete-creator", function(el) {
       var num = $(el.target).data("creator-num");
       deleteCreator(num);
+      return false;
+    });
+
+    $(document).on("click", ".delete-title", function(el) {
+      var num = $(el.target).data("title-num");
+      var selector = `#new_title_container_${num}`
+      $(selector).remove();
       return false;
     });
 

@@ -7,8 +7,7 @@
 
   <!-- This div holds the "tabs menu" section that we display on the left -->
   <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-    <button class="nav-link active" id="v-pills-title-tab" data-bs-toggle="pill" data-bs-target="#v-pills-title" type="button" role="tab" aria-controls="v-pills-title" aria-selected="true">Title</button>
-    <button class="nav-link" id="v-pills-creator-tab" data-bs-toggle="pill" data-bs-target="#v-pills-creator" type="button" role="tab" aria-controls="v-pills-creator" aria-selected="false">Creator(s)</button>
+    <button class="nav-link active" id="v-pills-required-tab" data-bs-toggle="pill" data-bs-target="#v-pills-required" type="button" role="tab" aria-controls="v-pills-required" aria-selected="true">Required Metadata</button>
     <button class="nav-link" id="v-pills-additional-tab" data-bs-toggle="pill" data-bs-target="#v-pills-additional" type="button" role="tab" aria-controls="v-pills-additional" aria-selected="false">Additional Metadata</button>
   </div>
 
@@ -16,19 +15,14 @@
     <!-- This div holds the actual tabs content (displayed on the right) -->
     <div class="tab-content" id="v-pills-tabContent">
 
-      <div class="tab-pane fade show active" id="v-pills-title" role="tabpanel" aria-labelledby="v-pills-title-tab">
+      <div class="tab-pane fade show active" id="v-pills-required" role="tabpanel" aria-labelledby="v-pills-required-tab">
         <%= render 'form_errors' %>
         <%= form.hidden_field :work_id %>
-        <%= render 'titles_form' %>
-      </div>
-
-      <div class="tab-pane fade" id="v-pills-creator" role="tabpanel" aria-labelledby="v-pills-creator-tab">
-        <%= render 'creators_form' %>
+        <%= render 'required_form' %>
       </div>
 
       <div class="tab-pane fade" id="v-pills-additional" role="tabpanel" aria-labelledby="v-pills-additional-tab">
-        <h2>Additional Metadata</h2>
-        <p>yada yada yada</p>
+        <%= render 'additional_form' %>
       </div>
     </div>
 
