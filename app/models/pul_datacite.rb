@@ -51,6 +51,9 @@ module PULDatacite
               end
             end
           end
+          xml.description("descriptionType" => "Other") do
+            xml.text @description
+          end
           xml.creators do
             @creators.each do |creator|
               if creator.name_type == "Personal"
