@@ -9,6 +9,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:doi) { "https://doi.org/10.34770/0q6b-cj27" }
   let(:work) do
     datacite_resource = PULDatacite::Resource.new
+    datacite_resource.description = "description of the test dataset"
     datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
     described_class.create_dataset("test title", user.id, collection.id, datacite_resource)
   end

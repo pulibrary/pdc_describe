@@ -137,6 +137,7 @@ class WorksController < ApplicationController
     def datacite_resource_from_form
       resource = PULDatacite::Resource.new
 
+      resource.description = params["description"]
       resource.publisher = params["publisher"]
       resource.publication_year = params["publication_year"]
 
