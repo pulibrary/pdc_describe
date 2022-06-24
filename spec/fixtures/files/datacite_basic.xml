@@ -4,6 +4,7 @@
   <titles>
     <title>hello world</title>
   </titles>
+  <description descriptionType="Other">this is an example description</description>
   <creators>
     <creator nameType="Personal">
       <creatorName>Miller, Elizabeth</creatorName>
