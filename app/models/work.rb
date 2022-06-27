@@ -122,15 +122,17 @@ class Work < ApplicationRecord
   end
 
   def draft_doi
-    self.doi ||= "10.34770/tbd"
-    # TODO: Set up the doi to have  a variable prefix.  Test and production do not have the same one
-    # self.doi ||= begin
-    #                result = data_cite_connection.autogenerate_doi(prefix: "10.34770")
-    #                result.either(
-    #                   ->(response) { response.doi },
-    #                   ->(response) { raise("Something went wrong", response.status) }
-    #                 )
-    #              end
+    self.doi ||= if Rails.env.development? && ENV["DATACITE_USER"].blank?
+                   Rails.logger.info "Using hard-coded test DOI during development."
+                   "10.34770/tbd"
+                 else
+                   result = data_cite_connection.autogenerate_doi(prefix: ENV["DATACITE_PREFIX"])
+                   if result.success?
+                     result.success.doi
+                   else
+                     raise("Error generating DOI. #{result.failure.status} / #{result.failure.reason_phrase}")
+                   end
+                 end
   end
 
   def approve(user)

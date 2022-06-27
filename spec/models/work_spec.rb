@@ -37,11 +37,10 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   it "drafts a doi only once" do
-    expect(work.doi).to eq("10.34770/tbd")
+    expect(work.doi).to eq("10.34770/doc-1")
     work.draft_doi
     work.draft_doi # Doing this multiple times on purpose to make sure the api is only called once
-    # TODO: Set up the doi to have  a variable prefix.  Test and production do not have the same one
-    # expect(a_request(:post, ENV["DATACITE_URL"])).to have_been_made.once
+    expect(a_request(:post, ENV["DATACITE_URL"])).to have_been_made.once
   end
 
   it "prevents datasets with no users" do
