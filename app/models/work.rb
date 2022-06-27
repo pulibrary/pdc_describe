@@ -122,12 +122,16 @@ class Work < ApplicationRecord
   end
 
   def draft_doi
-    self.doi ||= begin
+    self.doi ||= if Rails.env.development? && ENV["DATACITE_USER"].blank?
+                   Rails.logger.info "Using hard-coded test DOI during development."
+                   "10.34770/tbd"
+                 else
                    result = data_cite_connection.autogenerate_doi(prefix: ENV["DATACITE_PREFIX"])
-                   result.either(
-                      ->(response) { response.doi },
-                      ->(response) { raise("Something went wrong", response.status) }
-                    )
+                   if result.success?
+                     result.success.doi
+                   else
+                     raise("Error generating DOI. #{result.failure.status} / #{result.failure.reason_phrase}")
+                   end
                  end
   end
 
