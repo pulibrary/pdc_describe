@@ -122,15 +122,13 @@ class Work < ApplicationRecord
   end
 
   def draft_doi
-    self.doi ||= "10.34770/tbd"
-    # TODO: Set up the doi to have  a variable prefix.  Test and production do not have the same one
-    # self.doi ||= begin
-    #                result = data_cite_connection.autogenerate_doi(prefix: "10.34770")
-    #                result.either(
-    #                   ->(response) { response.doi },
-    #                   ->(response) { raise("Something went wrong", response.status) }
-    #                 )
-    #              end
+    self.doi ||= begin
+                   result = data_cite_connection.autogenerate_doi(prefix: ENV["DATACITE_PREFIX"])
+                   result.either(
+                      ->(response) { response.doi },
+                      ->(response) { raise("Something went wrong", response.status) }
+                    )
+                 end
   end
 
   def approve(user)
