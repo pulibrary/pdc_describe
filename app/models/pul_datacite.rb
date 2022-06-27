@@ -3,13 +3,14 @@ module PULDatacite
   # Represents a PUL Datacite resource
   # https://support.datacite.org/docs/datacite-metadata-schema-v44-properties-overview
   class Resource
-    attr_accessor :identifier, :identifier_type, :creators, :titles, :publisher, :publication_year, :resource_type
+    attr_accessor :identifier, :identifier_type, :creators, :titles, :publisher, :publication_year, :resource_type, :description
 
     def initialize(identifier: nil, identifier_type: nil, title: nil, resource_type: nil)
       @identifier = identifier
       @identifier_type = identifier_type
       @titles = []
       @titles << PULDatacite::Title.new(title: title) unless title.nil?
+      @description = nil
       @creators = []
       @resource_type = resource_type || "Dataset"
       @publisher = "Princeton University"
@@ -50,6 +51,9 @@ module PULDatacite
               end
             end
           end
+          xml.description("descriptionType" => "Other") do
+            xml.text @description
+          end
           xml.creators do
             @creators.each do |creator|
               if creator.name_type == "Personal"
@@ -89,9 +93,12 @@ module PULDatacite
 
     # Creates a PULDatacite::Resource from a JSON string
     # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/AbcSize
     def self.new_from_json(json_string)
       resource = PULDatacite::Resource.new
       hash = json_string.blank? ? {} : JSON.parse(json_string)
+
+      resource.description = hash["description"]
 
       hash["titles"]&.each do |title|
         resource.titles << PULDatacite::Title.new(title: title["title"], title_type: title["title_type"])
@@ -111,6 +118,7 @@ module PULDatacite
 
       resource
     end
+    # rubocop:enable Metrics/AbcSize
     # rubocop:enable Metrics/MethodLength
   end
 
@@ -145,7 +153,7 @@ module PULDatacite
       full_name = "#{family_name}, #{given_name}"
       creator = Creator.new(value: full_name, name_type: "Personal", given_name: given_name, family_name: family_name, sequence: sequence)
       if orcid_id.present?
-        creator.name_identifier = NameIdentifier.new_orcid(orcid_id)
+        creator.name_identifier = NameIdentifier.new_orcid(orcid_id.strip)
       end
       creator
     end

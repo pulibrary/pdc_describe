@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 def datacite_register_body(prefix: "10.80021")
+  ENV["DATACITE_PREFIX"] = prefix
   "{\"data\":{\"type\":\"dois\",\"attributes\":{\"prefix\":\"#{prefix}\"}}}"
 end
 

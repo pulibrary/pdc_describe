@@ -45,6 +45,9 @@ This is convenient when you need to step through the code as `byebug` does not a
 2. Terminal two: `bin/webpack-dev-server`
 3. Access pdc_describe at [http://localhost:3000/](http://localhost:3000/)
 
+## DataCite integration
+We use DataCite to mint DOIs and in production you must to define the `DATACITE_*` environment values indicated [here](https://github.com/pulibrary/princeton_ansible/blob/main/group_vars/pdc_describe/production.yml) for the system to run. During development if you do not set these values the system will use a hard-coded DOI.
+
 ## Deploying
 pulbot: `pulbot deploy pdc_describe to [staging|production]`
 

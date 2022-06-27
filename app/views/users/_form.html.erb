@@ -46,13 +46,8 @@
 <script>
 
 $(function() {
-  var isOrcid = function(value) {
-    const regex = new RegExp(/^\d\d\d\d-\d\d\d\d-\d\d\d\d-\d\d\d\d$/);
-    return regex.test(value);
-  };
-
   var validateOrcid = function() {
-    var value = $("#user_orcid").val();
+    var value = $("#user_orcid").val().trim();
     if (value == "") {
       $("#orcid-bad").addClass("hidden");
       $("#orcid-ok").addClass("hidden");

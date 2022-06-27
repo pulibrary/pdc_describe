@@ -9,6 +9,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:doi) { "https://doi.org/10.34770/0q6b-cj27" }
   let(:work) do
     datacite_resource = PULDatacite::Resource.new
+    datacite_resource.description = "description of the test dataset"
     datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
     described_class.create_dataset("test title", user.id, collection.id, datacite_resource)
   end
@@ -21,6 +22,13 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
 
+  it "checks the format of the ORCID of the creators" do
+    # Add a new creator with an incomplete ORCID
+    work.datacite_resource.creators << PULDatacite::Creator.new_person("Williams", "Serena", "1234-12")
+    expect(work.save).to be false
+    expect(work.errors.find { |error| error.type.include?("ORCID") }).to be_present
+  end
+
   it "creates a skeleton dataset with a DOI and an ARK" do
     expect(work.created_by_user.id).to eq user.id
     expect(work.collection.id).to eq collection.id
@@ -29,11 +37,10 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   it "drafts a doi only once" do
-    expect(work.doi).to eq("10.34770/tbd")
+    expect(work.doi).to eq("10.34770/doc-1")
     work.draft_doi
     work.draft_doi # Doing this multiple times on purpose to make sure the api is only called once
-    # TODO: Set up the doi to have  a variable prefix.  Test and production do not have the same one
-    # expect(a_request(:post, ENV["DATACITE_URL"])).to have_been_made.once
+    expect(a_request(:post, ENV["DATACITE_URL"])).to have_been_made.once
   end
 
   it "prevents datasets with no users" do

@@ -11,6 +11,9 @@
 </p>
 
 <div>
+  <p>Description:<br/>
+    <%= @work.datacite_resource.description %>
+  </p>
   <p>Publisher: <%= @work.datacite_resource.publisher %></p>
   <p>Publication Year: <%= @work.datacite_resource.publication_year %></p>
   <p>DOI: <%= link_to(@work.doi, @work.doi) %></p>

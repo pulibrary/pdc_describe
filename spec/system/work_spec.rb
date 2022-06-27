@@ -15,15 +15,6 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
 
-  it "Creates ARK when a new work is saved", js: true do
-    sign_in user
-    visit new_work_path
-    expect(page).to have_content "ARK"
-    click_on "Save Work"
-    expect(page).to have_content "ARK"
-    expect(page).to have_content Work.last.ark
-  end
-
   it "Prevents empty title", js: true do
     sign_in user
     visit new_work_path
@@ -36,7 +27,6 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
   it "Fills in the creator based on an ORCID ID", js: true do
     sign_in user
     visit new_work_path
-    click_on "Creator(s)"
     click_on "Add Another Creator"
     within("#creator_row_1") do
       fill_in "orcid_1", with: "0000-0000-1111-2222"

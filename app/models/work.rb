@@ -106,22 +106,33 @@ class Work < ApplicationRecord
 
     if work.data_cite.present?
       work.errors.add(:base, "Must provide a title") if work.title.blank?
-      work.errors.add(:base, "Must provide at least one Creator") if work.datacite_resource.creators.count == 0
+      work.errors.add(:base, "Must provide a description") if work.datacite_resource.description.blank?
       work.errors.add(:base, "Must indicate the Publisher") if work.datacite_resource.publisher.blank?
       work.errors.add(:base, "Must indicate the Publication Year") if work.datacite_resource.publication_year.blank?
+      if work.datacite_resource.creators.count == 0
+        work.errors.add(:base, "Must provide at least one Creator")
+      else
+        work.datacite_resource.creators.each do |creator|
+          if creator.orcid.present? && Orcid.invalid?(creator.orcid)
+            work.errors.add(:base, "ORCID for creator #{creator.value} is not in format 0000-0000-0000-0000")
+          end
+        end
+      end
     end
   end
 
   def draft_doi
-    self.doi ||= "10.34770/tbd"
-    # TODO: Set up the doi to have  a variable prefix.  Test and production do not have the same one
-    # self.doi ||= begin
-    #                result = data_cite_connection.autogenerate_doi(prefix: "10.34770")
-    #                result.either(
-    #                   ->(response) { response.doi },
-    #                   ->(response) { raise("Something went wrong", response.status) }
-    #                 )
-    #              end
+    self.doi ||= if Rails.env.development? && ENV["DATACITE_USER"].blank?
+                   Rails.logger.info "Using hard-coded test DOI during development."
+                   "10.34770/tbd"
+                 else
+                   result = data_cite_connection.autogenerate_doi(prefix: ENV["DATACITE_PREFIX"])
+                   if result.success?
+                     result.success.doi
+                   else
+                     raise("Error generating DOI. #{result.failure.status} / #{result.failure.reason_phrase}")
+                   end
+                 end
   end
 
   def approve(user)
