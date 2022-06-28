@@ -8,9 +8,13 @@ The initial use case is for PPPL researchers.  A spreadsheet is separately maint
 
 A shared copy of the spreadsheet with the net IDs added is [available here](https://docs.google.com/spreadsheets/d/1U6AuWCLogVGBcNXmH4p6o8ZQc2nleyt0s0TedOpNkC0/edit#gid=0).
 
-PPPL staff maintain [a separate copy](https://docs.google.com/spreadsheets/d/1DYt7lpmy6RMqXXDNXvsIPWn0Aerw390ceBYfQl61um4/edit#gid=0) of this dataset with PPPL email addresses and no net IDs.  In general, PPPL researchers have both a PPPL email address and a Princeton net ID/email address.  These are separate accounts with separate authentication, and only the Princeton accounts are able to be used to authenticate via CAS.
+PPPL staff maintain a separate canonical copy of this dataset with PPPL email addresses and no net IDs.  Contact Chun Ly at PPPL for more information about this.  
+
+In general, PPPL researchers have both a PPPL email address and a Princeton net ID/email address.  These are separate accounts with separate authentication, and only the Princeton accounts are able to be used to authenticate via CAS.
 
 ### Loading into PDC Describe
+
+Example of the appropriate spreadsheet format can be found in this codebase at `spec/fixtures/files/orcid.csv`.
 
 1. Export the [spreadsheet](https://docs.google.com/spreadsheets/d/1U6AuWCLogVGBcNXmH4p6o8ZQc2nleyt0s0TedOpNkC0/edit#gid=0) to a CSV file and save to the server environment where the data needs to be loaded.
 1. Run the following rake command:
@@ -30,6 +34,6 @@ Note that this rake task will reload the Princeton University email, net ID, and
 In the event that the net ID copy of the spreadsheet needs to be rebuilt, proceed as follows:
 
 1. Make a local copy of the https://github.com/pulibrary/search_netid repository.
-1. Make a copy of the [PPPL sheet](https://docs.google.com/spreadsheets/d/1DYt7lpmy6RMqXXDNXvsIPWn0Aerw390ceBYfQl61um4/edit#gid=0).
+1. Make a copy of the PPPL sheet (contact Chun Ly if you cannot locate an up-to-date copy).
 1. To that new copy, add a column with the header **Net ID**.
 1. Follow the [search_netid instructions](https://github.com/pulibrary/search_netid#instructions) with the first and last names from the spreadsheet in the `search_netid` manifest.  Copy the outputted values into the new copy of the spreadsheet, in the **Net ID** column.
