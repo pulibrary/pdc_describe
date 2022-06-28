@@ -1,0 +1,30 @@
+<div class="dataset-table">
+  <table id="<%= table_id %>" class="table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Name</th>
+        <th>Curator</th>
+        <th>Status</th>
+        <th>Last Edited</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% datasets.each do |ds| %>
+        <tr>
+          <td><%= link_to(ds.title, work_path(ds)) %></td>
+          <td><%= ds.created_by_user.uid %></td>
+          <td>
+            <% ds.curators.each_with_index do |curator, ix| %>
+              <span title="<%= curator.display_name %>">
+                <%= curator.uid %><%= ix < (ds.curators.count-1) ? ", " : "" %>
+              </span>
+            <% end %>
+          </td>
+          <td><%= ds.state %></td>
+          <td><%= ds.updated_at %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
