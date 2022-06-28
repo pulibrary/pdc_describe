@@ -8,7 +8,7 @@ The initial use case is for PPPL researchers.  A spreadsheet is separately maint
 
 A shared copy of the spreadsheet with the net IDs added is [available here](https://docs.google.com/spreadsheets/d/1U6AuWCLogVGBcNXmH4p6o8ZQc2nleyt0s0TedOpNkC0/edit#gid=0).
 
-PPPL staff maintain a separate canonical copy of this dataset with PPPL email addresses and no net IDs.  Contact Chun Ly at PPPL for more information about this.  
+PPPL staff maintain a separate canonical copy of this dataset with PPPL email addresses and no net IDs.  Contact Chun Ly at PPPL for more information about this.
 
 In general, PPPL researchers have both a PPPL email address and a Princeton net ID/email address.  These are separate accounts with separate authentication, and only the Princeton accounts are able to be used to authenticate via CAS.
 
@@ -17,16 +17,25 @@ In general, PPPL researchers have both a PPPL email address and a Princeton net 
 Example of the appropriate spreadsheet format can be found in this codebase at `spec/fixtures/files/orcid.csv`.
 
 1. Export the [spreadsheet](https://docs.google.com/spreadsheets/d/1U6AuWCLogVGBcNXmH4p6o8ZQc2nleyt0s0TedOpNkC0/edit#gid=0) to a CSV file and save to the server environment where the data needs to be loaded.
-1. Run the following rake command:
+
+2. Copy the file to the production or staging server (notice the use of the `deploy` user)
+
+```
+scp orcid.csv deploy@name-of-server:/opt/pdc_describe/current
+```
+
+3. Run the following rake command:
   ```bash
-  bundle exec rake orcid:populate\["orcid.csv"\]
+  RAILS_ENV=production bundle exec rake orcid:populate\["orcid.csv"\]
   ```
   Rake task output will be sent to the Rails log.
-1. You can inspect the data load by looking up users at the user path, example [http://localhost:3000/users/kl37](http://localhost:3000/users/kl37).  Users should now be created or updated and include correct ORCID IDs.
+
+4. You can inspect the data load by looking up users at the user path, example [http://localhost:3000/users/kl37](http://localhost:3000/users/kl37).  Users should now be created or updated and include correct ORCID IDs.
+
 
 #### Reloading the data
 
-Note that this rake task will reload the Princeton University email, net ID, and ORCID ID for users that already exist.  If the user does not exist or does not include full name/display name values, those will be pulled from the spreadsheet.  If users already exist in the database with those net IDs and also havevfull name/display name values already set, those name values will not change as part of the data import.
+Note that this rake task will reload the Princeton University email, net ID, and ORCID ID for users that already exist.  If the user does not exist or does not include full name/display name values, those will be pulled from the spreadsheet.  If users already exist in the database with those net IDs and also have full name/display name values already set, those name values will not change as part of the data import.
 
 
 ### Rebuilding the spreadsheet
