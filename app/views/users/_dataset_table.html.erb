@@ -5,7 +5,7 @@
         <th>Title</th>
         <th>Name</th>
         <th>Curator</th>
-        <th>Status</th>
+        <th>Collection</th>
         <th>Last Edited</th>
       </tr>
     </thead>
@@ -21,7 +21,7 @@
               </span>
             <% end %>
           </td>
-          <td><%= ds.state %></td>
+          <td><%= ds.collection.title %></td>
           <td><%= ds.updated_at %></td>
         </tr>
       <% end %>

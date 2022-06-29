@@ -1,27 +1,80 @@
-<p id="notice"><%= notice %></p>
+<style>
+  .orcid-label {
+    color:#a4a4a4;
+    margin-top: -10px;
+    margin-bottom: 0px;
+  }
 
-<h2><%= @user.full_name %></h2>
+  .dataset-section {
+    background-color: rgb(226, 223, 223);
+    margin-top: 25px;
+    margin-bottom: 25px;
+  }
 
-<% if @user.orcid.present? %>
-  <p>ORCiD: <%= link_to(@user.orcid, Orcid.url(@user.orcid)) %></p>
+  .dashboard-options {
+    margin-top: -25px;
+    margin-bottom: -25px;
+  }
+
+  .dataset-table {
+    margin-left: 10px;
+  }
+</style>
+
+<% if notice.present? %>
+  <p id="notice"><%= notice %></p>
 <% end %>
 
-<p>Net ID: <%= @user.uid %></p>
-<p>Display name: <%= @user.display_name %></p>
-<p>Full name: <%= @user.full_name %></p>
-<p>Default collection: <%= @user.default_collection.title %></p>
+<h2>
+  <%= @my_dashboard ? "Welcome " : "" %><%= @user.display_name %>
+  <% if @user.superadmin? %>
+    <span class="badge rounded-pill bg-primary text-bg-secondary">Administrator</span>
+  <% elsif @user.curator? %>
+    <span class="badge rounded-pill bg-primary text-bg-secondary">Curator</span>
+  <% end %>
+</h2>
 
-<% if @can_edit %>
-  <div class="text-left">
-    <%= link_to "Edit User", edit_user_path(@user), :class => "btn btn-primary", :role => "button" %>
+<% if @my_dashboard && @user.orcid.blank? %>
+  <p class="orcid-label">You do not have an  ORCID iD on file. <%= link_to("Add one", edit_user_path(@user)) %> to your profile.</p>
+<% end %>
+
+<% if @user.superadmin? %>
+  <!-- not sure we want to display the collections here, it's pointless -->
+<% elsif @user.curator? %>
+  <p>Curator for: <%= @user.admin_collections.map(&:title).to_sentence %></p>
+<% end %>
+
+<% if @my_dashboard %>
+  <div class="text-left dashboard-options">
+    <%= link_to 'Add New Dataset', work_new_submission_path, class: "btn btn-primary", :role => "button" %>
   </div>
-<% end %>
-
-<% if @works.count == 0 %>
-  <p>This user has not deposited datasets.</p>
 <% else %>
-  <h2>Datasets</h2>
-  <% @works.each do |ds| %>
-      <p><%= link_to(ds.title, work_path(ds)) %> (<%= ds.created_by_user.uid %>), <%= ds.state %></p>
+  <% if @can_edit %>
+      <%= link_to "Edit User", edit_user_path(@user), :class => "btn btn-primary", :role => "button" %>
   <% end %>
 <% end %>
+
+<% if @unfinished_works.count > 0 %>
+  <h2 class="dataset-section">Unfinished Submissions</h2>
+  <%= render partial: "dataset_table", locals: {table_id: "unfinished_datasets", datasets: @unfinished_works} %>
+<% end %>
+
+<% if @completed_works.count > 0 %>
+  <h2 class="dataset-section">Completed Submissions</h2>
+  <%= render partial: "dataset_table", locals: {table_id: "completed_datasets", datasets: @completed_works} %>
+<% end %>
+
+<% if @withdrawn_works.count > 0 %>
+  <h2 class="dataset-section">Withdrawn Submissions</h2>
+  <%= render partial: "dataset_table", locals: {table_id: "withdrawn_datasets", datasets: @withdrawn_works} %>
+<% end %>
+
+<script type="text/javascript">
+  $(function() {
+    // https://www.datatables.net/reference/option/
+    var dataset_options = {searching: false, paging: false, info: false};
+    $('#unfinished_datasets').DataTable(dataset_options);
+    $('#completed_datasets').DataTable(dataset_options);
+    $('#withdrawn_datasets').DataTable(dataset_options);
+  });
+</script>
