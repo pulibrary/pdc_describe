@@ -30,11 +30,21 @@
   </div>
 
   <div class="field">
-    ORCID
+    ORCID iD
     <span id="orcid-bad" class="hidden text-muted orcid-hint"> - use format 0000-0000-0000-0000</span>
     <span id="orcid-ok" class="hidden"><img alt="ORCID logo" src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height="16" /></span>
     <br />
     <%= form.text_field :orcid, placeholder: "0000-0000-0000-0000" %>
+  </div>
+
+  <div class="field">
+    Princeton Net ID<br />
+    <input type="text" disabled value="<%= @user.uid %>" />
+  </div>
+
+  <div class="field">
+    Default collection<br />
+    <input type="text" disabled value="<%= @user.default_collection.title %>" />
   </div>
 
   <div class="text-left">

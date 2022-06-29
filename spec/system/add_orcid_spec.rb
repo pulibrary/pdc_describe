@@ -12,31 +12,12 @@ RSpec.describe "Add an ORCiD" do
     it "takes a user to their homepage after login", js: true do
       visit user_path(user)
       expect(page).to have_content "Welcome"
-      expect(page).to have_content "You do not have an ORCiD on file."
-      click_on "Edit"
+      expect(page).to have_content "You do not have an ORCID iD on file."
+      click_on "Add one"
       expect(page).to have_content "Editing User"
       fill_in "user_orcid", with: orcid
       click_on "Save"
-      expect(page).to have_content "ORCiD: #{orcid}"
-    end
-  end
-
-  describe "When the user already has an ORCiD" do
-    let(:orcid) { "1234-5678-1234-5678" }
-    let(:valid_attributes) do
-      {
-        uid: FFaker::InternetSE.login_user_name,
-        email: FFaker::InternetSE.email,
-        provider: :cas,
-        orcid: orcid
-      }
-    end
-    let(:user) { User.create! valid_attributes }
-
-    it "takes a user to their homepage after login", js: true do
-      visit user_path(user)
-      expect(page).to have_content "Welcome"
-      expect(page).to have_content "ORCiD: #{orcid}"
+      expect(page).to_not have_content "You do not have an ORCID iD on file."
     end
   end
 end

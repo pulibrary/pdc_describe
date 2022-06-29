@@ -31,6 +31,18 @@ class Work < ApplicationRecord
       Work.where(created_by_user_id: user)
     end
 
+    def unfinished_works(user)
+      Work.where(created_by_user_id: user, state: "AWAITING-APPROVAL")
+    end
+
+    def completed_works(user)
+      Work.where(created_by_user_id: user, state: "APPROVED")
+    end
+
+    def withdrawn_works(user)
+      Work.where(created_by_user_id: user, state: "WITHDRAWN")
+    end
+
     def admin_awaiting_works(user)
       admin_works_by_user_state(user, "AWAITING-APPROVAL")
     end
@@ -119,6 +131,13 @@ class Work < ApplicationRecord
         end
       end
     end
+  end
+
+  # For now all the administrators for the collection are considered
+  # the curators of the dataset. In the future we might assign specific
+  # curator(s) to the dataset.
+  def curators
+    collection.administrators
   end
 
   def draft_doi
