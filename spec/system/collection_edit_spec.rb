@@ -46,11 +46,11 @@ RSpec.describe "Editing collections" do
     expect(page).to have_content "submiter123"
   end
 
-  it "allows a collection admin to add an admin to the collection", js: true do
+  it "allows a curator to add another curator to the collection", js: true do
     sign_in collection_admin_user
     visit collection_path(collection)
     fill_in "admin-uid-to-add", with: "admin123"
-    click_on "Add Administrator"
+    click_on "Add Curator"
     expect(page).to have_content "admin123"
   end
 

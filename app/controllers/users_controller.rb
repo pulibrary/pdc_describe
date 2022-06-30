@@ -9,7 +9,6 @@ class UsersController < ApplicationController
     @unfinished_works = Work.unfinished_works(@user)
     @completed_works = Work.completed_works(@user)
     @withdrawn_works = Work.withdrawn_works(@user)
-    @curation_works = Work.admin_awaiting_works(@user)
     render "show"
   end
 
@@ -51,7 +50,7 @@ class UsersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
-      params.require(:user).permit([:display_name, :full_name, :orcid])
+      params.require(:user).permit([:display_name, :full_name, :family_name, :orcid])
     end
 
     def can_edit?

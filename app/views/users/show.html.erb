@@ -12,7 +12,7 @@
   }
 
   .dashboard-options {
-    margin-top: -25px;
+    margin-top: -5px;
     margin-bottom: -25px;
   }
 
@@ -72,7 +72,8 @@
 <script type="text/javascript">
   $(function() {
     // https://www.datatables.net/reference/option/
-    var dataset_options = {searching: false, paging: false, info: false};
+    //  order: [] preserves the order from the backend
+    var dataset_options = {searching: false, paging: false, info: false, order: []};
     $('#unfinished_datasets').DataTable(dataset_options);
     $('#completed_datasets').DataTable(dataset_options);
     $('#withdrawn_datasets').DataTable(dataset_options);

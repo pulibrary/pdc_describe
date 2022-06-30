@@ -155,11 +155,11 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     described_class.create_dataset("test title", user_other.id, collection.id)
 
     # Superadmins can approve pending works
-    awaiting = described_class.admin_works_by_user_state(superadmin_user, "AWAITING-APPROVAL")
+    awaiting = described_class.works_by_user_state(superadmin_user, "AWAITING-APPROVAL")
     expect(awaiting.count > 0).to be true
 
     # Normal users don't get anything
-    awaiting = described_class.admin_works_by_user_state(user, "AWAITING-APPROVAL")
+    awaiting = described_class.works_by_user_state(user, "AWAITING-APPROVAL")
     expect(awaiting.count).to be 0
   end
 
