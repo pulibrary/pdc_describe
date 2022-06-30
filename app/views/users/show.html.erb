@@ -46,11 +46,13 @@
 
 <% if @my_dashboard %>
   <div class="text-left dashboard-options">
-    <%= link_to 'Add New Dataset', work_new_submission_path, class: "btn btn-primary", :role => "button" %>
+    <%= link_to "Submit New", work_new_submission_path, class: "btn btn-primary", :role => "button", title: "Start the process to deposit a new dataset" %>
   </div>
 <% else %>
   <% if @can_edit %>
+    <div class="text-left dashboard-options">
       <%= link_to "Edit User", edit_user_path(@user), :class => "btn btn-primary", :role => "button" %>
+    </div>
   <% end %>
 <% end %>
 

@@ -14,6 +14,25 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     described_class.create_dataset("test title", user.id, collection.id, datacite_resource)
   end
 
+  let(:lib_user) do
+    user = FactoryBot.create :user
+    UserCollection.add_submitter(user.id, Collection.library_resources.id)
+    user
+  end
+
+  let(:pppl_user) do
+    user = FactoryBot.create :user
+    UserCollection.add_submitter(user.id, Collection.plasma_laboratory.id)
+    user
+  end
+
+  let(:curator_user) do
+    user = FactoryBot.create :user
+    UserCollection.add_admin(user.id, Collection.research_data.id)
+    UserCollection.add_admin(user.id, Collection.library_resources.id)
+    user
+  end
+
   # Please see spec/support/ezid_specs.rb
   let(:ezid) { @ezid }
   let(:identifier) { @identifier }
@@ -150,19 +169,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
   end
 
-  it "returns datasets waiting for approval depending on the user" do
-    described_class.create_dataset("test title", user.id, collection.id)
-    described_class.create_dataset("test title", user_other.id, collection.id)
-
-    # Superadmins can approve pending works
-    awaiting = described_class.works_by_user_state(superadmin_user, "AWAITING-APPROVAL")
-    expect(awaiting.count > 0).to be true
-
-    # Normal users don't get anything
-    awaiting = described_class.works_by_user_state(user, "AWAITING-APPROVAL")
-    expect(awaiting.count).to be 0
-  end
-
   context "linked to a work" do
     let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
     it "has a DOI" do
@@ -171,14 +177,24 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
   end
 
-  describe ".my_datasets" do
+  describe "datasets waiting for approval by user type" do
     before do
-      described_class.create_dataset("test title", user.id, collection.id)
-      described_class.create_dataset("test title", user.id, collection.id)
+      described_class.create_dataset("test title 1", user.id, collection.id)
+      described_class.create_dataset("test title 2", user.id, collection.id)
+      described_class.create_dataset("test title 3", pppl_user.id, Collection.plasma_laboratory.id)
+      described_class.create_dataset("test title 4", lib_user.id, Collection.library_resources.id)
     end
 
-    it "retrieves Dataset models associated with a given User" do
-      expect(described_class.my_works(user).length).to eq(2)
+    it "for a typical user retrieves only the dataset created by the user" do
+      expect(described_class.unfinished_works(user).length).to eq(2)
+    end
+
+    it "for a curator retrieves dataset created in collections they can curate" do
+      expect(described_class.unfinished_works(curator_user).length).to eq(3)
+    end
+
+    it "for superadmins retrieves for all collections" do
+      expect(described_class.unfinished_works(superadmin_user).length).to eq(4)
     end
   end
 end

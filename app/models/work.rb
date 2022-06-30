@@ -27,10 +27,6 @@ class Work < ApplicationRecord
       work
     end
 
-    def my_works(user)
-      Work.where(created_by_user_id: user)
-    end
-
     def unfinished_works(user)
       works_by_user_state(user, "AWAITING-APPROVAL")
     end
@@ -45,7 +41,7 @@ class Work < ApplicationRecord
 
     def works_by_user_state(user, state)
       works = []
-      if user.admin_collections == 0
+      if user.admin_collections.count == 0
         # Just the user's own works by state
         works = Work.where(created_by_user_id: user, state: state)
       else
