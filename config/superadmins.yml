@@ -4,13 +4,11 @@ production:
   - jrg5 # James Griffin
   - kl37 # Kate Lynch
   - hc8719 # Hector Correa
-  - hh4079 # Hannah Hadley
 staging:
   - bs3097 # Bess Sadler
   - jrg5 # James Griffin
   - kl37 # Kate Lynch
   - hc8719 # Hector Correa
-  - hh4079 # Hannah Hadley
 development:
   - bs3097 # Bess Sadler
   - jrg5 # James Griffin
