@@ -128,6 +128,10 @@ class User < ApplicationRecord
     false
   end
 
+  def curator?
+    admin_collections.count > 0
+  end
+
   # Returns a reference to the user's default collection.
   def default_collection
     if default_collection_id.nil?
@@ -165,8 +169,20 @@ class User < ApplicationRecord
 
   # Returns the list of collections where the user can submit datasets
   def submitter_collections
-    return Collection.all.to_a if superadmin?
-    UserCollection.where(user_id: id).filter(&:can_submit?).map(&:collection)
+    @submitter_collections = if superadmin?
+                               Collection.all.to_a
+                             else
+                               UserCollection.where(user_id: id).filter(&:can_submit?).map(&:collection)
+                             end
+  end
+
+  # Returns the list of collections where the user is an administrator
+  def admin_collections
+    @admin_collections ||= if superadmin?
+                             Collection.all.to_a
+                           else
+                             UserCollection.where(user_id: id).filter(&:can_admin?).map(&:collection)
+                           end
   end
 end
 # rubocop:enable Metrics/ClassLength

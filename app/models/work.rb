@@ -27,48 +27,31 @@ class Work < ApplicationRecord
       work
     end
 
-    def my_works(user)
-      Work.where(created_by_user_id: user)
-    end
-
     def unfinished_works(user)
-      Work.where(created_by_user_id: user, state: "AWAITING-APPROVAL")
+      works_by_user_state(user, "AWAITING-APPROVAL")
     end
 
     def completed_works(user)
-      Work.where(created_by_user_id: user, state: "APPROVED")
+      works_by_user_state(user, "APPROVED")
     end
 
     def withdrawn_works(user)
-      Work.where(created_by_user_id: user, state: "WITHDRAWN")
+      works_by_user_state(user, "WITHDRAWN")
     end
 
-    def admin_awaiting_works(user)
-      admin_works_by_user_state(user, "AWAITING-APPROVAL")
-    end
-
-    def admin_withdrawn_works(user)
-      admin_works_by_user_state(user, "WITHDRAWN")
-    end
-
-    # Returns that works that an admin user has in a given state.
-    #
-    # Notice that it *excludes* the works created by the admin user
-    # (since their own works will already be shown on their dashboard)
-    def admin_works_by_user_state(user, state)
-      admin_collections = []
-      Collection.all.find_each do |collection|
-        admin_collections << collection if user.can_admin?(collection.id)
-      end
-
+    def works_by_user_state(user, state)
       works = []
-      admin_collections.each do |collection|
-        condition = "collection_id = :collection_id AND state = :state AND (created_by_user_id != :user_id)"
-        values = { collection_id: collection.id, state: state, user_id: user.id }
-        works += Work.where([condition, values])
+      if user.admin_collections.count == 0
+        # Just the user's own works by state
+        works = Work.where(created_by_user_id: user, state: state)
+      else
+        # The works that match the given state, in all the collections the user can admin
+        # (regardless of who created those works)
+        user.admin_collections.each do |collection|
+          works += Work.where(collection_id: collection.id, state: state)
+        end
       end
-
-      works
+      works.sort_by(&:updated_at).reverse
     end
 
     private
@@ -133,11 +116,10 @@ class Work < ApplicationRecord
     end
   end
 
-  # For now all the administrators for the collection are considered
-  # the curators of the dataset. In the future we might assign specific
-  # curator(s) to the dataset.
-  def curators
-    collection.administrators
+  # For now grab the first admin of the collection. Eventually we want to
+  # allow curators to claim a work and we'll use that field.
+  def curator
+    collection.administrators.first
   end
 
   def draft_doi

@@ -10,12 +10,11 @@ RSpec.describe "Editing users" do
 
     it "allows an admin to edit other users ORCID", js: true do
       visit user_path(user)
-      expect(page).to have_content user.uid
+      expect(page).to have_content user.display_name
       click_on "Edit"
       expect(page).to have_content "Editing User"
       fill_in "user_orcid", with: orcid
       click_on "Save"
-      expect(page).to have_content "ORCiD: #{orcid}"
     end
   end
 
@@ -28,7 +27,7 @@ RSpec.describe "Editing users" do
 
     it "allows an admin to edit other users ORCID", js: true do
       visit user_path(user_other)
-      expect(page).to have_content user_other.uid
+      expect(page).to have_content user_other.display_name
       expect(page).to_not have_content "Edit"
     end
   end

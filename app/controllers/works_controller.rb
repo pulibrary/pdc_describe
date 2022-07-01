@@ -100,7 +100,7 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     @work.submission_notes = params["submission_notes"]
     @work.save!
-    redirect_to work_url(@work)
+    redirect_to user_url(current_user)
   end
 
   def approve

@@ -168,11 +168,11 @@ RSpec.describe WorksController, mock_ezid_api: true do
       expect(Work.find(work.id).location_notes).to eq "my files can be found at http://aws/my/data"
     end
 
-    it "renders the complete page and saves the submission notes" do
+    it "saves the submission notes and renders the user dashboard" do
       sign_in user
       post :completed, params: { id: work.id, submission_notes: "I need this processed ASAP" }
       expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/works/#{work.id}"
+      expect(response.location).to eq "http://test.host/users/#{user.uid}"
       expect(Work.find(work.id).submission_notes).to eq "I need this processed ASAP"
     end
 

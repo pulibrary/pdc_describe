@@ -15,14 +15,12 @@
           <td><%= link_to(ds.title, work_path(ds)) %></td>
           <td><%= ds.created_by_user.uid %></td>
           <td>
-            <% ds.curators.each_with_index do |curator, ix| %>
-              <span title="<%= curator.display_name %>">
-                <%= curator.uid %><%= ix < (ds.curators.count-1) ? ", " : "" %>
-              </span>
-            <% end %>
+              <span title="<%= ds.curator.display_name %>"><%= ds.curator.uid %></span>
           </td>
           <td><%= ds.state %></td>
-          <td><%= ds.updated_at %></td>
+          <td>
+            <span title="<%= ds.updated_at.localtime %>"><%= distance_of_time_in_words_to_now(ds.updated_at) %></span>
+          </td>
         </tr>
       <% end %>
     </tbody>
