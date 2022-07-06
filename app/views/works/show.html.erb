@@ -120,7 +120,7 @@
   <br/>
   <h2>Activity History</h2>
   <ul>
-  <% @work.work_activity.sort_by(&:updated_at).reverse.each do |activity| %>
+  <% @work.activities.each do |activity| %>
     <li>
       <span><b><%= activity.created_by_user&.display_name_safe %></b></span>
       <span><%= activity.message %></span>

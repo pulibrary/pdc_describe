@@ -218,19 +218,23 @@ class Work < ApplicationRecord
     files_location == "file_other"
   end
 
-  def change_curator(uid, current_user)
+  def change_curator(curator_user_id, current_user)
     # Update the curator on the Work
-    self.curator_user_id = uid
+    self.curator_user_id = curator_user_id
     save!
 
     # ...and log the activity
-    curator = User.find(uid)
-    message = if uid == current_user
+    curator = User.find(curator_user_id)
+    message = if curator_user_id == current_user.id
                 "self-assigned as curator"
               else
                 "set curator to #{curator.display_name_safe}"
               end
     WorkActivity.add_system_activity(id, message, current_user.id)
+  end
+
+  def activities
+    WorkActivity.where(work_id: id).sort_by(&:updated_at).reverse
   end
 
   private

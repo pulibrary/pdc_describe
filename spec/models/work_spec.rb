@@ -197,4 +197,18 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       expect(described_class.unfinished_works(superadmin_user).length).to eq(4)
     end
   end
+
+  describe "#change_curator" do
+    it "changes the curator and the logs changes" do
+      work.change_curator(curator_user.id, user)
+      activity = work.activities.find { |a| a.message.include?("set curator to #{curator_user.display_name}") }
+      expect(work.curator_user_id).to be curator_user.id
+      expect(activity).to_not be nil
+
+      work.change_curator(user.id, user)
+      activity = work.activities.find { |a| a.message.include?("self-assigned as curator") }
+      expect(work.curator_user_id).to be user.id
+      expect(activity).to_not be nil
+    end
+  end
 end
