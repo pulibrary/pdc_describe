@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_06_08_125410) do
+ActiveRecord::Schema.define(version: 2022_07_06_143945) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -71,6 +71,15 @@ ActiveRecord::Schema.define(version: 2022_06_08_125410) do
     t.index ["uid"], name: "index_users_on_uid"
   end
 
+  create_table "work_activities", force: :cascade do |t|
+    t.text "message"
+    t.string "activity_type"
+    t.integer "work_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "created_by_user_id"
+  end
+
   create_table "works", force: :cascade do |t|
     t.string "title"
     t.string "work_type"
@@ -87,6 +96,7 @@ ActiveRecord::Schema.define(version: 2022_06_08_125410) do
     t.text "location_notes"
     t.text "submission_notes"
     t.string "files_location"
+    t.integer "curator_user_id"
   end
 
   add_foreign_key "datasets", "works"
@@ -95,6 +105,9 @@ ActiveRecord::Schema.define(version: 2022_06_08_125410) do
   add_foreign_key "user_works", "users"
   add_foreign_key "user_works", "works"
   add_foreign_key "users", "collections", column: "default_collection_id"
+  add_foreign_key "work_activities", "users", column: "created_by_user_id"
+  add_foreign_key "work_activities", "works"
   add_foreign_key "works", "collections"
   add_foreign_key "works", "users", column: "created_by_user_id"
+  add_foreign_key "works", "users", column: "curator_user_id"
 end

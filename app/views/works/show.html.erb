@@ -32,6 +32,21 @@
   <% if @work.submission_notes.present? %>
     <p>Notes: <%= @work.submission_notes %></p>
   <% end %>
+
+  <% if @can_curate %>
+    <p>Curator: <select id="curator_select">
+      <% @work.collection.administrators.each do |user| %>
+        <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.display_name_safe %></option>
+      <% end %>
+    </select></p>
+  <% else %>
+    <% if @work.curator_user_id.nil? %>
+      <p>Curator: none</p>
+    <% else %>
+      <p>Curator: <%= User.find(@work.curator_user_id).display_name_safe %></p>
+    <% end %>
+  <% end %>
+
 </div>
 
 
@@ -101,12 +116,33 @@
   <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-primary" %>
 </div>
 
-<% if @work.state_history.count > 0 %>
+<% if @work.work_activity.count > 0 %>
   <br/>
-  <h2>Approval History</h2>
+  <h2>Activity History</h2>
   <ul>
-  <% @work.state_history.each do |history| %>
-    <li>On <%= history.created_at %> <%= history.user.uid %> changed to <%= history.state %>
+  <% @work.work_activity.each do |activity| %>
+    <li>On <%= activity.created_at %> - <%= activity.created_by_user_id %> - <%= activity.message %>
   <% end %>
   </ul>
 <% end %>
+
+<script>
+  $(function() {
+    // Issues HTTP POST to update the curator assigned to the work.
+    $("#curator_select").on("change", function(event) {
+      var newCuratorId = event.currentTarget.value;
+      var url = '<%= work_assign_curator_url(id: @work.id, uid: "uid-placeholder") %>';
+      $.ajax({
+        type: "POST",
+        url: url.replace("uid-placeholder", newCuratorId),
+        data: { authenticity_token: "<%= form_authenticity_token %>" },
+        success: function() {
+          console.log("Curator change to " + newCuratorId);
+        },
+        error: function(x) {
+          console.log("ERROR updating curator to " + newCuratorId);
+        }
+      });
+    });
+  });
+</script>
