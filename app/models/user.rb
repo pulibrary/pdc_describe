@@ -132,11 +132,7 @@ class User < ApplicationRecord
   # This is needed because we have records in the Users table that are created automatically
   # in which the only value we have for sure its their uid (aka NetID).
   def display_name_safe
-    if display_name.blank?
-      uid
-    else
-      display_name
-    end
+    display_name.presence || uid
   end
 
   def curator?

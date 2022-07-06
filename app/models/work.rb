@@ -2,7 +2,7 @@
 
 # rubocop:disable Metrics/ClassLength
 class Work < ApplicationRecord
-  has_many :work_activity
+  has_many :work_activity, dependent: :destroy
 
   class << self
     def create_skeleton(title, user_id, collection_id, work_type, profile)
@@ -118,10 +118,9 @@ class Work < ApplicationRecord
     end
   end
 
-  # For now grab the first admin of the collection. Eventually we want to
-  # allow curators to claim a work and we'll use that field.
   def curator
-    collection.administrators.first
+    return nil if curator_user_id.nil?
+    User.find(curator_user_id)
   end
 
   def draft_doi
@@ -159,6 +158,7 @@ class Work < ApplicationRecord
   def track_state_change(user, state)
     uw = UserWork.new(user_id: user.id, work_id: id, state: state)
     uw.save!
+    WorkActivity.add_system_activity(id, "marked as #{state}", user.id)
   end
 
   def state_history
@@ -218,19 +218,19 @@ class Work < ApplicationRecord
     files_location == "file_other"
   end
 
-  def change_curator(uid)
-    curator_user_id = uid
-    saved = save
-    if saved
-      curator = User.find(uid)
-      activity = WorkActivity.new(
-        work_id: id,
-        activity_type: "SYSTEM",
-        message: "Curator set to #{curator.display_name_safe}"
-      )
-      saved = activity.save
-    end
-    saved
+  def change_curator(uid, current_user)
+    # Update the curator on the Work
+    self.curator_user_id = uid
+    save!
+
+    # ...and log the activity
+    curator = User.find(uid)
+    message = if uid == current_user
+                "self-assigned as curator"
+              else
+                "set curator to #{curator.display_name_safe}"
+              end
+    WorkActivity.add_system_activity(id, message, current_user.id)
   end
 
   private

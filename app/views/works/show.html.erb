@@ -120,8 +120,11 @@
   <br/>
   <h2>Activity History</h2>
   <ul>
-  <% @work.work_activity.each do |activity| %>
-    <li>On <%= activity.created_at %> - <%= activity.created_by_user_id %> - <%= activity.message %>
+  <% @work.work_activity.sort_by(&:updated_at).reverse.each do |activity| %>
+    <li>
+      <span><b><%= activity.created_by_user&.display_name_safe %></b></span>
+      <span><%= activity.message %></span>
+      <span title="<%= activity.created_at.localtime %>"><%= distance_of_time_in_words_to_now(activity.created_at) %></span>
   <% end %>
   </ul>
 <% end %>
@@ -136,11 +139,11 @@
         type: "POST",
         url: url.replace("uid-placeholder", newCuratorId),
         data: { authenticity_token: "<%= form_authenticity_token %>" },
-        success: function() {
-          console.log("Curator change to " + newCuratorId);
+        success: function(data) {
+          // nothing to do
         },
-        error: function(x) {
-          console.log("ERROR updating curator to " + newCuratorId);
+        error: function(response) {
+          alert(response.responseJSON.errors[0]);
         }
       });
     });

@@ -124,8 +124,12 @@ class WorksController < ApplicationController
 
   def assign_curator
     work = Work.find(params[:id])
-    saved = work.change_curator(params[:uid])
-    render json: {saved: saved }
+    work.change_curator(params[:uid], current_user)
+    if work.errors.count > 0
+      render json: { errors: work.errors.map(&:type) }, status: :bad_request
+    else
+      render json: {}
+    end
   end
 
   # Outputs the Datacite XML representation of the work
