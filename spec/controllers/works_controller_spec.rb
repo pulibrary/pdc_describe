@@ -9,6 +9,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
   let(:user) { FactoryBot.create(:user) }
+  let(:curator) { FactoryBot.create(:user) }
   let(:collection) { Collection.first }
   let(:work) do
     datacite_resource = PULDatacite::Resource.new
@@ -201,6 +202,13 @@ RSpec.describe WorksController, mock_ezid_api: true do
       sign_in user
       get :datacite, params: { id: work.id }
       expect(response.body.start_with?('<?xml version="1.0"?>')).to be true
+    end
+
+    it "handles change curator" do
+      sign_in user
+      post :assign_curator, params: { id: work.id, uid: curator.id }
+      expect(response.status).to be 200
+      expect(response.body).to eq "{}"
     end
   end
 
