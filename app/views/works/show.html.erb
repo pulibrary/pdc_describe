@@ -143,7 +143,7 @@
           // nothing to do
         },
         error: function(response) {
-          alert(response.responseJSON.errors[0]);
+          alert("Error changing curator\n" + response.responseJSON.errors[0]);
         }
       });
     });

@@ -130,6 +130,9 @@ class WorksController < ApplicationController
     else
       render json: {}
     end
+  rescue => ex
+    Rails.logger.error("Error changing curator for work: #{work.id}. Exception: #{ex.message}")
+    render json: { errors: work.errors.map(&:type) }, status: :bad_request
   end
 
   # Outputs the Datacite XML representation of the work
