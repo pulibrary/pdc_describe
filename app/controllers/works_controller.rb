@@ -124,7 +124,11 @@ class WorksController < ApplicationController
 
   def assign_curator
     work = Work.find(params[:id])
-    work.change_curator(params[:uid], current_user)
+    if params[:uid] == "no-one"
+      work.clear_curator(current_user)
+    else
+      work.change_curator(params[:uid], current_user)
+    end
     if work.errors.count > 0
       render json: { errors: work.errors.map(&:type) }, status: :bad_request
     else

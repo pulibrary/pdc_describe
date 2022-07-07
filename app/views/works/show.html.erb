@@ -35,6 +35,7 @@
 
   <% if @can_curate %>
     <p>Curator: <select id="curator_select">
+      <option value="no-one">(no one)</option>
       <% @work.collection.administrators.each do |user| %>
         <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.display_name_safe %></option>
       <% end %>
