@@ -210,6 +210,13 @@ RSpec.describe WorksController, mock_ezid_api: true do
       expect(response.status).to be 200
       expect(response.body).to eq "{}"
     end
+
+    it "handles clear curator" do
+      sign_in user
+      post :assign_curator, params: { id: work.id, uid: "no-one" }
+      expect(response.status).to be 200
+      expect(response.body).to eq "{}"
+    end
   end
 
   describe "#update" do
