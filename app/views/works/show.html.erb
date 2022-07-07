@@ -137,7 +137,7 @@
       var newCuratorId = event.currentTarget.value;
       var url = '<%= work_assign_curator_url(id: @work.id, uid: "uid-placeholder") %>';
       $.ajax({
-        type: "POST",
+        type: "PUT",
         url: url.replace("uid-placeholder", newCuratorId),
         data: { authenticity_token: "<%= form_authenticity_token %>" },
         success: function(data) {

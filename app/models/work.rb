@@ -218,6 +218,14 @@ class Work < ApplicationRecord
     files_location == "file_other"
   end
 
+  def change_curator(curator_user_id, current_user)
+    if curator_user_id == "no-one"
+      clear_curator(current_user)
+    else
+      update_curator(curator_user_id, current_user)
+    end
+  end
+
   def clear_curator(current_user)
     # Update the curator on the Work
     self.curator_user_id = nil
@@ -227,7 +235,7 @@ class Work < ApplicationRecord
     WorkActivity.add_system_activity(id, "unassigned existing curator", current_user.id)
   end
 
-  def change_curator(curator_user_id, current_user)
+  def update_curator(curator_user_id, current_user)
     # Update the curator on the Work
     self.curator_user_id = curator_user_id
     save!

@@ -26,7 +26,7 @@ Rails.application.routes.draw do
   post "work/:id/approve", to: "works#approve", as: :approve_work
   post "work/:id/withdraw", to: "works#withdraw", as: :withdraw_work
   post "work/:id/resubmit", to: "works#resubmit", as: :resubmit_work
-  post "works/:id/assign-curator/:uid", to: "works#assign_curator", as: :work_assign_curator
+  put "works/:id/assign-curator/:uid", to: "works#assign_curator", as: :work_assign_curator
   get "works/:id/datacite", to: "works#datacite", as: :dataset_work
   resources :works
 
