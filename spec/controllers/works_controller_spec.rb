@@ -217,6 +217,13 @@ RSpec.describe WorksController, mock_ezid_api: true do
       expect(response.status).to be 200
       expect(response.body).to eq "{}"
     end
+
+    it "handles error setting the curator" do
+      sign_in user
+      post :assign_curator, params: { id: work.id, uid: "-1" }
+      expect(response.status).to be 400
+      expect(response.body).to eq '{"errors":["Cannot save dataset"]}'
+    end
   end
 
   describe "#update" do
