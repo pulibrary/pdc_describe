@@ -2,18 +2,14 @@
 class UsersController < ApplicationController
   before_action :set_user, only: %i[show edit update]
 
-  # GET /users/1 or /users/1.json
+  # GET /users/1
   def show
     @can_edit = can_edit?
-    if current_user.id == @user.id
-      @my_works = Work.my_works(current_user)
-      @awaiting_works = Work.admin_awaiting_works(current_user)
-      @withdrawn_works = Work.admin_withdrawn_works(current_user)
-      render "dashboard"
-    else
-      @works = Work.my_works(@user)
-      render "show"
-    end
+    @my_dashboard = current_user.id == @user.id
+    @unfinished_works = Work.unfinished_works(@user)
+    @completed_works = Work.completed_works(@user)
+    @withdrawn_works = Work.withdrawn_works(@user)
+    render "show"
   end
 
   # GET /users/1/edit
@@ -54,7 +50,7 @@ class UsersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
-      params.require(:user).permit([:display_name, :full_name, :orcid])
+      params.require(:user).permit([:display_name, :full_name, :family_name, :orcid])
     end
 
     def can_edit?

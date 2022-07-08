@@ -24,6 +24,10 @@ class UserCollection < ApplicationRecord
     role.in?(["SUBMITTER", "ADMIN"])
   end
 
+  def can_admin?
+    role == "ADMIN"
+  end
+
   def self.can_submit?(user_id, collection_id)
     user_collection = UserCollection.where(user_id: user_id, collection_id: collection_id).first
     return false if user_collection.nil?

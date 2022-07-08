@@ -70,4 +70,9 @@ class Collection < ApplicationRecord
     create_defaults
     Collection.where(code: "LIB").first
   end
+
+  def self.plasma_laboratory
+    create_defaults
+    Collection.where(code: "PPPL").first
+  end
 end
