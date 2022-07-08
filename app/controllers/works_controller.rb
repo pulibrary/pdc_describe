@@ -20,6 +20,7 @@ class WorksController < ApplicationController
 
   def show
     @work = Work.find(params[:id])
+    @can_curate = current_user.can_admin?(@work.collection_id)
     if @work.doi
       service = S3QueryService.new(@work.doi)
       @files = service.data_profile
@@ -119,6 +120,19 @@ class WorksController < ApplicationController
     work = Work.find(params[:id])
     work.resubmit(current_user)
     redirect_to work_path(work)
+  end
+
+  def assign_curator
+    work = Work.find(params[:id])
+    work.change_curator(params[:uid], current_user)
+    if work.errors.count > 0
+      render json: { errors: work.errors.map(&:type) }, status: :bad_request
+    else
+      render json: {}
+    end
+  rescue => ex
+    Rails.logger.error("Error changing curator for work: #{work.id}. Exception: #{ex.message}")
+    render json: { errors: ["Cannot save dataset"] }, status: :bad_request
   end
 
   # Outputs the Datacite XML representation of the work

@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+
+# rubocop:disable Metrics/BlockLength
 Rails.application.routes.draw do
   resources :users, except: [:new, :destroy, :index, :create]
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
@@ -24,6 +26,7 @@ Rails.application.routes.draw do
   post "work/:id/approve", to: "works#approve", as: :approve_work
   post "work/:id/withdraw", to: "works#withdraw", as: :withdraw_work
   post "work/:id/resubmit", to: "works#resubmit", as: :resubmit_work
+  put "works/:id/assign-curator/:uid", to: "works#assign_curator", as: :work_assign_curator
   get "works/:id/datacite", to: "works#datacite", as: :dataset_work
   resources :works
 
@@ -35,3 +38,4 @@ Rails.application.routes.draw do
   # Anything still unmatched by the end of the routes file should go to the not_found page
   # match '*a', to: redirect('/404'), via: :get
 end
+# rubocop:enable Metrics/BlockLength

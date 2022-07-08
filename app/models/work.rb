@@ -2,6 +2,8 @@
 
 # rubocop:disable Metrics/ClassLength
 class Work < ApplicationRecord
+  has_many :work_activity, dependent: :destroy
+
   class << self
     def create_skeleton(title, user_id, collection_id, work_type, profile)
       work = Work.new(
@@ -116,10 +118,9 @@ class Work < ApplicationRecord
     end
   end
 
-  # For now grab the first admin of the collection. Eventually we want to
-  # allow curators to claim a work and we'll use that field.
   def curator
-    collection.administrators.first
+    return nil if curator_user_id.nil?
+    User.find(curator_user_id)
   end
 
   def draft_doi
@@ -157,6 +158,7 @@ class Work < ApplicationRecord
   def track_state_change(user, state)
     uw = UserWork.new(user_id: user.id, work_id: id, state: state)
     uw.save!
+    WorkActivity.add_system_activity(id, "marked as #{state}", user.id)
   end
 
   def state_history
@@ -214,6 +216,42 @@ class Work < ApplicationRecord
 
   def files_location_other?
     files_location == "file_other"
+  end
+
+  def change_curator(curator_user_id, current_user)
+    if curator_user_id == "no-one"
+      clear_curator(current_user)
+    else
+      update_curator(curator_user_id, current_user)
+    end
+  end
+
+  def clear_curator(current_user)
+    # Update the curator on the Work
+    self.curator_user_id = nil
+    save!
+
+    # ...and log the activity
+    WorkActivity.add_system_activity(id, "unassigned existing curator", current_user.id)
+  end
+
+  def update_curator(curator_user_id, current_user)
+    # Update the curator on the Work
+    self.curator_user_id = curator_user_id
+    save!
+
+    # ...and log the activity
+    curator = User.find(curator_user_id)
+    message = if curator_user_id == current_user.id
+                "self-assigned as curator"
+              else
+                "set curator to #{curator.display_name_safe}"
+              end
+    WorkActivity.add_system_activity(id, message, current_user.id)
+  end
+
+  def activities
+    WorkActivity.where(work_id: id).sort_by(&:updated_at).reverse
   end
 
   private

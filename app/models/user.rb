@@ -128,6 +128,13 @@ class User < ApplicationRecord
     false
   end
 
+  # Returns a display name that always has a value
+  # This is needed because we have records in the Users table that are created automatically
+  # in which the only value we have for sure its their uid (aka NetID).
+  def display_name_safe
+    display_name.presence || uid
+  end
+
   def curator?
     admin_collections.count > 0
   end

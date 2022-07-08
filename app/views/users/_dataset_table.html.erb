@@ -15,7 +15,7 @@
           <td><%= link_to(ds.title, work_path(ds)) %></td>
           <td><%= ds.created_by_user.uid %></td>
           <td>
-              <span title="<%= ds.curator.display_name %>"><%= ds.curator.uid %></span>
+              <span title="<%= ds.curator&.display_name %>"><%= ds.curator&.uid %></span>
           </td>
           <td><%= ds.state %></td>
           <td>
