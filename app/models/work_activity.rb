@@ -3,7 +3,7 @@
 class WorkActivity < ApplicationRecord
   belongs_to :work
 
-  def self.add_system_activity(work_id, message, user_id)
+  def self.add_system_activity(work_id, message, user_id, activity_type: "SYSTEM")
     activity = WorkActivity.new(
       work_id: work_id,
       activity_type: activity_type,
