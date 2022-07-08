@@ -6,7 +6,7 @@ class WorkActivity < ApplicationRecord
   def self.add_system_activity(work_id, message, user_id)
     activity = WorkActivity.new(
       work_id: work_id,
-      activity_type: "SYSTEM",
+      activity_type: activity_type,
       message: message,
       created_by_user_id: user_id
     )
