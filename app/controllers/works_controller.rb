@@ -79,6 +79,13 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
   end
 
+  def file_uploaded
+    @work = Work.find(params[:id])
+    @work.deposit_uploads.attach(deposit_uploads_param)
+    @work.save!
+    redirect_to(work_review_path)
+  end
+
   # Allow user to indicate where their files are located in the PUL Research Cluster
   def file_cluster
     @work = Work.find(params[:id])
@@ -176,6 +183,14 @@ class WorksController < ApplicationController
       end
 
       resource.to_json
+    end
+
+    def patch_params
+      params[:patch]
+    end
+
+    def deposit_uploads_param
+      patch_params[:deposit_uploads]
     end
 end
 # rubocop:enable Metrics/ClassLength

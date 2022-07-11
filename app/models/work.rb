@@ -3,6 +3,7 @@
 # rubocop:disable Metrics/ClassLength
 class Work < ApplicationRecord
   has_many :work_activity, dependent: :destroy
+  has_many_attached :deposit_uploads
 
   class << self
     def create_skeleton(title, user_id, collection_id, work_type, profile)

@@ -27,6 +27,7 @@
 !/storage/.keep
 
 /public/assets
+/public/describe
 .byebug_history
 
 # Ignore master key for decrypting credentials and more.

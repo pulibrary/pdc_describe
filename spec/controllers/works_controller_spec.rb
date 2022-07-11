@@ -150,6 +150,43 @@ RSpec.describe WorksController, mock_ezid_api: true do
       expect(response).to render_template(:file_upload)
     end
 
+    context "with an uploaded CSV file" do
+      let(:uploaded_file) do
+        fixture_file_upload("us_covid_2019.csv", "text/csv")
+      end
+
+      let(:params) do
+        {
+          "_method" => "patch",
+          "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
+          "patch" => {
+            "deposit_uploads" => uploaded_file
+          },
+          "commit" => "Continue",
+          "controller" => "works",
+          "action" => "file_uploaded",
+          "id" => work.id
+        }
+      end
+
+      let(:bucket_url) do
+        "https://example-bucket.s3.amazonaws.com/"
+      end
+
+      before do
+        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+        sign_in user
+        post :file_uploaded, params: params
+      end
+
+      it "upload files directly from user requests" do
+        expect(response).to redirect_to(work_review_path)
+        reloaded = work.reload
+        expect(reloaded.deposit_uploads).not_to be_empty
+        expect(reloaded.deposit_uploads.first).to be_an(ActiveStorage::Attachment)
+      end
+    end
+
     it "renders the page to indicate instructions on files on the PUL Research Cluster" do
       sign_in user
       get :file_cluster, params: { id: work.id }
