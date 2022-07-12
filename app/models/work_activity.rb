@@ -13,17 +13,19 @@ class WorkActivity < ApplicationRecord
       created_by_user_id: user_id
     )
     activity.save!
+    activity.notify_users
+    activity
+  end
 
-    activity.users_referenced.each do |uid|
+  def notify_users
+    users_referenced.each do |uid|
       user_id = User.where(uid: uid).first&.id
       if user_id.nil?
-        Rails.logger.info("Message #{activity.id} for work #{work_id} referenced an non-existing user: #{uid}")
+        Rails.logger.info("Message #{id} for work #{work_id} referenced an non-existing user: #{uid}")
       else
-        WorkActivityNotification.create(work_activity_id: activity.id, user_id: user_id)
+        WorkActivityNotification.create(work_activity_id: id, user_id: user_id)
       end
     end
-
-    activity
   end
 
   def users_referenced
