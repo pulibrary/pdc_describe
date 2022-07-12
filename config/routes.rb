@@ -2,7 +2,7 @@
 
 # rubocop:disable Metrics/BlockLength
 Rails.application.routes.draw do
-  resources :users, except: [:new, :destroy, :index, :create]
+  resources :users, except: [:new, :destroy, :create]
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   root to: "welcome#index"
 

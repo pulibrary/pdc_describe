@@ -193,8 +193,7 @@ class User < ApplicationRecord
   end
 
   def pending_notifications_count
-    # TODO: we should cache this value
-    WorkActivityNotification.where(user_id: id).count
+    WorkActivityNotification.where(user_id: id, read_at: nil).count
   end
 end
 # rubocop:enable Metrics/ClassLength

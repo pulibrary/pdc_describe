@@ -203,17 +203,17 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       expect(work.curator).to be nil
 
       work.change_curator(curator_user.id, user)
-      activity = work.activities.find { |a| a.message.include?("set curator to #{curator_user.display_name}") }
+      activity = work.activities.find { |a| a.message.include?("Set curator to @#{curator_user.uid}") }
       expect(work.curator.id).to be curator_user.id
       expect(activity.created_by_user.id).to eq user.id
 
       work.change_curator(user.id, user)
-      activity = work.activities.find { |a| a.message.include?("self-assigned as curator") }
+      activity = work.activities.find { |a| a.message.include?("Self-assigned as curator") }
       expect(work.curator.id).to be user.id
       expect(activity.created_by_user.id).to eq user.id
 
       work.clear_curator(user)
-      activity = work.activities.find { |a| a.message.include?("unassigned existing curator") }
+      activity = work.activities.find { |a| a.message.include?("Unassigned existing curator") }
       expect(work.curator).to be nil
       expect(activity.created_by_user.id).to eq user.id
     end

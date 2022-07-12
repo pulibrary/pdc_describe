@@ -21,6 +21,7 @@ class WorksController < ApplicationController
   def show
     @work = Work.find(params[:id])
     @can_curate = current_user.can_admin?(@work.collection_id)
+    @work.mark_new_notifications_as_read(current_user.id)
     if @work.doi
       service = S3QueryService.new(@work.doi)
       @files = service.data_profile
@@ -143,8 +144,9 @@ class WorksController < ApplicationController
   end
 
   def add_comment
+    work = Work.find(params[:id])
     if params["new-comment"].present?
-      WorkActivity.add_system_activity(params[:id], params["new-comment"], current_user.id, activity_type: "COMMENT")
+      work.add_comment(params["new-comment"], current_user)
     end
     redirect_to work_path(id: params[:id])
   end

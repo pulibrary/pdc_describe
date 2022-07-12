@@ -7,9 +7,20 @@
     margin-bottom: 5px;
   }
 
+  .activity-history-item {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #dddcdc;
+    border-radius: .25rem;
+    margin-bottom: 5px;
+    padding-bottom: 10px;
+  }
+
+  .activity-history-item-title {
+    background-color: #ddf4ff;
+  }
+
   .comment-html > p {
-    background-color: #eae9e9;
-    margin-left: 10px;
     margin-bottom: 0px;
   }
 
@@ -142,22 +153,23 @@
 <div id="activity-history">
   <% if @work.work_activity.count > 0 %>
     <h2>Activity History</h2>
-    <ul>
     <% @work.activities.each do |activity| %>
-      <li style="list-style: none;" >
-        <span><b><%= activity.created_by_user&.display_name_safe %></b></span>
-        <span title="<%= activity.created_at.localtime %>"><%= distance_of_time_in_words_to_now(activity.created_at) %></span>
-        <span class="comment-html"><%= activity.message_html.html_safe %></span>
+      <div class="activity-history-item" >
+        <div class="activity-history-item-title">
+          <b><%= activity.created_by_user&.display_name_safe %></b>
+          <span title="<%= activity.created_at.localtime %>"><%= distance_of_time_in_words_to_now(activity.created_at) %></span>
+        </div>
+        <span class="comment-html"><%= activity.message_html.gsub('{USER-PATH-PLACEHOLDER}', users_path).html_safe %></span>
+      </div>
     <% end %>
-    </ul>
   <% end %>
 </div>
 
 <div id="new-comment-section">
-  <%= form_tag(add_comment_work_path(@work), :method => "post") do %>
+  <%= form_with url: add_comment_work_path(@work) do |f| %>
     <textarea id="new-comment" name="new-comment" class="new-comment" placeholder="leave a comment" rows="5" cols="100"></textarea>
     <br/>
-    <%= button_to("Comment", class: "btn btn-secondary") %>
+    <%= f.submit("Comment", class: "btn btn-secondary") %>
   <% end %>
 </div>
 

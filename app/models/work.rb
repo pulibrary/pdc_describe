@@ -233,7 +233,7 @@ class Work < ApplicationRecord
     save!
 
     # ...and log the activity
-    WorkActivity.add_system_activity(id, "unassigned existing curator", current_user.id)
+    WorkActivity.add_system_activity(id, "Unassigned existing curator", current_user.id)
   end
 
   def update_curator(curator_user_id, current_user)
@@ -244,11 +244,15 @@ class Work < ApplicationRecord
     # ...and log the activity
     curator = User.find(curator_user_id)
     message = if curator_user_id == current_user.id
-                "self-assigned as curator"
+                "Self-assigned as curator"
               else
-                "set curator to #{curator.display_name_safe}"
+                "Set curator to @#{curator.uid}"
               end
     WorkActivity.add_system_activity(id, message, current_user.id)
+  end
+
+  def add_comment(comment, current_user)
+    WorkActivity.add_system_activity(id, comment, current_user.id, activity_type: "COMMENT")
   end
 
   def activities
@@ -258,9 +262,22 @@ class Work < ApplicationRecord
   def new_notification_count_for_user(user_id)
     count = 0
     activities.each do |activity|
-      count += WorkActivityNotification.where(user_id: user_id, work_activity_id: activity.id).count
+      count += WorkActivityNotification.where(user_id: user_id, work_activity_id: activity.id, read_at: nil).count
     end
     count
+  end
+
+  # Marks as read the notifications for the given user_id in this work.
+  # In practice, the user_id is the id of the current user and therefore this method marks the current's user
+  # notifications as read.
+  def mark_new_notifications_as_read(user_id)
+    activities.each do |activity|
+      unread_notifications = WorkActivityNotification.where(user_id: user_id, work_activity_id: activity.id, read_at: nil)
+      unread_notifications.each do |notification|
+        notification.read_at = Time.now.utc
+        notification.save
+      end
+    end
   end
 
   private
