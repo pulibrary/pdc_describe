@@ -218,4 +218,25 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       expect(activity.created_by_user.id).to eq user.id
     end
   end
+
+  describe "#add_comment" do
+    it "adds a comment" do
+      work.add_comment("hello world", user)
+      activity = work.activities.find { |a| a.message.include?("hello world") }
+      expect(activity.created_by_user.id).to eq user.id
+      expect(activity.activity_type).to eq "COMMENT"
+    end
+
+    it "logs notifications" do
+      expect(work.new_notification_count_for_user(user.id)).to eq 0
+      expect(work.new_notification_count_for_user(curator_user.id)).to eq 0
+
+      work.add_comment("taggging @#{curator_user.uid}", user)
+      expect(work.new_notification_count_for_user(user.id)).to eq 0
+      expect(work.new_notification_count_for_user(curator_user.id)).to eq 1
+
+      work.mark_new_notifications_as_read(curator_user.id)
+      expect(work.new_notification_count_for_user(curator_user.id)).to eq 0
+    end
+  end
 end
