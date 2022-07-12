@@ -238,5 +238,13 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       work.mark_new_notifications_as_read(curator_user.id)
       expect(work.new_notification_count_for_user(curator_user.id)).to eq 0
     end
+
+    it "parses tagged users correctly" do
+      message = "taggging @#{curator_user.uid} and @#{user_other.uid}"
+      work.add_comment(message, user)
+      activity = work.activities.find { |a| a.message.include?(message) }
+      expect(activity.message_html.include?("#{curator_user.uid}</a>")).to be true
+      expect(activity.message_html.include?("#{user_other.uid}</a>")).to be true
+    end
   end
 end
