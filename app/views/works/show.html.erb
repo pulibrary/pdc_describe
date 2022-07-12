@@ -1,3 +1,40 @@
+<style>
+  .button_to {
+    display: inline;
+  }
+
+  .new-comment {
+    margin-bottom: 5px;
+  }
+
+  .comment-html > p {
+    background-color: #eae9e9;
+    margin-left: 10px;
+    margin-bottom: 0px;
+  }
+
+  .comment-user-link {
+    color: rgb(36, 41, 47);
+    background-color: rgb(255, 248, 197);
+    text-decoration-color: rgb(36, 41, 47);
+    text-decoration-line: none;
+    text-decoration-style: solid;
+    text-decoration-thickness: auto
+  }
+</style>
+
+<div>
+  <%= link_to("Edit", edit_work_path(@work), class: "btn btn-primary") %>
+  <% if @work.state == "AWAITING-APPROVAL" %>
+    <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post) %>
+  <% elsif @work.state == "APPROVED" %>
+    <%= button_to("Withdraw Dataset", withdraw_work_path(@work), class: "btn btn-secondary", method: :post) %>
+  <% elsif @work.state == "WITHDRAWN" %>
+    <%= button_to("Resubmit for approval", resubmit_work_path(@work), class: "btn btn-secondary", method: :post) %>
+  <% end %>
+  <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-secondary" %>
+</div>
+
 <h1><%= @work.title %></h1>
 
 <% @work.datacite_resource.other_titles.each do |title| %>
@@ -102,33 +139,27 @@
   </div>
 </section>
 
-<div>
-  <%= link_to("Edit", edit_work_path(@work), class: "btn btn-primary") %>
-  <% if @work.state == "AWAITING-APPROVAL" %>
-    <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post) %>
-  <% elsif @work.state == "APPROVED" %>
-    <%= button_to("Withdraw Dataset", withdraw_work_path(@work), class: "btn btn-secondary", method: :post) %>
-  <% elsif @work.state == "WITHDRAWN" %>
-    <%= button_to("Resubmit for approval", resubmit_work_path(@work), class: "btn btn-secondary", method: :post) %>
+<div id="activity-history">
+  <% if @work.work_activity.count > 0 %>
+    <h2>Activity History</h2>
+    <ul>
+    <% @work.activities.each do |activity| %>
+      <li style="list-style: none;" >
+        <span><b><%= activity.created_by_user&.display_name_safe %></b></span>
+        <span title="<%= activity.created_at.localtime %>"><%= distance_of_time_in_words_to_now(activity.created_at) %></span>
+        <span class="comment-html"><%= activity.message_html.html_safe %></span>
+    <% end %>
+    </ul>
   <% end %>
 </div>
 
-<div>
-  <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-primary" %>
-</div>
-
-<% if @work.work_activity.count > 0 %>
-  <br/>
-  <h2>Activity History</h2>
-  <ul>
-  <% @work.activities.each do |activity| %>
-    <li>
-      <span><b><%= activity.created_by_user&.display_name_safe %></b></span>
-      <span><%= activity.message %></span>
-      <span title="<%= activity.created_at.localtime %>"><%= distance_of_time_in_words_to_now(activity.created_at) %></span>
+<div id="new-comment-section">
+  <%= form_tag(add_comment_work_path(@work), :method => "post") do %>
+    <textarea id="new-comment" name="new-comment" class="new-comment" placeholder="leave a comment" rows="5" cols="100"></textarea>
+    <br/>
+    <%= button_to("Comment", class: "btn btn-secondary") %>
   <% end %>
-  </ul>
-<% end %>
+</div>
 
 <script>
   $(function() {

@@ -142,6 +142,13 @@ class WorksController < ApplicationController
     render json: { errors: ["Cannot save dataset"] }, status: :bad_request
   end
 
+  def add_comment
+    if params["new-comment"].present?
+      WorkActivity.add_system_activity(params[:id], params["new-comment"], current_user.id, activity_type: "COMMENT")
+    end
+    redirect_to work_path(id: params[:id])
+  end
+
   # Outputs the Datacite XML representation of the work
   def datacite
     work = Work.find(params[:id])

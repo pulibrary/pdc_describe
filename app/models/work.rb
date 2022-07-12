@@ -255,6 +255,14 @@ class Work < ApplicationRecord
     WorkActivity.where(work_id: id).sort_by(&:updated_at).reverse
   end
 
+  def new_notification_count_for_user(user_id)
+    count = 0
+    activities.each do |activity|
+      count += WorkActivityNotification.where(user_id: user_id, work_activity_id: activity.id).count
+    end
+    count
+  end
+
   private
 
     def data_cite_connection

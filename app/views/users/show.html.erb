@@ -34,6 +34,8 @@
   <% end %>
 </h2>
 
+<p>You have <%= @user.pending_notifications_count %> new messages.</p>
+
 <% if @my_dashboard && @user.orcid.blank? %>
   <p class="orcid-label">You do not have an  ORCID iD on file. <%= link_to("Add one", edit_user_path(@user)) %> to your profile.</p>
 <% end %>

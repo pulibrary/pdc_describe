@@ -191,5 +191,10 @@ class User < ApplicationRecord
                              UserCollection.where(user_id: id).filter(&:can_admin?).map(&:collection)
                            end
   end
+
+  def pending_notifications_count
+    # TODO: we should cache this value
+    WorkActivityNotification.where(user_id: id).count
+  end
 end
 # rubocop:enable Metrics/ClassLength

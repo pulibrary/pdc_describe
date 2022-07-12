@@ -12,7 +12,11 @@
     <tbody>
       <% datasets.each do |ds| %>
         <tr>
-          <td><%= link_to(ds.title, work_path(ds)) %></td>
+          <td><%= link_to(ds.title, work_path(ds)) %>
+            <% if ds.new_notification_count_for_user(@user.id) > 0 %>
+              (<%= ds.new_notification_count_for_user(@user.id) %>)
+            <% end %>
+          </td>
           <td><%= ds.created_by_user.uid %></td>
           <td>
               <span title="<%= ds.curator&.display_name %>"><%= ds.curator&.uid %></span>
