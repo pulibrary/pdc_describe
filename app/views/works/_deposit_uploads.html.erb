@@ -1,0 +1,40 @@
+<section class="files-section">
+  <h2>File Uploads</h2>
+  <div class="lux">
+    <div class="card">
+      <div class="files card-body">
+
+        <!-- Only render file download table if there are files in S3 -->
+        <% if @work.deposit_uploads.empty? %>
+          <p>No files in S3</p>
+        <% else %>
+          <table id="files-table" class="table">
+            <thead>
+              <tr>
+                <th scope="col" nowrap="nowrap"><span>Filename</span></th>
+                <th scope="col"><span>Uploaded</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @work.deposit_uploads.each_with_index do |file, ix| %>
+                <tr class="files">
+                  <td>
+                    <span>
+                      <i class="bi bi-file-arrow-down"></i>
+                      <a href="<%= rails_blob_path(file, disposition: "attachment") %>" class="documents-file-link" target="_blank" title="<%= file.filename %>"><%= file.filename.to_s[0..79] %></a>
+                    </span>
+                  </td>
+                  <td>
+                    <span><%= file.created_at %></span>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+            <tfoot></tfoot>
+          </table>
+        <% end %>
+        <!-- End of file download table -->
+      </div>
+    </div>
+  </div>
+</section>

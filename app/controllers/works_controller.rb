@@ -35,12 +35,15 @@ class WorksController < ApplicationController
   def update
     @work = Work.find(params[:id])
     @wizard_mode = params[:wizard] == "true"
-    work_params = {
+    updated_deposit_uploads = work_params[:deposit_uploads]
+    updates = {
       title: params[:title_main],
       collection_id: params[:collection_id],
-      data_cite: datacite_resource_from_form
+      data_cite: datacite_resource_from_form,
+      deposit_uploads: updated_deposit_uploads
     }
-    if @work.update(work_params)
+
+    if @work.update(updates)
       if @wizard_mode
         redirect_to work_attachment_select_url(@work)
       else
@@ -183,6 +186,10 @@ class WorksController < ApplicationController
       end
 
       resource.to_json
+    end
+
+    def work_params
+      params[:work] || params
     end
 
     def patch_params

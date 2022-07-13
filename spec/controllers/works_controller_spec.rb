@@ -123,6 +123,49 @@ RSpec.describe WorksController, mock_ezid_api: true do
       expect(reordered_work.datacite_resource.creators[1].value).to eq "Smith, Jane"
     end
 
+    context "with updated file uploads" do
+      let(:uploaded_file) do
+        fixture_file_upload("us_covid_2019.csv", "text/csv")
+      end
+
+      let(:bucket_url) do
+        "https://example-bucket.s3.amazonaws.com/"
+      end
+
+      before do
+        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+      end
+
+      it "handles the update page" do
+        params = {
+          "title_main" => "test dataset updated",
+          "description" => "a new description",
+          "collection_id" => work.collection.id,
+          "commit" => "Update Dataset",
+          "controller" => "works",
+          "action" => "update",
+          "id" => work.id.to_s,
+          "publisher" => "Princeton University",
+          "publication_year" => "2022",
+          "given_name_1" => "Jane",
+          "family_name_1" => "Smith",
+          "sequence_1" => "1",
+          "given_name_2" => "Ada",
+          "family_name_2" => "Lovelace",
+          "sequence_2" => "2",
+          "creator_count" => "2",
+          "deposit_uploads" => uploaded_file
+        }
+        sign_in user
+        expect(work.deposit_uploads).to be_empty
+        post :update, params: params
+
+        saved_work = Work.find(work.id)
+
+        expect(saved_work.deposit_uploads).not_to be_empty
+      end
+    end
+
     it "renders view to select the kind of attachment to use" do
       sign_in user
       get :attachment_select, params: { id: work.id }
