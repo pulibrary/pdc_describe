@@ -1,0 +1,50 @@
+<section class="files-section">
+  <h2>Curated Files</h2>
+  <div class="lux">
+    <div class="card">
+      <div class="files card-body">
+
+        <!-- Only render file download table if there are files in S3 -->
+        <% if @files && @files.empty? %>
+         <p>No files in S3</p>
+        <% else %>
+          <table id="files-table" class="table">
+            <thead>
+              <tr>
+                <th scope="col" nowrap="nowrap"><span>#</span></th>
+                <th scope="col" nowrap="nowrap"><span>Filename</span></th>
+                <th scope="col"><span>Last Modified</span></th>
+                <th scope="col" nowrap="nowrap"><span>Filesize</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @files&.each_with_index do |file, ix| %>
+                <tr class="files">
+                  <th scope="row">
+                    <span><span><%= ix + 1 %></span></span>
+                  </th>
+                  <td>
+                    <span>
+                      <i class="bi bi-file-arrow-down"></i>
+                      <a href="<%= file.filename %>" class="documents-file-link" target="_blank" title="<%= file.filename %>"><%= truncate(file.filename, length: 80) %></a>
+                    </span>
+                  </td>
+                  <td>
+                    <span><%= file.last_modified %></span>
+                  </td>
+                  <td>
+                    <span><span><%= number_to_human_size(file.size) %></span></span>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+            <tfoot></tfoot>
+          </table>
+        <% end %>
+
+        <!-- End of file download table -->
+
+      </div>
+    </div>
+  </div>
+</section>
