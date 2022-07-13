@@ -304,6 +304,13 @@ RSpec.describe WorksController, mock_ezid_api: true do
       expect(response.status).to be 400
       expect(response.body).to eq '{"errors":["Cannot save dataset"]}'
     end
+
+    it "posts a comment" do
+      sign_in user
+      post :add_comment, params: { id: work.id, "new-comment" => "hello world" }
+      expect(response.status).to be 302
+      expect(response.location).to eq "http://test.host/works/#{work.id}"
+    end
   end
 
   describe "#update" do

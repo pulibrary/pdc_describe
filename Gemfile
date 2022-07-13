@@ -48,6 +48,8 @@ gem "faraday"
 
 gem "datacite"
 
+gem "kramdown"
+
 group :development, :test do
   gem "bixby"
   gem "byebug"

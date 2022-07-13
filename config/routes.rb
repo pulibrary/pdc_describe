@@ -2,7 +2,7 @@
 
 # rubocop:disable Metrics/BlockLength
 Rails.application.routes.draw do
-  resources :users, except: [:new, :destroy, :index, :create]
+  resources :users, except: [:new, :destroy, :create]
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   root to: "welcome#index"
 
@@ -27,6 +27,7 @@ Rails.application.routes.draw do
   post "work/:id/approve", to: "works#approve", as: :approve_work
   post "work/:id/withdraw", to: "works#withdraw", as: :withdraw_work
   post "work/:id/resubmit", to: "works#resubmit", as: :resubmit_work
+  post "work/:id/add-comment", to: "works#add_comment", as: :add_comment_work
   put "works/:id/assign-curator/:uid", to: "works#assign_curator", as: :work_assign_curator
   get "works/:id/datacite", to: "works#datacite", as: :dataset_work
   resources :works

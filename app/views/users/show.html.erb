@@ -26,13 +26,17 @@
 <% end %>
 
 <h2>
-  <%= @my_dashboard ? "Welcome " : "" %><%= @user.display_name %>
+  <%= @my_dashboard ? "Welcome " : "" %><%= @user.display_name_safe %>
   <% if @user.superadmin? %>
     <span class="badge rounded-pill bg-primary text-bg-secondary">Administrator</span>
   <% elsif @user.curator? %>
     <span class="badge rounded-pill bg-primary text-bg-secondary">Curator</span>
   <% end %>
 </h2>
+
+<% if @user.pending_notifications_count > 0 %>
+  <p>You have <%= @user.pending_notifications_count %> new messages.</p>
+<% end %>
 
 <% if @my_dashboard && @user.orcid.blank? %>
   <p class="orcid-label">You do not have an  ORCID iD on file. <%= link_to("Add one", edit_user_path(@user)) %> to your profile.</p>

@@ -203,19 +203,48 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       expect(work.curator).to be nil
 
       work.change_curator(curator_user.id, user)
-      activity = work.activities.find { |a| a.message.include?("set curator to #{curator_user.display_name}") }
+      activity = work.activities.find { |a| a.message.include?("Set curator to @#{curator_user.uid}") }
       expect(work.curator.id).to be curator_user.id
       expect(activity.created_by_user.id).to eq user.id
 
       work.change_curator(user.id, user)
-      activity = work.activities.find { |a| a.message.include?("self-assigned as curator") }
+      activity = work.activities.find { |a| a.message.include?("Self-assigned as curator") }
       expect(work.curator.id).to be user.id
       expect(activity.created_by_user.id).to eq user.id
 
       work.clear_curator(user)
-      activity = work.activities.find { |a| a.message.include?("unassigned existing curator") }
+      activity = work.activities.find { |a| a.message.include?("Unassigned existing curator") }
       expect(work.curator).to be nil
       expect(activity.created_by_user.id).to eq user.id
+    end
+  end
+
+  describe "#add_comment" do
+    it "adds a comment" do
+      work.add_comment("hello world", user)
+      activity = work.activities.find { |a| a.message.include?("hello world") }
+      expect(activity.created_by_user.id).to eq user.id
+      expect(activity.activity_type).to eq "COMMENT"
+    end
+
+    it "logs notifications" do
+      expect(work.new_notification_count_for_user(user.id)).to eq 0
+      expect(work.new_notification_count_for_user(curator_user.id)).to eq 0
+
+      work.add_comment("taggging @#{curator_user.uid}", user)
+      expect(work.new_notification_count_for_user(user.id)).to eq 0
+      expect(work.new_notification_count_for_user(curator_user.id)).to eq 1
+
+      work.mark_new_notifications_as_read(curator_user.id)
+      expect(work.new_notification_count_for_user(curator_user.id)).to eq 0
+    end
+
+    it "parses tagged users correctly" do
+      message = "taggging @#{curator_user.uid} and @#{user_other.uid}"
+      work.add_comment(message, user)
+      activity = work.activities.find { |a| a.message.include?(message) }
+      expect(activity.message_html.include?("#{curator_user.uid}</a>")).to be true
+      expect(activity.message_html.include?("#{user_other.uid}</a>")).to be true
     end
   end
 end

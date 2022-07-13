@@ -197,6 +197,8 @@ GEM
       activesupport (>= 5.0.0)
     jmespath (1.6.1)
     json_schema (0.21.0)
+    kramdown (2.4.0)
+      rexml
     listen (3.7.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -449,6 +451,7 @@ DEPENDENCIES
   friendly_id (~> 5.4.0)
   honeybadger (~> 4.0)
   jbuilder (~> 2.7)
+  kramdown
   listen (~> 3.3)
   nokogiri (>= 1.13.4)
   omniauth-cas

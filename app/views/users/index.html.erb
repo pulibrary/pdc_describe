@@ -1,0 +1,10 @@
+<h1>Users</h1>
+
+<% @users.each do |user| %>
+  <p><%= link_to(user.display_name_safe, user_path(user)) %></p>
+<% end %>
+
+<div>
+  <%= link_to "New Dataset", new_work_path, class: "btn btn-primary" %>
+</div>
+<hr />
