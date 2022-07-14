@@ -36,10 +36,34 @@ class WorksController < ApplicationController
   def update
     @work = Work.find(params[:id])
     @wizard_mode = params[:wizard] == "true"
-    updated_deposit_uploads = work_params[:deposit_uploads]
+
+    updated_deposit_uploads = if work_params.key?(:deposit_uploads)
+                                work_params[:deposit_uploads]
+                              elsif work_params.key?(:replaced_uploads)
+                                persisted_deposit_uploads = @work.deposit_uploads
+                                replaced_uploads_params = work_params[:replaced_uploads]
+
+                                updated_uploads = []
+                                persisted_deposit_uploads.each_with_index do |existing, i|
+                                  key = i.to_s
+
+                                  if replaced_uploads_params.key?(key)
+                                    replaced = replaced_uploads_params[key]
+                                    updated_uploads << replaced
+                                  else
+                                    updated_uploads << existing.blob
+                                  end
+                                end
+
+                                updated_uploads
+                              end
+
+    title_param = params[:title_main]
+    collection_id_param = params[:collection_id]
+
     updates = {
-      title: params[:title_main],
-      collection_id: params[:collection_id],
+      title: title_param,
+      collection_id: collection_id_param,
       data_cite: datacite_resource_from_form,
       deposit_uploads: updated_deposit_uploads
     }

@@ -13,6 +13,7 @@
               <tr>
                 <th scope="col" nowrap="nowrap"><span><%= t('works.form.deposited_uploads.filename') %></span></th>
                 <th scope="col"><span><%= t('works.form.deposited_uploads.created_at') %></span></th>
+                <th scope="col"><span><%= t('works.form.deposited_uploads.replace_upload') %></span></th>
               </tr>
             </thead>
             <tbody>
@@ -24,16 +25,22 @@
                       <a href="<%= rails_blob_path(file, disposition: "attachment") %>" class="documents-file-link" target="_blank" title="<%= file.filename %>"><%= file.filename.to_s[0..79] %></a>
                     </span>
                   </td>
+                  <td><span><%= file.created_at %></span></td>
                   <td>
-                    <span><%= file.created_at %></span>
+                    <%= form.file_field(:deposit_uploads, id: "work-deposit-uploads", name: "work[replaced_uploads][#{ix}]") %>
                   </td>
                 </tr>
               <% end %>
             </tbody>
-            <tfoot></tfoot>
+            <tfoot>
+            </tfoot>
           </table>
         <% end %>
         <!-- End of file download table -->
+        <div class="container-fluid deposit-uploads">
+          <%= form.label("Replace all Uploads", for: :deposit_uploads) %>
+          <%= form.file_field(:deposit_uploads, id: "deposit_uploads", multiple: true) %>
+        </div>
       </div>
     </div>
   </div>
