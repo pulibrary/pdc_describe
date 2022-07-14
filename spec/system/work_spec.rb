@@ -55,4 +55,19 @@ RSpec.describe "Creating and updating works", mock_ezid_api: true do
     visit edit_work_path(work, wizard: true)
     expect(page.html.include?("By initiating this new submission, we have reserved a draft DOI for your use")).to be true
   end
+
+  context "datacite record" do
+    it "Renders an xml serialization of the datacite" do
+      stub_s3
+      datacite_resource = PULDatacite::Resource.new(title: "Test dataset")
+      datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")
+      work = Work.create_dataset("Test dataset", user.id, user.default_collection_id, datacite_resource)
+
+      sign_in user
+      visit datacite_work_path(work)
+      doc = Nokogiri.XML(page.html)
+      nodeset = doc.xpath("/xmlns:resource")
+      expect(nodeset).to be_instance_of(Nokogiri::XML::NodeSet)
+    end
+  end
 end
