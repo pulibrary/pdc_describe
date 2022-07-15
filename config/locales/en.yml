@@ -31,8 +31,11 @@
 
 en:
   works:
+    deposit_uploads:
+      heading: "Uncurated File Uploads"
     form:
-      deposited_uploads:
+      deposit_uploads:
+        heading: "Uncurated File Uploads"
         filename: "Filename"
         created_at: "Time of Upload"
         replace_upload: "Replace Upload"
