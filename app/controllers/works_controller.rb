@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "nokogiri"
+require "open-uri"
+
 # rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Metrics/MethodLength
@@ -182,6 +185,19 @@ class WorksController < ApplicationController
   def datacite
     work = Work.find(params[:id])
     render xml: work.datacite_resource.to_xml
+  end
+
+  def datacite_validate
+    @errors = []
+    @work = Work.find(params[:id])
+    datacite_xml = Nokogiri::XML(@work.datacite_resource.to_xml)
+    schema_location = Rails.root.join("config", "schema")
+    Dir.chdir(schema_location) do
+      xsd = Nokogiri::XML::Schema(File.read("datacite_4_4.xsd"))
+      xsd.validate(datacite_xml).each do |error|
+        @errors << error
+      end
+    end
   end
 
   private
