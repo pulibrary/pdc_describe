@@ -10,9 +10,14 @@
 * files in this directory. Styles in this file should be added after the last require_* statement.
 * It is generally better to create a new file per style scope.
 *
-*= require_tree .
-*= require_self
 */
+
+@import "variables/typography";
+@import "components/container";
+@import "components/header";
+@import "components/footer";
+@import "components/works/form";
+
 .hidden {
   display: none;
 }

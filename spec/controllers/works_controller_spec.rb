@@ -72,6 +72,30 @@ RSpec.describe WorksController, mock_ezid_api: true do
       expect(response.location).to eq "http://test.host/works/#{work.id}"
     end
 
+    context "when the client uses wizard mode" do
+      it "updates the Work and redirects the client to select attachments" do
+        params = {
+          "title_main" => "test dataset updated",
+          "description" => "a new description",
+          "collection_id" => work.collection.id,
+          "commit" => "Update Dataset",
+          "controller" => "works",
+          "action" => "update",
+          "id" => work.id.to_s,
+          "wizard" => "true",
+          "publisher" => "Princeton University",
+          "publication_year" => "2022",
+          "given_name_1" => "Jane",
+          "family_name_1" => "Smith",
+          "creator_count" => "1"
+        }
+        sign_in user
+        post :update, params: params
+        expect(response.status).to be 302
+        expect(response.location).to eq "http://test.host/works/#{work.id}/attachment-select"
+      end
+    end
+
     it "handles the update page" do
       params = {
         "title_main" => "test dataset updated",
@@ -123,7 +147,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
       expect(reordered_work.datacite_resource.creators[1].value).to eq "Smith, Jane"
     end
 
-    context "with updated file uploads" do
+    context "with new file uploads for an existing Work without uploads" do
       let(:uploaded_file) do
         fixture_file_upload("us_covid_2019.csv", "text/csv")
       end
@@ -141,17 +165,17 @@ RSpec.describe WorksController, mock_ezid_api: true do
           "title_main" => "test dataset updated",
           "description" => "a new description",
           "collection_id" => work.collection.id,
-          "commit" => "Update Dataset",
+          "commit" => "update dataset",
           "controller" => "works",
           "action" => "update",
           "id" => work.id.to_s,
-          "publisher" => "Princeton University",
+          "publisher" => "princeton university",
           "publication_year" => "2022",
-          "given_name_1" => "Jane",
-          "family_name_1" => "Smith",
+          "given_name_1" => "jane",
+          "family_name_1" => "smith",
           "sequence_1" => "1",
-          "given_name_2" => "Ada",
-          "family_name_2" => "Lovelace",
+          "given_name_2" => "ada",
+          "family_name_2" => "lovelace",
           "sequence_2" => "2",
           "creator_count" => "2",
           "deposit_uploads" => uploaded_file
@@ -163,6 +187,123 @@ RSpec.describe WorksController, mock_ezid_api: true do
         saved_work = Work.find(work.id)
 
         expect(saved_work.deposit_uploads).not_to be_empty
+      end
+    end
+
+    context "when all file uploads are replaced for an existing Work with uploads" do
+      let(:uploaded_file1) do
+        fixture_file_upload("us_covid_2019.csv", "text/csv")
+      end
+
+      let(:uploaded_file2) do
+        fixture_file_upload("us_covid_2020.csv", "text/csv")
+      end
+
+      let(:uploaded_files) do
+        [
+          uploaded_file1,
+          uploaded_file2
+        ]
+      end
+
+      let(:bucket_url) do
+        "https://example-bucket.s3.amazonaws.com/"
+      end
+
+      before do
+        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+      end
+
+      it "handles the update page" do
+        params = {
+          "title_main" => "test dataset updated",
+          "description" => "a new description",
+          "collection_id" => work.collection.id,
+          "commit" => "update dataset",
+          "controller" => "works",
+          "action" => "update",
+          "id" => work.id.to_s,
+          "publisher" => "princeton university",
+          "publication_year" => "2022",
+          "given_name_1" => "jane",
+          "family_name_1" => "smith",
+          "sequence_1" => "1",
+          "given_name_2" => "ada",
+          "family_name_2" => "lovelace",
+          "sequence_2" => "2",
+          "creator_count" => "2",
+          "deposit_uploads" => uploaded_files
+        }
+        sign_in user
+        expect(work.deposit_uploads).to be_empty
+        post :update, params: params
+
+        saved_work = Work.find(work.id)
+
+        expect(saved_work.deposit_uploads).not_to be_empty
+      end
+    end
+
+    context "when only some file uploads are replaced for an existing Work with uploads" do
+      let(:uploaded_file1) do
+        fixture_file_upload("us_covid_2019.csv", "text/csv")
+      end
+
+      let(:uploaded_file2) do
+        fixture_file_upload("us_covid_2020.csv", "text/csv")
+      end
+
+      let(:uploaded_files) do
+        {
+          "0" => uploaded_file2,
+          "2" => uploaded_file2
+        }
+      end
+
+      let(:bucket_url) do
+        "https://example-bucket.s3.amazonaws.com/"
+      end
+
+      before do
+        stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
+        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+
+        work.deposit_uploads.attach(uploaded_file1)
+        work.deposit_uploads.attach(uploaded_file1)
+        work.deposit_uploads.attach(uploaded_file1)
+
+        params = {
+          "title_main" => "test dataset updated",
+          "description" => "a new description",
+          "collection_id" => work.collection.id,
+          "commit" => "update dataset",
+          "controller" => "works",
+          "action" => "update",
+          "id" => work.id.to_s,
+          "publisher" => "princeton university",
+          "publication_year" => "2022",
+          "given_name_1" => "jane",
+          "family_name_1" => "smith",
+          "sequence_1" => "1",
+          "given_name_2" => "ada",
+          "family_name_2" => "lovelace",
+          "sequence_2" => "2",
+          "creator_count" => "2",
+          "replaced_uploads" => uploaded_files
+        }
+        sign_in user
+        post :update, params: params
+      end
+
+      it "handles the update page" do
+        saved_work = Work.find(work.id)
+
+        expect(saved_work.deposit_uploads).not_to be_empty
+        expect(saved_work.deposit_uploads.length).to eq(3)
+
+        expect(saved_work.deposit_uploads[0].blob.filename.to_s).to eq("us_covid_2019.csv")
+        expect(saved_work.deposit_uploads[1].blob.filename.to_s).to eq("us_covid_2020.csv")
+        expect(saved_work.deposit_uploads[2].blob.filename.to_s).to eq("us_covid_2020.csv")
       end
     end
 
