@@ -30,4 +30,12 @@
 # available at https://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
+  works:
+    deposit_uploads:
+      heading: "Uncurated File Uploads"
+    form:
+      deposit_uploads:
+        heading: "Uncurated File Uploads"
+        filename: "Filename"
+        created_at: "Time of Upload"
+        replace_upload: "Replace Upload"

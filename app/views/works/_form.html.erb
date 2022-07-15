@@ -31,8 +31,7 @@
 
       <hr />
       <div class="deposit-uploads">
-        <%= render(partial: 'works/deposit_uploads') %>
-        <%= form.file_field :deposit_uploads %>
+        <%= render(partial: 'works/deposit_uploads_form', locals: { form: form }) %>
       </div>
       <hr />
       <div class="actions">
