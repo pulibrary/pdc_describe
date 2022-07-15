@@ -85,6 +85,15 @@ class Work < ApplicationRecord
     elsif work.profile == "DATACITE" && work.ark.blank?
       work.ark = Ark.mint
     end
+
+    work.deposit_uploads.each do |attachment|
+      key_base = if doi
+                   doi
+                 else
+                   id
+                 end
+      attachment.key = [key_base, attachment.filename.to_s].join("/")
+    end
   end
 
   after_save do |work|
