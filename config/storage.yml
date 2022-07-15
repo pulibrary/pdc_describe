@@ -1,14 +1,18 @@
 local:
-  service: Disk
+  service: 'Disk'
   root: <%= Rails.root.join("storage") %>
 
-test:
+test: &default
   # Use rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key) amazon:
-  service: S3
-  access_key_id: 'key'
-  secret_access_key: 'secret'
-  region: us-east-1
-  bucket: 'example-bucket'
+  service: 'S3'
+  access_key_id: <%= ENV['ACTIVE_STORAGE_S3_KEY_ID'] || 's3_key_id' %>
+  secret_access_key: <%= ENV['ACTIVE_STORAGE_S3_SECRET_KEY'] || 's3_secret_key' %>
+  region: <%= ENV['ACTIVE_STORAGE_S3_REGION'] || 'us-east-1' %>
+  bucket: <%= ENV['ACTIVE_STORAGE_S3_BUCKET'] || 'example-bucket' %>
+
+staging: *default
+
+production: *default
 
 # Use rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key)
 # amazon:
