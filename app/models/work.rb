@@ -78,6 +78,29 @@ class Work < ApplicationRecord
 
   belongs_to :collection
 
+  def generate_attachment_key(attachment)
+    key_base = if doi
+                 "#{doi}/#{id}"
+               else
+                 id
+               end
+
+    attachment_filename = attachment.filename.to_s
+    attachment_key = [key_base, attachment_filename].join("/")
+
+    attachment_ext = File.extname(attachment_filename)
+    attachment_query = attachment_key.gsub(attachment_ext, "")
+    results = ActiveStorage::Blob.where("key LIKE :query", query: "%#{attachment_query}%")
+    blobs = results.to_a
+
+    if blobs.present?
+      index = blobs.length + 1
+      attachment_key = attachment_key.gsub(/\.([a-zA-Z0-9\.]+)$/, "_#{index}.\\1")
+    end
+
+    attachment_key
+  end
+
   before_save do |work|
     # Ensure that the metadata JSON is persisted properly
     if work.dublin_core.present?
@@ -86,13 +109,13 @@ class Work < ApplicationRecord
       work.ark = Ark.mint
     end
 
-    work.deposit_uploads.each do |attachment|
-      key_base = if doi
-                   doi
-                 else
-                   id
-                 end
-      attachment.key = [key_base, attachment.filename.to_s].join("/")
+    new_attachments = work.deposit_uploads.reject(&:persisted?)
+    new_attachments.each do |attachment|
+      attachment_key = generate_attachment_key(attachment)
+      attachment.key = attachment_key
+
+      attachment.blob.save
+      attachment.save
     end
   end
 
