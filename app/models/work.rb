@@ -117,6 +117,10 @@ class Work < ApplicationRecord
         end
       end
     end
+
+    if work.deposit_uploads.present?
+      work.errors.add(:base, "Only 20 user uploads may be attached") if work.deposit_uploads.length > 20
+    end
   end
 
   def curator
