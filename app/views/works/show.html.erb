@@ -7,6 +7,11 @@
     margin-bottom: 5px;
   }
 
+  .new-comment-help {
+    color: #aca9a9;
+    font-size: 12px;
+  }
+
   .activity-history-item {
     border-style: solid;
     border-width: 1px;
@@ -127,6 +132,9 @@
     <textarea id="new-comment" name="new-comment" class="new-comment" placeholder="leave a comment" rows="5" cols="100"></textarea>
     <br/>
     <%= f.submit("Comment", class: "btn btn-secondary") %>
+    <span class="new-comment-help">
+      Simple Markdown is accepted, e.g. *italics*, **bold**, # Header 1, ## Header 2, ```code```. Use @netid to refer to others.
+    </span>
   <% end %>
 </div>
 
@@ -147,6 +155,25 @@
           alert("Error changing curator\n" + response.responseJSON.errors[0]);
         }
       });
+    });
+
+    // For now we add all the users as a plain Javascript array.
+    // If the user list gets to be too long we might want to fetch this data incrementally
+    // as the user types the @mention, but for now this is OK.
+    var userList = [ <%= User.all_uids_string.html_safe %> ];
+
+    // triggeredAutocomplete (https://github.com/Hawkers/triggeredAutocomplete) is a plug-in
+    // that sits on top of jQuery UI autocomplete and provides the @mention functionaly to
+    // reference other users via their netid in a comments.
+    //
+    // Notice that https://github.com/Hawkers/triggeredAutocomplete also supports passing an
+    // array of objects with structure {value: x, label: y} to display a more user friendly
+    // label rather than the netid, but this approach carries another set of complications
+    // (e.g. how to handle spaces, how to edit)
+    $('#new-comment').triggeredAutocomplete({
+      hidden: '#hidden_inputbox',
+      source: userList,
+      trigger: "@"
     });
   });
 </script>
