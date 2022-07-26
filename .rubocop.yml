@@ -12,6 +12,7 @@ AllCops:
     - "vendor/**/*"
     - "node_modules/**/*"
     - "bin/*"
+    - "storage/**/*"
 
 Layout/IndentationConsistency:
   EnforcedStyle: indented_internal_methods
