@@ -79,11 +79,7 @@ class Work < ApplicationRecord
   belongs_to :collection
 
   def generate_attachment_key(attachment)
-    key_base = if doi
-                 "#{doi}/#{id}"
-               else
-                 id
-               end
+    key_base = "#{doi}/#{id}"
 
     attachment_filename = attachment.filename.to_s
     attachment_key = [key_base, attachment_filename].join("/")
