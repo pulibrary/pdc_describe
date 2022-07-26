@@ -369,6 +369,26 @@ RSpec.describe WorksController, mock_ezid_api: true do
         expect(reloaded.deposit_uploads).not_to be_empty
         expect(reloaded.deposit_uploads.first).to be_an(ActiveStorage::Attachment)
       end
+
+      context "when files are not specified within the parameters" do
+        let(:params) do
+          {
+            "_method" => "patch",
+            "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
+            "patch" => {},
+            "commit" => "Continue",
+            "controller" => "works",
+            "action" => "file_uploaded",
+            "id" => work.id
+          }
+        end
+
+        it "does not update the work" do
+          expect(response).to redirect_to(work_review_path)
+          reloaded = work.reload
+          expect(reloaded.deposit_uploads).to be_empty
+        end
+      end
     end
 
     it "renders the page to indicate instructions on files on the PUL Research Cluster" do
