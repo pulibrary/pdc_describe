@@ -112,8 +112,10 @@ class WorksController < ApplicationController
 
   def file_uploaded
     @work = Work.find(params[:id])
-    @work.deposit_uploads.attach(deposit_uploads_param)
-    @work.save!
+    if deposit_uploads_param
+      @work.deposit_uploads.attach(deposit_uploads_param)
+      @work.save!
+    end
     redirect_to(work_review_path)
   end
 
@@ -242,10 +244,14 @@ class WorksController < ApplicationController
     end
 
     def patch_params
+      return {} unless params.key?(:patch)
+
       params[:patch]
     end
 
     def deposit_uploads_param
+      return if patch_params.nil?
+
       patch_params[:deposit_uploads]
     end
 end
