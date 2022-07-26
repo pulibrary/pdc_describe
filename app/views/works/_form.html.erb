@@ -29,10 +29,13 @@
         </div>
       </div>
 
-      <hr />
-      <div class="deposit-uploads">
-        <%= render(partial: 'works/deposit_uploads_form', locals: { form: form }) %>
-      </div>
+      <% if !form.object.deposit_uploads.empty? %>
+        <hr />
+        <div class="deposit-uploads">
+          <%= render(partial: 'works/deposit_uploads_form', locals: { form: form }) %>
+        </div>
+      <% end %>
+
       <hr />
       <div class="actions">
         <%= link_to 'Cancel', @work, class: "btn btn-secondary" %>
