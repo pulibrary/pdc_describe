@@ -23,6 +23,10 @@ Metrics/BlockLength:
     - "lib/tasks/**/*"
     - "spec/**/*"
 
+Metrics/MethodLength:
+  Exclude:
+    - "app/models/work.rb"
+
 Style/GuardClause:
   Enabled: false
 
