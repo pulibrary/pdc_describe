@@ -46,7 +46,7 @@ class Work < ApplicationRecord
       works = []
       if user.admin_collections.count == 0
         # Just the user's own works by state
-        works = Work.where(created_by_user_id: user, state: state)
+        works += Work.where(created_by_user_id: user, state: state)
       else
         # The works that match the given state, in all the collections the user can admin
         # (regardless of who created those works)

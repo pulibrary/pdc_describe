@@ -182,11 +182,16 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       described_class.create_dataset("test title 1", user.id, collection.id)
       described_class.create_dataset("test title 2", user.id, collection.id)
       described_class.create_dataset("test title 3", pppl_user.id, Collection.plasma_laboratory.id)
-      described_class.create_dataset("test title 4", lib_user.id, Collection.library_resources.id)
+      # Create the dataset for `lib_user`` and @mention `user`
+      ds = described_class.create_dataset("test title 4", lib_user.id, Collection.library_resources.id)
+      WorkActivity.add_system_activity(ds.id, "Tagging @#{user.uid} in this dataset", lib_user.id)
     end
 
-    it "for a typical user retrieves only the dataset created by the user" do
-      expect(described_class.unfinished_works(user).length).to eq(2)
+    it "for a typical user retrieves only the datasets created by the user or where the user is tagged" do
+      user_datasets = described_class.unfinished_works(user)
+      expect(user_datasets.count).to be 3
+      expect(user_datasets.count { |ds| ds.created_by_user_id == user.id }).to be 2
+      expect(user_datasets.count { |ds| ds.created_by_user_id == lib_user.id }).to be 1
     end
 
     it "for a curator retrieves dataset created in collections they can curate" do
