@@ -1,9 +1,29 @@
 ---
 production:
-  - pdc-describe-test1
+  pre_curation:
+    bucket: example-bucket
+    region: us-east-1
+  post_curation:
+    bucket: example-bucket
+    region: us-east-1
 staging:
-  - pdc-describe-test1
+  pre_curation:
+    bucket: example-bucket
+    region: us-east-1
+  post_curation:
+    bucket: example-bucket
+    region: us-east-1
 development:
-  - pdc-describe-test1
+  pre_curation:
+    bucket: example-bucket
+    region: us-east-1
+  post_curation:
+    bucket: example-bucket
+    region: us-east-1
 test:
-  - pdc-describe-test1
+  pre_curation:
+    bucket: example-bucket
+    region: us-east-1
+  post_curation:
+    bucket: example-bucket
+    region: us-east-1

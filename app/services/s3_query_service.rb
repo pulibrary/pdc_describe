@@ -4,18 +4,50 @@ require "aws-sdk-s3"
 
 # A service to query an S3 bucket for information about a given data set
 class S3QueryService
+  def self.configuration
+    Rails.configuration.s3
+  end
+
+  def self.pre_curation_config
+    configuration.pre_curation
+  end
+
+  def self.post_curation_config
+    configuration.post_curation
+  end
+
   ##
   # @param [String] doi
+  # @param [Boolean] pre_curation
   # @example S3QueryService.new("https://doi.org/10.34770/0q6b-cj27")
-  def initialize(doi)
+  def initialize(doi, pre_curation = true)
     @doi = doi
+    @pre_curation = pre_curation
+  end
+
+  def config
+    return self.class.post_curation_config if post_curation?
+
+    self.class.pre_curation_config
+  end
+
+  def pre_curation?
+    @pre_curation
+  end
+
+  def post_curation?
+    !pre_curation?
   end
 
   ##
   # The name of the bucket this class is configured to use.
   # See config/s3.yml for configuration file.
   def bucket_name
-    Rails.configuration.s3.first
+    config.fetch(:bucket, nil)
+  end
+
+  def region
+    config.fetch(:region, nil)
   end
 
   ##
@@ -35,7 +67,7 @@ class S3QueryService
   end
 
   def client
-    @client ||= Aws::S3::Client.new(region: "us-east-1")
+    @client ||= Aws::S3::Client.new(region: region)
   end
 
   ##

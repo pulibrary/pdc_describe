@@ -37,6 +37,8 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:ezid) { @ezid }
   let(:identifier) { @identifier }
 
+  let(:attachment_url) { "https://example-bucket.s3.amazonaws.com/#{work.doi}/" }
+
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
@@ -85,6 +87,10 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     before do
       datacite_resource.description = "description of the test dataset"
       datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
+
+      stub_request(:put, /#{attachment_url}/).with(
+        body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
+      ).to_return(status: 200)
 
       20.times { work.deposit_uploads.attach(uploaded_file) }
       work.save!
@@ -300,34 +306,40 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     before do
+      stub_request(:put, /#{attachment_url}/).with(
+        body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
+      ).to_return(status: 200)
+
       work.deposit_uploads.attach(uploaded_file)
     end
 
-    it "attaches deposited file uploads to the Work model with human-readable file paths" do
-      expect(work.deposit_uploads).not_to be_empty
+    context "with configured to use the human-readable storage service", humanizable_storage: true do
+      it "attaches deposited file uploads to the Work model with human-readable file paths" do
+        expect(work.deposit_uploads).not_to be_empty
 
-      attached = work.deposit_uploads.first
-      expect(attached).to be_a(ActiveStorage::Attachment)
-      expect(attached.blob).to be_a(ActiveStorage::Blob)
-      expect(attached.blob.key).to eq("#{work.doi}/#{work.id}/us_covid_2019.csv")
-      local_disk_path = Rails.root.join("storage", work.doi, work.id.to_s, "us_covid_2019.csv")
-      expect(File.exist?(local_disk_path)).to be true
+        attached = work.deposit_uploads.first
+        expect(attached).to be_a(ActiveStorage::Attachment)
+        expect(attached.blob).to be_a(ActiveStorage::Blob)
+        expect(attached.blob.key).to eq("#{work.doi}/#{work.id}/us_covid_2019.csv")
+        local_disk_path = Rails.root.join("spec", "fixtures", "storage", work.doi, work.id.to_s, "us_covid_2019.csv")
+        expect(File.exist?(local_disk_path)).to be true
 
-      work.deposit_uploads.attach(uploaded_file2)
-      attached2 = work.deposit_uploads.last
-      expect(attached2).to be_a(ActiveStorage::Attachment)
-      expect(attached2.blob).to be_a(ActiveStorage::Blob)
-      expect(attached2.blob.key).to eq("#{work.doi}/#{work.id}/us_covid_2019_2.csv")
-      local_disk_path = Rails.root.join("storage", work.doi, work.id.to_s, "us_covid_2019_2.csv")
-      expect(File.exist?(local_disk_path)).to be true
+        work.deposit_uploads.attach(uploaded_file2)
+        attached2 = work.deposit_uploads.last
+        expect(attached2).to be_a(ActiveStorage::Attachment)
+        expect(attached2.blob).to be_a(ActiveStorage::Blob)
+        expect(attached2.blob.key).to eq("#{work.doi}/#{work.id}/us_covid_2019_2.csv")
+        local_disk_path = Rails.root.join("spec", "fixtures", "storage", work.doi, work.id.to_s, "us_covid_2019_2.csv")
+        expect(File.exist?(local_disk_path)).to be true
 
-      work2.deposit_uploads.attach(uploaded_file)
-      attached = work2.deposit_uploads.first
-      expect(attached).to be_a(ActiveStorage::Attachment)
-      expect(attached.blob).to be_a(ActiveStorage::Blob)
-      expect(attached.blob.key).to eq("#{work2.doi}/#{work2.id}/us_covid_2019.csv")
-      local_disk_path = Rails.root.join("storage", work2.doi, work2.id.to_s, "us_covid_2019.csv")
-      expect(File.exist?(local_disk_path)).to be true
+        work2.deposit_uploads.attach(uploaded_file)
+        attached = work2.deposit_uploads.first
+        expect(attached).to be_a(ActiveStorage::Attachment)
+        expect(attached.blob).to be_a(ActiveStorage::Blob)
+        expect(attached.blob.key).to eq("#{work2.doi}/#{work2.id}/us_covid_2019.csv")
+        local_disk_path = Rails.root.join("spec", "fixtures", "storage", work2.doi, work2.id.to_s, "us_covid_2019.csv")
+        expect(File.exist?(local_disk_path)).to be true
+      end
     end
   end
 end

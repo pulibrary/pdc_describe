@@ -29,11 +29,11 @@ RSpec.describe S3QueryService do
   let(:doi) { "https://doi.org/10.34770/pe9w-x904" }
 
   it "knows the name of its s3 bucket" do
-    expect(subject.bucket_name).to eq "pdc-describe-test1"
+    expect(subject.bucket_name).to eq "example-bucket"
   end
 
   it "converts a doi to an S3 address" do
-    expect(subject.s3_address).to eq "s3://pdc-describe-test1/10-34770/pe9w-x904"
+    expect(subject.s3_address).to eq "s3://example-bucket/10-34770/pe9w-x904"
   end
 
   it "takes a DOI and returns information about that DOI in S3" do
