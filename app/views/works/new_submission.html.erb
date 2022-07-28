@@ -2,6 +2,29 @@
   p {
     font-size: larger;
   }
+
+  .input-text-long {
+    width: 700px;
+  }
+
+  .input-text-year {
+    width: 70px;
+  }
+
+  .section-title {
+    padding-top: 20px;
+  }
+
+  .doi-text {
+    font-size: large;
+    font-style: italic;
+  }
+
+  .add-title-button {
+    color: #0c68f0;
+    font-weight: bold;
+    font-size: 22px;
+  }
 </style>
 
 <div class="wizard-area">
@@ -16,9 +39,15 @@
   <a href="mailto:prds@princeton.edu">prds@princeton.edu</a>
   </p>
 
-  <div>
-    <%= link_to "Go Back", root_path, class: "btn btn-secondary" %>
-    <%= link_to "Create New", new_work_path, class: "btn btn-primary wizard-next-button" %>
-  </div>
+  <%= form_tag(action: "new_submission") do %>
+    <%= render(partial: 'works/required_title', locals: {allow_many: false}) %>
+    <%= render(partial: 'works/required_creators_table') %>
+    <%= render 'form_hidden_fields' %>
+    <div>
+      <%= link_to "Go Back", root_path, class: "btn btn-secondary" %>
+      <%= submit_tag "Create New", class: "btn btn-primary wizard-next-button" %>
+    </div>
+  <% end %>
 </div>
 
+<%= render 'edit_javascript' %>

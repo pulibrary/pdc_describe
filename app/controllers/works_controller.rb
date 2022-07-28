@@ -13,11 +13,14 @@ class WorksController < ApplicationController
   end
 
   # Renders the "step 0" information page before creating a new dataset
-  def new_submission; end
+  def new; end
 
-  def new
+  # Creates the new dataset
+  def new_submission
+    byebug
     default_collection_id = current_user.default_collection.id
-    work = Work.create_dataset("New Dataset", current_user.id, default_collection_id)
+    datacite_resource = datacite_resource_from_form
+    work = Work.create_dataset(datacite_resource.main_title, current_user.id, default_collection_id, datacite_resource)
     redirect_to edit_work_path(work, wizard: true)
   end
 
@@ -67,7 +70,7 @@ class WorksController < ApplicationController
     updates = {
       title: title_param,
       collection_id: collection_id_param,
-      data_cite: datacite_resource_from_form,
+      data_cite: datacite_resource_from_form.to_json,
       deposit_uploads: updated_deposit_uploads
     }
 
@@ -236,7 +239,7 @@ class WorksController < ApplicationController
         resource.creators << creator unless creator.nil?
       end
 
-      resource.to_json
+      resource
     end
 
     def work_params
