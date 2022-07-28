@@ -70,6 +70,36 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     expect { described_class.create_dataset("test title", user.id, 0) }.to raise_error
   end
 
+  context "with a persisted dataset work" do
+    subject(:work) { described_class.create_dataset("test title", user.id, collection.id, datacite_resource) }
+
+    let(:datacite_resource) { PULDatacite::Resource.new }
+    let(:uploaded_file) do
+      fixture_file_upload("us_covid_2019.csv", "text/csv")
+    end
+
+    let(:uploaded_file2) do
+      fixture_file_upload("us_covid_2019.csv", "text/csv")
+    end
+
+    before do
+      datacite_resource.description = "description of the test dataset"
+      datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
+
+      20.times { work.deposit_uploads.attach(uploaded_file) }
+      work.save!
+    end
+
+    it "prevents works from having more than 20 uploads attached" do
+      work.deposit_uploads.attach(uploaded_file2)
+
+      expect { work.save! }.to raise_error(ActiveRecord::RecordInvalid, "Validation failed: Only 20 files may be uploaded by a user to a given Work. 21 files were uploaded for the Work: #{work.ark}")
+
+      persisted = described_class.find(work.id)
+      expect(persisted.deposit_uploads.length).to eq(20)
+    end
+  end
+
   it "approves works and records the change history" do
     work.approve(user)
     expect(work.state_history.first.state).to eq "APPROVED"
