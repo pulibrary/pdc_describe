@@ -34,13 +34,13 @@ RSpec.describe WorksController, mock_ezid_api: true do
 
     it "renders the new submission wizard' step 0" do
       sign_in user
-      get :new_submission # this should be :new ???
+      get :new
       expect(response).to render_template("new_submission")
     end
 
     it "renders the edit page when creating a new dataset" do
       sign_in user
-      post :new
+      post :new_submission
       expect(response.status).to be 302
       expect(response.location.start_with?("http://test.host/works/")).to be true
     end
