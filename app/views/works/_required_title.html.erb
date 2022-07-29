@@ -1,6 +1,10 @@
 <!-- Render the main title (notice that we don't display a dropdown for this title) -->
 <div class="field">
-  Title:<span class="required-field">*</span><br>
+  Title:<span class="required-field" title="Title for your submission must be indicated">*</span>
+  <span id="title-required-message" class="hidden">
+    <i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a title
+  </span>
+  <br>
   <input type="text" id="title_main" name="title_main" class="input-text-long" value="<%= @work&.datacite_resource&.main_title %>" />
   <% if allow_many %>
     <span>

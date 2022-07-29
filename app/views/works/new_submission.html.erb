@@ -33,19 +33,20 @@
 
   <p>By starting this new submission, a draft DOI will be reserved for your deposit.</p>
 
-  <p>If you have already started a submission for this deposit, then please go back
-  to the home page and complete the existing submission. If you would like to talk to a
-  specialist about your submission, we may be reached at
-  <a href="mailto:prds@princeton.edu">prds@princeton.edu</a>
+  <p>If you have already started a submission for this deposit, then please
+    <a href="<%= user_path(current_user) %>">go your dashboard</a> and complete
+    the existing submission. If you would like to talk to a specialist about
+    your submission, we may be reached at <a href="mailto:prds@princeton.edu">prds@princeton.edu</a>
   </p>
 
   <%= form_tag(action: "new_submission") do %>
     <%= render(partial: 'works/required_title', locals: {allow_many: false}) %>
     <%= render(partial: 'works/required_creators_table') %>
     <%= render 'form_hidden_fields' %>
-    <div>
+    <hr />
+    <div class="actions">
       <%= link_to "Go Back", root_path, class: "btn btn-secondary" %>
-      <%= submit_tag "Create New", class: "btn btn-primary wizard-next-button" %>
+      <%= submit_tag "Create New", class: "btn btn-primary wizard-next-button", id: "btn-create-new" %>
     </div>
   <% end %>
 </div>

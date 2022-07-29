@@ -13,11 +13,12 @@ class WorksController < ApplicationController
   end
 
   # Renders the "step 0" information page before creating a new dataset
-  def new; end
+  def new
+    render "new_submission"
+  end
 
   # Creates the new dataset
   def new_submission
-    byebug
     default_collection_id = current_user.default_collection.id
     datacite_resource = datacite_resource_from_form
     work = Work.create_dataset(datacite_resource.main_title, current_user.id, default_collection_id, datacite_resource)
@@ -216,8 +217,8 @@ class WorksController < ApplicationController
       resource = PULDatacite::Resource.new
 
       resource.description = params["description"]
-      resource.publisher = params["publisher"]
-      resource.publication_year = params["publication_year"]
+      resource.publisher = params["publisher"] if params["publisher"].present?
+      resource.publication_year = params["publication_year"] if params["publication_year"].present?
 
       # Process the titles
       resource.titles << PULDatacite::Title.new(title: params["title_main"])

@@ -34,7 +34,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
 
     it "renders the new submission wizard' step 0" do
       sign_in user
-      get :new_submission
+      get :new_submission # this should be :new ???
       expect(response).to render_template("new_submission")
     end
 
