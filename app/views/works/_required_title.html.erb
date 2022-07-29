@@ -1,0 +1,35 @@
+<!-- Render the main title (notice that we don't display a dropdown for this title) -->
+<div class="field">
+  Title:<span class="required-field" title="Title for your submission must be indicated">*</span>
+  <span id="title-required-message" class="hidden">
+    <i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a title
+  </span>
+  <br>
+  <input type="text" id="title_main" name="title_main" class="input-text-long" value="<%= @work&.datacite_resource&.main_title %>" />
+  <% if allow_many %>
+    <span>
+      <a id="btn-add-title" class="add-title-button" href="#" title="Add an additional title for this dataset, like a subtitle or a translated title">
+        <i class="bi bi-plus-circle"></i>
+      </a>
+    </span>
+  <% end %>
+</div>
+
+<!-- Render other titles in the record -->
+<% if @work %>
+  <% @work.datacite_resource.other_titles.each_with_index do |title, i| %>
+    <div class="field">
+      <!-- todo: this should go into a helper -->
+      <select id="title_type_<%= i + 1 %>" name="title_type_<%= i + 1 %>">
+        <option value="AlternativeTitle" <%= title.title_type == "AlternativeTitle" ? "selected" : "" %>>Alternative Title</option>
+        <option value="Subtitle" <%= title.title_type == "Subtitle" ? "selected" : "" %> >Subtitle</option>
+        <option value="TranslatedTitle" <%= title.title_type == "TranslatedTitle" ? "selected" : "" %>>Translated Title</option>
+        <option value="Other" <%= title.title_type == "Other" ? "selected" : "" %>>Other Title</option>
+      </select>
+      <br>
+      <input type="text" id="title_<%= i + 1 %>" name="title_<%= i + 1 %>" value="<%= title.title %>" class="input-text-long" />
+    </div>
+  <% end %>
+<% end %>
+
+<div id="new-titles-anchor"></div>
