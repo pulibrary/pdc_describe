@@ -46,7 +46,7 @@ class Work < ApplicationRecord
       works = []
       if user.admin_collections.count == 0
         # Just the user's own works by state
-        works = Work.where(created_by_user_id: user, state: state)
+        works += Work.where(created_by_user_id: user, state: state)
       else
         # The works that match the given state, in all the collections the user can admin
         # (regardless of who created those works)
@@ -54,7 +54,28 @@ class Work < ApplicationRecord
           works += Work.where(collection_id: collection.id, state: state)
         end
       end
+
+      # Any other works where the user is mentioned
+      works_mentioned_by_user_state(user, state).each do |work_id|
+        already_included = !works.find { |work| work[:id] == work_id }.nil?
+        works << Work.find(work_id) unless already_included
+      end
+
       works.sort_by(&:updated_at).reverse
+    end
+
+    # Returns an array of work ids where a particular user has been mentioned
+    # and the work is in a given state.
+    def works_mentioned_by_user_state(user, state)
+      sql = <<-END_SQL
+        SELECT DISTINCT works.id
+        FROM works
+        INNER JOIN work_activities ON works.id = work_activities.work_id
+        INNER JOIN work_activity_notifications ON work_activities.id = work_activity_notifications.work_activity_id
+        WHERE work_activity_notifications.user_id = #{user.id} AND works.state = '#{state}'
+      END_SQL
+      rows = ActiveRecord::Base.connection.execute(sql)
+      rows.map { |row| row["id"] }
     end
 
     private
@@ -144,6 +165,10 @@ class Work < ApplicationRecord
           end
         end
       end
+    end
+
+    if work.deposit_uploads.length > 20
+      work.errors.add(:base, "Only 20 files may be uploaded by a user to a given Work. #{work.deposit_uploads.length} files were uploaded for the Work: #{work.ark}")
     end
   end
 
