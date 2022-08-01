@@ -1,8 +1,8 @@
 <div class="wizard-area">
   <h1><%= t('works.form.file_upload.heading', work_title: @work.title) %></h1>
   <%= render "wizard_progress", wizard_step: 2 %>
-  <%= form_with(model: @work, scope: :patch, url: work_file_uploaded_path) do |f| %>
-    <%= f.file_field :deposit_uploads %>
+  <%= form_with(model: @work, scope: :patch, url: work_file_uploaded_path(id: @work.id)) do |f| %>
+    <%= f.file_field(:deposit_uploads, multiple: true) %>
 
     <p><%= t('works.form.file_upload.actions') %></p>
     <div class="actions">
