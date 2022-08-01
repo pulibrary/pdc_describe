@@ -19,7 +19,7 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
     sign_in user
     visit new_work_path
     fill_in "title_main", with: ""
-    click_on "Save Work"
+    click_on "Create New"
     expect(page).to have_content "Must provide a title"
   end
 

@@ -13,11 +13,15 @@ class WorksController < ApplicationController
   end
 
   # Renders the "step 0" information page before creating a new dataset
-  def new_submission; end
-
   def new
+    render "new_submission"
+  end
+
+  # Creates the new dataset
+  def new_submission
     default_collection_id = current_user.default_collection.id
-    work = Work.create_dataset("New Dataset", current_user.id, default_collection_id)
+    datacite_resource = datacite_resource_from_form
+    work = Work.create_dataset(datacite_resource.main_title, current_user.id, default_collection_id, datacite_resource)
     redirect_to edit_work_path(work, wizard: true)
   end
 
@@ -67,7 +71,7 @@ class WorksController < ApplicationController
     updates = {
       title: title_param,
       collection_id: collection_id_param,
-      data_cite: datacite_resource_from_form,
+      data_cite: datacite_resource_from_form.to_json,
       deposit_uploads: updated_deposit_uploads
     }
 
@@ -112,8 +116,10 @@ class WorksController < ApplicationController
 
   def file_uploaded
     @work = Work.find(params[:id])
-    @work.deposit_uploads.attach(deposit_uploads_param)
-    @work.save!
+    if deposit_uploads_param
+      @work.deposit_uploads.attach(deposit_uploads_param)
+      @work.save!
+    end
     redirect_to(work_review_path)
   end
 
@@ -211,8 +217,8 @@ class WorksController < ApplicationController
       resource = PULDatacite::Resource.new
 
       resource.description = params["description"]
-      resource.publisher = params["publisher"]
-      resource.publication_year = params["publication_year"]
+      resource.publisher = params["publisher"] if params["publisher"].present?
+      resource.publication_year = params["publication_year"] if params["publication_year"].present?
 
       # Process the titles
       resource.titles << PULDatacite::Title.new(title: params["title_main"])
@@ -234,7 +240,7 @@ class WorksController < ApplicationController
         resource.creators << creator unless creator.nil?
       end
 
-      resource.to_json
+      resource
     end
 
     def work_params
@@ -242,10 +248,14 @@ class WorksController < ApplicationController
     end
 
     def patch_params
+      return {} unless params.key?(:patch)
+
       params[:patch]
     end
 
     def deposit_uploads_param
+      return if patch_params.nil?
+
       patch_params[:deposit_uploads]
     end
 end

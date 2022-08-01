@@ -34,13 +34,13 @@ RSpec.describe WorksController, mock_ezid_api: true do
 
     it "renders the new submission wizard' step 0" do
       sign_in user
-      get :new_submission
+      get :new
       expect(response).to render_template("new_submission")
     end
 
     it "renders the edit page when creating a new dataset" do
       sign_in user
-      post :new
+      post :new_submission
       expect(response.status).to be 302
       expect(response.location.start_with?("http://test.host/works/")).to be true
     end
@@ -368,6 +368,26 @@ RSpec.describe WorksController, mock_ezid_api: true do
         reloaded = work.reload
         expect(reloaded.deposit_uploads).not_to be_empty
         expect(reloaded.deposit_uploads.first).to be_an(ActiveStorage::Attachment)
+      end
+
+      context "when files are not specified within the parameters" do
+        let(:params) do
+          {
+            "_method" => "patch",
+            "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
+            "patch" => {},
+            "commit" => "Continue",
+            "controller" => "works",
+            "action" => "file_uploaded",
+            "id" => work.id
+          }
+        end
+
+        it "does not update the work" do
+          expect(response).to redirect_to(work_review_path)
+          reloaded = work.reload
+          expect(reloaded.deposit_uploads).to be_empty
+        end
       end
     end
 

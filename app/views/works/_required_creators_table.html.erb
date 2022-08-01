@@ -1,0 +1,44 @@
+<!-- Creators section -->
+<div class="section-title">
+  <b>Creator(s)<span class="required-field" title="At least one creator must be indicated">*</span></b>
+  <span id="creators-required-message" class="hidden">
+    <i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide at least one creator
+  </span>
+</div>
+
+<!--
+  Render the list of creators a hidden SPANs that are then added below
+  the HTML TABLE via JavaScript. This is so that we have a single way
+  of rendering creators already on the record *and* creators added
+  on the fly.
+-->
+<table id="creators-table">
+  <tbody id="creators-table-sortable">
+    <tr class="header-row">
+      <th>ORCID</th>
+      <th>Given name</th>
+      <th>Family name</th>
+      <th>&nbsp;</th> <!-- move icon-->
+      <th>&nbsp;</th> <!-- delete icon-->
+    </tr>
+  </tbody>
+</table>
+
+<% if @work %>
+  <% @work.datacite_resource.creators.each_with_index do |creator, i| %>
+  <span class="hidden creator-data"
+    data-num="<%= i + 1 %>"
+    data-orcid="<%= creator.orcid %>"
+    data-given-name="<%= creator.given_name %>"
+    data-family-name="<%= creator.family_name %>"
+    data-sequence="<%= creator.sequence %>"
+    ></span>
+  <% end %>
+<% end %>
+
+<!-- Let the user add new creators -->
+<div>
+  <%= link_to "Add Another Creator", "#", id: "btn-add-creator", class: "btn btn-secondary" %>
+  <%= link_to "Add me as a Creator", "#", id: "btn-add-me-creator", class: "btn btn-secondary" %>
+</div>
+

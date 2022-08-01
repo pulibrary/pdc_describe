@@ -12,6 +12,7 @@ AllCops:
     - "vendor/**/*"
     - "node_modules/**/*"
     - "bin/*"
+    - "storage/**/*"
 
 Layout/IndentationConsistency:
   EnforcedStyle: indented_internal_methods
@@ -21,6 +22,10 @@ Metrics/BlockLength:
     - "config/environments/**/*"
     - "lib/tasks/**/*"
     - "spec/**/*"
+
+Metrics/MethodLength:
+  Exclude:
+    - "app/models/work.rb"
 
 Style/GuardClause:
   Enabled: false

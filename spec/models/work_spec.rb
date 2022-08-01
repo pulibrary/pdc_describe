@@ -37,6 +37,8 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:ezid) { @ezid }
   let(:identifier) { @identifier }
 
+  let(:attachment_url) { "https://example-bucket.s3.amazonaws.com/#{work.doi}/" }
+
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
@@ -68,6 +70,40 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   it "prevents datasets with no collections" do
     expect { described_class.create_dataset("test title", user.id, 0) }.to raise_error
+  end
+
+  context "with a persisted dataset work" do
+    subject(:work) { described_class.create_dataset("test title", user.id, collection.id, datacite_resource) }
+
+    let(:datacite_resource) { PULDatacite::Resource.new }
+    let(:uploaded_file) do
+      fixture_file_upload("us_covid_2019.csv", "text/csv")
+    end
+
+    let(:uploaded_file2) do
+      fixture_file_upload("us_covid_2019.csv", "text/csv")
+    end
+
+    before do
+      datacite_resource.description = "description of the test dataset"
+      datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
+
+      stub_request(:put, /#{attachment_url}/).with(
+        body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
+      ).to_return(status: 200)
+
+      20.times { work.deposit_uploads.attach(uploaded_file) }
+      work.save!
+    end
+
+    it "prevents works from having more than 20 uploads attached" do
+      work.deposit_uploads.attach(uploaded_file2)
+
+      expect { work.save! }.to raise_error(ActiveRecord::RecordInvalid, "Validation failed: Only 20 files may be uploaded by a user to a given Work. 21 files were uploaded for the Work: #{work.ark}")
+
+      persisted = described_class.find(work.id)
+      expect(persisted.deposit_uploads.length).to eq(20)
+    end
   end
 
   it "approves works and records the change history" do
@@ -182,11 +218,16 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       described_class.create_dataset("test title 1", user.id, collection.id)
       described_class.create_dataset("test title 2", user.id, collection.id)
       described_class.create_dataset("test title 3", pppl_user.id, Collection.plasma_laboratory.id)
-      described_class.create_dataset("test title 4", lib_user.id, Collection.library_resources.id)
+      # Create the dataset for `lib_user`` and @mention `user`
+      ds = described_class.create_dataset("test title 4", lib_user.id, Collection.library_resources.id)
+      WorkActivity.add_system_activity(ds.id, "Tagging @#{user.uid} in this dataset", lib_user.id)
     end
 
-    it "for a typical user retrieves only the dataset created by the user" do
-      expect(described_class.unfinished_works(user).length).to eq(2)
+    it "for a typical user retrieves only the datasets created by the user or where the user is tagged" do
+      user_datasets = described_class.unfinished_works(user)
+      expect(user_datasets.count).to be 3
+      expect(user_datasets.count { |ds| ds.created_by_user_id == user.id }).to be 2
+      expect(user_datasets.count { |ds| ds.created_by_user_id == lib_user.id }).to be 1
     end
 
     it "for a curator retrieves dataset created in collections they can curate" do
@@ -245,6 +286,60 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       activity = work.activities.find { |a| a.message.include?(message) }
       expect(activity.message_html.include?("#{curator_user.uid}</a>")).to be true
       expect(activity.message_html.include?("#{user_other.uid}</a>")).to be true
+    end
+  end
+
+  describe "#deposit_uploads" do
+    let(:work2) do
+      datacite_resource = PULDatacite::Resource.new
+      datacite_resource.description = "description of the test dataset"
+      datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
+      described_class.create_dataset("test title", user.id, collection.id, datacite_resource)
+    end
+
+    let(:uploaded_file) do
+      fixture_file_upload("us_covid_2019.csv", "text/csv")
+    end
+
+    let(:uploaded_file2) do
+      fixture_file_upload("us_covid_2019.csv", "text/csv")
+    end
+
+    before do
+      stub_request(:put, /#{attachment_url}/).with(
+        body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
+      ).to_return(status: 200)
+
+      work.deposit_uploads.attach(uploaded_file)
+    end
+
+    context "with configured to use the human-readable storage service", humanizable_storage: true do
+      it "attaches deposited file uploads to the Work model with human-readable file paths" do
+        expect(work.deposit_uploads).not_to be_empty
+
+        attached = work.deposit_uploads.first
+        expect(attached).to be_a(ActiveStorage::Attachment)
+        expect(attached.blob).to be_a(ActiveStorage::Blob)
+        expect(attached.blob.key).to eq("#{work.doi}/#{work.id}/us_covid_2019.csv")
+        local_disk_path = Rails.root.join("spec", "fixtures", "storage", work.doi, work.id.to_s, "us_covid_2019.csv")
+        expect(File.exist?(local_disk_path)).to be true
+
+        work.deposit_uploads.attach(uploaded_file2)
+        attached2 = work.deposit_uploads.last
+        expect(attached2).to be_a(ActiveStorage::Attachment)
+        expect(attached2.blob).to be_a(ActiveStorage::Blob)
+        expect(attached2.blob.key).to eq("#{work.doi}/#{work.id}/us_covid_2019_2.csv")
+        local_disk_path = Rails.root.join("spec", "fixtures", "storage", work.doi, work.id.to_s, "us_covid_2019_2.csv")
+        expect(File.exist?(local_disk_path)).to be true
+
+        work2.deposit_uploads.attach(uploaded_file)
+        attached = work2.deposit_uploads.first
+        expect(attached).to be_a(ActiveStorage::Attachment)
+        expect(attached.blob).to be_a(ActiveStorage::Blob)
+        expect(attached.blob.key).to eq("#{work2.doi}/#{work2.id}/us_covid_2019.csv")
+        local_disk_path = Rails.root.join("spec", "fixtures", "storage", work2.doi, work2.id.to_s, "us_covid_2019.csv")
+        expect(File.exist?(local_disk_path)).to be true
+      end
     end
   end
 end
