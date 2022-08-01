@@ -39,3 +39,4 @@ en:
         filename: "Filename"
         created_at: "Time of Upload"
         replace_upload: "Replace Upload"
+        empty: "No files in S3"
