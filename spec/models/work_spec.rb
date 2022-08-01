@@ -38,8 +38,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:identifier) { @identifier }
   let(:attachment_url) { "https://example-bucket.s3.amazonaws.com/#{work.doi}/" }
 
-  let(:attachment_url) { "https://example-bucket.s3.amazonaws.com/#{work.doi}/" }
-
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end

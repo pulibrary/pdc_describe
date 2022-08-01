@@ -3,10 +3,9 @@ local:
   root: <%= Rails.root.join("storage") %>
 
 test: &default
-  # Use rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key) amazon:
   service: 'S3'
-  access_key_id: <%= ENV['ACTIVE_STORAGE_S3_KEY_ID'] || 's3_key_id' %>
-  secret_access_key: <%= ENV['ACTIVE_STORAGE_S3_SECRET_KEY'] || 's3_secret_key' %>
+  access_key_id: <%= ENV['AWS_S3_KEY_ID'] || 'access_key_id' %>
+  secret_access_key: <%= ENV['AWS_S3_SECRET_KEY'] || 'secret_access_key' %>
   region: <%= S3QueryService.pre_curation_config.fetch(:region) %>
   bucket: <%= S3QueryService.pre_curation_config.fetch(:bucket) %>
 
