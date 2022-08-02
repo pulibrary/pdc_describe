@@ -25,71 +25,70 @@ module PULDatacite
       @titles.select { |title| title.main? == false }
     end
 
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/BlockLength
-    # rubocop:disable Metrics/AbcSize
-    def to_xml
-      builder = Nokogiri::XML::Builder.new do |xml|
-        xml.resource(
-          "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
-          "xmlns" => "http://datacite.org/schema/kernel-4",
-          "xsi:schemaLocation" => "http://datacite.org/schema/kernel-4 https://schema.datacite.org/meta/kernel-4.4/metadata.xsd"
-        ) do
-          xml.identifier("identifierType" => @identifier_type) do
-            xml.text @identifier
-          end
-          xml.titles do
-            @titles.each do |title|
-              if title.main?
-                xml.title do
-                  xml.text title.title
-                end
-              else
-                xml.title("titleType" => title.title_type) do
-                  xml.text title.title
-                end
-              end
-            end
-          end
-          xml.description("descriptionType" => "Other") do
-            xml.text @description
-          end
-          xml.creators do
-            @creators.each do |creator|
-              if creator.name_type == "Personal"
-                xml.creator("nameType" => "Personal") do
-                  xml.creatorName creator.value
-                  xml.givenName creator.given_name
-                  xml.familyName creator.family_name
-                  unless creator.name_identifier.nil?
-                    xml.nameIdentifier(
-                      "schemeURI" => creator.name_identifier.scheme_uri,
-                      "nameIdentifierScheme" => creator.name_identifier.scheme
-                    ) do
-                      xml.text creator.name_identifier.value
-                    end
-                  end
-                end
-              else
-                xml.creator("nameType" => "Organization") do
-                  xml.creatorName creator.value
-                end
-              end
-            end
-          end
-          xml.publisher do
-            xml.text @publisher
-          end
-          xml.publicationYear do
-            xml.text @publication_year
-          end
-        end
+    ##
+    # For each creator, make a Datacite::Mapping::Creator object
+    def datacite_creators
+      creator_array = []
+      @creators.each do |creator|
+        creator_array << Datacite::Mapping::Creator.new(name: creator.value)
       end
-      builder.to_xml
+      creator_array
     end
-    # rubocop:enable Metrics/MethodLength
-    # rubocop:enable Metrics/BlockLength
-    # rubocop:enable Metrics/AbcSize
+
+    ##
+    # Given a DOI, format it as a Datacite::Mapping::Identifier
+    def datacite_identifier
+      Datacite::Mapping::Identifier.new(value: @identifier)
+    end
+
+    ##
+    # Create a new Datacite::Mapping::Resource object
+    def datacite_mapping
+      # @param identifier [Identifier] a persistent identifier that identifies a resource.
+      # @param creators [Array<Creator>] the main researchers involved working on the data, or the authors of the publication in priority order.
+      # @param titles [Array<Title>] the names or titles by which a resource is known.
+      # @param publisher [Publisher] the name of the entity that holds, archives, publishes prints, distributes, releases, issues, or produces the resource.
+      # @param publication_year [Integer] year when the resource is made publicly available.
+      # @param subjects [Array<Subject>] subjects, keywords, classification codes, or key phrases describing the resource.
+      # @param funding_references [Array<FundingReference>] information about financial support (funding) for the resource being registered.
+      # @param contributors [Array<Contributor>] institutions or persons responsible for collecting, creating, or otherwise contributing to the developement of the dataset.
+      # @param dates [Array<Date>] different dates relevant to the work.
+      # @param language [String, nil] Primary language of the resource: an IETF BCP 47, ISO 639-1 language code.
+      # @param resource_type [ResourceType, nil] the type of the resource
+      # @param alternate_identifiers [Array<AlternateIdentifier>] an identifier or identifiers other than the primary {Identifier} applied to the resource being registered.
+      # @param related_identifiers [Array<RelatedIdentifier>] identifiers of related resources.
+      # @param sizes [Array<String>] unstructured size information about the resource.
+      # @param formats [Array<String>] technical format of the resource, e.g. file extension or MIME type.
+      # @param version [String] version number of the resource.
+      # @param rights_list [Array<Rights>] rights information for this resource.
+      # @param descriptions [Array<Description>] all additional information that does not fit in any of the other categories.
+      # @param geo_locations [Array<GeoLocations>] spatial region or named place where the data was gathered or about which the data is focused.
+      Datacite::Mapping::Resource.new(
+        identifier: datacite_identifier,
+        creators: datacite_creators,
+        titles: [main_title],
+        publisher: "Fake Publisher",
+        publication_year: 1999,
+        subjects: [],
+        contributors: [],
+        dates: [],
+        language: nil,
+        funding_references: [],
+        resource_type: nil,
+        alternate_identifiers: [],
+        related_identifiers: [],
+        sizes: [],
+        formats: [],
+        version: nil,
+        rights_list: [],
+        descriptions: [],
+        geo_locations: []
+      )
+    end
+
+    def to_xml
+      datacite_mapping.write_xml
+    end
 
     # Creates a PULDatacite::Resource from a JSON string
     # rubocop:disable Metrics/MethodLength
