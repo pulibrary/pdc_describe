@@ -2,13 +2,16 @@ local:
   service: 'HumanizedDisk'
   root: <%= Rails.root.join("storage") %>
 
-test:
-  # Use rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key) amazon:
-  service: S3
-  access_key_id: 'key'
-  secret_access_key: 'secret'
+test: &default
+  service: 'S3'
+  access_key_id: <%= ENV['AWS_S3_KEY_ID'] || 'access_key_id' %>
+  secret_access_key: <%= ENV['AWS_S3_SECRET_KEY'] || 'secret_access_key' %>
   region: <%= S3QueryService.pre_curation_config.fetch(:region) %>
   bucket: <%= S3QueryService.pre_curation_config.fetch(:bucket) %>
+
+staging: *default
+
+production: *default
 
 # Use rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key)
 # amazon:

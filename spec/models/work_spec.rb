@@ -36,7 +36,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   # Please see spec/support/ezid_specs.rb
   let(:ezid) { @ezid }
   let(:identifier) { @identifier }
-
   let(:attachment_url) { "https://example-bucket.s3.amazonaws.com/#{work.doi}/" }
 
   before do
@@ -79,7 +78,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
-
     let(:uploaded_file2) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end

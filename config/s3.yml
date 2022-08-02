@@ -1,29 +1,29 @@
 ---
 production:
   pre_curation:
-    bucket: example-bucket
-    region: us-east-1
+    bucket: <%= ENV['AWS_S3_PRE_CURATE_BUCKET'] || 'example-bucket' %>
+    region: <%= ENV['AWS_S3_PRE_CURATE_REGION'] || 'us-east-1' %>
   post_curation:
-    bucket: example-bucket
-    region: us-east-1
+    bucket: <%= ENV['AWS_S3_POST_CURATE_BUCKET'] || 'example-bucket' %>
+    region: <%= ENV['AWS_S3_POST_CURATE_REGION'] || 'us-east-1' %>
 staging:
   pre_curation:
-    bucket: example-bucket
-    region: us-east-1
+    bucket: <%= ENV['AWS_S3_PRE_CURATE_BUCKET'] || 'example-bucket' %>
+    region: <%= ENV['AWS_S3_PRE_CURATE_REGION'] || 'us-east-1' %>
   post_curation:
-    bucket: example-bucket
-    region: us-east-1
+    bucket: <%= ENV['AWS_S3_POST_CURATE_BUCKET'] || 'example-bucket' %>
+    region: <%= ENV['AWS_S3_POST_CURATE_REGION'] || 'us-east-1' %>
 development:
   pre_curation:
-    bucket: example-bucket
-    region: us-east-1
+    bucket: <%= ENV['AWS_S3_PRE_CURATE_BUCKET'] || 'example-bucket' %>
+    region: <%= ENV['AWS_S3_PRE_CURATE_REGION'] || 'us-east-1' %>
   post_curation:
-    bucket: example-bucket
-    region: us-east-1
+    bucket: <%= ENV['AWS_S3_POST_CURATE_BUCKET'] || 'example-bucket' %>
+    region: <%= ENV['AWS_S3_POST_CURATE_REGION'] || 'us-east-1' %>
 test:
   pre_curation:
-    bucket: example-bucket
-    region: us-east-1
+    bucket: <%= ENV['AWS_S3_PRE_CURATE_BUCKET'] || 'example-bucket' %>
+    region: <%= ENV['AWS_S3_PRE_CURATE_REGION'] || 'us-east-1' %>
   post_curation:
-    bucket: example-bucket
-    region: us-east-1
+    bucket: <%= ENV['AWS_S3_POST_CURATE_BUCKET'] || 'example-bucket' %>
+    region: <%= ENV['AWS_S3_POST_CURATE_REGION'] || 'us-east-1' %>
