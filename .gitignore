@@ -45,3 +45,5 @@ yarn-debug.log*
 
 # OS X internal files
 .DS_Store
+
+/spec/fixtures/storage/
