@@ -34,8 +34,14 @@ en:
     deposit_uploads:
       heading: "Uncurated File Uploads"
     form:
+      file_upload:
+        heading: "New Submission (%{work_title})"
+        actions: 'Once you have uploaded your files, select the "continue" button.'
+        go_back: 'Go Back'
+        continue: 'Continue'
       deposit_uploads:
         heading: "Uncurated File Uploads"
         filename: "Filename"
         created_at: "Time of Upload"
         replace_upload: "Replace Upload"
+        empty: "No files in S3"

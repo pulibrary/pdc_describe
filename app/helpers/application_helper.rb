@@ -28,4 +28,11 @@ module ApplicationHelper
     html.html_safe
   end
   # rubocop:enable Rails/OutputSafety
+
+  def deposit_uploads_file_name(file:)
+    value = file.filename.to_s
+    return if value.blank?
+
+    value[0..79]
+  end
 end
