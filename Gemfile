@@ -47,7 +47,7 @@ gem "friendly_id", "~> 5.4.0"
 
 gem "faraday"
 
-gem "datacite"
+gem "datacite", github: "sul-dlss/datacite-ruby", branch: "main"
 
 gem "kramdown"
 

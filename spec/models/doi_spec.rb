@@ -9,6 +9,7 @@ RSpec.describe "DOI", type: :model do
   end
 
   let(:prefix) { "10.80021" }
+  let(:doi) { "10.80021/f91s-fg71" }
 
   let(:minimum_register_attributes) do
     {
@@ -44,6 +45,25 @@ RSpec.describe "DOI", type: :model do
     }
   end
 
+  let(:xml_attributes) do
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
+     "<resource xmlns=\"http://datacite.org/schema/kernel-4\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://datacite.org/schema/kernel-4 " \
+      "http://schema.datacite.org/meta/kernel-4/metadata.xsd\">" \
+   "<identifier identifierType=\"DOI\">#{doi}</identifier>"\
+   "<creators><creator><creatorName>DataCite Metadata Working Group</creatorName></creator></creators>" \
+   "<titles><title>DataCite Metadata Schema Documentation for the Publication and Citation of Research Data v4.0</title></titles>" \
+   "<publisher>DataCite e.V.</publisher><publicationYear>2016</publicationYear><resourceType resourceTypeGeneral=\"Text\">Documentation</resourceType>" \
+  " </resource>"
+  end
+
+  let(:minimum_xml_publish_attributes) do
+    {
+      "event" => "publish",
+      "xml" => Base64.encode64(xml_attributes),
+      "url" => "https://schema.datacite.org/meta/kernel-4.0/index.html"
+    }
+  end
+
   describe "SPIKE" do
     it "mints a new DOI" do
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: prefix))
@@ -57,11 +77,11 @@ RSpec.describe "DOI", type: :model do
               ->(response) { response.doi },
               ->(response) { raise("Something went wrong", response.status) }
             )
+      puts doi
       expect(doi).to be_present
     end
 
     it "registers an existing DOI" do
-      doi = "10.80021/gcyh-s227"
       body = datacite_update_body(attributes: minimum_register_attributes)
 
       stub_datacite_update(doi: doi, body: body, fixture: "doi_register_response.json", host: "api.datacite.org")
@@ -83,7 +103,6 @@ RSpec.describe "DOI", type: :model do
     end
 
     it "Updates and existing doi" do
-      doi = "10.80021/gcyh-s227"
       update_attributes = { "titles" => [{ "title" => "testing doi update" }] }
       body = datacite_update_body(attributes: update_attributes)
 
@@ -105,7 +124,6 @@ RSpec.describe "DOI", type: :model do
     end
 
     it "publishes an existing DOI" do
-      doi = "10.80021/f91s-fg71"
       stub_datacite_update(doi: doi, body: datacite_update_body(attributes: minimum_publish_attributes), fixture: "doi_publish_response.json", host: "api.datacite.org")
       #
       # Comment out the above stub and uncomment the below code to send a real request and publish a DOI
@@ -116,6 +134,25 @@ RSpec.describe "DOI", type: :model do
 
       # Publish the DOI with the minimum attributes needed to publish the item
       result = client.update(id: doi, attributes: minimum_publish_attributes)
+
+      data = result.either(
+        ->(response) { response.body["data"] },
+        ->(response) { raise("Something went wrong", response.status) }
+      )
+      expect(data["attributes"]["state"]).to eq("findable")
+    end
+
+    it "publishes an existing DOI with xml" do
+      stub_datacite_update(doi: doi, body: datacite_update_body(attributes: minimum_xml_publish_attributes), fixture: "doi_publish_response.json", host: "api.datacite.org")
+      #
+      # Comment out the above stub and uncomment the below code to send a real request and publish a DOI
+      # you must have the datacite host, user name, and password in your environment
+      # set the doi above to an unpublished doi
+      #
+      # WebMock.enable_net_connect!
+
+      # Publish the DOI with the minimum attributes needed to publish the item
+      result = client.update(id: doi, attributes: minimum_xml_publish_attributes)
 
       data = result.either(
         ->(response) { response.body["data"] },
