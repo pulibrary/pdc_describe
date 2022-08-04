@@ -48,8 +48,11 @@ RSpec.describe PULDatacite::Resource, type: :model do
     expect(ds.titles.count).to be 2
   end
 
+  ##
+  # Re-parsing the output of our `to_xml` method with datacite-mapping tells us whether
+  # the record is valid. E.g., this will throw an error if required fields are missing.
   it "serializes to xml" do
-    # Eventually we might want to support a complete example like this
+    # Example of a full datacite record:
     # https://schema.datacite.org/meta/kernel-4.4/example/datacite-example-full-v4.xml
     xml_output = ds.to_xml
     dcm = Datacite::Mapping::Resource.parse_xml(xml_output)

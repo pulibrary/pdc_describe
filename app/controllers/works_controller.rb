@@ -189,8 +189,10 @@ class WorksController < ApplicationController
 
   # Outputs the Datacite XML representation of the work
   def datacite
-    work = Work.find(params[:id])
-    render xml: work.datacite_resource.to_xml
+    @work = Work.find(params[:id])
+    respond_to do |format|
+      format.xml { render xml: @work.datacite_resource.to_xml, content_type: "text/xml" }
+    end
   end
 
   def datacite_validate

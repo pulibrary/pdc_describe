@@ -9,11 +9,9 @@ module PULDatacite
       @identifier = identifier
       @identifier_type = identifier_type
       @titles = []
-      @titles << PULDatacite::Title.new(title: title) unless title.nil?
-      @description = nil
+      @title = title
       @creators = []
       @resource_type = resource_type || "Dataset"
-      @publisher = "Princeton University"
       @publication_year = Time.zone.today.year
     end
 
@@ -41,6 +39,10 @@ module PULDatacite
       Datacite::Mapping::Identifier.new(value: @identifier)
     end
 
+    def datacite_publisher
+      Datacite::Mapping::Publisher.new(value: @publisher)
+    end
+
     ##
     # Create a new Datacite::Mapping::Resource object
     def datacite_mapping
@@ -66,23 +68,23 @@ module PULDatacite
       Datacite::Mapping::Resource.new(
         identifier: datacite_identifier,
         creators: datacite_creators,
-        titles: [main_title],
-        publisher: "Fake Publisher",
-        publication_year: 1999,
-        subjects: [],
-        contributors: [],
-        dates: [],
-        language: nil,
-        funding_references: [],
-        resource_type: nil,
-        alternate_identifiers: [],
-        related_identifiers: [],
-        sizes: [],
-        formats: [],
-        version: nil,
-        rights_list: [],
-        descriptions: [],
-        geo_locations: []
+        titles: @titles,
+        publisher: datacite_publisher,
+        publication_year: @publication_year,
+        # subjects: [],
+        # contributors: [],
+        # dates: [],
+        # language: nil,
+        # funding_references: [],
+        resource_type: @resource_type,
+        # alternate_identifiers: [],
+        # related_identifiers: [],
+        # sizes: [],
+        # formats: [],
+        # version: nil,
+        # rights_list: [],
+        # descriptions: [],
+        # geo_locations: []
       )
     end
 
@@ -97,10 +99,15 @@ module PULDatacite
       resource = PULDatacite::Resource.new
       hash = json_string.blank? ? {} : JSON.parse(json_string)
 
+      resource.identifier = hash["identifier"]
+      resource.identifier_type = hash["identifier_type"]
       resource.description = hash["description"]
 
       hash["titles"]&.each do |title|
-        resource.titles << PULDatacite::Title.new(title: title["title"], title_type: title["title_type"])
+        # TODO: Record title type
+        # See https://github.com/CDLUC3/datacite-mapping/blob/master/lib/datacite/mapping/title.rb
+        # title_type = Datacite::Mapping::TitleType.new(title["title_type"])
+        resource.titles << Datacite::Mapping::Title.new(value: title["title"])
       end
 
       hash["creators"]&.each do |creator|
@@ -114,7 +121,7 @@ module PULDatacite
 
       resource.publisher = hash["publisher"]
       resource.publication_year = hash["publication_year"]
-
+      resource.resource_type = Datacite::Mapping::ResourceType.new(resource_type_general: Datacite::Mapping::ResourceTypeGeneral::DATASET)
       resource
     end
     # rubocop:enable Metrics/AbcSize
