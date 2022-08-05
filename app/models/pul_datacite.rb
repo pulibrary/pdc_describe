@@ -1,46 +1,20 @@
 # frozen_string_literal: true
 module PULDatacite
-  # Represents a PUL Datacite resource
+  # Represents a PUL Datacite resource.
+  # This class should be instantiated via the `.new_from_json` method.
+  # It takes PDC Describe form submission data and turns it into valid Datacite.
   # https://support.datacite.org/docs/datacite-metadata-schema-v44-properties-overview
+  # Note that the actual datacite mapping and XML serialization is done by the datacite-mapping gem.
   class Resource
-    attr_accessor :identifier, :identifier_type, :creators, :titles, :publisher, :publication_year, :resource_type, :description
+    attr_accessor :metadata_from_form, :identifier, :identifier_type, :creators, :titles, :publisher, :publication_year, :resource_type, :description
 
-    def initialize(identifier: nil, identifier_type: nil, title: nil, resource_type: nil)
-      @identifier = identifier
-      @identifier_type = identifier_type
-      @titles = []
-      @title = title
-      @creators = []
-      @resource_type = resource_type || "Dataset"
-      @publication_year = Time.zone.today.year
-    end
-
-    def main_title
-      @titles.find(&:main?)&.title
-    end
-
-    def other_titles
-      @titles.select { |title| title.main? == false }
-    end
-
-    ##
-    # For each creator, make a Datacite::Mapping::Creator object
-    def datacite_creators
-      creator_array = []
-      @creators.each do |creator|
-        creator_array << Datacite::Mapping::Creator.new(name: creator.value)
-      end
-      creator_array
-    end
-
-    ##
-    # Given a DOI, format it as a Datacite::Mapping::Identifier
-    def datacite_identifier
-      Datacite::Mapping::Identifier.new(value: @identifier)
-    end
-
-    def datacite_publisher
-      Datacite::Mapping::Publisher.new(value: @publisher)
+    # Creates a PULDatacite::Resource from a JSON string
+    # @param [JSON] json_string - The JSON emitted by a form submission
+    def self.new_from_json(json_string)
+      resource = PULDatacite::Resource.new
+      resource.metadata_from_form = json_string.blank? ? {} : JSON.parse(json_string)
+      resource.datacite_mapping
+      resource
     end
 
     ##
@@ -68,15 +42,15 @@ module PULDatacite
       Datacite::Mapping::Resource.new(
         identifier: datacite_identifier,
         creators: datacite_creators,
-        titles: @titles,
+        titles: datacite_titles,
         publisher: datacite_publisher,
-        publication_year: @publication_year,
+        publication_year: @metadata_from_form["publication_year"],
         # subjects: [],
         # contributors: [],
         # dates: [],
         # language: nil,
         # funding_references: [],
-        resource_type: @resource_type,
+        resource_type: datacite_resource_type(@metadata_from_form["resource_type"])
         # alternate_identifiers: [],
         # related_identifiers: [],
         # sizes: [],
@@ -92,131 +66,54 @@ module PULDatacite
       datacite_mapping.write_xml
     end
 
-    # Creates a PULDatacite::Resource from a JSON string
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/AbcSize
-    def self.new_from_json(json_string)
-      resource = PULDatacite::Resource.new
-      hash = json_string.blank? ? {} : JSON.parse(json_string)
-
-      resource.identifier = hash["identifier"]
-      resource.identifier_type = hash["identifier_type"]
-      resource.description = hash["description"]
-
-      hash["titles"]&.each do |title|
-        # TODO: Record title type
-        # See https://github.com/CDLUC3/datacite-mapping/blob/master/lib/datacite/mapping/title.rb
-        # title_type = Datacite::Mapping::TitleType.new(title["title_type"])
-        resource.titles << Datacite::Mapping::Title.new(value: title["title"])
+    ##
+    # For each creator, make a Datacite::Mapping::Creator object
+    # TODO: This class has no field for author order. We need a place to record that.
+    def datacite_creators
+      creator_array = []
+      @metadata_from_form["creators"].each do |creator|
+        creator_array << Datacite::Mapping::Creator.new(
+          name: creator["value"],
+          given_name: creator["given_name"],
+          family_name: creator["family_name"],
+          affiliations: creator["affiliations"]
+        )
       end
+      creator_array
+    end
 
-      hash["creators"]&.each do |creator|
-        given_name = creator["given_name"]
-        family_name = creator["family_name"]
-        orcid = creator.dig("name_identifier", "scheme") == "ORCID" ? creator.dig("name_identifier", "value") : nil
-        sequence = (creator["sequence"] || "").to_i
-        resource.creators << PULDatacite::Creator.new_person(given_name, family_name, orcid, sequence)
+    ##
+    # For each title, make a Datacite::Mapping::Title object
+    # TODO: Add qualifiers for different kinds of titles
+    def datacite_titles
+      title_array = []
+      @metadata_from_form["titles"].each do |title|
+        title_array << Datacite::Mapping::Title.new(value: title["title"])
       end
-      resource.creators.sort_by!(&:sequence)
-
-      resource.publisher = hash["publisher"]
-      resource.publication_year = hash["publication_year"]
-      resource.resource_type = Datacite::Mapping::ResourceType.new(resource_type_general: Datacite::Mapping::ResourceTypeGeneral::DATASET)
-      resource
-    end
-    # rubocop:enable Metrics/AbcSize
-    # rubocop:enable Metrics/MethodLength
-  end
-
-  # value: "Miller, Elizabeth"
-  # name_type: "Personal"
-  # given_name: "Elizabeth"
-  # family_name: "Miller"
-  class Creator
-    attr_accessor :value, :name_type, :given_name, :family_name, :name_identifier, :affiliations, :sequence
-
-    # rubocop:disable Metrics/ParameterLists
-    def initialize(value: nil, name_type: nil, given_name: nil, family_name: nil, name_identifier: nil, sequence: 0)
-      @value = value
-      @name_type = name_type
-      @given_name = given_name
-      @family_name = family_name
-      @name_identifier = name_identifier
-      @affiliations = []
-      @sequence = sequence
-    end
-    # rubocop:enable Metrics/ParameterLists
-
-    def orcid_url
-      name_identifier&.orcid_url
+      title_array
     end
 
-    def orcid
-      name_identifier&.orcid
+    ##
+    # Given a resource type string, assign the appropriate Datacite::Resource::ResourceType
+    # @param [String] resource_type
+    def datacite_resource_type(resource_type)
+      resource_type_general = case resource_type.downcase
+                              when "dataset"
+                                Datacite::Mapping::ResourceTypeGeneral::DATASET
+                              else
+                                Datacite::Mapping::ResourceTypeGeneral::OTHER
+                              end
+      Datacite::Mapping::ResourceType.new(resource_type_general: resource_type_general)
     end
 
-    def self.new_person(given_name, family_name, orcid_id = nil, sequence = 0)
-      full_name = "#{family_name}, #{given_name}"
-      creator = Creator.new(value: full_name, name_type: "Personal", given_name: given_name, family_name: family_name, sequence: sequence)
-      if orcid_id.present?
-        creator.name_identifier = NameIdentifier.new_orcid(orcid_id.strip)
-      end
-      creator
-    end
-  end
-
-  # value:      "0000-0001-5000-0007"
-  # scheme:     "ORCID"
-  # scheme_uri: "https://orcid.org/""
-  class NameIdentifier
-    attr_accessor :value, :scheme, :scheme_uri
-    def initialize(value: nil, scheme: nil, scheme_uri: nil)
-      @value = value
-      @scheme = scheme
-      @scheme_uri = scheme_uri
+    ##
+    # Given a DOI, format it as a Datacite::Mapping::Identifier
+    def datacite_identifier
+      Datacite::Mapping::Identifier.new(value: @metadata_from_form["identifier"])
     end
 
-    def orcid_url
-      return nil unless scheme == "ORCID"
-      "#{scheme_uri}/#{value}"
-    end
-
-    def orcid
-      return nil unless scheme == "ORCID"
-      value
-    end
-
-    # Convenience method since this is the most common (only?) identifier that we are currently supporting
-    def self.new_orcid(value)
-      NameIdentifier.new(value: value, scheme: "ORCID", scheme_uri: "https://orcid.org")
-    end
-  end
-
-  # value:      "datacite"
-  # identifier: "https://ror.org/04aj4c181"
-  # scheme:     "ROR"
-  # scheme_uri: "https://ror.org/"
-  class Affiliation
-    attr_accessor :value, :identifier, :scheme, :scheme_uri
-    def initialize(value: nil, identifier: nil, scheme: nil, scheme_uri: nil)
-      @value = value
-      @identifier = identifier
-      @scheme = scheme
-      @scheme_uri = scheme_uri
-    end
-  end
-
-  # value:      "100 años de soledad"
-  # title_type: "TranslatedTitle"
-  class Title
-    attr_accessor :title, :title_type
-    def initialize(title:, title_type: nil)
-      @title = title
-      @title_type = title_type
-    end
-
-    def main?
-      @title_type.blank?
+    def datacite_publisher
+      Datacite::Mapping::Publisher.new(value: @metadata_from_form["publisher"])
     end
   end
 end

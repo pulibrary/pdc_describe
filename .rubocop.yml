@@ -17,6 +17,10 @@ AllCops:
 Layout/IndentationConsistency:
   EnforcedStyle: indented_internal_methods
 
+Metrics/AbcSize:
+  Exclude:
+    - app/models/pul_datacite.rb
+
 Metrics/BlockLength:
   Exclude:
     - "config/environments/**/*"
@@ -26,6 +30,7 @@ Metrics/BlockLength:
 Metrics/MethodLength:
   Exclude:
     - "app/models/work.rb"
+    - app/models/pul_datacite.rb
 
 Style/GuardClause:
   Enabled: false
