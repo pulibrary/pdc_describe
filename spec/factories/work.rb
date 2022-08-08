@@ -8,11 +8,16 @@ FactoryBot.define do
       doi { "https://doi.org/10.34770/pe9w-x904" }
       ark { "ark:/88435/dsp01zc77st047" }
       data_cite do
-        # Works must have at least one creator
-        datacite_resource = PULDatacite::Resource.new
-        datacite_resource.description = "All data is related to the Shakespeare and Company bookshop and lending library opened..."
-        datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
-        datacite_resource.to_json
+        {
+          "identifier": doi,
+          "identifier_type": "DOI",
+          "titles": [{ "title": "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events", "title_type": "Main" }],
+          "description": "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
+          "creators": [
+            { "value": "Kotin, Joshua", "name_type": "Personal", "given_name": "Joshua", "family_name": "Kotin", "affiliations": [], "sequence": "1" }
+          ],
+          "resource_type": "Dataset", "publisher": "Princeton University", "publication_year": "2020"
+        }.to_json
       end
       created_by_user_id { FactoryBot.create(:user).id }
     end
