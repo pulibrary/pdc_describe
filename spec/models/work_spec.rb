@@ -7,12 +7,23 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:user_other) { FactoryBot.create :user }
   let(:superadmin_user) { User.from_cas(OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" })) }
   let(:doi) { "https://doi.org/10.34770/0q6b-cj27" }
-  let(:work) do
-    datacite_resource = PULDatacite::Resource.new
-    datacite_resource.description = "description of the test dataset"
-    datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
-    described_class.create_dataset("test title", user.id, collection.id, datacite_resource)
+  let(:title) { "Description of a Test Dataset" }
+  let(:form_submission_data) do
+    {
+      "identifier": doi,
+      "identifier_type": "DOI",
+      "titles": [{ "title": title, "title_type": "Main" }],
+      "description": "This is a description",
+      "creators": [
+        { "value": "Tubman, Harriet", "name_type": "Personal", "given_name": "Harriet", "family_name": "Tubman", "affiliations": [], "sequence": "1" }
+      ],
+      "resource_type": "Dataset",
+      "publisher": "Princeton University",
+      "publication_year": "2020"
+    }.to_json
   end
+  let(:datacite_resource) { PULDatacite::Resource.new_from_json(form_submission_data) }
+  let(:work) { described_class.create_dataset("test title", user.id, collection.id, datacite_resource) }
 
   let(:lib_user) do
     user = FactoryBot.create :user
@@ -44,9 +55,15 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   it "checks the format of the ORCID of the creators" do
     # Add a new creator with an incomplete ORCID
-    work.datacite_resource.creators << PULDatacite::Creator.new_person("Williams", "Serena", "1234-12")
-    expect(work.save).to be false
-    expect(work.errors.find { |error| error.type.include?("ORCID") }).to be_present
+    work.datacite_resource
+    orcid_identifier = Datacite::Mapping::NameIdentifier.new(scheme: "ORCID", scheme_uri: "https://orcid.org/", value: "1234-12")
+    new_creator = Datacite::Mapping::Creator.new(name: "Williams, Serena", identifier: orcid_identifier)
+    byebug
+    work.datacite_resource.creators << new_creator
+    byebug
+
+    # expect(work.save).to be false
+    # expect(work.errors.find { |error| error.type.include?("ORCID") }).to be_present
   end
 
   it "creates a skeleton dataset with a DOI and an ARK" do
@@ -72,9 +89,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   context "with a persisted dataset work" do
-    subject(:work) { described_class.create_dataset("test title", user.id, collection.id, datacite_resource) }
-
-    let(:datacite_resource) { PULDatacite::Resource.new }
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
@@ -83,18 +97,17 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     before do
-      datacite_resource.description = "description of the test dataset"
-      datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
-
       stub_request(:put, /#{attachment_url}/).with(
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
       ).to_return(status: 200)
 
+      byebug
       20.times { work.deposit_uploads.attach(uploaded_file) }
       work.save!
     end
 
     it "prevents works from having more than 20 uploads attached" do
+      byebug
       work.deposit_uploads.attach(uploaded_file2)
 
       expect { work.save! }.to raise_error(ActiveRecord::RecordInvalid, "Validation failed: Only 20 files may be uploaded by a user to a given Work. 21 files were uploaded for the Work: #{work.ark}")
@@ -288,12 +301,14 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   describe "#deposit_uploads" do
-    let(:work2) do
-      datacite_resource = PULDatacite::Resource.new
-      datacite_resource.description = "description of the test dataset"
-      datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
-      described_class.create_dataset("test title", user.id, collection.id, datacite_resource)
-    end
+    # let(:work2) do
+    #   datacite_resource = PULDatacite::Resource.new
+    #   datacite_resource.description = "description of the test dataset"
+    #   datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
+    #   described_class.create_dataset("test title", user.id, collection.id, datacite_resource)
+    # end
+
+    let(:work2) { FactoryBot.create(:shakespeare_and_company_work) }
 
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")

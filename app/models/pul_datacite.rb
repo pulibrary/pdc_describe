@@ -106,14 +106,55 @@ module PULDatacite
       Datacite::Mapping::ResourceType.new(resource_type_general: resource_type_general)
     end
 
+    def identifier
+      @datacite_identifier.value
+    end
+
     ##
     # Given a DOI, format it as a Datacite::Mapping::Identifier
     def datacite_identifier
-      Datacite::Mapping::Identifier.new(value: @metadata_from_form["identifier"])
+      @datacite_identifier ||= Datacite::Mapping::Identifier.new(value: @metadata_from_form["identifier"])
     end
 
     def datacite_publisher
       Datacite::Mapping::Publisher.new(value: @metadata_from_form["publisher"])
+    end
+  end
+
+  # value: "Miller, Elizabeth"
+  # name_type: "Personal"
+  # given_name: "Elizabeth"
+  # family_name: "Miller"
+  class Creator
+    attr_accessor :value, :name_type, :given_name, :family_name, :name_identifier, :affiliations, :sequence
+
+    # rubocop:disable Metrics/ParameterLists
+    def initialize(value: nil, name_type: nil, given_name: nil, family_name: nil, name_identifier: nil, sequence: 0)
+        @value = value
+        @name_type = name_type
+        @given_name = given_name
+        @family_name = family_name
+        @name_identifier = name_identifier
+        @affiliations = []
+        @sequence = sequence
+    end
+    # rubocop:enable Metrics/ParameterLists
+
+    def orcid_url
+        name_identifier&.orcid_url
+    end
+
+    def orcid
+        name_identifier&.orcid
+    end
+
+    def self.new_person(given_name, family_name, orcid_id = nil, sequence = 0)
+        full_name = "#{family_name}, #{given_name}"
+        creator = Creator.new(value: full_name, name_type: "Personal", given_name: given_name, family_name: family_name, sequence: sequence)
+        if orcid_id.present?
+        creator.name_identifier = NameIdentifier.new_orcid(orcid_id.strip)
+        end
+        creator
     end
   end
 end

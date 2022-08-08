@@ -21,7 +21,9 @@ class Work < ApplicationRecord
 
     # Convenience method to create Datasets with the DataCite profile
     def create_dataset(title, user_id, collection_id, datacite_resource = nil, ark = nil)
+      byebug
       datacite_resource = PULDatacite::Resource.new(title: title) if datacite_resource.nil?
+      byebug
       work = default_work(title, user_id, collection_id, datacite_resource, ark)
       work.draft_doi
 
@@ -81,6 +83,7 @@ class Work < ApplicationRecord
     private
 
       def default_work(title, user_id, collection_id, datacite_resource, ark)
+        byebug
         Work.new(
           title: title,
           created_by_user_id: user_id,
