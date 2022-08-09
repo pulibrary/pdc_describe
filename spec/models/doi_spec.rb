@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-RSpec.describe "DOI", type: :model do
+RSpec.describe "DOI", type: :model, mock_ezid_api: true do
   let(:client) do
     Datacite::Client.new(username: ENV["DATACITE_USER"],
                          password: ENV["DATACITE_PASSWORD"],
@@ -46,21 +46,15 @@ RSpec.describe "DOI", type: :model do
   end
 
   let(:xml_attributes) do
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
-     "<resource xmlns=\"http://datacite.org/schema/kernel-4\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://datacite.org/schema/kernel-4 " \
-      "http://schema.datacite.org/meta/kernel-4/metadata.xsd\">" \
-   "<identifier identifierType=\"DOI\">#{doi}</identifier>"\
-   "<creators><creator><creatorName>DataCite Metadata Working Group</creatorName></creator></creators>" \
-   "<titles><title>DataCite Metadata Schema Documentation for the Publication and Citation of Research Data v4.0</title></titles>" \
-   "<publisher>DataCite e.V.</publisher><publicationYear>2016</publicationYear><resourceType resourceTypeGeneral=\"Text\">Documentation</resourceType>" \
-  " </resource>"
+    work = FactoryBot.create(:shakespeare_and_company_work)
+    ValidDatacite::Resource.new_from_json(work.data_cite).to_xml
   end
 
   let(:minimum_xml_publish_attributes) do
     {
       "event" => "publish",
       "xml" => Base64.encode64(xml_attributes),
-      "url" => "https://schema.datacite.org/meta/kernel-4.0/index.html"
+      "url" => "https://schema.datacite.org/meta/kernel-4.0/index.html" # this should be a link to the item in PDC-discovery
     }
   end
 
