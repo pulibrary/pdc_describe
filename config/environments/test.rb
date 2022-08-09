@@ -9,6 +9,12 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  # Compile and load CSS when running tests if we're running in browser
+  if ENV["RUN_IN_BROWSER"]
+    config.assets.compile = true
+    config.asset_host = "http://localhost:3000"
+  end
+
   config.cache_classes = false
   config.action_view.cache_template_loading = true
 
