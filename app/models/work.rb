@@ -313,11 +313,10 @@ class Work < ApplicationRecord
   end
 
   def new_notification_count_for_user(user_id)
-    count = 0
-    activities.each do |activity|
-      count += WorkActivityNotification.where(user_id: user_id, work_activity_id: activity.id, read_at: nil).count
-    end
-    count
+    WorkActivityNotification.joins(:work_activity)
+                            .where(user_id: user_id, read_at: nil)
+                            .where(work_activity: { work_id: id })
+                            .count
   end
 
   # Marks as read the notifications for the given user_id in this work.
