@@ -118,6 +118,10 @@ module ValidDatacite
                                 Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL
                               when "collection"
                                 Datacite::Mapping::ResourceTypeGeneral::COLLECTION
+                              when "datapaper"
+                                Datacite::Mapping::ResourceTypeGeneral::DATA_PAPER
+                              when "event"
+                                Datacite::Mapping::ResourceTypeGeneral::EVENT
                               else
                                 Datacite::Mapping::ResourceTypeGeneral::OTHER
                               end
