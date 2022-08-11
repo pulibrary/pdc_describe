@@ -2,7 +2,7 @@
 
 # rubocop:disable Metrics/ClassLength
 class Work < ApplicationRecord
-  has_many :work_activity, dependent: :destroy
+  has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many_attached :deposit_uploads
 
   class << self
@@ -42,43 +42,43 @@ class Work < ApplicationRecord
       works_by_user_state(user, "WITHDRAWN")
     end
 
-    def works_by_user_state(user, state)
-      works = []
-      if user.admin_collections.count == 0
-        # Just the user's own works by state
-        works += Work.where(created_by_user_id: user, state: state)
-      else
-        # The works that match the given state, in all the collections the user can admin
-        # (regardless of who created those works)
-        user.admin_collections.each do |collection|
-          works += Work.where(collection_id: collection.id, state: state)
-        end
-      end
-
-      # Any other works where the user is mentioned
-      works_mentioned_by_user_state(user, state).each do |work_id|
-        already_included = !works.find { |work| work[:id] == work_id }.nil?
-        works << Work.find(work_id) unless already_included
-      end
-
-      works.sort_by(&:updated_at).reverse
-    end
-
-    # Returns an array of work ids where a particular user has been mentioned
-    # and the work is in a given state.
-    def works_mentioned_by_user_state(user, state)
-      sql = <<-END_SQL
-        SELECT DISTINCT works.id
-        FROM works
-        INNER JOIN work_activities ON works.id = work_activities.work_id
-        INNER JOIN work_activity_notifications ON work_activities.id = work_activity_notifications.work_activity_id
-        WHERE work_activity_notifications.user_id = #{user.id} AND works.state = '#{state}'
-      END_SQL
-      rows = ActiveRecord::Base.connection.execute(sql)
-      rows.map { |row| row["id"] }
-    end
-
     private
+
+      def works_by_user_state(user, state)
+        works = []
+        if user.admin_collections.count == 0
+          # Just the user's own works by state
+          works += Work.where(created_by_user_id: user, state: state)
+        else
+          # The works that match the given state, in all the collections the user can admin
+          # (regardless of who created those works)
+          user.admin_collections.each do |collection|
+            works += Work.where(collection_id: collection.id, state: state)
+          end
+        end
+
+        # Any other works where the user is mentioned
+        works_mentioned_by_user_state(user, state).each do |work_id|
+          already_included = !works.find { |work| work[:id] == work_id }.nil?
+          works << Work.find(work_id) unless already_included
+        end
+
+        works.sort_by(&:updated_at).reverse
+      end
+
+      # Returns an array of work ids where a particular user has been mentioned
+      # and the work is in a given state.
+      def works_mentioned_by_user_state(user, state)
+        sql = <<-END_SQL
+          SELECT DISTINCT works.id
+          FROM works
+          INNER JOIN work_activities ON works.id = work_activities.work_id
+          INNER JOIN work_activity_notifications ON work_activities.id = work_activity_notifications.work_activity_id
+          WHERE work_activity_notifications.user_id = #{user.id} AND works.state = '#{state}'
+        END_SQL
+        rows = ActiveRecord::Base.connection.execute(sql)
+        rows.map { |row| row["id"] }
+      end
 
       def default_work(title, user_id, collection_id, datacite_resource, ark)
         Work.new(
@@ -98,25 +98,6 @@ class Work < ApplicationRecord
   include Rails.application.routes.url_helpers
 
   belongs_to :collection
-
-  def generate_attachment_key(attachment)
-    key_base = "#{doi}/#{id}"
-
-    attachment_filename = attachment.filename.to_s
-    attachment_key = [key_base, attachment_filename].join("/")
-
-    attachment_ext = File.extname(attachment_filename)
-    attachment_query = attachment_key.gsub(attachment_ext, "")
-    results = ActiveStorage::Blob.where("key LIKE :query", query: "%#{attachment_query}%")
-    blobs = results.to_a
-
-    if blobs.present?
-      index = blobs.length + 1
-      attachment_key = attachment_key.gsub(/\.([a-zA-Z0-9\.]+)$/, "_#{index}.\\1")
-    end
-
-    attachment_key
-  end
 
   before_save do |work|
     # Ensure that the metadata JSON is persisted properly
@@ -207,12 +188,6 @@ class Work < ApplicationRecord
     self.state = "AWAITING-APPROVAL"
     save!
     track_state_change(user, "AWAITING-APPROVAL")
-  end
-
-  def track_state_change(user, state)
-    uw = UserWork.new(user_id: user.id, work_id: id, state: state)
-    uw.save!
-    WorkActivity.add_system_activity(id, "marked as #{state}", user.id)
   end
 
   def state_history
@@ -333,6 +308,31 @@ class Work < ApplicationRecord
   end
 
   private
+
+    def generate_attachment_key(attachment)
+      key_base = "#{doi}/#{id}"
+
+      attachment_filename = attachment.filename.to_s
+      attachment_key = [key_base, attachment_filename].join("/")
+
+      attachment_ext = File.extname(attachment_filename)
+      attachment_query = attachment_key.gsub(attachment_ext, "")
+      results = ActiveStorage::Blob.where("key LIKE :query", query: "%#{attachment_query}%")
+      blobs = results.to_a
+
+      if blobs.present?
+        index = blobs.length + 1
+        attachment_key = attachment_key.gsub(/\.([a-zA-Z0-9\.]+)$/, "_#{index}.\\1")
+      end
+
+      attachment_key
+    end
+
+    def track_state_change(user, state)
+      uw = UserWork.new(user_id: user.id, work_id: id, state: state)
+      uw.save!
+      WorkActivity.add_system_activity(id, "marked as #{state}", user.id)
+    end
 
     def data_cite_connection
       @data_cite_connection ||= Datacite::Client.new(username: ENV["DATACITE_USER"],
