@@ -97,6 +97,7 @@ RSpec.configure do |config|
   config.include Warden::Test::Helpers
 
   config.before(:suite) do
+    `bundle exec rake assets:precompile` if ENV["RUN_IN_BROWSER"]
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation)
   end
