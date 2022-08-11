@@ -90,6 +90,14 @@ RSpec.describe ValidDatacite::Resource, type: :model do
           resource_type = ds.datacite_resource_type("Collection")
           expect(resource_type.resource_type_general.value).to eq "Collection"
         end
+        it "DataPaper" do 
+          resource_type = ds.datacite_resource_type("DataPaper")
+          expect(resource_type.resource_type_general.value).to eq "DataPaper"
+        end
+        it "Event" do
+          resource_type = ds.datacite_resource_type("Event")
+          expect(resource_type.resource_type_general.value).to eq "Event"
+        end
       end
     end
   end
