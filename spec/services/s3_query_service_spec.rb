@@ -44,12 +44,21 @@ RSpec.describe S3QueryService do
     fake_s3_resp.stub(:to_h).and_return(s3_hash)
 
     data_profile = subject.data_profile
-    expect(data_profile).to be_instance_of(Array)
-    expect(data_profile.count).to eq 2
-    expect(data_profile.first).to be_instance_of(S3File)
-    expect(data_profile.first.filename).to match(/README/)
-    expect(data_profile.first.last_modified).to eq Time.parse("2022-04-21T18:29:40.000Z")
-    expect(data_profile.first.size).to eq 10_759
+    expect(data_profile[:objects]).to be_instance_of(Array)
+    expect(data_profile[:ok]).to eq true
+    expect(data_profile[:objects].count).to eq 2
+    expect(data_profile[:objects].first).to be_instance_of(S3File)
+    expect(data_profile[:objects].first.filename).to match(/README/)
+    expect(data_profile[:objects].first.last_modified).to eq Time.parse("2022-04-21T18:29:40.000Z")
+    expect(data_profile[:objects].first.size).to eq 10_759
+  end
+
+  it "handles connecting to a bad bucket" do
+    fake_aws_client = Aws::S3::Client
+    subject.stub(:client).and_return(fake_aws_client)
+    data_profile = subject.data_profile
+    expect(data_profile[:objects]).to be_instance_of(Array)
+    expect(data_profile[:ok]).to eq false
   end
 
   describe "#client" do
