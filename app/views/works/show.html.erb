@@ -41,11 +41,11 @@
 
 <div>
   <%= link_to("Edit", edit_work_path(@work), class: "btn btn-primary") %>
-  <% if @work.state == "AWAITING-APPROVAL" %>
+  <% if @work.awaiting_approval? %>
     <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post) %>
-  <% elsif @work.state == "APPROVED" %>
+  <% elsif @work.approved? %>
     <%= button_to("Withdraw Dataset", withdraw_work_path(@work), class: "btn btn-secondary", method: :post) %>
-  <% elsif @work.state == "WITHDRAWN" %>
+  <% elsif @work.withdrawn? %>
     <%= button_to("Resubmit for approval", resubmit_work_path(@work), class: "btn btn-secondary", method: :post) %>
   <% end %>
   <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-secondary" %>

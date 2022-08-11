@@ -2,6 +2,7 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
+gem "aasm"
 gem "aws-sdk-s3"
 gem "datacite-mapping"
 gem "factory_bot_rails", require: false
