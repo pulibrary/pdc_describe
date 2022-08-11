@@ -77,6 +77,20 @@ RSpec.describe ValidDatacite::Resource, type: :model do
       it "has a publication year" do
         expect(mapping.publication_year).to eq 2020
       end
+      context "resource types" do
+        it "maps dataset" do 
+          resource_type = ds.datacite_resource_type("dataset")
+          expect(resource_type.resource_type_general.value).to eq "Dataset"
+        end
+        it "Audiovisual" do
+          resource_type = ds.datacite_resource_type("Audiovisual")
+          expect(resource_type.resource_type_general.value).to eq "Audiovisual"
+        end
+        it "Collection" do
+          resource_type = ds.datacite_resource_type("Collection")
+          expect(resource_type.resource_type_general.value).to eq "Collection"
+        end
+      end
     end
   end
 end

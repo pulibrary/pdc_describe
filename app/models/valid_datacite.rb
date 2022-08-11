@@ -114,6 +114,10 @@ module ValidDatacite
       resource_type_general = case resource_type.downcase
                               when "dataset"
                                 Datacite::Mapping::ResourceTypeGeneral::DATASET
+                              when "audiovisual"
+                                Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL
+                              when "collection"
+                                Datacite::Mapping::ResourceTypeGeneral::COLLECTION
                               else
                                 Datacite::Mapping::ResourceTypeGeneral::OTHER
                               end
