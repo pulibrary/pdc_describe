@@ -13,6 +13,12 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
     described_class.create_dataset("test title", user.id, collection.id, datacite_resource)
   end
+  let(:work2) do
+    datacite_resource = PULDatacite::Resource.new
+    datacite_resource.description = "description of the second test dataset"
+    datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
+    described_class.create_dataset("second test title", user.id, collection.id, datacite_resource)
+  end
 
   let(:lib_user) do
     user = FactoryBot.create :user
@@ -271,6 +277,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       expect(work.new_notification_count_for_user(curator_user.id)).to eq 0
 
       work.add_comment("taggging @#{curator_user.uid}", user)
+      work2.add_comment("taggging @#{curator_user.uid}", user)
       expect(work.new_notification_count_for_user(user.id)).to eq 0
       expect(work.new_notification_count_for_user(curator_user.id)).to eq 1
 
