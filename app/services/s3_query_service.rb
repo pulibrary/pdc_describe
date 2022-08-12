@@ -66,17 +66,23 @@ class S3QueryService
     "s3://#{bucket_name}/#{prefix}"
   end
 
+  # There is probably a better way to fetch the current ActiveStorage configuration but we have
+  # not found it.
+  def active_storage_configuration
+    Rails.configuration.active_storage.service_configurations[Rails.configuration.active_storage.service.to_s]
+  end
+
   def access_key_id
-    ENV['AWS_S3_KEY_ID']
+    active_storage_configuration["access_key_id"]
   end
 
   def secret_access_key
-    ENV['AWS_S3_SECRET_KEY']
+    active_storage_configuration["secret_access_key"]
   end
 
   def client
     credentials = Aws::Credentials.new(access_key_id, secret_access_key)
-    @client ||= Aws::S3::Client.new(region: region)
+    @client ||= Aws::S3::Client.new(region: region, credentials: credentials)
   end
 
   ##
