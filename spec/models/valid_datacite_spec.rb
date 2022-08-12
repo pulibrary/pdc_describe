@@ -98,6 +98,22 @@ RSpec.describe ValidDatacite::Resource, type: :model do
           resource_type = ds.datacite_resource_type("Event")
           expect(resource_type.resource_type_general.value).to eq "Event"
         end
+        it "Image" do
+          resource_type = ds.datacite_resource_type("Image")
+          expect(resource_type.resource_type_general.value).to eq "Image"
+        end
+        it "InteractiveResource" do
+          resource_type = ds.datacite_resource_type("InteractiveResource")
+          expect(resource_type.resource_type_general.value).to eq "InteractiveResource"
+        end
+        it "Model" do
+          resource_type = ds.datacite_resource_type("Model")
+          expect(resource_type.resource_type_general.value).to eq "Model"
+        end
+        it "PhysicalObject" do
+          resource_type = ds.datacite_resource_type("PhysicalObject")
+          expect(resource_type.resource_type_general.value).to eq "PhysicalObject"
+        end
       end
     end
   end

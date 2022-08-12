@@ -122,6 +122,14 @@ module ValidDatacite
                                 Datacite::Mapping::ResourceTypeGeneral::DATA_PAPER
                               when "event"
                                 Datacite::Mapping::ResourceTypeGeneral::EVENT
+                              when "image"
+                                Datacite::Mapping::ResourceTypeGeneral::IMAGE
+                              when "interactiveresource"
+                                Datacite::Mapping::ResourceTypeGeneral::INTERACTIVE_RESOURCE
+                              when "model"
+                                Datacite::Mapping::ResourceTypeGeneral::MODEL
+                              when "physicalobject"
+                                Datacite::Mapping::ResourceTypeGeneral::PHYSICAL_OBJECT
                               else
                                 Datacite::Mapping::ResourceTypeGeneral::OTHER
                               end
