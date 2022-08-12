@@ -6,7 +6,13 @@
 
         <!-- Only render file download table if there are files in S3 -->
         <% if @files && @files.empty? %>
-         <p>No files in S3</p>
+          <% if @files_ok %>
+            <p>No files in S3</p>
+          <% else %>
+            <p>
+              <i class="bi bi-exclamation-diamond-fill required-field"></i>
+              Could not connect to S3 to retrieve file information</p>
+          <% end %>
         <% else %>
           <table id="files-table" class="table">
             <thead>
