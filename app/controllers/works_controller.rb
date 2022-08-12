@@ -31,7 +31,9 @@ class WorksController < ApplicationController
     @work.mark_new_notifications_as_read(current_user.id)
     if @work.doi
       service = S3QueryService.new(@work.doi)
-      @files = service.data_profile
+      data_profile = service.data_profile
+      @files = data_profile[:objects]
+      @files_ok = data_profile[:ok]
     end
   end
 
