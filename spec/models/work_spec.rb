@@ -112,17 +112,17 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   it "approves works and records the change history" do
     work.approve(user)
-    expect(work.state_history.first.state).to eq "APPROVED"
+    expect(work.state_history.first.state).to eq "approved"
   end
 
   it "withdraw works and records the change history" do
     work.withdraw(user)
-    expect(work.state_history.first.state).to eq "WITHDRAWN"
+    expect(work.state_history.first.state).to eq "withdrawn"
   end
 
   it "resubmit works and records the change history" do
     work.resubmit(user)
-    expect(work.state_history.first.state).to eq "AWAITING-APPROVAL"
+    expect(work.state_history.first.state).to eq "awaiting_approval"
   end
 
   describe "#created_by_user" do
@@ -345,6 +345,36 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
         local_disk_path = Rails.root.join("spec", "fixtures", "storage", work2.doi, work2.id.to_s, "us_covid_2019.csv")
         expect(File.exist?(local_disk_path)).to be true
       end
+    end
+  end
+
+  describe "states" do
+    let(:work) { Work.new(collection: collection) }
+    it "initally is draft" do
+      expect(work.draft?).to be_truthy
+      expect(work.state).to eq("draft")
+    end
+
+    it "transitions from draft to awaiting_approval" do
+      work.ready_for_review(user)
+      expect(work.state).to eq("awaiting_approval")
+    end
+
+    it "transitions from awaiting_approval to approved" do
+      work.ready_for_review(user)
+      work.approve(user)
+      expect(work.state).to eq("approved")
+    end
+
+    it "transitions from approved to withdraw" do
+      work.ready_for_review(user)
+      work.approve(user)
+      work.withdraw(user)
+      expect(work.state).to eq("withdrawn")
+    end
+
+    it "can not transition from draft to approved" do
+      expect { work.approve }.to raise_error
     end
   end
 end
