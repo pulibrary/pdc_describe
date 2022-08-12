@@ -68,7 +68,7 @@ RSpec.describe S3QueryService do
     end
 
     it "constructs the AWS S3 API client object" do
-      expect(Aws::S3::Client).to have_received(:new).with(region: "us-east-1")
+      expect(Aws::S3::Client).to have_received(:new).with(hash_including(region: "us-east-1"))
     end
   end
 end
