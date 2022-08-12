@@ -5,6 +5,31 @@ class Work < ApplicationRecord
   has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many_attached :deposit_uploads
 
+  include AASM
+
+  aasm column: :state do
+    state :draft, initial: true
+    state :awaiting_approval, :approved, :withdrawn
+
+    event :ready_for_review do
+      transitions from: :draft, to: :awaiting_approval, guard: :valid_to_submit
+    end
+
+    event :approve do
+      transitions from: :awaiting_approval, to: :approved, guard: :valid_to_submit
+    end
+
+    event :withdraw do
+      transitions from: [:awaiting_approval, :approved], to: :withdrawn
+    end
+
+    event :resubmit do
+      transitions from: [:withdrawn, :awaiting_approval], to: :awaiting_approval
+    end
+
+    after_all_transitions :track_state_change
+  end
+
   class << self
     def create_skeleton(title, user_id, collection_id, work_type, profile)
       work = Work.new(
@@ -12,7 +37,7 @@ class Work < ApplicationRecord
         created_by_user_id: user_id,
         collection_id: collection_id,
         work_type: work_type,
-        state: "AWAITING-APPROVAL",
+        state: "awaiting_approval",
         profile: profile
       )
       work.save!
@@ -31,15 +56,15 @@ class Work < ApplicationRecord
     end
 
     def unfinished_works(user)
-      works_by_user_state(user, "AWAITING-APPROVAL")
+      works_by_user_state(user, "awaiting_approval")
     end
 
     def completed_works(user)
-      works_by_user_state(user, "APPROVED")
+      works_by_user_state(user, "approved")
     end
 
     def withdrawn_works(user)
-      works_by_user_state(user, "WITHDRAWN")
+      works_by_user_state(user, "withdrawn")
     end
 
     private
@@ -86,7 +111,7 @@ class Work < ApplicationRecord
           created_by_user_id: user_id,
           collection_id: collection_id,
           work_type: "DATASET",
-          state: "AWAITING-APPROVAL",
+          state: "awaiting_approval",
           profile: "DATACITE",
           doi: nil,
           data_cite: datacite_resource.to_json,
@@ -128,29 +153,17 @@ class Work < ApplicationRecord
   end
 
   validate do |work|
-    if work.ark.present?
-      work.errors.add(:base, "Invalid ARK provided for the Work: #{work.ark}") unless Ark.valid?(work.ark)
-    end
+    work.valid_to_submit unless draft?
+  end
 
-    if work.data_cite.present?
-      work.errors.add(:base, "Must provide a title") if work.title.blank?
-      work.errors.add(:base, "Must provide a description") if work.datacite_resource.description.blank?
-      work.errors.add(:base, "Must indicate the Publisher") if work.datacite_resource.publisher.blank?
-      work.errors.add(:base, "Must indicate the Publication Year") if work.datacite_resource.publication_year.blank?
-      if work.datacite_resource.creators.count == 0
-        work.errors.add(:base, "Must provide at least one Creator")
-      else
-        work.datacite_resource.creators.each do |creator|
-          if creator.orcid.present? && Orcid.invalid?(creator.orcid)
-            work.errors.add(:base, "ORCID for creator #{creator.value} is not in format 0000-0000-0000-0000")
-          end
-        end
-      end
+  def valid_to_submit
+    errors.clear
+    validate_ark
+    validate_metadata
+    if deposit_uploads.length > 20
+      errors.add(:base, "Only 20 files may be uploaded by a user to a given Work. #{deposit_uploads.length} files were uploaded for the Work: #{ark}")
     end
-
-    if work.deposit_uploads.length > 20
-      work.errors.add(:base, "Only 20 files may be uploaded by a user to a given Work. #{work.deposit_uploads.length} files were uploaded for the Work: #{work.ark}")
-    end
+    errors.count == 0
   end
 
   def curator
@@ -170,24 +183,6 @@ class Work < ApplicationRecord
                      raise("Error generating DOI. #{result.failure.status} / #{result.failure.reason_phrase}")
                    end
                  end
-  end
-
-  def approve(user)
-    self.state = "APPROVED"
-    save!
-    track_state_change(user, "APPROVED")
-  end
-
-  def withdraw(user)
-    self.state = "WITHDRAWN"
-    save!
-    track_state_change(user, "WITHDRAWN")
-  end
-
-  def resubmit(user)
-    self.state = "AWAITING-APPROVAL"
-    save!
-    track_state_change(user, "AWAITING-APPROVAL")
   end
 
   def state_history
@@ -328,7 +323,8 @@ class Work < ApplicationRecord
       attachment_key
     end
 
-    def track_state_change(user, state)
+    def track_state_change(user, state = aasm.to_state)
+      save!
       uw = UserWork.new(user_id: user.id, work_id: id, state: state)
       uw.save!
       WorkActivity.add_system_activity(id, "marked as #{state}", user.id)
@@ -338,6 +334,33 @@ class Work < ApplicationRecord
       @data_cite_connection ||= Datacite::Client.new(username: ENV["DATACITE_USER"],
                                                      password: ENV["DATACITE_PASSWORD"],
                                                      host: ENV["DATACITE_HOST"])
+    end
+
+    def validate_ark
+      if ark.present?
+        errors.add(:base, "Invalid ARK provided for the Work: #{ark}") unless Ark.valid?(ark)
+      end
+    end
+
+    def validate_metadata
+      return if data_cite.blank?
+      errors.add(:base, "Must provide a title") if title.blank?
+      errors.add(:base, "Must provide a description") if datacite_resource.description.blank?
+      errors.add(:base, "Must indicate the Publisher") if datacite_resource.publisher.blank?
+      errors.add(:base, "Must indicate the Publication Year") if datacite_resource.publication_year.blank?
+      validate_creators
+    end
+
+    def validate_creators
+      if datacite_resource.creators.count == 0
+        errors.add(:base, "Must provide at least one Creator")
+      else
+        datacite_resource.creators.each do |creator|
+          if creator.orcid.present? && Orcid.invalid?(creator.orcid)
+            errors.add(:base, "ORCID for creator #{creator.value} is not in format 0000-0000-0000-0000")
+          end
+        end
+      end
     end
 end
 # rubocop:ensable Metrics/ClassLength
