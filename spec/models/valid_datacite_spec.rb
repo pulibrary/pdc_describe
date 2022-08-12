@@ -78,7 +78,7 @@ RSpec.describe ValidDatacite::Resource, type: :model do
         expect(mapping.publication_year).to eq 2020
       end
       context "resource types" do
-        it "maps dataset" do 
+        it "maps dataset" do
           resource_type = ds.datacite_resource_type("dataset")
           expect(resource_type.resource_type_general.value).to eq "Dataset"
         end
@@ -90,7 +90,7 @@ RSpec.describe ValidDatacite::Resource, type: :model do
           resource_type = ds.datacite_resource_type("Collection")
           expect(resource_type.resource_type_general.value).to eq "Collection"
         end
-        it "DataPaper" do 
+        it "DataPaper" do
           resource_type = ds.datacite_resource_type("DataPaper")
           expect(resource_type.resource_type_general.value).to eq "DataPaper"
         end

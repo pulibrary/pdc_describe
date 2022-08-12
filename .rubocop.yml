@@ -17,6 +17,9 @@ AllCops:
 Layout/IndentationConsistency:
   EnforcedStyle: indented_internal_methods
 
+Metrics/MethodLength:
+  Enabled: false
+
 Metrics/BlockLength:
   Exclude:
     - "config/environments/**/*"
