@@ -21,7 +21,7 @@
                   <td>
                     <span>
                       <i class="bi bi-file-arrow-down"></i>
-                      <a href="<%= rails_blob_path(file, disposition: "attachment") %>" class="documents-file-link" target="_blank" title="<%= file.filename %>"><%= deposit_uploads(file: file) %></a>
+                      <a href="<%= rails_blob_path(file, disposition: "attachment") %>" class="documents-file-link" target="_blank" title="<%= file.filename %>"><%= deposit_uploads_file_name(file: file) %></a>
                     </span>
                   </td>
                   <td><span><%= file.created_at %></span></td>
