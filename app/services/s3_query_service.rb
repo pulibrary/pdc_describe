@@ -66,7 +66,16 @@ class S3QueryService
     "s3://#{bucket_name}/#{prefix}"
   end
 
+  def access_key_id
+    ENV['AWS_S3_KEY_ID']
+  end
+
+  def secret_access_key
+    ENV['AWS_S3_SECRET_KEY']
+  end
+
   def client
+    credentials = Aws::Credentials.new(access_key_id, secret_access_key)
     @client ||= Aws::S3::Client.new(region: region)
   end
 
