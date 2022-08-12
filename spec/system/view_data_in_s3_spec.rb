@@ -29,7 +29,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
 
     before do
       allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
-      allow(s3_query_service_double).to receive(:data_profile).and_return(s3_data)
+      allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
     end
 
     it "shows data from S3", js: true do

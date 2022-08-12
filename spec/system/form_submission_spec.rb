@@ -60,7 +60,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       click_on "Continue"
       click_on "Complete"
 
-      expect(page).to have_content "AWAITING-APPROVAL"
+      expect(page).to have_content "awaiting_approval"
     end
   end
 end
