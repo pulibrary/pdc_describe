@@ -127,7 +127,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe "#created_by_user" do
     context "when the ID is invalid" do
-      subject(:work) { described_class.create_dataset(title, user_id, collection_id) }
+      subject(:work) { described_class.create_dataset(title, user_id, collection_id, nil) }
       let(:title) { "test title" }
       let(:user_id) { user.id }
       let(:collection_id) { collection.id }
@@ -219,11 +219,11 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe "datasets waiting for approval by user type" do
     before do
-      described_class.create_dataset("test title 1", user.id, collection.id)
-      described_class.create_dataset("test title 2", user.id, collection.id)
-      described_class.create_dataset("test title 3", pppl_user.id, Collection.plasma_laboratory.id)
+      described_class.create_dataset("test title 1", user.id, collection.id, nil)
+      described_class.create_dataset("test title 2", user.id, collection.id, nil)
+      described_class.create_dataset("test title 3", pppl_user.id, Collection.plasma_laboratory.id, nil)
       # Create the dataset for `lib_user`` and @mention `user`
-      ds = described_class.create_dataset("test title 4", lib_user.id, Collection.library_resources.id)
+      ds = described_class.create_dataset("test title 4", lib_user.id, Collection.library_resources.id, nil)
       WorkActivity.add_system_activity(ds.id, "Tagging @#{user.uid} in this dataset", lib_user.id)
     end
 
