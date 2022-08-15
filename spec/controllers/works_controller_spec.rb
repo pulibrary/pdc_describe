@@ -423,6 +423,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
       post :approve, params: { id: work.id }
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/works/#{work.id}"
+      expect(work.reload).to be_approved
     end
 
     it "handles withdraw" do
@@ -430,13 +431,16 @@ RSpec.describe WorksController, mock_ezid_api: true do
       post :withdraw, params: { id: work.id }
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/works/#{work.id}"
+      expect(work.reload).to be_withdrawn
     end
 
     it "handles resubmit" do
       sign_in user
+      work.withdraw!(user)
       post :resubmit, params: { id: work.id }
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/works/#{work.id}"
+      expect(work.reload).to be_awaiting_approval
     end
 
     it "handles the show page" do

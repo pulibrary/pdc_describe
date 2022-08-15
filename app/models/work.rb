@@ -27,7 +27,7 @@ class Work < ApplicationRecord
       transitions from: [:withdrawn, :awaiting_approval], to: :awaiting_approval
     end
 
-    after_all_transitions :track_state_change
+    after_all_events :track_state_change
   end
 
   class << self
@@ -45,8 +45,7 @@ class Work < ApplicationRecord
     end
 
     # Convenience method to create Datasets with the DataCite profile
-    def create_dataset(title, user_id, collection_id, datacite_resource = nil, ark = nil)
-      datacite_resource = PULDatacite::Resource.new(title: title) if datacite_resource.nil?
+    def create_dataset(title, user_id, collection_id, datacite_resource, ark = nil)
       work = default_work(title, user_id, collection_id, datacite_resource, ark)
       work.draft_doi
 
