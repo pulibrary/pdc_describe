@@ -53,22 +53,22 @@
 
 <h1><%= @work.title %></h1>
 
-<% @work.datacite_resource.other_titles.each do |title| %>
+<% @work.resource.other_titles.each do |title| %>
   <p><b><%= title.title_type %></b>: <%= title.title %></p>
 <% end %>
 
 <p>
-<% @work.datacite_resource.creators.each_with_index do |creator, ix| %>
-  <%= person_orcid_link(creator.value, creator.orcid, ix < (@work.datacite_resource.creators.count-1) ) %>
+<% @work.resource.creators.each_with_index do |creator, ix| %>
+  <%= person_orcid_link(creator.value, creator.orcid, ix < (@work.resource.creators.count-1) ) %>
 <% end %>
 </p>
 
 <div>
   <p>Description:<br/>
-    <%= @work.datacite_resource.description %>
+    <%= @work.resource.description %>
   </p>
-  <p>Publisher: <%= @work.datacite_resource.publisher %></p>
-  <p>Publication Year: <%= @work.datacite_resource.publication_year %></p>
+  <p>Publisher: <%= @work.resource.publisher %></p>
+  <p>Publication Year: <%= @work.resource.publication_year %></p>
   <p>DOI: <%= link_to(@work.doi, @work.doi) %></p>
   <p>ARK: <%= link_to(@work.ark, @work.ark_url) %></p>
   <p>Added by: <%= @work.created_by_user.uid %></p>

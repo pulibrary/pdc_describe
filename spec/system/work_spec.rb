@@ -37,9 +37,9 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
 
   it "Renders ORCID links for creators", js: true do
     stub_s3
-    datacite_resource = PULDatacite::Resource.new(title: "Test dataset")
-    datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")
-    work = Work.create_dataset("Test dataset", user.id, user.default_collection_id, datacite_resource)
+    resource = PULDatacite::Resource.new(title: "Test dataset")
+    resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")
+    work = Work.create_dataset("Test dataset", user.id, user.default_collection_id, resource)
 
     sign_in user
     visit work_path(work)
@@ -47,9 +47,9 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
   end
 
   it "Renders in wizard mode when requested", js: true do
-    datacite_resource = PULDatacite::Resource.new(title: "Test dataset")
-    datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")
-    work = Work.create_dataset("Test dataset", user.id, user.default_collection_id, datacite_resource)
+    resource = PULDatacite::Resource.new(title: "Test dataset")
+    resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")
+    work = Work.create_dataset("Test dataset", user.id, user.default_collection_id, resource)
 
     sign_in user
     visit edit_work_path(work, wizard: true)
@@ -58,12 +58,12 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
 
   context "datacite record" do
     let(:creator) { PULDatacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456") }
-    let(:datacite_resource) do
+    let(:resource) do
       resource = PULDatacite::Resource.new(title: "Test dataset")
       resource.creators << creator
       resource
     end
-    let(:work) { Work.create_dataset("Test dataset", user.id, user.default_collection_id, datacite_resource) }
+    let(:work) { Work.create_dataset("Test dataset", user.id, user.default_collection_id, resource) }
 
     before do
       stub_s3

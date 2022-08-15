@@ -8,16 +8,16 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:superadmin_user) { User.from_cas(OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" })) }
   let(:doi) { "https://doi.org/10.34770/0q6b-cj27" }
   let(:work) do
-    datacite_resource = PULDatacite::Resource.new
-    datacite_resource.description = "description of the test dataset"
-    datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
-    described_class.create_dataset("test title", user.id, collection.id, datacite_resource)
+    resource = PULDatacite::Resource.new
+    resource.description = "description of the test dataset"
+    resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
+    described_class.create_dataset("test title", user.id, collection.id, resource)
   end
   let(:work2) do
-    datacite_resource = PULDatacite::Resource.new
-    datacite_resource.description = "description of the second test dataset"
-    datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
-    described_class.create_dataset("second test title", user.id, collection.id, datacite_resource)
+    resource = PULDatacite::Resource.new
+    resource.description = "description of the second test dataset"
+    resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
+    described_class.create_dataset("second test title", user.id, collection.id, resource)
   end
 
   let(:lib_user) do
@@ -50,7 +50,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   it "checks the format of the ORCID of the creators" do
     # Add a new creator with an incomplete ORCID
-    work.datacite_resource.creators << PULDatacite::Creator.new_person("Williams", "Serena", "1234-12")
+    work.resource.creators << PULDatacite::Creator.new_person("Williams", "Serena", "1234-12")
     expect(work.save).to be false
     expect(work.errors.find { |error| error.type.include?("ORCID") }).to be_present
   end
@@ -78,9 +78,9 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   context "with a persisted dataset work" do
-    subject(:work) { described_class.create_dataset("test title", user.id, collection.id, datacite_resource) }
+    subject(:work) { described_class.create_dataset("test title", user.id, collection.id, resource) }
 
-    let(:datacite_resource) { PULDatacite::Resource.new }
+    let(:resource) { PULDatacite::Resource.new }
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
@@ -89,8 +89,8 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     before do
-      datacite_resource.description = "description of the test dataset"
-      datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
+      resource.description = "description of the test dataset"
+      resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
 
       stub_request(:put, /#{attachment_url}/).with(
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
@@ -296,10 +296,10 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe "#deposit_uploads" do
     let(:work2) do
-      datacite_resource = PULDatacite::Resource.new
-      datacite_resource.description = "description of the test dataset"
-      datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
-      described_class.create_dataset("test title", user.id, collection.id, datacite_resource)
+      resource = PULDatacite::Resource.new
+      resource.description = "description of the test dataset"
+      resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
+      described_class.create_dataset("test title", user.id, collection.id, resource)
     end
 
     let(:uploaded_file) do

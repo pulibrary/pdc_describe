@@ -7,7 +7,7 @@ FactoryBot.define do
       collection { Collection.research_data }
       doi { "https://doi.org/10.34770/pe9w-x904" }
       ark { "ark:/88435/dsp01zc77st047" }
-      data_cite do
+      metadata do
         {
           "identifier": doi,
           "identifier_type": "DOI",
