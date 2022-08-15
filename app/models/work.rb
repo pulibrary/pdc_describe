@@ -27,7 +27,7 @@ class Work < ApplicationRecord
       transitions from: [:withdrawn, :awaiting_approval], to: :awaiting_approval
     end
 
-    after_all_transitions :track_state_change
+    after_all_events :track_state_change
   end
 
   class << self
