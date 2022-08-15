@@ -27,14 +27,25 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
     end
     let(:s3_data) { [file1, file2] }
 
-    before do
-      allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
-      allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
+    let(:bucket_url) do
+      "https://example-bucket.s3.amazonaws.com/"
     end
 
-    it "shows data from S3", js: true do
+    before do
+      # Account for files in S3 added outside of ActiveStorage
+      allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
+      allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
+
+      # Account for files uploaded to S3 via ActiveStorage
+      stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+      file = fixture_file_upload("us_covid_2019.csv", "text/csv")
+      work.deposit_uploads.attach(file)
+    end
+
+    it "shows data from S3 on the Show and Edit pages", js: true do
       visit work_path(work)
       expect(page).to have_content work.title
+      expect(page).to have_content "us_covid_2019.csv"
 
       expect(page).to have_content file1.filename
       expect(page).to have_content file1.last_modified
@@ -43,6 +54,9 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
       expect(page).to have_content file2.filename
       expect(page).to have_content file2.last_modified
       expect(page).to have_content "12.4 KB"
+
+      click_on "Edit"
+      expect(page).to have_content "us_covid_2019.csv"
     end
   end
 end
