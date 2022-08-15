@@ -42,9 +42,10 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
       work.deposit_uploads.attach(file)
     end
 
-    it "shows data from S3", js: true do
+    it "shows data from S3 on the Show and Edit pages", js: true do
       visit work_path(work)
       expect(page).to have_content work.title
+      expect(page).to have_content "us_covid_2019.csv"
 
       expect(page).to have_content file1.filename
       expect(page).to have_content file1.last_modified
@@ -54,6 +55,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
       expect(page).to have_content file2.last_modified
       expect(page).to have_content "12.4 KB"
 
+      click_on "Edit"
       expect(page).to have_content "us_covid_2019.csv"
     end
   end
