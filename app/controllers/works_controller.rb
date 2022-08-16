@@ -21,7 +21,7 @@ class WorksController < ApplicationController
   def new_submission
     default_collection_id = current_user.default_collection.id
     resource = resource_from_form
-    work = Work.create_dataset(resource.main_title, current_user.id, default_collection_id, resource)
+    work = Work.create_dataset(current_user.id, default_collection_id, resource)
     redirect_to edit_work_path(work, wizard: true)
   end
 
@@ -67,11 +67,9 @@ class WorksController < ApplicationController
                                 updated_uploads
                               end
 
-    title_param = params[:title_main]
     collection_id_param = params[:collection_id]
 
     updates = {
-      title: title_param,
       collection_id: collection_id_param,
       metadata: resource_from_form.to_json,
       deposit_uploads: updated_deposit_uploads
