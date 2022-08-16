@@ -3,7 +3,9 @@
 # rubocop:disable Metrics/ClassLength
 class Work < ApplicationRecord
   has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
-  has_many_attached :deposit_uploads
+  has_many_attached :pre_curation_uploads, service: :amazon_pre_curation
+  has_many_attached :post_curation_uploads, service: :amazon_post_curation
+
   belongs_to :collection
 
   attribute :work_type, :string, default: "DATASET"
@@ -115,7 +117,24 @@ class Work < ApplicationRecord
     # Ensure that the metadata JSON is persisted properly
     work.metadata = work.resource.to_json
 
-    new_attachments = work.deposit_uploads.reject(&:persisted?)
+    new_attachments = work.pre_curation_uploads.reject(&:persisted?)
+    new_attachments.each do |attachment|
+      attachment_key = generate_attachment_key(attachment)
+      attachment.key = attachment_key
+
+      attachment.blob.save
+      attachment.save
+    end
+
+    if work.approved?
+      post_curation_keys = work.pre_curation_uploads.map(&:key)
+
+      work.pre_curation_uploads.each do |pre_curation_attachment|
+        work.post_curation_uploads.attach(pre_curation_attachment) unless post_curation_keys.include?(pre_curation_attachment.key)
+      end
+    end
+
+    new_attachments = work.post_curation_uploads.reject(&:persisted?)
     new_attachments.each do |attachment|
       attachment_key = generate_attachment_key(attachment)
       attachment.key = attachment_key
@@ -148,12 +167,6 @@ class Work < ApplicationRecord
     valid_to_draft
     validate_metadata
     errors.count == 0
-  end
-
-  def validate_uploads
-    if deposit_uploads.length > 20
-      errors.add(:base, "Only 20 files may be uploaded by a user to a given Work. #{deposit_uploads.length} files were uploaded for the Work: #{ark}")
-    end
   end
 
   def title
@@ -291,6 +304,12 @@ class Work < ApplicationRecord
 
   def current_transition
     aasm.current_event.to_s.humanize.delete("!")
+  end
+
+  def uploads
+    return post_curation_uploads if approved?
+
+    pre_curation_uploads
   end
 
   private

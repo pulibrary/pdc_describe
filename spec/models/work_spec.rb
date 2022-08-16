@@ -76,16 +76,17 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
       ).to_return(status: 200)
 
-      20.times { work.deposit_uploads.attach(uploaded_file) }
+      20.times { work.pre_curation_uploads.attach(uploaded_file) }
       work.save!
     end
 
     it "prevents works from having more than 20 uploads attached" do
-      work.deposit_uploads.attach(uploaded_file2)
+      work.pre_curation_uploads.attach(uploaded_file2)
+
       expect { work.save! }.to raise_error(ActiveRecord::RecordInvalid, "Validation failed: Only 20 files may be uploaded by a user to a given Work. 21 files were uploaded for the Work: #{work.ark}")
 
       persisted = described_class.find(work.id)
-      expect(persisted.deposit_uploads.length).to eq(20)
+      expect(persisted.pre_curation_uploads.length).to eq(20)
     end
   end
 
@@ -276,8 +277,10 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
   end
 
-  describe "#deposit_uploads" do
-    let(:work2) { FactoryBot.create(:draft_work) }
+  describe "#pre_curation_uploads" do
+    let(:work2) do
+      described_class.create_dataset(user.id, collection.id, resource)
+    end
 
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
@@ -292,30 +295,30 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
       ).to_return(status: 200)
 
-      work.deposit_uploads.attach(uploaded_file)
+      work.pre_curation_uploads.attach(uploaded_file)
     end
 
     context "with configured to use the human-readable storage service", humanizable_storage: true do
       it "attaches deposited file uploads to the Work model with human-readable file paths" do
-        expect(work.deposit_uploads).not_to be_empty
+        expect(work.pre_curation_uploads).not_to be_empty
 
-        attached = work.deposit_uploads.first
+        attached = work.pre_curation_uploads.first
         expect(attached).to be_a(ActiveStorage::Attachment)
         expect(attached.blob).to be_a(ActiveStorage::Blob)
         expect(attached.blob.key).to eq("#{work.doi}/#{work.id}/us_covid_2019.csv")
         local_disk_path = Rails.root.join("spec", "fixtures", "storage", work.doi, work.id.to_s, "us_covid_2019.csv")
         expect(File.exist?(local_disk_path)).to be true
 
-        work.deposit_uploads.attach(uploaded_file2)
-        attached2 = work.deposit_uploads.last
+        work.pre_curation_uploads.attach(uploaded_file2)
+        attached2 = work.pre_curation_uploads.last
         expect(attached2).to be_a(ActiveStorage::Attachment)
         expect(attached2.blob).to be_a(ActiveStorage::Blob)
         expect(attached2.blob.key).to eq("#{work.doi}/#{work.id}/us_covid_2019_2.csv")
         local_disk_path = Rails.root.join("spec", "fixtures", "storage", work.doi, work.id.to_s, "us_covid_2019_2.csv")
         expect(File.exist?(local_disk_path)).to be true
 
-        work2.deposit_uploads.attach(uploaded_file)
-        attached = work2.deposit_uploads.first
+        work2.pre_curation_uploads.attach(uploaded_file)
+        attached = work2.pre_curation_uploads.first
         expect(attached).to be_a(ActiveStorage::Attachment)
         expect(attached.blob).to be_a(ActiveStorage::Blob)
         expect(attached.blob.key).to eq("#{work2.doi}/#{work2.id}/us_covid_2019.csv")

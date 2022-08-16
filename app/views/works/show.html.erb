@@ -81,7 +81,7 @@
   <p>Added by: <%= @work.created_by_user.uid %></p>
   <p>Collection: <%= @work.collection.title %></p>
 
-  <% if @work.deposit_uploads.present? %>
+  <% if @work.pre_curation_uploads.present? %>
     <p>Location: Amazon S3 Curation Storage</p>
     <p>Location notes: <%= @work.location_notes %></p>
   <% elsif @work.files_location_cluster? %>
@@ -113,8 +113,8 @@
 
 </div>
 
-<% if @work.deposit_uploads.present? %>
-  <%= render(partial: 'works/deposit_uploads') %>
+<% if @work.pre_curation_uploads.present? %>
+  <%= render(partial: 'works/uploads') %>
 <% end %>
 
 <%= render(partial: 'works/files') %>

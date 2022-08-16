@@ -49,33 +49,33 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     @wizard_mode = params[:wizard] == "true"
 
-    updated_deposit_uploads = if work_params.key?(:deposit_uploads)
-                                work_params[:deposit_uploads]
-                              elsif work_params.key?(:replaced_uploads)
-                                persisted_deposit_uploads = @work.deposit_uploads
-                                replaced_uploads_params = work_params[:replaced_uploads]
+    updated_pre_curation_uploads = if work_params.key?(:pre_curation_uploads)
+                                     work_params[:pre_curation_uploads]
+                                   elsif work_params.key?(:replaced_uploads)
+                                     persisted_pre_curation_uploads = @work.pre_curation_uploads
+                                     replaced_uploads_params = work_params[:replaced_uploads]
 
-                                updated_uploads = []
-                                persisted_deposit_uploads.each_with_index do |existing, i|
-                                  key = i.to_s
+                                     updated_uploads = []
+                                     persisted_pre_curation_uploads.each_with_index do |existing, i|
+                                       key = i.to_s
 
-                                  if replaced_uploads_params.key?(key)
-                                    replaced = replaced_uploads_params[key]
-                                    updated_uploads << replaced
-                                  else
-                                    updated_uploads << existing.blob
-                                  end
-                                end
+                                       if replaced_uploads_params.key?(key)
+                                         replaced = replaced_uploads_params[key]
+                                         updated_uploads << replaced
+                                       else
+                                         updated_uploads << existing.blob
+                                       end
+                                     end
 
-                                updated_uploads
-                              end
+                                     updated_uploads
+                                   end
 
     collection_id_param = params[:collection_id]
 
     updates = {
       collection_id: collection_id_param,
       metadata: resource_from_form.to_json,
-      deposit_uploads: updated_deposit_uploads
+      pre_curation_uploads: updated_pre_curation_uploads
     }
 
     if @work.update(updates)
@@ -119,8 +119,8 @@ class WorksController < ApplicationController
 
   def file_uploaded
     @work = Work.find(params[:id])
-    if deposit_uploads_param
-      @work.deposit_uploads.attach(deposit_uploads_param)
+    if pre_curation_uploads_param
+      @work.pre_curation_uploads.attach(pre_curation_uploads_param)
       @work.save!
     end
     redirect_to(work_review_path)
@@ -259,10 +259,10 @@ class WorksController < ApplicationController
       params[:patch]
     end
 
-    def deposit_uploads_param
+    def pre_curation_uploads_param
       return if patch_params.nil?
 
-      patch_params[:deposit_uploads]
+      patch_params[:pre_curation_uploads]
     end
 
     def rescue_aasm_error

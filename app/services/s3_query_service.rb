@@ -46,43 +46,8 @@ class S3QueryService
     config.fetch(:bucket, nil)
   end
 
-  def region
-    config.fetch(:region, nil)
-  end
-
-  ##
-  # The S3 prefix for this object, i.e., the address within the S3 bucket,
-  # which is based on the DOI
-  def prefix
-    split = @doi.split("/")
-    suffix = split.last
-    institution_id = split[-2].tr(".", "-")
-    "#{institution_id}/#{suffix}"
-  end
-
-  ##
-  # Construct an S3 address for this data set
-  def s3_address
-    "s3://#{bucket_name}/#{prefix}"
-  end
-
-  # There is probably a better way to fetch the current ActiveStorage configuration but we have
-  # not found it.
-  def active_storage_configuration
-    Rails.configuration.active_storage.service_configurations[Rails.configuration.active_storage.service.to_s]
-  end
-
-  def access_key_id
-    active_storage_configuration["access_key_id"]
-  end
-
-  def secret_access_key
-    active_storage_configuration["secret_access_key"]
-  end
-
-  def client
-    credentials = Aws::Credentials.new(access_key_id, secret_access_key)
-    @client ||= Aws::S3::Client.new(region: region, credentials: credentials)
+  def model
+    @model ||= Work.find_by(doi: @doi)
   end
 
   ##
@@ -95,14 +60,17 @@ class S3QueryService
   #   ok is false if there is an error connecting to S3. Otherwise true.
   def data_profile
     objects = []
-    resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
-    resp.to_h[:contents]&.each do |object|
-      s3_file = S3File.new(filename: object[:key], last_modified: object[:last_modified], size: object[:size])
+    return objects if model.nil?
+
+    model.uploads.each do |attachment|
+      s3_file = S3File.new(filename: attachment.key, last_modified: attachment.created_at, size: attachment.byte_size)
       objects << s3_file
     end
+
     { objects: objects, ok: true }
   rescue => ex
-    Rails.logger.error("Error querying S3. Bucket: #{bucket_name}. Prefix: #{prefix}. Exception: #{ex.message}")
+    Rails.logger.error("Error querying S3. Bucket: #{bucket_name}. DOI: #{@doi}. Exception: #{ex.message}")
+
     { objects: [], ok: false }
   end
 end
