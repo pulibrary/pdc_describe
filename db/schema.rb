@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_08_200759) do
+ActiveRecord::Schema.define(version: 2022_08_15_180808) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -125,7 +125,7 @@ ActiveRecord::Schema.define(version: 2022_08_08_200759) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.json "dublin_core"
-    t.json "data_cite"
+    t.json "metadata"
     t.string "profile"
     t.string "ark"
     t.string "doi"
@@ -133,7 +133,6 @@ ActiveRecord::Schema.define(version: 2022_08_08_200759) do
     t.text "submission_notes"
     t.string "files_location"
     t.integer "curator_user_id"
-    t.text "datacite_xml"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

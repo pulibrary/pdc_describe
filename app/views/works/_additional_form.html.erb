@@ -1,12 +1,12 @@
 <div class="section-title">
   <div class="field">
     Publisher:<span class="required-field">*</span><br>
-    <input type="text" id="publisher" name="publisher" class="input-text-long" value="<%= @work.datacite_resource.publisher %>" />
+    <input type="text" id="publisher" name="publisher" class="input-text-long" value="<%= @work.resource.publisher %>" />
   </div>
 
   <div class="field">
     Publication Year:<span class="required-field">*</span><br>
-    <input type="text" id="publication_year" name="publication_year" class="input-text-year" value="<%= @work.datacite_resource.publication_year %>" />
+    <input type="text" id="publication_year" name="publication_year" class="input-text-year" value="<%= @work.resource.publication_year %>" />
   </div>
 
   <!-- Collection field -->

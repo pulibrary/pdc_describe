@@ -45,8 +45,8 @@ class Work < ApplicationRecord
     end
 
     # Convenience method to create Datasets with the DataCite profile
-    def create_dataset(title, user_id, collection_id, datacite_resource, ark = nil)
-      work = default_work(title, user_id, collection_id, datacite_resource, ark)
+    def create_dataset(title, user_id, collection_id, resource, ark = nil)
+      work = default_work(title, user_id, collection_id, resource, ark)
       work.draft_doi
 
       # We skip the validation since we don't have all the required fields yet
@@ -104,7 +104,7 @@ class Work < ApplicationRecord
         rows.map { |row| row["id"] }
       end
 
-      def default_work(title, user_id, collection_id, datacite_resource, ark)
+      def default_work(title, user_id, collection_id, resource, ark)
         Work.new(
           title: title,
           created_by_user_id: user_id,
@@ -113,7 +113,7 @@ class Work < ApplicationRecord
           state: "awaiting_approval",
           profile: "DATACITE",
           doi: nil,
-          data_cite: datacite_resource.to_json,
+          metadata: resource.to_json,
           ark: ark
         )
       end
@@ -211,8 +211,8 @@ class Work < ApplicationRecord
     raise(ArgumentError, "Invalid JSON passed to Work#dublin_core=: #{parse_error}")
   end
 
-  def datacite_resource
-    @datacite_resource ||= PULDatacite::Resource.new_from_json(data_cite)
+  def resource
+    @resource ||= PULDatacite::Resource.new_from_json(metadata)
   end
 
   def ark_url
@@ -342,19 +342,19 @@ class Work < ApplicationRecord
     end
 
     def validate_metadata
-      return if data_cite.blank?
+      return if metadata.blank?
       errors.add(:base, "Must provide a title") if title.blank?
-      errors.add(:base, "Must provide a description") if datacite_resource.description.blank?
-      errors.add(:base, "Must indicate the Publisher") if datacite_resource.publisher.blank?
-      errors.add(:base, "Must indicate the Publication Year") if datacite_resource.publication_year.blank?
+      errors.add(:base, "Must provide a description") if resource.description.blank?
+      errors.add(:base, "Must indicate the Publisher") if resource.publisher.blank?
+      errors.add(:base, "Must indicate the Publication Year") if resource.publication_year.blank?
       validate_creators
     end
 
     def validate_creators
-      if datacite_resource.creators.count == 0
+      if resource.creators.count == 0
         errors.add(:base, "Must provide at least one Creator")
       else
-        datacite_resource.creators.each do |creator|
+        resource.creators.each do |creator|
           if creator.orcid.present? && Orcid.invalid?(creator.orcid)
             errors.add(:base, "ORCID for creator #{creator.value} is not in format 0000-0000-0000-0000")
           end

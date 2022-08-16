@@ -12,10 +12,10 @@ describe "works/file_upload.html.erb", mock_ezid_api: true do
   end
 
   let(:work) do
-    datacite_resource = PULDatacite::Resource.new
-    datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
-    datacite_resource.description = "description of the test dataset"
-    Work.create_dataset("test dataset", user.id, collection.id, datacite_resource)
+    resource = PULDatacite::Resource.new
+    resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
+    resource.description = "description of the test dataset"
+    Work.create_dataset("test dataset", user.id, collection.id, resource)
   end
 
   it "supports multiple file uploads" do
