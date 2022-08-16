@@ -5,7 +5,7 @@
     <i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a title
   </span>
   <br>
-  <input type="text" id="title_main" name="title_main" class="input-text-long" value="<%= @work&.datacite_resource&.main_title %>" />
+  <input type="text" id="title_main" name="title_main" class="input-text-long" value="<%= @work&.resource&.main_title %>" />
   <% if allow_many %>
     <span>
       <a id="btn-add-title" class="add-title-button" href="#" title="Add an additional title for this dataset, like a subtitle or a translated title">
@@ -17,7 +17,7 @@
 
 <!-- Render other titles in the record -->
 <% if @work %>
-  <% @work.datacite_resource.other_titles.each_with_index do |title, i| %>
+  <% @work.resource.other_titles.each_with_index do |title, i| %>
     <div class="field">
       <!-- todo: this should go into a helper -->
       <select id="title_type_<%= i + 1 %>" name="title_type_<%= i + 1 %>">

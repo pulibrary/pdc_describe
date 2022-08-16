@@ -20,8 +20,8 @@ class WorksController < ApplicationController
   # Creates the new dataset
   def new_submission
     default_collection_id = current_user.default_collection.id
-    datacite_resource = datacite_resource_from_form
-    work = Work.create_dataset(datacite_resource.main_title, current_user.id, default_collection_id, datacite_resource)
+    resource = resource_from_form
+    work = Work.create_dataset(resource.main_title, current_user.id, default_collection_id, resource)
     redirect_to edit_work_path(work, wizard: true)
   end
 
@@ -73,7 +73,7 @@ class WorksController < ApplicationController
     updates = {
       title: title_param,
       collection_id: collection_id_param,
-      data_cite: datacite_resource_from_form.to_json,
+      metadata: resource_from_form.to_json,
       deposit_uploads: updated_deposit_uploads
     }
 
@@ -192,13 +192,13 @@ class WorksController < ApplicationController
   # Outputs the Datacite XML representation of the work
   def datacite
     work = Work.find(params[:id])
-    render xml: work.datacite_resource.to_xml
+    render xml: work.resource.to_xml
   end
 
   def datacite_validate
     @errors = []
     @work = Work.find(params[:id])
-    datacite_xml = Nokogiri::XML(@work.datacite_resource.to_xml)
+    datacite_xml = Nokogiri::XML(@work.resource.to_xml)
     schema_location = Rails.root.join("config", "schema")
     Dir.chdir(schema_location) do
       xsd = Nokogiri::XML::Schema(File.read("datacite_4_4.xsd"))
@@ -215,7 +215,7 @@ class WorksController < ApplicationController
       PULDatacite::Creator.new_person(given_name, family_name, orcid, sequence)
     end
 
-    def datacite_resource_from_form
+    def resource_from_form
       resource = PULDatacite::Resource.new
 
       resource.description = params["description"]

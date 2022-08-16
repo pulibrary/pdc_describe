@@ -18,7 +18,7 @@
   </tbody>
 </table>
 
-<% @work.datacite_resource.creators.each_with_index do |creator, i| %>
+<% @work.resource.creators.each_with_index do |creator, i| %>
 <span class="hidden creator-data"
   data-num="<%= i + 1 %>"
   data-orcid="<%= creator.orcid %>"

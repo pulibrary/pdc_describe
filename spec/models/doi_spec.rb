@@ -47,7 +47,7 @@ RSpec.describe "DOI", type: :model, mock_ezid_api: true do
 
   let(:xml_attributes) do
     work = FactoryBot.create(:shakespeare_and_company_work)
-    ValidDatacite::Resource.new_from_json(work.data_cite).to_xml
+    ValidDatacite::Resource.new_from_json(work.metadata).to_xml
   end
 
   let(:minimum_xml_publish_attributes) do

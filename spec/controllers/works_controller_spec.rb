@@ -12,10 +12,10 @@ RSpec.describe WorksController, mock_ezid_api: true do
   let(:curator) { FactoryBot.create(:user) }
   let(:collection) { Collection.first }
   let(:work) do
-    datacite_resource = PULDatacite::Resource.new
-    datacite_resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
-    datacite_resource.description = "description of the test dataset"
-    Work.create_dataset("test dataset", user.id, collection.id, datacite_resource)
+    resource = PULDatacite::Resource.new
+    resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
+    resource.description = "description of the test dataset"
+    Work.create_dataset("test dataset", user.id, collection.id, resource)
   end
 
   context "valid user login" do
@@ -119,8 +119,8 @@ RSpec.describe WorksController, mock_ezid_api: true do
       post :update, params: params
 
       saved_work = Work.find(work.id)
-      expect(saved_work.datacite_resource.creators[0].value).to eq "Smith, Jane"
-      expect(saved_work.datacite_resource.creators[1].value).to eq "Lovelace, Ada"
+      expect(saved_work.resource.creators[0].value).to eq "Smith, Jane"
+      expect(saved_work.resource.creators[1].value).to eq "Lovelace, Ada"
 
       params_reordered = {
         "title_main" => "test dataset updated",
@@ -143,8 +143,8 @@ RSpec.describe WorksController, mock_ezid_api: true do
 
       post :update, params: params_reordered
       reordered_work = Work.find(work.id)
-      expect(reordered_work.datacite_resource.creators[0].value).to eq "Lovelace, Ada"
-      expect(reordered_work.datacite_resource.creators[1].value).to eq "Smith, Jane"
+      expect(reordered_work.resource.creators[0].value).to eq "Lovelace, Ada"
+      expect(reordered_work.resource.creators[1].value).to eq "Smith, Jane"
     end
 
     context "with new file uploads for an existing Work without uploads" do
@@ -423,6 +423,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
       post :approve, params: { id: work.id }
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/works/#{work.id}"
+      expect(work.reload).to be_approved
     end
 
     it "handles withdraw" do
@@ -430,13 +431,16 @@ RSpec.describe WorksController, mock_ezid_api: true do
       post :withdraw, params: { id: work.id }
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/works/#{work.id}"
+      expect(work.reload).to be_withdrawn
     end
 
     it "handles resubmit" do
       sign_in user
+      work.withdraw!(user)
       post :resubmit, params: { id: work.id }
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/works/#{work.id}"
+      expect(work.reload).to be_awaiting_approval
     end
 
     it "handles the show page" do
