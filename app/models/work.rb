@@ -32,21 +32,24 @@ class Work < ApplicationRecord
 
   class << self
     def create_skeleton(title, user_id, collection_id, work_type, profile)
+      resource = PULDatacite::Resource.new(title: title,
+                                           creators: [PULDatacite::Creator.new_person("", "skeleton", "", 0)],
+                                           description: title)
       work = Work.new(
-        title: title,
         created_by_user_id: user_id,
         collection_id: collection_id,
         work_type: work_type,
         state: "awaiting_approval",
-        profile: profile
+        profile: profile,
+        metadata: resource.to_json
       )
       work.save!
       work
     end
 
     # Convenience method to create Datasets with the DataCite profile
-    def create_dataset(title, user_id, collection_id, resource, ark = nil)
-      work = default_work(title, user_id, collection_id, resource, ark)
+    def create_dataset(user_id, collection_id, resource, ark = nil)
+      work = default_work(user_id, collection_id, resource, ark)
       work.draft_doi
 
       # We skip the validation since we don't have all the required fields yet
@@ -104,9 +107,8 @@ class Work < ApplicationRecord
         rows.map { |row| row["id"] }
       end
 
-      def default_work(title, user_id, collection_id, resource, ark)
+      def default_work(user_id, collection_id, resource, ark)
         Work.new(
-          title: title,
           created_by_user_id: user_id,
           collection_id: collection_id,
           work_type: "DATASET",
@@ -130,6 +132,8 @@ class Work < ApplicationRecord
     elsif work.profile == "DATACITE" && work.ark.blank?
       work.ark = Ark.mint
     end
+
+    work.metadata = work.resource.to_json
 
     new_attachments = work.deposit_uploads.reject(&:persisted?)
     new_attachments.each do |attachment|
@@ -163,6 +167,10 @@ class Work < ApplicationRecord
       errors.add(:base, "Only 20 files may be uploaded by a user to a given Work. #{deposit_uploads.length} files were uploaded for the Work: #{ark}")
     end
     errors.count == 0
+  end
+
+  def title
+    resource.main_title
   end
 
   def curator
@@ -343,7 +351,7 @@ class Work < ApplicationRecord
 
     def validate_metadata
       return if metadata.blank?
-      errors.add(:base, "Must provide a title") if title.blank?
+      errors.add(:base, "Must provide a title") if resource.main_title.blank?
       errors.add(:base, "Must provide a description") if resource.description.blank?
       errors.add(:base, "Must indicate the Publisher") if resource.publisher.blank?
       errors.add(:base, "Must indicate the Publication Year") if resource.publication_year.blank?

@@ -7,18 +7,10 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:user_other) { FactoryBot.create :user }
   let(:superadmin_user) { User.from_cas(OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" })) }
   let(:doi) { "https://doi.org/10.34770/0q6b-cj27" }
-  let(:work) do
-    resource = PULDatacite::Resource.new
-    resource.description = "description of the test dataset"
-    resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
-    described_class.create_dataset("test title", user.id, collection.id, resource)
-  end
-  let(:work2) do
-    resource = PULDatacite::Resource.new
-    resource.description = "description of the second test dataset"
-    resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
-    described_class.create_dataset("second test title", user.id, collection.id, resource)
-  end
+  let(:resource) { FactoryBot.build :resource }
+  let(:work) { described_class.create_dataset(user.id, collection.id, resource) }
+  let(:resource2) { FactoryBot.build :resource, title: "second test title" }
+  let(:work2) { described_class.create_dataset(user.id, collection.id, resource2) }
 
   let(:lib_user) do
     user = FactoryBot.create :user
@@ -70,17 +62,17 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   it "prevents datasets with no users" do
-    expect { described_class.create_dataset("test title", 0, collection.id) }.to raise_error
+    expect { described_class.create_dataset(0, collection.id) }.to raise_error
   end
 
   it "prevents datasets with no collections" do
-    expect { described_class.create_dataset("test title", user.id, 0) }.to raise_error
+    expect { described_class.create_dataset(user.id, 0) }.to raise_error
   end
 
   context "with a persisted dataset work" do
-    subject(:work) { described_class.create_dataset("test title", user.id, collection.id, resource) }
+    subject(:work) { described_class.create_dataset(user.id, collection.id, resource) }
 
-    let(:resource) { PULDatacite::Resource.new }
+    let(:resource) { FactoryBot.build :resource }
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
@@ -127,7 +119,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe "#created_by_user" do
     context "when the ID is invalid" do
-      subject(:work) { described_class.create_dataset(title, user_id, collection_id, nil) }
+      subject(:work) { described_class.create_dataset(user_id, collection_id, resource) }
       let(:title) { "test title" }
       let(:user_id) { user.id }
       let(:collection_id) { collection.id }
@@ -219,11 +211,11 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe "datasets waiting for approval by user type" do
     before do
-      described_class.create_dataset("test title 1", user.id, collection.id, nil)
-      described_class.create_dataset("test title 2", user.id, collection.id, nil)
-      described_class.create_dataset("test title 3", pppl_user.id, Collection.plasma_laboratory.id, nil)
+      described_class.create_dataset(user.id, collection.id, FactoryBot.build(:resource, title: "test title 1"))
+      described_class.create_dataset(user.id, collection.id, FactoryBot.build(:resource, title: "test title 2"))
+      described_class.create_dataset(pppl_user.id, Collection.plasma_laboratory.id, FactoryBot.build(:resource, title: "test title 3"))
       # Create the dataset for `lib_user`` and @mention `user`
-      ds = described_class.create_dataset("test title 4", lib_user.id, Collection.library_resources.id, nil)
+      ds = described_class.create_dataset(lib_user.id, Collection.library_resources.id, FactoryBot.build(:resource, title: "test title 4"))
       WorkActivity.add_system_activity(ds.id, "Tagging @#{user.uid} in this dataset", lib_user.id)
     end
 
@@ -296,10 +288,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe "#deposit_uploads" do
     let(:work2) do
-      resource = PULDatacite::Resource.new
-      resource.description = "description of the test dataset"
-      resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
-      described_class.create_dataset("test title", user.id, collection.id, resource)
+      described_class.create_dataset(user.id, collection.id, resource)
     end
 
     let(:uploaded_file) do
@@ -349,7 +338,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   describe "states" do
-    let(:work) { Work.new(collection: collection) }
+    let(:work) { Work.new(collection: collection, metadata: resource.to_json) }
     it "initally is draft" do
       expect(work.draft?).to be_truthy
       expect(work.state).to eq("draft")
