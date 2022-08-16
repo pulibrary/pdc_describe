@@ -60,7 +60,7 @@ describe "application accessibility", type: :system, js: true do
       resource = PULDatacite::Resource.new(title: "Test dataset")
       resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")
       ark = "ark:/99999/dsp01qb98mj541"
-      work = Work.create_dataset("Test dataset", user.id, user.default_collection_id, resource, ark)
+      work = Work.create_dataset(user.id, user.default_collection_id, resource, ark)
       visit work_path(work)
       expect(page).to be_axe_clean
         .according_to(:wcag2a, :wcag2aa, :wcag21a, :wcag21aa, :section508)

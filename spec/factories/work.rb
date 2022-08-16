@@ -3,7 +3,6 @@
 FactoryBot.define do
   factory :work do
     factory :shakespeare_and_company_work do
-      title { "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events" }
       collection { Collection.research_data }
       doi { "https://doi.org/10.34770/pe9w-x904" }
       ark { "ark:/88435/dsp01zc77st047" }
@@ -11,7 +10,7 @@ FactoryBot.define do
         {
           "identifier": doi,
           "identifier_type": "DOI",
-          "titles": [{ "title": "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events", "title_type": "Main" }],
+          "titles": [{ "title": "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events" }],
           "description": "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
           "creators": [
             { "value": "Kotin, Joshua", "name_type": "Personal", "given_name": "Joshua", "family_name": "Kotin", "affiliations": [], "sequence": "1" }

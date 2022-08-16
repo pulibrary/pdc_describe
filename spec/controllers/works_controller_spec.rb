@@ -11,12 +11,8 @@ RSpec.describe WorksController, mock_ezid_api: true do
   let(:user) { FactoryBot.create(:user) }
   let(:curator) { FactoryBot.create(:user) }
   let(:collection) { Collection.first }
-  let(:work) do
-    resource = PULDatacite::Resource.new
-    resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
-    resource.description = "description of the test dataset"
-    Work.create_dataset("test dataset", user.id, collection.id, resource)
-  end
+  let(:resource) { FactoryBot.build :resource }
+  let(:work) { Work.create_dataset(user.id, collection.id, resource) }
 
   context "valid user login" do
     it "handles the index page" do

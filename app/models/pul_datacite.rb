@@ -5,13 +5,13 @@ module PULDatacite
   class Resource
     attr_accessor :identifier, :identifier_type, :creators, :titles, :publisher, :publication_year, :resource_type, :description
 
-    def initialize(identifier: nil, identifier_type: nil, title: nil, resource_type: nil)
+    def initialize(identifier: nil, identifier_type: nil, title: nil, resource_type: nil, creators: [], description: nil)
       @identifier = identifier
       @identifier_type = identifier_type
       @titles = []
       @titles << PULDatacite::Title.new(title: title) unless title.nil?
-      @description = nil
-      @creators = []
+      @description = description
+      @creators = creators
       @resource_type = resource_type || "Dataset"
       @publisher = "Princeton University"
       @publication_year = Time.zone.today.year
@@ -97,6 +97,9 @@ module PULDatacite
     def self.new_from_json(json_string)
       resource = PULDatacite::Resource.new
       hash = json_string.blank? ? {} : JSON.parse(json_string)
+
+      resource.identifier = hash["identifier"]
+      resource.identifier_type = hash["identifier_type"]
 
       resource.description = hash["description"]
 
