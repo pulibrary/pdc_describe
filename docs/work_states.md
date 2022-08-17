@@ -52,7 +52,7 @@ stateDiagram-v2
     await --> await
     await --> approve
     await --> withdrawn
-    withdrawn --> await
+    withdrawn --> draft
     approve --> withdrawn
     draft --> withdrawn
     withdrawn --> tombstone
