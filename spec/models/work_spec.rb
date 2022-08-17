@@ -105,16 +105,20 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   it "approves works and records the change history" do
     work.approve(user)
     expect(work.state_history.first.state).to eq "approved"
+    expect(work.reload.state).to eq("approved")
   end
 
   it "withdraw works and records the change history" do
     work.withdraw(user)
     expect(work.state_history.first.state).to eq "withdrawn"
+    expect(work.reload.state).to eq("withdrawn")
   end
 
   it "resubmit works and records the change history" do
+    work.withdraw(user)
     work.resubmit(user)
-    expect(work.state_history.first.state).to eq "awaiting_approval"
+    expect(work.state_history.first.state).to eq "draft"
+    expect(work.reload.state).to eq("draft")
   end
 
   describe "#created_by_user" do
@@ -337,33 +341,180 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
   end
 
-  describe "states" do
-    let(:work) { Work.new(collection: collection, metadata: resource.to_json) }
-    it "initally is draft" do
-      expect(work.draft?).to be_truthy
-      expect(work.state).to eq("draft")
+  describe "#draft" do
+    let(:draft_work) do
+      work = Work.new(collection: collection, metadata: resource.to_json)
+      work.draft(user)
+      work
     end
 
-    it "transitions from draft to awaiting_approval" do
-      work.ready_for_review(user)
-      expect(work.state).to eq("awaiting_approval")
+    it "transitions from none to draft" do
+      expect(draft_work.reload.state).to eq("draft")
     end
 
-    it "transitions from awaiting_approval to approved" do
-      work.ready_for_review(user)
-      work.approve(user)
-      expect(work.state).to eq("approved")
+    it "drafts a doi" do
+      draft_work
+      expect(a_request(:post, ENV["DATACITE_URL"])).to have_been_made
     end
 
-    it "transitions from approved to withdraw" do
-      work.ready_for_review(user)
-      work.approve(user)
-      work.withdraw(user)
-      expect(work.state).to eq("withdrawn")
+    it "transitions from draft to withdrawn" do
+      draft_work.withdraw(user)
+      expect(draft_work.reload.state).to eq("withdrawn")
     end
 
     it "can not transition from draft to approved" do
-      expect { work.approve }.to raise_error
+      expect { draft_work.approve(user) }.to raise_error AASM::InvalidTransition
+    end
+
+    it "can not transition from draft to tombsotne" do
+      expect { draft_work.remove(user) }.to raise_error AASM::InvalidTransition
+    end
+  end
+
+  describe "#ready_for_review" do
+    let(:awaiting_approval_work) do
+      work = Work.new(collection: collection, metadata: resource.to_json)
+      work.draft(user)
+      work.ready_for_review(user)
+      work
+    end
+
+    it "is awaiting approval" do
+      expect(awaiting_approval_work.reload.state).to eq("awaiting_approval")
+    end
+
+    it "transitions from awaiting_approval to withdrawn" do
+      awaiting_approval_work.withdraw(user)
+      expect(awaiting_approval_work.reload.state).to eq("withdrawn")
+    end
+
+    it "transitions from awaiting_approval to approved" do
+      awaiting_approval_work.approve(user)
+      expect(awaiting_approval_work.reload.state).to eq("approved")
+    end
+
+    it "can not transition from awaiting_approval to tombsotne" do
+      expect { awaiting_approval_work.remove(user) }.to raise_error AASM::InvalidTransition
+    end
+
+    it "can not transition from awaiting_approval to draft" do
+      expect { awaiting_approval_work.draft(user) }.to raise_error AASM::InvalidTransition
+    end
+  end
+
+  describe "#approve" do
+    let(:approved_work) do
+      work = Work.new(collection: collection, metadata: resource.to_json)
+      work.draft(user)
+      work.ready_for_review(user)
+      work.approve(user)
+      work
+    end
+
+    it "is approved" do
+      expect(approved_work.reload.state).to eq("approved")
+    end
+
+    it "transitions from approved to withdrawn" do
+      approved_work.withdraw(user)
+      expect(approved_work.reload.state).to eq("withdrawn")
+    end
+
+    it "can not transition from approved to tombsotne" do
+      expect { approved_work.remove(user) }.to raise_error AASM::InvalidTransition
+    end
+
+    it "can not transition from approved to awaiting_approval" do
+      expect { approved_work.ready_for_review(user) }.to raise_error AASM::InvalidTransition
+    end
+
+    it "can not transition from approved to draft" do
+      expect { approved_work.draft(user) }.to raise_error AASM::InvalidTransition
+    end
+  end
+
+  describe "#withraw" do
+    let(:withdrawn_work) do
+      work = Work.new(collection: collection, metadata: resource.to_json)
+      work.draft(user)
+      work.withdraw(user)
+      work
+    end
+
+    it "is withdrawn" do
+      expect(withdrawn_work.reload.state).to eq("withdrawn")
+    end
+
+    it "transitions from withdrawn to draft" do
+      withdrawn_work.resubmit(user)
+      expect(withdrawn_work.reload.state).to eq("draft")
+    end
+
+    it "transitions from withdrawn to tombstone" do
+      withdrawn_work.remove(user)
+      expect(withdrawn_work.reload.state).to eq("tombstone")
+    end
+
+    it "can not transition from withdrawn to approved" do
+      expect { withdrawn_work.approve(user) }.to raise_error AASM::InvalidTransition
+    end
+
+    it "can not transition from withdrawn to awaiting_approval" do
+      expect { withdrawn_work.ready_for_review(user) }.to raise_error AASM::InvalidTransition
+    end
+
+    it "can not transition from withdrawn to draft" do
+      expect { withdrawn_work.draft(user) }.to raise_error AASM::InvalidTransition
+    end
+  end
+
+  describe "#remove" do
+    let(:removed_work) do
+      work = Work.new(collection: collection, metadata: resource.to_json)
+      work.draft(user)
+      work.withdraw(user)
+      work.remove(user)
+      work
+    end
+
+    it "is tombstoned" do
+      expect(removed_work.reload.state).to eq("tombstone")
+    end
+
+    it "can not transition from tombstone to approved" do
+      expect { removed_work.approve(user) }.to raise_error AASM::InvalidTransition
+    end
+
+    it "can not transition from tombstone to awaiting_approval" do
+      expect { removed_work.ready_for_review(user) }.to raise_error AASM::InvalidTransition
+    end
+
+    it "can not transition from tombstone to draft" do
+      expect { removed_work.draft(user) }.to raise_error AASM::InvalidTransition
+    end
+  end
+
+  describe "states" do
+    let(:work) { Work.new(collection: collection, metadata: resource.to_json) }
+    it "initally is none" do
+      expect(work.none?).to be_truthy
+      expect(work.state).to eq("none")
+    end
+
+    it "can not be removed from none" do
+      expect { work.remove(user) }.to raise_error AASM::InvalidTransition
+    end
+
+    it "can not be approved from none" do
+      expect { work.approve(user) }.to raise_error AASM::InvalidTransition
+    end
+
+    it "can not be maked ready for review from none" do
+      expect { work.ready_for_review(user) }.to raise_error AASM::InvalidTransition
+    end
+
+    it "can not be withdrawn from none" do
+      expect { work.withdraw(user) }.to raise_error AASM::InvalidTransition
     end
   end
 end
