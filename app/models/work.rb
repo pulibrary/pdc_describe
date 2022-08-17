@@ -4,15 +4,27 @@
 class Work < ApplicationRecord
   has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many_attached :deposit_uploads
+  belongs_to :collection
+
+  attribute :work_type, :string, default: "DATASET"
+  attribute :profile, :string, default: "DATACITE"
 
   include AASM
 
   aasm column: :state do
-    state :draft, initial: true
-    state :awaiting_approval, :approved, :withdrawn
+    state :none, inital: true
+    state :draft, :awaiting_approval, :approved, :withdrawn, :tombstone
+
+    event :draft, after: :draft_doi do
+      transitions from: :none, to: :draft, guard: :valid_to_draft
+    end
 
     event :ready_for_review do
       transitions from: :draft, to: :awaiting_approval, guard: :valid_to_submit
+    end
+
+    event :request_changes do
+      transitions from: :awaiting_approval, to: :awaiting_approval, guard: :valid_to_submit
     end
 
     event :approve do
@@ -20,11 +32,15 @@ class Work < ApplicationRecord
     end
 
     event :withdraw do
-      transitions from: [:awaiting_approval, :approved], to: :withdrawn
+      transitions from: [:draft, :awaiting_approval, :approved], to: :withdrawn
     end
 
     event :resubmit do
-      transitions from: [:withdrawn, :awaiting_approval], to: :awaiting_approval
+      transitions from: :withdrawn, to: :draft
+    end
+
+    event :remove do
+      transitions from: :withdrawn, to: :tombstone
     end
 
     after_all_events :track_state_change
@@ -123,8 +139,6 @@ class Work < ApplicationRecord
 
   include Rails.application.routes.url_helpers
 
-  belongs_to :collection
-
   before_save do |work|
     # Ensure that the metadata JSON is persisted properly
     if work.dublin_core.present?
@@ -156,7 +170,18 @@ class Work < ApplicationRecord
   end
 
   validate do |work|
-    work.valid_to_submit unless draft?
+    if none?
+      true
+    elsif draft?
+      work.valid_to_draft
+    else
+      work.valid_to_submit
+    end
+  end
+
+  def valid_to_draft
+    errors.add(:base, "Must provide a title") if resource.main_title.blank?
+    validate_creators
   end
 
   def valid_to_submit
@@ -193,7 +218,7 @@ class Work < ApplicationRecord
   end
 
   def state_history
-    UserWork.where(work_id: id)
+    UserWork.where(work_id: id).order(updated_at: :desc)
   end
 
   def created_by_user

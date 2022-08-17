@@ -35,8 +35,15 @@ RSpec.describe WorksController, mock_ezid_api: true do
     end
 
     it "renders the edit page when creating a new dataset" do
+      params = {
+        "title_main" => "test dataset updated",
+        "collection_id" => work.collection.id,
+        "given_name_1" => "Jane",
+        "family_name_1" => "Smith",
+        "creator_count" => "1"
+      }
       sign_in user
-      post :new_submission
+      post :new_submission, params: params
       expect(response.status).to be 302
       expect(response.location.start_with?("http://test.host/works/")).to be true
     end
@@ -436,7 +443,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
       post :resubmit, params: { id: work.id }
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/works/#{work.id}"
-      expect(work.reload).to be_awaiting_approval
+      expect(work.reload).to be_draft
     end
 
     it "handles the show page" do
