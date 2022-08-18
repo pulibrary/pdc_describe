@@ -108,17 +108,47 @@ module ValidDatacite
     end
 
     ##
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/CyclomaticComplexity
     # Given a resource type string, assign the appropriate Datacite::Resource::ResourceType
     # @param [String] resource_type
     def datacite_resource_type(resource_type)
       resource_type_general = case resource_type.downcase
                               when "dataset"
                                 Datacite::Mapping::ResourceTypeGeneral::DATASET
+                              when "audiovisual"
+                                Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL
+                              when "collection"
+                                Datacite::Mapping::ResourceTypeGeneral::COLLECTION
+                              when "datapaper"
+                                Datacite::Mapping::ResourceTypeGeneral::DATA_PAPER
+                              when "event"
+                                Datacite::Mapping::ResourceTypeGeneral::EVENT
+                              when "image"
+                                Datacite::Mapping::ResourceTypeGeneral::IMAGE
+                              when "interactiveresource"
+                                Datacite::Mapping::ResourceTypeGeneral::INTERACTIVE_RESOURCE
+                              when "model"
+                                Datacite::Mapping::ResourceTypeGeneral::MODEL
+                              when "physicalobject"
+                                Datacite::Mapping::ResourceTypeGeneral::PHYSICAL_OBJECT
+                              when "service"
+                                Datacite::Mapping::ResourceTypeGeneral::SERVICE
+                              when "software"
+                                Datacite::Mapping::ResourceTypeGeneral::SOFTWARE
+                              when "sound"
+                                Datacite::Mapping::ResourceTypeGeneral::SOUND
+                              when "text"
+                                Datacite::Mapping::ResourceTypeGeneral::TEXT
+                              when "workflow"
+                                Datacite::Mapping::ResourceTypeGeneral::WORKFLOW
                               else
                                 Datacite::Mapping::ResourceTypeGeneral::OTHER
                               end
       Datacite::Mapping::ResourceType.new(resource_type_general: resource_type_general)
     end
+    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def identifier
       @datacite_identifier.value
