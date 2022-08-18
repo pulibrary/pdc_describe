@@ -77,6 +77,64 @@ RSpec.describe ValidDatacite::Resource, type: :model do
       it "has a publication year" do
         expect(mapping.publication_year).to eq 2020
       end
+      context "resource types" do
+        it "maps dataset" do
+          resource_type = ds.datacite_resource_type("dataset")
+          expect(resource_type.resource_type_general.value).to eq "Dataset"
+        end
+        it "Audiovisual" do
+          resource_type = ds.datacite_resource_type("Audiovisual")
+          expect(resource_type.resource_type_general.value).to eq "Audiovisual"
+        end
+        it "Collection" do
+          resource_type = ds.datacite_resource_type("Collection")
+          expect(resource_type.resource_type_general.value).to eq "Collection"
+        end
+        it "DataPaper" do
+          resource_type = ds.datacite_resource_type("DataPaper")
+          expect(resource_type.resource_type_general.value).to eq "DataPaper"
+        end
+        it "Event" do
+          resource_type = ds.datacite_resource_type("Event")
+          expect(resource_type.resource_type_general.value).to eq "Event"
+        end
+        it "Image" do
+          resource_type = ds.datacite_resource_type("Image")
+          expect(resource_type.resource_type_general.value).to eq "Image"
+        end
+        it "InteractiveResource" do
+          resource_type = ds.datacite_resource_type("InteractiveResource")
+          expect(resource_type.resource_type_general.value).to eq "InteractiveResource"
+        end
+        it "Model" do
+          resource_type = ds.datacite_resource_type("Model")
+          expect(resource_type.resource_type_general.value).to eq "Model"
+        end
+        it "PhysicalObject" do
+          resource_type = ds.datacite_resource_type("PhysicalObject")
+          expect(resource_type.resource_type_general.value).to eq "PhysicalObject"
+        end
+        it "Service" do
+          resource_type = ds.datacite_resource_type("Service")
+          expect(resource_type.resource_type_general.value).to eq "Service"
+        end
+        it "Software" do
+          resource_type = ds.datacite_resource_type("Software")
+          expect(resource_type.resource_type_general.value).to eq "Software"
+        end
+        it "Sound" do
+          resource_type = ds.datacite_resource_type("Sound")
+          expect(resource_type.resource_type_general.value).to eq "Sound"
+        end
+        it "Text" do
+          resource_type = ds.datacite_resource_type("Text")
+          expect(resource_type.resource_type_general.value).to eq "Text"
+        end
+        it "Workflow" do
+          resource_type = ds.datacite_resource_type("Workflow")
+          expect(resource_type.resource_type_general.value).to eq "Workflow"
+        end
+      end
     end
   end
 end
