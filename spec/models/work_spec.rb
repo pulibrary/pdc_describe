@@ -127,6 +127,14 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       work.approve(user)
       expect(Ark).to have_received(:update).exactly(1).times
     end
+
+    it "does not update the ARK metadata" do
+      work.ark = nil
+      work.save
+      work.ready_for_review!(user)
+      work.approve(user)
+      expect(Ark).to have_received(:update).exactly(0).times
+    end
   end
 
   describe "#created_by_user" do
