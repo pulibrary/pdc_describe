@@ -21,7 +21,8 @@ class WorksController < ApplicationController
   def new_submission
     default_collection_id = current_user.default_collection.id
     resource = resource_from_form
-    work = Work.create_dataset(current_user.id, default_collection_id, resource)
+    work = Work.new(created_by_user_id: current_user.id, collection_id: default_collection_id, metadata: resource.to_json)
+    work.draft!(current_user)
     redirect_to edit_work_path(work, wizard: true)
   end
 
@@ -144,7 +145,7 @@ class WorksController < ApplicationController
   def completed
     @work = Work.find(params[:id])
     @work.submission_notes = params["submission_notes"]
-    @work.save!
+    @work.ready_for_review!(current_user)
     redirect_to user_url(current_user)
   end
 

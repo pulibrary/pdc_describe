@@ -63,18 +63,8 @@ class Work < ApplicationRecord
       work
     end
 
-    # Convenience method to create Datasets with the DataCite profile
-    def create_dataset(user_id, collection_id, resource, ark = nil)
-      work = default_work(user_id, collection_id, resource, ark)
-      work.draft_doi
-
-      # We skip the validation since we don't have all the required fields yet
-      work.save!(validate: false)
-      work
-    end
-
     def unfinished_works(user)
-      works_by_user_state(user, "awaiting_approval")
+      works_by_user_state(user, ["none", "draft", "awaiting_approval"])
     end
 
     def completed_works(user)
@@ -101,9 +91,9 @@ class Work < ApplicationRecord
         end
 
         # Any other works where the user is mentioned
-        works_mentioned_by_user_state(user, state).each do |work_id|
-          already_included = !works.find { |work| work[:id] == work_id }.nil?
-          works << Work.find(work_id) unless already_included
+        works_mentioned_by_user_state(user, state).each do |work|
+          already_included = !works.find { |existing_work| existing_work[:id] == work.id }.nil?
+          works << work unless already_included
         end
 
         works.sort_by(&:updated_at).reverse
@@ -112,28 +102,10 @@ class Work < ApplicationRecord
       # Returns an array of work ids where a particular user has been mentioned
       # and the work is in a given state.
       def works_mentioned_by_user_state(user, state)
-        sql = <<-END_SQL
-          SELECT DISTINCT works.id
-          FROM works
-          INNER JOIN work_activities ON works.id = work_activities.work_id
-          INNER JOIN work_activity_notifications ON work_activities.id = work_activity_notifications.work_activity_id
-          WHERE work_activity_notifications.user_id = #{user.id} AND works.state = '#{state}'
-        END_SQL
-        rows = ActiveRecord::Base.connection.execute(sql)
-        rows.map { |row| row["id"] }
-      end
-
-      def default_work(user_id, collection_id, resource, ark)
-        Work.new(
-          created_by_user_id: user_id,
-          collection_id: collection_id,
-          work_type: "DATASET",
-          state: "awaiting_approval",
-          profile: "DATACITE",
-          doi: nil,
-          metadata: resource.to_json,
-          ark: ark
-        )
+        Work.joins(:work_activity)
+            .joins('INNER JOIN "work_activity_notifications" ON "work_activities"."id" = "work_activity_notifications"."work_activity_id"')
+            .where(state: state)
+            .where('"work_activity_notifications"."user_id" = ?', user.id)
       end
   end
 
@@ -178,18 +150,24 @@ class Work < ApplicationRecord
   end
 
   def valid_to_draft
+    errors.clear
     errors.add(:base, "Must provide a title") if resource.main_title.blank?
+    validate_ark
     validate_creators
+    validate_uploads
+    errors.count == 0
   end
 
   def valid_to_submit
-    errors.clear
-    validate_ark
+    valid_to_draft
     validate_metadata
+    errors.count == 0
+  end
+
+  def validate_uploads
     if deposit_uploads.length > 20
       errors.add(:base, "Only 20 files may be uploaded by a user to a given Work. #{deposit_uploads.length} files were uploaded for the Work: #{ark}")
     end
-    errors.count == 0
   end
 
   def title

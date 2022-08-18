@@ -11,10 +11,7 @@ describe "works/file_upload.html.erb", mock_ezid_api: true do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
 
-  let(:resource) { FactoryBot.build :resource }
-  let(:work) do
-    Work.create_dataset(user.id, collection.id, resource)
-  end
+  let(:work) { FactoryBot.create :draft_work }
 
   it "supports multiple file uploads" do
     assign(:work, work)
