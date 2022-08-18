@@ -108,6 +108,8 @@ module ValidDatacite
     end
 
     ##
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/CyclomaticComplexity
     # Given a resource type string, assign the appropriate Datacite::Resource::ResourceType
     # @param [String] resource_type
     def datacite_resource_type(resource_type)
@@ -133,11 +135,11 @@ module ValidDatacite
                               when "service"
                                 Datacite::Mapping::ResourceTypeGeneral::SERVICE
                               when "software"
-                                Datacite::Mapping::ResourceTypeGeneral::SOFTWARE 
+                                Datacite::Mapping::ResourceTypeGeneral::SOFTWARE
                               when "sound"
                                 Datacite::Mapping::ResourceTypeGeneral::SOUND
                               when "text"
-                                Datacite::Mapping::ResourceTypeGeneral::TEXT 
+                                Datacite::Mapping::ResourceTypeGeneral::TEXT
                               when "workflow"
                                 Datacite::Mapping::ResourceTypeGeneral::WORKFLOW
                               else
@@ -145,6 +147,8 @@ module ValidDatacite
                               end
       Datacite::Mapping::ResourceType.new(resource_type_general: resource_type_general)
     end
+    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def identifier
       @datacite_identifier.value

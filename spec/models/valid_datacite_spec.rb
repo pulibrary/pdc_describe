@@ -118,7 +118,7 @@ RSpec.describe ValidDatacite::Resource, type: :model do
           resource_type = ds.datacite_resource_type("Service")
           expect(resource_type.resource_type_general.value).to eq "Service"
         end
-        it "Software" do 
+        it "Software" do
           resource_type = ds.datacite_resource_type("Software")
           expect(resource_type.resource_type_general.value).to eq "Software"
         end
