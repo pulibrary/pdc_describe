@@ -130,6 +130,16 @@ module ValidDatacite
                                 Datacite::Mapping::ResourceTypeGeneral::MODEL
                               when "physicalobject"
                                 Datacite::Mapping::ResourceTypeGeneral::PHYSICAL_OBJECT
+                              when "service"
+                                Datacite::Mapping::ResourceTypeGeneral::SERVICE
+                              when "software"
+                                Datacite::Mapping::ResourceTypeGeneral::SOFTWARE 
+                              when "sound"
+                                Datacite::Mapping::ResourceTypeGeneral::SOUND
+                              when "text"
+                                Datacite::Mapping::ResourceTypeGeneral::TEXT 
+                              when "workflow"
+                                Datacite::Mapping::ResourceTypeGeneral::WORKFLOW
                               else
                                 Datacite::Mapping::ResourceTypeGeneral::OTHER
                               end
