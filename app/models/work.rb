@@ -113,10 +113,6 @@ class Work < ApplicationRecord
 
   before_save do |work|
     # Ensure that the metadata JSON is persisted properly
-    if work.profile == "DATACITE" && work.ark.blank?
-      work.ark = Ark.mint
-    end
-
     work.metadata = work.resource.to_json
 
     new_attachments = work.deposit_uploads.reject(&:persisted?)
@@ -126,16 +122,6 @@ class Work < ApplicationRecord
 
       attachment.blob.save
       attachment.save
-    end
-  end
-
-  after_save do |work|
-    # We only want to update the ark url under certain conditions.
-    # Set this value in config/update_ark_url.yml
-    if Rails.configuration.update_ark_url
-      if work.ark.present?
-        Ark.update(work.ark, work.url)
-      end
     end
   end
 
@@ -161,6 +147,9 @@ class Work < ApplicationRecord
   def valid_to_submit
     valid_to_draft
     validate_metadata
+    if state == "approved"
+      update_ark_information
+    end
     errors.count == 0
   end
 
@@ -289,6 +278,17 @@ class Work < ApplicationRecord
       unread_notifications.each do |notification|
         notification.read_at = Time.now.utc
         notification.save
+      end
+    end
+  end
+
+  # Update EZID (our provider of ARKs) with the new information for this work.
+  def update_ark_information
+    # We only want to update the ark url under certain conditions.
+    # Set this value in config/update_ark_url.yml
+    if Rails.configuration.update_ark_url
+      if ark.present?
+        Ark.update(ark, url)
       end
     end
   end

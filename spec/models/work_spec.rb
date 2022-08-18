@@ -110,6 +110,25 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     expect(work.reload.state).to eq("draft")
   end
 
+  context "ARK update" do
+    before { allow(Ark).to receive(:update) }
+    let(:ezid) { "ark:/99999/dsp01qb98mj541" }
+
+    around do |example|
+      Rails.configuration.update_ark_url = true
+      example.run
+      Rails.configuration.update_ark_url = false
+    end
+
+    it "updates the ARK metadata" do
+      work.ark = ezid
+      work.save
+      work.ready_for_review!(user)
+      work.approve(user)
+      expect(Ark).to have_received(:update).exactly(1).times
+    end
+  end
+
   describe "#created_by_user" do
     context "when the ID is invalid" do
       subject(:work) { FactoryBot.create(:draft_work) }
@@ -162,23 +181,22 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
   end
 
-  context "when updating the ARK" do
-    before { allow(Ark).to receive(:update) }
-    let(:ezid) { "ark:/99999/dsp01qb98mj541" }
+  # context "when updating the ARK" do
+  #   before { allow(Ark).to receive(:update) }
+  #   let(:ezid) { "ark:/99999/dsp01qb98mj541" }
 
-    around do |example|
-      Rails.configuration.update_ark_url = true
-      example.run
-      Rails.configuration.update_ark_url = false
-    end
+  #   around do |example|
+  #     Rails.configuration.update_ark_url = true
+  #     example.run
+  #     Rails.configuration.update_ark_url = false
+  #   end
 
-    it "updates the ARK metadata" do
-      work.ark = ezid
-      work.save
-      # one on create + one on update
-      expect(Ark).to have_received(:update).exactly(2).times
-    end
-  end
+  #   it "updates the ARK metadata" do
+  #     work.ark = ezid
+  #     work.save
+  #     expect(Ark).to have_received(:update).exactly(1).times
+  #   end
+  # end
 
   context "linked to a work" do
     let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
