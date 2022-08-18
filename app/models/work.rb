@@ -141,9 +141,7 @@ class Work < ApplicationRecord
 
   before_save do |work|
     # Ensure that the metadata JSON is persisted properly
-    if work.dublin_core.present?
-      work.dublin_core = work.dublin_core.to_json
-    elsif work.profile == "DATACITE" && work.ark.blank?
+    if work.profile == "DATACITE" && work.ark.blank?
       work.ark = Ark.mint
     end
 
@@ -225,23 +223,6 @@ class Work < ApplicationRecord
     User.find(created_by_user_id)
   rescue ActiveRecord::RecordNotFound
     nil
-  end
-
-  def dublin_core
-    DublinCore.new(super)
-  end
-
-  def dublin_core=(value)
-    parsed = if value.is_a?(String)
-               JSON.parse(value)
-             else
-               json_value = JSON.generate(value)
-               JSON.parse(json_value)
-             end
-
-    super(parsed.to_json)
-  rescue JSON::ParserError => parse_error
-    raise(ArgumentError, "Invalid JSON passed to Work#dublin_core=: #{parse_error}")
   end
 
   def resource

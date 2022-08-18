@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_16_121418) do
+ActiveRecord::Schema.define(version: 2022_08_18_110918) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -123,7 +123,6 @@ ActiveRecord::Schema.define(version: 2022_08_16_121418) do
     t.integer "created_by_user_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.json "dublin_core"
     t.json "metadata"
     t.string "profile"
     t.string "ark"

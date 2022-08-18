@@ -138,20 +138,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
   end
 
-  describe "#dublin_core=" do
-    subject(:work) { described_class.create_skeleton(title, user_id, collection_id, work_type, "DUBLINCORE") }
-    let(:title) { "test title" }
-    let(:user_id) { user.id }
-    let(:collection_id) { collection.id }
-    let(:work_type) { "DATASET" }
-
-    context "when it is mutated with invalid JSON" do
-      it "raises an error" do
-        expect { work.dublin_core = "{" }.to raise_error(ArgumentError, "Invalid JSON passed to Work#dublin_core=: 809: unexpected token at '{'")
-      end
-    end
-  end
-
   context "when created with an existing ARK" do
     context "and when the ARK is valid" do
       let(:ezid) { "ark:/99999/dsp01qb98mj541" }
