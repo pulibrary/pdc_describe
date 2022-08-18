@@ -3,20 +3,26 @@ require "rails_helper"
 
 RSpec.describe S3QueryService, mock_ezid_api: true do
   let(:subject) { described_class.new(doi) }
+  let(:s3_key1) { "10-34770/pe9w-x904/SCoData_combined_v1_2020-07_README.txt" }
+  let(:s3_key2) { "10-34770/pe9w-x904/SCoData_combined_v1_2020-07_datapackage.json" }
+  let(:s3_last_modified1) { Time.parse("2022-04-21T18:29:40.000Z") }
+  let(:s3_last_modified2) { Time.parse("2022-04-21T18:30:07.000Z") }
+  let(:s3_size1) { 10_759 }
+  let(:s3_size2) { 12_739 }
   let(:s3_hash) do
     {
       contents: [
         {
           etag: "\"008eec11c39e7038409739c0160a793a\"",
-          key: "10-34770/pe9w-x904/SCoData_combined_v1_2020-07_README.txt",
-          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+          key: s3_key1,
+          last_modified: s3_last_modified1,
           size: 10_759,
           storage_class: "STANDARD"
         },
         {
           etag: "\"7bd3d4339c034ebc663b990657714688\"",
-          key: "10-34770/pe9w-x904/SCoData_combined_v1_2020-07_datapackage.json",
-          last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
+          key: s3_key2,
+          last_modified: s3_last_modified2,
           size: 12_739,
           storage_class: "STANDARD"
         }
@@ -30,6 +36,46 @@ RSpec.describe S3QueryService, mock_ezid_api: true do
 
   it "knows the name of its s3 bucket" do
     expect(subject.bucket_name).to eq "example-bucket"
+  end
+
+  it "converts a doi to an S3 address" do
+    expect(subject.s3_address).to eq "s3://example-bucket/10-34770/pe9w-x904"
+  end
+
+  it "takes a DOI and returns information about that DOI in S3" do
+    fake_aws_client = double(Aws::S3::Client)
+    subject.stub(:client).and_return(fake_aws_client)
+    fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
+    fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
+    fake_s3_resp.stub(:to_h).and_return(s3_hash)
+
+    data_profile = subject.data_profile
+    expect(data_profile[:objects]).to be_instance_of(Array)
+    expect(data_profile[:ok]).to eq true
+    expect(data_profile[:objects].count).to eq 2
+    expect(data_profile[:objects].first).to be_instance_of(S3File)
+    expect(data_profile[:objects].first.filename).to match(/README/)
+    expect(data_profile[:objects].first.last_modified).to eq Time.parse("2022-04-21T18:29:40.000Z")
+    expect(data_profile[:objects].first.size).to eq 10_759
+  end
+
+  it "handles connecting to a bad bucket" do
+    fake_aws_client = Aws::S3::Client
+    subject.stub(:client).and_return(fake_aws_client)
+    data_profile = subject.data_profile
+    expect(data_profile[:objects]).to be_instance_of(Array)
+    expect(data_profile[:ok]).to eq false
+  end
+
+  describe "#client" do
+    before do
+      allow(Aws::S3::Client).to receive(:new)
+      subject.client
+    end
+
+    it "constructs the AWS S3 API client object" do
+      expect(Aws::S3::Client).to have_received(:new).with(hash_including(region: "us-east-1"))
+    end
   end
 
   context "with persisted Works" do
@@ -60,7 +106,10 @@ RSpec.describe S3QueryService, mock_ezid_api: true do
       work.pre_curation_uploads.attach(uploaded_file2)
       work
 
+      fake_aws_client = double(Aws::S3::Client)
+      subject.stub(:client).and_return(fake_aws_client)
       fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
+      fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
       fake_s3_resp.stub(:to_h).and_return(s3_hash)
     end
 
@@ -89,13 +138,20 @@ RSpec.describe S3QueryService, mock_ezid_api: true do
 
         expect(children.count).to eq 2
         expect(children.first).to be_instance_of(S3File)
-        expect(children.first.filename).to eq(work.pre_curation_uploads.first.key)
+        expect(children.first.filename).to eq(s3_key1)
 
         last_modified = children.first.last_modified
-        created_at = work.pre_curation_uploads.first.created_at
-        expect(last_modified.to_s).to eq(created_at.to_s)
+        expect(last_modified.to_s).to eq(s3_last_modified1.to_s)
 
-        expect(children.first.size).to eq(work.pre_curation_uploads.first.byte_size)
+        expect(children.first.size).to eq(s3_size1)
+
+        expect(children.last).to be_instance_of(S3File)
+        expect(children.last.filename).to eq(s3_key2)
+
+        last_modified = children.last.last_modified
+        expect(last_modified.to_s).to eq(s3_last_modified2.to_s)
+
+        expect(children.last.size).to eq(s3_size2)
       end
     end
   end

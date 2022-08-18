@@ -31,7 +31,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   # Please see spec/support/ezid_specs.rb
   let(:ezid) { @ezid }
   let(:identifier) { @identifier }
-  let(:attachment_url) { "https://example-bucket.s3.amazonaws.com/#{work.resource.doi}/" }
+  let(:attachment_url) { /#{Regexp.escape("https://example-bucket.s3.amazonaws.com/")}/ }
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
@@ -296,6 +296,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       ).to_return(status: 200)
 
       work.pre_curation_uploads.attach(uploaded_file)
+      work.save
     end
 
     context "with configured to use the human-readable storage service", humanizable_storage: true do
