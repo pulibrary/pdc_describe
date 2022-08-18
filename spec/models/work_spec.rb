@@ -7,10 +7,8 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:user_other) { FactoryBot.create :user }
   let(:superadmin_user) { User.from_cas(OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" })) }
   let(:doi) { "https://doi.org/10.34770/0q6b-cj27" }
-  let(:resource) { FactoryBot.build :resource }
-  let(:work) { described_class.create_dataset(user.id, collection.id, resource) }
-  let(:resource2) { FactoryBot.build :resource, title: "second test title" }
-  let(:work2) { described_class.create_dataset(user.id, collection.id, resource2) }
+  let(:work) { FactoryBot.create(:draft_work, doi: doi) }
+  let(:work2) { FactoryBot.create(:draft_work) }
 
   let(:lib_user) do
     user = FactoryBot.create :user
@@ -47,32 +45,26 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     expect(work.errors.find { |error| error.type.include?("ORCID") }).to be_present
   end
 
-  it "creates a skeleton dataset with a DOI and an ARK" do
-    expect(work.created_by_user.id).to eq user.id
-    expect(work.collection.id).to eq collection.id
-    expect(work.doi).to be_present
-    expect(work.ark).to be_present
-  end
-
   it "drafts a doi only once" do
-    expect(work.doi).to eq("10.34770/doc-1")
+    work = Work.new(collection: collection, metadata: FactoryBot.build(:resource).to_json)
     work.draft_doi
     work.draft_doi # Doing this multiple times on purpose to make sure the api is only called once
     expect(a_request(:post, ENV["DATACITE_URL"])).to have_been_made.once
   end
 
   it "prevents datasets with no users" do
-    expect { described_class.create_dataset(0, collection.id) }.to raise_error
+    work = Work.new(collection: collection, metadata: PULDatacite::Resource.new.to_json)
+    expect { work.draft! }.to raise_error AASM::InvalidTransition
   end
 
   it "prevents datasets with no collections" do
-    expect { described_class.create_dataset(user.id, 0) }.to raise_error
+    work = Work.new(collection: nil, metadata: FactoryBot.build(:resource).to_json)
+    expect { work.save! }.to raise_error ActiveRecord::RecordInvalid
   end
 
   context "with a persisted dataset work" do
-    subject(:work) { described_class.create_dataset(user.id, collection.id, resource) }
+    subject(:work) { FactoryBot.create(:draft_work) }
 
-    let(:resource) { FactoryBot.build :resource }
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
@@ -81,9 +73,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     before do
-      resource.description = "description of the test dataset"
-      resource.creators << PULDatacite::Creator.new_person("Harriet", "Tubman")
-
       stub_request(:put, /#{attachment_url}/).with(
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
       ).to_return(status: 200)
@@ -94,7 +83,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
     it "prevents works from having more than 20 uploads attached" do
       work.deposit_uploads.attach(uploaded_file2)
-
       expect { work.save! }.to raise_error(ActiveRecord::RecordInvalid, "Validation failed: Only 20 files may be uploaded by a user to a given Work. 21 files were uploaded for the Work: #{work.ark}")
 
       persisted = described_class.find(work.id)
@@ -103,6 +91,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   it "approves works and records the change history" do
+    work.ready_for_review!(user)
     work.approve(user)
     expect(work.state_history.first.state).to eq "approved"
     expect(work.reload.state).to eq("approved")
@@ -123,7 +112,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe "#created_by_user" do
     context "when the ID is invalid" do
-      subject(:work) { described_class.create_dataset(user_id, collection_id, resource) }
+      subject(:work) { FactoryBot.create(:draft_work) }
       let(:title) { "test title" }
       let(:user_id) { user.id }
       let(:collection_id) { collection.id }
@@ -134,20 +123,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
       it "returns a nil" do
         expect(work.created_by_user).to be nil
-      end
-    end
-  end
-
-  describe "#dublin_core=" do
-    subject(:work) { described_class.create_skeleton(title, user_id, collection_id, work_type, "DUBLINCORE") }
-    let(:title) { "test title" }
-    let(:user_id) { user.id }
-    let(:collection_id) { collection.id }
-    let(:work_type) { "DATASET" }
-
-    context "when it is mutated with invalid JSON" do
-      it "raises an error" do
-        expect { work.dublin_core = "{" }.to raise_error(ArgumentError, "Invalid JSON passed to Work#dublin_core=: 809: unexpected token at '{'")
       end
     end
   end
@@ -215,11 +190,11 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe "datasets waiting for approval by user type" do
     before do
-      described_class.create_dataset(user.id, collection.id, FactoryBot.build(:resource, title: "test title 1"))
-      described_class.create_dataset(user.id, collection.id, FactoryBot.build(:resource, title: "test title 2"))
-      described_class.create_dataset(pppl_user.id, Collection.plasma_laboratory.id, FactoryBot.build(:resource, title: "test title 3"))
+      FactoryBot.create(:draft_work, created_by_user_id: user.id)
+      FactoryBot.create(:draft_work, created_by_user_id: user.id)
+      FactoryBot.create(:draft_work, created_by_user_id: pppl_user.id, collection_id: Collection.plasma_laboratory.id)
       # Create the dataset for `lib_user`` and @mention `user`
-      ds = described_class.create_dataset(lib_user.id, Collection.library_resources.id, FactoryBot.build(:resource, title: "test title 4"))
+      ds = FactoryBot.create(:draft_work, created_by_user_id: lib_user.id)
       WorkActivity.add_system_activity(ds.id, "Tagging @#{user.uid} in this dataset", lib_user.id)
     end
 
@@ -291,9 +266,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   describe "#deposit_uploads" do
-    let(:work2) do
-      described_class.create_dataset(user.id, collection.id, resource)
-    end
+    let(:work2) { FactoryBot.create(:draft_work) }
 
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
@@ -343,7 +316,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe "#draft" do
     let(:draft_work) do
-      work = Work.new(collection: collection, metadata: resource.to_json)
+      work = Work.new(collection: collection, metadata: FactoryBot.build(:resource).to_json)
       work.draft(user)
       work
     end
@@ -373,8 +346,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe "#ready_for_review" do
     let(:awaiting_approval_work) do
-      work = Work.new(collection: collection, metadata: resource.to_json)
-      work.draft(user)
+      work = FactoryBot.create :draft_work
       work.ready_for_review(user)
       work
     end
@@ -404,8 +376,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe "#approve" do
     let(:approved_work) do
-      work = Work.new(collection: collection, metadata: resource.to_json)
-      work.draft(user)
+      work = FactoryBot.create :draft_work
       work.ready_for_review(user)
       work.approve(user)
       work
@@ -435,8 +406,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe "#withraw" do
     let(:withdrawn_work) do
-      work = Work.new(collection: collection, metadata: resource.to_json)
-      work.draft(user)
+      work = FactoryBot.create :draft_work
       work.withdraw(user)
       work
     end
@@ -470,8 +440,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe "#remove" do
     let(:removed_work) do
-      work = Work.new(collection: collection, metadata: resource.to_json)
-      work.draft(user)
+      work = FactoryBot.create :draft_work
       work.withdraw(user)
       work.remove(user)
       work
@@ -495,7 +464,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   describe "states" do
-    let(:work) { Work.new(collection: collection, metadata: resource.to_json) }
+    let(:work) { Work.new(collection: collection, metadata: FactoryBot.build(:resource).to_json) }
     it "initally is none" do
       expect(work.none?).to be_truthy
       expect(work.state).to eq("none")

@@ -38,7 +38,7 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
   it "Renders ORCID links for creators", js: true do
     stub_s3
     resource = FactoryBot.build(:resource, creators: [PULDatacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")])
-    work = Work.create_dataset(user.id, user.default_collection_id, resource)
+    work = FactoryBot.create(:draft_work, metadata: resource.to_json)
 
     sign_in user
     visit work_path(work)
@@ -46,7 +46,7 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
   end
 
   it "Renders in wizard mode when requested", js: true do
-    work = Work.create_dataset(user.id, user.default_collection_id, FactoryBot.build(:resource))
+    work = FactoryBot.create(:draft_work)
 
     sign_in user
     visit edit_work_path(work, wizard: true)
@@ -55,7 +55,7 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
 
   context "datacite record" do
     let(:resource) { FactoryBot.build :resource }
-    let(:work) { Work.create_dataset(user.id, user.default_collection_id, resource) }
+    let(:work) { FactoryBot.create :draft_work, resource: resource }
 
     before do
       stub_s3

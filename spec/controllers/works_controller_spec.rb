@@ -12,7 +12,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
   let(:curator) { FactoryBot.create(:user) }
   let(:collection) { Collection.first }
   let(:resource) { FactoryBot.build :resource }
-  let(:work) { Work.create_dataset(user.id, collection.id, resource) }
+  let(:work) { FactoryBot.create(:draft_work) }
 
   context "valid user login" do
     it "handles the index page" do
@@ -423,6 +423,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
 
     it "handles aprovals" do
       sign_in user
+      work.ready_for_review!(user)
       post :approve, params: { id: work.id }
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/works/#{work.id}"

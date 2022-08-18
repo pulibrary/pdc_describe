@@ -2,6 +2,17 @@
 
 FactoryBot.define do
   factory :work do
+    factory :draft_work do
+      doi { "https://doi.org/10.34770/123-abc" }
+      transient do
+        resource { FactoryBot.build :resource, identifier: doi, identifier_type: "DOI" }
+      end
+      collection { Collection.research_data }
+      state { "draft" }
+      created_by_user_id { FactoryBot.create(:user).id }
+      metadata { resource.to_json }
+    end
+
     factory :shakespeare_and_company_work do
       collection { Collection.research_data }
       doi { "https://doi.org/10.34770/pe9w-x904" }
