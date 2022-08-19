@@ -32,7 +32,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   # Please see spec/support/ezid_specs.rb
   let(:ezid) { @ezid }
   let(:identifier) { @identifier }
-  let(:attachment_url) { "https://example-bucket.s3.amazonaws.com/#{work.doi}/" }
+  let(:attachment_url) { "https://example-bucket.s3.amazonaws.com/#{work.resource.doi}/" }
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
@@ -188,23 +188,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       end
     end
   end
-
-  # context "when updating the ARK" do
-  #   before { allow(Ark).to receive(:update) }
-  #   let(:ezid) { "ark:/99999/dsp01qb98mj541" }
-
-  #   around do |example|
-  #     Rails.configuration.update_ark_url = true
-  #     example.run
-  #     Rails.configuration.update_ark_url = false
-  #   end
-
-  #   it "updates the ARK metadata" do
-  #     work.ark = ezid
-  #     work.save
-  #     expect(Ark).to have_received(:update).exactly(1).times
-  #   end
-  # end
 
   context "linked to a work" do
     let(:work) { FactoryBot.create(:shakespeare_and_company_work) }

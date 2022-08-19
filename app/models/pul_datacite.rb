@@ -2,12 +2,13 @@
 module PULDatacite
   # Represents a PUL Datacite resource
   # https://support.datacite.org/docs/datacite-metadata-schema-v44-properties-overview
+  #
+  # rubocop:disable Metrics/ClassLength
   class Resource
-    attr_accessor :identifier, :identifier_type, :creators, :titles, :publisher, :publication_year, :resource_type, :description
+    attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type,
+      :description, :doi, :ark
 
-    def initialize(identifier: nil, identifier_type: nil, title: nil, resource_type: nil, creators: [], description: nil)
-      @identifier = identifier
-      @identifier_type = identifier_type
+    def initialize(title: nil, resource_type: nil, creators: [], description: nil)
       @titles = []
       @titles << PULDatacite::Title.new(title: title) unless title.nil?
       @description = description
@@ -15,6 +16,17 @@ module PULDatacite
       @resource_type = resource_type || "Dataset"
       @publisher = "Princeton University"
       @publication_year = Time.zone.today.year
+      @ark = nil
+      @doi = nil
+    end
+
+    def identifier
+      @doi
+    end
+
+    def identifier_type
+      return nil if @doi.nil?
+      "DOI"
     end
 
     def main_title
@@ -98,9 +110,8 @@ module PULDatacite
       resource = PULDatacite::Resource.new
       hash = json_string.blank? ? {} : JSON.parse(json_string)
 
-      resource.identifier = hash["identifier"]
-      resource.identifier_type = hash["identifier_type"]
-
+      resource.doi = hash["doi"]
+      resource.ark = hash["ark"]
       resource.description = hash["description"]
 
       hash["titles"]&.each do |title|
@@ -124,6 +135,7 @@ module PULDatacite
     # rubocop:enable Metrics/AbcSize
     # rubocop:enable Metrics/MethodLength
   end
+  # rubocop:enable Metrics/ClassLength
 
   # value: "Miller, Elizabeth"
   # name_type: "Personal"
