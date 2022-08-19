@@ -1,0 +1,10 @@
+<% if @errors.present? && @errors.any? %>
+<div id="error_explanation">
+  <h2><%= pluralize(@errors.count, "error") %> prohibited this dataset from being updated:</h2>
+  <ul>
+    <% @errors.each do |error| %>
+      <li><%= error %></li>
+    <% end %>
+  </ul>
+</div>
+<% end %>
