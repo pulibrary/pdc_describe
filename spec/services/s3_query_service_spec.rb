@@ -79,14 +79,14 @@ RSpec.describe S3QueryService, mock_ezid_api: true do
   end
 
   context "with persisted Works" do
-    let(:user) { FactoryBot.create(:user) }
-    let(:curator) { FactoryBot.create(:user) }
-    let(:collection) { Collection.first }
-    let(:resource) { FactoryBot.build :resource }
-    let(:work) do
-      Work.create_dataset(user.id, collection.id, resource)
+    let(:user) do
+      persisted = FactoryBot.create(:user)
+      UserCollection.add_admin(persisted.id, Collection.library_resources.id)
+      persisted
     end
+    let(:collection) { Collection.library_resources }
     let(:doi) { "10.34770/doc-1" }
+    let(:work) { FactoryBot.create(:draft_work, doi: doi) }
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end

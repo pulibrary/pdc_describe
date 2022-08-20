@@ -278,10 +278,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   describe "#pre_curation_uploads" do
-    let(:work2) do
-      described_class.create_dataset(user.id, collection.id, resource)
-    end
-
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
