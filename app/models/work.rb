@@ -28,7 +28,7 @@ class Work < ApplicationRecord
     end
 
     event :approve do
-      transitions from: :awaiting_approval, to: :approved, guard: :valid_to_submit
+      transitions from: :awaiting_approval, to: :approved, guard: :valid_to_submit, after: :publish
     end
 
     event :withdraw do
@@ -147,9 +147,6 @@ class Work < ApplicationRecord
   def valid_to_submit
     valid_to_draft
     validate_metadata
-    if state == "approved"
-      update_ark_information
-    end
     errors.count == 0
   end
 
@@ -280,6 +277,11 @@ class Work < ApplicationRecord
         notification.save
       end
     end
+  end
+
+  def publish
+    # call to publish_doi will go here
+    update_ark_information
   end
 
   # Update EZID (our provider of ARKs) with the new information for this work.
