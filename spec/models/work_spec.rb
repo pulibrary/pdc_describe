@@ -193,7 +193,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
     it "has a DOI" do
       expect(work.title).to eq "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events"
-      expect(work.doi).to eq "https://doi.org/10.34770/pe9w-x904"
+      expect(work.resource.doi).to eq "https://doi.org/10.34770/pe9w-x904"
     end
   end
 

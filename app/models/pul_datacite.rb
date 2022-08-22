@@ -8,7 +8,7 @@ module PULDatacite
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type,
       :description, :doi, :ark
 
-    def initialize(title: nil, resource_type: nil, creators: [], description: nil)
+    def initialize(doi: nil, title: nil, resource_type: nil, creators: [], description: nil)
       @titles = []
       @titles << PULDatacite::Title.new(title: title) unless title.nil?
       @description = description
@@ -17,7 +17,7 @@ module PULDatacite
       @publisher = "Princeton University"
       @publication_year = Time.zone.today.year
       @ark = nil
-      @doi = nil
+      @doi = doi
     end
 
     def identifier
@@ -47,8 +47,8 @@ module PULDatacite
           "xmlns" => "http://datacite.org/schema/kernel-4",
           "xsi:schemaLocation" => "http://datacite.org/schema/kernel-4 https://schema.datacite.org/meta/kernel-4.4/metadata.xsd"
         ) do
-          xml.identifier("identifierType" => @identifier_type) do
-            xml.text @identifier
+          xml.identifier("identifierType" => identifier_type) do
+            xml.text identifier
           end
           xml.titles do
             @titles.each do |title|
