@@ -40,7 +40,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   it "checks the format of the ORCID of the creators" do
     # Add a new creator with an incomplete ORCID
-    work.resource.creators << PULDatacite::Creator.new_person("Williams", "Serena", "1234-12")
+    work.resource.creators << PDCMetadata::Creator.new_person("Williams", "Serena", "1234-12")
     expect(work.save).to be false
     expect(work.errors.find { |error| error.type.include?("ORCID") }).to be_present
   end
@@ -53,7 +53,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   it "prevents datasets with no users" do
-    work = Work.new(collection: collection, metadata: PULDatacite::Resource.new.to_json)
+    work = Work.new(collection: collection, metadata: PDCMetadata::Resource.new.to_json)
     expect { work.draft! }.to raise_error AASM::InvalidTransition
   end
 

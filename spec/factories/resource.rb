@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :resource, class: "PULDatacite::Resource" do
+  factory :resource, class: "PDCMetadata::Resource" do
     transient do
       title { FFaker::Book.title }
     end
@@ -12,7 +12,7 @@ FactoryBot.define do
     publisher { "Princeton University" }
     publication_year { "2020" }
     description { FFaker::Book.description }
-    creators { [PULDatacite::Creator.new_person(FFaker::Name.first_name, FFaker::Name.last_name)] }
-    titles { [PULDatacite::Title.new(title: title)] }
+    creators { [PDCMetadata::Creator.new_person(FFaker::Name.first_name, FFaker::Name.last_name)] }
+    titles { [PDCMetadata::Title.new(title: title)] }
   end
 end
