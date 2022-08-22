@@ -291,8 +291,8 @@ class Work < ApplicationRecord
         Ark.update(ark, url)
       end
     end
-  end 
-  
+  end
+
   def current_transition
     aasm.current_event.to_s.humanize.delete("!")
   end
