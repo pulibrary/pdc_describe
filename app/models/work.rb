@@ -48,8 +48,8 @@ class Work < ApplicationRecord
 
   class << self
     def create_skeleton(title, user_id, collection_id, work_type, profile)
-      resource = PULDatacite::Resource.new(title: title,
-                                           creators: [PULDatacite::Creator.new_person("", "skeleton", "", 0)],
+      resource = PDCMetadata::Resource.new(title: title,
+                                           creators: [PDCMetadata::Creator.new_person("", "skeleton", "", 0)],
                                            description: title)
       work = Work.new(
         created_by_user_id: user_id,
@@ -190,7 +190,7 @@ class Work < ApplicationRecord
   end
 
   def resource
-    @resource ||= PULDatacite::Resource.new_from_json(metadata)
+    @resource ||= PDCMetadata::Resource.new_from_json(metadata)
   end
 
   def ark_url

@@ -213,12 +213,12 @@ class WorksController < ApplicationController
 
     def new_creator(given_name, family_name, orcid, sequence)
       return if family_name.blank? && given_name.blank? && orcid.blank?
-      PULDatacite::Creator.new_person(given_name, family_name, orcid, sequence)
+      PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity:
     def resource_from_form
-      resource = PULDatacite::Resource.new
+      resource = PDCMetadata::Resource.new
       resource.doi = params["doi"] if params["doi"].present?
       resource.ark = params["ark"] if params["ark"].present?
       resource.description = params["description"]
@@ -226,16 +226,16 @@ class WorksController < ApplicationController
       resource.publication_year = params["publication_year"] if params["publication_year"].present?
 
       # Process the titles
-      resource.titles << PULDatacite::Title.new(title: params["title_main"])
+      resource.titles << PDCMetadata::Title.new(title: params["title_main"])
       for i in 1..params["existing_title_count"].to_i do
         if params["title_#{i}"].present?
-          resource.titles << PULDatacite::Title.new(title: params["title_#{i}"], title_type: params["title_type_#{i}"])
+          resource.titles << PDCMetadata::Title.new(title: params["title_#{i}"], title_type: params["title_type_#{i}"])
         end
       end
 
       for i in 1..params["new_title_count"].to_i do
         if params["new_title_#{i}"].present?
-          resource.titles << PULDatacite::Title.new(title: params["new_title_#{i}"], title_type: params["new_title_type_#{i}"])
+          resource.titles << PDCMetadata::Title.new(title: params["new_title_#{i}"], title_type: params["new_title_type_#{i}"])
         end
       end
 
