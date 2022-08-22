@@ -8,6 +8,8 @@ require "open-uri"
 # rubocop:disable Metrics/MethodLength
 # rubocop:disable Style/For
 class WorksController < ApplicationController
+  around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :completed]
+
   def index
     @works = Work.all
   end
@@ -145,26 +147,26 @@ class WorksController < ApplicationController
   def completed
     @work = Work.find(params[:id])
     @work.submission_notes = params["submission_notes"]
-    @work.ready_for_review!(current_user)
+    @work.complete_submission!(current_user)
     redirect_to user_url(current_user)
   end
 
   def approve
-    work = Work.find(params[:id])
-    work.approve(current_user)
-    redirect_to work_path(work)
+    @work = Work.find(params[:id])
+    @work.approve!(current_user)
+    redirect_to work_path(@work)
   end
 
   def withdraw
-    work = Work.find(params[:id])
-    work.withdraw(current_user)
-    redirect_to work_path(work)
+    @work = Work.find(params[:id])
+    @work.withdraw!(current_user)
+    redirect_to work_path(@work)
   end
 
   def resubmit
-    work = Work.find(params[:id])
-    work.resubmit(current_user)
-    redirect_to work_path(work)
+    @work = Work.find(params[:id])
+    @work.resubmit!(current_user)
+    redirect_to work_path(@work)
   end
 
   def assign_curator
@@ -258,6 +260,14 @@ class WorksController < ApplicationController
       return if patch_params.nil?
 
       patch_params[:deposit_uploads]
+    end
+
+    def rescue_aasm_error
+      yield
+    rescue AASM::InvalidTransition => error
+      logger.warn("Invalid #{@work.current_transition}: #{error.message}")
+      @errors = ["Cannot #{@work.current_transition}: #{error.message}"]
+      render :show, status: :unprocessable_entity
     end
 end
 # rubocop:enable Metrics/ClassLength

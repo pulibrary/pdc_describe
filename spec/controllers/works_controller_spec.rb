@@ -413,38 +413,90 @@ RSpec.describe WorksController, mock_ezid_api: true do
       expect(Work.find(work.id).location_notes).to eq "my files can be found at http://aws/my/data"
     end
 
-    it "saves the submission notes and renders the user dashboard" do
-      sign_in user
-      post :completed, params: { id: work.id, submission_notes: "I need this processed ASAP" }
-      expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/users/#{user.uid}"
-      expect(Work.find(work.id).submission_notes).to eq "I need this processed ASAP"
+    describe "#completed" do
+      it "saves the submission notes and renders the user dashboard" do
+        sign_in user
+        post :completed, params: { id: work.id, submission_notes: "I need this processed ASAP" }
+        expect(response.status).to be 302
+        expect(response.location).to eq "http://test.host/users/#{user.uid}"
+        expect(Work.find(work.id).submission_notes).to eq "I need this processed ASAP"
+      end
+
+      context "an invalid work" do
+        it "handles completion errors" do
+          work.resource.description = nil
+          work.save
+          sign_in user
+          post :completed, params: { id: work.id }
+          expect(response.status).to be 422
+          expect(work.reload).to be_draft
+          expect(assigns[:errors]).to eq(["Cannot Complete submission: Event 'complete_submission' cannot transition from 'draft'. Failed callback(s): [:valid_to_submit]."])
+        end
+      end
     end
 
-    it "handles aprovals" do
-      sign_in user
-      work.ready_for_review!(user)
-      post :approve, params: { id: work.id }
-      expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/works/#{work.id}"
-      expect(work.reload).to be_approved
+    describe "#approve" do
+      it "handles aprovals" do
+        sign_in user
+        work.complete_submission!(user)
+        post :approve, params: { id: work.id }
+        expect(response.status).to be 302
+        expect(response.location).to eq "http://test.host/works/#{work.id}"
+        expect(work.reload).to be_approved
+      end
+
+      context "work not completed" do
+        it "handles aproval errors" do
+          sign_in user
+          post :approve, params: { id: work.id }
+          expect(response.status).to be 422
+          expect(work.reload).to be_draft
+          expect(assigns[:errors]).to eq(["Cannot Approve: Event 'approve' cannot transition from 'draft'."])
+        end
+      end
     end
 
-    it "handles withdraw" do
-      sign_in user
-      post :withdraw, params: { id: work.id }
-      expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/works/#{work.id}"
-      expect(work.reload).to be_withdrawn
+    describe "#withdraw" do
+      it "handles withdraw" do
+        sign_in user
+        post :withdraw, params: { id: work.id }
+        expect(response.status).to be 302
+        expect(response.location).to eq "http://test.host/works/#{work.id}"
+        expect(work.reload).to be_withdrawn
+      end
+
+      context "a tombstoned work" do
+        it "handles withdraw errors" do
+          work.withdraw(user)
+          work.remove!(user)
+          sign_in user
+          post :withdraw, params: { id: work.id }
+          expect(response.status).to be 422
+          expect(work.reload).to be_tombstone
+          expect(assigns[:errors]).to eq(["Cannot Withdraw: Event 'withdraw' cannot transition from 'tombstone'."])
+        end
+      end
     end
 
-    it "handles resubmit" do
-      sign_in user
-      work.withdraw!(user)
-      post :resubmit, params: { id: work.id }
-      expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/works/#{work.id}"
-      expect(work.reload).to be_draft
+    describe "#resubmit" do
+      it "handles resubmit" do
+        sign_in user
+        work.withdraw!(user)
+        post :resubmit, params: { id: work.id }
+        expect(response.status).to be 302
+        expect(response.location).to eq "http://test.host/works/#{work.id}"
+        expect(work.reload).to be_draft
+      end
+
+      context "an active work" do
+        it "handles resubmit errors" do
+          sign_in user
+          post :resubmit, params: { id: work.id }
+          expect(response.status).to be 422
+          expect(work.reload).to be_draft
+          expect(assigns[:errors]).to eq(["Cannot Resubmit: Event 'resubmit' cannot transition from 'draft'."])
+        end
+      end
     end
 
     it "handles the show page" do
