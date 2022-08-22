@@ -91,6 +91,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   it "approves works and records the change history" do
+    stub_datacite_doi
     work.complete_submission!(user)
     work.approve!(user)
     expect(work.state_history.first.state).to eq "approved"
@@ -124,6 +125,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       work.ark = ezid
       work.save
       work.complete_submission!(user)
+      stub_datacite_doi
       work.approve!(user)
       expect(Ark).to have_received(:update).exactly(1).times
     end
@@ -132,6 +134,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       work.ark = nil
       work.save
       work.complete_submission!(user)
+      stub_datacite_doi
       work.approve!(user)
       expect(Ark).to have_received(:update).exactly(0).times
     end
@@ -370,6 +373,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "transitions from awaiting_approval to approved" do
+      stub_datacite_doi
       awaiting_approval_work.approve!(user)
       expect(awaiting_approval_work.reload.state).to eq("approved")
     end
@@ -392,23 +396,39 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "is approved" do
+      stub_datacite_doi
       expect(approved_work.reload.state).to eq("approved")
     end
 
+    it "publishes the doi" do
+      stub_request(:put, "https://api.datacite.org/dois/https://doi.org/10.34770/123-abc")
+      expect { approved_work }.to change { WorkActivity.where(activity_type: "DATACITE_ERROR").count }.by(0)
+      expect(a_request(:put, "https://api.datacite.org/dois/https://doi.org/10.34770/123-abc")).to have_been_made
+    end
+
+    it "notes a issue when an error occurs" do
+      stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new(status: "bad", reason_phrase: "a problem"))))
+      expect { approved_work }.to change { WorkActivity.where(activity_type: "DATACITE_ERROR").count }.by(1)
+    end
+
     it "transitions from approved to withdrawn" do
+      stub_datacite_doi
       approved_work.withdraw!(user)
       expect(approved_work.reload.state).to eq("withdrawn")
     end
 
     it "can not transition from approved to tombsotne" do
+      stub_datacite_doi
       expect { approved_work.remove!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from approved to awaiting_approval" do
+      stub_datacite_doi
       expect { approved_work.complete_submission!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from approved to draft" do
+      stub_datacite_doi
       expect { approved_work.draft!(user) }.to raise_error AASM::InvalidTransition
     end
   end
