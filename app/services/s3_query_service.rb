@@ -85,10 +85,14 @@ class S3QueryService
     @client ||= Aws::S3::Client.new(region: region, credentials: credentials)
   end
 
+  # Find the Work model for the given DOI
+  # @return [Work]
   def model
     @model ||= Work.find_by(doi: @doi)
   end
 
+  # Retrieve the S3 resources attached to the Work model
+  # @return [Array<S3File>]
   def model_s3_files
     objects = []
     return objects if model.nil?
@@ -101,6 +105,8 @@ class S3QueryService
     objects
   end
 
+  # Retrieve the S3 resources uploaded to the S3 Bucket
+  # @return [Array<S3File>]
   def client_s3_files
     objects = []
     resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
@@ -114,6 +120,8 @@ class S3QueryService
     objects
   end
 
+  # Retrieve the S3 resources from the S3 Bucket without those attached to the Work model
+  # @return [Array<S3File>]
   def s3_files
     model_s3_file_keys = model_s3_files.map(&:filename)
     client_s3_files.reject { |client_s3_file| model_s3_file_keys.include?(client_s3_file.filename) }
