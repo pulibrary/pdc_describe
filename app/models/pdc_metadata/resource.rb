@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-module PULDatacite
+module PDCMetadata
   # Represents a PUL Datacite resource
   # https://support.datacite.org/docs/datacite-metadata-schema-v44-properties-overview
   #
@@ -10,7 +10,7 @@ module PULDatacite
 
     def initialize(doi: nil, title: nil, resource_type: nil, creators: [], description: nil)
       @titles = []
-      @titles << PULDatacite::Title.new(title: title) unless title.nil?
+      @titles << PDCMetadata::Title.new(title: title) unless title.nil?
       @description = description
       @creators = creators
       @resource_type = resource_type || "Dataset"
@@ -103,11 +103,11 @@ module PULDatacite
     # rubocop:enable Metrics/BlockLength
     # rubocop:enable Metrics/AbcSize
 
-    # Creates a PULDatacite::Resource from a JSON string
+    # Creates a PDCMetadata::Resource from a JSON string
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/AbcSize
     def self.new_from_json(json_string)
-      resource = PULDatacite::Resource.new
+      resource = PDCMetadata::Resource.new
       hash = json_string.blank? ? {} : JSON.parse(json_string)
 
       resource.doi = hash["doi"]
@@ -115,7 +115,7 @@ module PULDatacite
       resource.description = hash["description"]
 
       hash["titles"]&.each do |title|
-        resource.titles << PULDatacite::Title.new(title: title["title"], title_type: title["title_type"])
+        resource.titles << PDCMetadata::Title.new(title: title["title"], title_type: title["title_type"])
       end
 
       hash["creators"]&.each do |creator|
@@ -123,7 +123,7 @@ module PULDatacite
         family_name = creator["family_name"]
         orcid = creator.dig("name_identifier", "scheme") == "ORCID" ? creator.dig("name_identifier", "value") : nil
         sequence = (creator["sequence"] || "").to_i
-        resource.creators << PULDatacite::Creator.new_person(given_name, family_name, orcid, sequence)
+        resource.creators << PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
       end
       resource.creators.sort_by!(&:sequence)
 
