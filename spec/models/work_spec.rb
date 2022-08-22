@@ -91,21 +91,21 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   it "approves works and records the change history" do
-    work.ready_for_review!(user)
-    work.approve(user)
+    work.complete_submission!(user)
+    work.approve!(user)
     expect(work.state_history.first.state).to eq "approved"
     expect(work.reload.state).to eq("approved")
   end
 
   it "withdraw works and records the change history" do
-    work.withdraw(user)
+    work.withdraw!(user)
     expect(work.state_history.first.state).to eq "withdrawn"
     expect(work.reload.state).to eq("withdrawn")
   end
 
   it "resubmit works and records the change history" do
-    work.withdraw(user)
-    work.resubmit(user)
+    work.withdraw!(user)
+    work.resubmit!(user)
     expect(work.state_history.first.state).to eq "draft"
     expect(work.reload.state).to eq("draft")
   end
@@ -326,7 +326,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   describe "#draft" do
     let(:draft_work) do
       work = Work.new(collection: collection, metadata: FactoryBot.build(:resource).to_json)
-      work.draft(user)
+      work.draft!(user)
       work
     end
 
@@ -340,23 +340,23 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "transitions from draft to withdrawn" do
-      draft_work.withdraw(user)
+      draft_work.withdraw!(user)
       expect(draft_work.reload.state).to eq("withdrawn")
     end
 
     it "can not transition from draft to approved" do
-      expect { draft_work.approve(user) }.to raise_error AASM::InvalidTransition
+      expect { draft_work.approve!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from draft to tombsotne" do
-      expect { draft_work.remove(user) }.to raise_error AASM::InvalidTransition
+      expect { draft_work.remove!(user) }.to raise_error AASM::InvalidTransition
     end
   end
 
-  describe "#ready_for_review" do
+  describe "#complete_submission" do
     let(:awaiting_approval_work) do
       work = FactoryBot.create :draft_work
-      work.ready_for_review(user)
+      work.complete_submission!(user)
       work
     end
 
@@ -365,29 +365,29 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "transitions from awaiting_approval to withdrawn" do
-      awaiting_approval_work.withdraw(user)
+      awaiting_approval_work.withdraw!(user)
       expect(awaiting_approval_work.reload.state).to eq("withdrawn")
     end
 
     it "transitions from awaiting_approval to approved" do
-      awaiting_approval_work.approve(user)
+      awaiting_approval_work.approve!(user)
       expect(awaiting_approval_work.reload.state).to eq("approved")
     end
 
     it "can not transition from awaiting_approval to tombsotne" do
-      expect { awaiting_approval_work.remove(user) }.to raise_error AASM::InvalidTransition
+      expect { awaiting_approval_work.remove!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from awaiting_approval to draft" do
-      expect { awaiting_approval_work.draft(user) }.to raise_error AASM::InvalidTransition
+      expect { awaiting_approval_work.draft!(user) }.to raise_error AASM::InvalidTransition
     end
   end
 
   describe "#approve" do
     let(:approved_work) do
       work = FactoryBot.create :draft_work
-      work.ready_for_review(user)
-      work.approve(user)
+      work.complete_submission!(user)
+      work.approve!(user)
       work
     end
 
@@ -396,27 +396,27 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "transitions from approved to withdrawn" do
-      approved_work.withdraw(user)
+      approved_work.withdraw!(user)
       expect(approved_work.reload.state).to eq("withdrawn")
     end
 
     it "can not transition from approved to tombsotne" do
-      expect { approved_work.remove(user) }.to raise_error AASM::InvalidTransition
+      expect { approved_work.remove!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from approved to awaiting_approval" do
-      expect { approved_work.ready_for_review(user) }.to raise_error AASM::InvalidTransition
+      expect { approved_work.complete_submission!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from approved to draft" do
-      expect { approved_work.draft(user) }.to raise_error AASM::InvalidTransition
+      expect { approved_work.draft!(user) }.to raise_error AASM::InvalidTransition
     end
   end
 
   describe "#withraw" do
     let(:withdrawn_work) do
       work = FactoryBot.create :draft_work
-      work.withdraw(user)
+      work.withdraw!(user)
       work
     end
 
@@ -425,33 +425,33 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "transitions from withdrawn to draft" do
-      withdrawn_work.resubmit(user)
+      withdrawn_work.resubmit!(user)
       expect(withdrawn_work.reload.state).to eq("draft")
     end
 
     it "transitions from withdrawn to tombstone" do
-      withdrawn_work.remove(user)
+      withdrawn_work.remove!(user)
       expect(withdrawn_work.reload.state).to eq("tombstone")
     end
 
     it "can not transition from withdrawn to approved" do
-      expect { withdrawn_work.approve(user) }.to raise_error AASM::InvalidTransition
+      expect { withdrawn_work.approve!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from withdrawn to awaiting_approval" do
-      expect { withdrawn_work.ready_for_review(user) }.to raise_error AASM::InvalidTransition
+      expect { withdrawn_work.complete_submission!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from withdrawn to draft" do
-      expect { withdrawn_work.draft(user) }.to raise_error AASM::InvalidTransition
+      expect { withdrawn_work.draft!(user) }.to raise_error AASM::InvalidTransition
     end
   end
 
   describe "#remove" do
     let(:removed_work) do
       work = FactoryBot.create :draft_work
-      work.withdraw(user)
-      work.remove(user)
+      work.withdraw!(user)
+      work.remove!(user)
       work
     end
 
@@ -460,15 +460,15 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "can not transition from tombstone to approved" do
-      expect { removed_work.approve(user) }.to raise_error AASM::InvalidTransition
+      expect { removed_work.approve!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from tombstone to awaiting_approval" do
-      expect { removed_work.ready_for_review(user) }.to raise_error AASM::InvalidTransition
+      expect { removed_work.complete_submission!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from tombstone to draft" do
-      expect { removed_work.draft(user) }.to raise_error AASM::InvalidTransition
+      expect { removed_work.draft!(user) }.to raise_error AASM::InvalidTransition
     end
   end
 
@@ -480,19 +480,19 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "can not be removed from none" do
-      expect { work.remove(user) }.to raise_error AASM::InvalidTransition
+      expect { work.remove!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not be approved from none" do
-      expect { work.approve(user) }.to raise_error AASM::InvalidTransition
+      expect { work.approve!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not be maked ready for review from none" do
-      expect { work.ready_for_review(user) }.to raise_error AASM::InvalidTransition
+      expect { work.complete_submission!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not be withdrawn from none" do
-      expect { work.withdraw(user) }.to raise_error AASM::InvalidTransition
+      expect { work.withdraw!(user) }.to raise_error AASM::InvalidTransition
     end
   end
 end

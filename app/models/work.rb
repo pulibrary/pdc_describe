@@ -19,7 +19,7 @@ class Work < ApplicationRecord
       transitions from: :none, to: :draft, guard: :valid_to_draft
     end
 
-    event :ready_for_review do
+    event :complete_submission do
       transitions from: :draft, to: :awaiting_approval, guard: :valid_to_submit
     end
 
@@ -291,6 +291,10 @@ class Work < ApplicationRecord
         Ark.update(ark, url)
       end
     end
+  end 
+  
+  def current_transition
+    aasm.current_event.to_s.humanize.delete("!")
   end
 
   private
@@ -315,7 +319,6 @@ class Work < ApplicationRecord
     end
 
     def track_state_change(user, state = aasm.to_state)
-      save!
       uw = UserWork.new(user_id: user.id, work_id: id, state: state)
       uw.save!
       WorkActivity.add_system_activity(id, "marked as #{state}", user.id)
