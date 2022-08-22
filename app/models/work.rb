@@ -279,27 +279,27 @@ class Work < ApplicationRecord
     end
   end
 
-  def publish
-    # call to publish_doi will go here
-    update_ark_information
-  end
-
-  # Update EZID (our provider of ARKs) with the new information for this work.
-  def update_ark_information
-    # We only want to update the ark url under certain conditions.
-    # Set this value in config/update_ark_url.yml
-    if Rails.configuration.update_ark_url
-      if ark.present?
-        Ark.update(ark, url)
-      end
-    end
-  end
-
   def current_transition
     aasm.current_event.to_s.humanize.delete("!")
   end
 
   private
+
+    def publish(user)
+      publish_doi(user)
+      update_ark_information
+    end
+
+    # Update EZID (our provider of ARKs) with the new information for this work.
+    def update_ark_information
+      # We only want to update the ark url under certain conditions.
+      # Set this value in config/update_ark_url.yml
+      if Rails.configuration.update_ark_url
+        if ark.present?
+          Ark.update(ark, url)
+        end
+      end
+    end
 
     def generate_attachment_key(attachment)
       key_base = "#{doi}/#{id}"
@@ -357,6 +357,35 @@ class Work < ApplicationRecord
           end
         end
       end
+    end
+
+    def publish_doi(user)
+      if Rails.env.development? && ENV["DATACITE_USER"].blank?
+        Rails.logger.info "Publishing hard-coded test DOI during development."
+      else
+        result = data_cite_connection.update(id: doi, attributes: doi_attributes)
+        if result.failure?
+          message = "@#{curator_or_current_uid(user)} Error publishing DOI. #{result.failure.status} / #{result.failure.reason_phrase}"
+          WorkActivity.add_system_activity(id, message, user.id, activity_type: "DATACITE_ERROR")
+        end
+      end
+    end
+
+    def curator_or_current_uid(user)
+      curator = if curator_user_id
+                  User.find(curator_user_id)
+                else
+                  user
+                end
+      curator.uid
+    end
+
+    def doi_attributes
+      {
+        "event" => "publish",
+        "xml" => Base64.encode64(ValidDatacite::Resource.new_from_json(metadata).to_xml),
+        "url" => "https://schema.datacite.org/meta/kernel-4.0/index.html" # TODO: this should be a link to the item in PDC-discovery
+      }
     end
 end
 # rubocop:ensable Metrics/ClassLength

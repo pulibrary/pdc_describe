@@ -439,10 +439,28 @@ RSpec.describe WorksController, mock_ezid_api: true do
       it "handles aprovals" do
         sign_in user
         work.complete_submission!(user)
+        stub_datacite_doi
         post :approve, params: { id: work.id }
         expect(response.status).to be 302
         expect(response.location).to eq "http://test.host/works/#{work.id}"
         expect(work.reload).to be_approved
+      end
+
+      context "invalid response from doi publish" do
+        before do
+          sign_in user
+          work.complete_submission!(user)
+          stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new)))
+        end
+
+        it "aproves and notes that it was not published" do
+          post :approve, params: { id: work.id }
+          expect(response.status).to be 302
+          expect(response.location).to eq "http://test.host/works/#{work.id}"
+          expect(work.reload).to be_approved
+          error = work.work_activity.find { |activity| activity.activity_type == "DATACITE_ERROR" }
+          expect(error.message).to include("Error publishing DOI")
+        end
       end
 
       context "work not completed" do
