@@ -32,8 +32,8 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     @can_curate = current_user.can_admin?(@work.collection_id)
     @work.mark_new_notifications_as_read(current_user.id)
-    if @work.doi
-      service = S3QueryService.new(@work.doi)
+    if @work.resource.doi
+      service = S3QueryService.new(@work.resource.doi)
       data_profile = service.data_profile
       @files = data_profile[:objects]
       @files_ok = data_profile[:ok]
@@ -216,9 +216,11 @@ class WorksController < ApplicationController
       PULDatacite::Creator.new_person(given_name, family_name, orcid, sequence)
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity:
     def resource_from_form
       resource = PULDatacite::Resource.new
-
+      resource.doi = params["doi"] if params["doi"].present?
+      resource.ark = params["ark"] if params["ark"].present?
       resource.description = params["description"]
       resource.publisher = params["publisher"] if params["publisher"].present?
       resource.publication_year = params["publication_year"] if params["publication_year"].present?
@@ -245,6 +247,7 @@ class WorksController < ApplicationController
 
       resource
     end
+    # rubocop:enable Metrics/CyclomaticComplexity:
 
     def work_params
       params[:work] || params

@@ -35,4 +35,14 @@ module ApplicationHelper
 
     value[0..79]
   end
+
+  def ark_url(ark_value)
+    return nil if ark_value.blank?
+    "http://arks.princeton.edu/#{ark_value}"
+  end
+
+  def doi_url(doi_value)
+    return nil if doi_value.blank?
+    "https://doi.org/#{doi_value}"
+  end
 end

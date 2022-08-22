@@ -32,7 +32,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   # Please see spec/support/ezid_specs.rb
   let(:ezid) { @ezid }
   let(:identifier) { @identifier }
-  let(:attachment_url) { "https://example-bucket.s3.amazonaws.com/#{work.doi}/" }
+  let(:attachment_url) { "https://example-bucket.s3.amazonaws.com/#{work.resource.doi}/" }
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
@@ -110,6 +110,33 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     expect(work.reload.state).to eq("draft")
   end
 
+  context "ARK update" do
+    before { allow(Ark).to receive(:update) }
+    let(:ezid) { "ark:/99999/dsp01qb98mj541" }
+
+    around do |example|
+      Rails.configuration.update_ark_url = true
+      example.run
+      Rails.configuration.update_ark_url = false
+    end
+
+    it "updates the ARK metadata" do
+      work.ark = ezid
+      work.save
+      work.complete_submission!(user)
+      work.approve!(user)
+      expect(Ark).to have_received(:update).exactly(1).times
+    end
+
+    it "does not update the ARK metadata" do
+      work.ark = nil
+      work.save
+      work.complete_submission!(user)
+      work.approve!(user)
+      expect(Ark).to have_received(:update).exactly(0).times
+    end
+  end
+
   describe "#created_by_user" do
     context "when the ID is invalid" do
       subject(:work) { FactoryBot.create(:draft_work) }
@@ -162,29 +189,11 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
   end
 
-  context "when updating the ARK" do
-    before { allow(Ark).to receive(:update) }
-    let(:ezid) { "ark:/99999/dsp01qb98mj541" }
-
-    around do |example|
-      Rails.configuration.update_ark_url = true
-      example.run
-      Rails.configuration.update_ark_url = false
-    end
-
-    it "updates the ARK metadata" do
-      work.ark = ezid
-      work.save
-      # one on create + one on update
-      expect(Ark).to have_received(:update).exactly(2).times
-    end
-  end
-
   context "linked to a work" do
     let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
     it "has a DOI" do
       expect(work.title).to eq "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events"
-      expect(work.doi).to eq "https://doi.org/10.34770/pe9w-x904"
+      expect(work.resource.doi).to eq "https://doi.org/10.34770/pe9w-x904"
     end
   end
 

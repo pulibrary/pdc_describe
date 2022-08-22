@@ -13,7 +13,7 @@ RSpec.describe PULDatacite::Resource, type: :model do
   end
 
   let(:ds) do
-    ds = described_class.new(identifier: "10.5072/example-full", identifier_type: "DOI", title: "hello world")
+    ds = described_class.new(doi: "10.5072/example-full", title: "hello world")
     ds.description = "this is an example description"
     ds.creators = [creatorPerson, creatorOrganization]
     ds

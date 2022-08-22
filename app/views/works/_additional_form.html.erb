@@ -19,10 +19,9 @@
     </select>
   </div>
 
-  <!-- ARK field  -->
-  <% if @work.ark.present? %>
-    <div class="field">
-      ARK: <%= @work.ark %>
-    </div>
-  <% end %>
+  <!-- ARK field (mostly for legacy DSpace works) -->
+  <div class="field">
+    ARK: <br>
+    <input type="text" id="ark" name="ark" class="input-text-long" value="<%= @work.resource.ark %>" />
+  </div>
 </div>

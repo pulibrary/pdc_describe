@@ -28,7 +28,7 @@ class Work < ApplicationRecord
     end
 
     event :approve do
-      transitions from: :awaiting_approval, to: :approved, guard: :valid_to_submit
+      transitions from: :awaiting_approval, to: :approved, guard: :valid_to_submit, after: :publish
     end
 
     event :withdraw do
@@ -113,10 +113,6 @@ class Work < ApplicationRecord
 
   before_save do |work|
     # Ensure that the metadata JSON is persisted properly
-    if work.profile == "DATACITE" && work.ark.blank?
-      work.ark = Ark.mint
-    end
-
     work.metadata = work.resource.to_json
 
     new_attachments = work.deposit_uploads.reject(&:persisted?)
@@ -126,16 +122,6 @@ class Work < ApplicationRecord
 
       attachment.blob.save
       attachment.save
-    end
-  end
-
-  after_save do |work|
-    # We only want to update the ark url under certain conditions.
-    # Set this value in config/update_ark_url.yml
-    if Rails.configuration.update_ark_url
-      if work.ark.present?
-        Ark.update(work.ark, work.url)
-      end
     end
   end
 
@@ -180,17 +166,17 @@ class Work < ApplicationRecord
   end
 
   def draft_doi
-    self.doi ||= if Rails.env.development? && ENV["DATACITE_USER"].blank?
-                   Rails.logger.info "Using hard-coded test DOI during development."
-                   "10.34770/tbd"
-                 else
-                   result = data_cite_connection.autogenerate_doi(prefix: ENV["DATACITE_PREFIX"])
-                   if result.success?
-                     result.success.doi
-                   else
-                     raise("Error generating DOI. #{result.failure.status} / #{result.failure.reason_phrase}")
-                   end
-                 end
+    resource.doi ||= if Rails.env.development? && ENV["DATACITE_USER"].blank?
+                       Rails.logger.info "Using hard-coded test DOI during development."
+                       "10.34770/tbd"
+                     else
+                       result = data_cite_connection.autogenerate_doi(prefix: ENV["DATACITE_PREFIX"])
+                       if result.success?
+                         result.success.doi
+                       else
+                         raise("Error generating DOI. #{result.failure.status} / #{result.failure.reason_phrase}")
+                       end
+                     end
   end
 
   def state_history
@@ -289,6 +275,22 @@ class Work < ApplicationRecord
       unread_notifications.each do |notification|
         notification.read_at = Time.now.utc
         notification.save
+      end
+    end
+  end
+
+  def publish
+    # call to publish_doi will go here
+    update_ark_information
+  end
+
+  # Update EZID (our provider of ARKs) with the new information for this work.
+  def update_ark_information
+    # We only want to update the ark url under certain conditions.
+    # Set this value in config/update_ark_url.yml
+    if Rails.configuration.update_ark_url
+      if ark.present?
+        Ark.update(ark, url)
       end
     end
   end
