@@ -70,11 +70,10 @@
   <p>Publisher: <%= @work.resource.publisher %></p>
   <p>Publication Year: <%= @work.resource.publication_year %></p>
   <% if @work.resource.doi %>
-    <p>DOI: <%= link_to(@work.resource.doi, @work.resource.doi) %></p>
+    <p>DOI: <%= link_to(@work.resource.doi, doi_url(@work.resource.doi)) %></p>
   <% end %>
   <% if @work.resource.ark %>
-    <!-- TODO -->
-    <p>ARK: <%= link_to(@work.resource.ark, "@work.resource.ark_url") %></p>
+    <p>ARK: <%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></p>
   <% end %>
 
   <p>Added by: <%= @work.created_by_user.uid %></p>
