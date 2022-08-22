@@ -330,6 +330,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     let(:draft_work) do
       work = Work.new(collection: collection, metadata: FactoryBot.build(:resource).to_json)
       work.draft!(user)
+      work = Work.find(work.id)
       work
     end
 
@@ -337,9 +338,10 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       expect(draft_work.reload.state).to eq("draft")
     end
 
-    it "drafts a doi" do
+    it "drafts a doi and the DOI is persisted" do
       draft_work
       expect(a_request(:post, ENV["DATACITE_URL"])).to have_been_made
+      expect(draft_work.resource.doi).not_to eq nil
     end
 
     it "transitions from draft to withdrawn" do
