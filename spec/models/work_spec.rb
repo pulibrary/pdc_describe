@@ -6,8 +6,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:collection) { Collection.research_data }
   let(:user_other) { FactoryBot.create :user }
   let(:superadmin_user) { User.from_cas(OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" })) }
-  let(:doi) { "https://doi.org/10.34770/0q6b-cj27" }
-  let(:work) { FactoryBot.create(:draft_work, doi: doi) }
+  let(:work) { FactoryBot.create(:draft_work) }
   let(:work2) { FactoryBot.create(:draft_work) }
 
   let(:lib_user) do
@@ -122,7 +121,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "updates the ARK metadata" do
-      work.ark = ezid
+      work.resource.ark = ezid
       work.save
       work.complete_submission!(user)
       stub_datacite_doi
@@ -131,7 +130,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "does not update the ARK metadata" do
-      work.ark = nil
+      work.resource.ark = nil
       work.save
       work.complete_submission!(user)
       stub_datacite_doi
@@ -169,7 +168,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
       it "does not mint a new ARK" do
         expect(work.persisted?).not_to be false
-        work.ark = ezid
+        work.resource.ark = ezid
         work.save
 
         expect(work.persisted?).to be true
@@ -186,7 +185,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       it "raises an error" do
         expect(work.persisted?).not_to be false
         bad_ezid = "ark:/bad-99999/fk4tq65d6k"
-        work.ark = bad_ezid
+        work.resource.ark = bad_ezid
         expect { work.save! }.to raise_error(ActiveRecord::RecordInvalid, "Validation failed: Invalid ARK provided for the Work: #{bad_ezid}")
       end
     end
