@@ -2,7 +2,8 @@
 require "rails_helper"
 
 RSpec.describe S3QueryService, mock_ezid_api: true do
-  let(:subject) { described_class.new(doi) }
+  let(:work) { FactoryBot.create :draft_work, doi: doi }
+  let(:subject) { described_class.new(work) }
   let(:s3_key1) { "10-34770/pe9w-x904/SCoData_combined_v1_2020-07_README.txt" }
   let(:s3_key2) { "10-34770/pe9w-x904/SCoData_combined_v1_2020-07_datapackage.json" }
   let(:s3_last_modified1) { Time.parse("2022-04-21T18:29:40.000Z") }
@@ -32,14 +33,14 @@ RSpec.describe S3QueryService, mock_ezid_api: true do
 
   # DOI for Shakespeare and Company Project Dataset: Lending Library Members, Books, Events
   # https://dataspace.princeton.edu/handle/88435/dsp01zc77st047
-  let(:doi) { "https://doi.org/10.34770/pe9w-x904" }
+  let(:doi) { "10.34770/pe9w-x904" }
 
   it "knows the name of its s3 bucket" do
     expect(subject.bucket_name).to eq "example-bucket"
   end
 
   it "converts a doi to an S3 address" do
-    expect(subject.s3_address).to eq "s3://example-bucket/10-34770/pe9w-x904"
+    expect(subject.s3_address).to eq "s3://example-bucket/10.34770/pe9w-x904/#{work.id}/"
   end
 
   it "takes a DOI and returns information about that DOI in S3" do
@@ -94,6 +95,7 @@ RSpec.describe S3QueryService, mock_ezid_api: true do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
     let(:attachment_url) { "https://example-bucket.s3.amazonaws.com/#{doi}/" }
+    let(:fake_aws_client) { double(Aws::S3::Client) }
 
     before do
       Collection.create_defaults
@@ -106,7 +108,6 @@ RSpec.describe S3QueryService, mock_ezid_api: true do
       work.pre_curation_uploads.attach(uploaded_file2)
       work
 
-      fake_aws_client = double(Aws::S3::Client)
       subject.stub(:client).and_return(fake_aws_client)
       fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
       fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
@@ -118,9 +119,8 @@ RSpec.describe S3QueryService, mock_ezid_api: true do
         let(:output) { subject.data_profile }
 
         before do
+          fake_aws_client.stub(:list_objects_v2).and_raise(StandardError)
           allow(Rails.logger).to receive(:error)
-          allow(Work).to receive(:find_by).and_raise(StandardError)
-
           output
         end
 

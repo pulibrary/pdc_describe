@@ -33,7 +33,7 @@ class WorksController < ApplicationController
     @can_curate = current_user.can_admin?(@work.collection_id)
     @work.mark_new_notifications_as_read(current_user.id)
     if @work.resource.doi
-      service = S3QueryService.new(@work.resource.doi)
+      service = S3QueryService.new(@work)
       data_profile = service.data_profile
       @files = data_profile[:objects]
       @files_ok = data_profile[:ok]
