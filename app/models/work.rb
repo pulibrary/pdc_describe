@@ -2,8 +2,12 @@
 
 # rubocop:disable Metrics/ClassLength
 class Work < ApplicationRecord
+  MAX_UPLOADS = 20
+
   has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
-  has_many_attached :deposit_uploads
+  has_many_attached :pre_curation_uploads, service: :amazon_pre_curation
+  has_many_attached :post_curation_uploads, service: :amazon_post_curation
+
   belongs_to :collection
 
   attribute :work_type, :string, default: "DATASET"
@@ -115,14 +119,10 @@ class Work < ApplicationRecord
     # Ensure that the metadata JSON is persisted properly
     work.metadata = work.resource.to_json
 
-    new_attachments = work.deposit_uploads.reject(&:persisted?)
-    new_attachments.each do |attachment|
-      attachment_key = generate_attachment_key(attachment)
-      attachment.key = attachment_key
-
-      attachment.blob.save
-      attachment.save
-    end
+    # This must be within #before_save, otherwise the key generation will not be invoked
+    work.save_pre_curation_uploads
+    work.transfer_curated_uploads if work.approved?
+    work.save_post_curation_uploads
   end
 
   validate do |work|
@@ -133,6 +133,26 @@ class Work < ApplicationRecord
     else
       work.valid_to_submit
     end
+  end
+
+  def save_pre_curation_uploads
+    new_attachments = pre_curation_uploads.reject(&:persisted?)
+    save_new_attachments(new_attachments: new_attachments)
+  end
+
+  def transfer_curated_uploads
+    if approved?
+      post_curation_keys = pre_curation_uploads.map(&:key)
+
+      pre_curation_uploads.each do |pre_curation_attachment|
+        post_curation_uploads.attach(pre_curation_attachment) unless post_curation_keys.include?(pre_curation_attachment.key)
+      end
+    end
+  end
+
+  def save_post_curation_uploads
+    new_attachments = post_curation_uploads.reject(&:persisted?)
+    save_new_attachments(new_attachments: new_attachments)
   end
 
   def valid_to_draft
@@ -147,13 +167,8 @@ class Work < ApplicationRecord
   def valid_to_submit
     valid_to_draft
     validate_metadata
+    validate_uploads
     errors.count == 0
-  end
-
-  def validate_uploads
-    if deposit_uploads.length > 20
-      errors.add(:base, "Only 20 files may be uploaded by a user to a given Work. #{deposit_uploads.length} files were uploaded for the Work: #{ark}")
-    end
   end
 
   def title
@@ -293,6 +308,12 @@ class Work < ApplicationRecord
     aasm.current_event.to_s.humanize.delete("!")
   end
 
+  def uploads
+    return post_curation_uploads if approved?
+
+    pre_curation_uploads
+  end
+
   private
 
     def publish(user)
@@ -396,6 +417,27 @@ class Work < ApplicationRecord
         "xml" => Base64.encode64(ValidDatacite::Resource.new_from_json(metadata).to_xml),
         "url" => "https://schema.datacite.org/meta/kernel-4.0/index.html" # TODO: this should be a link to the item in PDC-discovery
       }
+    end
+
+    def validate_uploads
+      # The number of pre-curation uploads should be validated, as these are mutated directly
+      if pre_curation_uploads.length > MAX_UPLOADS
+        errors.add(:base, "Only #{MAX_UPLOADS} files may be uploaded by a user to a given Work. #{pre_curation_uploads.length} files were uploaded for the Work: #{ark}")
+      end
+
+      # Ensure that no uploads in the post-curation state are attached prior to the approved state
+      return true if approved? || post_curation_uploads.empty?
+      errors.add(:base, "Files in the post-curation state cannot be directly attached for a given Work. #{post_curation_uploads.length} files were attached for the Work: #{ark}")
+    end
+
+    def save_new_attachments(new_attachments:)
+      new_attachments.each do |attachment|
+        attachment_key = generate_attachment_key(attachment)
+        attachment.key = attachment_key
+
+        attachment.blob.save
+        attachment.save
+      end
     end
 end
 # rubocop:ensable Metrics/ClassLength

@@ -39,7 +39,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
       # Account for files uploaded to S3 via ActiveStorage
       stub_request(:put, /#{bucket_url}/).to_return(status: 200)
       file = fixture_file_upload("us_covid_2019.csv", "text/csv")
-      work.deposit_uploads.attach(file)
+      work.pre_curation_uploads.attach(file)
     end
 
     it "shows data from S3 on the Show and Edit pages", js: true do

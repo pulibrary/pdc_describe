@@ -181,15 +181,15 @@ RSpec.describe WorksController, mock_ezid_api: true do
           "family_name_2" => "lovelace",
           "sequence_2" => "2",
           "creator_count" => "2",
-          "deposit_uploads" => uploaded_file
+          "pre_curation_uploads" => uploaded_file
         }
         sign_in user
-        expect(work.deposit_uploads).to be_empty
+        expect(work.pre_curation_uploads).to be_empty
         post :update, params: params
 
         saved_work = Work.find(work.id)
 
-        expect(saved_work.deposit_uploads).not_to be_empty
+        expect(saved_work.pre_curation_uploads).not_to be_empty
       end
     end
 
@@ -235,15 +235,15 @@ RSpec.describe WorksController, mock_ezid_api: true do
           "family_name_2" => "lovelace",
           "sequence_2" => "2",
           "creator_count" => "2",
-          "deposit_uploads" => uploaded_files
+          "pre_curation_uploads" => uploaded_files
         }
         sign_in user
-        expect(work.deposit_uploads).to be_empty
+        expect(work.pre_curation_uploads).to be_empty
         post :update, params: params
 
         saved_work = Work.find(work.id)
 
-        expect(saved_work.deposit_uploads).not_to be_empty
+        expect(saved_work.pre_curation_uploads).not_to be_empty
       end
     end
 
@@ -271,9 +271,9 @@ RSpec.describe WorksController, mock_ezid_api: true do
         stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
 
-        work.deposit_uploads.attach(uploaded_file1)
-        work.deposit_uploads.attach(uploaded_file1)
-        work.deposit_uploads.attach(uploaded_file1)
+        work.pre_curation_uploads.attach(uploaded_file1)
+        work.pre_curation_uploads.attach(uploaded_file1)
+        work.pre_curation_uploads.attach(uploaded_file1)
 
         params = {
           "title_main" => "test dataset updated",
@@ -301,12 +301,12 @@ RSpec.describe WorksController, mock_ezid_api: true do
       it "handles the update page" do
         saved_work = Work.find(work.id)
 
-        expect(saved_work.deposit_uploads).not_to be_empty
-        expect(saved_work.deposit_uploads.length).to eq(3)
+        expect(saved_work.pre_curation_uploads).not_to be_empty
+        expect(saved_work.pre_curation_uploads.length).to eq(3)
 
-        expect(saved_work.deposit_uploads[0].blob.filename.to_s).to eq("us_covid_2019.csv")
-        expect(saved_work.deposit_uploads[1].blob.filename.to_s).to eq("us_covid_2020.csv")
-        expect(saved_work.deposit_uploads[2].blob.filename.to_s).to eq("us_covid_2020.csv")
+        expect(saved_work.pre_curation_uploads[0].blob.filename.to_s).to eq("us_covid_2019.csv")
+        expect(saved_work.pre_curation_uploads[1].blob.filename.to_s).to eq("us_covid_2020.csv")
+        expect(saved_work.pre_curation_uploads[2].blob.filename.to_s).to eq("us_covid_2020.csv")
       end
     end
 
@@ -347,7 +347,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
           "_method" => "patch",
           "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
           "patch" => {
-            "deposit_uploads" => uploaded_file
+            "pre_curation_uploads" => uploaded_file
           },
           "commit" => "Continue",
           "controller" => "works",
@@ -369,8 +369,8 @@ RSpec.describe WorksController, mock_ezid_api: true do
       it "upload files directly from user requests" do
         expect(response).to redirect_to(work_review_path)
         reloaded = work.reload
-        expect(reloaded.deposit_uploads).not_to be_empty
-        expect(reloaded.deposit_uploads.first).to be_an(ActiveStorage::Attachment)
+        expect(reloaded.pre_curation_uploads).not_to be_empty
+        expect(reloaded.pre_curation_uploads.first).to be_an(ActiveStorage::Attachment)
       end
 
       context "when files are not specified within the parameters" do
@@ -389,7 +389,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
         it "does not update the work" do
           expect(response).to redirect_to(work_review_path)
           reloaded = work.reload
-          expect(reloaded.deposit_uploads).to be_empty
+          expect(reloaded.pre_curation_uploads).to be_empty
         end
       end
     end

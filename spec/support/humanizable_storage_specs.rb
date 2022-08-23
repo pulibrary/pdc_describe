@@ -4,7 +4,11 @@ require "active_storage/blob"
 RSpec.configure do |config|
   config.before(:each, humanizable_storage: true) do
     @active_storage_config = {
-      "test" => {
+      "amazon_pre_curation" => {
+        "service" => "HumanizedDisk",
+        "root" => Rails.root.join("spec", "fixtures", "storage")
+      },
+      "amazon_post_curation" => {
         "service" => "HumanizedDisk",
         "root" => Rails.root.join("spec", "fixtures", "storage")
       }

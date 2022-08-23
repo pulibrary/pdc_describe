@@ -22,6 +22,7 @@ Metrics/BlockLength:
     - "config/environments/**/*"
     - "lib/tasks/**/*"
     - "spec/**/*"
+    - "app/models/work.rb"
 
 Metrics/MethodLength:
   Exclude:
