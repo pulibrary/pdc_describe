@@ -160,23 +160,33 @@ class Work < ApplicationRecord
     resource.main_title
   end
 
+  def doi
+    resource.doi
+  end
+
+  def ark
+    resource.ark
+  end
+
   def curator
     return nil if curator_user_id.nil?
     User.find(curator_user_id)
   end
 
   def draft_doi
-    resource.doi ||= if Rails.env.development? && ENV["DATACITE_USER"].blank?
-                       Rails.logger.info "Using hard-coded test DOI during development."
-                       "10.34770/tbd"
+    return if resource.doi.present?
+    resource.doi = if Rails.env.development? && ENV["DATACITE_USER"].blank?
+                     Rails.logger.info "Using hard-coded test DOI during development."
+                     "10.34770/tbd"
+                   else
+                     result = data_cite_connection.autogenerate_doi(prefix: ENV["DATACITE_PREFIX"])
+                     if result.success?
+                       result.success.doi
                      else
-                       result = data_cite_connection.autogenerate_doi(prefix: ENV["DATACITE_PREFIX"])
-                       if result.success?
-                         result.success.doi
-                       else
-                         raise("Error generating DOI. #{result.failure.status} / #{result.failure.reason_phrase}")
-                       end
+                       raise("Error generating DOI. #{result.failure.status} / #{result.failure.reason_phrase}")
                      end
+                   end
+    save!
   end
 
   def state_history

@@ -12,7 +12,8 @@ namespace :works do
             puts "#{work.id} - #{work.errors.errors.map(&:type)}"
           end
         else
-          puts "#{work.id} - Can't be fixed"
+          work.doi = "10.80021/tbd"
+          puts "#{work.id} - Can't be fixed, try again? #{work.save}"
         end
       else
         puts "#{work.id} - OK"

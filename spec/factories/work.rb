@@ -3,9 +3,8 @@
 FactoryBot.define do
   factory :work do
     factory :draft_work do
-      doi { "https://doi.org/10.34770/123-abc" }
       transient do
-        resource { FactoryBot.build :resource, doi: doi }
+        resource { FactoryBot.build :resource, doi: "https://doi.org/10.34770/123-abc" }
       end
       collection { Collection.research_data }
       state { "draft" }
