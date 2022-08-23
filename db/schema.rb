@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_18_110918) do
+ActiveRecord::Schema.define(version: 2022_08_23_094818) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -125,8 +125,6 @@ ActiveRecord::Schema.define(version: 2022_08_18_110918) do
     t.datetime "updated_at", precision: 6, null: false
     t.json "metadata"
     t.string "profile"
-    t.string "ark"
-    t.string "doi"
     t.text "location_notes"
     t.text "submission_notes"
     t.string "files_location"

@@ -160,6 +160,14 @@ class Work < ApplicationRecord
     resource.main_title
   end
 
+  def doi
+    resource.doi
+  end
+
+  def ark
+    resource.ark
+  end
+
   def curator
     return nil if curator_user_id.nil?
     User.find(curator_user_id)
