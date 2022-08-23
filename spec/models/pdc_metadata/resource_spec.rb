@@ -46,4 +46,9 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     no_orcid = PDCMetadata::Creator.new_person("Elizabeth", "Miller")
     expect(no_orcid.orcid).to be nil
   end
+
+  it "creates the expected json" do
+    work = FactoryBot.create(:shakespeare_and_company_work)
+    expect(work.metadata).to eq(work.resource.to_json)
+  end
 end
