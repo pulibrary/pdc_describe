@@ -1,12 +1,11 @@
 
-
 # 4. Allow the system to Serialize to multiple formats
 
 Date: 2022-08-23
 
 ## Status
 
-Discussion
+Decided
 
 ## Context
 
