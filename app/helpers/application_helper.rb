@@ -29,7 +29,7 @@ module ApplicationHelper
   end
   # rubocop:enable Rails/OutputSafety
 
-  def deposit_uploads_file_name(file:)
+  def pre_curation_uploads_file_name(file:)
     value = file.filename.to_s
     return if value.blank?
 
