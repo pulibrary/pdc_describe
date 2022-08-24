@@ -303,6 +303,68 @@ RSpec.describe WorksController, mock_ezid_api: true do
       end
     end
 
+    context "when only some file uploads are deleted for an existing Work with uploads" do
+      let(:uploaded_file1) do
+        fixture_file_upload("us_covid_2019.csv", "text/csv")
+      end
+
+      let(:uploaded_file2) do
+        fixture_file_upload("us_covid_2020.csv", "text/csv")
+      end
+
+      let(:bucket_url) do
+        "https://example-bucket.s3.amazonaws.com/"
+      end
+
+      let(:deleted_uploads) do
+        {
+          work.pre_curation_uploads.first.key => "1",
+          work.pre_curation_uploads[1].key => "0",
+          work.pre_curation_uploads.last.key => "1"
+        }
+      end
+
+      before do
+        stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
+        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+
+        work.pre_curation_uploads.attach(uploaded_file1)
+        work.pre_curation_uploads.attach(uploaded_file1)
+        work.pre_curation_uploads.attach(uploaded_file1)
+
+        params = {
+          "title_main" => "test dataset updated",
+          "description" => "a new description",
+          "collection_id" => work.collection.id,
+          "commit" => "update dataset",
+          "controller" => "works",
+          "action" => "update",
+          "id" => work.id.to_s,
+          "publisher" => "princeton university",
+          "publication_year" => "2022",
+          "given_name_1" => "jane",
+          "family_name_1" => "smith",
+          "sequence_1" => "1",
+          "given_name_2" => "ada",
+          "family_name_2" => "lovelace",
+          "sequence_2" => "2",
+          "creator_count" => "2",
+          "deleted_uploads" => deleted_uploads
+        }
+        sign_in user
+        post :update, params: params
+      end
+
+      it "handles the update page" do
+        saved_work = Work.find(work.id)
+
+        expect(saved_work.pre_curation_uploads).not_to be_empty
+        expect(saved_work.pre_curation_uploads.length).to eq(1)
+
+        expect(saved_work.pre_curation_uploads[0].blob.filename.to_s).to eq("us_covid_2019.csv")
+      end
+    end
+
     it "renders view to select the kind of attachment to use" do
       sign_in user
       get :attachment_select, params: { id: work.id }
@@ -384,6 +446,53 @@ RSpec.describe WorksController, mock_ezid_api: true do
           reloaded = work.reload
           expect(reloaded.pre_curation_uploads).to be_empty
         end
+      end
+    end
+
+    context "when file uploads raise errors" do
+      let(:uploaded_file) do
+        fixture_file_upload("us_covid_2019.csv", "text/csv")
+      end
+
+      let(:params) do
+        {
+          "_method" => "patch",
+          "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
+          "patch" => {
+            "pre_curation_uploads" => uploaded_file
+          },
+          "commit" => "Continue",
+          "controller" => "works",
+          "action" => "file_uploaded",
+          "id" => work.id
+        }
+      end
+
+      let(:bucket_url) do
+        "https://example-bucket.s3.amazonaws.com/"
+      end
+
+      let(:persisted) do
+        instance_double(Work)
+      end
+
+      before do
+        sign_in user
+        work.save
+
+        allow(Rails.logger).to receive(:error)
+        allow(Work).to receive(:find).and_return(persisted)
+        allow(persisted).to receive(:to_s).and_return(work.id)
+        allow(persisted).to receive(:doi).and_return(work.doi)
+        allow(persisted).to receive(:pre_curation_uploads).and_raise(StandardError, "test error")
+
+        post :file_uploaded, params: params
+      end
+
+      it "does not update the work and renders an error messages" do
+        expect(response).to redirect_to(work_file_upload_path(work))
+        expect(controller.flash[:notice]).to eq("Failed to attach the file uploads for the work #{work.doi}: test error. Please contact rdss@princeton.edu for assistance.")
+        expect(Rails.logger).to have_received(:error).with("Failed to attach the file uploads for the work #{work.doi}: test error")
       end
     end
 
