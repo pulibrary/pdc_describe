@@ -22,7 +22,7 @@ We are expecting to utilize work information to populate multiple systems.  For 
 * We will make additional serialization formats external to the `Work`.
 * All serializations, including DataCite,  will be stored in PDCSerialization module.
 * All serializations, including DataCite, will accept a work and produce the correct output for their expected system.
-* `metadata` is not tied to a specific serialization, but will contains enough data that it can be serialized to DataCite on demand.
+* `metadata` is not tied to a specific serialization, but will contain enough data that it can be serialized to DataCite on demand.
 
 
 ## Consequences
