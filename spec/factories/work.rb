@@ -3,9 +3,9 @@
 FactoryBot.define do
   factory :work do
     factory :draft_work do
-      doi { "https://doi.org/10.34770/123-abc" }
       transient do
-        resource { FactoryBot.build :resource, identifier: doi, identifier_type: "DOI" }
+        doi { "https://doi.org/10.34770/123-abc" }
+        resource { FactoryBot.build :resource, doi: doi }
       end
       collection { Collection.research_data }
       state { "draft" }
@@ -15,11 +15,10 @@ FactoryBot.define do
 
     factory :shakespeare_and_company_work do
       collection { Collection.research_data }
-      doi { "https://doi.org/10.34770/pe9w-x904" }
-      ark { "ark:/88435/dsp01zc77st047" }
       metadata do
         {
-          "identifier": doi,
+          "doi": "https://doi.org/10.34770/pe9w-x904",
+          "ark": "ark:/88435/dsp01zc77st047",
           "identifier_type": "DOI",
           "titles": [{ "title": "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events" }],
           "description": "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",

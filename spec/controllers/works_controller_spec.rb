@@ -181,15 +181,15 @@ RSpec.describe WorksController, mock_ezid_api: true do
           "family_name_2" => "lovelace",
           "sequence_2" => "2",
           "creator_count" => "2",
-          "deposit_uploads" => uploaded_file
+          "pre_curation_uploads" => uploaded_file
         }
         sign_in user
-        expect(work.deposit_uploads).to be_empty
+        expect(work.pre_curation_uploads).to be_empty
         post :update, params: params
 
         saved_work = Work.find(work.id)
 
-        expect(saved_work.deposit_uploads).not_to be_empty
+        expect(saved_work.pre_curation_uploads).not_to be_empty
       end
     end
 
@@ -235,15 +235,15 @@ RSpec.describe WorksController, mock_ezid_api: true do
           "family_name_2" => "lovelace",
           "sequence_2" => "2",
           "creator_count" => "2",
-          "deposit_uploads" => uploaded_files
+          "pre_curation_uploads" => uploaded_files
         }
         sign_in user
-        expect(work.deposit_uploads).to be_empty
+        expect(work.pre_curation_uploads).to be_empty
         post :update, params: params
 
         saved_work = Work.find(work.id)
 
-        expect(saved_work.deposit_uploads).not_to be_empty
+        expect(saved_work.pre_curation_uploads).not_to be_empty
       end
     end
 
@@ -271,9 +271,9 @@ RSpec.describe WorksController, mock_ezid_api: true do
         stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
 
-        work.deposit_uploads.attach(uploaded_file1)
-        work.deposit_uploads.attach(uploaded_file1)
-        work.deposit_uploads.attach(uploaded_file1)
+        work.pre_curation_uploads.attach(uploaded_file1)
+        work.pre_curation_uploads.attach(uploaded_file1)
+        work.pre_curation_uploads.attach(uploaded_file1)
 
         params = {
           "title_main" => "test dataset updated",
@@ -301,12 +301,12 @@ RSpec.describe WorksController, mock_ezid_api: true do
       it "handles the update page" do
         saved_work = Work.find(work.id)
 
-        expect(saved_work.deposit_uploads).not_to be_empty
-        expect(saved_work.deposit_uploads.length).to eq(3)
+        expect(saved_work.pre_curation_uploads).not_to be_empty
+        expect(saved_work.pre_curation_uploads.length).to eq(3)
 
-        expect(saved_work.deposit_uploads[0].blob.filename.to_s).to eq("us_covid_2019.csv")
-        expect(saved_work.deposit_uploads[1].blob.filename.to_s).to eq("us_covid_2020.csv")
-        expect(saved_work.deposit_uploads[2].blob.filename.to_s).to eq("us_covid_2020.csv")
+        expect(saved_work.pre_curation_uploads[0].blob.filename.to_s).to eq("us_covid_2019.csv")
+        expect(saved_work.pre_curation_uploads[1].blob.filename.to_s).to eq("us_covid_2020.csv")
+        expect(saved_work.pre_curation_uploads[2].blob.filename.to_s).to eq("us_covid_2020.csv")
       end
     end
 
@@ -347,7 +347,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
           "_method" => "patch",
           "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
           "patch" => {
-            "deposit_uploads" => uploaded_file
+            "pre_curation_uploads" => uploaded_file
           },
           "commit" => "Continue",
           "controller" => "works",
@@ -369,8 +369,8 @@ RSpec.describe WorksController, mock_ezid_api: true do
       it "upload files directly from user requests" do
         expect(response).to redirect_to(work_review_path)
         reloaded = work.reload
-        expect(reloaded.deposit_uploads).not_to be_empty
-        expect(reloaded.deposit_uploads.first).to be_an(ActiveStorage::Attachment)
+        expect(reloaded.pre_curation_uploads).not_to be_empty
+        expect(reloaded.pre_curation_uploads.first).to be_an(ActiveStorage::Attachment)
       end
 
       context "when files are not specified within the parameters" do
@@ -389,7 +389,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
         it "does not update the work" do
           expect(response).to redirect_to(work_review_path)
           reloaded = work.reload
-          expect(reloaded.deposit_uploads).to be_empty
+          expect(reloaded.pre_curation_uploads).to be_empty
         end
       end
     end
@@ -413,38 +413,108 @@ RSpec.describe WorksController, mock_ezid_api: true do
       expect(Work.find(work.id).location_notes).to eq "my files can be found at http://aws/my/data"
     end
 
-    it "saves the submission notes and renders the user dashboard" do
-      sign_in user
-      post :completed, params: { id: work.id, submission_notes: "I need this processed ASAP" }
-      expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/users/#{user.uid}"
-      expect(Work.find(work.id).submission_notes).to eq "I need this processed ASAP"
+    describe "#completed" do
+      it "saves the submission notes and renders the user dashboard" do
+        sign_in user
+        post :completed, params: { id: work.id, submission_notes: "I need this processed ASAP" }
+        expect(response.status).to be 302
+        expect(response.location).to eq "http://test.host/users/#{user.uid}"
+        expect(Work.find(work.id).submission_notes).to eq "I need this processed ASAP"
+      end
+
+      context "an invalid work" do
+        it "handles completion errors" do
+          work.resource.description = nil
+          work.save
+          sign_in user
+          post :completed, params: { id: work.id }
+          expect(response.status).to be 422
+          expect(work.reload).to be_draft
+          expect(assigns[:errors]).to eq(["Cannot Complete submission: Event 'complete_submission' cannot transition from 'draft'. Failed callback(s): [:valid_to_submit]."])
+        end
+      end
     end
 
-    it "handles aprovals" do
-      sign_in user
-      work.ready_for_review!(user)
-      post :approve, params: { id: work.id }
-      expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/works/#{work.id}"
-      expect(work.reload).to be_approved
+    describe "#approve" do
+      it "handles aprovals" do
+        sign_in user
+        work.complete_submission!(user)
+        stub_datacite_doi
+        post :approve, params: { id: work.id }
+        expect(response.status).to be 302
+        expect(response.location).to eq "http://test.host/works/#{work.id}"
+        expect(work.reload).to be_approved
+      end
+
+      context "invalid response from doi publish" do
+        before do
+          sign_in user
+          work.complete_submission!(user)
+          stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new)))
+        end
+
+        it "aproves and notes that it was not published" do
+          post :approve, params: { id: work.id }
+          expect(response.status).to be 302
+          expect(response.location).to eq "http://test.host/works/#{work.id}"
+          expect(work.reload).to be_approved
+          error = work.work_activity.find { |activity| activity.activity_type == "DATACITE_ERROR" }
+          expect(error.message).to include("Error publishing DOI")
+        end
+      end
+
+      context "work not completed" do
+        it "handles aproval errors" do
+          sign_in user
+          post :approve, params: { id: work.id }
+          expect(response.status).to be 422
+          expect(work.reload).to be_draft
+          expect(assigns[:errors]).to eq(["Cannot Approve: Event 'approve' cannot transition from 'draft'."])
+        end
+      end
     end
 
-    it "handles withdraw" do
-      sign_in user
-      post :withdraw, params: { id: work.id }
-      expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/works/#{work.id}"
-      expect(work.reload).to be_withdrawn
+    describe "#withdraw" do
+      it "handles withdraw" do
+        sign_in user
+        post :withdraw, params: { id: work.id }
+        expect(response.status).to be 302
+        expect(response.location).to eq "http://test.host/works/#{work.id}"
+        expect(work.reload).to be_withdrawn
+      end
+
+      context "a tombstoned work" do
+        it "handles withdraw errors" do
+          work.withdraw(user)
+          work.remove!(user)
+          sign_in user
+          post :withdraw, params: { id: work.id }
+          expect(response.status).to be 422
+          expect(work.reload).to be_tombstone
+          expect(assigns[:errors]).to eq(["Cannot Withdraw: Event 'withdraw' cannot transition from 'tombstone'."])
+        end
+      end
     end
 
-    it "handles resubmit" do
-      sign_in user
-      work.withdraw!(user)
-      post :resubmit, params: { id: work.id }
-      expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/works/#{work.id}"
-      expect(work.reload).to be_draft
+    describe "#resubmit" do
+      it "handles resubmit" do
+        sign_in user
+        work.withdraw!(user)
+        post :resubmit, params: { id: work.id }
+        expect(response.status).to be 302
+        expect(response.location).to eq "http://test.host/works/#{work.id}"
+        expect(work.reload).to be_draft
+      end
+
+      context "an active work" do
+        it "handles resubmit errors" do
+          sign_in user
+          post :resubmit, params: { id: work.id }
+          expect(response.status).to be 422
+          expect(work.reload).to be_draft
+          expect(assigns[:errors]).to eq(["Cannot Resubmit: Event 'resubmit' cannot transition from 'draft'."])
+        end
+      end
     end
 
     it "handles the show page" do

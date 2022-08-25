@@ -7,6 +7,7 @@
   <input type="text" id="existing_title_count" name="existing_title_count" value="<%= @work&.resource&.titles&.count || 0 %>" class="hidden" />
   <input type="text" id="new_title_count" name="new_title_count" value="0" class="hidden" />
   <input type="text" id="creator_count" name="creator_count" value="<%= @work&.resource&.creators&.count || 0%>" class="hidden" />
+  <input type="text" id="doi" name="doi" value="<%= @work&.resource&.doi %>" class="hidden" />
 
   <% if @wizard_mode %>
     <input type="text" id="wizard" name="wizard" value="true" class="hidden" />

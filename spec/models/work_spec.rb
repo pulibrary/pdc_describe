@@ -6,8 +6,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:collection) { Collection.research_data }
   let(:user_other) { FactoryBot.create :user }
   let(:superadmin_user) { User.from_cas(OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" })) }
-  let(:doi) { "https://doi.org/10.34770/0q6b-cj27" }
-  let(:work) { FactoryBot.create(:draft_work, doi: doi) }
+  let(:work) { FactoryBot.create(:draft_work) }
   let(:work2) { FactoryBot.create(:draft_work) }
 
   let(:lib_user) do
@@ -32,7 +31,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   # Please see spec/support/ezid_specs.rb
   let(:ezid) { @ezid }
   let(:identifier) { @identifier }
-  let(:attachment_url) { "https://example-bucket.s3.amazonaws.com/#{work.doi}/" }
+  let(:attachment_url) { /#{Regexp.escape("https://example-bucket.s3.amazonaws.com/")}/ }
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
@@ -40,7 +39,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   it "checks the format of the ORCID of the creators" do
     # Add a new creator with an incomplete ORCID
-    work.resource.creators << PULDatacite::Creator.new_person("Williams", "Serena", "1234-12")
+    work.resource.creators << PDCMetadata::Creator.new_person("Williams", "Serena", "1234-12")
     expect(work.save).to be false
     expect(work.errors.find { |error| error.type.include?("ORCID") }).to be_present
   end
@@ -53,7 +52,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   it "prevents datasets with no users" do
-    work = Work.new(collection: collection, metadata: PULDatacite::Resource.new.to_json)
+    work = Work.new(collection: collection, metadata: PDCMetadata::Resource.new.to_json)
     expect { work.draft! }.to raise_error AASM::InvalidTransition
   end
 
@@ -77,37 +76,68 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
       ).to_return(status: 200)
 
-      20.times { work.deposit_uploads.attach(uploaded_file) }
+      20.times { work.pre_curation_uploads.attach(uploaded_file) }
       work.save!
     end
 
     it "prevents works from having more than 20 uploads attached" do
-      work.deposit_uploads.attach(uploaded_file2)
+      work.pre_curation_uploads.attach(uploaded_file2)
+
       expect { work.save! }.to raise_error(ActiveRecord::RecordInvalid, "Validation failed: Only 20 files may be uploaded by a user to a given Work. 21 files were uploaded for the Work: #{work.ark}")
 
       persisted = described_class.find(work.id)
-      expect(persisted.deposit_uploads.length).to eq(20)
+      expect(persisted.pre_curation_uploads.length).to eq(20)
     end
   end
 
   it "approves works and records the change history" do
-    work.ready_for_review!(user)
-    work.approve(user)
+    stub_datacite_doi
+    work.complete_submission!(user)
+    work.approve!(user)
     expect(work.state_history.first.state).to eq "approved"
     expect(work.reload.state).to eq("approved")
   end
 
   it "withdraw works and records the change history" do
-    work.withdraw(user)
+    work.withdraw!(user)
     expect(work.state_history.first.state).to eq "withdrawn"
     expect(work.reload.state).to eq("withdrawn")
   end
 
   it "resubmit works and records the change history" do
-    work.withdraw(user)
-    work.resubmit(user)
+    work.withdraw!(user)
+    work.resubmit!(user)
     expect(work.state_history.first.state).to eq "draft"
     expect(work.reload.state).to eq("draft")
+  end
+
+  context "ARK update" do
+    before { allow(Ark).to receive(:update) }
+    let(:ezid) { "ark:/99999/dsp01qb98mj541" }
+
+    around do |example|
+      Rails.configuration.update_ark_url = true
+      example.run
+      Rails.configuration.update_ark_url = false
+    end
+
+    it "updates the ARK metadata" do
+      work.resource.ark = ezid
+      work.save
+      work.complete_submission!(user)
+      stub_datacite_doi
+      work.approve!(user)
+      expect(Ark).to have_received(:update).exactly(1).times
+    end
+
+    it "does not update the ARK metadata" do
+      work.resource.ark = nil
+      work.save
+      work.complete_submission!(user)
+      stub_datacite_doi
+      work.approve!(user)
+      expect(Ark).to have_received(:update).exactly(0).times
+    end
   end
 
   describe "#created_by_user" do
@@ -139,7 +169,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
       it "does not mint a new ARK" do
         expect(work.persisted?).not_to be false
-        work.ark = ezid
+        work.resource.ark = ezid
         work.save
 
         expect(work.persisted?).to be true
@@ -156,27 +186,9 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       it "raises an error" do
         expect(work.persisted?).not_to be false
         bad_ezid = "ark:/bad-99999/fk4tq65d6k"
-        work.ark = bad_ezid
+        work.resource.ark = bad_ezid
         expect { work.save! }.to raise_error(ActiveRecord::RecordInvalid, "Validation failed: Invalid ARK provided for the Work: #{bad_ezid}")
       end
-    end
-  end
-
-  context "when updating the ARK" do
-    before { allow(Ark).to receive(:update) }
-    let(:ezid) { "ark:/99999/dsp01qb98mj541" }
-
-    around do |example|
-      Rails.configuration.update_ark_url = true
-      example.run
-      Rails.configuration.update_ark_url = false
-    end
-
-    it "updates the ARK metadata" do
-      work.ark = ezid
-      work.save
-      # one on create + one on update
-      expect(Ark).to have_received(:update).exactly(2).times
     end
   end
 
@@ -184,7 +196,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
     it "has a DOI" do
       expect(work.title).to eq "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events"
-      expect(work.doi).to eq "https://doi.org/10.34770/pe9w-x904"
+      expect(work.resource.doi).to eq "https://doi.org/10.34770/pe9w-x904"
     end
   end
 
@@ -265,9 +277,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
   end
 
-  describe "#deposit_uploads" do
-    let(:work2) { FactoryBot.create(:draft_work) }
-
+  describe "#pre_curation_uploads" do
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
@@ -281,30 +291,31 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
       ).to_return(status: 200)
 
-      work.deposit_uploads.attach(uploaded_file)
+      work.pre_curation_uploads.attach(uploaded_file)
+      work.save
     end
 
     context "with configured to use the human-readable storage service", humanizable_storage: true do
       it "attaches deposited file uploads to the Work model with human-readable file paths" do
-        expect(work.deposit_uploads).not_to be_empty
+        expect(work.pre_curation_uploads).not_to be_empty
 
-        attached = work.deposit_uploads.first
+        attached = work.pre_curation_uploads.first
         expect(attached).to be_a(ActiveStorage::Attachment)
         expect(attached.blob).to be_a(ActiveStorage::Blob)
         expect(attached.blob.key).to eq("#{work.doi}/#{work.id}/us_covid_2019.csv")
         local_disk_path = Rails.root.join("spec", "fixtures", "storage", work.doi, work.id.to_s, "us_covid_2019.csv")
         expect(File.exist?(local_disk_path)).to be true
 
-        work.deposit_uploads.attach(uploaded_file2)
-        attached2 = work.deposit_uploads.last
+        work.pre_curation_uploads.attach(uploaded_file2)
+        attached2 = work.pre_curation_uploads.last
         expect(attached2).to be_a(ActiveStorage::Attachment)
         expect(attached2.blob).to be_a(ActiveStorage::Blob)
         expect(attached2.blob.key).to eq("#{work.doi}/#{work.id}/us_covid_2019_2.csv")
         local_disk_path = Rails.root.join("spec", "fixtures", "storage", work.doi, work.id.to_s, "us_covid_2019_2.csv")
         expect(File.exist?(local_disk_path)).to be true
 
-        work2.deposit_uploads.attach(uploaded_file)
-        attached = work2.deposit_uploads.first
+        work2.pre_curation_uploads.attach(uploaded_file)
+        attached = work2.pre_curation_uploads.first
         expect(attached).to be_a(ActiveStorage::Attachment)
         expect(attached.blob).to be_a(ActiveStorage::Blob)
         expect(attached.blob.key).to eq("#{work2.doi}/#{work2.id}/us_covid_2019.csv")
@@ -317,7 +328,8 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   describe "#draft" do
     let(:draft_work) do
       work = Work.new(collection: collection, metadata: FactoryBot.build(:resource).to_json)
-      work.draft(user)
+      work.draft!(user)
+      work = Work.find(work.id)
       work
     end
 
@@ -325,29 +337,30 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       expect(draft_work.reload.state).to eq("draft")
     end
 
-    it "drafts a doi" do
+    it "drafts a doi and the DOI is persisted" do
       draft_work
       expect(a_request(:post, ENV["DATACITE_URL"])).to have_been_made
+      expect(draft_work.resource.doi).not_to eq nil
     end
 
     it "transitions from draft to withdrawn" do
-      draft_work.withdraw(user)
+      draft_work.withdraw!(user)
       expect(draft_work.reload.state).to eq("withdrawn")
     end
 
     it "can not transition from draft to approved" do
-      expect { draft_work.approve(user) }.to raise_error AASM::InvalidTransition
+      expect { draft_work.approve!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from draft to tombsotne" do
-      expect { draft_work.remove(user) }.to raise_error AASM::InvalidTransition
+      expect { draft_work.remove!(user) }.to raise_error AASM::InvalidTransition
     end
   end
 
-  describe "#ready_for_review" do
+  describe "#complete_submission" do
     let(:awaiting_approval_work) do
       work = FactoryBot.create :draft_work
-      work.ready_for_review(user)
+      work.complete_submission!(user)
       work
     end
 
@@ -356,58 +369,75 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "transitions from awaiting_approval to withdrawn" do
-      awaiting_approval_work.withdraw(user)
+      awaiting_approval_work.withdraw!(user)
       expect(awaiting_approval_work.reload.state).to eq("withdrawn")
     end
 
     it "transitions from awaiting_approval to approved" do
-      awaiting_approval_work.approve(user)
+      stub_datacite_doi
+      awaiting_approval_work.approve!(user)
       expect(awaiting_approval_work.reload.state).to eq("approved")
     end
 
     it "can not transition from awaiting_approval to tombsotne" do
-      expect { awaiting_approval_work.remove(user) }.to raise_error AASM::InvalidTransition
+      expect { awaiting_approval_work.remove!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from awaiting_approval to draft" do
-      expect { awaiting_approval_work.draft(user) }.to raise_error AASM::InvalidTransition
+      expect { awaiting_approval_work.draft!(user) }.to raise_error AASM::InvalidTransition
     end
   end
 
   describe "#approve" do
     let(:approved_work) do
       work = FactoryBot.create :draft_work
-      work.ready_for_review(user)
-      work.approve(user)
+      work.complete_submission!(user)
+      work.approve!(user)
       work
     end
 
     it "is approved" do
+      stub_datacite_doi
       expect(approved_work.reload.state).to eq("approved")
     end
 
+    it "publishes the doi" do
+      stub_request(:put, "https://api.datacite.org/dois/https://doi.org/10.34770/123-abc")
+      expect { approved_work }.to change { WorkActivity.where(activity_type: "DATACITE_ERROR").count }.by(0)
+      expect(a_request(:put, "https://api.datacite.org/dois/https://doi.org/10.34770/123-abc")).to have_been_made
+    end
+
+    it "notes a issue when an error occurs" do
+      stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new(status: "bad", reason_phrase: "a problem"))))
+      expect { approved_work }.to change { WorkActivity.where(activity_type: "DATACITE_ERROR").count }.by(1)
+    end
+
     it "transitions from approved to withdrawn" do
-      approved_work.withdraw(user)
+      stub_datacite_doi
+      approved_work.withdraw!(user)
       expect(approved_work.reload.state).to eq("withdrawn")
     end
 
     it "can not transition from approved to tombsotne" do
-      expect { approved_work.remove(user) }.to raise_error AASM::InvalidTransition
+      stub_datacite_doi
+      expect { approved_work.remove!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from approved to awaiting_approval" do
-      expect { approved_work.ready_for_review(user) }.to raise_error AASM::InvalidTransition
+      stub_datacite_doi
+      expect { approved_work.complete_submission!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from approved to draft" do
-      expect { approved_work.draft(user) }.to raise_error AASM::InvalidTransition
+      stub_datacite_doi
+      expect { approved_work.draft!(user) }.to raise_error AASM::InvalidTransition
     end
   end
 
   describe "#withraw" do
     let(:withdrawn_work) do
       work = FactoryBot.create :draft_work
-      work.withdraw(user)
+      work.withdraw!(user)
       work
     end
 
@@ -416,33 +446,33 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "transitions from withdrawn to draft" do
-      withdrawn_work.resubmit(user)
+      withdrawn_work.resubmit!(user)
       expect(withdrawn_work.reload.state).to eq("draft")
     end
 
     it "transitions from withdrawn to tombstone" do
-      withdrawn_work.remove(user)
+      withdrawn_work.remove!(user)
       expect(withdrawn_work.reload.state).to eq("tombstone")
     end
 
     it "can not transition from withdrawn to approved" do
-      expect { withdrawn_work.approve(user) }.to raise_error AASM::InvalidTransition
+      expect { withdrawn_work.approve!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from withdrawn to awaiting_approval" do
-      expect { withdrawn_work.ready_for_review(user) }.to raise_error AASM::InvalidTransition
+      expect { withdrawn_work.complete_submission!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from withdrawn to draft" do
-      expect { withdrawn_work.draft(user) }.to raise_error AASM::InvalidTransition
+      expect { withdrawn_work.draft!(user) }.to raise_error AASM::InvalidTransition
     end
   end
 
   describe "#remove" do
     let(:removed_work) do
       work = FactoryBot.create :draft_work
-      work.withdraw(user)
-      work.remove(user)
+      work.withdraw!(user)
+      work.remove!(user)
       work
     end
 
@@ -451,15 +481,15 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "can not transition from tombstone to approved" do
-      expect { removed_work.approve(user) }.to raise_error AASM::InvalidTransition
+      expect { removed_work.approve!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from tombstone to awaiting_approval" do
-      expect { removed_work.ready_for_review(user) }.to raise_error AASM::InvalidTransition
+      expect { removed_work.complete_submission!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from tombstone to draft" do
-      expect { removed_work.draft(user) }.to raise_error AASM::InvalidTransition
+      expect { removed_work.draft!(user) }.to raise_error AASM::InvalidTransition
     end
   end
 
@@ -471,19 +501,19 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "can not be removed from none" do
-      expect { work.remove(user) }.to raise_error AASM::InvalidTransition
+      expect { work.remove!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not be approved from none" do
-      expect { work.approve(user) }.to raise_error AASM::InvalidTransition
+      expect { work.approve!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not be maked ready for review from none" do
-      expect { work.ready_for_review(user) }.to raise_error AASM::InvalidTransition
+      expect { work.complete_submission!(user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not be withdrawn from none" do
-      expect { work.withdraw(user) }.to raise_error AASM::InvalidTransition
+      expect { work.withdraw!(user) }.to raise_error AASM::InvalidTransition
     end
   end
 end

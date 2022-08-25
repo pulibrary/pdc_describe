@@ -17,4 +17,5 @@
 # end
 ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.acronym "PUL"
+  inflect.acronym "PDC"
 end

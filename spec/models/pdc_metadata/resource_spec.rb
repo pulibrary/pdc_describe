@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-RSpec.describe PULDatacite::Resource, type: :model do
+RSpec.describe PDCMetadata::Resource, type: :model do
   let(:creatorPerson) do
-    PULDatacite::Creator.new_person("Elizabeth", "Miller", "1234-5678-9012-1234")
+    PDCMetadata::Creator.new_person("Elizabeth", "Miller", "1234-5678-9012-1234")
   end
 
   let(:creatorOrganization) do
-    org = PULDatacite::Creator.new(value: "Princeton University", name_type: "Organization")
-    org.affiliations << PULDatacite::Affiliation.new(value: "Some affiliation", identifier: "https://ror.org/04aj4c181", scheme: "ROR", scheme_uri: "https://ror.org/")
+    org = PDCMetadata::Creator.new(value: "Princeton University", name_type: "Organization")
+    org.affiliations << PDCMetadata::Affiliation.new(value: "Some affiliation", identifier: "https://ror.org/04aj4c181", scheme: "ROR", scheme_uri: "https://ror.org/")
     org
   end
 
   let(:ds) do
-    ds = described_class.new(identifier: "10.5072/example-full", identifier_type: "DOI", title: "hello world")
+    ds = described_class.new(doi: "10.5072/example-full", title: "hello world")
     ds.description = "this is an example description"
     ds.creators = [creatorPerson, creatorOrganization]
     ds
@@ -29,7 +29,7 @@ RSpec.describe PULDatacite::Resource, type: :model do
   end
 
   it "supports more than one title" do
-    ds.titles << PULDatacite::Title.new(title: "hola mundo", title_type: "TranslatedTitle")
+    ds.titles << PDCMetadata::Title.new(title: "hola mundo", title_type: "TranslatedTitle")
     expect(ds.titles.count).to be 2
   end
 
@@ -43,7 +43,12 @@ RSpec.describe PULDatacite::Resource, type: :model do
     expect(creatorPerson.orcid).to eq "1234-5678-9012-1234"
     expect(creatorPerson.orcid_url).to eq "https://orcid.org/1234-5678-9012-1234"
 
-    no_orcid = PULDatacite::Creator.new_person("Elizabeth", "Miller")
+    no_orcid = PDCMetadata::Creator.new_person("Elizabeth", "Miller")
     expect(no_orcid.orcid).to be nil
+  end
+
+  it "creates the expected json" do
+    work = FactoryBot.create(:shakespeare_and_company_work)
+    expect(work.metadata).to eq(work.resource.to_json)
   end
 end

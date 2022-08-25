@@ -8,6 +8,8 @@ require "open-uri"
 # rubocop:disable Metrics/MethodLength
 # rubocop:disable Style/For
 class WorksController < ApplicationController
+  around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :completed]
+
   def index
     @works = Work.all
   end
@@ -30,8 +32,8 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     @can_curate = current_user.can_admin?(@work.collection_id)
     @work.mark_new_notifications_as_read(current_user.id)
-    if @work.doi
-      service = S3QueryService.new(@work.doi)
+    if @work.resource.doi
+      service = S3QueryService.new(@work)
       data_profile = service.data_profile
       @files = data_profile[:objects]
       @files_ok = data_profile[:ok]
@@ -47,33 +49,33 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     @wizard_mode = params[:wizard] == "true"
 
-    updated_deposit_uploads = if work_params.key?(:deposit_uploads)
-                                work_params[:deposit_uploads]
-                              elsif work_params.key?(:replaced_uploads)
-                                persisted_deposit_uploads = @work.deposit_uploads
-                                replaced_uploads_params = work_params[:replaced_uploads]
+    updated_pre_curation_uploads = if work_params.key?(:pre_curation_uploads)
+                                     work_params[:pre_curation_uploads]
+                                   elsif work_params.key?(:replaced_uploads)
+                                     persisted_pre_curation_uploads = @work.pre_curation_uploads
+                                     replaced_uploads_params = work_params[:replaced_uploads]
 
-                                updated_uploads = []
-                                persisted_deposit_uploads.each_with_index do |existing, i|
-                                  key = i.to_s
+                                     updated_uploads = []
+                                     persisted_pre_curation_uploads.each_with_index do |existing, i|
+                                       key = i.to_s
 
-                                  if replaced_uploads_params.key?(key)
-                                    replaced = replaced_uploads_params[key]
-                                    updated_uploads << replaced
-                                  else
-                                    updated_uploads << existing.blob
-                                  end
-                                end
+                                       if replaced_uploads_params.key?(key)
+                                         replaced = replaced_uploads_params[key]
+                                         updated_uploads << replaced
+                                       else
+                                         updated_uploads << existing.blob
+                                       end
+                                     end
 
-                                updated_uploads
-                              end
+                                     updated_uploads
+                                   end
 
     collection_id_param = params[:collection_id]
 
     updates = {
       collection_id: collection_id_param,
       metadata: resource_from_form.to_json,
-      deposit_uploads: updated_deposit_uploads
+      pre_curation_uploads: updated_pre_curation_uploads
     }
 
     if @work.update(updates)
@@ -117,8 +119,8 @@ class WorksController < ApplicationController
 
   def file_uploaded
     @work = Work.find(params[:id])
-    if deposit_uploads_param
-      @work.deposit_uploads.attach(deposit_uploads_param)
+    if pre_curation_uploads_param
+      @work.pre_curation_uploads.attach(pre_curation_uploads_param)
       @work.save!
     end
     redirect_to(work_review_path)
@@ -145,26 +147,26 @@ class WorksController < ApplicationController
   def completed
     @work = Work.find(params[:id])
     @work.submission_notes = params["submission_notes"]
-    @work.ready_for_review!(current_user)
+    @work.complete_submission!(current_user)
     redirect_to user_url(current_user)
   end
 
   def approve
-    work = Work.find(params[:id])
-    work.approve(current_user)
-    redirect_to work_path(work)
+    @work = Work.find(params[:id])
+    @work.approve!(current_user)
+    redirect_to work_path(@work)
   end
 
   def withdraw
-    work = Work.find(params[:id])
-    work.withdraw(current_user)
-    redirect_to work_path(work)
+    @work = Work.find(params[:id])
+    @work.withdraw!(current_user)
+    redirect_to work_path(@work)
   end
 
   def resubmit
-    work = Work.find(params[:id])
-    work.resubmit(current_user)
-    redirect_to work_path(work)
+    @work = Work.find(params[:id])
+    @work.resubmit!(current_user)
+    redirect_to work_path(@work)
   end
 
   def assign_curator
@@ -211,27 +213,29 @@ class WorksController < ApplicationController
 
     def new_creator(given_name, family_name, orcid, sequence)
       return if family_name.blank? && given_name.blank? && orcid.blank?
-      PULDatacite::Creator.new_person(given_name, family_name, orcid, sequence)
+      PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity:
     def resource_from_form
-      resource = PULDatacite::Resource.new
-
+      resource = PDCMetadata::Resource.new
+      resource.doi = params["doi"] if params["doi"].present?
+      resource.ark = params["ark"] if params["ark"].present?
       resource.description = params["description"]
       resource.publisher = params["publisher"] if params["publisher"].present?
       resource.publication_year = params["publication_year"] if params["publication_year"].present?
 
       # Process the titles
-      resource.titles << PULDatacite::Title.new(title: params["title_main"])
+      resource.titles << PDCMetadata::Title.new(title: params["title_main"])
       for i in 1..params["existing_title_count"].to_i do
         if params["title_#{i}"].present?
-          resource.titles << PULDatacite::Title.new(title: params["title_#{i}"], title_type: params["title_type_#{i}"])
+          resource.titles << PDCMetadata::Title.new(title: params["title_#{i}"], title_type: params["title_type_#{i}"])
         end
       end
 
       for i in 1..params["new_title_count"].to_i do
         if params["new_title_#{i}"].present?
-          resource.titles << PULDatacite::Title.new(title: params["new_title_#{i}"], title_type: params["new_title_type_#{i}"])
+          resource.titles << PDCMetadata::Title.new(title: params["new_title_#{i}"], title_type: params["new_title_type_#{i}"])
         end
       end
 
@@ -243,6 +247,7 @@ class WorksController < ApplicationController
 
       resource
     end
+    # rubocop:enable Metrics/CyclomaticComplexity:
 
     def work_params
       params[:work] || params
@@ -254,10 +259,18 @@ class WorksController < ApplicationController
       params[:patch]
     end
 
-    def deposit_uploads_param
+    def pre_curation_uploads_param
       return if patch_params.nil?
 
-      patch_params[:deposit_uploads]
+      patch_params[:pre_curation_uploads]
+    end
+
+    def rescue_aasm_error
+      yield
+    rescue AASM::InvalidTransition => error
+      logger.warn("Invalid #{@work.current_transition}: #{error.message}")
+      @errors = ["Cannot #{@work.current_transition}: #{error.message}"]
+      render :show, status: :unprocessable_entity
     end
 end
 # rubocop:enable Metrics/ClassLength

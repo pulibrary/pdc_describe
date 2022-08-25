@@ -2,8 +2,12 @@
 
 # rubocop:disable Metrics/ClassLength
 class Work < ApplicationRecord
+  MAX_UPLOADS = 20
+
   has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
-  has_many_attached :deposit_uploads
+  has_many_attached :pre_curation_uploads, service: :amazon_pre_curation
+  has_many_attached :post_curation_uploads, service: :amazon_post_curation
+
   belongs_to :collection
 
   attribute :work_type, :string, default: "DATASET"
@@ -19,7 +23,7 @@ class Work < ApplicationRecord
       transitions from: :none, to: :draft, guard: :valid_to_draft
     end
 
-    event :ready_for_review do
+    event :complete_submission do
       transitions from: :draft, to: :awaiting_approval, guard: :valid_to_submit
     end
 
@@ -28,7 +32,7 @@ class Work < ApplicationRecord
     end
 
     event :approve do
-      transitions from: :awaiting_approval, to: :approved, guard: :valid_to_submit
+      transitions from: :awaiting_approval, to: :approved, guard: :valid_to_submit, after: :publish
     end
 
     event :withdraw do
@@ -48,8 +52,8 @@ class Work < ApplicationRecord
 
   class << self
     def create_skeleton(title, user_id, collection_id, work_type, profile)
-      resource = PULDatacite::Resource.new(title: title,
-                                           creators: [PULDatacite::Creator.new_person("", "skeleton", "", 0)],
+      resource = PDCMetadata::Resource.new(title: title,
+                                           creators: [PDCMetadata::Creator.new_person("", "skeleton", "", 0)],
                                            description: title)
       work = Work.new(
         created_by_user_id: user_id,
@@ -113,30 +117,12 @@ class Work < ApplicationRecord
 
   before_save do |work|
     # Ensure that the metadata JSON is persisted properly
-    if work.profile == "DATACITE" && work.ark.blank?
-      work.ark = Ark.mint
-    end
-
     work.metadata = work.resource.to_json
 
-    new_attachments = work.deposit_uploads.reject(&:persisted?)
-    new_attachments.each do |attachment|
-      attachment_key = generate_attachment_key(attachment)
-      attachment.key = attachment_key
-
-      attachment.blob.save
-      attachment.save
-    end
-  end
-
-  after_save do |work|
-    # We only want to update the ark url under certain conditions.
-    # Set this value in config/update_ark_url.yml
-    if Rails.configuration.update_ark_url
-      if work.ark.present?
-        Ark.update(work.ark, work.url)
-      end
-    end
+    # This must be within #before_save, otherwise the key generation will not be invoked
+    work.save_pre_curation_uploads
+    work.transfer_curated_uploads if work.approved?
+    work.save_post_curation_uploads
   end
 
   validate do |work|
@@ -147,6 +133,26 @@ class Work < ApplicationRecord
     else
       work.valid_to_submit
     end
+  end
+
+  def save_pre_curation_uploads
+    new_attachments = pre_curation_uploads.reject(&:persisted?)
+    save_new_attachments(new_attachments: new_attachments)
+  end
+
+  def transfer_curated_uploads
+    if approved?
+      post_curation_keys = pre_curation_uploads.map(&:key)
+
+      pre_curation_uploads.each do |pre_curation_attachment|
+        post_curation_uploads.attach(pre_curation_attachment) unless post_curation_keys.include?(pre_curation_attachment.key)
+      end
+    end
+  end
+
+  def save_post_curation_uploads
+    new_attachments = post_curation_uploads.reject(&:persisted?)
+    save_new_attachments(new_attachments: new_attachments)
   end
 
   def valid_to_draft
@@ -161,17 +167,20 @@ class Work < ApplicationRecord
   def valid_to_submit
     valid_to_draft
     validate_metadata
+    validate_uploads
     errors.count == 0
-  end
-
-  def validate_uploads
-    if deposit_uploads.length > 20
-      errors.add(:base, "Only 20 files may be uploaded by a user to a given Work. #{deposit_uploads.length} files were uploaded for the Work: #{ark}")
-    end
   end
 
   def title
     resource.main_title
+  end
+
+  def doi
+    resource.doi
+  end
+
+  def ark
+    resource.ark
   end
 
   def curator
@@ -180,17 +189,19 @@ class Work < ApplicationRecord
   end
 
   def draft_doi
-    self.doi ||= if Rails.env.development? && ENV["DATACITE_USER"].blank?
-                   Rails.logger.info "Using hard-coded test DOI during development."
-                   "10.34770/tbd"
-                 else
-                   result = data_cite_connection.autogenerate_doi(prefix: ENV["DATACITE_PREFIX"])
-                   if result.success?
-                     result.success.doi
+    return if resource.doi.present?
+    resource.doi = if Rails.env.development? && ENV["DATACITE_USER"].blank?
+                     Rails.logger.info "Using hard-coded test DOI during development."
+                     "10.34770/tbd"
                    else
-                     raise("Error generating DOI. #{result.failure.status} / #{result.failure.reason_phrase}")
+                     result = data_cite_connection.autogenerate_doi(prefix: ENV["DATACITE_PREFIX"])
+                     if result.success?
+                       result.success.doi
+                     else
+                       raise("Error generating DOI. #{result.failure.status} / #{result.failure.reason_phrase}")
+                     end
                    end
-                 end
+    save!
   end
 
   def state_history
@@ -204,7 +215,7 @@ class Work < ApplicationRecord
   end
 
   def resource
-    @resource ||= PULDatacite::Resource.new_from_json(metadata)
+    @resource ||= PDCMetadata::Resource.new_from_json(metadata)
   end
 
   def ark_url
@@ -293,7 +304,33 @@ class Work < ApplicationRecord
     end
   end
 
+  def current_transition
+    aasm.current_event.to_s.humanize.delete("!")
+  end
+
+  def uploads
+    return post_curation_uploads if approved?
+
+    pre_curation_uploads
+  end
+
   private
+
+    def publish(user)
+      publish_doi(user)
+      update_ark_information
+    end
+
+    # Update EZID (our provider of ARKs) with the new information for this work.
+    def update_ark_information
+      # We only want to update the ark url under certain conditions.
+      # Set this value in config/update_ark_url.yml
+      if Rails.configuration.update_ark_url
+        if ark.present?
+          Ark.update(ark, url)
+        end
+      end
+    end
 
     def generate_attachment_key(attachment)
       key_base = "#{doi}/#{id}"
@@ -315,7 +352,6 @@ class Work < ApplicationRecord
     end
 
     def track_state_change(user, state = aasm.to_state)
-      save!
       uw = UserWork.new(user_id: user.id, work_id: id, state: state)
       uw.save!
       WorkActivity.add_system_activity(id, "marked as #{state}", user.id)
@@ -351,6 +387,56 @@ class Work < ApplicationRecord
             errors.add(:base, "ORCID for creator #{creator.value} is not in format 0000-0000-0000-0000")
           end
         end
+      end
+    end
+
+    def publish_doi(user)
+      if Rails.env.development? && ENV["DATACITE_USER"].blank?
+        Rails.logger.info "Publishing hard-coded test DOI during development."
+      else
+        result = data_cite_connection.update(id: doi, attributes: doi_attributes)
+        if result.failure?
+          message = "@#{curator_or_current_uid(user)} Error publishing DOI. #{result.failure.status} / #{result.failure.reason_phrase}"
+          WorkActivity.add_system_activity(id, message, user.id, activity_type: "DATACITE_ERROR")
+        end
+      end
+    end
+
+    def curator_or_current_uid(user)
+      curator = if curator_user_id
+                  User.find(curator_user_id)
+                else
+                  user
+                end
+      curator.uid
+    end
+
+    def doi_attributes
+      {
+        "event" => "publish",
+        "xml" => Base64.encode64(ValidDatacite::Resource.new_from_json(metadata).to_xml),
+        "url" => "https://schema.datacite.org/meta/kernel-4.0/index.html" # TODO: this should be a link to the item in PDC-discovery
+      }
+    end
+
+    def validate_uploads
+      # The number of pre-curation uploads should be validated, as these are mutated directly
+      if pre_curation_uploads.length > MAX_UPLOADS
+        errors.add(:base, "Only #{MAX_UPLOADS} files may be uploaded by a user to a given Work. #{pre_curation_uploads.length} files were uploaded for the Work: #{ark}")
+      end
+
+      # Ensure that no uploads in the post-curation state are attached prior to the approved state
+      return true if approved? || post_curation_uploads.empty?
+      errors.add(:base, "Files in the post-curation state cannot be directly attached for a given Work. #{post_curation_uploads.length} files were attached for the Work: #{ark}")
+    end
+
+    def save_new_attachments(new_attachments:)
+      new_attachments.each do |attachment|
+        attachment_key = generate_attachment_key(attachment)
+        attachment.key = attachment_key
+
+        attachment.blob.save
+        attachment.save
       end
     end
 end

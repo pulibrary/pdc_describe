@@ -4,6 +4,8 @@ require "aws-sdk-s3"
 
 # A service to query an S3 bucket for information about a given data set
 class S3QueryService
+  attr_reader :model
+
   def self.configuration
     Rails.configuration.s3
   end
@@ -20,8 +22,9 @@ class S3QueryService
   # @param [String] doi
   # @param [Boolean] pre_curation
   # @example S3QueryService.new("https://doi.org/10.34770/0q6b-cj27")
-  def initialize(doi, pre_curation = true)
-    @doi = doi
+  def initialize(model, pre_curation = true)
+    @model = model
+    @doi = model.doi
     @pre_curation = pre_curation
   end
 
@@ -54,10 +57,7 @@ class S3QueryService
   # The S3 prefix for this object, i.e., the address within the S3 bucket,
   # which is based on the DOI
   def prefix
-    split = @doi.split("/")
-    suffix = split.last
-    institution_id = split[-2].tr(".", "-")
-    "#{institution_id}/#{suffix}"
+    "#{@doi}/#{model.id}/"
   end
 
   ##
@@ -85,6 +85,44 @@ class S3QueryService
     @client ||= Aws::S3::Client.new(region: region, credentials: credentials)
   end
 
+  # Retrieve the S3 resources attached to the Work model
+  # @return [Array<S3File>]
+  def model_s3_files
+    objects = []
+    return objects if model.nil?
+
+    model.uploads.each do |attachment|
+      s3_file = S3File.new(filename: attachment.key, last_modified: attachment.created_at, size: attachment.byte_size)
+      objects << s3_file
+    end
+
+    objects
+  end
+
+  # Retrieve the S3 resources uploaded to the S3 Bucket
+  # @return [Array<S3File>]
+  def client_s3_files
+    objects = []
+    Rails.logger.debug("Bucket: #{bucket_name}")
+    Rails.logger.debug("Prefix: #{prefix}")
+    resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
+    response_objects = resp.to_h[:contents]
+    Rails.logger.debug("Objects: #{response_objects}")
+    response_objects&.each do |object|
+      s3_file = S3File.new(filename: object[:key], last_modified: object[:last_modified], size: object[:size])
+      objects << s3_file
+    end
+
+    objects
+  end
+
+  # Retrieve the S3 resources from the S3 Bucket without those attached to the Work model
+  # @return [Array<S3File>]
+  def s3_files
+    model_s3_file_keys = model_s3_files.map(&:filename)
+    client_s3_files.reject { |client_s3_file| model_s3_file_keys.include?(client_s3_file.filename) }
+  end
+
   ##
   # Query the S3 bucket for what we know about the doi
   # For docs see:
@@ -94,15 +132,10 @@ class S3QueryService
   #   objects is an Array of S3File objects
   #   ok is false if there is an error connecting to S3. Otherwise true.
   def data_profile
-    objects = []
-    resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
-    resp.to_h[:contents]&.each do |object|
-      s3_file = S3File.new(filename: object[:key], last_modified: object[:last_modified], size: object[:size])
-      objects << s3_file
-    end
-    { objects: objects, ok: true }
+    { objects: s3_files, ok: true }
   rescue => ex
-    Rails.logger.error("Error querying S3. Bucket: #{bucket_name}. Prefix: #{prefix}. Exception: #{ex.message}")
+    Rails.logger.error("Error querying S3. Bucket: #{bucket_name}. DOI: #{@doi}. Exception: #{ex.message}")
+
     { objects: [], ok: false }
   end
 end

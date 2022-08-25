@@ -37,7 +37,7 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
 
   it "Renders ORCID links for creators", js: true do
     stub_s3
-    resource = FactoryBot.build(:resource, creators: [PULDatacite::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")])
+    resource = FactoryBot.build(:resource, creators: [PDCMetadata::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")])
     work = FactoryBot.create(:draft_work, metadata: resource.to_json)
 
     sign_in user

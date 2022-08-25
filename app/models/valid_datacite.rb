@@ -57,7 +57,7 @@ module ValidDatacite
       # @param descriptions [Array<Description>] all additional information that does not fit in any of the other categories.
       # @param geo_locations [Array<GeoLocations>] spatial region or named place where the data was gathered or about which the data is focused.
       @mapping = Datacite::Mapping::Resource.new(
-        identifier: datacite_identifier(@metadata_from_form["identifier"]),
+        identifier: datacite_identifier(@metadata_from_form["doi"]),
         creators: datacite_creators,
         titles: datacite_titles,
         publisher: datacite_publisher(@metadata_from_form["publisher"]),
