@@ -21,13 +21,6 @@ RSpec.describe WorksController, mock_ezid_api: true do
       expect(response).to render_template("index")
     end
 
-    it "handles the show page" do
-      stub_s3
-      sign_in user
-      get :show, params: { id: work.id }
-      expect(response).to render_template("show")
-    end
-
     it "renders the new submission wizard' step 0" do
       sign_in user
       get :new
@@ -411,6 +404,42 @@ RSpec.describe WorksController, mock_ezid_api: true do
       post :review, params: { id: work.id, location_notes: "my files can be found at http://aws/my/data" }
       expect(response).to render_template(:review)
       expect(Work.find(work.id).location_notes).to eq "my files can be found at http://aws/my/data"
+    end
+
+    describe "#show" do
+      before do
+        sign_in user
+        stub_s3 data: data
+      end
+
+      let(:data) { [] }
+
+      it "renders the workshow page" do
+        stub_s3
+        get :show, params: { id: work.id }
+        expect(response).to render_template("show")
+      end
+
+      context "files added to s3 precuration" do
+        let(:key) { "10.34770/tbd/6/Screen Shot 2022-08-23 at 4.20.40 PM.png" }
+        let(:size) { 10_759 }
+        let(:etag) { "1a3cc96aa01110fcb04d3227c9cbae9e" }
+        let(:s3_file) do
+          S3File.new(filename: key,
+                     last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+                     size: size,
+                     checksum: etag)
+        end
+        let(:data) { [s3_file] }
+
+        it "adds the files to the work" do
+          allow(Work).to receive(:find).and_return(work)
+          allow(work).to receive(:add_pre_curation_uploads)
+          get :show, params: { id: work.id }
+          expect(response).to render_template("show")
+          expect(work).to have_received(:add_pre_curation_uploads).with(s3_file)
+        end
+      end
     end
 
     describe "#completed" do

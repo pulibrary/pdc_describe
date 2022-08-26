@@ -516,4 +516,28 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       expect { work.withdraw!(user) }.to raise_error AASM::InvalidTransition
     end
   end
+
+  describe "#add_attachment" do
+    let(:key) { "10.34770/tbd/6/Screen Shot 2022-08-23 at 4.20.40 PM.png" }
+    let(:size) { 10_759 }
+    let(:etag) { "1a3cc96aa01110fcb04d3227c9cbae9e" }
+    let(:s3_file) do
+      S3File.new(filename: key,
+                 last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+                 size: size,
+                 checksum: etag)
+    end
+
+    it "adds an s3 attachment" do
+      work.add_pre_curation_uploads(s3_file)
+      expect(work.pre_curation_uploads.count).to eq(1)
+      expect(work.pre_curation_uploads.first.key).to eq(key)
+    end
+
+    it "adds an s3 attachment" do
+      work.add_post_curation_uploads(s3_file)
+      expect(work.post_curation_uploads.count).to eq(1)
+      expect(work.post_curation_uploads.first.key).to eq(key)
+    end
+  end
 end
