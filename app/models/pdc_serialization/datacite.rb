@@ -19,6 +19,8 @@ module PDCSerialization
   # For information
   #   Datacite schema: https://support.datacite.org/docs/datacite-metadata-schema-v44-properties-overview
   #   Datacite mapping gem: https://github.com/CDLUC3/datacite-mapping
+  #
+  # rubocop:disable Metrics/ClassLength
   class Datacite
     attr_reader :mapping
 
@@ -74,82 +76,85 @@ module PDCSerialization
       Datacite.new(mapping)
     end
 
-    def self.creators_from_work_resource(creators)
-      creators.sort_by(&:sequence).map do |creator|
-        ::Datacite::Mapping::Creator.new(
-          name: creator.value,
-          given_name: creator.given_name,
-          family_name: creator.family_name,
-          identifier: name_identifier_from_identifier(creator.identifier),
-          affiliations: nil
+    class << self
+      def creators_from_work_resource(creators)
+        creators.sort_by(&:sequence).map do |creator|
+          ::Datacite::Mapping::Creator.new(
+            name: creator.value,
+            given_name: creator.given_name,
+            family_name: creator.family_name,
+            identifier: name_identifier_from_identifier(creator.identifier),
+            affiliations: nil
+          )
+        end
+      end
+
+      def name_identifier_from_identifier(identifier)
+        return nil if identifier.nil?
+        ::Datacite::Mapping::NameIdentifier.new(
+          scheme: identifier.scheme,
+          scheme_uri: identifier.scheme_uri,
+          value: identifier.value
         )
       end
-    end
 
-    def self.name_identifier_from_identifier(identifier)
-      return nil if identifier.nil?
-      ::Datacite::Mapping::NameIdentifier.new(
-        scheme: identifier.scheme,
-        scheme_uri: identifier.scheme_uri,
-        value: identifier.value
-      )
-    end
+      def titles_from_work_resource(titles)
+        titles.map do |title|
+          if title.main?
+            ::Datacite::Mapping::Title.new(value: title.title)
+          elsif title.title_type == "Subtitle"
+            ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::SUBTITLE)
+          elsif title.title_type == "AlternativeTitle"
+            ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::ALTERNATIVE_TITLE)
+          elsif title.title_type == "TranslatedTitle"
+            ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::TRANSLATED_TITLE)
+          end
+        end.compact
+      end
 
-    def self.titles_from_work_resource(titles)
-      titles.map do |title|
-        if title.main?
-          ::Datacite::Mapping::Title.new(value: title.title)
-        elsif title.title_type == "Subtitle"
-          ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::SUBTITLE)
-        elsif title.title_type == "AlternativeTitle"
-          ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::ALTERNATIVE_TITLE)
-        elsif title.title_type == "TranslatedTitle"
-          ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::TRANSLATED_TITLE)
-        end
-      end.compact
+      ##
+      # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # Returns the appropriate Datacite::Resource::ResourceType for a given string
+      # @param [String] resource_type
+      def datacite_resource_type(resource_type)
+        resource_type_general = case resource_type.downcase
+                                when "dataset"
+                                  ::Datacite::Mapping::ResourceTypeGeneral::DATASET
+                                when "audiovisual"
+                                  ::Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL
+                                when "collection"
+                                  ::Datacite::Mapping::ResourceTypeGeneral::COLLECTION
+                                when "datapaper"
+                                  ::Datacite::Mapping::ResourceTypeGeneral::DATA_PAPER
+                                when "event"
+                                  ::Datacite::Mapping::ResourceTypeGeneral::EVENT
+                                when "image"
+                                  ::Datacite::Mapping::ResourceTypeGeneral::IMAGE
+                                when "interactiveresource"
+                                  ::Datacite::Mapping::ResourceTypeGeneral::INTERACTIVE_RESOURCE
+                                when "model"
+                                  ::Datacite::Mapping::ResourceTypeGeneral::MODEL
+                                when "physicalobject"
+                                  ::Datacite::Mapping::ResourceTypeGeneral::PHYSICAL_OBJECT
+                                when "service"
+                                  ::Datacite::Mapping::ResourceTypeGeneral::SERVICE
+                                when "software"
+                                  ::Datacite::Mapping::ResourceTypeGeneral::SOFTWARE
+                                when "sound"
+                                  ::Datacite::Mapping::ResourceTypeGeneral::SOUND
+                                when "text"
+                                  ::Datacite::Mapping::ResourceTypeGeneral::TEXT
+                                when "workflow"
+                                  ::Datacite::Mapping::ResourceTypeGeneral::WORKFLOW
+                                else
+                                  ::Datacite::Mapping::ResourceTypeGeneral::OTHER
+                                end
+        ::Datacite::Mapping::ResourceType.new(resource_type_general: resource_type_general)
+      end
+      # rubocop:enable Metrics/MethodLength
+      # rubocop:enable Metrics/CyclomaticComplexity
     end
-
-    ##
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/CyclomaticComplexity
-    # Returns the appropriate Datacite::Resource::ResourceType for a given string
-    # @param [String] resource_type
-    def self.datacite_resource_type(resource_type)
-      resource_type_general = case resource_type.downcase
-                              when "dataset"
-                                ::Datacite::Mapping::ResourceTypeGeneral::DATASET
-                              when "audiovisual"
-                                ::Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL
-                              when "collection"
-                                ::Datacite::Mapping::ResourceTypeGeneral::COLLECTION
-                              when "datapaper"
-                                ::Datacite::Mapping::ResourceTypeGeneral::DATA_PAPER
-                              when "event"
-                                ::Datacite::Mapping::ResourceTypeGeneral::EVENT
-                              when "image"
-                                ::Datacite::Mapping::ResourceTypeGeneral::IMAGE
-                              when "interactiveresource"
-                                ::Datacite::Mapping::ResourceTypeGeneral::INTERACTIVE_RESOURCE
-                              when "model"
-                                ::Datacite::Mapping::ResourceTypeGeneral::MODEL
-                              when "physicalobject"
-                                ::Datacite::Mapping::ResourceTypeGeneral::PHYSICAL_OBJECT
-                              when "service"
-                                ::Datacite::Mapping::ResourceTypeGeneral::SERVICE
-                              when "software"
-                                ::Datacite::Mapping::ResourceTypeGeneral::SOFTWARE
-                              when "sound"
-                                ::Datacite::Mapping::ResourceTypeGeneral::SOUND
-                              when "text"
-                                ::Datacite::Mapping::ResourceTypeGeneral::TEXT
-                              when "workflow"
-                                ::Datacite::Mapping::ResourceTypeGeneral::WORKFLOW
-                              else
-                                ::Datacite::Mapping::ResourceTypeGeneral::OTHER
-                              end
-      ::Datacite::Mapping::ResourceType.new(resource_type_general: resource_type_general)
-    end
-    # rubocop:enable Metrics/MethodLength
-    # rubocop:enable Metrics/CyclomaticComplexity
   end
+  # rubocop:enable Metrics/ClassLength
 end
