@@ -77,41 +77,6 @@ module PDCSerialization
     end
 
     class << self
-      def creators_from_work_resource(creators)
-        creators.sort_by(&:sequence).map do |creator|
-          ::Datacite::Mapping::Creator.new(
-            name: creator.value,
-            given_name: creator.given_name,
-            family_name: creator.family_name,
-            identifier: name_identifier_from_identifier(creator.identifier),
-            affiliations: nil
-          )
-        end
-      end
-
-      def name_identifier_from_identifier(identifier)
-        return nil if identifier.nil?
-        ::Datacite::Mapping::NameIdentifier.new(
-          scheme: identifier.scheme,
-          scheme_uri: identifier.scheme_uri,
-          value: identifier.value
-        )
-      end
-
-      def titles_from_work_resource(titles)
-        titles.map do |title|
-          if title.main?
-            ::Datacite::Mapping::Title.new(value: title.title)
-          elsif title.title_type == "Subtitle"
-            ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::SUBTITLE)
-          elsif title.title_type == "AlternativeTitle"
-            ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::ALTERNATIVE_TITLE)
-          elsif title.title_type == "TranslatedTitle"
-            ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::TRANSLATED_TITLE)
-          end
-        end.compact
-      end
-
       ##
       # rubocop:disable Metrics/MethodLength
       # rubocop:disable Metrics/CyclomaticComplexity
@@ -154,7 +119,44 @@ module PDCSerialization
       end
       # rubocop:enable Metrics/MethodLength
       # rubocop:enable Metrics/CyclomaticComplexity
-    end
+
+      private
+
+        def creators_from_work_resource(creators)
+          creators.sort_by(&:sequence).map do |creator|
+            ::Datacite::Mapping::Creator.new(
+              name: creator.value,
+              given_name: creator.given_name,
+              family_name: creator.family_name,
+              identifier: name_identifier_from_identifier(creator.identifier),
+              affiliations: nil
+            )
+          end
+        end
+
+        def name_identifier_from_identifier(identifier)
+          return nil if identifier.nil?
+          ::Datacite::Mapping::NameIdentifier.new(
+            scheme: identifier.scheme,
+            scheme_uri: identifier.scheme_uri,
+            value: identifier.value
+          )
+        end
+
+        def titles_from_work_resource(titles)
+          titles.map do |title|
+            if title.main?
+              ::Datacite::Mapping::Title.new(value: title.title)
+            elsif title.title_type == "Subtitle"
+              ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::SUBTITLE)
+            elsif title.title_type == "AlternativeTitle"
+              ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::ALTERNATIVE_TITLE)
+            elsif title.title_type == "TranslatedTitle"
+              ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::TRANSLATED_TITLE)
+            end
+          end.compact
+        end
+      end
   end
   # rubocop:enable Metrics/ClassLength
 end
