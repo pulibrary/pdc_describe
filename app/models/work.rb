@@ -414,7 +414,7 @@ class Work < ApplicationRecord
     def doi_attributes
       {
         "event" => "publish",
-        "xml" => Base64.encode64(ValidDatacite::Resource.new_from_json(metadata).to_xml),
+        "xml" => Base64.encode64(PDCMetadata::Resource.new_from_json(metadata).to_xml),
         "url" => "https://schema.datacite.org/meta/kernel-4.0/index.html" # TODO: this should be a link to the item in PDC-discovery
       }
     end

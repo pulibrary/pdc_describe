@@ -1,0 +1,137 @@
+# frozen_string_literal: true
+module PDCSerialization
+  # https://support.datacite.org/docs/datacite-metadata-schema-v44-properties-overview
+  class Datacite
+    attr_reader :mapping
+
+    def initialize(mapping)
+      @mapping = mapping
+    end
+
+    # Returns the XML serialization for the Datacite record
+    # Note that the actual XML serialization is done by the datacite-mapping gem.
+    def to_xml
+      @mapping.write_xml
+    end
+
+    ##
+    # Returns the XML serialization for a valid Datacite skeleton record based on a few required values.
+    # Useful for early in the workflow when we don't have much data yet and for testing.
+    #
+    # @param [String] identifier
+    # @param [String] title
+    # @param [String] creator
+    # @param [String] publisher
+    # @param [String] publication_year
+    # @param [String] resource_type
+    def self.skeleton_datacite_xml(identifier:, title:, creator:, publisher:, publication_year:, resource_type:)
+      mapping = ::Datacite::Mapping::Resource.new(
+        identifier: ::Datacite::Mapping::Identifier.new(value: identifier),
+        creators: [] << ::Datacite::Mapping::Creator.new(name: creator),
+        titles: [] << ::Datacite::Mapping::Title.new(value: title),
+        publisher: ::Datacite::Mapping::Publisher.new(value: publisher),
+        publication_year: publication_year,
+        resource_type: datacite_resource_type(resource_type)
+      )
+      mapping.write_xml
+    end
+
+    ##
+    # Creates a PDCSerialization::Datacite object from a Work
+    def self.new_from_work(work)
+      new_from_work_resource(work.resource)
+    end
+
+    ##
+    # Creates a PDCSerialization::Datacite object from a PDCMetadata::Resource
+    def self.new_from_work_resource(resource)
+      mapping = ::Datacite::Mapping::Resource.new(
+        identifier: ::Datacite::Mapping::Identifier.new(value: resource.doi),
+        creators: creators_from_work_resource(resource.creators),
+        titles: titles_from_work_resource(resource.titles),
+        publisher: ::Datacite::Mapping::Publisher.new(value: resource.publisher),
+        publication_year: resource.publication_year,
+        resource_type: datacite_resource_type(resource.resource_type)
+      )
+      Datacite.new(mapping)
+    end
+
+    def self.creators_from_work_resource(creators)
+      creators.sort_by(&:sequence).map do |creator|
+        ::Datacite::Mapping::Creator.new(
+          name: creator.value,
+          given_name: creator.given_name,
+          family_name: creator.family_name,
+          identifier: name_identifier_from_identifier(creator.identifier),
+          affiliations: nil
+        )
+      end
+    end
+
+    def self.name_identifier_from_identifier(identifier)
+      return nil if identifier.nil?
+      ::Datacite::Mapping::NameIdentifier.new(
+        scheme: identifier.scheme,
+        scheme_uri: identifier.scheme_uri,
+        value: identifier.value
+      )
+    end
+
+    def self.titles_from_work_resource(titles)
+      titles.map do |title|
+        if title.main?
+          ::Datacite::Mapping::Title.new(value: title.title)
+        elsif title.title_type == "Subtitle"
+          ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::SUBTITLE)
+        elsif title.title_type == "AlternativeTitle"
+          ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::ALTERNATIVE_TITLE)
+        elsif title.title_type == "TranslatedTitle"
+          ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::TRANSLATED_TITLE)
+        end
+      end.compact
+    end
+
+    ##
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # Returns the appropriate Datacite::Resource::ResourceType for a given string
+    # @param [String] resource_type
+    def self.datacite_resource_type(resource_type)
+      resource_type_general = case resource_type.downcase
+                              when "dataset"
+                                ::Datacite::Mapping::ResourceTypeGeneral::DATASET
+                              when "audiovisual"
+                                ::Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL
+                              when "collection"
+                                ::Datacite::Mapping::ResourceTypeGeneral::COLLECTION
+                              when "datapaper"
+                                ::Datacite::Mapping::ResourceTypeGeneral::DATA_PAPER
+                              when "event"
+                                ::Datacite::Mapping::ResourceTypeGeneral::EVENT
+                              when "image"
+                                ::Datacite::Mapping::ResourceTypeGeneral::IMAGE
+                              when "interactiveresource"
+                                ::Datacite::Mapping::ResourceTypeGeneral::INTERACTIVE_RESOURCE
+                              when "model"
+                                ::Datacite::Mapping::ResourceTypeGeneral::MODEL
+                              when "physicalobject"
+                                ::Datacite::Mapping::ResourceTypeGeneral::PHYSICAL_OBJECT
+                              when "service"
+                                ::Datacite::Mapping::ResourceTypeGeneral::SERVICE
+                              when "software"
+                                ::Datacite::Mapping::ResourceTypeGeneral::SOFTWARE
+                              when "sound"
+                                ::Datacite::Mapping::ResourceTypeGeneral::SOUND
+                              when "text"
+                                ::Datacite::Mapping::ResourceTypeGeneral::TEXT
+                              when "workflow"
+                                ::Datacite::Mapping::ResourceTypeGeneral::WORKFLOW
+                              else
+                                ::Datacite::Mapping::ResourceTypeGeneral::OTHER
+                              end
+      ::Datacite::Mapping::ResourceType.new(resource_type_general: resource_type_general)
+    end
+    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/CyclomaticComplexity
+  end
+end
