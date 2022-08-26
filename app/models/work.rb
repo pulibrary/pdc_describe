@@ -314,6 +314,16 @@ class Work < ApplicationRecord
     pre_curation_uploads
   end
 
+  def add_pre_curation_uploads(s3_file)
+    blob = s3_file_to_blob(s3_file)
+    pre_curation_uploads << ActiveStorage::Attachment.new(blob: blob, name: :pre_curation_uploads)
+  end
+
+  def add_post_curation_uploads(s3_file)
+    blob = s3_file_to_blob(s3_file)
+    post_curation_uploads << ActiveStorage::Attachment.new(blob: blob, name: :post_curation_uploads)
+  end
+
   private
 
     def publish(user)
@@ -438,6 +448,13 @@ class Work < ApplicationRecord
         attachment.blob.save
         attachment.save
       end
+    end
+
+    def s3_file_to_blob(s3_file)
+      params = { filename: s3_file.filename, content_type: "", byte_size: s3_file.size, checksum: s3_file.checksum }
+      blob = ActiveStorage::Blob.create_before_direct_upload!(**params)
+      blob.key = s3_file.filename
+      blob
     end
 end
 # rubocop:ensable Metrics/ClassLength
