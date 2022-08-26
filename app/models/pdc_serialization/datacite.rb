@@ -1,6 +1,24 @@
 # frozen_string_literal: true
 module PDCSerialization
-  # https://support.datacite.org/docs/datacite-metadata-schema-v44-properties-overview
+  # The common use for this class is:
+  #
+  #   work = Work.find(123)
+  #   datacite_xml = PDCSerialization::Datacite.new_from_work(work).to_xml
+  #
+  # For testing purposes you can also quickly get an XML serialization with the helper:
+  #
+  #   datacite_xml = PDCSerialization::Datacite.skeleton_datacite_xml(...)
+  #
+  # You can also pass a PDCMetadata::Resource which is useful to test with a more
+  # complex dataset without saving the work to the database:
+  #
+  #   json = {...}.to_json
+  #   resource = PDCMetadata::Resource.new_from_json(json)
+  #   datacite_xml = PDCSerialization::Datacite.new_from_work_resource(resource).to_xml
+  #
+  # For information
+  #   Datacite schema: https://support.datacite.org/docs/datacite-metadata-schema-v44-properties-overview
+  #   Datacite mapping gem: https://github.com/CDLUC3/datacite-mapping
   class Datacite
     attr_reader :mapping
 
@@ -18,7 +36,7 @@ module PDCSerialization
     # Returns the XML serialization for a valid Datacite skeleton record based on a few required values.
     # Useful for early in the workflow when we don't have much data yet and for testing.
     #
-    # @param [String] identifier
+    # @param [String] identifier, e.g "10.1234/567"
     # @param [String] title
     # @param [String] creator
     # @param [String] publisher
