@@ -46,6 +46,6 @@ RSpec.describe PDCMetadata::Resource, type: :model do
 
   it "creates the expected json" do
     work = FactoryBot.create(:shakespeare_and_company_work)
-    expect(work.metadata).to eq(work.resource.to_json)
+    expect(work.metadata).to eq(work.to_json)
   end
 end

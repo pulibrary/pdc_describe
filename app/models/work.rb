@@ -188,6 +188,14 @@ class Work < ApplicationRecord
     User.find(curator_user_id)
   end
 
+  def to_xml
+    resource.to_xml
+  end
+
+  def to_json
+    resource.to_json
+  end
+
   def draft_doi
     return if resource.doi.present?
     resource.doi = if Rails.env.development? && ENV["DATACITE_USER"].blank?
@@ -212,6 +220,11 @@ class Work < ApplicationRecord
     User.find(created_by_user_id)
   rescue ActiveRecord::RecordNotFound
     nil
+  end
+
+  def resource=(resource)
+    @resource = resource
+    self.metadata = resource.to_json
   end
 
   def resource
@@ -323,6 +336,15 @@ class Work < ApplicationRecord
     blob = s3_file_to_blob(s3_file)
     post_curation_uploads << ActiveStorage::Attachment.new(blob: blob, name: :post_curation_uploads)
   end
+
+  protected
+
+    # This must be protected, NOT private for AcrtiveRecord to work properly with this attribute.
+    #   Protected will still keep others from setting the metatdata, but allows ActiveRecord the access it needs
+    def metadata=(metadata)
+      super
+      @resource = PDCMetadata::Resource.new_from_json(metadata)
+    end
 
   private
 
