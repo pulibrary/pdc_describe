@@ -24,10 +24,6 @@ Metrics/BlockLength:
     - "spec/**/*"
     - "app/models/work.rb"
 
-Metrics/CyclomaticComplexity:
-  Exclude:
-    - "app/controllers/works_controller.rb"
-
 Metrics/MethodLength:
   Exclude:
     - "app/models/work.rb"

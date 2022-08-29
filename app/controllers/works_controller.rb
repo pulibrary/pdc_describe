@@ -51,6 +51,7 @@ class WorksController < ApplicationController
     @wizard_mode = params[:wizard] == "true"
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity
   def update
     @work = Work.find(params[:id])
     @wizard_mode = params[:wizard] == "true"
@@ -106,6 +107,7 @@ class WorksController < ApplicationController
       render :edit, status: :unprocessable_entity
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   # Prompt to select how to submit their files
   def attachment_select
