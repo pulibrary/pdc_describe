@@ -23,7 +23,7 @@ class WorksController < ApplicationController
   def new_submission
     default_collection_id = current_user.default_collection.id
     resource = resource_from_form
-    work = Work.new(created_by_user_id: current_user.id, collection_id: default_collection_id, metadata: resource.to_json)
+    work = Work.new(created_by_user_id: current_user.id, collection_id: default_collection_id, resource: resource)
     work.draft!(current_user)
     redirect_to edit_work_path(work, wizard: true)
   end
@@ -32,7 +32,7 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     @can_curate = current_user.can_admin?(@work.collection_id)
     @work.mark_new_notifications_as_read(current_user.id)
-    if @work.resource.doi
+    if @work.doi
       pre_curation_service = S3QueryService.new(@work, true)
       data_profile = pre_curation_service.data_profile
       data_profile[:objects].each do |s3_file|
@@ -79,7 +79,7 @@ class WorksController < ApplicationController
 
     updates = {
       collection_id: collection_id_param,
-      metadata: resource_from_form.to_json,
+      resource: resource_from_form,
       pre_curation_uploads: updated_pre_curation_uploads
     }
 
@@ -198,13 +198,13 @@ class WorksController < ApplicationController
   # Outputs the Datacite XML representation of the work
   def datacite
     work = Work.find(params[:id])
-    render xml: work.resource.to_xml
+    render xml: work.to_xml
   end
 
   def datacite_validate
     @errors = []
     @work = Work.find(params[:id])
-    datacite_xml = Nokogiri::XML(@work.resource.to_xml)
+    datacite_xml = Nokogiri::XML(@work.to_xml)
     schema_location = Rails.root.join("config", "schema")
     Dir.chdir(schema_location) do
       xsd = Nokogiri::XML::Schema(File.read("datacite_4_4.xsd"))
