@@ -204,6 +204,7 @@ class WorksController < ApplicationController
   def datacite_validate
     @errors = []
     @work = Work.find(params[:id])
+    byebug
     datacite_xml = Nokogiri::XML(@work.resource.to_xml)
     schema_location = Rails.root.join("config", "schema")
     Dir.chdir(schema_location) do

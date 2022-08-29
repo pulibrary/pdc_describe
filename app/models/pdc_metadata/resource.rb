@@ -36,53 +36,10 @@ module PDCMetadata
       @titles.select { |title| title.main? == false }
     end
 
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/BlockLength
-    # rubocop:disable Metrics/AbcSize
     def to_xml
-      builder = Nokogiri::XML::Builder.new do |xml|
-        xml.resource(
-          "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
-          "xmlns" => "http://datacite.org/schema/kernel-4",
-          "xsi:schemaLocation" => "http://datacite.org/schema/kernel-4 https://schema.datacite.org/meta/kernel-4.4/metadata.xsd"
-        ) do
-          xml.identifier("identifierType" => identifier_type) do
-            xml.text identifier
-          end
-          xml.titles do
-            @titles.each do |title|
-              if title.main?
-                xml.title do
-                  xml.text title.title
-                end
-              else
-                xml.title("titleType" => title.title_type) do
-                  xml.text title.title
-                end
-              end
-            end
-          end
-          xml.description("descriptionType" => "Other") do
-            xml.text @description
-          end
-          xml.creators do
-            @creators.each do |creator|
-              creator.to_xml(xml)
-            end
-          end
-          xml.publisher do
-            xml.text @publisher
-          end
-          xml.publicationYear do
-            xml.text @publication_year
-          end
-        end
-      end
-      builder.to_xml
+      xml_prefix = '<?xml version="1.0"?>'
+      xml_prefix + "\n" + PDCSerialization::Datacite.new_from_work_resource(self).to_xml + "\n"
     end
-    # rubocop:enable Metrics/MethodLength
-    # rubocop:enable Metrics/BlockLength
-    # rubocop:enable Metrics/AbcSize
 
     class << self
       # Creates a PDCMetadata::Resource from a JSON string

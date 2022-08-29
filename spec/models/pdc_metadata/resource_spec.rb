@@ -2,20 +2,18 @@
 require "rails_helper"
 
 RSpec.describe PDCMetadata::Resource, type: :model do
-  let(:creatorPerson) do
+  let(:creator1) do
     PDCMetadata::Creator.new_person("Elizabeth", "Miller", "1234-5678-9012-1234")
   end
 
-  let(:creatorOrganization) do
-    org = PDCMetadata::Creator.new(value: "Princeton University", name_type: "Organization")
-    org.affiliations << PDCMetadata::Affiliation.new(value: "Some affiliation", identifier: "https://ror.org/04aj4c181", scheme: "ROR", scheme_uri: "https://ror.org/")
-    org
+  let(:creator2) do
+    PDCMetadata::Creator.new_person("Jane", "Smith")
   end
 
   let(:ds) do
     ds = described_class.new(doi: "10.5072/example-full", title: "hello world")
     ds.description = "this is an example description"
-    ds.creators = [creatorPerson, creatorOrganization]
+    ds.creators = [creator1, creator2]
     ds
   end
 
@@ -36,7 +34,9 @@ RSpec.describe PDCMetadata::Resource, type: :model do
   it "serializes to xml" do
     # Eventually we might want to support a complete example like this
     # https://schema.datacite.org/meta/kernel-4.4/example/datacite-example-full-v4.xml
-    expect(ds.to_xml).to eq(file_fixture("datacite_basic.xml").read)
+    raw_xml = file_fixture("datacite_basic.xml").read
+    byebug
+    expect(ds.to_xml).to eq raw_xml
   end
 
   it "handles ORCID values" do

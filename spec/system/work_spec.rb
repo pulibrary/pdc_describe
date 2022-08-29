@@ -54,8 +54,7 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
   end
 
   context "datacite record" do
-    let(:resource) { FactoryBot.build :resource }
-    let(:work) { FactoryBot.create :draft_work, resource: resource }
+    let(:work) { FactoryBot.create :draft_work }
 
     before do
       stub_s3
