@@ -317,6 +317,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
       end
 
       let(:deleted_uploads) do
+        # "1" indicates that the file has been delete
         {
           work.pre_curation_uploads.first.key => "1",
           work.pre_curation_uploads[1].key => "0",
@@ -324,15 +325,8 @@ RSpec.describe WorksController, mock_ezid_api: true do
         }
       end
 
-      before do
-        stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
-        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
-
-        work.pre_curation_uploads.attach(uploaded_file1)
-        work.pre_curation_uploads.attach(uploaded_file1)
-        work.pre_curation_uploads.attach(uploaded_file1)
-
-        params = {
+      let(:params) do
+        {
           "title_main" => "test dataset updated",
           "description" => "a new description",
           "collection_id" => work.collection.id,
@@ -351,11 +345,23 @@ RSpec.describe WorksController, mock_ezid_api: true do
           "creator_count" => "2",
           "deleted_uploads" => deleted_uploads
         }
-        sign_in user
-        post :update, params: params
+      end
+
+      before do
+        stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
+        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+
+        work.pre_curation_uploads.attach(uploaded_file1)
+        work.pre_curation_uploads.attach(uploaded_file1)
+        work.pre_curation_uploads.attach(uploaded_file1)
       end
 
       it "handles the update page" do
+        expect(work.pre_curation_uploads.length).to eq(3)
+
+        sign_in user
+        post :update, params: params
+
         saved_work = Work.find(work.id)
 
         expect(saved_work.pre_curation_uploads).not_to be_empty
