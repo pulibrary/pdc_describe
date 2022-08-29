@@ -45,19 +45,19 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   it "drafts a doi only once" do
-    work = Work.new(collection: collection, metadata: FactoryBot.build(:resource).to_json)
+    work = Work.new(collection: collection, resource: FactoryBot.build(:resource))
     work.draft_doi
     work.draft_doi # Doing this multiple times on purpose to make sure the api is only called once
     expect(a_request(:post, ENV["DATACITE_URL"])).to have_been_made.once
   end
 
   it "prevents datasets with no users" do
-    work = Work.new(collection: collection, metadata: PDCMetadata::Resource.new.to_json)
+    work = Work.new(collection: collection, resource: PDCMetadata::Resource.new)
     expect { work.draft! }.to raise_error AASM::InvalidTransition
   end
 
   it "prevents datasets with no collections" do
-    work = Work.new(collection: nil, metadata: FactoryBot.build(:resource).to_json)
+    work = Work.new(collection: nil, resource: FactoryBot.build(:resource))
     expect { work.save! }.to raise_error ActiveRecord::RecordInvalid
   end
 
@@ -109,6 +109,10 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     work.resubmit!(user)
     expect(work.state_history.first.state).to eq "draft"
     expect(work.reload.state).to eq("draft")
+  end
+
+  it "does not allow direct asignment to the metadata" do
+    expect { work.metadata = "abc" }.to raise_error NoMethodError
   end
 
   context "ARK update" do
@@ -327,7 +331,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe "#draft" do
     let(:draft_work) do
-      work = Work.new(collection: collection, metadata: FactoryBot.build(:resource).to_json)
+      work = Work.new(collection: collection, resource: FactoryBot.build(:resource))
       work.draft!(user)
       work = Work.find(work.id)
       work
@@ -494,7 +498,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   end
 
   describe "states" do
-    let(:work) { Work.new(collection: collection, metadata: FactoryBot.build(:resource).to_json) }
+    let(:work) { Work.new(collection: collection, resource: FactoryBot.build(:resource)) }
     it "initally is none" do
       expect(work.none?).to be_truthy
       expect(work.state).to eq("none")
