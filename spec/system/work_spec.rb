@@ -67,10 +67,21 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
       nodeset = doc.xpath("/xmlns:resource")
       expect(nodeset).to be_instance_of(Nokogiri::XML::NodeSet)
     end
+  end
+
+  context "invalid datacite record" do
+    let(:work) { FactoryBot.create :draft_work }
+    let(:invalid_xml) { file_fixture("datacite_basic.xml").read.gsub("<creator", "<invalid") }
+
+    before do
+      stub_s3
+      sign_in user
+      allow_any_instance_of(PDCMetadata::Resource).to receive(:to_xml).and_return(invalid_xml)
+    end
 
     it "Validates the record and prints any errors", js: true do
       visit datacite_validate_work_path(work)
-      expect(page).to have_content "The value has a length of '0'"
+      expect(page).to have_content "This element is not expected"
     end
   end
 end

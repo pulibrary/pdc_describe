@@ -22,8 +22,6 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     expect(ds.main_title).to eq "hello world"
     expect(ds.resource_type).to eq "Dataset"
     expect(ds.creators.count).to be 2
-    expect(ds.creators.first.affiliations.count).to be 0
-    expect(ds.creators.second.affiliations.count).to be 1
   end
 
   it "supports more than one title" do
@@ -35,13 +33,12 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     # Eventually we might want to support a complete example like this
     # https://schema.datacite.org/meta/kernel-4.4/example/datacite-example-full-v4.xml
     raw_xml = file_fixture("datacite_basic.xml").read
-    byebug
     expect(ds.to_xml).to eq raw_xml
   end
 
   it "handles ORCID values" do
-    expect(creatorPerson.orcid).to eq "1234-5678-9012-1234"
-    expect(creatorPerson.orcid_url).to eq "https://orcid.org/1234-5678-9012-1234"
+    expect(creator1.orcid).to eq "1234-5678-9012-1234"
+    expect(creator1.orcid_url).to eq "https://orcid.org/1234-5678-9012-1234"
 
     no_orcid = PDCMetadata::Creator.new_person("Elizabeth", "Miller")
     expect(no_orcid.orcid).to be nil

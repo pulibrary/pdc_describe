@@ -37,8 +37,9 @@ module PDCMetadata
     end
 
     def to_xml
-      xml_prefix = '<?xml version="1.0"?>'
-      xml_prefix + "\n" + PDCSerialization::Datacite.new_from_work_resource(self).to_xml + "\n"
+      xml_declaration = '<?xml version="1.0"?>'
+      xml_body = PDCSerialization::Datacite.new_from_work_resource(self).to_xml
+      xml_declaration + "\n" + xml_body + "\n"
     end
 
     class << self
