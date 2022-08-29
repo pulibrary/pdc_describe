@@ -91,7 +91,7 @@ class S3QueryService
     objects = []
     return objects if model.nil?
 
-    model.uploads.each do |attachment|
+    model_uploads.each do |attachment|
       s3_file = S3File.new(filename: attachment.key, last_modified: attachment.created_at, size: attachment.byte_size,
                            checksum: attachment.checksum)
       objects << s3_file
@@ -110,6 +110,7 @@ class S3QueryService
     response_objects = resp.to_h[:contents]
     Rails.logger.debug("Objects: #{response_objects}")
     response_objects&.each do |object|
+      next if object[:size] == 0 # ignore directories whose size is zero
       s3_file = S3File.new(filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
       objects << s3_file
     end
@@ -139,4 +140,14 @@ class S3QueryService
 
     { objects: [], ok: false }
   end
+
+  private
+
+    def model_uploads
+      if pre_curation?
+        model.pre_curation_uploads
+      else
+        model.post_curation_uploads
+      end
+    end
 end

@@ -26,6 +26,13 @@ RSpec.describe S3QueryService, mock_ezid_api: true do
           last_modified: s3_last_modified2,
           size: 12_739,
           storage_class: "STANDARD"
+        },
+        {
+          etag: "\"7bd3d4339c034ebc663b99065771111\"",
+          key: "A directory",
+          last_modified: s3_last_modified2,
+          size: 0,
+          storage_class: "STANDARD"
         }
       ]
     }
@@ -153,6 +160,30 @@ RSpec.describe S3QueryService, mock_ezid_api: true do
 
         expect(children.last.size).to eq(s3_size2)
       end
+    end
+  end
+
+  context "post curated" do
+    let(:subject) { described_class.new(work, false) }
+
+    it "keeps precurated and post curated items separate" do
+      fake_aws_client = double(Aws::S3::Client)
+      subject.stub(:client).and_return(fake_aws_client)
+      fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
+      fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
+      fake_s3_resp.stub(:to_h).and_return(s3_hash)
+
+      blob = ActiveStorage::Blob.new(filename: s3_key1, key: s3_key1, content_type: "", byte_size: 100, checksum: "abc123")
+      work.pre_curation_uploads << ActiveStorage::Attachment.new(blob: blob, name: :pre_curation_uploads)
+
+      data_profile = subject.data_profile
+      expect(data_profile[:objects]).to be_instance_of(Array)
+      expect(data_profile[:ok]).to eq true
+      expect(data_profile[:objects].count).to eq 2
+      expect(data_profile[:objects].first).to be_instance_of(S3File)
+      expect(data_profile[:objects].first.filename).to match(/README/)
+      expect(data_profile[:objects].first.last_modified).to eq Time.parse("2022-04-21T18:29:40.000Z")
+      expect(data_profile[:objects].first.size).to eq 10_759
     end
   end
 end
