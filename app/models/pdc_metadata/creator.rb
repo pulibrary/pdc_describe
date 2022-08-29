@@ -46,20 +46,5 @@ module PDCMetadata
       end
       creator
     end
-
-    def to_xml(builder)
-      if name_type == "Personal"
-        builder.creator("nameType" => "Personal") do
-          builder.creatorName value
-          builder.givenName given_name
-          builder.familyName family_name
-          identifier&.to_xml(builder)
-        end
-      else
-        builder.creator("nameType" => "Organization") do
-          builder.creatorName value
-        end
-      end
-    end
   end
 end

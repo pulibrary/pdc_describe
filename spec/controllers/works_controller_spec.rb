@@ -546,7 +546,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
       end
     end
 
-    it "handles the show page" do
+    it "renders datacite serialization as XML" do
       sign_in user
       get :datacite, params: { id: work.id }
       expect(response.body.start_with?('<?xml version="1.0"?>')).to be true
