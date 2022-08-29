@@ -29,14 +29,5 @@ module PDCMetadata
     def self.new_orcid(value)
       NameIdentifier.new(value: value, scheme: "ORCID", scheme_uri: "https://orcid.org")
     end
-
-    def to_xml(builder)
-      builder.nameIdentifier(
-          "schemeURI" => scheme_uri,
-          "nameIdentifierScheme" => scheme
-        ) do
-        builder.text value
-      end
-    end
   end
 end
