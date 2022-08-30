@@ -5,18 +5,17 @@ FactoryBot.define do
     factory :draft_work do
       transient do
         doi { "https://doi.org/10.34770/123-abc" }
-        resource { FactoryBot.build :resource, doi: doi }
       end
       collection { Collection.research_data }
       state { "draft" }
       created_by_user_id { FactoryBot.create(:user).id }
-      metadata { resource.to_json }
+      resource { FactoryBot.build :resource, doi: doi }
     end
 
     factory :shakespeare_and_company_work do
       collection { Collection.research_data }
-      metadata do
-        {
+      resource do
+        PDCMetadata::Resource.new_from_json({
           "doi": "https://doi.org/10.34770/pe9w-x904",
           "ark": "ark:/88435/dsp01zc77st047",
           "identifier_type": "DOI",
@@ -26,7 +25,7 @@ FactoryBot.define do
             { "value": "Kotin, Joshua", "name_type": "Personal", "given_name": "Joshua", "family_name": "Kotin", "affiliations": [], "sequence": "1" }
           ],
           "resource_type": "Dataset", "publisher": "Princeton University", "publication_year": "2020"
-        }.to_json
+        }.to_json)
       end
       created_by_user_id { FactoryBot.create(:user).id }
     end
