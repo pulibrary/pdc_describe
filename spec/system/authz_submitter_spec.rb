@@ -54,5 +54,17 @@ byebug
 
 byebug
     end
+    
+    it "a submitter should not be able to edit a collection to add curators and submitters" do
+      sign_in submitter1
+      visit "/collections/1"
+      expect(page).not_to have_content "Add Submitter"
+      expect(page).not_to have_content "Add Curator"
+byebug
+      visit "/collections/1/edit"
+      expect(page).not_to have_content "Update Collection"
+      expect(current_path).to eq "/collections"
+      byebug
+    end
   end
 end
