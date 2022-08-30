@@ -31,6 +31,10 @@ Metrics/MethodLength:
 Metrics/ParameterLists:
   Enabled: false
 
+Metrics/PerceivedComplexity:
+  Exclude:
+    - "app/controllers/works_controller.rb"
+
 Style/GuardClause:
   Enabled: false
 

@@ -4,37 +4,49 @@
     <div class="card">
       <div class="files card-body">
         <!-- Only render file download table if there are files in S3 -->
-        <% if @work.pre_curation_uploads.empty? %>
-          <p><%= t('works.form.pre_curation_uploads.empty') %></p>
-        <% else %>
           <table id="files-table" class="table">
             <thead>
               <tr>
-                <th scope="col" nowrap="nowrap"><span><%= t('works.form.pre_curation_uploads.filename') %></span></th>
-                <th scope="col"><span><%= t('works.form.pre_curation_uploads.created_at') %></span></th>
-                <th scope="col"><span><%= t('works.form.pre_curation_uploads.replace_upload') %></span></th>
+                <th scope="col" nowrap="nowrap"><span><%= t('works.form.deposit_uploads.filename') %></span></th>
+                <th scope="col"><span><%= t('works.form.deposit_uploads.created_at') %></span></th>
+                <th scope="col"><span><%= t('works.form.deposit_uploads.replace_upload') %></span></th>
+                <th scope="col"><span><%= t('works.form.deposit_uploads.delete_upload') %></span></th>
               </tr>
             </thead>
             <tbody>
-              <% @work.pre_curation_uploads.each_with_index do |file, ix| %>
+              <!-- Only render file download table if there are files in S3 -->
+              <% if @work.uploads.empty? %>
                 <tr class="files">
+                  <td><span>No files in S3</span></td>
+                  <td><span>0</span></td>
                   <td>
-                    <span>
-                      <i class="bi bi-file-arrow-down"></i>
-                      <a href="<%= rails_blob_path(file, disposition: "attachment") %>" class="documents-file-link" target="_blank" title="<%= file.filename %>"><%= pre_curation_uploads_file_name(file: file) %></a>
-                    </span>
                   </td>
-                  <td><span><%= file.created_at %></span></td>
                   <td>
-                    <%= form.file_field(:pre_curation_uploads, id: "work-deposit-uploads", name: "work[replaced_uploads][#{ix}]") %>
                   </td>
                 </tr>
+              <% else %>
+                <% @uploads.each_with_index do |file, ix| %>
+                  <tr class="files">
+                    <td>
+                      <span>
+                        <i class="bi bi-file-arrow-down"></i>
+                        <a href="<%= rails_blob_path(file, disposition: "attachment") %>" class="documents-file-link" target="_blank" title="<%= file.filename %>"><%= file.filename.to_s[0..79] %></a>
+                      </span>
+                    </td>
+                    <td><span><%= file.created_at %></span></td>
+                    <td>
+                      <%= form.file_field(:deposit_uploads, id: "work-deposit-uploads", name: "work[replaced_uploads][#{ix}]") %>
+                    </td>
+                    <td>
+                      <%= form.check_box("Delete", id: "work-deposit-uploads", class: [], name: "work[deleted_uploads][#{file.key}]") %>
+                    </td>
+                  </tr>
+                <% end %>
               <% end %>
             </tbody>
             <tfoot>
             </tfoot>
           </table>
-        <% end %>
         <!-- End of file download table -->
         <div class="container-fluid deposit-uploads">
           <%= form.label("Replace all Uploads", for: :pre_curation_uploads) %>
