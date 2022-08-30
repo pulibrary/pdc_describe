@@ -21,8 +21,11 @@ FactoryBot.define do
   end
 
   factory :super_admin_user, class: "User" do
-    sequence(:uid) { "fake1" }
-    sequence(:email) { "fake1@princeton.edu" }
+    uid { FFaker::InternetSE.login_user_name }
+    email { "#{uid}@princeton.edu" }
     provider { :cas }
+    after(:create) do |user|
+      user.add_role(:super_admin)
+    end
   end
 end

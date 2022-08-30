@@ -4,7 +4,7 @@ RSpec.describe "Editing collections" do
   before { Collection.create_defaults }
 
   let(:user) { FactoryBot.create :princeton_submitter }
-  let(:super_admin_user) { User.new_for_uid("fake1") }
+  let(:super_admin_user) { FactoryBot.create :super_admin_user }
   let(:collection) { Collection.first }
   let(:collection_other) { Collection.second }
 
@@ -62,6 +62,7 @@ RSpec.describe "Editing collections" do
   end
 
   it "display super admins", js: true do
+    super_admin_user
     sign_in user
     visit collection_path(collection)
     expect(page).to have_content super_admin_user.uid

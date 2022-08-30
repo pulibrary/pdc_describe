@@ -59,6 +59,6 @@ class UsersController < ApplicationController
 
     def can_edit?
       return true if current_user.id == @user.id
-      current_user.superadmin?
+      current_user.super_admin?
     end
 end

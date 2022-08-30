@@ -23,7 +23,7 @@ class Collection < ApplicationRecord
   end
 
   def super_administrators
-    Rails.configuration.superadmins.map { |uid| User.new_for_uid(uid) }
+    User.with_role(:super_admin)
   end
 
   def submitters

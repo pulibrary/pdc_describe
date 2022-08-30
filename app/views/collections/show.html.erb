@@ -100,14 +100,14 @@ $(function() {
   // Adds the information for a given user to the lists of administrators/submitters
   // for the collection.
   // `elList` is the reference to the <ul> HTML element that hosts the list.
-  var addUserHtml = function(elList, uid, collectionId, role, canDelete, isYou, isSuperAdmin) {
+  var addUserHtml = function(elList, uid, collectionId, role, canDelete, isYou, is_super_admin) {
     var base_user_url = "<%= user_path('user-placeholder') %>";
     var show_user_url = base_user_url.replace("user-placeholder", uid);
     var html = `<li class="li-user-${uid}"> <a href="${show_user_url}">${uid}</a>`;
     if (isYou == true) {
       html += ` (you)`;
     }
-    if (isSuperAdmin == true) {
+    if (is_super_admin == true) {
       html += ` <i title="This is a system administrator, access cannot be changed." class="bi bi-person-workspace"></i>`;
     }
     if (canDelete == true) {
@@ -140,8 +140,8 @@ $(function() {
         $(elError).text("");
         var canDelete = true;
         var isYou = false;
-        var isSuperAdmin = false;
-        addUserHtml(elList, uid, collectionId, role, canDelete, isYou, isSuperAdmin);
+        var is_super_admin = false;
+        addUserHtml(elList, uid, collectionId, role, canDelete, isYou, is_super_admin);
       },
       error: function(x) {
         $(elError).text(x.responseJSON.message);
@@ -173,8 +173,8 @@ $(function() {
       var collectionId = $(el).data("collectionId");
       var canDelete = $(el).data("canDelete");
       var isYou = $(el).data("you") == true;
-      var isSuperAdmin = false;
-      addUserHtml(elList, uid, collectionId, "submit", canDelete, isYou, isSuperAdmin);
+      var is_super_admin = false;
+      addUserHtml(elList, uid, collectionId, "submit", canDelete, isYou, is_super_admin);
     });
 
     // Displays the initial list of curators.

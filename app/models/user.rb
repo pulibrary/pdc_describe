@@ -3,10 +3,12 @@ require "csv"
 
 # rubocop:disable Metrics/ClassLength
 class User < ApplicationRecord
+  rolify
   extend FriendlyId
   friendly_id :uid
 
   devise :rememberable, :omniauthable
+  after_create :assign_default_role
 
   validate do |user|
     user.orcid&.strip!
@@ -54,11 +56,14 @@ class User < ApplicationRecord
   end
 
   # Creates a new user by uid. If the user already exists it returns the existing user.
-  def self.new_for_uid(uid)
+  def self.new_for_uid(uid, roles: [:submitter])
     user = User.find_by(uid: uid)
     if user.nil?
       user = User.new(uid: uid, email: "#{uid}@princeton.edu")
       user.save!
+    end
+    roles.each do |role|
+      user.add_role(role) unless user.has_role?(role)
     end
     user
   end
@@ -94,14 +99,13 @@ class User < ApplicationRecord
     users
   end
 
-  # Creates the default users as indicated in the superadmin config file
+  # Creates the default users as indicated in the super_admin config file
   # and the default administrators and submitters for each collection.
   # It only creates missing records, i.e. if the records already exist it
   # will not create a duplicate. It also does _not_ remove already configured
   # access to other collections.
   def self.create_default_users
-    Rails.logger.info "Setting super administrators"
-    Rails.configuration.superadmins.each { |uid| User.new_for_uid(uid) }
+    update_super_admins
 
     Collection.find_each do |collection|
       Rails.logger.info "Setting up admins for collection #{collection.title}"
@@ -118,6 +122,11 @@ class User < ApplicationRecord
     end
   end
 
+  def self.update_super_admins
+    Rails.logger.info "Setting super administrators"
+    Rails.configuration.super_admins.each { |uid| User.new_for_uid(uid, roles: [:super_admin]) }
+  end
+
   # Returns a string with the UID (netid) for all the users.
   # We use this string to power the JavaScript @mention functionality when adding comments to works.
   def self.all_uids_string
@@ -125,11 +134,11 @@ class User < ApplicationRecord
   end
 
   ##
-  # Is this user a superadmin? Superadmins automatically get admin status in every
+  # Is this user a super_admin? super_admins automatically get admin status in every
   # collection, and they can make new collections.
   # @return [Boolean]
-  def superadmin?
-    Rails.configuration.superadmins.include? uid
+  def super_admin?
+    has_role? :super_admin
   rescue
     false
   end
@@ -157,7 +166,7 @@ class User < ApplicationRecord
   # Adds the user to the collections that they should have access by default
   def setup_user_default_collections
     # No need to add records for super admins.
-    return if superadmin?
+    return if super_admin?
 
     # Nothing to do in this case (this should never happen, but it did once so...)
     return if default_collection_id.nil?
@@ -170,19 +179,19 @@ class User < ApplicationRecord
 
   # True if the user can submit datasets to the collection
   def can_submit?(collection_id)
-    return true if superadmin?
+    return true if super_admin?
     UserCollection.can_submit?(id, collection_id)
   end
 
   # Returns true if the user can admin the collection
   def can_admin?(collection_id)
-    return true if superadmin?
+    return true if super_admin?
     UserCollection.can_admin?(id, collection_id)
   end
 
   # Returns the list of collections where the user can submit datasets
   def submitter_collections
-    @submitter_collections = if superadmin?
+    @submitter_collections = if super_admin?
                                Collection.all.to_a
                              else
                                UserCollection.where(user_id: id).filter(&:can_submit?).map(&:collection)
@@ -191,7 +200,7 @@ class User < ApplicationRecord
 
   # Returns the list of collections where the user is an administrator
   def admin_collections
-    @admin_collections ||= if superadmin?
+    @admin_collections ||= if super_admin?
                              Collection.all.to_a
                            else
                              UserCollection.where(user_id: id).filter(&:can_admin?).map(&:collection)
@@ -200,6 +209,10 @@ class User < ApplicationRecord
 
   def pending_notifications_count
     WorkActivityNotification.where(user_id: id, read_at: nil).count
+  end
+
+  def assign_default_role
+    add_role(:submitter) if roles.blank?
   end
 end
 # rubocop:enable Metrics/ClassLength

@@ -5,6 +5,11 @@ namespace :users do
     User.create_default_users
   end
 
+  desc "Updates users to make sure the super_admin role is set"
+  task update_super_admins: :environment do
+    User.update_super_admins
+  end
+
   desc "Deletes existing user data and recreates the defaults."
   task reset_default: :environment do
     UserCollection.delete_all

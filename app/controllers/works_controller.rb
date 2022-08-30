@@ -47,9 +47,11 @@ class WorksController < ApplicationController
 
   def edit
     @work = Work.find(params[:id])
+    @uploads = @work.uploads
     @wizard_mode = params[:wizard] == "true"
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity
   def update
     @work = Work.find(params[:id])
     @wizard_mode = params[:wizard] == "true"
@@ -68,6 +70,18 @@ class WorksController < ApplicationController
                                          replaced = replaced_uploads_params[key]
                                          updated_uploads << replaced
                                        else
+                                         updated_uploads << existing.blob
+                                       end
+                                     end
+
+                                     updated_uploads
+                                   elsif work_params.key?(:deleted_uploads)
+                                     persisted_pre_curation_uploads = @work.pre_curation_uploads
+                                     deleted_uploads_params = work_params[:deleted_uploads]
+                                     updated_uploads = []
+
+                                     persisted_pre_curation_uploads.each_with_index do |existing, _i|
+                                       unless deleted_uploads_params.key?(existing.key) && deleted_uploads_params[existing.key] == "1"
                                          updated_uploads << existing.blob
                                        end
                                      end
@@ -93,6 +107,7 @@ class WorksController < ApplicationController
       render :edit, status: :unprocessable_entity
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   # Prompt to select how to submit their files
   def attachment_select
@@ -128,7 +143,13 @@ class WorksController < ApplicationController
       @work.pre_curation_uploads.attach(pre_curation_uploads_param)
       @work.save!
     end
+
     redirect_to(work_review_path)
+  rescue StandardError => active_storage_error
+    Rails.logger.error("Failed to attach the file uploads for the work #{@work.doi}: #{active_storage_error}")
+    flash[:notice] = "Failed to attach the file uploads for the work #{@work.doi}: #{active_storage_error}. Please contact rdss@princeton.edu for assistance."
+
+    redirect_to work_file_upload_path(@work)
   end
 
   # Allow user to indicate where their files are located in the PUL Research Cluster
