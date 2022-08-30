@@ -5,7 +5,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:user) { FactoryBot.create :user }
   let(:collection) { Collection.research_data }
   let(:user_other) { FactoryBot.create :user }
-  let(:superadmin_user) { User.from_cas(OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" })) }
+  let(:super_admin_user) { FactoryBot.create :super_admin_user }
   let(:work) { FactoryBot.create(:draft_work) }
   let(:work2) { FactoryBot.create(:draft_work) }
 
@@ -225,8 +225,8 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       expect(described_class.unfinished_works(curator_user).length).to eq(3)
     end
 
-    it "for superadmins retrieves for all collections" do
-      expect(described_class.unfinished_works(superadmin_user).length).to eq(4)
+    it "for super_admins retrieves for all collections" do
+      expect(described_class.unfinished_works(super_admin_user).length).to eq(4)
     end
   end
 

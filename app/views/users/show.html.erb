@@ -27,7 +27,7 @@
 
 <h2>
   <%= @my_dashboard ? "Welcome " : "" %><%= @user.display_name_safe %>
-  <% if @user.superadmin? %>
+  <% if @user.super_admin? %>
     <span class="badge rounded-pill bg-primary text-bg-secondary">Administrator</span>
   <% elsif @user.curator? %>
     <span class="badge rounded-pill bg-primary text-bg-secondary">Curator</span>
@@ -42,7 +42,7 @@
   <p class="orcid-label">You do not have an  ORCID iD on file. <%= link_to("Add one", edit_user_path(@user)) %> to your profile.</p>
 <% end %>
 
-<% if @user.superadmin? %>
+<% if @user.super_admin? %>
   <!-- not sure we want to display the collections here, it's pointless -->
 <% elsif @user.curator? %>
   <p>Curator for: <%= @user.admin_collections.map(&:title).to_sentence %></p>

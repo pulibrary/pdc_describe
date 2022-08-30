@@ -6,7 +6,7 @@ RSpec.describe CollectionsController do
     Collection.create_defaults
   end
 
-  let(:admin_user) { User.new_for_uid("fake1") }
+  let(:admin_user) { FactoryBot.create :super_admin_user }
   let(:user_no_edit) { User.new_for_uid("user2") }
   let(:collection) { Collection.where(code: "RD").first }
 
