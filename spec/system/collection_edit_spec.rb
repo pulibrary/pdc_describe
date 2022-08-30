@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe "Editing collections" do
   before { Collection.create_defaults }
 
-  let(:user) { FactoryBot.create :user }
+  let(:user) { FactoryBot.create :princeton_submitter }
   let(:super_admin_user) { User.new_for_uid("fake1") }
   let(:collection) { Collection.first }
   let(:collection_other) { Collection.second }

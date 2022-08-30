@@ -6,7 +6,7 @@ RSpec.describe "Add an ORCiD" do
   before { sign_in user }
 
   describe "When the user does not have an ORCiD yet" do
-    let(:user) { FactoryBot.create :user }
+    let(:user) { FactoryBot.create :princeton_submitter }
     let(:orcid) { "1234-5678-1234-5678" }
 
     it "takes a user to their homepage after login", js: true do

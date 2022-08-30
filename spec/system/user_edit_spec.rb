@@ -4,7 +4,7 @@ RSpec.describe "Editing users" do
   describe "Admin users can edit other users data" do
     before { sign_in user_admin }
 
-    let(:user) { FactoryBot.create :user }
+    let(:user) { FactoryBot.create :princeton_submitter }
     let(:user_admin) { FactoryBot.create :super_admin_user }
     let(:orcid) { "1234-5678-1234-5678" }
 
@@ -21,7 +21,7 @@ RSpec.describe "Editing users" do
   describe "Non-admin users cannot edit others people data" do
     before { sign_in user }
 
-    let(:user) { FactoryBot.create :user }
+    let(:user) { FactoryBot.create :princeton_submitter }
     let(:user_other) { FactoryBot.create :user }
     let(:orcid) { "1234-5678-1234-5678" }
 
