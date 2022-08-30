@@ -9,9 +9,9 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:work) { FactoryBot.create(:draft_work) }
   let(:work2) { FactoryBot.create(:draft_work) }
 
-  let(:lib_user) do
+  let(:rd_user) do
     user = FactoryBot.create :user
-    UserCollection.add_submitter(user.id, Collection.library_resources.id)
+    UserCollection.add_submitter(user.id, Collection.research_data.id)
     user
   end
 
@@ -24,7 +24,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:curator_user) do
     user = FactoryBot.create :user
     UserCollection.add_admin(user.id, Collection.research_data.id)
-    UserCollection.add_admin(user.id, Collection.library_resources.id)
     user
   end
 
@@ -209,16 +208,16 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       FactoryBot.create(:draft_work, created_by_user_id: user.id)
       FactoryBot.create(:draft_work, created_by_user_id: user.id)
       FactoryBot.create(:draft_work, created_by_user_id: pppl_user.id, collection_id: Collection.plasma_laboratory.id)
-      # Create the dataset for `lib_user`` and @mention `user`
-      ds = FactoryBot.create(:draft_work, created_by_user_id: lib_user.id)
-      WorkActivity.add_system_activity(ds.id, "Tagging @#{user.uid} in this dataset", lib_user.id)
+      # Create the dataset for `rd_user` and @mention `user`
+      ds = FactoryBot.create(:draft_work, created_by_user_id: rd_user.id)
+      WorkActivity.add_system_activity(ds.id, "Tagging @#{user.uid} in this dataset", rd_user.id)
     end
 
     it "for a typical user retrieves only the datasets created by the user or where the user is tagged" do
       user_datasets = described_class.unfinished_works(user)
       expect(user_datasets.count).to be 3
       expect(user_datasets.count { |ds| ds.created_by_user_id == user.id }).to be 2
-      expect(user_datasets.count { |ds| ds.created_by_user_id == lib_user.id }).to be 1
+      expect(user_datasets.count { |ds| ds.created_by_user_id == rd_user.id }).to be 1
     end
 
     it "for a curator retrieves dataset created in collections they can curate" do

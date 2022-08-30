@@ -89,7 +89,7 @@ RSpec.describe S3QueryService, mock_ezid_api: true do
   context "with persisted Works" do
     let(:user) do
       persisted = FactoryBot.create(:user)
-      UserCollection.add_admin(persisted.id, Collection.library_resources.id)
+      UserCollection.add_admin(persisted.id, Collection.research_data.id)
       persisted
     end
     let(:collection) { Collection.library_resources }

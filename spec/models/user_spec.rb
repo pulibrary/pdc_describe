@@ -140,14 +140,12 @@ RSpec.describe User, type: :model do
       described_class.create_default_users
       fake1 = described_class.find_by(uid: "fake1")
       expect(fake1).to be_super_admin
-      user1 = described_class.find_by(uid: "user1")
-      user2 = described_class.find_by(uid: "user2")
-      rd = Collection.where(code: "RD").first
-      lib = Collection.where(code: "LIB").first
-      expect(user1.can_admin?(rd.id)).to be true
-      expect(user1.can_admin?(lib.id)).to be false
-      expect(user2.can_submit?(rd.id)).to be true
-      expect(user2.can_admin?(rd.id)).to be false
+      admin_user = described_class.find_by(uid: "user1")
+      submitter_user = described_class.find_by(uid: "user2")
+      rd = Collection.research_data
+      expect(admin_user.can_admin?(rd.id)).to be true
+      expect(submitter_user.can_submit?(rd.id)).to be true
+      expect(submitter_user.can_admin?(rd.id)).to be false
     end
   end
 

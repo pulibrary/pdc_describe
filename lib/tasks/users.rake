@@ -35,4 +35,47 @@ namespace :users do
       end
     end
   end
+
+  desc "Removes collections that we don't use anymore"
+  task :collection_cleanup, [:fixit] => :environment do |_, args|
+    fixit = (args[:fixit] == "true")
+    if fixit
+      puts "=> Fixing data"
+    else
+      puts "=> Showing data only"
+    end
+
+    puts "-- Processing UserCollection records"
+    UserCollection.all.each do |uc|
+      next if uc.collection.code == "RD" || uc.collection.code == "PPPL"
+      puts "deleting collection #{uc.collection.code} from user #{uc.user.uid}"
+      uc.delete if fixit
+    end
+
+    puts "-- User records"
+    User.all.each do |user|
+      next if user.default_collection.code == "RD" || user.default_collection.code == "PPPL"
+      puts "fixing #{user.uid}, #{user.default_collection_id}, #{user.default_collection.code}"
+      user.default_collection_id = Collection.research_data.id
+      if fixit
+        user.save!
+        user.setup_user_default_collections
+      end
+    end
+
+    puts "-- Work records"
+    Work.all.each do |work|
+      next if work.collection.code == "RD" || work.collection.code == "PPPL"
+      puts "fixing work #{work.id}, #{work.collection_id}, #{work.collection.code}"
+      work.collection_id = Collection.research_data.id
+      work.save! if fixit
+    end
+
+    puts "-- Collection records"
+    Collection.all.each do |collection|
+      next if collection.code == "RD" || collection.code == "PPPL"
+      puts "deleting collection #{collection.id}, #{collection.title}"
+      collection.delete if fixit
+    end
+  end
 end
