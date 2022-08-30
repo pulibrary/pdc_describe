@@ -27,7 +27,7 @@ FactoryBot.define do
           "resource_type": "Dataset", "publisher": "Princeton University", "publication_year": "2020"
         }.to_json)
       end
-      created_by_user_id { FactoryBot.create(:user).id }
+      created_by_user_id { FactoryBot.create(:princeton_submitter).id }
     end
 
     factory :sowing_the_seeds_work do
