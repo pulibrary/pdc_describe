@@ -12,11 +12,14 @@ RSpec.describe "Authz for submitters", type: :system, js: true, mock_ezid_api: t
     let(:title3) { "Title Three" }
 
     before do
+      Collection.create_defaults
       stub_s3
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     end
 
-    it "one submitter should not be able to edit the work of another submitter" do
+    ##
+    # To be fixed by https://github.com/pulibrary/pdc_describe/issues/348
+    xit "should not be able to edit someone else's work" do
       sign_in submitter1
       visit user_path(submitter1)
       expect(page).to have_content submitter1.display_name
@@ -36,35 +39,28 @@ RSpec.describe "Authz for submitters", type: :system, js: true, mock_ezid_api: t
       click_on "Complete"
 
       expect(page).to have_content "awaiting_approval"
-byebug
       work = Work.last
 
       # Submitter can edit their own work
       visit edit_work_path(work)
       fill_in "title_main", with: title2
       click_on "Save Work"
-byebug
       sign_out submitter1
       sign_in submitter2
 
       visit edit_work_path(work)
-byebug
       fill_in "title_main", with: title3
       click_on "Save Work"
-
-byebug
     end
-    
-    it "a submitter should not be able to edit a collection to add curators and submitters" do
+
+    it "should not be able to edit a collection to add curators and submitters" do
       sign_in submitter1
-      visit "/collections/1"
+      visit collection_path(submitter1.default_collection)
       expect(page).not_to have_content "Add Submitter"
       expect(page).not_to have_content "Add Curator"
-byebug
-      visit "/collections/1/edit"
+      visit edit_collection_path(submitter1.default_collection)
       expect(page).not_to have_content "Update Collection"
       expect(current_path).to eq "/collections"
-      byebug
     end
   end
 end

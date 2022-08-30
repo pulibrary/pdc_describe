@@ -25,10 +25,4 @@ FactoryBot.define do
     sequence(:email) { "fake1@princeton.edu" }
     provider { :cas }
   end
-
-  # After a user is created, their ID is added to the collections where they can deposit
-  after(:create) do |user|
-    user.setup_user_default_collections
-  end
-  
 end
