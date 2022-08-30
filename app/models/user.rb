@@ -24,7 +24,6 @@ class User < ApplicationRecord
     elsif user.provider.blank?
       user.update_with_cas(access_token)
     end
-    user.setup_user_default_collections
     user
   end
 
@@ -56,7 +55,7 @@ class User < ApplicationRecord
   end
 
   # Creates a new user by uid. If the user already exists it returns the existing user.
-  def self.new_for_uid(uid, roles: [:submitter])
+  def self.new_for_uid(uid, roles: [])
     user = User.find_by(uid: uid)
     if user.nil?
       user = User.new(uid: uid, email: "#{uid}@princeton.edu")
@@ -111,13 +110,13 @@ class User < ApplicationRecord
       Rails.logger.info "Setting up admins for collection #{collection.title}"
       collection.default_admins_list.each do |uid|
         user = User.new_for_uid(uid)
-        UserCollection.add_admin(user.id, collection.id)
+        user.add_role :collection_admin, collection
       end
 
       Rails.logger.info "Setting up submitters for collection #{collection.title}"
       collection.default_submitters_list.each do |uid|
         user = User.new_for_uid(uid)
-        UserCollection.add_submitter(user.id, collection.id)
+        user.add_role :submitter, collection
       end
     end
   end
@@ -163,30 +162,16 @@ class User < ApplicationRecord
     end
   end
 
-  # Adds the user to the collections that they should have access by default
-  def setup_user_default_collections
-    # No need to add records for super admins.
-    return if super_admin?
-
-    # Nothing to do in this case (this should never happen, but it did once so...)
-    return if default_collection_id.nil?
-
-    # Makes sure the user has submit access to their default collection
-    if UserCollection.can_submit?(id, default_collection_id) == false
-      UserCollection.add_submitter(id, default_collection_id)
-    end
-  end
-
   # True if the user can submit datasets to the collection
-  def can_submit?(collection_id)
+  def can_submit?(collection)
     return true if super_admin?
-    UserCollection.can_submit?(id, collection_id)
+    has_role?(:submitter, collection)
   end
 
   # Returns true if the user can admin the collection
-  def can_admin?(collection_id)
+  def can_admin?(collection)
     return true if super_admin?
-    UserCollection.can_admin?(id, collection_id)
+    has_role? :collection_admin, collection
   end
 
   # Returns the list of collections where the user can submit datasets
@@ -194,7 +179,7 @@ class User < ApplicationRecord
     @submitter_collections = if super_admin?
                                Collection.all.to_a
                              else
-                               UserCollection.where(user_id: id).filter(&:can_submit?).map(&:collection)
+                               Collection.with_role(:submitter, self)
                              end
   end
 
@@ -203,7 +188,7 @@ class User < ApplicationRecord
     @admin_collections ||= if super_admin?
                              Collection.all.to_a
                            else
-                             UserCollection.where(user_id: id).filter(&:can_admin?).map(&:collection)
+                             Collection.with_role(:collection_admin, self)
                            end
   end
 
@@ -212,7 +197,7 @@ class User < ApplicationRecord
   end
 
   def assign_default_role
-    add_role(:submitter) if roles.blank?
+    add_role(:submitter, default_collection) if roles.blank?
   end
 end
 # rubocop:enable Metrics/ClassLength

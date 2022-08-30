@@ -9,22 +9,12 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   let(:work) { FactoryBot.create(:draft_work) }
   let(:work2) { FactoryBot.create(:draft_work) }
 
-  let(:rd_user) do
-    user = FactoryBot.create :user
-    UserCollection.add_submitter(user.id, Collection.research_data.id)
-    user
-  end
+  let(:rd_user) { FactoryBot.create :princeton_submitter }
 
-  let(:pppl_user) do
-    user = FactoryBot.create :user
-    UserCollection.add_submitter(user.id, Collection.plasma_laboratory.id)
-    user
-  end
+  let(:pppl_user) { FactoryBot.create :pppl_submitter }
 
   let(:curator_user) do
-    user = FactoryBot.create :user
-    UserCollection.add_admin(user.id, Collection.research_data.id)
-    user
+    FactoryBot.create :user, collections_to_admin: [Collection.research_data]
   end
 
   # Please see spec/support/ezid_specs.rb

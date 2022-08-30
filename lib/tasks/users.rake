@@ -12,6 +12,7 @@ namespace :users do
 
   desc "Deletes existing user data and recreates the defaults."
   task reset_default: :environment do
+    Role.delete_all
     UserCollection.delete_all
     User.delete_all
     User.create_default_users
@@ -76,6 +77,14 @@ namespace :users do
       next if collection.code == "RD" || collection.code == "PPPL"
       puts "deleting collection #{collection.id}, #{collection.title}"
       collection.delete if fixit
+    end
+  end
+
+  desc "Migrate all UserCollection models to Rolify Roles"
+  task migrate_to_rolify: :environment do
+    UserCollection.all.each do |user_collection|
+      user_collection.migrate
+      user_collection.destroy!
     end
   end
 end

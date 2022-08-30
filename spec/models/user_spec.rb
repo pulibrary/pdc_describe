@@ -143,9 +143,9 @@ RSpec.describe User, type: :model do
       admin_user = described_class.find_by(uid: "user1")
       submitter_user = described_class.find_by(uid: "user2")
       rd = Collection.research_data
-      expect(admin_user.can_admin?(rd.id)).to be true
-      expect(submitter_user.can_submit?(rd.id)).to be true
-      expect(submitter_user.can_admin?(rd.id)).to be false
+      expect(admin_user.can_admin?(rd)).to be true
+      expect(submitter_user.can_submit?(rd)).to be true
+      expect(submitter_user.can_admin?(rd)).to be false
     end
   end
 
@@ -175,24 +175,17 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe "#setup_user_default_collections" do
-    it "does not add records for super admins" do
-      super_admin_user.setup_user_default_collections
-      expect(UserCollection.where(user_id: super_admin_user.id).count).to be 0
+  describe "default collection is set on ititalize" do
+    it "super admins can access any collection" do
+      expect(super_admin_user.submitter_collections.count).to be Collection.count
     end
 
     it "gives a user submit access to their default collection" do
-      user = described_class.from_cas(normal_user)
-      user.setup_user_default_collections
-      expect(UserCollection.where(user_id: user.id, collection_id: user.default_collection_id).count).to be 1
+      expect(normal_user.submitter_collections).to eq [rd_collection]
     end
 
-    it "handles nil values in the default collection" do
-      user = described_class.from_cas(normal_user)
-      user.default_collection_id = nil
-      user.save!
-      user.setup_user_default_collections
-      expect(UserCollection.where(user_id: user.id, collection_id: user.default_collection_id).count).to be 0
+    it "gives a pppl user submit access to their default collection" do
+      expect(pppl_user.submitter_collections).to eq [pppl_collection]
     end
   end
 

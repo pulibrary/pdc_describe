@@ -40,36 +40,26 @@ class CollectionsController < ApplicationController
   # This is a JSON only endpoint
   def add_admin
     @collection = Collection.find(params[:id])
-    if can_edit?
-      uid = params[:uid]
-      collection_id = params[:id]
-      user = User.new_for_uid(uid)
-      if user.can_admin?(collection_id)
-        render status: :bad_request, json: { message: "User has already been added" }
-      else
-        UserCollection.add_admin(user.id, collection_id)
-        render status: :ok, json: { message: "OK" }
-      end
-    else
+    @collection.add_administrator(current_user, User.new_for_uid(params[:uid]))
+    if @collection.errors.count > 0 && @collection.errors.first.message == "Unauthorized"
       render status: :unauthorized, json: { message: "Unauthorized" }
+    elsif @collection.errors.count > 0
+      render status: :bad_request, json: { message: @collection.errors.first.message }
+    else
+      render status: :ok, json: { message: "OK" }
     end
   end
 
   # This is a JSON only endpoint
   def add_submitter
     @collection = Collection.find(params[:id])
-    if can_edit?
-      uid = params[:uid]
-      collection_id = params[:id]
-      user = User.new_for_uid(uid)
-      if user.can_submit?(collection_id)
-        render status: :bad_request, json: { message: "User has already been added" }
-      else
-        UserCollection.add_submitter(user.id, collection_id)
-        render status: :ok, json: { message: "OK" }
-      end
-    else
+    @collection.add_submitter(current_user, User.new_for_uid(params[:uid]))
+    if @collection.errors.count > 0 && @collection.errors.first.message == "Unauthorized"
       render status: :unauthorized, json: { message: "Unauthorized" }
+    elsif @collection.errors.count > 0
+      render status: :bad_request, json: { message: @collection.errors.first.message }
+    else
+      render status: :ok, json: { message: "OK" }
     end
   end
 
@@ -77,22 +67,13 @@ class CollectionsController < ApplicationController
   # rubocop:disable Metrics/MethodLength
   def delete_user_from_collection
     @collection = Collection.find(params[:id])
-    if can_edit?
-      uid = params[:uid]
-      if uid == current_user.uid
-        render status: :bad_request, json: { message: "Cannot remove yourself from a collection. Contact a super-admin for help." }
-      else
-        collection_id = params[:id]
-        user = User.where(uid: uid).first
-        if user.nil?
-          render status: :bad_request, json: { message: "User was not found" }
-        else
-          UserCollection.where(user_id: user.id, collection_id: collection_id).each(&:delete)
-          render status: :ok, json: { message: "OK" }
-        end
-      end
-    else
+    @collection.delete_permission(current_user, User.find_by(uid: params[:uid]))
+    if @collection.errors.count > 0 && @collection.errors.first.message == "Unauthorized"
       render status: :unauthorized, json: { message: "Unauthorized" }
+    elsif @collection.errors.count > 0
+      render status: :bad_request, json: { message: @collection.errors.first.message }
+    else
+      render status: :ok, json: { message: "OK" }
     end
   end
   # rubocop:enable Metrics/MethodLength
@@ -105,6 +86,6 @@ class CollectionsController < ApplicationController
     end
 
     def can_edit?
-      current_user.can_admin?(@collection.id)
+      current_user.can_admin? @collection
     end
 end

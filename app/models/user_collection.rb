@@ -20,6 +20,15 @@ class UserCollection < ApplicationRecord
     end
   end
 
+  def migrate
+    rolify_role = if role == "ADMIN"
+                    :collection_admin
+                  else
+                    :submitter
+                  end
+    user.add_role rolify_role, collection
+  end
+
   def can_submit?
     role.in?(["SUBMITTER", "ADMIN"])
   end
@@ -32,11 +41,5 @@ class UserCollection < ApplicationRecord
     user_collection = UserCollection.where(user_id: user_id, collection_id: collection_id).first
     return false if user_collection.nil?
     user_collection.can_submit?
-  end
-
-  def self.can_admin?(user_id, collection_id)
-    user_collection = UserCollection.where(user_id: user_id, collection_id: collection_id).first
-    return false if user_collection.nil?
-    user_collection.role == "ADMIN"
   end
 end

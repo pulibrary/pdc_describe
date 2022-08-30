@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Collection < ApplicationRecord
+  resourcify
+
   validate do |collection|
     if collection.title.blank?
       collection.errors.add :base, "Title cannot be empty"
@@ -19,15 +21,57 @@ class Collection < ApplicationRecord
   end
 
   def administrators
-    UserCollection.where(collection_id: id, role: "ADMIN").map(&:user)
+    User.with_role(:collection_admin, self)
   end
 
   def super_administrators
     User.with_role(:super_admin)
   end
 
+  def add_administrator(current_user, admin_user)
+    if current_user.has_role?(:super_admin) || current_user.has_role?(:collection_admin, self)
+      if admin_user.has_role? :collection_admin, self
+        errors.add(:admin, "User has already been added")
+      else
+        errors.delete(:admin)
+        admin_user.add_role :collection_admin, self
+      end
+    else
+      errors.add(:admin, "Unauthorized")
+    end
+  end
+
+  def add_submitter(current_user, additional_user)
+    if current_user.has_role?(:super_admin) || current_user.has_role?(:collection_admin, self)
+      if additional_user.has_role? :submitter, self
+        errors.add(:submitter, "User has already been added")
+      else
+        errors.delete(:submitter)
+        additional_user.add_role :submitter, self
+      end
+    else
+      errors.add(:submitter, "Unauthorized")
+    end
+  end
+
+  def delete_permission(current_user, removed_user)
+    if current_user.has_role?(:super_admin) || current_user.has_role?(:collection_admin, self)
+      if removed_user.nil?
+        errors.add(:delete_permission, "User was not found")
+      elsif removed_user == current_user
+        errors.add(:delete_permission, "Cannot remove yourself from a collection. Contact a super-admin for help.")
+      else
+        errors.delete(:delete_permission)
+        removed_user.remove_role :collection_admin, self
+        removed_user.remove_role :submitter, self
+      end
+    else
+      errors.add(:delete_permission, "Unauthorized")
+    end
+  end
+
   def submitters
-    UserCollection.where(collection_id: id, role: "SUBMITTER").map(&:user)
+    User.with_role(:submitter, self)
   end
 
   def self.create_defaults
