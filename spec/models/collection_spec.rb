@@ -29,12 +29,28 @@ RSpec.describe Collection, type: :model do
 
   describe ".default_for_department" do
     subject(:collection) { described_class.default_for_department(department_number) }
-    let(:department_number) { "30000" }
 
     context "when the department number is less than 31000" do
+      let(:department_number) { "30000" }
       it "provides the default collection" do
         expect(collection).to be_a(Collection)
         expect(collection.code).to eq("RD")
+      end
+    end
+
+    context "when the department number is unexpected" do
+      let(:department_number) { "foobar" }
+      it "provides the default collection" do
+        expect(collection).to be_a(Collection)
+        expect(collection.code).to eq("RD")
+      end
+    end
+
+    context "when the department number is PPPL" do
+      let(:department_number) { "31000" }
+      it "provides the default collection" do
+        expect(collection).to be_a(Collection)
+        expect(collection.code).to eq("PPPL")
       end
     end
   end
