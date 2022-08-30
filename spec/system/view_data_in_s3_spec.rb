@@ -8,7 +8,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
   end
 
   describe "when a dataset has a DOI and its data is in S3" do
-    let(:user) { FactoryBot.create :user }
+    let(:user) { FactoryBot.create :princeton_submitter }
     let(:work) { FactoryBot.create :shakespeare_and_company_work }
     let(:s3_query_service_double) { instance_double(S3QueryService) }
     let(:file1) do

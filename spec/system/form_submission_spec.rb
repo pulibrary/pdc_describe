@@ -6,10 +6,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
   # because we need to make sure the user also has a list of collections where they can
   # submit works (UserCollection table) and the FactoryBot stub does not account for
   # that where as creating a user via `User.from_cas()` does.
-  let(:user) do
-    hash = OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu", departmentnumber: "31000" })
-    User.from_cas(hash)
-  end
+  let(:user) { FactoryBot.create(:princeton_submitter) }
   let(:title) { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
   let(:contributors) do
     [
