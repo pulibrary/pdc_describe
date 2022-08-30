@@ -5,7 +5,7 @@ describe "application accessibility", type: :system, js: true do
   before { sign_in user }
   before { Collection.create_defaults }
 
-  let(:user) { FactoryBot.create :user }
+  let(:user) { FactoryBot.create :princeton_submitter }
   let(:collection) { Collection.first }
 
   context "when browsing the homepage" do
