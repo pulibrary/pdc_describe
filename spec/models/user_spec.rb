@@ -7,7 +7,7 @@ RSpec.describe User, type: :model do
 
   let(:access_token) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu" }) }
   let(:access_token_pppl) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu", departmentnumber: "31000" }) }
-  let(:access_token_superadmin) { OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" }) }
+  let(:access_token_super_admin) { OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" }) }
 
   let(:access_token_full_extras) do
     OmniAuth::AuthHash.new(provider: "cas", uid: "test123",
@@ -24,7 +24,7 @@ RSpec.describe User, type: :model do
 
   let(:normal_user) { described_class.from_cas(access_token) }
   let(:pppl_user) { described_class.from_cas(access_token_pppl) }
-  let(:superadmin_user) { described_class.from_cas(access_token_superadmin) }
+  let(:super_admin_user) { described_class.new_for_uid("fake1", roles: [:super_admin]) }
 
   let(:rd_collection) { Collection.where(code: "RD").first }
   let(:pppl_collection) { Collection.where(code: "PPPL").first }
@@ -72,26 +72,24 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe "#superadmin?" do
-    let(:superadmin_access_token) { OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" }) }
-    let(:superadmin) { described_class.from_cas(superadmin_access_token) }
+  describe "#super_admin?" do
     let(:normal_user) { described_class.from_cas(access_token) }
 
-    it "is true if the user is in the superadmin config" do
-      expect(superadmin.superadmin?).to eq true
+    it "is true if the user is in the super_admin config" do
+      expect(super_admin_user.super_admin?).to eq true
     end
 
-    it "is false if the user is not in the superadmin config" do
-      expect(normal_user.superadmin?).to eq false
+    it "is false if the user is not in the super_admin config" do
+      expect(normal_user.super_admin?).to eq false
     end
 
-    context "when an error is raised parsing the user IDs of superadmin users" do
+    context "when an error is raised parsing the user IDs of super_admin users" do
       before do
-        allow(Rails.configuration.superadmins).to receive(:include?).and_raise(StandardError)
+        allow(Rails.configuration.super_admins).to receive(:include?).and_raise(StandardError)
       end
 
       it "returns nil" do
-        expect(normal_user.superadmin?).to eq false
+        expect(normal_user.super_admin?).to eq false
       end
     end
   end
@@ -140,8 +138,10 @@ RSpec.describe User, type: :model do
     it "creates the default users/collection records" do
       # The data for these tests comes from `default_collections.yml`
       described_class.create_default_users
-      user1 = described_class.new_for_uid("user1")
-      user2 = described_class.new_for_uid("user2")
+      fake1 = described_class.find_by(uid: "fake1")
+      expect(fake1).to be_super_admin
+      user1 = described_class.find_by(uid: "user1")
+      user2 = described_class.find_by(uid: "user2")
       rd = Collection.where(code: "RD").first
       lib = Collection.where(code: "LIB").first
       expect(user1.can_admin?(rd.id)).to be true
@@ -152,12 +152,12 @@ RSpec.describe User, type: :model do
   end
 
   describe "collection access" do
-    it "gives full rights to superadmin users" do
-      expect(superadmin_user.can_admin?(pppl_collection.id)).to be true
-      expect(superadmin_user.can_submit?(pppl_collection.id)).to be true
-      expect(superadmin_user.can_admin?(rd_collection.id)).to be true
-      expect(superadmin_user.can_submit?(rd_collection.id)).to be true
-      expect(superadmin_user.submitter_collections.count).to eq Collection.count
+    it "gives full rights to super_admin users" do
+      expect(super_admin_user.can_admin?(pppl_collection.id)).to be true
+      expect(super_admin_user.can_submit?(pppl_collection.id)).to be true
+      expect(super_admin_user.can_admin?(rd_collection.id)).to be true
+      expect(super_admin_user.can_submit?(rd_collection.id)).to be true
+      expect(super_admin_user.submitter_collections.count).to eq Collection.count
     end
 
     it "gives access to research data collection to normal users" do
@@ -179,9 +179,8 @@ RSpec.describe User, type: :model do
 
   describe "#setup_user_default_collections" do
     it "does not add records for super admins" do
-      admin = described_class.from_cas(superadmin_user)
-      admin.setup_user_default_collections
-      expect(UserCollection.where(user_id: admin.id).count).to be 0
+      super_admin_user.setup_user_default_collections
+      expect(UserCollection.where(user_id: super_admin_user.id).count).to be 0
     end
 
     it "gives a user submit access to their default collection" do
@@ -229,6 +228,15 @@ RSpec.describe User, type: :model do
 
       user.orcid = ""
       expect(user.save).to be true
+    end
+  end
+
+  describe "#update_super_admins" do
+    it "updates a user to be a super_admin" do
+      user = User.create(uid: "fake1")
+      expect(user).not_to be_super_admin
+      User.update_super_admins
+      expect(user).to be_super_admin
     end
   end
 end

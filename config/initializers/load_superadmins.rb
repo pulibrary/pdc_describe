@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module PdcDescribe
   class Application < Rails::Application
-    config.superadmins = config_for(:superadmins)
+    config.super_admins = config_for(:super_admins)
   end
 end
