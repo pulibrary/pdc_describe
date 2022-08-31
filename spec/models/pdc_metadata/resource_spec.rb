@@ -14,6 +14,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     ds = described_class.new(doi: "10.5072/example-full", title: "hello world")
     ds.description = "this is an example description"
     ds.creators = [creator1, creator2]
+    ds.ark = "ark:/88435/dsp01hx11xj13h"
     ds
   end
 
