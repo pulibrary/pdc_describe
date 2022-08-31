@@ -16,12 +16,34 @@ FactoryBot.define do
       end
     end
 
+    ##
+    # A user who has submit rights on the PPPL Collection
+    factory :pppl_submitter do
+      default_collection_id { Collection.default_for_department("31000").id }
+    end
+
+    ##
+    # A user who has submit rights on the Research Data Collection
     factory :princeton_submitter do
       default_collection_id { Collection.default_for_department("12345").id }
     end
 
-    factory :pppl_submitter do
+    ##
+    # A user who has admin rights on the PPPL Collection
+    factory :pppl_moderator do
       default_collection_id { Collection.default_for_department("31000").id }
+      after :create do |user|
+        user.add_role :collection_admin, Collection.plasma_laboratory
+      end
+    end
+
+    ##
+    # A user who has admin rights on the Research Data Collection
+    factory :research_data_moderator do
+      default_collection_id { Collection.default_for_department("12345").id }
+      after :create do |user|
+        user.add_role :collection_admin, Collection.research_data
+      end
     end
   end
 
