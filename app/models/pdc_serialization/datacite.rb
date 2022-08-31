@@ -71,7 +71,8 @@ module PDCSerialization
         titles: titles_from_work_resource(resource.titles),
         publisher: ::Datacite::Mapping::Publisher.new(value: resource.publisher),
         publication_year: resource.publication_year,
-        resource_type: datacite_resource_type(resource.resource_type)
+        resource_type: datacite_resource_type(resource.resource_type),
+        related_identifiers: related_identifiers_from_work_resource(resource)
       )
       Datacite.new(mapping)
     end
@@ -155,6 +156,18 @@ module PDCSerialization
               ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::TRANSLATED_TITLE)
             end
           end.compact
+        end
+
+        def related_identifiers_from_work_resource(resource)
+          related_identifiers = []
+          if resource.ark.present?
+            related_identifiers << ::Datacite::Mapping::RelatedIdentifier.new(
+              relation_type: ::Datacite::Mapping::RelationType::IS_IDENTICAL_TO,
+              value: resource.ark,
+              identifier_type: ::Datacite::Mapping::RelatedIdentifierType::ARK
+            )
+          end
+          related_identifiers
         end
       end
   end

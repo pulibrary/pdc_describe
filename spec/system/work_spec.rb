@@ -46,6 +46,18 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
     expect(page.html.include?("By initiating this new submission, we have reserved a draft DOI for your use")).to be true
   end
 
+  it "Handles ARK URLs in the ARK field", js: true do
+    resource = FactoryBot.build(:resource, creators: [PDCMetadata::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")])
+    work = FactoryBot.create(:draft_work, resource: resource)
+    sign_in user
+    visit edit_work_path(work)
+    click_on "Additional Metadata"
+    fill_in "ark", with: "http://arks.princeton.edu/ark:/88435/dsp01hx11xj13h"
+    click_on "Save Work"
+    work = Work.find(work.id) # force to reload the work
+    expect(work.ark).to eq "ark:/88435/dsp01hx11xj13h"
+  end
+
   context "datacite record" do
     let(:work) { FactoryBot.create :draft_work }
 
