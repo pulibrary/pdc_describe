@@ -5,17 +5,10 @@ RSpec.describe "Editing collections" do
 
   let(:user) { FactoryBot.create :princeton_submitter }
   let(:super_admin_user) { FactoryBot.create :super_admin_user }
-  let(:collection) { Collection.first }
+  let(:collection) { FactoryBot.create :collection }
   let(:collection_other) { Collection.second }
 
-  # Notice that we manually create a user for this test because we need the
-  # related data in UserCollection to make them collection administrators
-  let(:collection_admin_user) do
-    hash = OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu", departmentnumber: "31000" })
-    user = User.from_cas(hash)
-    UserCollection.add_admin(user.id, collection.id)
-    user
-  end
+  let(:collection_admin_user) { FactoryBot.create :user, collections_to_admin: [collection] }
 
   it "allows super admin to edit collections", js: true do
     sign_in super_admin_user
@@ -43,6 +36,7 @@ RSpec.describe "Editing collections" do
     visit collection_path(collection)
     fill_in "submitter-uid-to-add", with: "submiter123"
     click_on "Add Submitter"
+    visit collection_path(collection)
     expect(page).to have_content "submiter123"
   end
 

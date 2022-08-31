@@ -30,7 +30,7 @@ class WorksController < ApplicationController
 
   def show
     @work = Work.find(params[:id])
-    @can_curate = current_user.can_admin?(@work.collection_id)
+    @can_curate = current_user.can_admin?(@work.collection)
     @work.mark_new_notifications_as_read(current_user.id)
     if @work.doi
       pre_curation_service = S3QueryService.new(@work, true)
