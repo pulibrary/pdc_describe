@@ -84,13 +84,18 @@ RSpec.describe CollectionsController do
   end
 
   describe "#add_submitter" do
+    let(:non_default_collection) { FactoryBot.create :collection }
     it "adds a submitter" do
       sign_in admin_user
+      # Detects that the user already has submitter rights to the default collection
       post :add_submitter, params: { id: collection.id, uid: "submit2" }
+      expect(response.status).to eq 400
+
+      post :add_submitter, params: { id: non_default_collection.id, uid: "submit2" }
       expect(response.status).to eq 200
 
       # Detects that it has already been added when called for the same user
-      post :add_submitter, params: { id: collection.id, uid: "submit2" }
+      post :add_submitter, params: { id: non_default_collection.id, uid: "submit2" }
       expect(response.status).to eq 400
     end
 
@@ -104,15 +109,17 @@ RSpec.describe CollectionsController do
   describe "#delete_user_from_collection" do
     it "removes a submitter" do
       user = User.new_for_uid("submit3")
-      UserCollection.add_submitter(user.id, collection.id)
+      user.add_role :submitter, collection
+      expect(user.reload.has_role?(:submitter, collection)).to be_truthy
       sign_in admin_user
       post :delete_user_from_collection, params: { id: collection.id, uid: "submit3" }
       expect(response.status).to eq 200
+      expect(user.reload.has_role?(:submitter, collection)).to be_falsey
     end
 
     it "removes an administrator" do
       user = User.new_for_uid("admin2")
-      UserCollection.add_admin(user.id, collection.id)
+      user.add_role :collection_admin, collection
       sign_in admin_user
       post :delete_user_from_collection, params: { id: collection.id, uid: "admin2" }
       expect(response.status).to eq 200
