@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_30_120250) do
+ActiveRecord::Schema.define(version: 2022_08_31_154828) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -50,16 +50,6 @@ ActiveRecord::Schema.define(version: 2022_08_30_120250) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["code"], name: "index_collections_on_code", unique: true
-  end
-
-  create_table "datasets", force: :cascade do |t|
-    t.string "title"
-    t.string "profile"
-    t.string "ark"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.integer "work_id"
-    t.string "doi"
   end
 
   create_table "roles", force: :cascade do |t|
@@ -151,7 +141,6 @@ ActiveRecord::Schema.define(version: 2022_08_30_120250) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "datasets", "works"
   add_foreign_key "user_collections", "collections"
   add_foreign_key "user_collections", "users"
   add_foreign_key "user_works", "users"
