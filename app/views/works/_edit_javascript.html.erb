@@ -272,6 +272,16 @@
       }
     });
 
+    // Drop the "http..."" portion of the URL if the user enters the full URL of a DataSpace ARK
+    // http://arks.princeton.edu/ark:/88435/dsp01hx11xj13h => ark:/88435/dsp01hx11xj13h
+    $("#ark").on("input", function(el) {
+      var prefix = "http://arks.princeton.edu/";
+      var ark = el.currentTarget.value.trim();
+      if (ark.startsWith(prefix)) {
+        el.currentTarget.value = ark.replace(prefix, "")
+      }
+    });
+
     // Allows the creators to be reordered via drag and drop.
     // The `cancel` property "prevents sorting if you start on elements matching the selector"
     // https://api.jqueryui.com/sortable/#method-cancel
