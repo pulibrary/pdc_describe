@@ -271,6 +271,9 @@ class WorksController < ApplicationController
         resource.creators << creator unless creator.nil?
       end
 
+      # byebug
+      # resource.rights = PDCMetadata::Rights.find(params["rights_identifier"])
+
       resource
     end
     # rubocop:enable Metrics/CyclomaticComplexity:

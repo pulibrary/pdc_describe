@@ -5,7 +5,7 @@ module PDCMetadata
   #
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type,
-      :description, :doi, :ark
+      :description, :doi, :ark, :rights
 
     def initialize(doi: nil, title: nil, resource_type: nil, creators: [], description: nil)
       @titles = []
@@ -17,6 +17,7 @@ module PDCMetadata
       @publication_year = Time.zone.today.year
       @ark = nil
       @doi = doi
+      @rights = nil
     end
 
     def identifier
@@ -60,7 +61,12 @@ module PDCMetadata
         resource.publisher = hash["publisher"]
         resource.publication_year = hash["publication_year"]
 
-        resource
+        # if hash["rights"]
+        #   byebug
+        #   resource.rights = PDCMetadata::Rights.find(hash["rights"]["identifier"])
+        #   byebug
+        #   puts "123"
+        # end
       end
 
       private
