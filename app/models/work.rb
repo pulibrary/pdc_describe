@@ -339,7 +339,7 @@ class Work < ApplicationRecord
 
   protected
 
-    # This must be protected, NOT private for AcrtiveRecord to work properly with this attribute.
+    # This must be protected, NOT private for ActiveRecord to work properly with this attribute.
     #   Protected will still keep others from setting the metatdata, but allows ActiveRecord the access it needs
     def metadata=(metadata)
       super

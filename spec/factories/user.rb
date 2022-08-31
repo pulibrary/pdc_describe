@@ -16,12 +16,38 @@ FactoryBot.define do
       end
     end
 
+    ##
+    # A user who has submit rights on the PPPL Collection
+    factory :pppl_submitter do
+      default_collection_id { Collection.default_for_department("31000").id }
+      # After a user is created, their ID is added to the collections where they can deposit
+      after(:create, &:setup_user_default_collections)
+    end
+
+    ##
+    # A user who has submit rights on the Research Data Collection
     factory :princeton_submitter do
       default_collection_id { Collection.default_for_department("12345").id }
     end
 
-    factory :pppl_submitter do
+    ##
+    # A user who has admin rights on the PPPL Collection
+    factory :pppl_curator do
       default_collection_id { Collection.default_for_department("31000").id }
+      after :create do |user|
+        user.setup_user_default_collections
+        UserCollection.add_admin(user.id, user.default_collection_id)
+      end
+    end
+
+    ##
+    # A user who has admin rights on the Research Data Collection
+    factory :princeton_curator do
+      default_collection_id { Collection.default_for_department("12345").id }
+      after :create do |user|
+        user.setup_user_default_collections
+        UserCollection.add_admin(user.id, user.default_collection_id)
+      end
     end
   end
 
