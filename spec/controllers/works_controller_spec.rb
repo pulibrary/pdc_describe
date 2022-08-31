@@ -547,7 +547,8 @@ RSpec.describe WorksController, mock_ezid_api: true do
         end
         let(:data) { [s3_file] }
 
-        it "adds the files to the work" do
+        # This would be unnecessary at the level of the Controller
+        xit "adds the files to the work" do
           allow(Work).to receive(:find).and_return(work)
           allow(work).to receive(:add_pre_curation_uploads)
           get :show, params: { id: work.id }

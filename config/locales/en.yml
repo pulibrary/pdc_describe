@@ -61,6 +61,7 @@ en:
         heading: "Curated File Uploads"
         filename: "Filename"
         created_at: "Time of Upload"
+        size: "Size"
         replace_upload: "Replace Upload"
         empty: "No files in S3"
         delete_upload: "Delete Upload"

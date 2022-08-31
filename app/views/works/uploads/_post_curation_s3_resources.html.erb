@@ -4,7 +4,7 @@
       <div class="files card-body">
         <h3 class="h3"><%= t('works.uploads.post_curation.s3_resources.heading') %></h3>
         <!-- Only render file download table if there are files in S3 -->
-        <% if @post_curation_s3_resources.empty? %>
+        <% if @work.post_curation_s3_resources.empty? %>
           <p><%= t('works.form.post_curation_uploads.empty') %></p>
         <% else %>
           <table id="files-table" class="table">
@@ -12,16 +12,16 @@
               <tr>
                 <th scope="col" nowrap="nowrap"><span><%= t('works.form.post_curation_uploads.filename') %></span></th>
                 <th scope="col"><span><%= t('works.form.post_curation_uploads.created_at') %></span></th>
-                <th scope="col"><span><%= t('works.form.post_curation_uploads.created_at') %></span></th>
+                <th scope="col"><span><%= t('works.form.post_curation_uploads.size') %></span></th>
               </tr>
             </thead>
             <tbody>
-              <% @post_curation_s3_resources.each_with_index do |file, ix| %>
+              <% @work.post_curation_s3_resources.each_with_index do |file, ix| %>
                 <tr class="files">
                   <td>
                     <span>
                       <i class="bi bi-file-arrow-down"></i>
-                      <a href="<%= file.filename %>" class="documents-file-link" target="_blank" title="<%= file.filename %>"><%= truncate(file.filename.to_s, length: 80) %></a>
+                      <a href="<%= file.filename %>" class="documents-file-link" target="_blank" title="<%= file.filename %>"><%= file.filename.to_s %></a>
                     </span>
                   </td>
                   <td>

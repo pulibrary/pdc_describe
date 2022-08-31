@@ -32,24 +32,6 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     @can_curate = current_user.can_admin?(@work.collection)
     @work.mark_new_notifications_as_read(current_user.id)
-
-    @pre_curation_s3_resources = []
-    @post_curation_s3_resources = []
-
-    if @work.doi
-      pre_curation_service = S3QueryService.new(@work, true)
-      data_profile = pre_curation_service.data_profile
-      data_profile[:objects].each do |s3_file|
-        @work.add_pre_curation_uploads(s3_file)
-      end
-      service = S3QueryService.new(@work, false)
-      data_profile = service.data_profile
-      if @work.approved?
-        @post_curation_s3_resources = data_profile[:objects]
-      else
-        @pre_curation_s3_resources = data_profile[:objects]
-      end
-    end
   end
 
   def edit

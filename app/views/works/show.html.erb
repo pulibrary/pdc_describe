@@ -112,25 +112,21 @@
   <% end %>
 </div>
 
-<section class="uploads">
-  <% if @work.approved? %>
-    <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
-    <% if @work.post_curation_uploads.present? %>
-      <%= render(partial: 'works/uploads/post_curation_attachments') %>
-    <% end %>
-    <% if @post_curation_s3_resources.present? %>
+<% if @work.approved? %>
+  <% if @work.post_curation_s3_resources.present? %>
+    <section class="uploads">
+      <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
       <%= render(partial: 'works/uploads/post_curation_s3_resources') %>
-    <% end %>
-  <% else %>
-    <h2 class="h2"><%= t('works.uploads.pre_curation.heading') %></h2>
-    <% if @work.pre_curation_uploads.present? %>
-      <%= render(partial: 'works/uploads/pre_curation_attachments') %>
-    <% end %>
-    <% if @pre_curation_s3_resources.present? %>
-      <%= render(partial: 'works/uploads/pre_curation_s3_resources') %>
-    <% end %>
+    </section>
   <% end %>
-</section>
+<% else %>
+  <% if @work.pre_curation_uploads.present? %>
+    <section class="uploads">
+      <h2 class="h2"><%= t('works.uploads.pre_curation.heading') %></h2>
+      <%= render(partial: 'works/uploads/pre_curation_attachments') %>
+    </section>
+  <% end %>
+<% end %>
 
 <div id="activity-history">
   <% if @work.work_activity.count > 0 %>

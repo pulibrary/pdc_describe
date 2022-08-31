@@ -7,9 +7,9 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
     sign_in user
   end
 
-  describe "when a dataset has a DOI and its data is in S3" do
+  describe "when a dataset has a DOI and its data is in S3", mock_s3_query_service: false do
     let(:user) { FactoryBot.create :princeton_submitter }
-    let(:work) { FactoryBot.create :shakespeare_and_company_work }
+    let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
     let(:s3_query_service_double) { instance_double(S3QueryService) }
     let(:file1) do
       S3File.new(
@@ -33,29 +33,27 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
       "https://example-bucket.s3.amazonaws.com/"
     end
 
-    before do
+    it "shows data from S3 on the Show and Edit pages", js: true do
       # Account for files in S3 added outside of ActiveStorage
       allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
       allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
-
       # Account for files uploaded to S3 via ActiveStorage
       stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+
       file = fixture_file_upload("us_covid_2019.csv", "text/csv")
       work.pre_curation_uploads.attach(file)
-    end
+      work.save
+      work.reload
+      work.state = "accepted"
+      work.save
 
-    it "shows data from S3 on the Show and Edit pages", js: true do
       visit work_path(work)
       expect(page).to have_content work.title
       expect(page).to have_content "us_covid_2019.csv"
 
       expect(page).to have_content file1.filename
-      expect(page).to have_content file1.last_modified
-      expect(page).to have_content "10.5 KB"
 
       expect(page).to have_content file2.filename
-      expect(page).to have_content file2.last_modified
-      expect(page).to have_content "12.4 KB"
 
       click_on "Edit"
       expect(page).to have_content "us_covid_2019.csv"
