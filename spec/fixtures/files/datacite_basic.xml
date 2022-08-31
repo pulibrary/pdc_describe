@@ -20,4 +20,7 @@
   <publisher>Princeton University</publisher>
   <resourceType resourceTypeGeneral='Dataset'/>
   <publicationYear>2022</publicationYear>
+  <relatedIdentifiers>
+    <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp01hx11xj13h</relatedIdentifier>
+  </relatedIdentifiers>
 </resource>
