@@ -603,4 +603,37 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       end
     end
   end
+
+  describe "#form_attributes" do
+    let(:uploaded_file) do
+      fixture_file_upload("us_covid_2019.csv", "text/csv")
+    end
+    let(:form_attributes) { work.form_attributes }
+
+    before do
+      stub_request(:put, /#{attachment_url}/).with(
+        body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
+      ).to_return(status: 200)
+
+      work.pre_curation_uploads.attach(uploaded_file)
+      work.save
+    end
+
+    it "generates JSON properties for each attribute" do
+      expect(form_attributes.length).to eq(1)
+      expect(form_attributes).to include(:uploads)
+      uploads_attributes = form_attributes[:uploads]
+      expect(uploads_attributes).not_to be_empty
+      upload_attributes = uploads_attributes.first
+
+      expect(upload_attributes).to include(id: work.pre_curation_uploads.first.id)
+      expect(upload_attributes).to include(key: "https://doi.org/10.34770/123-abc/#{work.id}/us_covid_2019.csv")
+      expect(upload_attributes).to include(filename: "us_covid_2019.csv")
+      expect(upload_attributes).to include(:created_at)
+      expect(upload_attributes[:created_at]).to be_a(ActiveSupport::TimeWithZone)
+      expect(upload_attributes).to include(:url)
+      expect(upload_attributes[:url]).to include("/rails/active_storage/blobs/redirect/")
+      expect(upload_attributes[:url]).to include("/us_covid_2019.csv?disposition=attachment")
+    end
+  end
 end
