@@ -41,7 +41,7 @@
 
 <div>
   <%= link_to("Edit", edit_work_path(@work), class: "btn btn-primary") %>
-  <% if @work.awaiting_approval? %>
+  <% if @work.awaiting_approval? && current_user.has_role?(:collection_admin, @work.collection) %>
     <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post) %>
   <% elsif @work.approved? %>
     <%= button_to("Withdraw Dataset", withdraw_work_path(@work), class: "btn btn-secondary", method: :post) %>
@@ -113,14 +113,23 @@
       <p>Curator: <%= User.find(@work.curator_user_id).display_name_safe %></p>
     <% end %>
   <% end %>
-
 </div>
 
-<% if @work.pre_curation_uploads.present? %>
-  <%= render(partial: 'works/uploads') %>
+<% if @work.approved? %>
+  <% if @work.post_curation_s3_resources.present? %>
+    <section class="uploads">
+      <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
+      <%= render(partial: 'works/uploads/post_curation_s3_resources') %>
+    </section>
+  <% end %>
+<% else %>
+  <% if @work.pre_curation_uploads.present? %>
+    <section class="uploads">
+      <h2 class="h2"><%= t('works.uploads.pre_curation.heading') %></h2>
+      <%= render(partial: 'works/uploads/pre_curation_attachments') %>
+    </section>
+  <% end %>
 <% end %>
-
-<%= render(partial: 'works/files') %>
 
 <div id="activity-history">
   <% if @work.work_activity.count > 0 %>

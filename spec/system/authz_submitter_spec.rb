@@ -62,5 +62,12 @@ RSpec.describe "Authz for submitters", type: :system, js: true, mock_ezid_api: t
       expect(page).not_to have_content "Update Collection"
       expect(current_path).to eq "/collections"
     end
+
+    it "should not be able to approve a work" do
+      work = FactoryBot.create :completed_work
+      sign_in submitter1
+      visit work_path(work)
+      expect(page).not_to have_button "Approve Dataset"
+    end
   end
 end
