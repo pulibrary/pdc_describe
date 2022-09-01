@@ -129,6 +129,12 @@ RSpec.describe CollectionsController do
       expect(response.status).to eq 400
     end
 
+    it "fails for an unknow user" do
+      sign_in admin_user
+      post :delete_user_from_collection, params: { id: collection.id, uid: "unknown" }
+      expect(response.status).to eq 400
+    end
+
     it "prevents user with no edit from removing users" do
       sign_in user_no_edit
       post :delete_user_from_collection, params: { id: collection.id, uid: "submit2" }

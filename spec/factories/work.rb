@@ -12,6 +12,16 @@ FactoryBot.define do
       resource { FactoryBot.build :resource, doi: doi }
     end
 
+    factory :completed_work do
+      transient do
+        doi { "https://doi.org/10.34770/123-abc" }
+      end
+      collection { Collection.research_data }
+      state { "awaiting_approval" }
+      created_by_user_id { FactoryBot.create(:user).id }
+      resource { FactoryBot.build :resource, doi: doi }
+    end
+
     factory :shakespeare_and_company_work do
       collection { Collection.research_data }
       resource do
