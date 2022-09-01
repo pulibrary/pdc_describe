@@ -351,15 +351,6 @@ class Work < ApplicationRecord
     pre_curation_uploads << persisted
   end
 
-  def add_post_curation_uploads(s3_file)
-    blob = s3_file_to_blob(s3_file)
-    persisted = ActiveStorage::Attachment.new(blob: blob, name: :post_curation_uploads)
-    persisted.record = self
-    persisted.save
-    persisted.reload
-    pre_curation_uploads << persisted
-  end
-
   def post_curation_s3_resources
     return [] unless accepted?
 
@@ -512,6 +503,12 @@ class Work < ApplicationRecord
     end
 
     def s3_file_to_blob(s3_file)
+      existing_blob = ActiveStorage::Blob.find_by(key: s3_file.filename)
+      if existing_blob.present?
+        Rails.logger.warn("There is a blob existing for #{s3_file.filename}, which we are not expecting!  It will be reattached #{existing_blob.inspect}")
+        return existing_blob
+      end
+
       params = { filename: s3_file.filename, content_type: "", byte_size: s3_file.size, checksum: s3_file.checksum }
       blob = ActiveStorage::Blob.create_before_direct_upload!(**params)
       blob.key = s3_file.filename
