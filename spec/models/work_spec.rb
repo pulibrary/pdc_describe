@@ -535,12 +535,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       expect(work.pre_curation_uploads.count).to eq(1)
       expect(work.pre_curation_uploads.first.key).to eq(key)
     end
-
-    it "adds an s3 attachment" do
-      work.add_post_curation_uploads(s3_file)
-      expect(work.post_curation_uploads.count).to eq(1)
-      expect(work.post_curation_uploads.first.key).to eq(key)
-    end
   end
 
   describe "#save", mock_s3_query_service: false do
@@ -577,7 +571,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
 
         work.complete_submission!(user)
-        work.save
         work.reload
       end
 
@@ -588,6 +581,25 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
         expect(work.pre_curation_uploads.first.key).to eq("SCoData_combined_v1_2020-07_README.txt")
         expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
         expect(work.pre_curation_uploads.last.key).to eq("SCoData_combined_v1_2020-07_datapackage.json")
+      end
+
+      context "a blob already exists for one of the files" do
+        let(:work) do
+          work = FactoryBot.create(:draft_work)
+          blob = work.send(:s3_file_to_blob, file1)
+          blob.save
+          work.save
+          work
+        end
+
+        it "finds the blob and attaches it as an ActiveStorage Attachments" do
+          expect(work.pre_curation_uploads).not_to be_empty
+          expect(work.pre_curation_uploads.length).to eq(2)
+          expect(work.pre_curation_uploads.first).to be_a(ActiveStorage::Attachment)
+          expect(work.pre_curation_uploads.first.key).to eq("SCoData_combined_v1_2020-07_README.txt")
+          expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
+          expect(work.pre_curation_uploads.last.key).to eq("SCoData_combined_v1_2020-07_datapackage.json")
+        end
       end
     end
   end
