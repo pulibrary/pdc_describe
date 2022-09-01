@@ -60,10 +60,8 @@ module PDCMetadata
         creators_from_json(resource, hash["creators"])
         resource.publisher = hash["publisher"]
         resource.publication_year = hash["publication_year"]
+        resource.rights = PDCMetadata::Rights.find(hash["rights"]["identifier"]) if hash["rights"]
 
-        if hash["rights"]
-          resource.rights = PDCMetadata::Rights.find(hash["rights"]["identifier"])
-        end
         resource
       end
 
