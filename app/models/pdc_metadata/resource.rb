@@ -61,12 +61,10 @@ module PDCMetadata
         resource.publisher = hash["publisher"]
         resource.publication_year = hash["publication_year"]
 
-        # if hash["rights"]
-        #   byebug
-        #   resource.rights = PDCMetadata::Rights.find(hash["rights"]["identifier"])
-        #   byebug
-        #   puts "123"
-        # end
+        if hash["rights"]
+          resource.rights = PDCMetadata::Rights.find(hash["rights"]["identifier"])
+        end
+        resource
       end
 
       private

@@ -172,7 +172,6 @@ class Work < ApplicationRecord
   end
 
   def title
-    return "xxx" if resource.nil?
     resource.main_title
   end
 

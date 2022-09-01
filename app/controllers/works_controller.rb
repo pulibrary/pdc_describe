@@ -250,6 +250,7 @@ class WorksController < ApplicationController
       resource.description = params["description"]
       resource.publisher = params["publisher"] if params["publisher"].present?
       resource.publication_year = params["publication_year"] if params["publication_year"].present?
+      resource.rights = PDCMetadata::Rights.find(params["rights_identifier"])
 
       # Process the titles
       resource.titles << PDCMetadata::Title.new(title: params["title_main"])
@@ -270,9 +271,6 @@ class WorksController < ApplicationController
         creator = new_creator(params["given_name_#{i}"], params["family_name_#{i}"], params["orcid_#{i}"], params["sequence_#{i}"])
         resource.creators << creator unless creator.nil?
       end
-
-      # byebug
-      # resource.rights = PDCMetadata::Rights.find(params["rights_identifier"])
 
       resource
     end

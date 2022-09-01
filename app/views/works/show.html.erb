@@ -80,6 +80,9 @@
 
   <p>Added by: <%= @work.created_by_user.uid %></p>
   <p>Collection: <%= @work.collection.title %></p>
+  <% if @work.resource.rights.present? %>
+    <p>Rights: <%= @work.resource.rights.name %> (<%= link_to(@work.resource.rights.identifier, @work.resource.rights.uri, {target: "_blank"}) %>)</p>
+  <% end %>
 
   <% if @work.pre_curation_uploads.present? %>
     <p>Location: Amazon S3 Curation Storage</p>
