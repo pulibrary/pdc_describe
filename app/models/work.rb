@@ -116,13 +116,20 @@ class Work < ApplicationRecord
   include Rails.application.routes.url_helpers
 
   before_save do |work|
+    if !work.changes.empty? && work.changes.key?(:state) && work.persisted?
+      # Update the uploads attachments using S3 Resources
+      work.attach_s3_resources
+    end
+
     # Ensure that the metadata JSON is persisted properly
     work.metadata = work.resource.to_json
 
-    # This must be within #before_save, otherwise the key generation will not be invoked
-    work.save_pre_curation_uploads
-    work.transfer_curated_uploads if work.approved?
-    work.save_post_curation_uploads
+    if work.approved?
+      work.transfer_curated_uploads
+      work.save_post_curation_uploads
+    else
+      work.save_pre_curation_uploads
+    end
   end
 
   validate do |work|
@@ -329,12 +336,26 @@ class Work < ApplicationRecord
 
   def add_pre_curation_uploads(s3_file)
     blob = s3_file_to_blob(s3_file)
-    pre_curation_uploads << ActiveStorage::Attachment.new(blob: blob, name: :pre_curation_uploads)
+    persisted = ActiveStorage::Attachment.new(blob: blob, name: :pre_curation_uploads)
+    persisted.record = self
+    persisted.save
+    persisted.reload
+    pre_curation_uploads << persisted
   end
 
   def add_post_curation_uploads(s3_file)
     blob = s3_file_to_blob(s3_file)
-    post_curation_uploads << ActiveStorage::Attachment.new(blob: blob, name: :post_curation_uploads)
+    persisted = ActiveStorage::Attachment.new(blob: blob, name: :post_curation_uploads)
+    persisted.record = self
+    persisted.save
+    persisted.reload
+    pre_curation_uploads << persisted
+  end
+
+  def post_curation_s3_resources
+    return [] unless accepted?
+
+    s3_resources
   end
 
   protected
@@ -344,6 +365,15 @@ class Work < ApplicationRecord
     def metadata=(metadata)
       super
       @resource = PDCMetadata::Resource.new_from_json(metadata)
+    end
+
+    def attach_s3_resources
+      unless approved?
+        # This retrieves and adds S3 uploads if they do not exist
+        s3_resources.each do |s3_file|
+          add_pre_curation_uploads(s3_file)
+        end
+      end
     end
 
   private
@@ -477,6 +507,19 @@ class Work < ApplicationRecord
       blob = ActiveStorage::Blob.create_before_direct_upload!(**params)
       blob.key = s3_file.filename
       blob
+    end
+
+    def s3_query_service
+      @s3_query_service ||= if approved?
+                              S3QueryService.new(self, true)
+                            else
+                              S3QueryService.new(self, false)
+                            end
+    end
+
+    def s3_resources
+      data_profile = s3_query_service.data_profile
+      data_profile.fetch(:objects, [])
     end
 end
 # rubocop:ensable Metrics/ClassLength

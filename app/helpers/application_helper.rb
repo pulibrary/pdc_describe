@@ -35,6 +35,7 @@ module ApplicationHelper
 
     value[0..79]
   end
+  alias post_curation_uploads_file_name pre_curation_uploads_file_name
 
   def ark_url(ark_value)
     return nil if ark_value.blank?
