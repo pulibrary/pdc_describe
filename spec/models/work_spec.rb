@@ -533,4 +533,53 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       expect(work.post_curation_uploads.first.key).to eq(key)
     end
   end
+
+  describe "#save", mock_s3_query_service: false do
+    context "when the Work is persisted and not yet in the approved state" do
+      let(:work) { FactoryBot.create(:draft_work) }
+
+      let(:s3_query_service_double) { instance_double(S3QueryService) }
+      let(:file1) do
+        S3File.new(
+          filename: "SCoData_combined_v1_2020-07_README.txt",
+          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+          size: 10_759,
+          checksum: "abc123"
+        )
+      end
+      let(:file2) do
+        S3File.new(
+          filename: "SCoData_combined_v1_2020-07_datapackage.json",
+          last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
+          size: 12_739,
+          checksum: "abc567"
+        )
+      end
+      let(:s3_data) { [file1, file2] }
+      let(:bucket_url) do
+        "https://example-bucket.s3.amazonaws.com/"
+      end
+
+      before do
+        # Account for files in S3 added outside of ActiveStorage
+        allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
+        allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
+        # Account for files uploaded to S3 via ActiveStorage
+        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+
+        work.complete_submission!(user)
+        work.save
+        work.reload
+      end
+
+      it "persists S3 Bucket resources as ActiveStorage Attachments" do
+        expect(work.pre_curation_uploads).not_to be_empty
+        expect(work.pre_curation_uploads.length).to eq(2)
+        expect(work.pre_curation_uploads.first).to be_a(ActiveStorage::Attachment)
+        expect(work.pre_curation_uploads.first.key).to eq("SCoData_combined_v1_2020-07_README.txt")
+        expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
+        expect(work.pre_curation_uploads.last.key).to eq("SCoData_combined_v1_2020-07_datapackage.json")
+      end
+    end
+  end
 end
