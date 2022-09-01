@@ -20,8 +20,6 @@ FactoryBot.define do
     # A user who has submit rights on the PPPL Collection
     factory :pppl_submitter do
       default_collection_id { Collection.default_for_department("31000").id }
-      # After a user is created, their ID is added to the collections where they can deposit
-      after(:create, &:setup_user_default_collections)
     end
 
     ##
