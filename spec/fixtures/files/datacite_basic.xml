@@ -23,4 +23,7 @@
   <relatedIdentifiers>
     <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp01hx11xj13h</relatedIdentifier>
   </relatedIdentifiers>
+  <rightsList>
+    <rights rightsURI='https://creativecommons.org/licenses/by/4.0/' rightsIdentifier='CC BY'>Creative Commons Attribution 4.0 International</rights>
+  </rightsList>
 </resource>

@@ -15,6 +15,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     ds.description = "this is an example description"
     ds.creators = [creator1, creator2]
     ds.ark = "ark:/88435/dsp01hx11xj13h"
+    ds.rights = PDCMetadata::Rights.find("CC BY")
     ds
   end
 

@@ -72,7 +72,8 @@ module PDCSerialization
         publisher: ::Datacite::Mapping::Publisher.new(value: resource.publisher),
         publication_year: resource.publication_year,
         resource_type: datacite_resource_type(resource.resource_type),
-        related_identifiers: related_identifiers_from_work_resource(resource)
+        related_identifiers: related_identifiers_from_work_resource(resource),
+        rights_list: rights_from_work_resource(resource)
       )
       Datacite.new(mapping)
     end
@@ -168,6 +169,18 @@ module PDCSerialization
             )
           end
           related_identifiers
+        end
+
+        def rights_from_work_resource(resource)
+          rights = []
+          if resource.rights.present?
+            rights << ::Datacite::Mapping::Rights.new(
+              value: resource.rights.name,
+              uri: resource.rights.uri,
+              identifier: resource.rights.identifier
+            )
+          end
+          rights
         end
       end
   end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_08_31_154828) do
+ActiveRecord::Schema.define(version: 2022_09_01_124949) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -60,14 +60,6 @@ ActiveRecord::Schema.define(version: 2022_08_31_154828) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id"
     t.index ["resource_type", "resource_id"], name: "index_roles_on_resource"
-  end
-
-  create_table "user_collections", force: :cascade do |t|
-    t.string "role"
-    t.integer "user_id"
-    t.integer "collection_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "user_works", force: :cascade do |t|
@@ -141,8 +133,6 @@ ActiveRecord::Schema.define(version: 2022_08_31_154828) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "user_collections", "collections"
-  add_foreign_key "user_collections", "users"
   add_foreign_key "user_works", "users"
   add_foreign_key "user_works", "works"
   add_foreign_key "users", "collections", column: "default_collection_id"

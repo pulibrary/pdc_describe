@@ -45,6 +45,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "family_name_1", with: "Abrams"
       click_on "Create New"
       fill_in "description", with: description
+      find("#rights_identifier").find(:xpath, "option[2]").select_option
       click_on "Additional Metadata"
       fill_in "publication_year", with: issue_date
       click_on "Save Work"
