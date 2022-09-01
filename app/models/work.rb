@@ -352,24 +352,10 @@ class Work < ApplicationRecord
     pre_curation_uploads << persisted
   end
 
-  def s3_resources
-    data_profile = s3_query_service.data_profile
-    data_profile.fetch(:objects, [])
-  end
-
   def post_curation_s3_resources
     return [] unless accepted?
 
     s3_resources
-  end
-
-  def attach_s3_resources
-    unless approved?
-      # This retrieves and adds S3 uploads if they do not exist
-      s3_resources.each do |s3_file|
-        add_pre_curation_uploads(s3_file)
-      end
-    end
   end
 
   protected
@@ -379,6 +365,15 @@ class Work < ApplicationRecord
     def metadata=(metadata)
       super
       @resource = PDCMetadata::Resource.new_from_json(metadata)
+    end
+
+    def attach_s3_resources
+      unless approved?
+        # This retrieves and adds S3 uploads if they do not exist
+        s3_resources.each do |s3_file|
+          add_pre_curation_uploads(s3_file)
+        end
+      end
     end
 
   private
@@ -520,6 +515,11 @@ class Work < ApplicationRecord
                             else
                               S3QueryService.new(self, false)
                             end
+    end
+
+    def s3_resources
+      data_profile = s3_query_service.data_profile
+      data_profile.fetch(:objects, [])
     end
 end
 # rubocop:ensable Metrics/ClassLength
