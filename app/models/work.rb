@@ -142,6 +142,24 @@ class Work < ApplicationRecord
     end
   end
 
+  # Overload ActiveRecord.reload method
+  # https://apidock.com/rails/ActiveRecord/Base/reload
+  #
+  # NOTE: Usually `after_save` is a better place to put this kind of code:
+  #
+  #   after_save do |work|
+  #     work.resource = nil
+  #   end
+  #
+  # but that does not work in this case because the block points to a different
+  # memory object for `work` than the we want we want to reload.
+  def reload(options = nil)
+    super
+    # Force `resource` to be reloaded
+    @resource = nil
+    self
+  end
+
   def save_pre_curation_uploads
     new_attachments = pre_curation_uploads.reject(&:persisted?)
     save_new_attachments(new_attachments: new_attachments)
