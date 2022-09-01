@@ -105,6 +105,7 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
   context "when editing an existing draft Work with uploaded files" do
     let(:work) { FactoryBot.create(:draft_work) }
     let(:user) { work.created_by_user }
+
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
