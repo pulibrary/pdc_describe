@@ -41,7 +41,7 @@
 
 <div>
   <%= link_to("Edit", edit_work_path(@work), class: "btn btn-primary") %>
-  <% if @work.awaiting_approval? %>
+  <% if @work.awaiting_approval? && current_user.has_role?(:collection_admin, @work.collection) %>
     <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post) %>
   <% elsif @work.approved? %>
     <%= button_to("Withdraw Dataset", withdraw_work_path(@work), class: "btn btn-secondary", method: :post) %>

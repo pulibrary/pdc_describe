@@ -9,7 +9,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
   let(:user) { FactoryBot.create(:user) }
-  let(:curator) { FactoryBot.create(:user) }
+  let(:curator) { FactoryBot.create(:user, collections_to_admin: [collection]) }
   let(:collection) { Collection.first }
   let(:resource) { FactoryBot.build :resource }
   let(:work) { FactoryBot.create(:draft_work) }
@@ -574,16 +574,16 @@ RSpec.describe WorksController, mock_ezid_api: true do
           post :completed, params: { id: work.id }
           expect(response.status).to be 422
           expect(work.reload).to be_draft
-          expect(assigns[:errors]).to eq(["Cannot Complete submission: Event 'complete_submission' cannot transition from 'draft'. Failed callback(s): [:valid_to_submit]."])
+          expect(assigns[:errors]).to eq(["Cannot Complete submission: Must provide a description"])
         end
       end
     end
 
     describe "#approve" do
       it "handles aprovals" do
-        sign_in user
         work.complete_submission!(user)
         stub_datacite_doi
+        sign_in curator
         post :approve, params: { id: work.id }
         expect(response.status).to be 302
         expect(response.location).to eq "http://test.host/works/#{work.id}"
@@ -592,7 +592,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
 
       context "invalid response from doi publish" do
         before do
-          sign_in user
+          sign_in curator
           work.complete_submission!(user)
           stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new)))
         end
@@ -609,11 +609,25 @@ RSpec.describe WorksController, mock_ezid_api: true do
 
       context "work not completed" do
         it "handles aproval errors" do
-          sign_in user
+          sign_in curator
           post :approve, params: { id: work.id }
           expect(response.status).to be 422
           expect(work.reload).to be_draft
           expect(assigns[:errors]).to eq(["Cannot Approve: Event 'approve' cannot transition from 'draft'."])
+        end
+      end
+
+      context "work submitter is trying to approve" do
+        let(:user) { FactoryBot.create(:princeton_submitter) }
+
+        it "handles aproval errors" do
+          sign_in user
+          work.complete_submission!(user)
+          stub_datacite_doi
+          post :approve, params: { id: work.id }
+          expect(response.status).to be 422
+          expect(work.reload).to be_awaiting_approval
+          expect(assigns[:errors]).to eq(["Cannot Approve: Unauthorized to Approve"])
         end
       end
     end

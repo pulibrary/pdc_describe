@@ -294,8 +294,12 @@ class WorksController < ApplicationController
     def rescue_aasm_error
       yield
     rescue AASM::InvalidTransition => error
-      logger.warn("Invalid #{@work.current_transition}: #{error.message}")
-      @errors = ["Cannot #{@work.current_transition}: #{error.message}"]
+      message = error.message
+      if @work.errors.count > 0
+        message = @work.errors.to_a.join(", ")
+      end
+      logger.warn("Invalid #{@work.current_transition}: #{error.message} errors: #{message}")
+      @errors = ["Cannot #{@work.current_transition}: #{message}"]
       render :show, status: :unprocessable_entity
     end
 end
