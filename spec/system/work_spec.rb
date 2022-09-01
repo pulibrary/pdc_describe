@@ -63,7 +63,6 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
     work = FactoryBot.create(:draft_work, resource: resource)
     sign_in user
     visit edit_work_path(work)
-    click_on "Additional Metadata"
     find("#rights_identifier").find(:xpath, "option[2]").select_option
     click_on "Save Work"
     work = Work.find(work.id) # force to reload the work

@@ -34,7 +34,8 @@ FactoryBot.define do
           "creators": [
             { "value": "Kotin, Joshua", "name_type": "Personal", "given_name": "Joshua", "family_name": "Kotin", "affiliations": [], "sequence": "1" }
           ],
-          "resource_type": "Dataset", "publisher": "Princeton University", "publication_year": "2020"
+          "resource_type": "Dataset", "publisher": "Princeton University", "publication_year": "2020",
+          "rights": { "identifier": "CC BY" }
         }.to_json)
       end
       created_by_user_id { FactoryBot.create(:princeton_submitter).id }

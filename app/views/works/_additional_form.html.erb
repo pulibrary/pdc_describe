@@ -24,15 +24,4 @@
     ARK <span class="text-muted field-hint">(enter the core ARK identifier, e.g. ark:/88435/xyz123)</span><br>
     <input type="text" id="ark" name="ark" class="input-text-long" value="<%= @work.resource.ark %>" />
   </div>
-
-  <!-- Rights Management field -->
-  <div class="field">
-    Rights: <span class="text-muted field-hint">(<%= link_to("need help selecting a license for your dataset?", "https://spdx.org/licenses/", {target: "_blank"}) %>)</span><br>
-    <select id="rights_identifier" name="rights_identifier" class="input-text-long" >
-      <option value="" <%= @work.resource.rights.nil? ? "selected" : "" %>></option>
-      <% ::PDCMetadata::Rights.all.each do |rights| %>
-        <option value="<%=rights.identifier%>" <%= @work.resource.rights&.identifier == rights.identifier ? "selected" : "" %>><%=rights.name%></option>
-      <% end %>
-    </select>
-  </div>
 </div>
