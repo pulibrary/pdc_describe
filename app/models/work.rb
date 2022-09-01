@@ -445,6 +445,7 @@ class Work < ApplicationRecord
       errors.add(:base, "Must provide a description") if resource.description.blank?
       errors.add(:base, "Must indicate the Publisher") if resource.publisher.blank?
       errors.add(:base, "Must indicate the Publication Year") if resource.publication_year.blank?
+      errors.add(:base, "Must indicate a Rights statement") if resource.rights.nil?
       validate_creators
     end
 
