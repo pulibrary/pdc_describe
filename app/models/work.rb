@@ -32,7 +32,7 @@ class Work < ApplicationRecord
     end
 
     event :approve do
-      transitions from: :awaiting_approval, to: :approved, guard: :valid_to_submit, after: :publish
+      transitions from: :awaiting_approval, to: :approved, guard: :valid_to_approve, after: :publish
     end
 
     event :withdraw do
@@ -175,6 +175,14 @@ class Work < ApplicationRecord
     valid_to_draft
     validate_metadata
     validate_uploads
+    errors.count == 0
+  end
+
+  def valid_to_approve(user)
+    valid_to_submit
+    unless user.has_role? :collection_admin, collection
+      errors.add :base, "Unauthorized to Approve"
+    end
     errors.count == 0
   end
 

@@ -82,7 +82,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
   it "approves works and records the change history" do
     stub_datacite_doi
     work.complete_submission!(user)
-    work.approve!(user)
+    work.approve!(curator_user)
     expect(work.state_history.first.state).to eq "approved"
     expect(work.reload.state).to eq("approved")
   end
@@ -119,7 +119,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       work.save
       work.complete_submission!(user)
       stub_datacite_doi
-      work.approve!(user)
+      work.approve!(curator_user)
       expect(Ark).to have_received(:update).exactly(1).times
     end
 
@@ -128,7 +128,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       work.save
       work.complete_submission!(user)
       stub_datacite_doi
-      work.approve!(user)
+      work.approve!(curator_user)
       expect(Ark).to have_received(:update).exactly(0).times
     end
   end
@@ -342,7 +342,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "can not transition from draft to approved" do
-      expect { draft_work.approve!(user) }.to raise_error AASM::InvalidTransition
+      expect { draft_work.approve!(curator_user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not transition from draft to tombsotne" do
@@ -368,8 +368,17 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
     it "transitions from awaiting_approval to approved" do
       stub_datacite_doi
-      awaiting_approval_work.approve!(user)
+      awaiting_approval_work.approve!(curator_user)
       expect(awaiting_approval_work.reload.state).to eq("approved")
+    end
+
+    context "submitter user" do
+      let(:user) { FactoryBot.create(:princeton_submitter) }
+
+      it "can not transition from awaitng_approval to approved" do
+        expect { awaiting_approval_work.approve!(user) }.to raise_error AASM::InvalidTransition
+        expect(awaiting_approval_work.reload.state).to eq("awaiting_approval")
+      end
     end
 
     it "can not transition from awaiting_approval to tombsotne" do
@@ -385,7 +394,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     let(:approved_work) do
       work = FactoryBot.create :draft_work
       work.complete_submission!(user)
-      work.approve!(user)
+      work.approve!(curator_user)
       work
     end
 
@@ -498,7 +507,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "can not be approved from none" do
-      expect { work.approve!(user) }.to raise_error AASM::InvalidTransition
+      expect { work.approve!(curator_user) }.to raise_error AASM::InvalidTransition
     end
 
     it "can not be maked ready for review from none" do
