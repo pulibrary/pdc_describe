@@ -30,7 +30,7 @@ FactoryBot.define do
 
     ##
     # A user who has admin rights on the PPPL Collection
-    factory :pppl_admin do
+    factory :pppl_moderator do
       default_collection_id { Collection.default_for_department("31000").id }
       after :create do |user|
         user.add_role :collection_admin, Collection.plasma_laboratory
@@ -39,7 +39,7 @@ FactoryBot.define do
 
     ##
     # A user who has admin rights on the Research Data Collection
-    factory :research_data_admin do
+    factory :research_data_moderator do
       default_collection_id { Collection.default_for_department("12345").id }
       after :create do |user|
         user.add_role :collection_admin, Collection.research_data
