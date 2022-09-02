@@ -371,6 +371,75 @@ RSpec.describe WorksController, mock_ezid_api: true do
       end
     end
 
+    context "when file uploads are reordered for an existing Work with uploads" do
+      let(:uploaded_file1) do
+        fixture_file_upload("us_covid_2019.csv", "text/csv")
+      end
+
+      let(:uploaded_file2) do
+        fixture_file_upload("us_covid_2020.csv", "text/csv")
+      end
+
+      let(:uploaded_files) do
+        [
+          uploaded_file2,
+          uploaded_file1
+        ]
+      end
+
+      let(:bucket_url) do
+        "https://example-bucket.s3.amazonaws.com/"
+      end
+
+      let(:request_params) do
+        {
+          "title_main" => "test dataset updated",
+          "description" => "a new description",
+          "collection_id" => work.collection.id,
+          "commit" => "update dataset",
+          "controller" => "works",
+          "action" => "update",
+          "id" => work.id.to_s,
+          "publisher" => "princeton university",
+          "publication_year" => "2022",
+          "given_name_1" => "jane",
+          "family_name_1" => "smith",
+          "sequence_1" => "1",
+          "given_name_2" => "ada",
+          "family_name_2" => "lovelace",
+          "sequence_2" => "2",
+          "creator_count" => "2",
+          "pre_curation_uploads" => uploaded_files
+        }
+      end
+
+      before do
+        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+
+        work.pre_curation_uploads.attach(uploaded_file1)
+        work.pre_curation_uploads.attach(uploaded_file2)
+        work.reload
+
+        sign_in user
+      end
+
+      it "handles the update page" do
+        expect(work.pre_curation_uploads).not_to be_empty
+        expect(work.pre_curation_uploads.first).to be_an(ActiveStorage::Attachment)
+        first_upload = work.pre_curation_uploads.first
+        last_upload = work.pre_curation_uploads.last
+
+        post :update, params: request_params
+
+        saved_work = Work.find(work.id)
+
+        expect(saved_work.pre_curation_uploads).not_to be_empty
+        expect(work.pre_curation_uploads.first).to be_an(ActiveStorage::Attachment)
+        expect(saved_work.pre_curation_uploads.first.filename).to eq(last_upload.filename)
+        expect(saved_work.pre_curation_uploads.last.filename).to eq(first_upload.filename)
+      end
+    end
+
     it "renders view to select the kind of attachment to use" do
       sign_in user
       get :attachment_select, params: { id: work.id }
