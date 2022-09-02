@@ -55,15 +55,19 @@ class User < ApplicationRecord
   end
 
   # Creates a new user by uid. If the user already exists it returns the existing user.
-  def self.new_for_uid(uid, roles: [])
+  def self.new_for_uid(uid)
     user = User.find_by(uid: uid)
     if user.nil?
       user = User.new(uid: uid, email: "#{uid}@princeton.edu")
       user.save!
     end
-    roles.each do |role|
-      user.add_role(role) unless user.has_role?(role)
-    end
+    user
+  end
+
+  def self.new_super_admin(uid)
+    user = new_for_uid(uid)
+    user.add_role(:super_admin) unless user.has_role?(:super_admin)
+    user.add_role(:collection_admin) unless user.has_role?(:collection_admin)
     user
   end
 
@@ -123,7 +127,9 @@ class User < ApplicationRecord
 
   def self.update_super_admins
     Rails.logger.info "Setting super administrators"
-    Rails.configuration.super_admins.each { |uid| User.new_for_uid(uid, roles: [:super_admin]) }
+    Rails.configuration.super_admins.each do |uid|
+      new_super_admin(uid)
+    end
   end
 
   # Returns a string with the UID (netid) for all the users.

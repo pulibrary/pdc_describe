@@ -24,7 +24,7 @@ RSpec.describe User, type: :model do
 
   let(:normal_user) { described_class.from_cas(access_token) }
   let(:pppl_user) { described_class.from_cas(access_token_pppl) }
-  let(:super_admin_user) { described_class.new_for_uid("fake1", roles: [:super_admin]) }
+  let(:super_admin_user) { described_class.new_super_admin("fake1") }
 
   let(:rd_collection) { Collection.where(code: "RD").first }
   let(:pppl_collection) { Collection.where(code: "PPPL").first }

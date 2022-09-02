@@ -52,7 +52,7 @@ FactoryBot.define do
     email { "#{uid}@princeton.edu" }
     provider { :cas }
     after(:create) do |user|
-      user.add_role(:super_admin)
+      User.new_super_admin(user.uid)
     end
   end
 end
