@@ -54,8 +54,7 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
     click_on "Additional Metadata"
     fill_in "ark", with: "http://arks.princeton.edu/ark:/88435/dsp01hx11xj13h"
     click_on "Save Work"
-    work = Work.find(work.id) # force to reload the work
-    expect(work.ark).to eq "ark:/88435/dsp01hx11xj13h"
+    expect(work.reload.ark).to eq "ark:/88435/dsp01hx11xj13h"
   end
 
   it "Handles Rights field", js: true do
@@ -65,8 +64,7 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
     visit edit_work_path(work)
     find("#rights_identifier").find(:xpath, "option[2]").select_option
     click_on "Save Work"
-    work = Work.find(work.id) # force to reload the work
-    expect(work.resource.rights.identifier).to eq "CC BY"
+    expect(work.reload.resource.rights.identifier).to eq "CC BY"
   end
 
   context "datacite record" do
