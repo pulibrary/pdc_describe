@@ -1,11 +1,11 @@
-<section class="files-section">
+<section class="uploads-section">
   <h2><%= t('works.form.pre_curation_uploads.heading') %></h2>
   <div class="lux">
     <div class="card">
       <div class="files card-body">
         <!-- Only render file download table if there are files in S3 -->
-          <table id="files-table" class="table">
-            <thead>
+          <table class="uploads-table table">
+            <thead class="uploads-table__head">
               <tr>
                 <th scope="col" nowrap="nowrap"><span><%= t('works.form.deposit_uploads.filename') %></span></th>
                 <th scope="col"><span><%= t('works.form.deposit_uploads.created_at') %></span></th>
@@ -15,34 +15,19 @@
             </thead>
             <tbody>
               <!-- Only render file download table if there are files in S3 -->
-              <% if @work.uploads.empty? %>
-                <tr class="files">
+              <tr class="uploads-row">
+                <% if @work.uploads.empty? %>
                   <td><span>No files in S3</span></td>
                   <td><span>0</span></td>
-                  <td>
-                  </td>
-                  <td>
-                  </td>
-                </tr>
-              <% else %>
-                <% @uploads.each_with_index do |file, ix| %>
-                  <tr class="files">
-                    <td>
-                      <span>
-                        <i class="bi bi-file-arrow-down"></i>
-                        <a href="<%= rails_blob_path(file, disposition: "attachment") %>" class="documents-file-link" target="_blank" title="<%= file.filename %>"><%= file.filename.to_s[0..79] %></a>
-                      </span>
-                    </td>
-                    <td><span><%= file.created_at %></span></td>
-                    <td>
-                      <%= form.file_field(:deposit_uploads, id: "work-deposit-uploads", name: "work[replaced_uploads][#{ix}]") %>
-                    </td>
-                    <td>
-                      <%= form.check_box("Delete", id: "work-deposit-uploads", class: [], name: "work[deleted_uploads][#{file.key}]") %>
-                    </td>
-                  </tr>
+                  <td></td>
+                  <td></td>
+                <% else %>
+                  <td><span>Loading...</span></td>
+                  <td><span></span></td>
+                  <td></td>
+                  <td></td>
                 <% end %>
-              <% end %>
+              </tr>
             </tbody>
             <tfoot>
             </tfoot>

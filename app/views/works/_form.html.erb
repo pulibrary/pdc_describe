@@ -12,7 +12,7 @@
   </div>
 
   <div>
-    <%= form_with(model: @work) do |form| %>
+    <%= form_with(model: @work, class: ["work-form"], data: { work: @work.form_attributes }) do |form| %>
       <!-- This div holds the actual tabs content (displayed on the right) -->
       <div class="tab-content" id="v-pills-tabContent">
 

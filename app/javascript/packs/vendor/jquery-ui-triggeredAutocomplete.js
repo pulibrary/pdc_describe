@@ -13,6 +13,17 @@
  *
 */
 
+/*
+ * @author jrg5
+ * This is to ensure that the `jQuery.rails` global is not set prematurely within the loading of the JavaScript manufests (otherwise, this will throw a JavaScript error, and break all subsequent functionality on the page)
+ *
+ */
+if (typeof jQuery !== "undefined" && jQuery !== null && jQuery.ajax != null) {
+  if (jQuery.rails) {
+    jQuery.rails = null;
+  }
+}
+
 ;(function ( $, window, document, undefined ) {
 	$.widget("ui.triggeredAutocomplete", $.extend(true, {}, $.ui.autocomplete.prototype, {
 

@@ -229,6 +229,24 @@ class Work < ApplicationRecord
     resource.to_json
   end
 
+  def uploads_attributes
+    uploads.map do |upload|
+      {
+        id: upload.id,
+        key: upload.key,
+        filename: upload.filename.to_s,
+        created_at: upload.created_at,
+        url: rails_blob_path(upload, disposition: "attachment")
+      }
+    end
+  end
+
+  def form_attributes
+    {
+      uploads: uploads_attributes
+    }
+  end
+
   def draft_doi
     return if resource.doi.present?
     resource.doi = if Rails.env.development? && ENV["DATACITE_USER"].blank?

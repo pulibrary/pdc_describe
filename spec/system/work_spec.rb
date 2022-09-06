@@ -98,4 +98,30 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
       expect(page).to have_content "This element is not expected"
     end
   end
+
+  context "when editing an existing draft Work with uploaded files" do
+    let(:work) { FactoryBot.create(:draft_work) }
+    let(:uploaded_file) do
+      fixture_file_upload("us_covid_2019.csv", "text/csv")
+    end
+
+    let(:bucket_url) do
+      "https://example-bucket.s3.amazonaws.com/"
+    end
+
+    before do
+      stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+      work.pre_curation_uploads.attach(uploaded_file)
+
+      sign_in user
+      visit edit_work_path(work)
+    end
+
+    it "allows users to modify the order of the uploads", js: true do
+      expect(page).to have_content "Filename"
+      expect(page).to have_content "Created At"
+      expect(page).to have_content "Replace Upload"
+      expect(page).to have_content "Delete Upload"
+    end
+  end
 end
