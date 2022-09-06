@@ -28,6 +28,12 @@ class Collection < ApplicationRecord
     User.with_role(:super_admin)
   end
 
+  ##
+  # The current user adds a new admin user to a collection.
+  # For use in the UI - we need to check whether the current_user
+  # has the right permissions to add someone as an admin_user.
+  # @param [User] current_user - the currently logged in user
+  # @param [User] admin_user - the user who will be granted admin rights on this collection
   def add_administrator(current_user, admin_user)
     if current_user.has_role?(:super_admin) || current_user.has_role?(:collection_admin, self)
       if admin_user.has_role? :collection_admin, self
