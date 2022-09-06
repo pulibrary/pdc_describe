@@ -7,6 +7,8 @@ import Rails from "@rails/ujs"
 import Turbolinks from "turbolinks"
 import * as ActiveStorage from "@rails/activestorage"
 import "channels"
+// Provides @mention functionality in textboxes (adds to jQuery UI autocomplete)
+import "./vendor/jquery-ui-triggeredAutocomplete"
 import WorkForm from "./works/form"
 
 Rails.start()
