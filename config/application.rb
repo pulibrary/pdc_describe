@@ -20,5 +20,10 @@ module DrdsRailsTemplate
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    Rails.application.routes.default_url_options = {
+      host: ENV.fetch("APPLICATION_HOST", "localhost"),
+      port: ENV.fetch("APPLICATION_PORT", "3000"),
+      protocol: ENV.fetch("APPLICATION_HOST_PROTOCOL", "http")
+    }
   end
 end
