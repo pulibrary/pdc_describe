@@ -8,7 +8,7 @@ RSpec.describe "Editing collections" do
   let(:collection) { FactoryBot.create :collection }
   let(:collection_other) { Collection.second }
 
-  let(:collection_admin_user) { FactoryBot.create :user, collections_to_admin: [collection] }
+  let(:collection_admin_user) { FactoryBot.create :user, collections_to_admin: [collection, Collection.research_data] }
 
   it "allows super admin to edit collections", js: true do
     sign_in super_admin_user
@@ -36,8 +36,20 @@ RSpec.describe "Editing collections" do
     visit collection_path(collection)
     fill_in "submitter-uid-to-add", with: "submiter123"
     click_on "Add Submitter"
-    visit collection_path(collection)
     expect(page).to have_content "submiter123"
+    expect(page).not_to have_content "User has already been added"
+  end
+
+  it "allows a collection admin to add a submitter to their defailt collection without error only when the user is first created", js: true do
+    sign_in collection_admin_user
+    visit collection_path(Collection.research_data)
+    fill_in "submitter-uid-to-add", with: "submiter123"
+    click_on "Add Submitter"
+    expect(page).to have_content "submiter123"
+    expect(page).not_to have_content "User has already been added"
+    fill_in "submitter-uid-to-add", with: "submiter123"
+    click_on "Add Submitter"
+    expect(page).to have_content "User has already been added"
   end
 
   it "allows a curator to add another curator to the collection", js: true do

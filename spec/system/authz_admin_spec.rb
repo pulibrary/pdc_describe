@@ -32,14 +32,14 @@ RSpec.describe "Authz for curators", type: :system, js: true, mock_ezid_api: tru
         expect(work.reload.title).to eq "New Title"
       end
 
-      pending it "can add submitters to the collection" do
+      it "can add submitters to the collection" do
         login_as research_data_moderator
         expect(research_data_moderator.can_admin?(Collection.research_data)).to eq true
         expect(new_submitter.can_submit?(Collection.research_data)).to eq false
         visit collection_path(Collection.research_data)
         fill_in "submitter-uid-to-add", with: new_submitter.uid
         click_on "Add Submitter"
-        # This does not work. Bug ticketed here: https://github.com/pulibrary/pdc_describe/issues/372
+        expect(page).to have_content new_submitter.uid
         expect(new_submitter.can_submit?(Collection.research_data)).to eq true
       end
 

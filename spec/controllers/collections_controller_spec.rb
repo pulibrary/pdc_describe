@@ -88,6 +88,7 @@ RSpec.describe CollectionsController do
     it "adds a submitter" do
       sign_in admin_user
       # Detects that the user already has submitter rights to the default collection
+      User.new_for_uid("submit2")
       post :add_submitter, params: { id: collection.id, uid: "submit2" }
       expect(response.status).to eq 400
 

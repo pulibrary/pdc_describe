@@ -49,6 +49,8 @@ class Collection < ApplicationRecord
 
   def add_submitter(current_user, additional_user)
     if current_user.has_role?(:super_admin) || current_user.has_role?(:collection_admin, self)
+      return if (self == additional_user.default_collection) && additional_user.just_created
+
       if additional_user.has_role? :submitter, self
         errors.add(:submitter, "User has already been added")
       else

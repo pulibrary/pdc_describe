@@ -10,6 +10,8 @@ class User < ApplicationRecord
   devise :rememberable, :omniauthable
   after_create :assign_default_role
 
+  attr_accessor :just_created
+
   validate do |user|
     user.orcid&.strip!
     if user.orcid.present? && Orcid.invalid?(user.orcid)
@@ -203,6 +205,7 @@ class User < ApplicationRecord
   end
 
   def assign_default_role
+    @just_created = true
     add_role(:submitter, default_collection) unless has_role?(:submitter, default_collection)
   end
 end
