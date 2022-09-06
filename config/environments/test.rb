@@ -66,4 +66,5 @@ Rails.application.configure do
   # config.action_view.annotate_rendered_view_with_filenames = true
 
   routes.default_url_options[:host] = "www.example.com"
+  routes.default_url_options[:port] = 80
 end
