@@ -29,11 +29,10 @@ RSpec.describe "Authz for curators", type: :system, js: true, mock_ezid_api: tru
         fill_in "title_main", with: "New Title"
         click_on "Save Work"
         expect(page).to have_content("New Title")
-        # This does not work. Bug ticketed here: https://github.com/pulibrary/pdc_describe/issues/365
-        # expect(work.reload.title).to eq "New Title"
+        expect(work.reload.title).to eq "New Title"
       end
 
-      it "can add submitters to the collection" do
+      pending it "can add submitters to the collection" do
         login_as research_data_moderator
         expect(research_data_moderator.can_admin?(Collection.research_data)).to eq true
         expect(new_submitter.can_submit?(Collection.research_data)).to eq false
@@ -41,7 +40,7 @@ RSpec.describe "Authz for curators", type: :system, js: true, mock_ezid_api: tru
         fill_in "submitter-uid-to-add", with: new_submitter.uid
         click_on "Add Submitter"
         # This does not work. Bug ticketed here: https://github.com/pulibrary/pdc_describe/issues/372
-        # expect(new_submitter.can_submit?(Collection.research_data)).to eq true
+        expect(new_submitter.can_submit?(Collection.research_data)).to eq true
       end
 
       it "can add admins to the collection" do
