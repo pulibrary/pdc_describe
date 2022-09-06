@@ -173,6 +173,13 @@ RSpec.describe User, type: :model do
       expect(pppl_user.can_submit?(rd_collection)).to be false
       expect(pppl_user.submitter_collections.count).to eq 1
     end
+
+    it "gives access to the default collection" do
+      user = FactoryBot.build :user
+      user.add_role(:collection_admin, pppl_collection)
+      user.save!
+      expect(user.can_submit?(rd_collection)).to be_truthy
+    end
   end
 
   describe "default collection is set on ititalize" do

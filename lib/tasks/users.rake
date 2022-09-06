@@ -52,14 +52,14 @@ namespace :users do
       user.default_collection_id = Collection.research_data.id
       if fixit
         user.save!
-        user.setup_user_default_collections
+        user.assign_default_role
       end
     end
 
     puts "-- Work records"
     Work.all.each do |work|
-      next if work.collection.code == "RD" || work.collection.code == "PPPL"
-      puts "fixing work #{work.id}, #{work.collection_id}, #{work.collection.code}"
+      next if work.collection&.code == "RD" || work.collection&.code == "PPPL"
+      puts "fixing work #{work.id}, #{work.collection_id}, #{work.collection&.code}"
       work.collection_id = Collection.research_data.id
       work.save! if fixit
     end

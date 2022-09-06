@@ -203,7 +203,7 @@ class User < ApplicationRecord
   end
 
   def assign_default_role
-    add_role(:submitter, default_collection) if roles.blank?
+    add_role(:submitter, default_collection) unless has_role?(:submitter, default_collection)
   end
 end
 # rubocop:enable Metrics/ClassLength
