@@ -68,9 +68,7 @@ RSpec.describe "Authz for curators", type: :system, js: true, mock_ezid_api: tru
         expect(page).not_to have_content "Add Curator"
       end
 
-      # Related to https://github.com/pulibrary/pdc_describe/issues/348
-      # Should be fixed by https://github.com/pulibrary/pdc_describe/issues/384
-      pending it "can NOT edit works" do
+      it "can NOT edit works" do
         expect(work.created_by_user_id).not_to eq research_data_moderator.id
         # research_data_moderator is NOT an administrator of the collection where the work resides
         expect(collection.administrators.include?(research_data_moderator)).to eq false
