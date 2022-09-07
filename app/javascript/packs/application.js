@@ -11,7 +11,9 @@ import "channels"
 import "./vendor/jquery-ui-triggeredAutocomplete"
 import WorkForm from "./works/form"
 
-Rails.start()
+if (typeof(window._rails_loaded) == "undefined" || window._rails_loaded == null || !window._rails_loaded) {
+  Rails.start()
+}
 Turbolinks.start()
 ActiveStorage.start()
 
