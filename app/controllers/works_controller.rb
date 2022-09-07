@@ -36,6 +36,7 @@ class WorksController < ApplicationController
 
   def edit
     @work = Work.find(params[:id])
+    redirect_to root_path unless current_user && @work.editable_by?(current_user)
     @uploads = @work.uploads
     @wizard_mode = params[:wizard] == "true"
   end

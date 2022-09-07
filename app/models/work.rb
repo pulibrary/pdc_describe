@@ -50,6 +50,21 @@ class Work < ApplicationRecord
     after_all_events :track_state_change
   end
 
+  ##
+  # Is this work editable by a given user?
+  # A work is editable when:
+  # * it is being edited by the person who made it
+  # * it is being edited by a collection admin of the collection where is resides
+  # * it is being edited by a super admin
+  # @param [User]
+  # @return [Boolean]
+  def editable_by?(user)
+    return true if created_by_user_id == user.id
+    collection = Collection.find(collection_id)
+    return true if user.has_role?(:collection_admin, collection)
+    false
+  end
+
   class << self
     def create_skeleton(title, user_id, collection_id, work_type, profile)
       resource = PDCMetadata::Resource.new(title: title,

@@ -17,9 +17,7 @@ RSpec.describe "Authz for submitters", type: :system, js: true, mock_ezid_api: t
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     end
 
-    ##
-    # To be fixed by https://github.com/pulibrary/pdc_describe/issues/348
-    pending it "should not be able to edit someone else's work" do
+    it "should not be able to edit someone else's work" do
       sign_in submitter1
       visit user_path(submitter1)
       expect(page).to have_content submitter1.display_name
