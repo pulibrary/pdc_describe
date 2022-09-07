@@ -83,6 +83,8 @@ class WorksController < ApplicationController
                                      end
 
                                      updated_uploads
+                                   else
+                                     @work.pre_curation_uploads.map(&:blob)
                                    end
 
     collection_id_param = params[:collection_id]
@@ -100,6 +102,7 @@ class WorksController < ApplicationController
         redirect_to work_url(@work), notice: "Work was successfully updated."
       end
     else
+      @uploads = @work.uploads
       render :edit, status: :unprocessable_entity
     end
   end

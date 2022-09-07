@@ -133,6 +133,26 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
       visit edit_work_path(work)
     end
 
+    it "shows the uploads before and after errors", js: true do
+      # Make the screen larger so the save button is alway on screen.   This avoids random `Element is not clickable` errors
+      page.driver.browser.manage.window.resize_to(2000, 2000)
+      expect(page).to have_content "us_covid_2019.csv"
+      fill_in "title_main", with: ""
+      click_on "Save Work"
+      expect(page).to have_content "Must provide a title"
+      expect(page).to have_content "us_covid_2019.csv"
+    end
+
+    it "shows the uploads before and after a valid metadata save", js: true do
+      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
+      page.driver.browser.manage.window.resize_to(2000, 2000)
+      expect(page).to have_content "us_covid_2019.csv"
+      fill_in "title_main", with: "updated title"
+      click_on "Save Work"
+      expect(page).to have_content "updated title"
+      expect(page).to have_content "us_covid_2019.csv"
+    end
+
     it "allows users to modify the order of the uploads", js: true do
       expect(page).to have_content "Filename"
       expect(page).to have_content "Created At"

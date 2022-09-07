@@ -12,7 +12,6 @@ Rails.application.configure do
   # Compile and load CSS when running tests if we're running in browser
   if ENV["RUN_IN_BROWSER"]
     config.assets.compile = true
-    config.asset_host = "http://localhost:3000"
   end
 
   config.cache_classes = false

@@ -92,7 +92,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
       end
     end
 
-    it "handles the update page" do
+    it "handles the reordering the creators on the update page" do
       params = {
         "title_main" => "test dataset updated",
         "description" => "a new description",
