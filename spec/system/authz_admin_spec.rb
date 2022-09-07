@@ -8,7 +8,7 @@ RSpec.describe "Authz for curators", type: :system, js: true, mock_ezid_api: tru
     let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
     let(:collection) { Collection.find(work.collection_id) }
     let(:new_submitter) { FactoryBot.create :pppl_submitter }
-    # let(:pppl_curator) { FactoryBot.create :pppl_curator }
+    let(:pppl_moderator) { FactoryBot.create :pppl_moderator }
 
     before do
       Collection.create_defaults
@@ -52,6 +52,32 @@ RSpec.describe "Authz for curators", type: :system, js: true, mock_ezid_api: tru
         click_on "Add Curator"
         expect(page).to have_content new_submitter.uid
         expect(new_submitter.reload.can_admin?(Collection.research_data)).to eq true
+      end
+    end
+
+    describe "in a collection they do NOT curate" do
+      let(:work) { FactoryBot.create(:tokamak_work) }
+      let(:collection) { Collection.find(work.collection_id) }
+
+      it "can NOT add admins" do
+        login_as research_data_moderator
+        expect(research_data_moderator.can_admin?(Collection.research_data)).to eq true
+        expect(research_data_moderator.can_admin?(Collection.plasma_laboratory)).to eq false
+        visit collection_path(Collection.plasma_laboratory)
+        expect(page).not_to have_content "Add Submitter"
+        expect(page).not_to have_content "Add Curator"
+      end
+
+      # Related to https://github.com/pulibrary/pdc_describe/issues/348
+      # Should be fixed by https://github.com/pulibrary/pdc_describe/issues/384
+      pending it "can NOT edit works" do
+        expect(work.created_by_user_id).not_to eq research_data_moderator.id
+        # research_data_moderator is NOT an administrator of the collection where the work resides
+        expect(collection.administrators.include?(research_data_moderator)).to eq false
+        # And so, research_data_moderator can NOT edit the work
+        login_as research_data_moderator
+        visit edit_work_path(work)
+        expect(page).not_to have_content("Editing Dataset")
       end
     end
   end

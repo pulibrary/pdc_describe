@@ -41,6 +41,25 @@ FactoryBot.define do
       created_by_user_id { FactoryBot.create(:princeton_submitter).id }
     end
 
+    factory :tokamak_work do
+      collection { Collection.plasma_laboratory }
+      resource do
+        PDCMetadata::Resource.new_from_json({
+          "doi": "https://doi.org/10.34770/not_yet_assigned",
+          "ark": "ark:/88435/dsp015d86p342b",
+          "identifier_type": "DOI",
+          "titles": [{ "title": "Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas" }],
+          "description": "A new model for electron temperature gradient (ETG) modes is developed as a component of the Multi-Mode anomalous transport module.",
+          "creators": [
+            { "value": "Rafiq, Tariq", "name_type": "Personal", "given_name": "Tariq", "family_name": "Rafiq", "affiliations": [], "sequence": "1" }
+          ],
+          "resource_type": "Dataset", "publisher": "Princeton University", "publication_year": "2022",
+          "rights": { "identifier": "CC BY" }
+        }.to_json)
+      end
+      created_by_user_id { FactoryBot.create(:pppl_submitter).id }
+    end
+
     factory :sowing_the_seeds_work do
       title { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
       collection { Collection.research_data }
@@ -102,55 +121,6 @@ FactoryBot.define do
       collection { Collection.research_data }
       doi { "https://doi.org/10.34770/gk6n-gj34" }
       ark { "ark:/88435/dsp01vq27zr562" }
-      created_by_user_id { FactoryBot.create(:user).id }
-    end
-
-    factory :us_national_pandemic_report_work do
-      title { "The U.S. National Pandemic Emotional Impact Report" }
-      ark { "ark:/88435/dsp01h415pd635" }
-      collection { FactoryBot.create(:library_resources) }
-      created_by_user_id { FactoryBot.create(:user).id }
-    end
-
-    factory :fortune_100_blm_work do
-      title { "The Fortune 100 and Black Lives Matter" }
-      ark { "ark:/88435/dsp01hh63t004k" }
-      collection { FactoryBot.create(:library_resources) }
-      created_by_user_id { FactoryBot.create(:user).id }
-    end
-
-    factory :racial_wealth_gap_work do
-      title { "The racial wealth gap: Why policy matters" }
-      ark { "ark:/88435/dsp012z10wt38q" }
-      collection { FactoryBot.create(:library_resources) }
-      created_by_user_id { FactoryBot.create(:user).id }
-    end
-
-    factory :hungary_around_clock_work do
-      title { "Hungary around the clock, January 5, 2022" }
-      ark { "ark:/88435/dsp01w37639913" }
-      collection { FactoryBot.create(:library_resources) }
-      created_by_user_id { FactoryBot.create(:user).id }
-    end
-
-    factory :gu_dian_yan_jiu_work do
-      title { "Gu dian yan jiu 古典研究; No. 9 (Spring 2012)" }
-      ark { "ark:/88435/dsp01fx719q54q" }
-      collection { FactoryBot.create(:library_resources) }
-      created_by_user_id { FactoryBot.create(:user).id }
-    end
-
-    factory :racism_inequality_health_care_work do
-      title { "Racism, inequality, and health care for African Americans" }
-      ark { "ark:/88435/dsp01ng451m58f" }
-      collection { FactoryBot.create(:library_resources) }
-      created_by_user_id { FactoryBot.create(:user).id }
-    end
-
-    factory :national_health_ukraine_work do
-      title { "Nat︠s︡ional'ni rakhunky okhorony zdorov'i︠a︡ v Ukraïni u 2016 rot︠s︡i" }
-      ark { "ark:/88435/dsp01zk51vk539" }
-      collection { FactoryBot.create(:library_resources) }
       created_by_user_id { FactoryBot.create(:user).id }
     end
   end

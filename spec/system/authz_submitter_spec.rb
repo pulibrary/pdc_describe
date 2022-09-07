@@ -19,7 +19,7 @@ RSpec.describe "Authz for submitters", type: :system, js: true, mock_ezid_api: t
 
     ##
     # To be fixed by https://github.com/pulibrary/pdc_describe/issues/348
-    xit "should not be able to edit someone else's work" do
+    pending it "should not be able to edit someone else's work" do
       sign_in submitter1
       visit user_path(submitter1)
       expect(page).to have_content submitter1.display_name
