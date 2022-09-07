@@ -28,7 +28,7 @@ RSpec.describe "Authz for submitters", type: :system, js: true, mock_ezid_api: t
       fill_in "family_name_1", with: FFaker::Name.last_name
       click_on "Create New"
       fill_in "description", with: FFaker::Lorem.paragraph
-      find('#rights_identifier').find(:xpath, 'option[2]').select_option
+      find("#rights_identifier").find(:xpath, "option[2]").select_option
       click_on "Additional Metadata"
       expect(page).to have_content "Research Data"
       click_on "Save Work"

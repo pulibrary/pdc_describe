@@ -34,11 +34,17 @@ class WorksController < ApplicationController
     @work.mark_new_notifications_as_read(current_user.id)
   end
 
+  # GET /works/1/edit
   def edit
     @work = Work.find(params[:id])
-    redirect_to root_path unless current_user && @work.editable_by?(current_user)
-    @uploads = @work.uploads
-    @wizard_mode = params[:wizard] == "true"
+    if @work.editable_by?(current_user)
+      @uploads = @work.uploads
+      @wizard_mode = params[:wizard] == "true"
+      render "edit"
+    else
+      Rails.logger.warn("Unauthorized attempt to edit work #{@work.id} by user #{current_user.uid}")
+      redirect_to root_path
+    end
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity
