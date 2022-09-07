@@ -28,6 +28,7 @@ RSpec.describe "Authz for submitters", type: :system, js: true, mock_ezid_api: t
       fill_in "family_name_1", with: FFaker::Name.last_name
       click_on "Create New"
       fill_in "description", with: FFaker::Lorem.paragraph
+      find('#rights_identifier').find(:xpath, 'option[2]').select_option
       click_on "Additional Metadata"
       expect(page).to have_content "Research Data"
       click_on "Save Work"
@@ -44,11 +45,12 @@ RSpec.describe "Authz for submitters", type: :system, js: true, mock_ezid_api: t
       fill_in "title_main", with: title2
       click_on "Save Work"
       sign_out submitter1
-      sign_in submitter2
 
+      # But other users cannot edit this work. If they try, they are redirected.
+      sign_in submitter2
       visit edit_work_path(work)
-      fill_in "title_main", with: title3
-      click_on "Save Work"
+      expect(page).not_to have_content "Save Work"
+      expect(current_path).to eq root_path
     end
 
     it "should not be able to edit a collection to add curators and submitters" do
