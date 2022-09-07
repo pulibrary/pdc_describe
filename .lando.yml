@@ -1,4 +1,4 @@
-name: drds-rails-template
+name: pdc-describe
 services:
   database:
     type: postgres:13
