@@ -12,12 +12,12 @@
 *
 */
 
-@import "variables/typography";
-@import "components/container";
-@import "components/header";
-@import "components/footer";
-@import "components/works";
-@import "components/works/form";
+@import "variables/typography.scss";
+@import "components/container.scss";
+@import "components/header.scss";
+@import "components/footer.scss";
+@import "components/works.scss";
+@import "components/works/form.scss";
 
 .hidden {
   display: none;

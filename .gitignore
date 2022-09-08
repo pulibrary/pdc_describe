@@ -47,3 +47,11 @@ yarn-debug.log*
 .DS_Store
 
 /spec/fixtures/storage/
+
+# Vite Ruby
+/public/vite*
+node_modules
+# Vite uses dotenv and suggests to ignore local-only env files. See
+# https://vitejs.dev/guide/env-and-mode.html#env-files
+*.local
+
