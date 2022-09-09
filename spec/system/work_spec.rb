@@ -39,16 +39,18 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
   end
 
   it "Renders in wizard mode when requested", js: true do
-    work = FactoryBot.create(:draft_work)
+    draft_work = FactoryBot.create(:draft_work)
+    draft_work_submitter = draft_work.created_by_user
 
-    sign_in user
-    visit edit_work_path(work, wizard: true)
+    sign_in draft_work_submitter
+    visit edit_work_path(draft_work, wizard: true)
     expect(page.html.include?("By initiating this new submission, we have reserved a draft DOI for your use")).to be true
   end
 
   it "Handles ARK URLs in the ARK field", js: true do
     resource = FactoryBot.build(:resource, creators: [PDCMetadata::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")])
     work = FactoryBot.create(:draft_work, resource: resource)
+    user = work.created_by_user
     sign_in user
     visit edit_work_path(work)
     click_on "Additional Metadata"
@@ -60,6 +62,7 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
   it "Handles Rights field", js: true do
     resource = FactoryBot.build(:resource, creators: [PDCMetadata::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")])
     work = FactoryBot.create(:draft_work, resource: resource)
+    user = work.created_by_user
     sign_in user
     visit edit_work_path(work)
     find("#rights_identifier").find(:xpath, "option[2]").select_option
@@ -101,6 +104,7 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
 
   context "when editing an existing draft Work with uploaded files" do
     let(:work) { FactoryBot.create(:draft_work) }
+    let(:user) { work.created_by_user }
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end

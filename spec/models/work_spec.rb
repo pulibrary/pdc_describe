@@ -50,6 +50,35 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     expect { work.save! }.to raise_error ActiveRecord::RecordInvalid
   end
 
+  describe "#editable_by?" do
+    subject(:work) { FactoryBot.create(:tokamak_work) }
+    let(:submitter) { work.created_by_user }
+    let(:other_user) { FactoryBot.create(:princeton_submitter) }
+    let(:pppl_moderator) { FactoryBot.create(:pppl_moderator) }
+    let(:research_data_moderator) { FactoryBot.create(:research_data_moderator) }
+    let(:super_admin) { FactoryBot.create(:super_admin_user) }
+
+    it "is editable by the user who made it" do
+      expect(work.editable_by?(submitter)).to eq true
+    end
+
+    it "is editable by collection admins of its collection" do
+      expect(work.editable_by?(pppl_moderator)).to eq true
+    end
+
+    it "is editable by super admins" do
+      expect(work.editable_by?(super_admin)).to eq true
+    end
+
+    it "is not editable by another user" do
+      expect(work.editable_by?(other_user)).to eq false
+    end
+
+    it "is not editable by a collection admin of a different collection" do
+      expect(work.editable_by?(research_data_moderator)).to eq false
+    end
+  end
+
   context "with a persisted dataset work" do
     subject(:work) { FactoryBot.create(:draft_work) }
 
