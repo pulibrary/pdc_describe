@@ -8,11 +8,11 @@ RSpec.describe WorksController, mock_ezid_api: true do
     user
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
-  let(:user) { FactoryBot.create(:user) }
   let(:curator) { FactoryBot.create(:user, collections_to_admin: [collection]) }
   let(:collection) { Collection.first }
   let(:resource) { FactoryBot.build :resource }
   let(:work) { FactoryBot.create(:draft_work) }
+  let(:user) { work.created_by_user }
 
   context "valid user login" do
     it "handles the index page" do
