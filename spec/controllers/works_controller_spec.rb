@@ -12,7 +12,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
   let(:collection) { Collection.first }
   let(:resource) { FactoryBot.build :resource }
   let(:work) { FactoryBot.create(:draft_work) }
-  let(:user) { User.find(work.created_by_user_id) }
+  let(:user) { work.created_by_user }
 
   context "valid user login" do
     it "handles the index page" do

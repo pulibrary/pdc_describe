@@ -52,7 +52,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
   describe "#editable_by?" do
     subject(:work) { FactoryBot.create(:tokamak_work) }
-    let(:submitter) { User.find(work.created_by_user_id) }
+    let(:submitter) { work.created_by_user }
     let(:other_user) { FactoryBot.create(:princeton_submitter) }
     let(:pppl_moderator) { FactoryBot.create(:pppl_moderator) }
     let(:research_data_moderator) { FactoryBot.create(:research_data_moderator) }
@@ -72,6 +72,10 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
     it "is not editable by another user" do
       expect(work.editable_by?(other_user)).to eq false
+    end
+
+    it "is not editable by a collection admin of a different collection" do
+      expect(work.editable_by?(research_data_moderator)).to eq false
     end
   end
 
