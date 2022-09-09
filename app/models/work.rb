@@ -388,7 +388,7 @@ class Work < ApplicationRecord
   end
 
   def post_curation_s3_resources
-    return [] unless accepted?
+    return [] unless approved?
 
     s3_resources
   end
