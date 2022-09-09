@@ -62,10 +62,12 @@ RSpec.describe "Authz for super admins", type: :system, js: true, mock_ezid_api:
     end
 
     it "should be able to approve a work" do
+      stub_datacite_doi
       work = FactoryBot.create :completed_work
       sign_in super_admin
       visit work_path(work)
-      expect(page).to have_button "Approve Dataset"
+      click_on "Approve Dataset"
+      expect(page).to have_content "marked as approved"
     end
   end
 end
