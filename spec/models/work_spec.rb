@@ -433,9 +433,9 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
 
     it "publishes the doi" do
-      stub_request(:put, "https://api.datacite.org/dois/https://doi.org/10.34770/123-abc")
+      stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
       expect { approved_work }.to change { WorkActivity.where(activity_type: "DATACITE_ERROR").count }.by(0)
-      expect(a_request(:put, "https://api.datacite.org/dois/https://doi.org/10.34770/123-abc")).to have_been_made
+      expect(a_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")).to have_been_made
     end
 
     it "notes a issue when an error occurs" do
@@ -656,7 +656,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       upload_attributes = uploads_attributes.first
 
       expect(upload_attributes).to include(id: work.pre_curation_uploads.first.id)
-      expect(upload_attributes).to include(key: "https://doi.org/10.34770/123-abc/#{work.id}/us_covid_2019.csv")
+      expect(upload_attributes).to include(key: "10.34770/123-abc/#{work.id}/us_covid_2019.csv")
       expect(upload_attributes).to include(filename: "us_covid_2019.csv")
       expect(upload_attributes).to include(:created_at)
       expect(upload_attributes[:created_at]).to be_a(ActiveSupport::TimeWithZone)
