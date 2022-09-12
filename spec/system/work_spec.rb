@@ -105,17 +105,29 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
   context "when editing an existing draft Work with uploaded files" do
     let(:work) { FactoryBot.create(:draft_work) }
     let(:user) { work.created_by_user }
-    let(:uploaded_file) do
+
+    let(:uploaded_file1) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
-
+    let(:uploaded_file2) do
+      fixture_file_upload("us_covid_2019.csv", "text/csv")
+    end
     let(:bucket_url) do
       "https://example-bucket.s3.amazonaws.com/"
+    end
+    let(:drag_javascript) do
+      <<-EOF
+      const dragSource = document.querySelector('.uploads-row:first-child');
+      const dropTarget = document.querySelector('.uploads-row:last-child');
+
+      window.dragMock.dragStart(dragSource).delay(100).dragOver(dropTarget).delay(100).drop(dropTarget);
+      EOF
     end
 
     before do
       stub_request(:put, /#{bucket_url}/).to_return(status: 200)
-      work.pre_curation_uploads.attach(uploaded_file)
+      work.pre_curation_uploads.attach(uploaded_file1)
+      work.pre_curation_uploads.attach(uploaded_file2)
 
       sign_in user
       visit edit_work_path(work)
@@ -126,6 +138,21 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
       expect(page).to have_content "Created At"
       expect(page).to have_content "Replace Upload"
       expect(page).to have_content "Delete Upload"
+      expect(page).to have_css('.uploads-row[data-upload-key="0"]', count: 1)
+      expect(page).to have_css('.uploads-row[data-upload-key="1"]', count: 1)
+
+      source = page.find('.uploads-row[data-upload-key="0"]')
+      target = page.find('.uploads-row[data-upload-key="1"]')
+
+      # This is necessary to interact with the rendered JavaScript <table> rows
+      page.scroll_to(target)
+      sleep 1
+
+      source.drag_to(target)
+      sleep 1
+
+      dragged = page.find('.uploads-row[data-upload-key="0"]')
+      expect(dragged[:id]).to eq(source[:id])
     end
   end
 end
