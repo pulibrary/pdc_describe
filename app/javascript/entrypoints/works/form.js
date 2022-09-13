@@ -71,10 +71,46 @@ class UploadsTable {
     element.addEventListener('drop', this.handleDrop);
   }
 
+  buildEmptyFileElement() {
+    const $moveIcon = $(`<td>
+                           <span>
+                           </span>
+                         </td>`);
+
+    const $fileName = $(`<td>
+                           <span>
+                             No files have been uploaded.
+                           </span>
+                         </td>`);
+
+    const $createdAt = $(`<td><span></span></td>`);
+
+    const $replace = $(`<td>
+                        </td>`);
+
+    const $delete = $(`<td>
+                       </td>`);
+
+    const $row = $(`<tr class="uploads-row" ></tr>`);
+    $row.append($moveIcon);
+    $row.append($fileName);
+    $row.append($createdAt);
+    $row.append($replace);
+    $row.append($delete);
+
+    return $row;
+  }
+
   buildFileElement(upload, index) {
     const downloadUrl = upload.url;
     const downloadTitle = upload.key;
     const downloadText = upload.filename;
+    const $moveIcon = $(`<td>
+                           <span>
+                             <i class="bi bi-arrows-move"></i>
+                           </span>
+                         </td>`);
+
     const $fileName = $(`<td>
                            <span>
                              <i class="bi bi-file-arrow-down"></i>
@@ -94,6 +130,7 @@ class UploadsTable {
                        </td>`);
 
     const $row = $(`<tr class="uploads-row" id="uploads-${upload.id}" data-upload-key="${index}"></tr>`);
+    $row.append($moveIcon);
     $row.append($fileName);
     $row.append($createdAt);
     $row.append($replace);
@@ -106,9 +143,16 @@ class UploadsTable {
 
   buildRows() {
     this.$rows = [];
-    for (const index in this.uploads) {
-      const upload = this.uploads[index];
-      const $uploadElement = this.buildFileElement(upload, index);
+    let $uploadElement;
+
+    if (this.uploads.length > 0) {
+      for (const index in this.uploads) {
+        const upload = this.uploads[index];
+        $uploadElement = this.buildFileElement(upload, index);
+        this.$rows.push($uploadElement);
+      }
+    } else {
+      $uploadElement = this.buildEmptyFileElement();
       this.$rows.push($uploadElement);
     }
   }
