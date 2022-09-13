@@ -47,44 +47,11 @@ class WorksController < ApplicationController
     end
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
   def update
     @work = Work.find(params[:id])
     @wizard_mode = params[:wizard] == "true"
 
-    updated_pre_curation_uploads = if work_params.key?(:pre_curation_uploads)
-                                     work_params[:pre_curation_uploads]
-                                   elsif work_params.key?(:replaced_uploads)
-                                     persisted_pre_curation_uploads = @work.pre_curation_uploads
-                                     replaced_uploads_params = work_params[:replaced_uploads]
-
-                                     updated_uploads = []
-                                     persisted_pre_curation_uploads.each_with_index do |existing, i|
-                                       key = i.to_s
-
-                                       if replaced_uploads_params.key?(key)
-                                         replaced = replaced_uploads_params[key]
-                                         updated_uploads << replaced
-                                       else
-                                         updated_uploads << existing.blob
-                                       end
-                                     end
-
-                                     updated_uploads
-                                   elsif work_params.key?(:deleted_uploads)
-                                     persisted_pre_curation_uploads = @work.pre_curation_uploads
-                                     deleted_uploads_params = work_params[:deleted_uploads]
-                                     updated_uploads = []
-
-                                     persisted_pre_curation_uploads.each_with_index do |existing, _i|
-                                       unless deleted_uploads_params.key?(existing.key) && deleted_uploads_params[existing.key] == "1"
-                                         updated_uploads << existing.blob
-                                       end
-                                     end
-
-                                     updated_uploads
-                                   end
-
+    updated_pre_curation_uploads = WorkUploadsEditService.precurated_file_list(@work, work_params)
     collection_id_param = params[:collection_id]
 
     updates = {
@@ -100,10 +67,10 @@ class WorksController < ApplicationController
         redirect_to work_url(@work), notice: "Work was successfully updated."
       end
     else
+      @uploads = @work.uploads
       render :edit, status: :unprocessable_entity
     end
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
 
   # Prompt to select how to submit their files
   def attachment_select

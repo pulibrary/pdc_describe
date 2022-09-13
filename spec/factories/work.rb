@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :work do
     factory :draft_work do
       transient do
-        doi { "https://doi.org/10.34770/123-abc" }
+        doi { "10.34770/123-abc" }
       end
       collection { Collection.research_data }
       state { "draft" }
