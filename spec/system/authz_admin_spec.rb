@@ -26,7 +26,7 @@ RSpec.describe "Authz for curators", type: :system, js: true, mock_ezid_api: tru
         login_as research_data_moderator
         visit edit_work_path(work)
         expect(page).to have_content("Editing Dataset")
-        fill_in "title_main", with: "New Title"
+        fill_in "title_main", with: "New Title", fill_options: { clear: :backspace }
         click_on "Save Work"
         expect(page).to have_content("New Title")
         expect(work.reload.title).to eq "New Title"
