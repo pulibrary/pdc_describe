@@ -13,6 +13,7 @@ module ActiveStorage
       child_path = folder_for(key)
       folder_path = [root, child_path].join("/")
       FileUtils.mkdir_p(folder_path)
+      folder_path.chomp!("/")
 
       segments = key.split("/")
       "#{folder_path}/#{segments.last}"
