@@ -33,17 +33,9 @@ en:
   works:
     uploads:
       pre_curation:
-        heading: "Uncurated Resources"
-        attachments:
-          heading: "Uncurated File Uploads"
-        s3_resources:
-          heading: "Uncurated S3 Resources"
+        heading: "Uncurated Files"
       post_curation:
-        heading: "Curated Resources"
-        attachments:
-          heading: "Curated File Uploads"
-        s3_resources:
-          heading: "Curated S3 Resources"
+        heading: "Curated Files"
     form:
       file_upload:
         heading: "New Submission (%{work_title})"
@@ -51,14 +43,14 @@ en:
         go_back: 'Go Back'
         continue: 'Continue'
       pre_curation_uploads:
-        heading: "Uncurated File Uploads"
+        heading: "Uncurated Files"
         filename: "Filename"
         created_at: "Time of Upload"
         replace_upload: "Replace Upload"
         empty: "No files in S3"
         delete_upload: "Delete Upload"
       post_curation_uploads:
-        heading: "Curated File Uploads"
+        heading: "Curated Files"
         filename: "Filename"
         created_at: "Time of Upload"
         size: "Size"

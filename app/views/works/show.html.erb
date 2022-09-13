@@ -129,7 +129,7 @@
   <% if @work.pre_curation_uploads.present? %>
     <section class="uploads">
       <h2 class="h2"><%= t('works.uploads.pre_curation.heading') %></h2>
-      <%= render(partial: 'works/uploads/pre_curation_attachments') %>
+      <%= render(partial: 'works/uploads/pre_curation_s3_resources') %>
     </section>
   <% end %>
 <% end %>

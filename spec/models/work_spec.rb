@@ -548,24 +548,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
   end
 
-  describe "#add_attachment" do
-    let(:key) { "10.34770/tbd/6/Screen Shot 2022-08-23 at 4.20.40 PM.png" }
-    let(:size) { 10_759 }
-    let(:etag) { "1a3cc96aa01110fcb04d3227c9cbae9e" }
-    let(:s3_file) do
-      S3File.new(filename: key,
-                 last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-                 size: size,
-                 checksum: etag)
-    end
-
-    it "adds an s3 attachment" do
-      work.add_pre_curation_uploads(s3_file)
-      expect(work.pre_curation_uploads.count).to eq(1)
-      expect(work.pre_curation_uploads.first.key).to eq(key)
-    end
-  end
-
   describe "#save", mock_s3_query_service: false do
     context "when the Work is persisted and not yet in the approved state" do
       let(:work) { FactoryBot.create(:draft_work) }
@@ -613,7 +595,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       end
 
       context "a blob already exists for one of the files" do
-        let(:work) do
+        let(:work1) do
           work = FactoryBot.create(:draft_work)
           blob = work.send(:s3_file_to_blob, file1)
           blob.save

@@ -7,6 +7,7 @@
           <table class="uploads-table table">
             <thead class="uploads-table__head">
               <tr>
+                <th scope="col"><span></span></th>
                 <th scope="col" nowrap="nowrap"><span><%= t('works.form.deposit_uploads.filename') %></span></th>
                 <th scope="col"><span><%= t('works.form.deposit_uploads.created_at') %></span></th>
                 <th scope="col"><span><%= t('works.form.deposit_uploads.replace_upload') %></span></th>
@@ -17,11 +18,13 @@
               <!-- Only render file download table if there are files in S3 -->
               <tr class="uploads-row">
                 <% if @work.uploads.empty? %>
-                  <td><span>No files in S3</span></td>
-                  <td><span>0</span></td>
+                  <td><span></span></td>
+                  <td><span>No files have been uploaded</span></td>
+                  <td><span></span></td>
                   <td></td>
                   <td></td>
                 <% else %>
+                  <td><span></span></td>
                   <td><span>Loading...</span></td>
                   <td><span></span></td>
                   <td></td>
