@@ -23,8 +23,14 @@ RSpec.describe WorksController, mock_ezid_api: true do
 
     it "renders the new submission wizard' step 0" do
       sign_in user
-      get :new
+      get :new, params: { wizard: true }
       expect(response).to render_template("new_submission")
+    end
+
+    it "renders the new form" do
+      sign_in user
+      get :new
+      expect(response).to render_template("new")
     end
 
     it "renders the edit page when creating a new dataset" do
