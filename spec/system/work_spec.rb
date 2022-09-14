@@ -10,7 +10,8 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
 
   it "Prevents empty title", js: true do
     sign_in user
-    visit new_work_path
+    visit user_path(user)
+    click_on "Submit New"
     fill_in "title_main", with: ""
     click_on "Create New"
     expect(page).to have_content "Must provide a title"
@@ -19,7 +20,7 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
   # this test depends of the fake ORCID server defined in spec/support/orcid_specs.rb
   it "Fills in the creator based on an ORCID ID", js: true do
     sign_in user
-    visit new_work_path
+    visit new_work_path(params: { wizard: true })
     click_on "Add Another Creator"
     within("#creator_row_1") do
       fill_in "orcid_1", with: "0000-0000-1111-2222"
@@ -53,7 +54,7 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
     user = work.created_by_user
     sign_in user
     visit edit_work_path(work)
-    click_on "Additional Metadata"
+    click_on "Identifiers"
     fill_in "ark", with: "http://arks.princeton.edu/ark:/88435/dsp01hx11xj13h"
     click_on "Save Work"
     expect(work.reload.ark).to eq "ark:/88435/dsp01hx11xj13h"

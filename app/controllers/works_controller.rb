@@ -8,7 +8,7 @@ require "open-uri"
 # rubocop:disable Metrics/MethodLength
 # rubocop:disable Style/For
 class WorksController < ApplicationController
-  around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :completed]
+  around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :completed, :create]
 
   def index
     @works = Work.all
@@ -16,7 +16,21 @@ class WorksController < ApplicationController
 
   # Renders the "step 0" information page before creating a new dataset
   def new
-    render "new_submission"
+    if wizard_mode?
+      render "new_submission"
+    else
+      @work = Work.new(created_by_user_id: current_user.id, collection: current_user.default_collection)
+    end
+  end
+
+  def create
+    @work = Work.new(created_by_user_id: current_user.id, collection_id: params[:collection_id], resource: resource_from_form)
+    if @work.valid?
+      @work.draft!(current_user)
+      redirect_to work_url(@work), notice: "Work was successfully created."
+    else
+      render :new, status: :unprocessable_entity
+    end
   end
 
   # Creates the new dataset
@@ -39,7 +53,7 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     if current_user && @work.editable_by?(current_user)
       @uploads = @work.uploads
-      @wizard_mode = params[:wizard] == "true"
+      @wizard_mode = wizard_mode?
       render "edit"
     else
       Rails.logger.warn("Unauthorized attempt to edit work #{@work.id} by user #{current_user.uid}")
@@ -49,7 +63,7 @@ class WorksController < ApplicationController
 
   def update
     @work = Work.find(params[:id])
-    @wizard_mode = params[:wizard] == "true"
+    @wizard_mode = wizard_mode?
 
     updated_pre_curation_uploads = WorkUploadsEditService.precurated_file_list(@work, work_params)
     collection_id_param = params[:collection_id]
@@ -264,7 +278,19 @@ class WorksController < ApplicationController
       end
       logger.warn("Invalid #{@work.current_transition}: #{error.message} errors: #{message}")
       @errors = ["Cannot #{@work.current_transition}: #{message}"]
-      render :show, status: :unprocessable_entity
+      render error_action, status: :unprocessable_entity
+    end
+
+    def error_action
+      if action_name == "create"
+        :new
+      else
+        :show
+      end
+    end
+
+    def wizard_mode?
+      params[:wizard] == "true"
     end
 end
 # rubocop:enable Metrics/ClassLength
