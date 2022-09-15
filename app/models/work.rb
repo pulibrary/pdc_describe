@@ -162,9 +162,14 @@ class Work < ApplicationRecord
     # This is expensive, but without listening to WebHooks, there is no asynchronous method for determining if the S3 Bucket Objects need to be resynchronized
     # Attaching S3 Objects without the Work first being persisted is not supported by ActiveStorage
     # Update the uploads attachments using S3 Resources
-    work.attach_s3_resources if work.persisted?
+
+    work.attach_s3_resources if work.persisted? && !work.attaching_s3_objects?
 
     work.save_pre_curation_uploads unless work.approved?
+  end
+
+  def attaching_s3_objects?
+    @attaching_s3_objects ||= false
   end
 
   # Overload ActiveRecord.reload method
@@ -436,10 +441,12 @@ class Work < ApplicationRecord
     def attach_s3_resources
       # Do not attach S3 Bucket Objects unless the Work is in the pre-curation state
       unless approved?
+        @attaching_s3_objects = true
         # This retrieves and adds S3 uploads if they do not exist
         pre_curation_s3_resources.each do |s3_file|
           add_pre_curation_s3_object(s3_file)
         end
+        @attaching_s3_objects = false
       end
     end
 
