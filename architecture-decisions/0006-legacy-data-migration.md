@@ -5,11 +5,15 @@ Date: 2022-09-15
 
 ## Status
 
-In Development
+Discussion
 
 ## Context
 
-
+We have approximately 340 data sets that need to be migrated from DataSpace to the Princeton Data Commons suite of applications. In this context, a work has been migrated when:
+1. The record has been redescribed in PDC Describe
+2. The data payload has been moved to the new post-curation bucket and is available for download via the PDC Production Globus instance
+3. Any URL redirection (e.g., DOIs, ARKs) has been updated to point to the new location
+4. The old content has been removed
 
 ## Decisions
 1. We will use PDC Discovery as the datasource of record for which items have been migrated. 
