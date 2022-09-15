@@ -378,24 +378,94 @@ RSpec.describe WorksController, mock_ezid_api: true do
       before do
         stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
-
-        work.pre_curation_uploads.attach(uploaded_file1)
-        work.pre_curation_uploads.attach(uploaded_file1)
-        work.pre_curation_uploads.attach(uploaded_file1)
       end
 
-      it "handles the update page" do
-        expect(work.pre_curation_uploads.length).to eq(3)
+      context "when the Work has not been curated" do
+        before do
+          work.pre_curation_uploads.attach(uploaded_file1)
+          work.pre_curation_uploads.attach(uploaded_file1)
+          work.pre_curation_uploads.attach(uploaded_file1)
+        end
 
-        sign_in user
-        post :update, params: params
+        it "handles the update page" do
+          expect(work.pre_curation_uploads.length).to eq(3)
 
-        saved_work = Work.find(work.id)
+          sign_in user
+          post :update, params: params
 
-        expect(saved_work.pre_curation_uploads).not_to be_empty
-        expect(saved_work.pre_curation_uploads.length).to eq(1)
+          saved_work = Work.find(work.id)
 
-        expect(saved_work.pre_curation_uploads[0].blob.filename.to_s).to eq("us_covid_2019.csv")
+          expect(saved_work.pre_curation_uploads).not_to be_empty
+          expect(saved_work.pre_curation_uploads.length).to eq(1)
+
+          expect(saved_work.pre_curation_uploads[0].blob.filename.to_s).to eq("us_covid_2019.csv")
+        end
+      end
+
+      context "when the Work has been curated", mock_s3_query_service: false do
+        let(:work) { FactoryBot.create(:completed_work) }
+        let(:user) do
+          FactoryBot.create :user, collections_to_admin: [work.collection]
+        end
+        let(:s3_query_service_double) { instance_double(S3QueryService) }
+        let(:file1) do
+          S3File.new(
+            filename: "SCoData_combined_v1_2020-07_README.txt",
+            last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+            size: 10_759,
+            checksum: "abc123"
+          )
+        end
+        let(:file2) do
+          S3File.new(
+            filename: "SCoData_combined_v1_2020-07_datapackage.json",
+            last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
+            size: 12_739,
+            checksum: "abc567"
+          )
+        end
+        let(:s3_data) { [file1, file2] }
+        let(:bucket_url) do
+          "https://example-bucket.s3.amazonaws.com/"
+        end
+        let(:deleted_uploads) do
+          # "1" indicates that the file has been delete
+          {
+            work.post_curation_uploads.first.key => "1",
+            work.post_curation_uploads[1].key => "0",
+            work.post_curation_uploads.last.key => "1"
+          }
+        end
+        let(:s3_client) { instance_double(Aws::S3::Client) }
+        let(:s3_object) { double }
+
+        before do
+          # Account for files in S3 added outside of ActiveStorage
+          allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
+          allow(s3_query_service_double).to receive(:bucket_name).and_return("example-bucket")
+          allow(s3_client).to receive(:delete_object)
+          allow(s3_query_service_double).to receive(:client).and_return(s3_client)
+          allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
+          stub_request(:put, "https://api.datacite.org/dois/#{work.doi}").to_return(status: 200, body: "", headers: {})
+          work.approve!(user)
+
+          work.valid?
+          sign_in user
+        end
+
+        it "deletes the S3 Objects associated with the Work" do
+          expect(work.post_curation_uploads.length).to eq(2)
+
+          sign_in user
+          post :update, params: params
+
+          expect(s3_client).to have_received(:delete_object).with(
+            { bucket: "example-bucket", key: "SCoData_combined_v1_2020-07_README.txt" }
+          )
+          expect(s3_client).to have_received(:delete_object).with(
+            { bucket: "example-bucket", key: "SCoData_combined_v1_2020-07_datapackage.json" }
+          )
+        end
       end
     end
 

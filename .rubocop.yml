@@ -24,6 +24,10 @@ Metrics/BlockLength:
     - "spec/**/*"
     - "app/models/work.rb"
 
+Metrics/ClassLength:
+  Exclude:
+    - "app/services/s3_query_service.rb"
+
 Metrics/MethodLength:
   Exclude:
     - "app/models/work.rb"
