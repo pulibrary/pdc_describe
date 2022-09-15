@@ -36,10 +36,12 @@
 
       </div>
 
-      <hr />
-      <div class="deposit-uploads">
-        <%= render(partial: 'works/uploads_form', locals: { form: form }) %>
-      </div>
+      <% if !@wizard_mode %>
+        <hr />
+        <div class="deposit-uploads">
+          <%= render(partial: 'works/uploads_form', locals: { form: form }) %>
+        </div>
+      <% end %>
 
       <hr />
       <div class="actions">
