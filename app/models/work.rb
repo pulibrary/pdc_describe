@@ -404,22 +404,6 @@ class Work < ApplicationRecord
     save_new_attachments(new_attachments: new_attachments)
   end
 
-  def transfer_curated_uploads
-    if approved?
-      post_curation_keys = pre_curation_uploads.map(&:key)
-
-      pre_curation_uploads.each do |pre_curation_attachment|
-        post_curation_uploads.attach(pre_curation_attachment) unless post_curation_keys.include?(pre_curation_attachment.key)
-      end
-    end
-  end
-
-  # Persists post-curation attachments
-  def save_post_curation_uploads
-    new_attachments = post_curation_uploads.reject(&:persisted?)
-    save_new_attachments(new_attachments: new_attachments)
-  end
-
   # Accesses post-curation S3 Bucket Objects
   def post_curation_s3_resources
     return [] unless approved?
@@ -436,8 +420,6 @@ class Work < ApplicationRecord
 
   def delete_post_curation_uploads(uploads:)
     uploads.each do |upload|
-      # s3_object = s3_query_service.get_s3_object(key: upload.key)
-      # s3_client.s3_query_service.client.delete_object(s3_object)
       s3_client.delete_object(bucket: bucket_name, key: upload.key)
     end
   end
@@ -600,22 +582,6 @@ class Work < ApplicationRecord
       data_profile.fetch(:objects, [])
     end
     alias pre_curation_s3_resources s3_resources
-
-    # @note This should be deprecated
-    def add_s3_object(s3_file)
-      raise(StandardError, "Attaching S3 Bucket Objects to unpersisted Works is unsupported.") unless persisted?
-
-      blob = self.class.s3_file_to_blob(s3_file)
-      found = ActiveStorage::Attachment.find_by(blob_id: blob.id)
-      return found unless found.nil?
-
-      persisted = ActiveStorage::Attachment.new(blob: blob, name: :pre_curation_uploads)
-
-      # This is why the Work must be persisted before these are attached
-      persisted.record = self
-      persisted.save
-      persisted.reload
-    end
 
     def s3_object_persisted?(s3_file)
       uploads_filenames = uploads.map(&:filename)

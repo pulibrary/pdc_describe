@@ -21,9 +21,7 @@ RSpec.configure do |config|
       'ETag': "6805f2cfc46c0f04559748bb039d69ae",
       'Last-Modified': Time.parse("Thu, 15 Dec 2016 01:19:41 GMT")
     }
-    # stub_request(:get, /#{@s3_bucket}/).to_return(
-    #      status: 200
-    #    )
+
     @s3_object_url = "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/"
     stub_request(:get, /#{Regexp.escape(@s3_object_url)}/).to_return(status: 200, body: "test_content", headers: @s3_object_response_headers)
 
