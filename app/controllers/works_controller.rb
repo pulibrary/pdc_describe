@@ -65,14 +65,22 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     @wizard_mode = wizard_mode?
 
-    updated_pre_curation_uploads = WorkUploadsEditService.precurated_file_list(@work, work_params)
     collection_id_param = params[:collection_id]
 
     updates = {
       collection_id: collection_id_param,
-      resource: resource_from_form,
-      pre_curation_uploads: updated_pre_curation_uploads
+      resource: resource_from_form
     }
+
+    if @work.approved?
+      upload_keys = work_params[:deleted_uploads]
+      deleted_uploads = WorkUploadsEditService.find_post_curation_uploads(work: @work, upload_keys: upload_keys)
+
+      @work.delete_post_curation_uploads(uploads: deleted_uploads)
+    else
+      updated_pre_curation_uploads = WorkUploadsEditService.precurated_file_list(@work, work_params)
+      updates[:pre_curation_uploads] = updated_pre_curation_uploads
+    end
 
     if @work.update(updates)
       if @wizard_mode

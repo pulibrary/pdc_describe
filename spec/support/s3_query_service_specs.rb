@@ -12,11 +12,27 @@ RSpec.configure do |config|
   end
 
   config.before(:each, mock_s3_query_service: false) do
-    @s3_bucket = "https://example-bucket.s3.amazonaws.com/"
+    @s3_bucket_url = "https://example-bucket.s3.amazonaws.com/"
 
-    stub_request(:get, /#{@s3_bucket}/).to_return(
-      status: 200
-    )
+    @s3_object_response_headers = {
+      'Accept-Ranges': "bytes",
+      'Content-Length': 12,
+      'Content-Type': "text/plain",
+      'ETag': "6805f2cfc46c0f04559748bb039d69ae",
+      'Last-Modified': Time.parse("Thu, 15 Dec 2016 01:19:41 GMT")
+    }
+    # stub_request(:get, /#{@s3_bucket}/).to_return(
+    #      status: 200
+    #    )
+    @s3_object_url = "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/"
+    stub_request(:get, /#{Regexp.escape(@s3_object_url)}/).to_return(status: 200, body: "test_content", headers: @s3_object_response_headers)
+
+    @s3_bucket_query_url = "https://example-bucket.s3.amazonaws.com/?list-type=2&max-keys=1000&prefix=10.34770/doc-1/"
+    stub_request(:get, /#{Regexp.escape(@s3_bucket_query_url)}/).to_return(status: 200)
+
+    stub_request(:get, "https://example-bucket.s3.amazonaws.com/test_key").to_return(status: 200, body: "test_content", headers: @s3_object_response_headers)
+    stub_request(:get, /#{Regexp.escape(@s3_bucket_url)}/).to_return(status: 200, body: "test_content", headers: @s3_object_response_headers)
+
     allow(S3QueryService).to receive(:new).and_call_original
   end
 end

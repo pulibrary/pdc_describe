@@ -21,15 +21,6 @@ amazon_pre_curation:
     bucket: <%= S3QueryService.pre_curation_config.fetch(:bucket) %>
   <% end %>
 
-amazon_post_curation:
-  <% if Rails.env.development? %>
-    <<: *development
-  <% else %>
-    <<: *amazon
-    region: <%= S3QueryService.post_curation_config.fetch(:region) %>
-    bucket: <%= S3QueryService.post_curation_config.fetch(:bucket) %>
-  <% end %>
-
 test: &test
   <<: *amazon
   access_key_id: 'not-used-access_key_id'

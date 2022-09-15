@@ -6,7 +6,6 @@ class Work < ApplicationRecord
 
   has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many_attached :pre_curation_uploads, service: :amazon_pre_curation
-  has_many_attached :post_curation_uploads, service: :amazon_post_curation
 
   belongs_to :collection
 
@@ -94,6 +93,20 @@ class Work < ApplicationRecord
 
     def withdrawn_works(user)
       works_by_user_state(user, "withdrawn")
+    end
+
+    def s3_file_to_blob(s3_file)
+      existing_blob = ActiveStorage::Blob.find_by(key: s3_file.filename)
+
+      if existing_blob.present?
+        Rails.logger.warn("There is a blob existing for #{s3_file.filename}, which we are not expecting!  It will be reattached #{existing_blob.inspect}")
+        return existing_blob
+      end
+
+      params = { filename: s3_file.filename, content_type: "", byte_size: s3_file.size, checksum: s3_file.checksum }
+      blob = ActiveStorage::Blob.create_before_direct_upload!(**params)
+      blob.key = s3_file.filename
+      blob
     end
 
     private
@@ -413,6 +426,21 @@ class Work < ApplicationRecord
 
     s3_resources
   end
+  alias post_curation_uploads post_curation_s3_resources
+
+  def s3_client
+    s3_query_service.client
+  end
+
+  delegate :bucket_name, to: :s3_query_service
+
+  def delete_post_curation_uploads(uploads:)
+    uploads.each do |upload|
+      # s3_object = s3_query_service.get_s3_object(key: upload.key)
+      # s3_client.s3_query_service.client.delete_object(s3_object)
+      s3_client.delete_object(bucket: bucket_name, key: upload.key)
+    end
+  end
 
   protected
 
@@ -546,10 +574,6 @@ class Work < ApplicationRecord
       if pre_curation_uploads.length > MAX_UPLOADS
         errors.add(:base, "Only #{MAX_UPLOADS} files may be uploaded by a user to a given Work. #{pre_curation_uploads.length} files were uploaded for the Work: #{ark}")
       end
-
-      # Ensure that no uploads in the post-curation state are attached prior to the approved state
-      return true if approved? || post_curation_uploads.empty?
-      errors.add(:base, "Files in the post-curation state cannot be directly attached for a given Work. #{post_curation_uploads.length} files were attached for the Work: #{ark}")
     end
 
     # This needs to be called #before_save
@@ -561,20 +585,6 @@ class Work < ApplicationRecord
 
         attachment.save
       end
-    end
-
-    def s3_file_to_blob(s3_file)
-      existing_blob = ActiveStorage::Blob.find_by(key: s3_file.filename)
-
-      if existing_blob.present?
-        Rails.logger.warn("There is a blob existing for #{s3_file.filename}, which we are not expecting!  It will be reattached #{existing_blob.inspect}")
-        return existing_blob
-      end
-
-      params = { filename: s3_file.filename, content_type: "", byte_size: s3_file.size, checksum: s3_file.checksum }
-      blob = ActiveStorage::Blob.create_before_direct_upload!(**params)
-      blob.key = s3_file.filename
-      blob
     end
 
     def s3_query_service
@@ -591,11 +601,16 @@ class Work < ApplicationRecord
     end
     alias pre_curation_s3_resources s3_resources
 
+    # @note This should be deprecated
     def add_s3_object(s3_file)
       raise(StandardError, "Attaching S3 Bucket Objects to unpersisted Works is unsupported.") unless persisted?
 
-      blob = s3_file_to_blob(s3_file)
+      blob = self.class.s3_file_to_blob(s3_file)
+      found = ActiveStorage::Attachment.find_by(blob_id: blob.id)
+      return found unless found.nil?
+
       persisted = ActiveStorage::Attachment.new(blob: blob, name: :pre_curation_uploads)
+
       # This is why the Work must be persisted before these are attached
       persisted.record = self
       persisted.save
@@ -612,8 +627,8 @@ class Work < ApplicationRecord
     def add_pre_curation_s3_object(s3_file)
       return if s3_object_persisted?(s3_file)
 
-      persisted = add_s3_object(s3_file)
-      pre_curation_uploads << persisted
+      persisted = self.class.s3_file_to_blob(s3_file)
+      pre_curation_uploads.attach(persisted)
     end
 end
 # rubocop:ensable Metrics/ClassLength

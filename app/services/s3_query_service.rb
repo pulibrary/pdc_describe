@@ -80,8 +80,11 @@ class S3QueryService
     active_storage_configuration["secret_access_key"]
   end
 
+  def credentials
+    @credentials ||= Aws::Credentials.new(access_key_id, secret_access_key)
+  end
+
   def client
-    credentials = Aws::Credentials.new(access_key_id, secret_access_key)
     @client ||= Aws::S3::Client.new(region: region, credentials: credentials)
   end
 
@@ -98,6 +101,27 @@ class S3QueryService
     end
 
     objects
+  end
+
+  def get_s3_object(key:)
+    response = client.get_object({
+                                   bucket: bucket_name,
+                                   key: key
+                                 })
+    object = response.to_h
+
+    return if object.empty?
+
+    response
+  end
+
+  def find_s3_file(filename:)
+    s3_object_key = "#{prefix}#{filename}"
+
+    object = get_s3_object(key: s3_object_key)
+    return if object.nil?
+
+    S3File.new(filename: s3_object_key, last_modified: object.last_modified, size: object.size, checksum: object.etag)
   end
 
   # Retrieve the S3 resources uploaded to the S3 Bucket

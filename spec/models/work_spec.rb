@@ -589,9 +589,9 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
         expect(work.pre_curation_uploads).not_to be_empty
         expect(work.pre_curation_uploads.length).to eq(2)
         expect(work.pre_curation_uploads.first).to be_a(ActiveStorage::Attachment)
-        expect(work.pre_curation_uploads.first.key).to eq("SCoData_combined_v1_2020-07_README.txt")
+        expect(work.pre_curation_uploads.first.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt")
         expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
-        expect(work.pre_curation_uploads.last.key).to eq("SCoData_combined_v1_2020-07_datapackage.json")
+        expect(work.pre_curation_uploads.last.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
       end
 
       context "a blob already exists for one of the files" do
@@ -607,9 +607,9 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
           expect(work.pre_curation_uploads).not_to be_empty
           expect(work.pre_curation_uploads.length).to eq(2)
           expect(work.pre_curation_uploads.first).to be_a(ActiveStorage::Attachment)
-          expect(work.pre_curation_uploads.first.key).to eq("SCoData_combined_v1_2020-07_README.txt")
+          expect(work.pre_curation_uploads.first.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt")
           expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
-          expect(work.pre_curation_uploads.last.key).to eq("SCoData_combined_v1_2020-07_datapackage.json")
+          expect(work.pre_curation_uploads.last.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
         end
       end
     end
