@@ -13,6 +13,8 @@ class Work < ApplicationRecord
   attribute :work_type, :string, default: "DATASET"
   attribute :profile, :string, default: "DATACITE"
 
+  attr_accessor :user_entered_doi
+
   include AASM
 
   aasm column: :state do
@@ -149,7 +151,7 @@ class Work < ApplicationRecord
 
   validate do |work|
     if none?
-      true
+      work.validate_doi
     elsif draft?
       work.valid_to_draft
     else
@@ -193,6 +195,17 @@ class Work < ApplicationRecord
   def save_post_curation_uploads
     new_attachments = post_curation_uploads.reject(&:persisted?)
     save_new_attachments(new_attachments: new_attachments)
+  end
+
+  def validate_doi
+    return true unless user_entered_doi
+    if /^10.\d{4,9}\/[-._;()\/:a-z0-9\-]+$/.match?(doi.downcase)
+      response = Faraday.get("#{Rails.configuration.datacite.doi_url}#{doi}")
+      errors.add(:base, "Invalid DOI: can not verify it's authenticity") unless response.success? || response.status == 302
+    else
+      errors.add(:base, "Invalid DOI: does not match format")
+    end
+    errors.count == 0
   end
 
   def valid_to_draft
@@ -264,11 +277,11 @@ class Work < ApplicationRecord
 
   def draft_doi
     return if resource.doi.present?
-    resource.doi = if Rails.env.development? && ENV["DATACITE_USER"].blank?
+    resource.doi = if Rails.env.development? && Rails.configuration.datacite.user.blank?
                      Rails.logger.info "Using hard-coded test DOI during development."
                      "10.34770/tbd"
                    else
-                     result = data_cite_connection.autogenerate_doi(prefix: ENV["DATACITE_PREFIX"])
+                     result = data_cite_connection.autogenerate_doi(prefix: Rails.configuration.datacite.prefix)
                      if result.success?
                        result.success.doi
                      else
@@ -470,9 +483,9 @@ class Work < ApplicationRecord
     end
 
     def data_cite_connection
-      @data_cite_connection ||= Datacite::Client.new(username: ENV["DATACITE_USER"],
-                                                     password: ENV["DATACITE_PASSWORD"],
-                                                     host: ENV["DATACITE_HOST"])
+      @data_cite_connection ||= Datacite::Client.new(username: Rails.configuration.datacite.user,
+                                                     password: Rails.configuration.datacite.password,
+                                                     host: Rails.configuration.datacite.host)
     end
 
     def validate_ark
@@ -504,7 +517,7 @@ class Work < ApplicationRecord
     end
 
     def publish_doi(user)
-      if Rails.env.development? && ENV["DATACITE_USER"].blank?
+      if Rails.env.development? && Rails.configuration.datacite.user.blank?
         Rails.logger.info "Publishing hard-coded test DOI during development."
       else
         result = data_cite_connection.update(id: doi, attributes: doi_attributes)
@@ -528,7 +541,7 @@ class Work < ApplicationRecord
       {
         "event" => "publish",
         "xml" => Base64.encode64(PDCMetadata::Resource.new_from_json(metadata).to_xml),
-        "url" => "https://schema.datacite.org/meta/kernel-4.0/index.html" # TODO: this should be a link to the item in PDC-discovery
+        "url" => "https://datacommons.princeton.edu/discovery/" # TODO: this should be a link to the item in PDC-discovery
       }
     end
 
