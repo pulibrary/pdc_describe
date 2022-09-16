@@ -153,6 +153,7 @@ class Work < ApplicationRecord
   after_save do |work|
     if work.approved?
       work.attach_s3_resources if !work.pre_curation_uploads.empty? && work.pre_curation_uploads.length > work.post_curation_uploads.length
+      work.reload
     end
   end
 
@@ -472,11 +473,9 @@ class Work < ApplicationRecord
         pre_curation_uploads.each do |attachment|
           unless post_curation_s3_file?(filename: attachment.filename.to_s)
             add_post_curation_s3_object(blob: attachment.blob)
-            # attachment.purge
+            attachment.purge
           end
         end
-
-        reload
       else
         # This retrieves and adds S3 uploads if they do not exist
         pre_curation_s3_resources.each do |s3_file|

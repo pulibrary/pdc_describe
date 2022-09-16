@@ -145,7 +145,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
         expect(s3_client).to have_received(:put_object).with({
                                                                body: "test_content",
                                                                bucket: "example-bucket",
-                                                               key: "10.34770/123-abc/1/us_covid_2019.csv"
+                                                               key: "10.34770/123-abc/#{work.id}/us_covid_2019.csv"
                                                              }).at_least(1).time
         expect(work.pre_curation_uploads).to be_empty
       end
@@ -590,20 +590,20 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
       let(:s3_query_service_double) { instance_double(S3QueryService) }
       let(:file1) do
-        S3File.new(
-          filename: "SCoData_combined_v1_2020-07_README.txt",
+        {
+          key: "SCoData_combined_v1_2020-07_README.txt",
           last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
           size: 10_759,
-          checksum: "abc123"
-        )
+          etag: "abc123"
+        }
       end
       let(:file2) do
-        S3File.new(
-          filename: "SCoData_combined_v1_2020-07_datapackage.json",
+        {
+          key: "SCoData_combined_v1_2020-07_datapackage.json",
           last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
           size: 12_739,
-          checksum: "abc567"
-        )
+          etag: "abc567"
+        }
       end
       let(:s3_data) { [file1, file2] }
       let(:bucket_url) do
