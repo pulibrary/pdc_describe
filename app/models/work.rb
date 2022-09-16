@@ -519,12 +519,14 @@ class Work < ApplicationRecord
     def publish_doi(user)
       if Rails.env.development? && Rails.configuration.datacite.user.blank?
         Rails.logger.info "Publishing hard-coded test DOI during development."
-      else
+      elsif doi.starts_with?(Rails.configuration.datacite.prefix)
         result = data_cite_connection.update(id: doi, attributes: doi_attributes)
         if result.failure?
           message = "@#{curator_or_current_uid(user)} Error publishing DOI. #{result.failure.status} / #{result.failure.reason_phrase}"
           WorkActivity.add_system_activity(id, message, user.id, activity_type: "DATACITE_ERROR")
         end
+      elsif ark.blank? # we can not update the url anywhere
+        Honeybadger.notify("Publishing for a DOI we do not own and no ARK is present: #{doi}")
       end
     end
 
