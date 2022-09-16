@@ -1,6 +1,6 @@
 ---
 default: &default
-  prefix: <%= ENV["DATACITE_PREFIX"]  ||  "10.0000" %>
+  prefix: '<%= ENV["DATACITE_PREFIX"]  ||  10.0000 %>'
   user: <%= ENV["DATACITE_USER"] || "" %>
   password: <%= ENV["DATACITE_PASSWORD"] || "" %>
   host: <%= ENV["DATACITE_HOST"] || "api.datacite.org" %>
