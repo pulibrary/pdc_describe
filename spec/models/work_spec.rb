@@ -116,6 +116,42 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     expect(work.reload.state).to eq("approved")
   end
 
+  context "when files are attached to a pre-curation Work" do
+    let(:uploaded_file) do
+      fixture_file_upload("us_covid_2019.csv", "text/csv")
+    end
+    let(:uploaded_file2) do
+      fixture_file_upload("us_covid_2019.csv", "text/csv")
+    end
+    let(:s3_client) { @s3_client }
+
+    before do
+      stub_request(:delete, /#{attachment_url}/).to_return(status: 200)
+      allow(s3_client).to receive(:put_object)
+      stub_request(:get, /#{attachment_url}/).to_return(status: 200, body: "test_content")
+      stub_request(:put, /#{attachment_url}/).with(
+        body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
+      ).to_return(status: 200)
+
+      20.times { work.pre_curation_uploads.attach(uploaded_file) }
+      work.save!
+    end
+
+    context "when a Work is approved" do
+      it "transfers the files to the AWS Bucket" do
+        stub_datacite_doi
+        work.complete_submission!(user)
+        work.approve!(curator_user)
+        expect(s3_client).to have_received(:put_object).with({
+                                                               body: "test_content",
+                                                               bucket: "example-bucket",
+                                                               key: "10.34770/123-abc/1/us_covid_2019.csv"
+                                                             }).at_least(1).time
+        expect(work.pre_curation_uploads).to be_empty
+      end
+    end
+  end
+
   it "withdraw works and records the change history" do
     work.withdraw!(user)
     expect(work.state_history.first.state).to eq "withdrawn"

@@ -150,6 +150,12 @@ class Work < ApplicationRecord
     work.metadata = work.resource.to_json
   end
 
+  after_save do |work|
+    if work.approved?
+      work.attach_s3_resources if !work.pre_curation_uploads.empty? && work.pre_curation_uploads.length > work.post_curation_uploads.length
+    end
+  end
+
   validate do |work|
     if none?
       work.validate_doi
@@ -423,10 +429,31 @@ class Work < ApplicationRecord
 
   delegate :bucket_name, to: :s3_query_service
 
+  def pre_curation_bucket_name
+    pre_curation_s3_query_service.bucket_name
+  end
+
+  def post_curation_bucket_name
+    post_curation_s3_query_service.bucket_name
+  end
+
   def delete_post_curation_uploads(uploads:)
     uploads.each do |upload|
       s3_client.delete_object(bucket: bucket_name, key: upload.key)
     end
+  end
+
+  # @todo Remove this
+  def delete_pre_curation_s3_object(s3_file:)
+    s3_client.delete_object(bucket: pre_curation_bucket_name, key: s3_file.key)
+  end
+
+  def add_post_curation_s3_object(blob:)
+    s3_client.put_object({
+                           bucket: post_curation_bucket_name,
+                           key: blob.key,
+                           body: blob.download
+                         })
   end
 
   protected
@@ -439,18 +466,32 @@ class Work < ApplicationRecord
     end
 
     def attach_s3_resources
-      # Do not attach S3 Bucket Objects unless the Work is in the pre-curation state
-      unless approved?
-        @attaching_s3_objects = true
+      @attaching_s3_objects = true
+      if approved?
+        # This migrates pre-curation S3 Objects to the post-curation S3 Bucket
+        pre_curation_uploads.each do |attachment|
+          unless post_curation_s3_file?(filename: attachment.filename.to_s)
+            add_post_curation_s3_object(blob: attachment.blob)
+            attachment.purge
+          end
+        end
+
+        reload
+      else
         # This retrieves and adds S3 uploads if they do not exist
         pre_curation_s3_resources.each do |s3_file|
           add_pre_curation_s3_object(s3_file)
         end
-        @attaching_s3_objects = false
       end
+      @attaching_s3_objects = false
     end
 
   private
+
+    def post_curation_s3_file?(filename:)
+      post_curation_uploads_keys = post_curation_uploads.map(&:filename)
+      post_curation_uploads_keys.include?(filename)
+    end
 
     def publish(user)
       publish_doi(user)
@@ -576,12 +617,20 @@ class Work < ApplicationRecord
       end
     end
 
+    def pre_curation_s3_query_service
+      @pre_curation_s3_query_service ||= S3QueryService.new(self, false)
+    end
+
+    def post_curation_s3_query_service
+      @post_curation_s3_query_service ||= S3QueryService.new(self, true)
+    end
+
     def s3_query_service
-      @s3_query_service ||= if approved?
-                              S3QueryService.new(self, true)
-                            else
-                              S3QueryService.new(self, false)
-                            end
+      if approved?
+        post_curation_s3_query_service
+      else
+        pre_curation_s3_query_service
+      end
     end
 
     def s3_resources
