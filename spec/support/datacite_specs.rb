@@ -10,7 +10,7 @@ def stub_datacite_doi(result: Success("It worked"))
 end
 
 def datacite_register_body(prefix: "10.80021")
-  ENV["DATACITE_PREFIX"] = prefix
+  Rails.configuration.datacite.prefix = prefix
   "{\"data\":{\"type\":\"dois\",\"attributes\":{\"prefix\":\"#{prefix}\"}}}"
 end
 
@@ -22,7 +22,7 @@ def stub_datacite(host: "api.datacite.org", body: datacite_register_body, fixtur
   response = File.read(Pathname.new(fixture_path).join(fixture).to_s)
 
   datacite_env(user: "foo", password: "bar", host: host)
-  stub_request(:post, ENV["DATACITE_URL"])
+  stub_request(:post, "https://#{host}/dois")
     .with(
     body: body,
     headers: {
@@ -39,7 +39,7 @@ end
 def stub_datacite_update(doi:, body:, fixture:, host: "api.datacite.org")
   response = File.read(Pathname.new(fixture_path).join(fixture).to_s)
   datacite_env(user: "foo", password: "bar", host: host)
-  stub_request(:put, "https://api.datacite.org/dois/#{doi}")
+  stub_request(:put, "https://#{host}/dois/#{doi}")
     .with(
            body: body,
            headers: {
@@ -54,8 +54,7 @@ def stub_datacite_update(doi:, body:, fixture:, host: "api.datacite.org")
 end
 
 def datacite_env(user:, password:, host:)
-  ENV["DATACITE_USER"] = user
-  ENV["DATACITE_PASSWORD"] = password
-  ENV["DATACITE_HOST"] = host
-  ENV["DATACITE_URL"] = "https://#{ENV['DATACITE_HOST']}/dois"
+  Rails.configuration.datacite.user = user
+  Rails.configuration.datacite.password = password
+  Rails.configuration.datacite.host = host
 end

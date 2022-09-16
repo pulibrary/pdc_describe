@@ -2,10 +2,10 @@
   <!-- DOI field (mostly for legacy DSpace works) -->
   <div class="field">
     DOI <span class="text-muted field-hint">(enter the Digital Object Identifier, e.g. 10.80021/62qy-nj36)</span><br>
-    <% if @work.doi.blank? %>
-      <input type="text" id="doi" name="doi" class="input-text-long"/>
+    <% if  @wizard_mode || @work.persisted? %>
+       <%= @work.doi %>
     <% else %>
-      <%= @work.doi %>
+       <input type="text" id="doi" name="doi" class="input-text-long" value="<%= @work.doi %>"/>
     <% end %>
 
   </div>
