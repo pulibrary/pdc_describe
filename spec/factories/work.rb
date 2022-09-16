@@ -14,12 +14,13 @@ FactoryBot.define do
 
     factory :completed_work do
       transient do
-        doi { "https://doi.org/10.34770/123-abc" }
+        doi { "10.34770/123-abc" }
+        ark { nil }
       end
       collection { Collection.research_data }
       state { "awaiting_approval" }
       created_by_user_id { FactoryBot.create(:user).id }
-      resource { FactoryBot.build :resource, doi: doi }
+      resource { FactoryBot.build :resource, doi: doi, ark: ark }
     end
 
     factory :shakespeare_and_company_work do
@@ -45,7 +46,7 @@ FactoryBot.define do
       collection { Collection.plasma_laboratory }
       resource do
         PDCMetadata::Resource.new_from_json({
-          "doi": "https://doi.org/10.34770/not_yet_assigned",
+          "doi": "10.34770/not_yet_assigned",
           "ark": "ark:/88435/dsp015d86p342b",
           "identifier_type": "DOI",
           "titles": [{ "title": "Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas" }],
