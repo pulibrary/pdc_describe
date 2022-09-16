@@ -158,7 +158,7 @@ class WorksController < ApplicationController
     rescue AASM::InvalidTransition => error
       # Work couldn't transition, send the user back to the edit page
       if error.event_name == :complete_submission && error.originating_state == :draft
-        render "edit"
+        render "edit", status: :unprocessable_entity
       end
     end
   end
