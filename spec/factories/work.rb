@@ -14,12 +14,13 @@ FactoryBot.define do
 
     factory :completed_work do
       transient do
-        doi { "https://doi.org/10.34770/123-abc" }
+        doi { "10.34770/123-abc" }
+        ark { nil }
       end
       collection { Collection.research_data }
       state { "awaiting_approval" }
       created_by_user_id { FactoryBot.create(:user).id }
-      resource { FactoryBot.build :resource, doi: doi }
+      resource { FactoryBot.build :resource, doi: doi, ark: ark }
     end
 
     factory :shakespeare_and_company_work do
