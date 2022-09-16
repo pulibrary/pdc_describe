@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_api: true do
+RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_api: true, js: true do
   let(:user) { FactoryBot.create(:princeton_submitter) }
   let(:doi) { "10.34770/123-abc" }
   let(:title) { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
@@ -38,7 +38,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
     end
 
-    it "produces and saves a valid datacite record", js: true do
+    it "produces and saves a valid datacite record" do
       # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
       page.driver.browser.manage.window.resize_to(2000, 2000)
       sign_in user
@@ -67,7 +67,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-ab").to_return(status: 404, body: "", headers: {})
     end
 
-    it "returns the user to the new page so they can recover from an error", js: true do
+    it "returns the user to the new page so they can recover from an error" do
       # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
       page.driver.browser.manage.window.resize_to(2000, 2000)
       sign_in user
@@ -97,6 +97,50 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       click_on "Create"
       click_on "Complete"
       expect(page).to have_content "awaiting_approval"
+    end
+  end
+
+  context "DOI and Ark updates" do
+    let(:curator) { FactoryBot.create(:research_data_moderator) }
+    let(:datacite_stub) { stub_datacite_doi }
+    let(:identifier) { @identifier } # from the mock_ezid_api
+    before do
+      datacite_stub # make sure the stub is created before we start the test
+      Rails.configuration.update_ark_url = true
+      allow(Honeybadger).to receive(:notify)
+      sign_in curator
+      visit work_path(work)
+      click_on "Approve"
+    end
+
+    context "Approving a work with a DOI we own" do
+      let(:work) { FactoryBot.create :completed_work, doi: "#{Rails.configuration.datacite.prefix}/abc-123", ark: "ark:/88435/dsp01d791sj97j" }
+
+      it "updates the DOI and ARK url when approved" do
+        expect(datacite_stub).to have_received("update")
+        expect(identifier).to have_received("target=")
+        expect(identifier).to have_received("save!")
+      end
+    end
+
+    context "Approving a work with a DOI we own do not own, but also has an ARK" do
+      let(:work) { FactoryBot.create :completed_work, doi: "10.99999/abc-123", ark: "ark:/88435/dsp01d791sj97j" }
+
+      it "updates the ARK url when approved" do
+        expect(datacite_stub).not_to have_received("update")
+        expect(Honeybadger).not_to have_received(:notify)
+        expect(identifier).to have_received("target=")
+        expect(identifier).to have_received("save!")
+      end
+    end
+
+    context "Approving a work with a DOI we own do not own, but does not have an ARK" do
+      let(:work) { FactoryBot.create :completed_work, doi: "10.99999/abc-123", ark: nil }
+      it "updates the ARK url when approved" do
+        expect(datacite_stub).not_to have_received("update")
+        expect(identifier).not_to have_received("target=")
+        expect(Honeybadger).to have_received(:notify)
+      end
     end
   end
 end
