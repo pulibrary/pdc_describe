@@ -6,8 +6,11 @@ RSpec.configure do |config|
     @data_profile = {
       objects: []
     }
+    @s3_client = instance_double(Aws::S3::Client)
 
     allow(@s3_query_service).to receive(:data_profile).and_return(@data_profile)
+    allow(@s3_query_service).to receive(:bucket_name).and_return("example-bucket")
+    allow(@s3_query_service).to receive(:client).and_return(@s3_client)
     allow(S3QueryService).to receive(:new).and_return(@s3_query_service)
   end
 
@@ -29,6 +32,8 @@ RSpec.configure do |config|
     stub_request(:get, /#{Regexp.escape(@s3_bucket_query_url)}/).to_return(status: 200)
 
     stub_request(:get, "https://example-bucket.s3.amazonaws.com/test_key").to_return(status: 200, body: "test_content", headers: @s3_object_response_headers)
+    stub_request(:get, /#{Regexp.escape(@s3_bucket_url)}/).to_return(status: 200, body: "test_content", headers: @s3_object_response_headers)
+
     stub_request(:get, /#{Regexp.escape(@s3_bucket_url)}/).to_return(status: 200, body: "test_content", headers: @s3_object_response_headers)
 
     allow(S3QueryService).to receive(:new).and_call_original
