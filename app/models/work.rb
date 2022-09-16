@@ -472,7 +472,7 @@ class Work < ApplicationRecord
         pre_curation_uploads.each do |attachment|
           unless post_curation_s3_file?(filename: attachment.filename.to_s)
             add_post_curation_s3_object(blob: attachment.blob)
-            attachment.purge
+            # attachment.purge
           end
         end
 
@@ -616,11 +616,11 @@ class Work < ApplicationRecord
     end
 
     def pre_curation_s3_query_service
-      @pre_curation_s3_query_service ||= S3QueryService.new(self, false)
+      @pre_curation_s3_query_service ||= S3QueryService.new(self, true)
     end
 
     def post_curation_s3_query_service
-      @post_curation_s3_query_service ||= S3QueryService.new(self, true)
+      @post_curation_s3_query_service ||= S3QueryService.new(self, false)
     end
 
     def s3_query_service
