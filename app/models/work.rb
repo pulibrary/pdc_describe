@@ -153,6 +153,7 @@ class Work < ApplicationRecord
   after_save do |work|
     if work.approved?
       work.attach_s3_resources if !work.pre_curation_uploads.empty? && work.pre_curation_uploads.length > work.post_curation_uploads.length
+      work.reload
     end
   end
 
@@ -475,8 +476,6 @@ class Work < ApplicationRecord
             attachment.purge
           end
         end
-
-        reload
       else
         # This retrieves and adds S3 uploads if they do not exist
         pre_curation_s3_resources.each do |s3_file|
@@ -618,11 +617,11 @@ class Work < ApplicationRecord
     end
 
     def pre_curation_s3_query_service
-      @pre_curation_s3_query_service ||= S3QueryService.new(self, false)
+      @pre_curation_s3_query_service ||= S3QueryService.new(self, true)
     end
 
     def post_curation_s3_query_service
-      @post_curation_s3_query_service ||= S3QueryService.new(self, true)
+      @post_curation_s3_query_service ||= S3QueryService.new(self, false)
     end
 
     def s3_query_service
@@ -635,7 +634,11 @@ class Work < ApplicationRecord
 
     def s3_resources
       data_profile = s3_query_service.data_profile
-      data_profile.fetch(:objects, [])
+      values = data_profile.fetch(:objects, [])
+
+      values.map do |object|
+        S3File.new(filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
+      end
     end
     alias pre_curation_s3_resources s3_resources
 

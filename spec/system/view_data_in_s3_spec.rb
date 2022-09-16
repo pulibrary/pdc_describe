@@ -12,20 +12,20 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
     let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
     let(:s3_query_service_double) { instance_double(S3QueryService) }
     let(:file1) do
-      S3File.new(
-        filename: "SCoData_combined_v1_2020-07_README.txt",
+      {
+        key: "SCoData_combined_v1_2020-07_README.txt",
         last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
         size: 10_759,
-        checksum: "abc123"
-      )
+        etag: "abc123"
+      }
     end
     let(:file2) do
-      S3File.new(
-        filename: "SCoData_combined_v1_2020-07_datapackage.json",
+      {
+        key: "SCoData_combined_v1_2020-07_datapackage.json",
         last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
         size: 12_739,
-        checksum: "abc567"
-      )
+        etag: "abc567"
+      }
     end
     let(:s3_data) { [file1, file2] }
 
@@ -51,9 +51,9 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
       expect(page).to have_content work.title
       expect(page).to have_content "us_covid_2019.csv"
 
-      expect(page).to have_content file1.filename
+      expect(page).to have_content file1[:filename]
 
-      expect(page).to have_content file2.filename
+      expect(page).to have_content file2[:filename]
 
       click_on "Edit"
       expect(page).to have_content "us_covid_2019.csv"

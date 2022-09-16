@@ -171,7 +171,7 @@ class S3QueryService
       if pre_curation?
         model.pre_curation_uploads
       else
-        model.post_curation_uploads
+        []
       end
     end
 end
