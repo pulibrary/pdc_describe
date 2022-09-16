@@ -100,6 +100,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
 
     it "handles the reordering the creators on the update page" do
       params = {
+        "doi" => "10.34770/tbd",
         "title_main" => "test dataset updated",
         "description" => "a new description",
         "collection_id" => work.collection.id,
@@ -121,11 +122,22 @@ RSpec.describe WorksController, mock_ezid_api: true do
       post :update, params: params
 
       saved_work = Work.find(work.id)
+
+      # Test that author order is preserved in the Resource
       expect(saved_work.resource.creators[0].value).to eq "Smith, Jane"
       expect(saved_work.resource.creators[1].value).to eq "Lovelace, Ada"
 
+      # Test that author order is preserved in the DataCite XML Serialization
+      datacite_xml = saved_work.to_xml
+      datacite_nokogiri = Nokogiri::XML(datacite_xml)
+      datacite_creators = datacite_nokogiri.xpath("/xmlns:resource/xmlns:creators/xmlns:creator/xmlns:creatorName/text()")
+      expect(datacite_creators.size).to eq 2
+      expect(datacite_creators.first.text).to eq "Smith, Jane"
+      expect(datacite_creators.last.text).to eq "Lovelace, Ada"
+
       params_reordered = {
-        "title_main" => "test dataset updated",
+        "doi" => "10.34770/tbd",
+        "title_main" => "test dataset with reordered authors",
         "description" => "a new description",
         "collection_id" => work.collection.id,
         "commit" => "Update Dataset",
@@ -145,8 +157,18 @@ RSpec.describe WorksController, mock_ezid_api: true do
 
       post :update, params: params_reordered
       reordered_work = Work.find(work.id)
+
+      # Test that author order is preserved in the Resource
       expect(reordered_work.resource.creators[0].value).to eq "Lovelace, Ada"
       expect(reordered_work.resource.creators[1].value).to eq "Smith, Jane"
+
+      # Test that author order is preserved in the DataCite XML Serialization
+      datacite_xml = reordered_work.to_xml
+      datacite_nokogiri = Nokogiri::XML(datacite_xml)
+      datacite_creators = datacite_nokogiri.xpath("/xmlns:resource/xmlns:creators/xmlns:creator/xmlns:creatorName/text()")
+      expect(datacite_creators.size).to eq 2
+      expect(datacite_creators.first.text).to eq "Lovelace, Ada"
+      expect(datacite_creators.last.text).to eq "Smith, Jane"
     end
 
     context "with new file uploads for an existing Work without uploads" do
