@@ -203,7 +203,7 @@ RSpec.describe S3QueryService, mock_ezid_api: true, mock_s3_query_service: false
 
     it "retrieves the S3 Object from the HTTP API" do
       expect(s3_object).not_to be nil
-      bytestream = s3_object.body
+      bytestream = s3_object[:body]
       expect(bytestream.read).to eq("test_content")
     end
   end
@@ -213,16 +213,12 @@ RSpec.describe S3QueryService, mock_ezid_api: true, mock_s3_query_service: false
     let(:filename) { "test.txt" }
     let(:s3_file) { s3_query_service.find_s3_file(filename: filename) }
 
-    before do
-      stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/1/test.txt").to_return(status: 200, body: "test_content", headers: response_headers)
-    end
-
     it "retrieves the S3File from the AWS Bucket" do
       expect(s3_file).not_to be nil
 
       expect(s3_file.filename).to eq("10.34770/pe9w-x904/#{work.id}/test.txt")
       expect(s3_file.last_modified).to be_a(Time)
-      expect(s3_file.size).to eq(37)
+      expect(s3_file.size).to eq(12)
       expect(s3_file.checksum).to eq("6805f2cfc46c0f04559748bb039d69ae")
     end
   end

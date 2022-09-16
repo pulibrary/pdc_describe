@@ -13,7 +13,8 @@ RSpec.configure do |config|
     allow(@pre_curated_query_service).to receive(:client).and_return(@s3_client)
     allow(S3QueryService).to receive(:new).with(anything, true).and_return(@pre_curated_query_service)
 
-    @post_curated_data_profile = {
+    # @todo remove this
+    @post_curated_data_profile_disable = {
       objects: [
         {
           key: "test_object1",
@@ -29,6 +30,24 @@ RSpec.configure do |config|
         }
       ]
     }
+
+    @post_curated_data_profile = {
+      objects: [
+        S3File.new(
+          filename: "test_object1",
+          last_modified: Time.parse("Thu, 15 Dec 2016 01:19:41 GMT"),
+          size: 12,
+          checksum: "6805f2cfc46c0f04559748bb039d69ae"
+        ),
+        S3File.new(
+          filename: "test_object2",
+          last_modified: Time.parse("Thu, 15 Dec 2016 01:19:41 GMT"),
+          size: 12,
+          checksum: "6805f2cfc46c0f04559748bb039d69ae"
+        )
+      ]
+    }
+
     @post_curated_query_service = instance_double(S3QueryService)
     stub_request(:get, "https://example-bucket.s3.amazonaws.com/test_object1").to_return(status: 200, body: "test_content")
     stub_request(:get, "https://example-bucket.s3.amazonaws.com/test_object2").to_return(status: 200, body: "test_content")

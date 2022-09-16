@@ -18,6 +18,14 @@ class S3QueryService
     configuration.post_curation
   end
 
+  def self.url_protocol
+    "https"
+  end
+
+  def self.s3_host
+    "s3.amazonaws.com"
+  end
+
   ##
   # @param [String] doi
   # @param [Boolean] pre_curation
@@ -95,7 +103,10 @@ class S3QueryService
     return objects if model.nil?
 
     model_uploads.each do |attachment|
-      s3_file = S3File.new(filename: attachment.key, last_modified: attachment.created_at, size: attachment.byte_size,
+      s3_file = S3File.new(query_service: self,
+                           filename: attachment.key,
+                           last_modified: attachment.created_at,
+                           size: attachment.byte_size,
                            checksum: attachment.checksum)
       objects << s3_file
     end
@@ -109,10 +120,9 @@ class S3QueryService
                                    key: key
                                  })
     object = response.to_h
-
     return if object.empty?
 
-    response
+    object
   end
 
   def find_s3_file(filename:)
@@ -121,7 +131,7 @@ class S3QueryService
     object = get_s3_object(key: s3_object_key)
     return if object.nil?
 
-    S3File.new(filename: s3_object_key, last_modified: object.last_modified, size: object.size, checksum: object.etag)
+    S3File.new(query_service: self, filename: s3_object_key, last_modified: object[:last_modified], size: object[:content_length], checksum: object[:etag])
   end
 
   # Retrieve the S3 resources uploaded to the S3 Bucket
@@ -135,7 +145,7 @@ class S3QueryService
     Rails.logger.debug("Objects: #{response_objects}")
     response_objects&.each do |object|
       next if object[:size] == 0 # ignore directories whose size is zero
-      s3_file = S3File.new(filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
+      s3_file = S3File.new(query_service: self, filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
       objects << s3_file
     end
 
