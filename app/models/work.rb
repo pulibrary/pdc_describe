@@ -633,7 +633,11 @@ class Work < ApplicationRecord
 
     def s3_resources
       data_profile = s3_query_service.data_profile
-      data_profile.fetch(:objects, [])
+      values = data_profile.fetch(:objects, [])
+
+      values.map do |object|
+        S3File.new(filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
+      end
     end
     alias pre_curation_s3_resources s3_resources
 
