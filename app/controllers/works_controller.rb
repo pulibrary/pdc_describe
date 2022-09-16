@@ -147,7 +147,7 @@ class WorksController < ApplicationController
     end
   end
 
-  def completed
+  def validate
     @work = Work.find(params[:id])
     @work.submission_notes = params["submission_notes"]
     @uploads = @work.uploads
