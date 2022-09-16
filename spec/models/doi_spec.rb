@@ -3,9 +3,9 @@ require "rails_helper"
 
 RSpec.describe "DOI", type: :model, mock_ezid_api: true do
   let(:client) do
-    Datacite::Client.new(username: ENV["DATACITE_USER"],
-                         password: ENV["DATACITE_PASSWORD"],
-                         host: ENV["DATACITE_HOST"])
+    Datacite::Client.new(username: Rails.configuration.datacite.user,
+                         password: Rails.configuration.datacite.password,
+                         host: Rails.configuration.datacite.host)
   end
 
   let(:prefix) { "10.80021" }

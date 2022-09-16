@@ -24,7 +24,7 @@ class WorksController < ApplicationController
   end
 
   def create
-    @work = Work.new(created_by_user_id: current_user.id, collection_id: params[:collection_id], resource: resource_from_form)
+    @work = Work.new(created_by_user_id: current_user.id, collection_id: params[:collection_id], resource: resource_from_form, user_entered_doi: params["doi"].present?)
     if @work.valid?
       @work.draft!(current_user)
       redirect_to work_url(@work), notice: "Work was successfully created."
