@@ -651,6 +651,7 @@ RSpec.describe WorksController, mock_ezid_api: true do
           expect(response).to render_template("edit")
           expect(response.status).to be 422
           expect(work.reload).to be_draft
+          expect(assigns[:errors]).to eq(["Cannot Complete submission: Must provide a description"])
         end
       end
     end

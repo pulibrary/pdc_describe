@@ -8,7 +8,7 @@ require "open-uri"
 # rubocop:disable Metrics/MethodLength
 # rubocop:disable Style/For
 class WorksController < ApplicationController
-  around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :create]
+  around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :validate, :create]
 
   def index
     @works = Work.all
@@ -152,13 +152,8 @@ class WorksController < ApplicationController
     @work.submission_notes = params["submission_notes"]
     @uploads = @work.uploads
     @wizard_mode = true
-    begin
-      @work.complete_submission!(current_user)
-      redirect_to user_url(current_user)
-    rescue AASM::InvalidTransition
-      # Work couldn't transition, send the user back to the edit page
-      render "edit", status: :unprocessable_entity
-    end
+    @work.complete_submission!(current_user)
+    redirect_to user_url(current_user)
   end
 
   def approve
@@ -291,6 +286,8 @@ class WorksController < ApplicationController
     def error_action
       if action_name == "create"
         :new
+      elsif action_name == "validate"
+        :edit
       else
         :show
       end
