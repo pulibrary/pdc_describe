@@ -34,6 +34,10 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
   let(:collection) { "Research Data" }
 
   context "happy path" do
+    before do
+      stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
+    end
+
     it "produces and saves a valid datacite record", js: true do
       # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
       page.driver.browser.manage.window.resize_to(2000, 2000)
@@ -58,6 +62,11 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
   end
 
   context "validation errors" do
+    before do
+      stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
+      stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-ab").to_return(status: 404, body: "", headers: {})
+    end
+
     it "returns the user to the new page so they can recover from an error", js: true do
       # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
       page.driver.browser.manage.window.resize_to(2000, 2000)
@@ -69,6 +78,14 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "family_name_1", with: "Abrams"
       fill_in "description", with: description
       find("#rights_identifier").find(:xpath, "option[2]").select_option
+      click_on "Identifiers"
+      fill_in "doi", with: "abc123"
+      click_on "Create"
+      expect(page).to have_content "Invalid DOI: does not match format"
+      click_on "Identifiers"
+      fill_in "doi", with: "10.34770/123-ab"
+      click_on "Create"
+      expect(page).to have_content "Invalid DOI: can not verify it's authenticity"
       click_on "Identifiers"
       fill_in "doi", with: doi
       fill_in "ark", with: ark

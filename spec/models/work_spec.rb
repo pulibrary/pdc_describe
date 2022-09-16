@@ -37,7 +37,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     work = Work.new(collection: collection, resource: FactoryBot.build(:resource))
     work.draft_doi
     work.draft_doi # Doing this multiple times on purpose to make sure the api is only called once
-    expect(a_request(:post, ENV["DATACITE_URL"])).to have_been_made.once
+    expect(a_request(:post, "https://#{Rails.configuration.datacite.host}/dois")).to have_been_made.once
   end
 
   it "prevents datasets with no users" do
@@ -361,7 +361,7 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
 
     it "drafts a doi and the DOI is persisted" do
       draft_work
-      expect(a_request(:post, ENV["DATACITE_URL"])).to have_been_made
+      expect(a_request(:post, "https://#{Rails.configuration.datacite.host}/dois")).to have_been_made
       expect(draft_work.resource.doi).not_to eq nil
     end
 

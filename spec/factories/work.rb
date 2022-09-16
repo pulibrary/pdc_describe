@@ -45,7 +45,7 @@ FactoryBot.define do
       collection { Collection.plasma_laboratory }
       resource do
         PDCMetadata::Resource.new_from_json({
-          "doi": "https://doi.org/10.34770/not_yet_assigned",
+          "doi": "10.34770/not_yet_assigned",
           "ark": "ark:/88435/dsp015d86p342b",
           "identifier_type": "DOI",
           "titles": [{ "title": "Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas" }],
