@@ -21,6 +21,12 @@ RSpec.describe WorksController, mock_ezid_api: true do
       expect(response).to render_template("index")
     end
 
+    it "has an rss feed" do
+      sign_in user
+      get :index, format: "rss"
+      expect(response.content_type).to eq "application/rss+xml; charset=utf-8"
+    end
+
     it "renders the new submission wizard' step 0" do
       sign_in user
       get :new, params: { wizard: true }
