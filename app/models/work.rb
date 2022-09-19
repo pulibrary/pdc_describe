@@ -155,10 +155,6 @@ class Work < ApplicationRecord
     end
   end
 
-  def attaching_s3_objects?
-    @attaching_s3_objects ||= false
-  end
-
   # Overload ActiveRecord.reload method
   # https://apidock.com/rails/ActiveRecord/Base/reload
   #
@@ -433,10 +429,7 @@ class Work < ApplicationRecord
 
   # This is invoked within the scope of #after_save. Attachment objects require that the parent record be persisted (hence, #before_save is not an option).
   # However, a consequence of this is that #after_save is invoked whenever a new attached Blob or Attachment object is persisted.
-  # @attaching_s3_objects is used to ensure that this is not invoked recursively.
   def attach_s3_resources
-    @attaching_s3_objects = true
-
     if approved?
       # This migrates pre-curation S3 Objects to the post-curation S3 Bucket
       transferred = []
@@ -455,7 +448,6 @@ class Work < ApplicationRecord
         add_pre_curation_s3_object(s3_file)
       end
     end
-    @attaching_s3_objects = false
   end
 
   protected
