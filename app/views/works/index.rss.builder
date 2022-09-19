@@ -7,6 +7,8 @@ xml.rss version: "2.0" do
     xml.link root_url
 
     @works.each do |work|
+      # Only include approved works in the RSS feed
+      next unless work.state == "approved"
       xml.item do
         xml.title work.title
         xml.url datacite_work_url(work)
