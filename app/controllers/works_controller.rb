@@ -12,6 +12,10 @@ class WorksController < ApplicationController
 
   def index
     @works = Work.all
+    respond_to do |format|
+      format.html
+      format.rss { render layout: false }
+    end
   end
 
   # Renders the "step 0" information page before creating a new dataset
