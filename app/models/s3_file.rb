@@ -11,13 +11,33 @@ class S3File
     @query_service = query_service
   end
 
-  delegate :bucket_name, to: :@query_service
+  def bucket_name
+    return if @query_service.nil?
+
+    @query_service.bucket_name
+  end
+
+  def url_protocol
+    return if @query_service.nil?
+
+    @query_service.class.url_protocol
+  end
+
+  def s3_host
+    return if @query_service.nil?
+
+    @query_service.class.s3_host
+  end
 
   def uri
-    URI("#{@query_service.class.url_protocol}://#{bucket_name}.#{@query_service.class.s3_host}/#{filename}")
+    return if @query_service.nil?
+
+    URI("#{url_protocol}://#{bucket_name}.#{s3_host}/#{filename}")
   end
 
   def url
+    return if uri.nil?
+
     uri.to_s
   end
 end
