@@ -8,7 +8,7 @@ require "open-uri"
 # rubocop:disable Metrics/MethodLength
 # rubocop:disable Style/For
 class WorksController < ApplicationController
-  around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :completed, :create]
+  around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :validate, :create]
 
   def index
     @works = Work.all
@@ -147,9 +147,11 @@ class WorksController < ApplicationController
     end
   end
 
-  def completed
+  def validate
     @work = Work.find(params[:id])
     @work.submission_notes = params["submission_notes"]
+    @uploads = @work.uploads
+    @wizard_mode = true
     @work.complete_submission!(current_user)
     redirect_to user_url(current_user)
   end
@@ -284,6 +286,8 @@ class WorksController < ApplicationController
     def error_action
       if action_name == "create"
         :new
+      elsif action_name == "validate"
+        :edit
       else
         :show
       end

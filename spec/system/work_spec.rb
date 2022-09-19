@@ -103,6 +103,24 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
     end
   end
 
+  context "when editing a work" do
+    let(:draft_work) { FactoryBot.create(:draft_work) }
+    let(:completed_work) { FactoryBot.create(:completed_work) }
+    let(:user) { draft_work.created_by_user }
+
+    it "uses the wizard if the work is in draft" do
+      sign_in user
+      visit work_path(draft_work)
+      expect(page.html.include?("/works/#{draft_work.id}/edit?wizard=true")).to be true
+    end
+
+    it "does not use the wizard if the work once the work is not in draft" do
+      sign_in user
+      visit work_path(completed_work)
+      expect(page.html.include?("/works/#{completed_work.id}/edit")).to be true
+    end
+  end
+
   context "when editing an existing draft Work with uploaded files" do
     let(:work) { FactoryBot.create(:draft_work) }
     let(:user) { work.created_by_user }

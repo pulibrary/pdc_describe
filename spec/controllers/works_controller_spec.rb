@@ -633,10 +633,10 @@ RSpec.describe WorksController, mock_ezid_api: true do
       end
     end
 
-    describe "#completed" do
+    describe "#validate" do
       it "saves the submission notes and renders the user dashboard" do
         sign_in user
-        post :completed, params: { id: work.id, submission_notes: "I need this processed ASAP" }
+        post :validate, params: { id: work.id, submission_notes: "I need this processed ASAP" }
         expect(response.status).to be 302
         expect(response.location).to eq "http://test.host/users/#{user.uid}"
         expect(Work.find(work.id).submission_notes).to eq "I need this processed ASAP"
@@ -647,7 +647,8 @@ RSpec.describe WorksController, mock_ezid_api: true do
           work.resource.description = nil
           work.save
           sign_in user
-          post :completed, params: { id: work.id }
+          post :validate, params: { id: work.id }
+          expect(response).to render_template("edit")
           expect(response.status).to be 422
           expect(work.reload).to be_draft
           expect(assigns[:errors]).to eq(["Cannot Complete submission: Must provide a description"])

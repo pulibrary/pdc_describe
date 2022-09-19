@@ -40,7 +40,7 @@
 </style>
 
 <div>
-  <%= link_to("Edit", edit_work_path(@work), class: "btn btn-primary") %>
+  <%= link_to("Edit", edit_work_path(@work, wizard: @work.draft? ? true : nil), class: "btn btn-primary") %>
   <% if @work.awaiting_approval? && current_user.has_role?(:collection_admin, @work.collection) %>
     <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post) %>
   <% elsif @work.approved? %>
@@ -49,12 +49,10 @@
     <%= button_to("Resubmit for approval", resubmit_work_path(@work), class: "btn btn-secondary", method: :post) %>
   <% end %>
   <% if @work.draft? && @work.created_by_user_id == current_user.id %>
-    <%= button_to("Complete", work_completed_path(@work), class: "btn btn-secondary", method: :post) %>
+    <%= button_to("Complete", work_validate_path(@work), class: "btn btn-secondary", method: :post) %>
   <% end %>
   <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-secondary" %>
 </div>
-
-<%= render 'transition_errors' %>
 
 <h1><%= @work.title %></h1>
 

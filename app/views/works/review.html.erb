@@ -7,7 +7,7 @@
     it more discoverable and reusable. Recommendations will be available in the "unfinished submissions"
     section of this form within 2-3 business days.</p>
 
-  <%= form_tag(action: "completed", id: @work) do %>
+  <%= form_tag(action: "validate", id: @work) do %>
     <textarea id="submission_notes" name="submission_notes" cols="80", rows="10"
       placeholder="(optional) Type here to leave a message for the curators"><%= @work.submission_notes %></textarea>
     <div class="actions">

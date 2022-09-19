@@ -23,7 +23,7 @@ Rails.application.routes.draw do
   get "works/:id/file-other", to: "works#file_other", as: :work_file_other
   get "works/:id/review", to: "works#review", as: :work_review
   post "works/:id/review", to: "works#review"
-  post "works/:id/completed", to: "works#completed", as: :work_completed
+  post "works/:id/validate", to: "works#validate", as: :work_validate
   post "work/:id/approve", to: "works#approve", as: :approve_work
   post "work/:id/withdraw", to: "works#withdraw", as: :withdraw_work
   post "work/:id/resubmit", to: "works#resubmit", as: :resubmit_work
