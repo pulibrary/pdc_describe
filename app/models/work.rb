@@ -386,11 +386,9 @@ class Work < ApplicationRecord
     return if pre_curation_uploads.empty?
 
     new_attachments = pre_curation_uploads.reject(&:persisted?)
-    # There are cases (race conditions?) where the ActiveStorage::Blob objects are not persisted
-    valid_new_attachments = new_attachments.select { |e| e.blob.persisted? }
-    return if valid_new_attachments.empty?
+    return if new_attachments.empty?
 
-    save_new_attachments(new_attachments: valid_new_attachments)
+    save_new_attachments(new_attachments: new_attachments)
   end
 
   # Accesses post-curation S3 Bucket Objects
@@ -598,6 +596,8 @@ class Work < ApplicationRecord
     # This needs to be called #before_save
     def save_new_attachments(new_attachments:)
       new_attachments.each do |attachment|
+        # There are cases (race conditions?) where the ActiveStorage::Blob objects are not persisted
+        next if attachment.frozen?
         generated_key = generate_attachment_key(attachment)
         attachment.blob.key = generated_key
         attachment.blob.save
