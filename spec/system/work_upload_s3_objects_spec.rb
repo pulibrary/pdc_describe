@@ -47,10 +47,10 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
       end
 
       before do
-        work.pre_curation_uploads.attach(upload_file)
+        # work.pre_curation_uploads.attach(upload_file)
+        work.state = "draft"
         work.save
         work.reload
-        work.save
 
         stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
       end
@@ -58,9 +58,12 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
       after do
         work.pre_curation_uploads.map(&:purge)
         work.save
+        work.reload
       end
 
       it "renders S3 Bucket Objects and file uploads on the show page", js: true do
+        work.pre_curation_uploads.attach(upload_file)
+
         expect(work.pre_curation_uploads.length).to eq(3)
         visit work_path(work)
         expect(page).to have_content work.title
@@ -71,6 +74,8 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
       end
 
       it "renders S3 Bucket Objects and file uploads on the edit page", js: true do
+        work.pre_curation_uploads.attach(upload_file)
+
         expect(work.pre_curation_uploads.length).to eq(3)
         visit work_path(work)
         click_on "Edit"
@@ -112,14 +117,16 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         let(:approved_work) { FactoryBot.create(:shakespeare_and_company_work) }
 
         before do
-          approved_work.pre_curation_uploads.attach(upload_file)
-          approved_work.save
-          approved_work.reload
+          # approved_work.pre_curation_uploads.attach(upload_file)
+          # approved_work.save
+          # approved_work.reload
           approved_work.state = "accepted"
           approved_work.save
         end
 
         it "renders S3 Bucket Objects and file uploads on the show page", js: true do
+          approved_work.pre_curation_uploads.attach(upload_file)
+
           visit work_path(approved_work)
           expect(page).to have_content approved_work.title
 
@@ -129,6 +136,8 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         end
 
         it "renders S3 Bucket Objects and file uploads on the edit page", js: true do
+          approved_work.pre_curation_uploads.attach(upload_file)
+
           visit work_path(approved_work)
           click_on "Edit"
 

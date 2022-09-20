@@ -386,11 +386,20 @@ class Work < ApplicationRecord
     return if pre_curation_uploads.empty?
 
     new_attachments = pre_curation_uploads.reject(&:persisted?)
-    # There are cases (race conditions?) where the ActiveStorage::Blob objects are not persisted
-    valid_new_attachments = new_attachments.select { |e| e.blob.persisted? }
-    return if valid_new_attachments.empty?
+    return if new_attachments.empty?
 
-    save_new_attachments(new_attachments: valid_new_attachments)
+    # There are cases (race conditions?) where the ActiveStorage::Blob objects are not persisted
+    unpersisted = new_attachments.reject { |e| e.blob.persisted? }
+    unless unpersisted.empty?
+      # binding.pry
+      # unpersisted.map(&:blob).map(&:save)
+      unpersisted.map(&:save)
+      reload
+      # binding.pry
+      new_attachments = pre_curation_uploads.reject(&:persisted?)
+    end
+
+    save_new_attachments(new_attachments: new_attachments)
   end
 
   # Accesses post-curation S3 Bucket Objects
