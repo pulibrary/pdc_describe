@@ -1,0 +1,35 @@
+<div class="dataset-table">
+  <table id="<%= table_id %>" class="table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Name</th>
+        <th>Curator</th>
+        <th>Status</th>
+        <th>Last Edited</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% datasets.each do |ds| %>
+        <tr>
+          <td>
+            <a href="<%= work_path(ds) %>"><%= ds.title %></a>
+            <% if ds.new_notification_count_for_user(current_user.id) > 0 %>
+              <a href="<%= work_path(ds) %>">
+                <span class="badge rounded-pill bg-primary" title="<%= ds.new_notification_count_for_user(current_user.id) %> new notifications"><%= ds.new_notification_count_for_user(current_user.id) %></span>
+              </a>
+            <% end %>
+          </td>
+          <td><%= ds.created_by_user.uid %></td>
+          <td>
+              <span title="<%= ds.curator&.display_name %>"><%= ds.curator&.uid %></span>
+          </td>
+          <td><%= ds.state %></td>
+          <td>
+            <span title="<%= ds.updated_at.localtime %>"><%= distance_of_time_in_words_to_now(ds.updated_at) %></span>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
