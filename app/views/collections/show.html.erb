@@ -11,7 +11,7 @@
 
 <h1><%= @collection.title.strip %> </h1>
 <% if @collection.description.present? %>
-  <p>Description: <%= @collection.description %></p>
+  <p><%= @collection.description %></p>
 <% end %>
 
 <p>
@@ -19,7 +19,7 @@
   <%= @collection.administrators.map { |user| link_to(user.display_name_safe, user_path(user.uid)) }.to_sentence.html_safe %>
 </p>
 
-<h2>Datasets</h2>
+<h2 class="dataset-section">Datasets</h2>
 <% if @collection.datasets.count > 0 %>
   <%= render partial: "dataset_table", locals: {table_id: "collection_datasets", datasets: @collection.datasets} %>
 <% else %>
