@@ -388,17 +388,6 @@ class Work < ApplicationRecord
     new_attachments = pre_curation_uploads.reject(&:persisted?)
     return if new_attachments.empty?
 
-    # There are cases (race conditions?) where the ActiveStorage::Blob objects are not persisted
-    unpersisted = new_attachments.reject { |e| e.blob.persisted? }
-    unless unpersisted.empty?
-      # binding.pry
-      # unpersisted.map(&:blob).map(&:save)
-      unpersisted.map(&:save)
-      reload
-      # binding.pry
-      new_attachments = pre_curation_uploads.reject(&:persisted?)
-    end
-
     save_new_attachments(new_attachments: new_attachments)
   end
 
@@ -607,6 +596,8 @@ class Work < ApplicationRecord
     # This needs to be called #before_save
     def save_new_attachments(new_attachments:)
       new_attachments.each do |attachment|
+        # There are cases (race conditions?) where the ActiveStorage::Blob objects are not persisted
+        next if attachment.frozen?
         generated_key = generate_attachment_key(attachment)
         attachment.blob.key = generated_key
         attachment.blob.save
