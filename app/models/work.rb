@@ -606,6 +606,8 @@ class Work < ApplicationRecord
     # This needs to be called #before_save
     def save_new_attachments(new_attachments:)
       new_attachments.each do |attachment|
+        # There are cases (race conditions?) where the ActiveStorage::Blob objects are not persisted
+        next if attachment.frozen?
         generated_key = generate_attachment_key(attachment)
         attachment.blob.key = generated_key
         attachment.blob.save
