@@ -6,7 +6,6 @@ RSpec.describe "RSS feed of approved works, for harvesting and indexing", type: 
   let(:work2) { FactoryBot.create(:draft_work) }
   let(:work3) { FactoryBot.create(:draft_work) }
   let(:admin) { FactoryBot.create(:super_admin_user) }
-  let(:user) { FactoryBot.create(:princeton_submitter) }
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
@@ -25,13 +24,17 @@ RSpec.describe "RSS feed of approved works, for harvesting and indexing", type: 
     work3
   end
 
+  ##
+  # Note that we do not require sign in for getting a list of approved works
+  # or the JSON representation of a work
   it "provides a list of approved works, with links to their datacite records" do
-    sign_in user
     visit "/works.rss"
     doc = Nokogiri::XML(page.body)
     expect(doc.xpath("//item").size).to eq 2
     urls = doc.xpath("//item/url/text()").map(&:to_s)
     expect(urls.include?(work_url(work1, format: "json"))).to eq true
     expect(urls.include?(work_url(work2, format: "json"))).to eq true
+    visit "/works/#{work1.id}.json"
+    expect(JSON.parse(page.body)["titles"][0]["title"]).to eq work1.title
   end
 end

@@ -10,6 +10,19 @@ require "open-uri"
 class WorksController < ApplicationController
   around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :validate, :create]
 
+  skip_before_action :authenticate_user!
+  before_action :authenticate_user!, unless: :public_request?
+
+  ##
+  # Public requests are requests that do not require authentication.
+  # This is to enable PDC Discovery to index approved content via the RSS feed and
+  # .json calls to individual works without needing to log in as a user.
+  def public_request?
+    return true if action_name == "index" && request.format.symbol == :rss
+    return true if action_name == "show" && request.format.symbol == :json
+    false
+  end
+
   def index
     @works = Work.all
     respond_to do |format|
@@ -51,9 +64,11 @@ class WorksController < ApplicationController
   # When requested as .json, return the internal json resource
   def show
     @work = Work.find(params[:id])
-    @can_curate = current_user.can_admin?(@work.collection)
     respond_to do |format|
-      format.html { @work.mark_new_notifications_as_read(current_user.id) }
+      format.html do
+        @can_curate = current_user.can_admin?(@work.collection)
+        @work.mark_new_notifications_as_read(current_user.id)
+      end
       format.json { render json: @work.resource }
     end
   end
