@@ -11,7 +11,7 @@ xml.rss version: "2.0" do
       next unless work.state == "approved"
       xml.item do
         xml.title work.title
-        xml.url datacite_work_url(work)
+        xml.url work_url(work, format: "json")
         xml.date_changed work.updated_at
       end
     end
