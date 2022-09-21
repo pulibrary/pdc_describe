@@ -97,6 +97,16 @@ class Work < ApplicationRecord
       works_by_user_state(user, "withdrawn")
     end
 
+    def find_by_doi(doi)
+      models = all.select { |work| work.resource.doi == doi }
+      models.first
+    end
+
+    def find_by_ark(ark)
+      models = all.select { |work| work.resource.ark == ark }
+      models.first
+    end
+
     private
 
       def works_by_user_state(user, state)

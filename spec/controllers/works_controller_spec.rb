@@ -716,6 +716,38 @@ RSpec.describe WorksController, mock_ezid_api: true do
       end
     end
 
+    describe "#resolve_doi" do
+      before do
+        sign_in user
+        stub_s3 data: data
+      end
+
+      let(:data) { [] }
+      let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
+
+      it "redirects to the Work show view" do
+        stub_s3
+        get :resolve_doi, params: { doi: work.doi }
+        expect(response).to redirect_to(work_path(work))
+      end
+    end
+
+    describe "#resolve_ark" do
+      before do
+        sign_in user
+        stub_s3 data: data
+      end
+
+      let(:data) { [] }
+      let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
+
+      it "redirects to the Work show view" do
+        stub_s3
+        get :resolve_ark, params: { ark: work.ark }
+        expect(response).to redirect_to(work_path(work))
+      end
+    end
+
     describe "#validate" do
       it "saves the submission notes and renders the user dashboard" do
         sign_in user
