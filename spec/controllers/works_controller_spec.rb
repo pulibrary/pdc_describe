@@ -27,6 +27,12 @@ RSpec.describe WorksController, mock_ezid_api: true do
       expect(response.content_type).to eq "application/rss+xml; charset=utf-8"
     end
 
+    it "renders the resource json" do
+      sign_in user
+      get :show, params: { id: work.id, format: "json" }
+      expect(response.content_type).to eq "application/json; charset=utf-8"
+    end
+
     it "renders the new submission wizard' step 0" do
       sign_in user
       get :new, params: { wizard: true }
@@ -707,6 +713,38 @@ RSpec.describe WorksController, mock_ezid_api: true do
         stub_s3
         get :show, params: { id: work.id }
         expect(response).to render_template("show")
+      end
+    end
+
+    describe "#resolve_doi" do
+      before do
+        sign_in user
+        stub_s3 data: data
+      end
+
+      let(:data) { [] }
+      let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
+
+      it "redirects to the Work show view" do
+        stub_s3
+        get :resolve_doi, params: { doi: work.doi }
+        expect(response).to redirect_to(work_path(work))
+      end
+    end
+
+    describe "#resolve_ark" do
+      before do
+        sign_in user
+        stub_s3 data: data
+      end
+
+      let(:data) { [] }
+      let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
+
+      it "redirects to the Work show view" do
+        stub_s3
+        get :resolve_ark, params: { ark: work.ark }
+        expect(response).to redirect_to(work_path(work))
       end
     end
 

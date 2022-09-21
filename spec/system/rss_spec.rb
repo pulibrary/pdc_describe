@@ -31,7 +31,7 @@ RSpec.describe "RSS feed of approved works, for harvesting and indexing", type: 
     doc = Nokogiri::XML(page.body)
     expect(doc.xpath("//item").size).to eq 2
     urls = doc.xpath("//item/url/text()").map(&:to_s)
-    expect(urls.include?(datacite_work_url(work1))).to eq true
-    expect(urls.include?(datacite_work_url(work2))).to eq true
+    expect(urls.include?(work_url(work1, format: "json"))).to eq true
+    expect(urls.include?(work_url(work2, format: "json"))).to eq true
   end
 end

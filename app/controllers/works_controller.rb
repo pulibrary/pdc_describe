@@ -46,10 +46,26 @@ class WorksController < ApplicationController
     redirect_to edit_work_path(work, wizard: true)
   end
 
+  ##
+  # Show the information for the dataset with the given id
+  # When requested as .json, return the internal json resource
   def show
     @work = Work.find(params[:id])
     @can_curate = current_user.can_admin?(@work.collection)
-    @work.mark_new_notifications_as_read(current_user.id)
+    respond_to do |format|
+      format.html { @work.mark_new_notifications_as_read(current_user.id) }
+      format.json { render json: @work.resource }
+    end
+  end
+
+  def resolve_doi
+    @work = Work.find_by_doi(params[:doi])
+    redirect_to @work
+  end
+
+  def resolve_ark
+    @work = Work.find_by_ark(params[:ark])
+    redirect_to @work
   end
 
   # GET /works/1/edit
