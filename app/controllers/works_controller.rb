@@ -52,6 +52,16 @@ class WorksController < ApplicationController
     @work.mark_new_notifications_as_read(current_user.id)
   end
 
+  def resolve_doi
+    @work = Work.find_by_doi(params[:doi])
+    redirect_to @work
+  end
+
+  def resolve_ark
+    @work = Work.find_by_ark(params[:ark])
+    redirect_to @work
+  end
+
   # GET /works/1/edit
   def edit
     @work = Work.find(params[:id])
