@@ -18,6 +18,14 @@ class S3QueryService
     configuration.post_curation
   end
 
+  def self.url_protocol
+    "https"
+  end
+
+  def self.s3_host
+    "s3.amazonaws.com"
+  end
+
   ##
   # @param [String] doi
   # @param [Boolean] pre_curation
@@ -80,8 +88,11 @@ class S3QueryService
     active_storage_configuration["secret_access_key"]
   end
 
+  def credentials
+    @credentials ||= Aws::Credentials.new(access_key_id, secret_access_key)
+  end
+
   def client
-    credentials = Aws::Credentials.new(access_key_id, secret_access_key)
     @client ||= Aws::S3::Client.new(region: region, credentials: credentials)
   end
 
@@ -92,12 +103,35 @@ class S3QueryService
     return objects if model.nil?
 
     model_uploads.each do |attachment|
-      s3_file = S3File.new(filename: attachment.key, last_modified: attachment.created_at, size: attachment.byte_size,
+      s3_file = S3File.new(query_service: self,
+                           filename: attachment.key,
+                           last_modified: attachment.created_at,
+                           size: attachment.byte_size,
                            checksum: attachment.checksum)
       objects << s3_file
     end
 
     objects
+  end
+
+  def get_s3_object(key:)
+    response = client.get_object({
+                                   bucket: bucket_name,
+                                   key: key
+                                 })
+    object = response.to_h
+    return if object.empty?
+
+    object
+  end
+
+  def find_s3_file(filename:)
+    s3_object_key = "#{prefix}#{filename}"
+
+    object = get_s3_object(key: s3_object_key)
+    return if object.nil?
+
+    S3File.new(query_service: self, filename: s3_object_key, last_modified: object[:last_modified], size: object[:content_length], checksum: object[:etag])
   end
 
   # Retrieve the S3 resources uploaded to the S3 Bucket
@@ -111,7 +145,7 @@ class S3QueryService
     Rails.logger.debug("Objects: #{response_objects}")
     response_objects&.each do |object|
       next if object[:size] == 0 # ignore directories whose size is zero
-      s3_file = S3File.new(filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
+      s3_file = S3File.new(query_service: self, filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
       objects << s3_file
     end
 
@@ -147,7 +181,7 @@ class S3QueryService
       if pre_curation?
         model.pre_curation_uploads
       else
-        model.post_curation_uploads
+        []
       end
     end
 end

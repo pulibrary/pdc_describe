@@ -6,7 +6,6 @@ class Work < ApplicationRecord
 
   has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many_attached :pre_curation_uploads, service: :amazon_pre_curation
-  has_many_attached :post_curation_uploads, service: :amazon_post_curation
 
   belongs_to :collection
 
@@ -14,6 +13,8 @@ class Work < ApplicationRecord
   attribute :profile, :string, default: "DATACITE"
 
   attr_accessor :user_entered_doi
+
+  validates_with Validators::WorkValidator
 
   include AASM
 
@@ -133,19 +134,14 @@ class Work < ApplicationRecord
   include Rails.application.routes.url_helpers
 
   before_save do |work|
-    if !work.changes.empty? && work.changes.key?(:state) && work.persisted?
-      # Update the uploads attachments using S3 Resources
-      work.attach_s3_resources
-    end
-
     # Ensure that the metadata JSON is persisted properly
     work.metadata = work.resource.to_json
+  end
 
+  after_save do |work|
     if work.approved?
-      work.transfer_curated_uploads
-      work.save_post_curation_uploads
-    else
-      work.save_pre_curation_uploads
+      work.attach_s3_resources if !work.pre_curation_uploads.empty? && work.pre_curation_uploads.length > work.post_curation_uploads.length
+      work.reload
     end
   end
 
@@ -175,26 +171,6 @@ class Work < ApplicationRecord
     # Force `resource` to be reloaded
     @resource = nil
     self
-  end
-
-  def save_pre_curation_uploads
-    new_attachments = pre_curation_uploads.reject(&:persisted?)
-    save_new_attachments(new_attachments: new_attachments)
-  end
-
-  def transfer_curated_uploads
-    if approved?
-      post_curation_keys = pre_curation_uploads.map(&:key)
-
-      pre_curation_uploads.each do |pre_curation_attachment|
-        post_curation_uploads.attach(pre_curation_attachment) unless post_curation_keys.include?(pre_curation_attachment.key)
-      end
-    end
-  end
-
-  def save_post_curation_uploads
-    new_attachments = post_curation_uploads.reject(&:persisted?)
-    save_new_attachments(new_attachments: new_attachments)
   end
 
   def validate_doi
@@ -406,19 +382,72 @@ class Work < ApplicationRecord
     pre_curation_uploads
   end
 
-  def add_pre_curation_uploads(s3_file)
-    blob = s3_file_to_blob(s3_file)
-    persisted = ActiveStorage::Attachment.new(blob: blob, name: :pre_curation_uploads)
-    persisted.record = self
-    persisted.save
-    persisted.reload
-    pre_curation_uploads << persisted
+  def save_pre_curation_uploads
+    return if pre_curation_uploads.empty?
+
+    new_attachments = pre_curation_uploads.reject(&:persisted?)
+    return if new_attachments.empty?
+
+    save_new_attachments(new_attachments: new_attachments)
   end
 
+  # Accesses post-curation S3 Bucket Objects
   def post_curation_s3_resources
     return [] unless approved?
 
     s3_resources
+  end
+  alias post_curation_uploads post_curation_s3_resources
+
+  def s3_client
+    s3_query_service.client
+  end
+
+  delegate :bucket_name, to: :s3_query_service
+
+  def pre_curation_bucket_name
+    pre_curation_s3_query_service.bucket_name
+  end
+
+  def post_curation_bucket_name
+    post_curation_s3_query_service.bucket_name
+  end
+
+  def delete_post_curation_uploads(uploads:)
+    uploads.each do |upload|
+      s3_client.delete_object(bucket: bucket_name, key: upload.key)
+    end
+  end
+
+  def add_post_curation_s3_object(blob:)
+    s3_client.put_object({
+                           bucket: post_curation_bucket_name,
+                           key: blob.key,
+                           body: blob.download
+                         })
+  end
+
+  # This is invoked within the scope of #after_save. Attachment objects require that the parent record be persisted (hence, #before_save is not an option).
+  # However, a consequence of this is that #after_save is invoked whenever a new attached Blob or Attachment object is persisted.
+  def attach_s3_resources
+    if approved?
+      # This migrates pre-curation S3 Objects to the post-curation S3 Bucket
+      transferred = []
+      pre_curation_uploads.each do |attachment|
+        unless post_curation_s3_file?(filename: attachment.filename.to_s)
+          add_post_curation_s3_object(blob: attachment.blob)
+          transferred << attachment
+        end
+      end
+
+      # There was a race-condition when I attempted the above
+      transferred.each(&:purge)
+    else
+      # This retrieves and adds S3 uploads if they do not exist
+      pre_curation_s3_resources.each do |s3_file|
+        add_pre_curation_s3_object(s3_file)
+      end
+    end
   end
 
   protected
@@ -430,16 +459,26 @@ class Work < ApplicationRecord
       @resource = PDCMetadata::Resource.new_from_json(metadata)
     end
 
-    def attach_s3_resources
-      unless approved?
-        # This retrieves and adds S3 uploads if they do not exist
-        s3_resources.each do |s3_file|
-          add_pre_curation_uploads(s3_file)
-        end
+  private
+
+    def s3_file_to_blob(s3_file)
+      existing_blob = ActiveStorage::Blob.find_by(key: s3_file.filename)
+
+      if existing_blob.present?
+        Rails.logger.warn("There is a blob existing for #{s3_file.filename}, which we are not expecting!  It will be reattached #{existing_blob.inspect}")
+        return existing_blob
       end
+
+      params = { filename: s3_file.filename, content_type: "", byte_size: s3_file.size, checksum: s3_file.checksum }
+      blob = ActiveStorage::Blob.create_before_direct_upload!(**params)
+      blob.key = s3_file.filename
+      blob
     end
 
-  private
+    def post_curation_s3_file?(filename:)
+      post_curation_uploads_keys = post_curation_uploads.map(&:filename)
+      post_curation_uploads_keys.include?(filename)
+    end
 
     def publish(user)
       publish_doi(user)
@@ -552,46 +591,54 @@ class Work < ApplicationRecord
       if pre_curation_uploads.length > MAX_UPLOADS
         errors.add(:base, "Only #{MAX_UPLOADS} files may be uploaded by a user to a given Work. #{pre_curation_uploads.length} files were uploaded for the Work: #{ark}")
       end
-
-      # Ensure that no uploads in the post-curation state are attached prior to the approved state
-      return true if approved? || post_curation_uploads.empty?
-      errors.add(:base, "Files in the post-curation state cannot be directly attached for a given Work. #{post_curation_uploads.length} files were attached for the Work: #{ark}")
     end
 
+    # This needs to be called #before_save
     def save_new_attachments(new_attachments:)
       new_attachments.each do |attachment|
-        attachment_key = generate_attachment_key(attachment)
-        attachment.key = attachment_key
-
+        generated_key = generate_attachment_key(attachment)
+        attachment.blob.key = generated_key
         attachment.blob.save
+
         attachment.save
       end
     end
 
-    def s3_file_to_blob(s3_file)
-      existing_blob = ActiveStorage::Blob.find_by(key: s3_file.filename)
-      if existing_blob.present?
-        Rails.logger.warn("There is a blob existing for #{s3_file.filename}, which we are not expecting!  It will be reattached #{existing_blob.inspect}")
-        return existing_blob
-      end
+    def pre_curation_s3_query_service
+      @pre_curation_s3_query_service ||= S3QueryService.new(self, true)
+    end
 
-      params = { filename: s3_file.filename, content_type: "", byte_size: s3_file.size, checksum: s3_file.checksum }
-      blob = ActiveStorage::Blob.create_before_direct_upload!(**params)
-      blob.key = s3_file.filename
-      blob
+    def post_curation_s3_query_service
+      @post_curation_s3_query_service ||= S3QueryService.new(self, false)
     end
 
     def s3_query_service
-      @s3_query_service ||= if approved?
-                              S3QueryService.new(self, true)
-                            else
-                              S3QueryService.new(self, false)
-                            end
+      if approved?
+        post_curation_s3_query_service
+      else
+        pre_curation_s3_query_service
+      end
     end
 
+    # @return [Array<S3File>]
     def s3_resources
       data_profile = s3_query_service.data_profile
       data_profile.fetch(:objects, [])
+    end
+    alias pre_curation_s3_resources s3_resources
+
+    def s3_object_persisted?(s3_file)
+      uploads_filenames = uploads.map(&:filename)
+
+      persisted_filenames = uploads_filenames.select { |filename| filename.to_s == s3_file.filename }
+      !persisted_filenames.empty?
+    end
+
+    def add_pre_curation_s3_object(s3_file)
+      return if s3_object_persisted?(s3_file)
+
+      persisted = s3_file_to_blob(s3_file)
+      pre_curation_uploads.attach(persisted)
     end
 end
 # rubocop:ensable Metrics/ClassLength

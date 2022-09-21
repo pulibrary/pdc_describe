@@ -116,6 +116,42 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     expect(work.reload.state).to eq("approved")
   end
 
+  context "when files are attached to a pre-curation Work" do
+    let(:uploaded_file) do
+      fixture_file_upload("us_covid_2019.csv", "text/csv")
+    end
+    let(:uploaded_file2) do
+      fixture_file_upload("us_covid_2019.csv", "text/csv")
+    end
+    let(:s3_client) { @s3_client }
+
+    before do
+      stub_request(:delete, /#{attachment_url}/).to_return(status: 200)
+      allow(s3_client).to receive(:put_object)
+      stub_request(:get, /#{attachment_url}/).to_return(status: 200, body: "test_content")
+      stub_request(:put, /#{attachment_url}/).with(
+        body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
+      ).to_return(status: 200)
+
+      20.times { work.pre_curation_uploads.attach(uploaded_file) }
+      work.save!
+    end
+
+    context "when a Work is approved" do
+      it "transfers the files to the AWS Bucket" do
+        stub_datacite_doi
+        work.complete_submission!(user)
+        work.approve!(curator_user)
+        expect(s3_client).to have_received(:put_object).with({
+                                                               body: "test_content",
+                                                               bucket: "example-bucket",
+                                                               key: "10.34770/123-abc/#{work.id}/us_covid_2019.csv"
+                                                             }).at_least(1).time
+        expect(work.pre_curation_uploads).to be_empty
+      end
+    end
+  end
+
   it "withdraw works and records the change history" do
     work.withdraw!(user)
     expect(work.state_history.first.state).to eq "withdrawn"
@@ -548,24 +584,6 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
     end
   end
 
-  describe "#add_attachment" do
-    let(:key) { "10.34770/tbd/6/Screen Shot 2022-08-23 at 4.20.40 PM.png" }
-    let(:size) { 10_759 }
-    let(:etag) { "1a3cc96aa01110fcb04d3227c9cbae9e" }
-    let(:s3_file) do
-      S3File.new(filename: key,
-                 last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-                 size: size,
-                 checksum: etag)
-    end
-
-    it "adds an s3 attachment" do
-      work.add_pre_curation_uploads(s3_file)
-      expect(work.pre_curation_uploads.count).to eq(1)
-      expect(work.pre_curation_uploads.first.key).to eq(key)
-    end
-  end
-
   describe "#save", mock_s3_query_service: false do
     context "when the Work is persisted and not yet in the approved state" do
       let(:work) { FactoryBot.create(:draft_work) }
@@ -573,11 +591,11 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
       let(:s3_query_service_double) { instance_double(S3QueryService) }
       let(:file1) do
         S3File.new(
-          filename: "SCoData_combined_v1_2020-07_README.txt",
-          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-          size: 10_759,
-          checksum: "abc123"
-        )
+        filename: "SCoData_combined_v1_2020-07_README.txt",
+        last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+        size: 10_759,
+        checksum: "abc123"
+      )
       end
       let(:file2) do
         S3File.new(
@@ -607,13 +625,13 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
         expect(work.pre_curation_uploads).not_to be_empty
         expect(work.pre_curation_uploads.length).to eq(2)
         expect(work.pre_curation_uploads.first).to be_a(ActiveStorage::Attachment)
-        expect(work.pre_curation_uploads.first.key).to eq("SCoData_combined_v1_2020-07_README.txt")
+        expect(work.pre_curation_uploads.first.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt")
         expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
-        expect(work.pre_curation_uploads.last.key).to eq("SCoData_combined_v1_2020-07_datapackage.json")
+        expect(work.pre_curation_uploads.last.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
       end
 
       context "a blob already exists for one of the files" do
-        let(:work) do
+        let(:work1) do
           work = FactoryBot.create(:draft_work)
           blob = work.send(:s3_file_to_blob, file1)
           blob.save
@@ -625,9 +643,9 @@ RSpec.describe Work, type: :model, mock_ezid_api: true do
           expect(work.pre_curation_uploads).not_to be_empty
           expect(work.pre_curation_uploads.length).to eq(2)
           expect(work.pre_curation_uploads.first).to be_a(ActiveStorage::Attachment)
-          expect(work.pre_curation_uploads.first.key).to eq("SCoData_combined_v1_2020-07_README.txt")
+          expect(work.pre_curation_uploads.first.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt")
           expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
-          expect(work.pre_curation_uploads.last.key).to eq("SCoData_combined_v1_2020-07_datapackage.json")
+          expect(work.pre_curation_uploads.last.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
         end
       end
     end

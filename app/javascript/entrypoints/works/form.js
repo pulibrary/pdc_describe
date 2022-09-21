@@ -71,6 +71,30 @@ class UploadsTable {
     element.addEventListener('drop', this.handleDrop);
   }
 
+  buildEmptyFileElement() {
+    const $fileName = $(`<td>
+                           <span>
+                             No files have been uploaded.
+                           </span>
+                         </td>`);
+
+    const $createdAt = $(`<td><span></span></td>`);
+
+    const $replace = $(`<td>
+                        </td>`);
+
+    const $delete = $(`<td>
+                       </td>`);
+
+    const $row = $(`<tr class="uploads-row" ></tr>`);
+    $row.append($fileName);
+    $row.append($createdAt);
+    $row.append($replace);
+    $row.append($delete);
+
+    return $row;
+  }
+
   buildFileElement(upload, index) {
     const downloadUrl = upload.url;
     const downloadTitle = upload.key;
@@ -106,9 +130,16 @@ class UploadsTable {
 
   buildRows() {
     this.$rows = [];
-    for (const index in this.uploads) {
-      const upload = this.uploads[index];
-      const $uploadElement = this.buildFileElement(upload, index);
+    let $uploadElement;
+
+    if (this.uploads.length > 0) {
+      for (const index in this.uploads) {
+        const upload = this.uploads[index];
+        $uploadElement = this.buildFileElement(upload, index);
+        this.$rows.push($uploadElement);
+      }
+    } else {
+      $uploadElement = this.buildEmptyFileElement();
       this.$rows.push($uploadElement);
     }
   }

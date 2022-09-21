@@ -36,7 +36,7 @@
 
       </div>
 
-      <% if !form.object.pre_curation_uploads.empty? %>
+      <% if !@wizard_mode %>
         <hr />
         <div class="deposit-uploads">
           <%= render(partial: 'works/uploads_form', locals: { form: form }) %>
