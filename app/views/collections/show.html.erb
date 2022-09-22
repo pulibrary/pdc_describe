@@ -21,11 +21,13 @@
   <%= @collection.administrators.map { |user| link_to(user.display_name_safe, user_path(user.uid)) }.to_sentence.html_safe %>
 </p>
 
-<h2 class="dataset-section">Datasets</h2>
-<% if @collection.datasets.count > 0 %>
-  <%= render partial: "dataset_table", locals: {table_id: "collection_datasets", datasets: @collection.datasets} %>
-<% else %>
-  <p>No datasets have been created for this collection.</p>
+<% if @can_edit %>
+  <h2 class="dataset-section">Datasets</h2>
+  <% if @collection.datasets.count > 0 %>
+    <%= render partial: "dataset_table", locals: {table_id: "collection_datasets", datasets: @collection.datasets} %>
+  <% else %>
+    <p>No datasets have been created for this collection.</p>
+  <% end %>
 <% end %>
 
 <script type="text/javascript">

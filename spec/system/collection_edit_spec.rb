@@ -17,11 +17,12 @@ RSpec.describe "Editing collections" do
     expect(page).to have_content "Editing Collection"
   end
 
-  it "does not allow a regular user to edit a collection", js: true do
+  it "does not allow a regular user to edit a collection nor view the list of datasets for the collection", js: true do
     sign_in user
     visit collection_path(collection)
     expect(page).to have_content collection.title
     expect(page).to_not have_content "Edit"
+    expect(page).to_not have_css(".dataset-section")
   end
 
   it "allows a collection admin to edit their collection", js: true do
