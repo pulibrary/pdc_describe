@@ -182,4 +182,44 @@ RSpec.describe S3QueryService, mock_ezid_api: true, mock_s3_query_service: false
       expect(data_profile[:objects].first.size).to eq 10_759
     end
   end
+  let(:response_headers) do
+    {
+      'Accept-Ranges': "bytes",
+      'Content-Length': 12,
+      'Content-Type': "text/plain",
+      'ETag': "6805f2cfc46c0f04559748bb039d69ae",
+      'Last-Modified': Time.parse("Thu, 15 Dec 2016 01:19:41 GMT")
+    }
+  end
+
+  describe "#get_s3_object" do
+    subject(:s3_query_service) { described_class.new(work) }
+    let(:key) { "test_key" }
+    let(:s3_object) { s3_query_service.get_s3_object(key: key) }
+
+    before do
+      stub_request(:get, "https://example-bucket.s3.amazonaws.com/test_key").to_return(status: 200, body: "test_content", headers: response_headers)
+    end
+
+    it "retrieves the S3 Object from the HTTP API" do
+      expect(s3_object).not_to be nil
+      bytestream = s3_object[:body]
+      expect(bytestream.read).to eq("test_content")
+    end
+  end
+
+  describe "#find_s3_file" do
+    subject(:s3_query_service) { described_class.new(work) }
+    let(:filename) { "test.txt" }
+    let(:s3_file) { s3_query_service.find_s3_file(filename: filename) }
+
+    it "retrieves the S3File from the AWS Bucket" do
+      expect(s3_file).not_to be nil
+
+      expect(s3_file.filename).to eq("10.34770/pe9w-x904/#{work.id}/test.txt")
+      expect(s3_file.last_modified).to be_a(Time)
+      expect(s3_file.size).to eq(12)
+      expect(s3_file.checksum).to eq("6805f2cfc46c0f04559748bb039d69ae")
+    end
+  end
 end

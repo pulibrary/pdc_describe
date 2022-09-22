@@ -2,20 +2,22 @@
   <div class="lux">
     <div class="card">
       <div class="files card-body">
-        <h3 class="h3"><%= t('works.uploads.pre_curation.attachments.heading') %></h3>
         <!-- Only render file download table if there are files in S3 -->
-        <% if @work.pre_curation_uploads.empty? %>
-          <p><%= t('works.form.pre_curation_uploads.empty') %></p>
-        <% else %>
-          <table id="files-table" class="table">
-            <thead>
-              <tr>
-                <th scope="col" nowrap="nowrap"><span><%= t('works.form.pre_curation_uploads.filename') %></span></th>
-                <th scope="col"><span><%= t('works.form.pre_curation_uploads.created_at') %></span></th>
+        <table id="files-table" class="table">
+          <thead>
+            <tr>
+              <th scope="col" nowrap="nowrap"><span><%= t('works.form.pre_curation_uploads.filename') %></span></th>
+              <th scope="col"><span><%= t('works.form.pre_curation_uploads.created_at') %></span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if @work.uploads.empty? %>
+              <tr class="files">
+                <td><span><%= t('works.form.pre_curation_uploads.empty') %></span></td>
+                <td><span></span></td>
               </tr>
-            </thead>
-            <tbody>
-              <% @work.pre_curation_uploads.each_with_index do |file, ix| %>
+              <% else %>
+                <% @work.pre_curation_uploads.each_with_index do |file, ix| %>
                 <tr class="files">
                   <td>
                     <span>
@@ -27,11 +29,12 @@
                     <span><%= file.created_at %></span>
                   </td>
                 </tr>
+                <% end %>
               <% end %>
-            </tbody>
-            <tfoot></tfoot>
-          </table>
-        <% end %>
+            </tr>
+          </tbody>
+          <tfoot></tfoot>
+        </table>
         <!-- End of file download table -->
       </div>
     </div>

@@ -10,8 +10,26 @@ require "open-uri"
 class WorksController < ApplicationController
   around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :validate, :create]
 
+  skip_before_action :authenticate_user!
+  before_action :authenticate_user!, unless: :public_request?
+
+  ##
+  # Public requests are requests that do not require authentication.
+  # This is to enable PDC Discovery to index approved content via the RSS feed and
+  # .json calls to individual works without needing to log in as a user.
+  # Note that only approved works can be fetched for indexing.
+  def public_request?
+    return true if action_name == "index" && request.format.symbol == :rss
+    return true if action_name == "show" && request.format.symbol == :json && Work.find(params[:id]).state == "approved"
+    false
+  end
+
   def index
     @works = Work.all
+    respond_to do |format|
+      format.html
+      format.rss { render layout: false }
+    end
   end
 
   # Renders the "step 0" information page before creating a new dataset
@@ -42,10 +60,28 @@ class WorksController < ApplicationController
     redirect_to edit_work_path(work, wizard: true)
   end
 
+  ##
+  # Show the information for the dataset with the given id
+  # When requested as .json, return the internal json resource
   def show
     @work = Work.find(params[:id])
-    @can_curate = current_user.can_admin?(@work.collection)
-    @work.mark_new_notifications_as_read(current_user.id)
+    respond_to do |format|
+      format.html do
+        @can_curate = current_user.can_admin?(@work.collection)
+        @work.mark_new_notifications_as_read(current_user.id)
+      end
+      format.json { render json: @work.resource }
+    end
+  end
+
+  def resolve_doi
+    @work = Work.find_by_doi(params[:doi])
+    redirect_to @work
+  end
+
+  def resolve_ark
+    @work = Work.find_by_ark(params[:ark])
+    redirect_to @work
   end
 
   # GET /works/1/edit
@@ -65,14 +101,22 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     @wizard_mode = wizard_mode?
 
-    updated_pre_curation_uploads = WorkUploadsEditService.precurated_file_list(@work, work_params)
     collection_id_param = params[:collection_id]
 
     updates = {
       collection_id: collection_id_param,
-      resource: resource_from_form,
-      pre_curation_uploads: updated_pre_curation_uploads
+      resource: resource_from_form
     }
+
+    if @work.approved?
+      upload_keys = work_params[:deleted_uploads]
+      deleted_uploads = WorkUploadsEditService.find_post_curation_uploads(work: @work, upload_keys: upload_keys)
+
+      @work.delete_post_curation_uploads(uploads: deleted_uploads)
+    else
+      updated_pre_curation_uploads = WorkUploadsEditService.precurated_file_list(@work, work_params)
+      updates[:pre_curation_uploads] = updated_pre_curation_uploads
+    end
 
     if @work.update(updates)
       if @wizard_mode

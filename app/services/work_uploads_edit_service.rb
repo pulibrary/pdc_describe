@@ -7,10 +7,16 @@ class WorkUploadsEditService
       elsif work_params.key?(:replaced_uploads)
         replace_uploads(work.pre_curation_uploads, work_params[:replaced_uploads])
       elsif work_params.key?(:deleted_uploads)
-        remaining_uploads(work.pre_curation_uploads, work_params[:deleted_uploads])
+        remaining_pre_curation_uploads(work.pre_curation_uploads, work_params[:deleted_uploads])
       else
         work.pre_curation_uploads.map(&:blob)
       end
+    end
+
+    def find_post_curation_uploads(work:, upload_keys: [])
+      return [] unless work.approved? && !upload_keys.empty?
+
+      work.post_curation_uploads.select { |upload| upload_keys.include?(upload.key) }
     end
 
       private
@@ -31,7 +37,7 @@ class WorkUploadsEditService
           updated_uploads
         end
 
-        def remaining_uploads(persisted_pre_curation_uploads, deleted_uploads_params)
+        def remaining_pre_curation_uploads(persisted_pre_curation_uploads, deleted_uploads_params)
           updated_uploads = []
 
           persisted_pre_curation_uploads.each do |existing|

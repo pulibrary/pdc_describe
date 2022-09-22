@@ -1,6 +1,9 @@
-local:
+local: &local
   service: 'HumanizedDisk'
   root: <%= Rails.root.join("storage") %>
+
+development: &development
+  <<: *local
 
 amazon: &amazon
   service: 'S3'
@@ -9,20 +12,19 @@ amazon: &amazon
   region: <%= S3QueryService.pre_curation_config.fetch(:region) %>
   bucket: <%= S3QueryService.pre_curation_config.fetch(:bucket) %>
 
-test:
+amazon_pre_curation:
+  <% if Rails.env.development? %>
+    <<: *development
+  <% else %>
+    <<: *amazon
+    region: <%= S3QueryService.pre_curation_config.fetch(:region) %>
+    bucket: <%= S3QueryService.pre_curation_config.fetch(:bucket) %>
+  <% end %>
+
+test: &test
   <<: *amazon
   access_key_id: 'not-used-access_key_id'
   secret_access_key: 'not-used-secret_access_key'
-
-amazon_pre_curation:
-  <<: *amazon
-  region: <%= S3QueryService.pre_curation_config.fetch(:region) %>
-  bucket: <%= S3QueryService.pre_curation_config.fetch(:bucket) %>
-
-amazon_post_curation:
-  <<: *amazon
-  region: <%= S3QueryService.post_curation_config.fetch(:region) %>
-  bucket: <%= S3QueryService.post_curation_config.fetch(:bucket) %>
 
 staging: *amazon
 
