@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-RSpec.describe Work, type: :model, mock_ezid_api: true do
+RSpec.describe Work, type: :model do
   let(:user) { FactoryBot.create :user }
   let(:collection) { Collection.research_data }
   let(:user_other) { FactoryBot.create :user }

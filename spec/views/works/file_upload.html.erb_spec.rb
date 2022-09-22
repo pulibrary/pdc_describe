@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-describe "works/file_upload.html.erb", mock_ezid_api: true do
+describe "works/file_upload.html.erb" do
   let(:collection) { Collection.first }
   let(:user) { FactoryBot.create(:user) }
 

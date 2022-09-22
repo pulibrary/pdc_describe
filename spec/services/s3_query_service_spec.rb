@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-RSpec.describe S3QueryService, mock_ezid_api: true, mock_s3_query_service: false do
+RSpec.describe S3QueryService, mock_s3_query_service: false do
   let(:work) { FactoryBot.create :draft_work, doi: doi }
   let(:subject) { described_class.new(work) }
   let(:s3_key1) { "10-34770/pe9w-x904/SCoData_combined_v1_2020-07_README.txt" }

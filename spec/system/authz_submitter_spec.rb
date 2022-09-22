@@ -3,7 +3,7 @@ require "rails_helper"
 ##
 # A submitter is a logged in user with no permissions other than being able to deposit.
 # One submitter should not be able to edit the work of another submitter.
-RSpec.describe "Authz for submitters", type: :system, js: true, mock_ezid_api: true do
+RSpec.describe "Authz for submitters", type: :system, js: true do
   describe "A submitter" do
     let(:submitter1) { FactoryBot.create :princeton_submitter }
     let(:submitter2) { FactoryBot.create :princeton_submitter }

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_api: true do
+RSpec.describe "Form submission for a legacy dataset", type: :system do
   let(:user) { FactoryBot.create(:princeton_submitter) }
   let(:title) { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
   let(:contributors) do
