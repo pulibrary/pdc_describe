@@ -98,12 +98,14 @@ class Work < ApplicationRecord
     end
 
     def find_by_doi(doi)
-      models = all.select { |work| work.resource.doi == doi }
+      models = all.select { |work| !work.doi.nil? && work.doi.include?(doi) }
+      raise ActiveRecord::RecordNotFound if models.empty?
       models.first
     end
 
     def find_by_ark(ark)
-      models = all.select { |work| work.resource.ark == ark }
+      models = all.select { |work| !work.ark.nil? && work.ark.include?(ark) }
+      raise ActiveRecord::RecordNotFound if models.empty?
       models.first
     end
 

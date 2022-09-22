@@ -730,6 +730,14 @@ RSpec.describe WorksController, mock_ezid_api: true do
         get :resolve_doi, params: { doi: work.doi }
         expect(response).to redirect_to(work_path(work))
       end
+
+      context "when passing only a segment of the DOI" do
+        it "redirects to the Work show view" do
+          stub_s3
+          get :resolve_doi, params: { doi: work.doi[-9..] }
+          expect(response).to redirect_to(work_path(work))
+        end
+      end
     end
 
     describe "#resolve_ark" do
@@ -745,6 +753,14 @@ RSpec.describe WorksController, mock_ezid_api: true do
         stub_s3
         get :resolve_ark, params: { ark: work.ark }
         expect(response).to redirect_to(work_path(work))
+      end
+
+      context "when passing only a segment of the ARK" do
+        it "redirects to the Work show view" do
+          stub_s3
+          get :resolve_ark, params: { ark: work.ark[-9..] }
+          expect(response).to redirect_to(work_path(work))
+        end
       end
     end
 
