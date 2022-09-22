@@ -97,6 +97,16 @@ class Work < ApplicationRecord
       works_by_user_state(user, "withdrawn")
     end
 
+    def find_by_doi(doi)
+      models = all.select { |work| work.resource.doi == doi }
+      models.first
+    end
+
+    def find_by_ark(ark)
+      models = all.select { |work| work.resource.ark == ark }
+      models.first
+    end
+
     private
 
       def works_by_user_state(user, state)
@@ -596,6 +606,8 @@ class Work < ApplicationRecord
     # This needs to be called #before_save
     def save_new_attachments(new_attachments:)
       new_attachments.each do |attachment|
+        # There are cases (race conditions?) where the ActiveStorage::Blob objects are not persisted
+        next if attachment.frozen?
         generated_key = generate_attachment_key(attachment)
         attachment.blob.key = generated_key
         attachment.blob.save
