@@ -17,9 +17,10 @@ class WorksController < ApplicationController
   # Public requests are requests that do not require authentication.
   # This is to enable PDC Discovery to index approved content via the RSS feed and
   # .json calls to individual works without needing to log in as a user.
+  # Note that only approved works can be fetched for indexing.
   def public_request?
     return true if action_name == "index" && request.format.symbol == :rss
-    return true if action_name == "show" && request.format.symbol == :json
+    return true if action_name == "show" && request.format.symbol == :json && Work.find(params[:id]).state == "approved"
     false
   end
 

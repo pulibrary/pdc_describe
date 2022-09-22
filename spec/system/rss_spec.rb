@@ -34,7 +34,13 @@ RSpec.describe "RSS feed of approved works, for harvesting and indexing", type: 
     urls = doc.xpath("//item/url/text()").map(&:to_s)
     expect(urls.include?(work_url(work1, format: "json"))).to eq true
     expect(urls.include?(work_url(work2, format: "json"))).to eq true
+
+    # Fetching the JSON for an approved work doesn't require authentication
     visit "/works/#{work1.id}.json"
     expect(JSON.parse(page.body)["titles"][0]["title"]).to eq work1.title
+
+    # Fetching the JSON for a work that is not yet approved doesn't work
+    visit "/works/#{work3.id}.json"
+    expect(page).to have_content "You need to sign in"
   end
 end
