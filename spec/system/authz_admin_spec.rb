@@ -36,7 +36,7 @@ RSpec.describe "Authz for curators", type: :system, js: true, mock_ezid_api: tru
         login_as research_data_moderator
         expect(research_data_moderator.can_admin?(Collection.research_data)).to eq true
         expect(new_submitter.can_submit?(Collection.research_data)).to eq false
-        visit collection_path(Collection.research_data)
+        visit edit_collection_path(Collection.research_data)
         fill_in "submitter-uid-to-add", with: new_submitter.uid
         click_on "Add Submitter"
         expect(page).to have_content new_submitter.uid
@@ -47,7 +47,7 @@ RSpec.describe "Authz for curators", type: :system, js: true, mock_ezid_api: tru
         login_as research_data_moderator
         expect(research_data_moderator.can_admin?(Collection.research_data)).to eq true
         expect(new_submitter.can_admin?(Collection.research_data)).to eq false
-        visit collection_path(Collection.research_data)
+        visit edit_collection_path(Collection.research_data)
         fill_in "admin-uid-to-add", with: new_submitter.uid
         click_on "Add Curator"
         expect(page).to have_content new_submitter.uid

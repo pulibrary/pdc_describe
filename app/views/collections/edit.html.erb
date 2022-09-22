@@ -32,3 +32,61 @@
     <%= link_to 'Cancel', @collection, class: "btn btn-secondary" %>
   </div>
 <% end %>
+
+<h2>Submitters</h2>
+<p>Users that are allowed to add new works to this collection</p>
+<ul id="submitter-list">
+<% @collection.submitters.each do |user| %>
+  <!--
+    Notice that we render the list of submitters and admins as hidden spans that are then
+    picked up by the JavaScript on the page and turned into visible HTMLs with all the bells
+    and whistles. This is so that we have a single way of rendering the data (both the user
+    permissions already on the database *and* the user permissions added on the fly by an
+    administrator).
+  -->
+  <span class="hidden submitter-data"
+    data-uid="<%= user.uid %>"
+    data-collection-id="<%= @collection.id %>"
+    data-can-delete="<%= user.uid != current_user.uid %>"
+    data-you="<%= user.uid == current_user.uid %>"></span>
+<% end %>
+</ul>
+
+<div>
+    <input id="submitter-uid-to-add" placeholder="netid"></input>
+    <%= link_to "Add Submitter", "#", id: "btn-add-submitter", class: "btn btn-secondary" %>
+    <span id="add-submitter-message"></span>
+</div>
+
+<h2 class="user-section-heading">Curators</h2>
+<p>Users that are allowed to approve submissions to this collection</p>
+<ul id="curator-list">
+<% @collection.administrators.each do |user| %>
+  <span class="hidden curator-data"
+    data-uid="<%= user.uid %>"
+    data-collection-id="<%= @collection.id %>"
+    data-can-delete="<%= user.uid != current_user.uid %>"
+    data-you="<%= user.uid == current_user.uid %>"></span>
+<% end %>
+</ul>
+
+<div>
+    <input id="admin-uid-to-add" placeholder="netid"></input>
+    <%= link_to "Add Curator", "#", id: "btn-add-admin", class: "btn btn-secondary" %>
+    <span id="add-admin-message"></span>
+</div>
+
+<h2 class="user-section-heading">System Administrators</h2>
+<p>Users with global access to the system for administration purposes</p>
+<ul id="sysadmin-list">
+<% @collection.super_administrators.each do |user| %>
+  <span class="hidden sysadmin-data"
+    data-uid="<%= user.uid %>"
+    data-collection-id="<%= @collection.id %>"
+    data-can-delete="false"
+    data-super-admin="true"
+    data-you="<%= user.uid == current_user.uid %>"></span>
+<% end %>
+</ul>
+
+<%= render 'edit_javascript' %>

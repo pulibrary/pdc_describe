@@ -28,6 +28,10 @@ class Collection < ApplicationRecord
     User.with_role(:super_admin)
   end
 
+  def datasets
+    Work.where(collection_id: id)
+  end
+
   ##
   # The current user adds a new admin user to a collection.
   # For use in the UI - we need to check whether the current_user

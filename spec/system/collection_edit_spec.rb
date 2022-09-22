@@ -17,11 +17,12 @@ RSpec.describe "Editing collections" do
     expect(page).to have_content "Editing Collection"
   end
 
-  it "does not allow a regular user to edit a collection", js: true do
+  it "does not allow a regular user to edit a collection nor view the list of datasets for the collection", js: true do
     sign_in user
     visit collection_path(collection)
     expect(page).to have_content collection.title
     expect(page).to_not have_content "Edit"
+    expect(page).to_not have_css(".dataset-section")
   end
 
   it "allows a collection admin to edit their collection", js: true do
@@ -33,7 +34,7 @@ RSpec.describe "Editing collections" do
 
   it "allows a collection admin to add a submitter to the collection", js: true do
     sign_in collection_admin_user
-    visit collection_path(collection)
+    visit edit_collection_path(collection)
     fill_in "submitter-uid-to-add", with: "submiter123"
     click_on "Add Submitter"
     expect(page).to have_content "submiter123"
@@ -42,7 +43,7 @@ RSpec.describe "Editing collections" do
 
   it "allows a collection admin to add a submitter to their defailt collection without error only when the user is first created", js: true do
     sign_in collection_admin_user
-    visit collection_path(Collection.research_data)
+    visit edit_collection_path(Collection.research_data)
     fill_in "submitter-uid-to-add", with: "submiter123"
     click_on "Add Submitter"
     expect(page).to have_content "submiter123"
@@ -54,7 +55,7 @@ RSpec.describe "Editing collections" do
 
   it "allows a curator to add another curator to the collection", js: true do
     sign_in collection_admin_user
-    visit collection_path(collection)
+    visit edit_collection_path(collection)
     fill_in "admin-uid-to-add", with: "admin123"
     click_on "Add Curator"
     expect(page).to have_content "admin123"
