@@ -32,8 +32,8 @@ Rails.application.routes.draw do
   get "works/:id/datacite", to: "works#datacite", as: :datacite_work
   get "works/:id/datacite/validate", to: "works#datacite_validate", as: :datacite_validate_work
   resources :works
-  get "doi/:doi", to: "works#resolve_doi", as: :resolve_doi, format: false
-  get "ark/:ark", to: "works#resolve_ark", as: :resolve_ark
+  match "/doi/*doi", via: :get, to: "works#resolve_doi", as: :resolve_doi, format: false
+  match "/ark/*ark", via: :get, to: "works#resolve_ark", as: :resolve_ark, format: false
 
   delete "collections/:id/:uid", to: "collections#delete_user_from_collection", as: :delete_user_from_collection
   post "collections/:id/add-submitter/:uid", to: "collections#add_submitter", as: :add_submitter

@@ -20,7 +20,7 @@ RSpec.describe WorksController, type: :routing do
     end
 
     context "when the Work has an ARK" do
-      let(:ark) { "dsp01zc77st047" }
+      let(:ark) { "ark:/88435/dsp01zc77st047" }
 
       it "routes to #resolve_ark" do
         expect(get: "/ark/#{ark}").to route_to("works#resolve_ark", ark: ark)
@@ -28,7 +28,7 @@ RSpec.describe WorksController, type: :routing do
     end
 
     context "when the Work has a DOI" do
-      let(:doi) { "34770" }
+      let(:doi) { "https://doi.org/10.34770/pe9w-x904" }
 
       it "routes to #resolve_doi" do
         expect(get: "/doi/#{doi}").to route_to("works#resolve_doi", doi: doi)
