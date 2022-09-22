@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-RSpec.describe "DOI", type: :model, mock_ezid_api: true do
+RSpec.describe "DOI", type: :model do
   let(:client) do
     Datacite::Client.new(username: Rails.configuration.datacite.user,
                          password: Rails.configuration.datacite.password,

@@ -3,7 +3,7 @@ require "rails_helper"
 ##
 # A non-authenticated user cannot get to any edit screens, they always get redirected back
 # to the root of the application
-RSpec.describe "Authz for non-authenticated users", type: :system, js: true, mock_ezid_api: true do
+RSpec.describe "Authz for non-authenticated users", type: :system, js: true do
   describe "A non-authenticated user" do
     context "works" do
       let(:work) { FactoryBot.create(:shakespeare_and_company_work) }

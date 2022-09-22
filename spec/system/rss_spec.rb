@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-RSpec.describe "RSS feed of approved works, for harvesting and indexing", type: :system, mock_ezid_api: true do
+RSpec.describe "RSS feed of approved works, for harvesting and indexing", type: :system do
   let(:work1) { FactoryBot.create(:draft_work) }
   let(:work2) { FactoryBot.create(:draft_work) }
   let(:work3) { FactoryBot.create(:draft_work) }

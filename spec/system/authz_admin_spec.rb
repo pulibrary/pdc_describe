@@ -2,7 +2,7 @@
 require "rails_helper"
 ##
 # A collection admin is a user who has admin rights on a given collection
-RSpec.describe "Authz for curators", type: :system, js: true, mock_ezid_api: true do
+RSpec.describe "Authz for curators", type: :system, js: true do
   describe "A curator" do
     let(:research_data_moderator) { FactoryBot.create :research_data_moderator }
     let(:work) { FactoryBot.create(:shakespeare_and_company_work) }

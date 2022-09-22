@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe WorksController, mock_ezid_api: true do
+RSpec.describe WorksController do
   before do
     Collection.create_defaults
     user

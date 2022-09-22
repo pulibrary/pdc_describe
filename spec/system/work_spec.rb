@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true do
+RSpec.describe "Creating and updating works", type: :system do
   let(:user) { FactoryBot.create(:princeton_submitter) }
 
   before do
@@ -48,7 +48,7 @@ RSpec.describe "Creating and updating works", type: :system, mock_ezid_api: true
     expect(page.html.include?("By initiating this new submission, we have reserved a draft DOI for your use")).to be true
   end
 
-  it "Handles ARK URLs in the ARK field", js: true do
+  it "Handles ARK URLs in the ARK field", js: true, mock_ezid_api: true do
     resource = FactoryBot.build(:resource, creators: [PDCMetadata::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")])
     work = FactoryBot.create(:draft_work, resource: resource)
     user = work.created_by_user
