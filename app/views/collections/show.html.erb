@@ -5,7 +5,9 @@
 </style>
 
 <div>
-  <%= link_to("Edit", edit_collection_path(@collection), class: "btn btn-primary") %>
+  <% if @can_edit %>
+    <%= link_to("Edit", edit_collection_path(@collection), class: "btn btn-primary") %>
+  <% end %>
   <%= link_to("View all collections", collections_path) %>
 </div>
 

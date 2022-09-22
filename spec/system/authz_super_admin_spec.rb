@@ -51,10 +51,9 @@ RSpec.describe "Authz for super admins", type: :system, js: true, mock_ezid_api:
     it "should be able to edit a collection to add curators and submitters" do
       collection = FactoryBot.create(:collection) # any random collection
       sign_in super_admin
-      visit collection_path(collection)
+      visit edit_collection_path(collection)
       expect(page).to have_content "Add Submitter"
       expect(page).to have_content "Add Curator"
-      visit edit_collection_path(collection)
       fill_in "collection_title", with: title3
       click_on "Update Collection"
       expect(current_path).to eq collection_path(collection)
