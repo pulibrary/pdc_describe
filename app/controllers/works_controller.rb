@@ -109,7 +109,7 @@ class WorksController < ApplicationController
     }
 
     if @work.approved?
-      upload_keys = work_params[:deleted_uploads]
+      upload_keys = work_params[:deleted_uploads] || []
       deleted_uploads = WorkUploadsEditService.find_post_curation_uploads(work: @work, upload_keys: upload_keys)
 
       return head(:forbidden) unless deleted_uploads.empty?
