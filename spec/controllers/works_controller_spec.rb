@@ -475,6 +475,54 @@ RSpec.describe WorksController do
           expect(response).to have_http_status(:forbidden)
         end
       end
+
+      context "when a nil value is passed for file uploads for an existing Work" do
+        let(:work) { FactoryBot.create(:completed_work) }
+        let(:user) do
+          FactoryBot.create :user, collections_to_admin: [work.collection]
+        end
+        let(:stubbed_params) do
+          {
+            "title_main" => "test dataset updated",
+            "description" => "a new description",
+            "collection_id" => work.collection.id,
+            "commit" => "update dataset",
+            "controller" => "works",
+            "action" => "update",
+            "publisher" => "princeton university",
+            "publication_year" => "2022",
+            "given_name_1" => "jane",
+            "family_name_1" => "smith",
+            "sequence_1" => "1",
+            "given_name_2" => "ada",
+            "family_name_2" => "lovelace",
+            "sequence_2" => "2",
+            "creator_count" => "2",
+            "rights_identifier" => "CC0",
+            id: work.id.to_s,
+            work: {
+              deleted_uploads: nil
+            }
+          }.with_indifferent_access
+        end
+
+        before do
+          stub_request(:put, "https://api.datacite.org/dois/#{work.doi}").to_return(status: 200, body: "", headers: {})
+          work.approve!(user)
+
+          allow(controller).to receive(:params).and_return(stubbed_params)
+          sign_in user
+        end
+
+        it "does not raise an error" do
+          post :update, params: {
+            "id" => work.id.to_s
+          }
+
+          expect(response.status).to be 302
+          expect(response.location).to eq "http://test.host/works/#{work.id}"
+        end
+      end
     end
 
     context "when file uploads are reordered for an existing Work with uploads" do

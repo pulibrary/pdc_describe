@@ -110,9 +110,11 @@ class WorksController < ApplicationController
 
     if @work.approved?
       upload_keys = work_params[:deleted_uploads]
-      deleted_uploads = WorkUploadsEditService.find_post_curation_uploads(work: @work, upload_keys: upload_keys)
+      unless upload_keys.nil?
+        deleted_uploads = WorkUploadsEditService.find_post_curation_uploads(work: @work, upload_keys: upload_keys)
 
-      return head(:forbidden) unless deleted_uploads.empty?
+        return head(:forbidden) unless deleted_uploads.empty?
+      end
     else
       updated_pre_curation_uploads = WorkUploadsEditService.precurated_file_list(@work, work_params)
       updates[:pre_curation_uploads] = updated_pre_curation_uploads
