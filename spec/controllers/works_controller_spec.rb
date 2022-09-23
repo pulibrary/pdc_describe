@@ -387,6 +387,29 @@ RSpec.describe WorksController do
         }
       end
 
+      # Notice that we do NOT pass "deleted_uploads" on purpose
+      let(:params_no_delete) do
+        {
+          "title_main" => "test dataset updated",
+          "description" => "a new description",
+          "collection_id" => work.collection.id,
+          "commit" => "update dataset",
+          "controller" => "works",
+          "action" => "update",
+          "id" => work.id.to_s,
+          "publisher" => "princeton university",
+          "publication_year" => "2022",
+          "given_name_1" => "jane",
+          "family_name_1" => "smith",
+          "sequence_1" => "1",
+          "given_name_2" => "ada",
+          "family_name_2" => "lovelace",
+          "sequence_2" => "2",
+          "creator_count" => "2",
+          "rights_identifier"=>"CC BY"
+      }.with_indifferent_access
+      end
+
       before do
         stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
@@ -473,6 +496,16 @@ RSpec.describe WorksController do
           post :update, params: params
 
           expect(response).to have_http_status(:forbidden)
+        end
+
+        it "saves OK if no deletes where indicated" do
+          allow(controller).to receive(:params).and_return(params_no_delete)
+          expect(work.post_curation_uploads.length).to eq(2)
+
+          sign_in user
+          post :update, params: params_no_delete
+
+          expect(response).to redirect_to(work_path(work))
         end
       end
     end
