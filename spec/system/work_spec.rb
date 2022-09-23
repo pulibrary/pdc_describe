@@ -119,6 +119,33 @@ RSpec.describe "Creating and updating works", type: :system do
       visit work_path(completed_work)
       expect(page.html.include?("/works/#{completed_work.id}/edit")).to be true
     end
+
+    it "allows users to modify the order of the creators", js: true do
+      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
+      page.driver.browser.manage.window.resize_to(2000, 2000)
+      creator = draft_work.resource.creators.first
+      sign_in user
+      visit edit_work_path(draft_work)
+      click_on "Add Another Creator"
+      fill_in "given_name_2", with: "Sally"
+      fill_in "family_name_2", with: "Smith"
+
+      creator_text = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
+      expect(creator_text).to eq("#{creator.given_name} #{creator.family_name}  Sally Smith")
+
+      # drag the first creator to the second creator
+      source = page.all(".bi-arrow-down-up")[0].native
+      target = page.all(".bi-arrow-down-up")[1].native
+      builder = page.driver.browser.action
+      builder.drag_and_drop(source, target).perform
+
+      creator_text_after = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
+      expect(creator_text_after).to eq("Sally Smith  #{creator.given_name} #{creator.family_name}")
+      click_on "Save Work"
+      draft_work.reload
+      expect(draft_work.resource.creators.last.given_name).to eq(creator.given_name)
+      expect(draft_work.resource.creators.last.family_name).to eq(creator.family_name)
+    end
   end
 
   context "when editing an existing draft Work with uploaded files" do
