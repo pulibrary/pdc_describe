@@ -425,12 +425,6 @@ class Work < ApplicationRecord
     post_curation_s3_query_service.bucket_name
   end
 
-  def delete_post_curation_uploads(uploads:)
-    uploads.each do |upload|
-      s3_client.delete_object(bucket: bucket_name, key: upload.key)
-    end
-  end
-
   def add_post_curation_s3_object(blob:)
     s3_client.put_object({
                            bucket: post_curation_bucket_name,
