@@ -406,8 +406,8 @@ RSpec.describe WorksController do
           "family_name_2" => "lovelace",
           "sequence_2" => "2",
           "creator_count" => "2",
-          "rights_identifier"=>"CC BY"
-      }.with_indifferent_access
+          "rights_identifier" => "CC BY"
+        }.with_indifferent_access
       end
 
       before do
