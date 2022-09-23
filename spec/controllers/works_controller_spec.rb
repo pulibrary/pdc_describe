@@ -458,6 +458,7 @@ RSpec.describe WorksController do
           allow(s3_client).to receive(:delete_object)
           allow(s3_query_service_double).to receive(:client).and_return(s3_client)
           allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
+
           stub_request(:put, "https://api.datacite.org/dois/#{work.doi}").to_return(status: 200, body: "", headers: {})
           work.approve!(user)
 
@@ -465,19 +466,13 @@ RSpec.describe WorksController do
           sign_in user
         end
 
-        # @todo Remove this
-        xit "deletes the S3 Objects associated with the Work" do
+        it "returns with a 403 response code" do
           expect(work.post_curation_uploads.length).to eq(2)
 
           sign_in user
           post :update, params: params
 
-          expect(s3_client).to have_received(:delete_object).with(
-            { bucket: "example-bucket", key: "SCoData_combined_v1_2020-07_README.txt" }
-          )
-          expect(s3_client).to have_received(:delete_object).with(
-            { bucket: "example-bucket", key: "SCoData_combined_v1_2020-07_datapackage.json" }
-          )
+          expect(response).to have_http_status(:forbidden)
         end
       end
     end
