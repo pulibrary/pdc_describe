@@ -32,25 +32,9 @@ import Turbolinks from "turbolinks"
 import ActiveStorage from "@rails/activestorage"
 // Provides @mention functionality in textboxes (adds to jQuery UI autocomplete)
 import "./vendor/jquery-ui-triggeredAutocomplete"
-import WorkForm from "./works/form"
 
 if (typeof(window._rails_loaded) == "undefined" || window._rails_loaded == null || !window._rails_loaded) {
   Rails.start()
 }
 Turbolinks.start()
 ActiveStorage.start()
-
-function setup_work_form () {
-
-    $(".work-form").each( (index, element) => {
-      const $element = $(element);
-      const work = $element.data('work');
-      const workForm = new WorkForm($element, work);
-    });
-  };
-
-$(document).ready( (event) => setup_work_form);
-
-
-$(document).on('turbolinks:load', setup_work_form);
-  

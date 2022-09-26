@@ -138,8 +138,15 @@ RSpec.describe "Creating and updating works", type: :system do
       target = page.all(".bi-arrow-down-up")[1].native
       builder = page.driver.browser.action
       builder.drag_and_drop(source, target).perform
-
       creator_text_after = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
+
+      # This is really strange, but my local machine likes to drag from bottom to top and CircleCI likes to drag
+      #  from top to bottom.  So I am adding in trying the other direction when the first direction fails.
+      # This will make the test pass more consistantly for everyone (I hope)
+      if creator_text_after != "Sally Smith  #{creator.given_name} #{creator.family_name}"
+        builder.drag_and_drop(target, source).perform
+        creator_text_after = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
+      end
       expect(creator_text_after).to eq("Sally Smith  #{creator.given_name} #{creator.family_name}")
       click_on "Save Work"
       draft_work.reload
