@@ -16,6 +16,10 @@ AllCops:
 
 Layout/IndentationConsistency:
   EnforcedStyle: indented_internal_methods
+  
+Layout/LineLength:
+  Exclude:
+    - "spec/system/bitklavier_form_submission_spec.rb"
 
 Metrics/BlockLength:
   Exclude:
