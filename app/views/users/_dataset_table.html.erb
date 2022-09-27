@@ -25,6 +25,7 @@
               <span title="<%= ds.curator&.display_name %>"><%= ds.curator&.uid %></span>
           </td>
           <td><%= ds.state %></td>
+          <!-- see https://datatables.net/manual/data/orthogonal-data for sorting options -->
           <td class="last-edited" data-sort="<%= ds.updated_at %>">
             <span title="<%= ds.updated_at.localtime %>"><%= distance_of_time_in_words_to_now(ds.updated_at) %></span>
           </td>
