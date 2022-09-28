@@ -27,7 +27,7 @@ FactoryBot.define do
       collection { Collection.research_data }
       resource do
         PDCMetadata::Resource.new_from_json({
-          "doi": "https://doi.org/10.34770/pe9w-x904",
+          "doi": "10.34770/pe9w-x904",
           "ark": "ark:/88435/dsp01zc77st047",
           "identifier_type": "DOI",
           "titles": [{ "title": "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events" }],
