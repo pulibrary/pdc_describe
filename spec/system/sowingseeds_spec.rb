@@ -65,7 +65,6 @@ Download the README.txt for a detailed description of this dataset's content."
       expect(page).to have_content "awaiting_approval"
       sowingseeds_work = Work.last
       expect(sowingseeds_work.title).to eq title
-      byebug 
     
       
       
