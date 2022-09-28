@@ -16,12 +16,16 @@ Download the README.txt for a detailed description of this dataset's content."
   let(:doi) { "10.34770/r75s-9j74" }
   let(:file1) { Pathname.new(fixture_path).join("dataspace_migration","sowingseeds","readmearchiveitusability.rtf").to_s }
   let(:file2) { Pathname.new(fixture_path).join("dataspace_migration","sowingseeds","Archive-It-UsabilityTestDataAnalysis-2017.xlsx").to_s }
- 
+  let(:bucket_url) do
+    "https://example-bucket.s3.amazonaws.com/"
+  end
+
   before do
     page.driver.browser.manage.window.resize_to(2000, 2000)
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_request(:get, "https://handle.stage.datacite.org/10.34770/r75s-9j74")
       .to_return(status: 200, body: "", headers: {})
+    stub_request(:put, /#{bucket_url}/).to_return(status: 200)
   end
   context "migrate record from dataspace" do
     it "produces and saves a valid datacite record" do
@@ -56,6 +60,11 @@ Download the README.txt for a detailed description of this dataset's content."
       click_on "Continue"
       page.attach_file("patch[pre_curation_uploads][]", [file1,file2], make_visible: true)
       click_on "Continue"
+      click_on "Complete"
+      # the work has been submitted and is awaiting_approval
+      expect(page).to have_content "awaiting_approval"
+      sowingseeds_work = Work.last
+      expect(sowingseeds_work.title).to eq title
       byebug 
     
       
