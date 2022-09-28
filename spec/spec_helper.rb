@@ -111,3 +111,7 @@ RSpec.configure do |config|
   #   # as the one that triggered the failure.
   #   Kernel.srand config.seed
 end
+
+def capybara_root_url
+  "http://#{Capybara.current_session.server.host}:#{Capybara.current_session.server.port}"
+end
