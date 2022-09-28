@@ -9,7 +9,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
     let(:s3_query_service_double) { instance_double(S3QueryService) }
     let(:file1) do
       S3File.new(
-        filename: "SCoData_combined_v1_2020-07_README.txt",
+        filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt",
         last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
         size: 10_759,
         checksum: "abc123"
@@ -17,12 +17,14 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
     end
     let(:file2) do
       S3File.new(
-        filename: "SCoData_combined_v1_2020-07_datapackage.json",
+        filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json",
         last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
         size: 12_739,
         checksum: "abc567"
       )
     end
+    let(:filename1) { ActiveStorage::Filename.new(file1.filename).to_s }
+    let(:filename2) { ActiveStorage::Filename.new(file1.filename).to_s }
     let(:s3_data) { [file1, file2] }
     let(:bucket_url) do
       "https://example-bucket.s3.amazonaws.com/"
@@ -67,10 +69,9 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         expect(work.pre_curation_uploads.length).to eq(3)
         visit work_path(work)
         expect(page).to have_content work.title
-
         expect(page).to have_content upload_file_name
-        expect(page).to have_content file1.filename
-        expect(page).to have_content file2.filename
+        expect(page).to have_content filename1
+        expect(page).to have_content filename2
       end
 
       it "renders S3 Bucket Objects and file uploads on the edit page", js: true do
@@ -96,8 +97,9 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
           visit work_path(work)
 
           expect(page).to have_content work.title
-          expect(page).to have_content file1.filename
-          expect(page).to have_content file2.filename
+          expect(page).not_to have_content upload_file_name
+          expect(page).to have_content filename1
+          expect(page).to have_content filename2
         end
 
         it "renders only the S3 Bucket Objects on the edit page", js: true do
@@ -113,6 +115,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         let(:collection) { approved_work.collection }
         let(:user) { FactoryBot.create(:user, collections_to_admin: [collection]) }
         let(:approved_work) { FactoryBot.create(:shakespeare_and_company_work) }
+        let(:work) { approved_work } # make sure the id in the file key matches the work
 
         before do
           # approved_work.pre_curation_uploads.attach(upload_file)
@@ -129,8 +132,8 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
           expect(page).to have_content approved_work.title
 
           expect(page).to have_content upload_file_name
-          expect(page).to have_content file1.filename
-          expect(page).to have_content file2.filename
+          expect(page).to have_content filename1
+          expect(page).to have_content filename2
         end
 
         it "renders S3 Bucket Objects and file uploads on the edit page", js: true do
@@ -140,8 +143,8 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
           click_on "Edit"
 
           expect(page).to have_content upload_file_name
-          expect(page).to have_content file1.filename
-          expect(page).to have_content file2.filename
+          expect(page).to have_content filename1
+          expect(page).to have_content filename2
         end
 
         context "when files are deleted from a Work" do
@@ -157,8 +160,8 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
             visit work_path(approved_work)
 
             expect(page).to have_content approved_work.title
-            expect(page).to have_content file1.filename
-            expect(page).to have_content file2.filename
+            expect(page).to have_content filename1
+            expect(page).to have_content filename2
           end
 
           it "renders only the S3 Bucket Objects on the edit page", js: true do
@@ -167,8 +170,8 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
             click_on "Edit"
 
             expect(page).not_to have_content upload_file_name
-            expect(page).to have_content file1.filename
-            expect(page).to have_content file2.filename
+            expect(page).to have_content filename1
+            expect(page).to have_content filename2
           end
         end
       end

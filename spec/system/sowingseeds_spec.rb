@@ -65,28 +65,6 @@ Download the README.txt for a detailed description of this dataset's content."
       expect(page).to have_content "awaiting_approval"
       sowingseeds_work = Work.last
       expect(sowingseeds_work.title).to eq title
-    
-      
-      
-      
-
-
-
-
-      
-    #   find("#rights_identifier").find(:xpath, "option[2]").select_option
-      
-    #   click_on "v-pills-additional-tab"
-    #   fill_in "publisher", with: publisher
-    #   fill_in "publication_year", with: 2019
-    #   find("#collection_id").find(:xpath, "option[1]").select_option
-    #   click_on "v-pills-identifier-tab"
-    #   fill_in "doi", with: doi
-    #   fill_in "ark", with: ark
-    #   click_on "Create"
-    #   expect(page).to have_content "marked as draft"
-    #   bitklavier_work = Work.last
-    #   expect(bitklavier_work.title).to eq title
     end
   end
 end

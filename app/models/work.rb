@@ -503,10 +503,14 @@ class Work < ApplicationRecord
     end
 
     def generate_attachment_key(attachment)
-      key_base = "#{doi}/#{id}"
-
       attachment_filename = attachment.filename.to_s
-      attachment_key = [key_base, attachment_filename].join("/")
+      attachment_key = attachment.key
+
+      # Files actually coming from S3 include the DOI and bucket as part of the file name
+      #  Files being attached in another manner may not have it, so we should include it.
+      #  This is really for testing only.
+      key_base = "#{doi}/#{id}"
+      attachment_key = [key_base, attachment_filename].join("/") unless attachment_key.include?(key_base)
 
       attachment_ext = File.extname(attachment_filename)
       attachment_query = attachment_key.gsub(attachment_ext, "")
@@ -636,10 +640,8 @@ class Work < ApplicationRecord
     alias pre_curation_s3_resources s3_resources
 
     def s3_object_persisted?(s3_file)
-      uploads_filenames = uploads.map(&:filename)
-
-      persisted_filenames = uploads_filenames.select { |filename| filename.to_s == s3_file.filename }
-      !persisted_filenames.empty?
+      uploads_keys = uploads.map(&:key)
+      uploads_keys.include?(s3_file.key)
     end
 
     def add_pre_curation_s3_object(s3_file)
