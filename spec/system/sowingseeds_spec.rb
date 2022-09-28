@@ -5,17 +5,17 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
   let(:user) { FactoryBot.create(:princeton_submitter) }
   let(:title) { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
   let(:description) do
-    "In 2017, seven members of the Archive-It Mid-Atlantic Users Group (AITMA) conducted a study of 14 subjects representative of their stakeholder populations to assess the usability of Archive-It, a web archiving subscription service of the Internet Archive. While Archive-It is the most widely-used tool for web archiving, little is known about how users interact with the service.This study intended to teach us what users expect from web archives, which exist as another form of archival material. End-user subjects executed four search tasks using the public Archive-It interface and the Wayback Machine to access archived information on websites from the facilitators’ own harvested collections and provide feedback about their experiences. The tasks were designed to have straightforward pass or fail outcomes, 
+    "In 2017, seven members of the Archive-It Mid-Atlantic Users Group (AITMA) conducted a study of 14 subjects representative of their stakeholder populations to assess the usability of Archive-It, a web archiving subscription service of the Internet Archive. While Archive-It is the most widely-used tool for web archiving, little is known about how users interact with the service.This study intended to teach us what users expect from web archives, which exist as another form of archival material. End-user subjects executed four search tasks using the public Archive-It interface and the Wayback Machine to access archived information on websites from the facilitators’ own harvested collections and provide feedback about their experiences. The tasks were designed to have straightforward pass or fail outcomes,
     and the facilitators took notes on the subjects’ behavior and commentary during the sessions.Overall, participants reported mildly positive impressions of Archive-It public user interface based on their session. The study identified several key areas of improvement for the Archive-It service pertaining to metadata options, terminology display, indexing of dates, and the site’s search box.
-    
+
 Download the README.txt for a detailed description of this dataset's content."
   end
   let(:ark) { "88435/dsp01d791sj97j" }
   let(:collection) { "Research Data" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.34770/r75s-9j74" }
-  let(:file1) { Pathname.new(fixture_path).join("dataspace_migration","sowingseeds","readmearchiveitusability.rtf").to_s }
-  let(:file2) { Pathname.new(fixture_path).join("dataspace_migration","sowingseeds","Archive-It-UsabilityTestDataAnalysis-2017.xlsx").to_s }
+  let(:file1) { Pathname.new(fixture_path).join("dataspace_migration", "sowingseeds", "readmearchiveitusability.rtf").to_s }
+  let(:file2) { Pathname.new(fixture_path).join("dataspace_migration", "sowingseeds", "Archive-It-UsabilityTestDataAnalysis-2017.xlsx").to_s }
   let(:bucket_url) do
     "https://example-bucket.s3.amazonaws.com/"
   end
@@ -58,7 +58,7 @@ Download the README.txt for a detailed description of this dataset's content."
       find("#rights_identifier").find(:xpath, "option[2]").select_option
       click_on "btn-submit"
       click_on "Continue"
-      page.attach_file("patch[pre_curation_uploads][]", [file1,file2], make_visible: true)
+      page.attach_file("patch[pre_curation_uploads][]", [file1, file2], make_visible: true)
       click_on "Continue"
       click_on "Complete"
       # the work has been submitted and is awaiting_approval
