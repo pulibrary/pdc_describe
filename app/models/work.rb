@@ -14,8 +14,6 @@ class Work < ApplicationRecord
 
   attr_accessor :user_entered_doi
 
-  validates_with Validators::WorkValidator
-
   include AASM
 
   aasm column: :state do
@@ -148,6 +146,7 @@ class Work < ApplicationRecord
   before_save do |work|
     # Ensure that the metadata JSON is persisted properly
     work.metadata = work.resource.to_json
+    work.save_pre_curation_uploads
   end
 
   after_save do |work|

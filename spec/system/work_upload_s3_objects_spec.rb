@@ -5,7 +5,7 @@ require "rails_helper"
 describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
   context "when creating a Work", mock_s3_query_service: false do
     let(:user) { FactoryBot.create :princeton_submitter }
-    let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
+    let(:work) { FactoryBot.create(:shakespeare_and_company_work, created_by_user_id: user.id) }
     let(:s3_query_service_double) { instance_double(S3QueryService) }
     let(:file1) do
       S3File.new(
@@ -66,22 +66,26 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
       it "renders S3 Bucket Objects and file uploads on the show page", js: true do
         work.pre_curation_uploads.attach(upload_file)
 
-        expect(work.pre_curation_uploads.length).to eq(3)
+        expect(work.pre_curation_uploads.length).to eq(1)
         visit work_path(work)
         expect(page).to have_content work.title
         expect(page).to have_content upload_file_name
         expect(page).to have_content filename1
         expect(page).to have_content filename2
+        expect(work.reload.pre_curation_uploads.length).to eq(3)
       end
 
       it "renders S3 Bucket Objects and file uploads on the edit page", js: true do
         work.pre_curation_uploads.attach(upload_file)
 
-        expect(work.pre_curation_uploads.length).to eq(3)
+        expect(work.pre_curation_uploads.length).to eq(1)
         visit work_path(work)
-        click_on "Edit"
+        expect(work.reload.pre_curation_uploads.length).to eq(3)
+        visit edit_work_path(work) # can not click Edit link becuase wizard does not show files
 
         expect(page).to have_content upload_file_name
+        expect(page).to have_content filename1
+        expect(page).to have_content filename2
       end
 
       context "when files are deleted from a Work" do
@@ -93,18 +97,18 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         end
 
         it "renders only the S3 Bucket Objects on the show page", js: true do
-          expect(work.pre_curation_uploads.length).to eq(2)
           visit work_path(work)
 
           expect(page).to have_content work.title
           expect(page).not_to have_content upload_file_name
           expect(page).to have_content filename1
           expect(page).to have_content filename2
+          expect(work.reload.pre_curation_uploads.length).to eq(2)
         end
 
         it "renders only the S3 Bucket Objects on the edit page", js: true do
-          expect(work.pre_curation_uploads.length).to eq(2)
           visit work_path(work)
+          expect(work.pre_curation_uploads.length).to eq(2)
           click_on "Edit"
 
           expect(page).not_to have_content upload_file_name
@@ -156,8 +160,8 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
           end
 
           it "renders only the S3 Bucket Objects on the show page", js: true do
-            expect(approved_work.pre_curation_uploads.length).to eq(2)
             visit work_path(approved_work)
+            expect(approved_work.reload.pre_curation_uploads.length).to eq(2)
 
             expect(page).to have_content approved_work.title
             expect(page).to have_content filename1
@@ -165,8 +169,8 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
           end
 
           it "renders only the S3 Bucket Objects on the edit page", js: true do
-            expect(approved_work.pre_curation_uploads.length).to eq(2)
             visit work_path(approved_work)
+            expect(approved_work.reload.pre_curation_uploads.length).to eq(2)
             click_on "Edit"
 
             expect(page).not_to have_content upload_file_name

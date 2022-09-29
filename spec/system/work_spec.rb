@@ -6,6 +6,7 @@ RSpec.describe "Creating and updating works", type: :system do
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+    stub_s3
   end
 
   it "Prevents empty title", js: true do
@@ -30,7 +31,6 @@ RSpec.describe "Creating and updating works", type: :system do
   end
 
   it "Renders ORCID links for creators", js: true do
-    stub_s3
     resource = FactoryBot.build(:resource, creators: [PDCMetadata::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")])
     work = FactoryBot.create(:draft_work, resource: resource)
 

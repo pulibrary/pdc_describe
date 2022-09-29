@@ -29,6 +29,7 @@ RSpec.describe WorksController do
 
     it "renders the resource json" do
       sign_in user
+      stub_s3
       get :show, params: { id: work.id, format: "json" }
       expect(response.content_type).to eq "application/json; charset=utf-8"
     end
@@ -485,7 +486,7 @@ RSpec.describe WorksController do
           stub_request(:put, "https://api.datacite.org/dois/#{work.doi}").to_return(status: 200, body: "", headers: {})
           work.approve!(user)
 
-          work.valid?
+          work.attach_s3_resources
           sign_in user
         end
 

@@ -123,7 +123,17 @@ RSpec.describe Work, type: :model do
     let(:uploaded_file2) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
-    let(:s3_client) { @s3_client }
+    let(:s3_client) do
+      s3_client = instance_double(Aws::S3::Client)
+      pre_curated_data_profile = { objects: [] }
+      pre_curated_query_service = instance_double(S3QueryService)
+
+      allow(pre_curated_query_service).to receive(:data_profile).and_return(pre_curated_data_profile)
+      allow(pre_curated_query_service).to receive(:bucket_name).and_return("example-bucket")
+      allow(pre_curated_query_service).to receive(:client).and_return(s3_client)
+      allow(S3QueryService).to receive(:new).and_return(pre_curated_query_service)
+      s3_client
+    end
 
     before do
       stub_request(:delete, /#{attachment_url}/).to_return(status: 200)
@@ -622,6 +632,9 @@ RSpec.describe Work, type: :model do
       end
 
       it "persists S3 Bucket resources as ActiveStorage Attachments" do
+        # call the s3 reload and make sure no more files get added to the model
+        work.attach_s3_resources
+
         expect(work.pre_curation_uploads).not_to be_empty
         expect(work.pre_curation_uploads.length).to eq(2)
         expect(work.pre_curation_uploads.first).to be_a(ActiveStorage::Attachment)
@@ -629,8 +642,8 @@ RSpec.describe Work, type: :model do
         expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
         expect(work.pre_curation_uploads.last.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
 
-        # call the s3 reload during validation and make sure no more files get added to the model
-        work.valid?
+        # call the s3 reload and make sure no more files get added to the model
+        work.attach_s3_resources
         expect(work.pre_curation_uploads.length).to eq(2)
       end
 
@@ -644,6 +657,7 @@ RSpec.describe Work, type: :model do
         end
 
         it "finds the blob and attaches it as an ActiveStorage Attachments" do
+          work.attach_s3_resources
           expect(work.pre_curation_uploads).not_to be_empty
           expect(work.pre_curation_uploads.length).to eq(2)
           expect(work.pre_curation_uploads.first).to be_a(ActiveStorage::Attachment)

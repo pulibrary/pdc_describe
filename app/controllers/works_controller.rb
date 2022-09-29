@@ -65,6 +65,8 @@ class WorksController < ApplicationController
   # When requested as .json, return the internal json resource
   def show
     @work = Work.find(params[:id])
+    # check if anything was added in S3 since we last viewed this object
+    @work.attach_s3_resources
     respond_to do |format|
       format.html do
         @can_curate = current_user.can_admin?(@work.collection)
@@ -119,6 +121,9 @@ class WorksController < ApplicationController
     end
 
     if @work.update(updates)
+      # pause to allow s3 time to remove the file completely
+      sleep(0.1) if work_params.key?(:deleted_uploads)
+
       if @wizard_mode
         redirect_to work_attachment_select_url(@work)
       else
