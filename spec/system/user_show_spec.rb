@@ -17,7 +17,7 @@ RSpec.describe "User dashboard" do
     it "renders the collection names as links", js: true do
       sign_in moderator_user
       visit user_path(moderator_user)
-      pppl_url = capybara_root_url + collection_path(Collection.plasma_laboratory)
+      pppl_url = collection_path(Collection.plasma_laboratory)
       expected_link = "<a href=\"#{pppl_url}\">#{Collection.plasma_laboratory.title}</a>"
       expect(page.html.include?(expected_link)).to be true
     end

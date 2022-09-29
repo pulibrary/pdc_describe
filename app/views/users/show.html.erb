@@ -24,7 +24,7 @@
 <% elsif @user.curator? %>
   <p>Curator for:
     <%= @user.admin_collections.map do |collection|
-      link_to(collection.title, collection_url(collection))
+      link_to(collection.title, collection_path(collection))
     end.to_sentence.html_safe %></p>
 <% end %>
 
