@@ -254,7 +254,7 @@ RSpec.describe Work, type: :model do
     let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
     it "has a DOI" do
       expect(work.title).to eq "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events"
-      expect(work.resource.doi).to eq "https://doi.org/10.34770/pe9w-x904"
+      expect(work.resource.doi).to eq "10.34770/pe9w-x904"
     end
   end
 
@@ -591,7 +591,7 @@ RSpec.describe Work, type: :model do
       let(:s3_query_service_double) { instance_double(S3QueryService) }
       let(:file1) do
         S3File.new(
-        filename: "SCoData_combined_v1_2020-07_README.txt",
+        filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt",
         last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
         size: 10_759,
         checksum: "abc123"
@@ -599,7 +599,7 @@ RSpec.describe Work, type: :model do
       end
       let(:file2) do
         S3File.new(
-          filename: "SCoData_combined_v1_2020-07_datapackage.json",
+          filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json",
           last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
           size: 12_739,
           checksum: "abc567"
@@ -628,6 +628,10 @@ RSpec.describe Work, type: :model do
         expect(work.pre_curation_uploads.first.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt")
         expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
         expect(work.pre_curation_uploads.last.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
+
+        # call the s3 reload during validation and make sure no more files get added to the model
+        work.valid?
+        expect(work.pre_curation_uploads.length).to eq(2)
       end
 
       context "a blob already exists for one of the files" do

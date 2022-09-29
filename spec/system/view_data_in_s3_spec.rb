@@ -9,11 +9,11 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
 
   describe "when a dataset has a DOI and its data is in S3", mock_s3_query_service: false do
     let(:user) { FactoryBot.create :princeton_submitter }
-    let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
+    let(:work) { FactoryBot.create(:shakespeare_and_company_work, created_by_user_id: user.id) }
     let(:s3_query_service_double) { instance_double(S3QueryService) }
     let(:file1) do
       S3File.new(
-        filename: "SCoData_combined_v1_2020-07_README.txt",
+        filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt",
         last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
         size: 10_759,
         checksum: "abc123"
@@ -21,7 +21,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
     end
     let(:file2) do
       S3File.new(
-        filename: "SCoData_combined_v1_2020-07_datapackage.json",
+        filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json",
         last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
         size: 12_739,
         checksum: "abc567"
@@ -51,12 +51,13 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
       expect(page).to have_content work.title
       expect(page).to have_content "us_covid_2019.csv"
 
-      expect(page).to have_content file1.filename
-
-      expect(page).to have_content file2.filename
+      expect(page).to have_content ActiveStorage::Filename.new(file1.filename).to_s
+      expect(page).to have_content ActiveStorage::Filename.new(file2.filename).to_s
 
       click_on "Edit"
       expect(page).to have_content "us_covid_2019.csv"
+      expect(page).to have_content ActiveStorage::Filename.new(file1.filename).to_s
+      expect(page).to have_content ActiveStorage::Filename.new(file2.filename).to_s
     end
   end
 end
