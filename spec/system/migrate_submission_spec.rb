@@ -36,6 +36,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
   context "happy path" do
     before do
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
+      stub_s3
     end
 
     it "produces and saves a valid datacite record" do
@@ -65,6 +66,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
     before do
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-ab").to_return(status: 404, body: "", headers: {})
+      stub_s3
     end
 
     it "returns the user to the new page so they can recover from an error" do
@@ -105,6 +107,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
     let(:datacite_stub) { stub_datacite_doi }
     let(:identifier) { @identifier } # from the mock_ezid_api
     before do
+      stub_s3
       datacite_stub # make sure the stub is created before we start the test
       Rails.configuration.update_ark_url = true
       allow(Honeybadger).to receive(:notify)

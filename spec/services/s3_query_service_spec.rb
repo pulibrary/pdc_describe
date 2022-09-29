@@ -17,14 +17,14 @@ RSpec.describe S3QueryService, mock_s3_query_service: false do
           etag: "\"008eec11c39e7038409739c0160a793a\"",
           key: s3_key1,
           last_modified: s3_last_modified1,
-          size: 10_759,
+          size: s3_size1,
           storage_class: "STANDARD"
         },
         {
           etag: "\"7bd3d4339c034ebc663b990657714688\"",
           key: s3_key2,
           last_modified: s3_last_modified2,
-          size: 12_739,
+          size: s3_size2,
           storage_class: "STANDARD"
         },
         {

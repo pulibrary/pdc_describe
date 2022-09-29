@@ -12,6 +12,9 @@ amazon: &amazon
   region: <%= S3QueryService.pre_curation_config.fetch(:region) %>
   bucket: <%= S3QueryService.pre_curation_config.fetch(:bucket) %>
 
+# development: &development
+#   <<: *amazon
+
 amazon_pre_curation:
   <% if Rails.env.development? %>
     <<: *development

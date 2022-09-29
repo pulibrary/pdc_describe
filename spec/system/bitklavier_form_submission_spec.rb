@@ -19,6 +19,7 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_request(:get, "https://handle.stage.datacite.org/10.34770/r75s-9j74")
       .to_return(status: 200, body: "", headers: {})
+    stub_s3
   end
   context "migrate record from dataspace" do
     it "produces and saves a valid datacite record" do
