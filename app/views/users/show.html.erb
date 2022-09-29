@@ -22,7 +22,10 @@
 <% if @user.super_admin? %>
   <!-- not sure we want to display the collections here, it's pointless -->
 <% elsif @user.curator? %>
-  <p>Curator for: <%= @user.admin_collections.map(&:title).to_sentence %></p>
+  <p>Curator for:
+    <%= @user.admin_collections.map do |collection|
+      link_to(collection.title, collection_path(collection))
+    end.to_sentence.html_safe %></p>
 <% end %>
 
 <% if @my_dashboard %>
