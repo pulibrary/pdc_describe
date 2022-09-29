@@ -4,15 +4,16 @@ module PDCMetadata
   # https://support.datacite.org/docs/datacite-metadata-schema-v44-properties-overview
   #
   class Resource
-    attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type,
+    attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
       :description, :doi, :ark, :rights, :version_number
 
-    def initialize(doi: nil, title: nil, resource_type: nil, creators: [], description: nil)
+    def initialize(doi: nil, title: nil, resource_type: nil, resource_type_general: nil, creators: [], description: nil)
       @titles = []
       @titles << PDCMetadata::Title.new(title: title) unless title.nil?
       @description = description
       @creators = creators
       @resource_type = resource_type || "Dataset"
+      @resource_type_general = resource_type_general || self.class.default_resource_type_general
       @publisher = "Princeton University"
       @publication_year = Time.zone.today.year
       @ark = nil
@@ -65,6 +66,16 @@ module PDCMetadata
         resource.rights = PDCMetadata::Rights.find(hash["rights"]["identifier"]) if hash["rights"]
 
         resource
+      end
+
+      def resource_type_general_options
+        pairs = Datacite::Mapping::ResourceTypeGeneral.to_a.map { |value| [value.key, value.value] }
+        built = Hash[pairs]
+        built.with_indifferent_access
+      end
+
+      def default_resource_type_general
+        :DATASET
       end
 
       private

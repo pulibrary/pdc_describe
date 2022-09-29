@@ -107,6 +107,8 @@ class Work < ApplicationRecord
       models.first
     end
 
+    delegate :resource_type_general_options, to: PDCMetadata::Resource
+
     private
 
       def works_by_user_state(user, state)
@@ -454,6 +456,8 @@ class Work < ApplicationRecord
       end
     end
   end
+
+  delegate :resource_type, :resource_type=, :resource_type_general, :resource_type_general=, to: :resource
 
   protected
 
