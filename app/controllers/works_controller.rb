@@ -4,9 +4,6 @@ require "nokogiri"
 require "open-uri"
 
 # rubocop:disable Metrics/ClassLength
-# rubocop:disable Metrics/AbcSize
-# rubocop:disable Metrics/MethodLength
-# rubocop:disable Style/For
 class WorksController < ApplicationController
   around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :validate, :create]
 
@@ -42,7 +39,8 @@ class WorksController < ApplicationController
   end
 
   def create
-    @work = Work.new(created_by_user_id: current_user.id, collection_id: params[:collection_id], resource: resource_from_form, user_entered_doi: params["doi"].present?)
+    @work = Work.new(created_by_user_id: current_user.id, collection_id: params[:collection_id], user_entered_doi: params["doi"].present?)
+    @work.resource = FormToResourceService.convert(params, @work, current_user)
     if @work.valid?
       @work.draft!(current_user)
       redirect_to work_url(@work), notice: "Work was successfully created."
@@ -54,8 +52,8 @@ class WorksController < ApplicationController
   # Creates the new dataset
   def new_submission
     default_collection_id = current_user.default_collection.id
-    resource = resource_from_form
-    work = Work.new(created_by_user_id: current_user.id, collection_id: default_collection_id, resource: resource)
+    work = Work.new(created_by_user_id: current_user.id, collection_id: default_collection_id)
+    work.resource = FormToResourceService.convert(params, work, current_user)
     work.draft!(current_user)
     redirect_to edit_work_path(work, wizard: true)
   end
@@ -99,6 +97,7 @@ class WorksController < ApplicationController
     end
   end
 
+  # rubocop:disable Metrics/MethodLength
   def update
     @work = Work.find(params[:id])
     @wizard_mode = wizard_mode?
@@ -107,7 +106,7 @@ class WorksController < ApplicationController
 
     updates = {
       collection_id: collection_id_param,
-      resource: resource_from_form
+      resource: FormToResourceService.convert(params, @work, current_user)
     }
 
     if @work.approved?
@@ -134,6 +133,7 @@ class WorksController < ApplicationController
       render :edit, status: :unprocessable_entity
     end
   end
+  # rubocop:enable Metrics/MethodLength
 
   # Prompt to select how to submit their files
   def attachment_select
@@ -265,45 +265,6 @@ class WorksController < ApplicationController
 
   private
 
-    def new_creator(given_name, family_name, orcid, sequence)
-      return if family_name.blank? && given_name.blank? && orcid.blank?
-      PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
-    end
-
-    # rubocop:disable Metrics/CyclomaticComplexity:
-    def resource_from_form
-      resource = PDCMetadata::Resource.new
-      resource.doi = params["doi"] if params["doi"].present?
-      resource.ark = params["ark"] if params["ark"].present?
-      resource.description = params["description"]
-      resource.publisher = params["publisher"] if params["publisher"].present?
-      resource.publication_year = params["publication_year"] if params["publication_year"].present?
-      resource.rights = PDCMetadata::Rights.find(params["rights_identifier"])
-
-      # Process the titles
-      resource.titles << PDCMetadata::Title.new(title: params["title_main"])
-      for i in 1..params["existing_title_count"].to_i do
-        if params["title_#{i}"].present?
-          resource.titles << PDCMetadata::Title.new(title: params["title_#{i}"], title_type: params["title_type_#{i}"])
-        end
-      end
-
-      for i in 1..params["new_title_count"].to_i do
-        if params["new_title_#{i}"].present?
-          resource.titles << PDCMetadata::Title.new(title: params["new_title_#{i}"], title_type: params["new_title_type_#{i}"])
-        end
-      end
-
-      # Process the creators
-      for i in 1..params["creator_count"].to_i do
-        creator = new_creator(params["given_name_#{i}"], params["family_name_#{i}"], params["orcid_#{i}"], params["sequence_#{i}"])
-        resource.creators << creator unless creator.nil?
-      end
-
-      resource
-    end
-    # rubocop:enable Metrics/CyclomaticComplexity:
-
     def work_params
       params[:work] || params
     end
@@ -347,6 +308,3 @@ class WorksController < ApplicationController
     end
 end
 # rubocop:enable Metrics/ClassLength
-# rubocop:enable Metrics/AbcSize
-# rubocop:enable Metrics/MethodLength
-# rubocop:enable Style/For
