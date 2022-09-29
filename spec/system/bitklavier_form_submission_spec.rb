@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_ezid_api: true, js: true do
-  let(:user) { FactoryBot.create(:princeton_submitter) }
+  let(:user) { FactoryBot.create(:research_data_moderator) }
   let(:title) { "bitKlavier Grand Sample Library—Binaural Mic Image" }
   let(:description) do
     "The bitKlavier Grand consists of sample collections of a new Steinway D grand piano from nine different stereo mic images, with: 16 velocity layers, at every minor 3rd (starting at A0); Hammer release samples; Release resonance samples; Pedal samples. Release packages at 96k/24bit, 88.2k/24bit, 48k/24bit, 44.1k/16bit are available for various applications.
@@ -46,7 +46,7 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2021
       find("#collection_id").find(:xpath, "option[1]").select_option
-      click_on "v-pills-identifier-tab"
+      click_on "v-pills-curator-controlled-tab"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"

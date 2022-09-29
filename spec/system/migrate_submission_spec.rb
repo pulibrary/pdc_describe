@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_api: true, js: true do
-  let(:user) { FactoryBot.create(:princeton_submitter) }
+  let(:user) { FactoryBot.create(:research_data_moderator) }
   let(:doi) { "10.34770/123-abc" }
   let(:title) { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
   let(:contributors) do
@@ -51,7 +51,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "family_name_1", with: "Abrams"
       fill_in "description", with: description
       find("#rights_identifier").find(:xpath, "option[2]").select_option
-      click_on "Identifiers"
+      click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Additional Metadata"
@@ -80,15 +80,15 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "family_name_1", with: "Abrams"
       fill_in "description", with: description
       find("#rights_identifier").find(:xpath, "option[2]").select_option
-      click_on "Identifiers"
+      click_on "Curator Controlled"
       fill_in "doi", with: "abc123"
       click_on "Create"
       expect(page).to have_content "Invalid DOI: does not match format"
-      click_on "Identifiers"
+      click_on "Curator Controlled"
       fill_in "doi", with: "10.34770/123-ab"
       click_on "Create"
       expect(page).to have_content "Invalid DOI: can not verify it's authenticity"
-      click_on "Identifiers"
+      click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Additional Metadata"
