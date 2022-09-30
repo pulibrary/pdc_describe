@@ -27,14 +27,22 @@ class FormToResourceService
     private
 
       def process_curator_controlled(params:, work:, current_user:)
-        resource = PDCMetadata::Resource.new
+        resource = reset_reseouce_to_work(work)
         if current_user.has_role?(:collection_admin, work.collection)
           resource.doi = params["doi"] if params["doi"].present?
           resource.ark = params["ark"] if params["ark"].present?
           resource.version_number = params["version_number"] if params["version_number"].present?
+          resource.collection_tags = params["collection_tags"].split(",").map(&:strip) if params["collection_tags"]
         end
-        resource.doi ||= work.doi
-        resource.ark ||= work.ark
+        resource
+      end
+
+      def reset_reseouce_to_work(work)
+        resource = PDCMetadata::Resource.new
+
+        resource.doi = work.doi
+        resource.ark = work.ark
+        resource.collection_tags = work.resource.collection_tags || []
         resource
       end
 

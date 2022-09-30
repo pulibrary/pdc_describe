@@ -26,4 +26,11 @@
       <% end %>
     </select>
   </div>
+
+  <!-- Collection Tags field -->
+  <div class="field">
+    Collection Tags: <span class="text-muted field-hint">(enter tags that identify the collect in a comma separated list, e.g. Humanities, Life Sciences)</span><br>
+    <input type="text" id="collection_tags" name="collection_tags" class="input-text-long" value="<%= @work.resource.ark %>" />
+  </div>
+
 </div>
