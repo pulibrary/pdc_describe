@@ -1,18 +1,29 @@
 <div class="section-title">
   <!-- DOI field (mostly for legacy DSpace works) -->
   <div class="field">
-    DOI <span class="text-muted field-hint">(enter the Digital Object Identifier, e.g. 10.80021/62qy-nj36)</span><br>
     <% if  @wizard_mode || @work.persisted? %>
-       <%= @work.doi %>
+      DOI: <br>
+      <%= @work.doi %>
     <% else %>
-       <input type="text" id="doi" name="doi" class="input-text-long" value="<%= @work.doi %>"/>
+      DOI: <span class="text-muted field-hint">(enter the Digital Object Identifier, e.g. 10.80021/62qy-nj36)</span><br>
+      <input type="text" id="doi" name="doi" class="input-text-long" value="<%= @work.doi %>"/>
     <% end %>
 
   </div>
 
   <!-- ARK field (mostly for legacy DSpace works) -->
   <div class="field">
-    ARK <span class="text-muted field-hint">(enter the core ARK identifier, e.g. ark:/88435/xyz123)</span><br>
+    ARK: <span class="text-muted field-hint">(enter the core ARK identifier, e.g. ark:/88435/xyz123)</span><br>
     <input type="text" id="ark" name="ark" class="input-text-long" value="<%= @work.resource.ark %>" />
+  </div>
+
+  <!-- Version number -->
+  <div class="field">
+    Version: <span class="required-field">*</span><br>
+    <select id="version_number" name="version_number" class="input-version" >
+      <% (1..10).each do |i| %>
+        <option value="<%= i %>" <%= i.to_s == @work.resource.version_number ? "selected" : "" %>><%= i %></option>
+      <% end %>
+    </select>
   </div>
 </div>

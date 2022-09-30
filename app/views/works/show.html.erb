@@ -78,6 +78,9 @@
   <% if @work.resource.ark %>
     <p>ARK: <%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></p>
   <% end %>
+  <% if @work.resource.version_number %>
+    <p>Version: <%= @work.resource.version_number %></p>
+  <% end %>
 
   <p>Added by: <%= @work.created_by_user.uid %></p>
   <p>Collection: <%= @work.collection.title %></p>

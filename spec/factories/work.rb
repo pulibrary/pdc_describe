@@ -36,6 +36,7 @@ FactoryBot.define do
             { "value": "Kotin, Joshua", "name_type": "Personal", "given_name": "Joshua", "family_name": "Kotin", "affiliations": [], "sequence": "1" }
           ],
           "resource_type": "Dataset", "publisher": "Princeton University", "publication_year": "2020",
+          "version_number": "1",
           "rights": { "identifier": "CC BY" }
         }.to_json)
       end
@@ -55,6 +56,7 @@ FactoryBot.define do
             { "value": "Rafiq, Tariq", "name_type": "Personal", "given_name": "Tariq", "family_name": "Rafiq", "affiliations": [], "sequence": "1" }
           ],
           "resource_type": "Dataset", "publisher": "Princeton University", "publication_year": "2022",
+          "version_number": "1",
           "rights": { "identifier": "CC BY" }
         }.to_json)
       end

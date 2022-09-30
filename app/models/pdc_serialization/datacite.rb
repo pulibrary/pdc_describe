@@ -73,7 +73,8 @@ module PDCSerialization
         publication_year: resource.publication_year,
         resource_type: datacite_resource_type(resource.resource_type),
         related_identifiers: related_identifiers_from_work_resource(resource),
-        rights_list: rights_from_work_resource(resource)
+        rights_list: rights_from_work_resource(resource),
+        version: resource.version_number
       )
       Datacite.new(mapping)
     end

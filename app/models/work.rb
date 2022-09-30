@@ -542,6 +542,7 @@ class Work < ApplicationRecord
       end
     end
 
+    # rubocop:disable Metrics/AbcSize
     def validate_metadata
       return if metadata.blank?
       errors.add(:base, "Must provide a title") if resource.main_title.blank?
@@ -549,8 +550,10 @@ class Work < ApplicationRecord
       errors.add(:base, "Must indicate the Publisher") if resource.publisher.blank?
       errors.add(:base, "Must indicate the Publication Year") if resource.publication_year.blank?
       errors.add(:base, "Must indicate a Rights statement") if resource.rights.nil?
+      errors.add(:base, "Must provide a Version number") if resource.version_number.blank?
       validate_creators
     end
+    # rubocop:enable Metrics/AbcSize
 
     def validate_creators
       if resource.creators.count == 0

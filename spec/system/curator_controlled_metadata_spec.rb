@@ -20,6 +20,8 @@ RSpec.describe "Curator Controlled metadata tab", type: :system do
       # I can not edit curator fields
       expect(page).to have_content("ARK")
       expect(page).not_to have_css("#ark.input-text-long")
+      expect(page).to have_content("Version")
+      expect(page).not_to have_css("#version_number.input-version")
 
       # I can edit other fields
       click_on "Required Metadata"
