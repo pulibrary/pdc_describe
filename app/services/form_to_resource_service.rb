@@ -31,6 +31,7 @@ class FormToResourceService
         if current_user.has_role?(:collection_admin, work.collection)
           resource.doi = params["doi"] if params["doi"].present?
           resource.ark = params["ark"] if params["ark"].present?
+          resource.version_number = params["version_number"] if params["version_number"].present?
         end
         resource.doi ||= work.doi
         resource.ark ||= work.ark
