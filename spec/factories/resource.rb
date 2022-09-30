@@ -15,5 +15,6 @@ FactoryBot.define do
     creators { [PDCMetadata::Creator.new_person(FFaker::Name.first_name, FFaker::Name.last_name)] }
     titles { [PDCMetadata::Title.new(title: title)] }
     rights { PDCMetadata::Rights.find("CC BY") }
+    version_number { "1" }
   end
 end
