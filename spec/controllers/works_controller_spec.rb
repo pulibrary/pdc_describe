@@ -951,7 +951,7 @@ RSpec.describe WorksController do
     let(:params) do
       {
         id: work.id,
-        title: work.title,
+        title_main: work.title,
         collection_id: collection.id,
         new_title_1: "the subtitle",
         new_title_type_1: "Subtitle",
@@ -959,10 +959,12 @@ RSpec.describe WorksController do
         new_title_count: "1",
         given_name_1: "Toni",
         family_name_1: "Morrison",
-        new_given_name_1: "Sonia",
-        new_family_name_1: "Sotomayor",
-        new_orcid_1: "1234-1234-1234-1234",
-        existing_creator_count: "1",
+        sequence_1: "1",
+        given_name_2: "Sonia",
+        family_name_2: "Sotomayor",
+        sequence_2: "1",
+        orcid_2: "1234-1234-1234-1234",
+        creator_count: "1",
         new_creator_count: "1"
       }
     end
@@ -971,11 +973,54 @@ RSpec.describe WorksController do
       context "when requesting a HTML representation" do
         let(:format) { :html }
 
+        context "when the update succeeds" do
+          before do
+            sign_in user
+            patch :update, params: params
+          end
+
+          it "redirects to the show page" do
+            expect(response.code).to eq("302")
+            expect(response).to redirect_to(work_path(work))
+          end
+        end
+
+        context "a submitter trying to update the curator conrolled fields" do
+          before do
+            sign_in user
+            new_params = params.merge(doi: "new-doi")
+                               .merge(ark: "new-ark")
+            patch :update, params: new_params
+          end
+
+          it "does not update the curator controlled fields" do
+            original_doi = work.doi
+            original_ark = work.ark
+            expect(work.reload.doi).to eq(original_doi)
+            expect(work.ark).to eq(original_ark)
+          end
+        end
+
+        context "a collection admin trying to update curator controlled fields" do
+          let(:user) { FactoryBot.create :research_data_moderator }
+          before do
+            sign_in user
+            new_params = params.merge(doi: "new-doi")
+                               .merge(ark: "new-ark")
+            patch :update, params: new_params
+          end
+
+          it "updates the curator controlled fields", mock_ezid_api: true do
+            expect(work.reload.doi).to eq("new-doi")
+            expect(work.reload.ark).to eq("new-ark")
+          end
+        end
+
         context "when the update fails" do
           before do
             sign_in user
             allow(Work).to receive(:find).and_return(work)
-            allow_any_instance_of(Work).to receive(:update).and_return(false)
+            allow(work).to receive(:update).and_return(false)
             patch :update, params: params
           end
 
