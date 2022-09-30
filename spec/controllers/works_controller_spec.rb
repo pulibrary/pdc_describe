@@ -79,12 +79,18 @@ RSpec.describe WorksController do
         "publication_year" => "2022",
         "given_name_1" => "Jane",
         "family_name_1" => "Smith",
-        "creator_count" => "1"
+        "creator_count" => "1",
+        "resource_type" => "Dataset",
+        "resource_type_general" => "dataset"
       }
       sign_in user
       post :update, params: params
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/works/#{work.id}"
+
+      work.reload
+      expect(work.resource_type).to eq("Dataset")
+      expect(work.resource_type_general).to eq(:DATASET)
     end
 
     context "when the client uses wizard mode" do
