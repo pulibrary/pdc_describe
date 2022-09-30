@@ -61,4 +61,58 @@ RSpec.describe Ark, type: :model, mock_ezid_api: true do
       end
     end
   end
+
+  describe "#object" do
+    let(:ezid) { "ark:/88435/dsp01qb98mj541" }
+    let(:ark) do
+      described_class.new(ezid)
+    end
+
+    it "accesses the EZID identifier object" do
+      resolved = ark.object
+      expect(resolved).to eq(@identifier)
+    end
+  end
+
+  describe "#target" do
+    let(:ezid) { "ark:/88435/dsp01qb98mj541" }
+    let(:ark) do
+      described_class.new(ezid)
+    end
+
+    it "accesses the EZID identifier object" do
+      resolved = ark.target
+      expect(resolved).to eq("https://dataspace.princeton.edu/handle/88435/dsp01qb98mj541")
+    end
+  end
+
+  describe "#target=" do
+    let(:ezid) { "ark:/88435/dsp01qb98mj541" }
+    let(:ark) do
+      described_class.new(ezid)
+    end
+
+    it "accesses the EZID identifier object" do
+      resolved = ark.target
+      expect(resolved).to eq("https://dataspace.princeton.edu/handle/88435/dsp01qb98mj541")
+
+      ark.target = "https://dataspace.princeton.edu/handle/88435/dsp01qb98mj541-new"
+
+      resolved = ark.target
+      expect(resolved).to eq("https://dataspace.princeton.edu/handle/88435/dsp01qb98mj541-new")
+    end
+  end
+
+  describe "#save!" do
+    let(:ezid) { "ark:/88435/dsp01qb98mj541" }
+    let(:ark) do
+      described_class.new(ezid)
+    end
+
+    it "accesses the EZID identifier object" do
+      ark.save!
+
+      expect(@identifier).to have_received(:modify)
+    end
+  end
 end

@@ -1,5 +1,5 @@
 local: &local
-  service: 'HumanizedDisk'
+  service: 'Disk'
   root: <%= Rails.root.join("storage") %>
 
 development: &development

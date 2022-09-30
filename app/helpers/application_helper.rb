@@ -39,6 +39,7 @@ module ApplicationHelper
 
   def ark_url(ark_value)
     return nil if ark_value.blank?
+    # This was originally in Work#ark_url as: "https://ezid.cdlib.org/id/#{ark}"
     "http://arks.princeton.edu/#{ark_value}"
   end
 
