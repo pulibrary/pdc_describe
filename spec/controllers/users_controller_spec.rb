@@ -98,4 +98,21 @@ RSpec.describe UsersController do
       end
     end
   end
+
+  describe "#index" do
+    render_views
+    let(:format) { :html }
+
+    before do
+      sign_in user_other
+      user
+      get :index
+    end
+
+    it "accesses all Users" do
+      expect(response).to render_template("index")
+      expect(response.body).to include(user.uid)
+      expect(response.body).to include(user_other.uid)
+    end
+  end
 end

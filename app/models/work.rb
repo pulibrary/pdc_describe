@@ -67,22 +67,6 @@ class Work < ApplicationRecord
   end
 
   class << self
-    def create_skeleton(title, user_id, collection_id, work_type, profile)
-      resource = PDCMetadata::Resource.new(title: title,
-                                           creators: [PDCMetadata::Creator.new_person("", "skeleton", "", 0)],
-                                           description: title)
-      work = Work.new(
-        created_by_user_id: user_id,
-        collection_id: collection_id,
-        work_type: work_type,
-        state: "awaiting_approval",
-        profile: profile,
-        metadata: resource.to_json
-      )
-      work.save!
-      work
-    end
-
     def unfinished_works(user)
       works_by_user_state(user, ["none", "draft", "awaiting_approval"])
     end
@@ -108,6 +92,10 @@ class Work < ApplicationRecord
     end
 
     delegate :resource_type_general_options, to: PDCMetadata::Resource
+
+    def publish_test_doi?
+      (Rails.env.development? || Rails.env.test?) && Rails.configuration.datacite.user.blank?
+    end
 
     private
 
@@ -266,7 +254,7 @@ class Work < ApplicationRecord
 
   def draft_doi
     return if resource.doi.present?
-    resource.doi = if Rails.env.development? && Rails.configuration.datacite.user.blank?
+    resource.doi = if self.class.publish_test_doi?
                      Rails.logger.info "Using hard-coded test DOI during development."
                      "10.34770/tbd"
                    else
@@ -297,14 +285,6 @@ class Work < ApplicationRecord
 
   def resource
     @resource ||= PDCMetadata::Resource.new_from_json(metadata)
-  end
-
-  def ark_url
-    "https://ezid.cdlib.org/id/#{ark}"
-  end
-
-  def ark_object
-    @ark_object ||= Ark.new(ark)
   end
 
   def url
@@ -348,13 +328,22 @@ class Work < ApplicationRecord
     save!
 
     # ...and log the activity
-    curator = User.find(curator_user_id)
+    new_curator = User.find(curator_user_id)
     message = if curator_user_id == current_user.id
                 "Self-assigned as curator"
               else
-                "Set curator to @#{curator.uid}"
+                "Set curator to @#{new_curator.uid}"
               end
     WorkActivity.add_system_activity(id, message, current_user.id)
+  end
+
+  def curator_or_current_uid(user)
+    persisted = if curator.nil?
+                  user
+                else
+                  curator
+                end
+    persisted.uid
   end
 
   def add_comment(comment, current_user)
@@ -417,10 +406,6 @@ class Work < ApplicationRecord
   end
 
   delegate :bucket_name, to: :s3_query_service
-
-  def pre_curation_bucket_name
-    pre_curation_s3_query_service.bucket_name
-  end
 
   def post_curation_bucket_name
     post_curation_s3_query_service.bucket_name
@@ -571,28 +556,22 @@ class Work < ApplicationRecord
       end
     end
 
+    # rubocop:disable Metrics/AbcSize
     def publish_doi(user)
-      if Rails.env.development? && Rails.configuration.datacite.user.blank?
-        Rails.logger.info "Publishing hard-coded test DOI during development."
-      elsif doi.starts_with?(Rails.configuration.datacite.prefix)
+      return Rails.logger.info("Publishing hard-coded test DOI during development.") if self.class.publish_test_doi?
+
+      if doi.starts_with?(Rails.configuration.datacite.prefix)
         result = data_cite_connection.update(id: doi, attributes: doi_attributes)
         if result.failure?
-          message = "@#{curator_or_current_uid(user)} Error publishing DOI. #{result.failure.status} / #{result.failure.reason_phrase}"
+          resolved_user = curator_or_current_uid(user)
+          message = "@#{resolved_user} Error publishing DOI. #{result.failure.status} / #{result.failure.reason_phrase}"
           WorkActivity.add_system_activity(id, message, user.id, activity_type: "DATACITE_ERROR")
         end
       elsif ark.blank? # we can not update the url anywhere
         Honeybadger.notify("Publishing for a DOI we do not own and no ARK is present: #{doi}")
       end
     end
-
-    def curator_or_current_uid(user)
-      curator = if curator_user_id
-                  User.find(curator_user_id)
-                else
-                  user
-                end
-      curator.uid
-    end
+    # rubocop:enable Metrics/AbcSize
 
     def doi_attribute_url
       "https://datacommons.princeton.edu/discovery/doi/#{doi}"

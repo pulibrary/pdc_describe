@@ -110,6 +110,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       stub_s3
       datacite_stub # make sure the stub is created before we start the test
       Rails.configuration.update_ark_url = true
+      Rails.configuration.datacite.user = curator
       allow(Honeybadger).to receive(:notify)
       sign_in curator
       visit work_path(work)
