@@ -7,14 +7,12 @@ RSpec.describe S3File, type: :model do
   let(:last_modified) { Time.parse("2022-04-21T18:29:40.000Z") }
   let(:size) { 10_759 }
   let(:checksum) { "abc123" }
-  let(:query_service) { instance_double(S3QueryService) }
+  let(:query_service) { instance_double(S3QueryService, class: S3QueryService, bucket_name: bucket_name) }
   let(:bucket_name) { "test-bucket" }
   let(:url_protocol) { "https" }
   let(:s3_host) { "s3.amazon.com" }
 
   before do
-    allow(query_service).to receive(:class).and_return(S3QueryService)
-    allow(query_service).to receive(:bucket_name).and_return(bucket_name)
     allow(S3QueryService).to receive(:url_protocol).and_return(url_protocol)
     allow(S3QueryService).to receive(:s3_host).and_return(s3_host)
   end
