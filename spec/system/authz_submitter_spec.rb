@@ -69,5 +69,11 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
       visit work_path(work)
       expect(page).not_to have_button "Approve Dataset"
     end
+
+    it "should not see the Create Dataset option" do
+      sign_in submitter1
+      visit user_path(submitter1)
+      expect(page.html.include?("Create Dataset")).to be false
+    end
   end
 end
