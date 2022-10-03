@@ -87,6 +87,13 @@
   <% if @work.resource.rights.present? %>
     <p>Rights: <%= @work.resource.rights.name %> (<%= link_to(@work.resource.rights.identifier, @work.resource.rights.uri, {target: "_blank"}) %>)</p>
   <% end %>
+  <% if @work.resource.keywords.count > 0 %>
+    <p>Keywords:
+      <% @work.resource.keywords.each do |keyword| %>
+        <span class="badge bg-dark"><%= keyword %></span>
+      <% end %>
+    </p>
+  <% end %>
 
   <% if @work.pre_curation_uploads.present? %>
     <p>Location: Amazon S3 Curation Storage</p>
