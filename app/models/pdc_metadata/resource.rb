@@ -5,12 +5,13 @@ module PDCMetadata
   #
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
-      :description, :doi, :ark, :rights, :version_number
+      :description, :doi, :ark, :rights, :version_number, :collection_tags
 
     def initialize(doi: nil, title: nil, resource_type: nil, resource_type_general: nil, creators: [], description: nil)
       @titles = []
       @titles << PDCMetadata::Title.new(title: title) unless title.nil?
       @description = description
+      @collection_tags = []
       @creators = creators
       @resource_type = resource_type || "Dataset"
       @resource_type_general = resource_type_general || self.class.default_resource_type_general
@@ -49,21 +50,19 @@ module PDCMetadata
       # Creates a PDCMetadata::Resource from a JSON string
       def new_from_json(json_string)
         resource = PDCMetadata::Resource.new
-        hash = json_string.blank? ? {} : JSON.parse(json_string)
+        return resource if json_string.blank?
 
-        resource.doi = hash["doi"]
-        resource.ark = hash["ark"]
-        resource.version_number = hash["version_number"]
+        hash = JSON.parse(json_string)
+
+        resource = curator_controlled_metadata(hash, resource)
+
         resource.description = hash["description"]
 
-        hash["titles"]&.each do |title|
-          resource.titles << PDCMetadata::Title.new(title: title["title"], title_type: title["title_type"])
-        end
-
+        titles_from_json(resource, hash["titles"])
         creators_from_json(resource, hash["creators"])
         resource.publisher = hash["publisher"]
         resource.publication_year = hash["publication_year"]
-        resource.rights = PDCMetadata::Rights.find(hash["rights"]["identifier"]) if hash["rights"]
+        resource.rights = rights(hash["rights"])
 
         resource
       end
@@ -79,6 +78,30 @@ module PDCMetadata
       end
 
       private
+
+        def curator_controlled_metadata(hash, resource)
+          resource.doi = hash["doi"]
+          resource.ark = hash["ark"]
+          resource.version_number = hash["version_number"]
+          resource.collection_tags = collection_tags(hash["collection_tags"])
+          resource
+        end
+
+        def rights(form_rights)
+          PDCMetadata::Rights.find(form_rights["identifier"]) if form_rights
+        end
+
+        def collection_tags(form_tags)
+          form_tags || []
+        end
+
+        def titles_from_json(resource, titles)
+          return if titles.blank?
+
+          titles.each do |title|
+            resource.titles << PDCMetadata::Title.new(title: title["title"], title_type: title["title_type"])
+          end
+        end
 
         def creators_from_json(resource, creators)
           return if creators.blank?

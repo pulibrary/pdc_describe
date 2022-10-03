@@ -10,4 +10,10 @@
     ARK <br>
     <%= @work.ark %>
   </div>
+
+  <!-- Collection Tags -->
+  <div class="field">
+    Collection Tags <br>
+    <%= @work.resource.collection_tags.join(", ") %>
+  </div>
 </div>

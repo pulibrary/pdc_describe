@@ -10,8 +10,10 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     PDCMetadata::Creator.new_person("Jane", "Smith")
   end
 
+  let(:doi) { "10.5072/example-full" }
+
   let(:ds) do
-    ds = described_class.new(doi: "10.5072/example-full", title: "hello world")
+    ds = described_class.new(doi: doi, title: "hello world")
     ds.description = "this is an example description"
     ds.creators = [creator1, creator2]
     ds.ark = "ark:/88435/dsp01hx11xj13h"
@@ -56,7 +58,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
   end
 
   it "handles basic fields" do
-    expect(ds.identifier).to eq "10.5072/example-full"
+    expect(ds.identifier).to eq doi
     expect(ds.main_title).to eq "hello world"
     expect(ds.resource_type).to eq "Dataset"
     expect(ds.creators.count).to be 2
@@ -85,5 +87,40 @@ RSpec.describe PDCMetadata::Resource, type: :model do
   it "creates the expected json" do
     work = FactoryBot.create(:shakespeare_and_company_work)
     expect(work.metadata).to eq(work.to_json)
+  end
+
+  it "allows for collection tags" do
+    ds.collection_tags << "abc"
+    ds.collection_tags << "123"
+    expect(ds.collection_tags).to eq(["abc", "123"])
+    expect(ds.to_json).to include("abc")
+    expect(ds.to_json).to include("123")
+  end
+
+  describe "##new_from_json" do
+    let(:json) do
+      {
+        "doi": doi,
+        "ark": "88435/dsp01zc77st047",
+        "titles": [{ "title": "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events", "title_type" => nil }],
+        "description": "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
+        "creators": [
+          { "value": "Kotin, Joshua", "name_type": "Personal", "given_name": "Joshua", "family_name": "Kotin", "affiliations": [], "sequence": 1, "identifier": nil }
+        ],
+        "resource_type": "Dataset",
+        "resource_type_general" => "DATASET",
+        "publisher": "Princeton University",
+        "publication_year": "2020",
+        "collection_tags": ["ABC", "123"],
+        "rights": { "identifier" => "CC BY", "name" => "Creative Commons Attribution 4.0 International", "uri" => "https://creativecommons.org/licenses/by/4.0/" },
+        "version_number" => 1
+      }.to_json
+    end
+    it "parses the json" do
+      resource = described_class.new_from_json(json)
+      expect(resource.doi).to eq(doi)
+      expect(resource.collection_tags).to eq(["ABC", "123"])
+      expect(JSON.parse(resource.to_json)).to eq(JSON.parse(json))
+    end
   end
 end
