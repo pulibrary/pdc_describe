@@ -10,8 +10,16 @@ class Ark
     identifier.id
   end
 
+  ##
+  # Ezid::Identifier.find(ezid) only works if the ezid is formatted as an ark,
+  # e.g., "ark:/99999/abc123"
+  def self.format_ark(ark)
+    return ark if ark.starts_with?("ark:/")
+    "ark:/#{ark}"
+  end
+
   def self.find(ezid)
-    Ezid::Identifier.find(ezid)
+    Ezid::Identifier.find(format_ark(ezid))
   rescue StandardError => error
     Rails.logger.error("Failed to find the EZID #{ezid}: #{error.class}: #{error.message}")
     nil
