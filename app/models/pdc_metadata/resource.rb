@@ -5,7 +5,7 @@ module PDCMetadata
   #
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
-      :description, :doi, :ark, :rights, :version_number, :collection_tags
+      :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords
 
     def initialize(doi: nil, title: nil, resource_type: nil, resource_type_general: nil, creators: [], description: nil)
       @titles = []
@@ -21,6 +21,7 @@ module PDCMetadata
       @doi = doi
       @rights = nil
       @version_number = "1"
+      @keywords = []
     end
 
     def identifier
@@ -63,6 +64,7 @@ module PDCMetadata
         resource.publisher = hash["publisher"]
         resource.publication_year = hash["publication_year"]
         resource.rights = rights(hash["rights"])
+        resource.keywords = hash["keywords"] || []
 
         resource
       end
