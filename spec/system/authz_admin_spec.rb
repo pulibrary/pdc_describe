@@ -78,5 +78,13 @@ RSpec.describe "Authz for curators", type: :system, js: true do
         expect(page).not_to have_content("Editing Dataset")
       end
     end
+
+    describe "menu at the top" do
+      it "should see the Create Dataset option" do
+        login_as research_data_moderator
+        visit user_path(research_data_moderator)
+        expect(page.html.include?("Create Dataset")).to be true
+      end
+    end
   end
 end

@@ -3,6 +3,7 @@ require "rails_helper"
 
 RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: true do
   let(:user) { FactoryBot.create(:princeton_submitter) }
+  let(:research_data_moderator) { FactoryBot.create :research_data_moderator }
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
@@ -33,9 +34,9 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
   end
 
   it "Mints a DOI, but does not mint an ark at any point in the non wizard proccess" do
-    sign_in user
-    visit user_path(user)
-    click_on(user.uid)
+    sign_in research_data_moderator
+    visit user_path(research_data_moderator)
+    click_on(research_data_moderator.uid)
     click_on "Create Dataset"
     fill_in "title_main", with: "test title"
     fill_in "description", with: "test description"
