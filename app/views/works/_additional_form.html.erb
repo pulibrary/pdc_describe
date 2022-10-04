@@ -18,4 +18,10 @@
       <% end %>
     </select>
   </div>
+
+  <!-- Keywords field -->
+  <div class="field">
+    Keywords: <span class="text-muted field-hint">(enter keywords, e.g. Humanities, Life Sciences)</span><br>
+    <input type="text" id="keywords" name="keywords" class="input-text-long" value="<%= @work.resource.keywords.join(', ') %>" />
+  </div>
 </div>

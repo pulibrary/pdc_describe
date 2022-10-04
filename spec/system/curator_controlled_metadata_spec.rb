@@ -26,6 +26,10 @@ RSpec.describe "Curator Controlled metadata tab", type: :system do
       expect(page).not_to have_css("#collection_tags.input-collection-tags")
 
       # I can edit other fields
+      click_on "Additional Metadata"
+      fill_in "keywords", with: "red, yellow, green"
+
+      # I can edit other fields
       click_on "Required Metadata"
       fill_in "description", with: "The work can be changed"
       click_on "Save Work"

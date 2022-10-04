@@ -97,6 +97,14 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     expect(ds.to_json).to include("123")
   end
 
+  it "allows for keywords" do
+    ds.keywords << "red"
+    ds.keywords << "green"
+    expect(ds.keywords).to eq(["red", "green"])
+    expect(ds.to_json).to include("red")
+    expect(ds.to_json).to include("green")
+  end
+
   describe "##new_from_json" do
     let(:json) do
       {
@@ -112,6 +120,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
         "publisher": "Princeton University",
         "publication_year": "2020",
         "collection_tags": ["ABC", "123"],
+        "keywords": ["red", "yellow", "green"],
         "rights": { "identifier" => "CC BY", "name" => "Creative Commons Attribution 4.0 International", "uri" => "https://creativecommons.org/licenses/by/4.0/" },
         "version_number" => 1
       }.to_json
@@ -120,6 +129,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
       resource = described_class.new_from_json(json)
       expect(resource.doi).to eq(doi)
       expect(resource.collection_tags).to eq(["ABC", "123"])
+      expect(resource.keywords).to eq(["red", "yellow", "green"])
       expect(JSON.parse(resource.to_json)).to eq(JSON.parse(json))
     end
   end
