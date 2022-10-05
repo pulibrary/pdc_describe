@@ -1,6 +1,6 @@
 # How to move data from test fixtures to production
 
-One of our goals for data migration is to have 5 - 10 sample objects that we have:
+One of our goals for data migration is to have 5 - 10 sample objects for which we have:
 * Validated description in our submission form
 * Solid, well tested indexing and display in PDC Discovery
 
