@@ -40,6 +40,19 @@ RSpec.describe Ark, type: :model, mock_ezid_api: true do
       end
     end
 
+    context "consistently formatting ark for EZID query" do
+      let(:stripped_down_ark) { "88435/dsp015999n653h" }
+      let(:formatted_ark) { "ark:/#{stripped_down_ark}" }
+
+      it "gets reformatted when needed" do
+        expect(described_class.format_ark(stripped_down_ark)).to eq formatted_ark
+      end
+
+      it "does not reformat a correctly formatted ark" do
+        expect(described_class.format_ark(formatted_ark)).to eq formatted_ark
+      end
+    end
+
     context "when the ARK references an existing EZID" do
       let(:identifier) { @identifier }
 
