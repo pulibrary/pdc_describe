@@ -93,6 +93,9 @@ class Work < ApplicationRecord
 
     delegate :resource_type_general_options, to: PDCMetadata::Resource
 
+    # Determines whether or not a test DOI should be referenced
+    # (this avoids requests to the DOI API endpoint for non-production deployments)
+    # @return [Boolean]
     def publish_test_doi?
       (Rails.env.development? || Rails.env.test?) && Rails.configuration.datacite.user.blank?
     end
@@ -384,6 +387,7 @@ class Work < ApplicationRecord
     pre_curation_uploads
   end
 
+  # This ensures that new ActiveStorage::Attachment objects can be modified before they are persisted
   def save_pre_curation_uploads
     return if pre_curation_uploads.empty?
 
@@ -490,6 +494,9 @@ class Work < ApplicationRecord
       end
     end
 
+    # Generates the key for ActiveStorage::Attachment and Attachment::Blob objects
+    # @param attachment [ActiveStorage::Attachment]
+    # @return [String]
     def generate_attachment_key(attachment)
       attachment_filename = attachment.filename.to_s
       attachment_key = attachment.key
@@ -601,11 +608,14 @@ class Work < ApplicationRecord
       end
     end
 
-    # This needs to be called #before_save
+    # This ensures that new ActiveStorage::Attachment objects are persisted with custom keys (which are generated from the file name and DOI)
+    # @param new_attachments [Array<ActiveStorage::Attachment>]
     def save_new_attachments(new_attachments:)
       new_attachments.each do |attachment|
         # There are cases (race conditions?) where the ActiveStorage::Blob objects are not persisted
         next if attachment.frozen?
+
+        # This ensures that the custom key for the ActiveStorage::Attachment and ActiveStorage::Blob objects are generated
         generated_key = generate_attachment_key(attachment)
         attachment.blob.key = generated_key
         attachment.blob.save
