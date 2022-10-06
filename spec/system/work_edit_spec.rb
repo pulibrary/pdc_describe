@@ -66,6 +66,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
     end
 
     it "allows users to delete one of the uploads" do
+      allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
       # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
       page.driver.browser.manage.window.resize_to(2000, 2000)
       expect(page).to have_content "Filename"
@@ -79,6 +80,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       expect(page).to have_content("us_covid_2020.csv")
       expect(page).not_to have_content("us_covid_2019.csv")
       expect(a_request(:delete, delete_url)).to have_been_made
+      expect(ActiveStorage::PurgeJob).not_to have_received(:new)
     end
   end
 end
