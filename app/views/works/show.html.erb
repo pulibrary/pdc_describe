@@ -81,6 +81,16 @@
   <% if @work.resource.version_number %>
     <p>Version: <%= @work.resource.version_number %></p>
   <% end %>
+  <% if @work.resource_type %>
+    <p>Resource Type: <%= @work.resource_type %></p>
+    <% if @work.resource_type_general %>
+      <div class="container-fluid">
+        <p>
+          <small>General Type: <%= Work.resource_type_general_options[@work.resource_type_general] %></small>
+        </p>
+      </div>
+    <% end %>
+  <% end %>
 
   <p>Added by: <%= @work.created_by_user.uid %></p>
   <p>Collection: <%= @work.collection.title %></p>
