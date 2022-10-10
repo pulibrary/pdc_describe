@@ -726,27 +726,39 @@ RSpec.describe Work, type: :model do
       end
 
       context "a blob already exists for one of the files" do
-        let(:work1) do
-          FactoryBot.create(:draft_work)
-        end
-        let(:persisted_blob) do
+        # Here is the first Blob which is already attached
+        let(:persisted_blob1) do
           persisted = ActiveStorage::Blob.create_before_direct_upload!(
             filename: file1.filename, content_type: "", byte_size: file1.size, checksum: ""
           )
           persisted.key = file1.filename
           persisted
         end
+        # Here is the second Blob which is exists in the S3 Bucket but is not yet attached
+        let(:persisted_blob2) do
+          persisted = ActiveStorage::Blob.create_before_direct_upload!(
+            filename: file2.filename, content_type: "", byte_size: file2.size, checksum: ""
+          )
+          persisted.key = file2.filename
+          persisted
+        end
 
         before do
-          allow(ActiveStorage::Blob).to receive(:find_by).and_return(persisted_blob)
+          allow(ActiveStorage::Blob).to receive(:find_by).and_return(persisted_blob2)
+          work.pre_curation_uploads.attach(persisted_blob1)
+
           work.attach_s3_resources
         end
 
         it "finds the blob and attaches it as an ActiveStorage Attachments" do
           expect(work.pre_curation_uploads).not_to be_empty
-          expect(work.pre_curation_uploads.length).to eq(1)
+          expect(work.pre_curation_uploads.length).to eq(2)
           expect(work.pre_curation_uploads.first).to be_a(ActiveStorage::Attachment)
-          expect(work.pre_curation_uploads.first.blob).to eq(persisted_blob)
+          expect(work.pre_curation_uploads.first.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt")
+          expect(work.pre_curation_uploads.first.blob).to eq(persisted_blob1)
+          expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
+          expect(work.pre_curation_uploads.last.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
+          expect(work.pre_curation_uploads.last.blob).to eq(persisted_blob2)
         end
       end
     end
