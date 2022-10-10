@@ -563,7 +563,6 @@ class Work < ApplicationRecord
       end
     end
 
-    # rubocop:disable Metrics/AbcSize
     def publish_doi(user)
       return Rails.logger.info("Publishing hard-coded test DOI during development.") if self.class.publish_test_doi?
 
@@ -578,7 +577,6 @@ class Work < ApplicationRecord
         Honeybadger.notify("Publishing for a DOI we do not own and no ARK is present: #{doi}")
       end
     end
-    # rubocop:enable Metrics/AbcSize
 
     def doi_attribute_url
       "https://datacommons.princeton.edu/discovery/doi/#{doi}"
