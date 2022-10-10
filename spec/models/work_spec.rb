@@ -484,6 +484,38 @@ RSpec.describe Work, type: :model do
       expect(a_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")).to have_been_made
     end
 
+    context "after the DOI has been published" do
+      let(:payload_xml) do
+        r = PDCMetadata::Resource.new_from_json(approved_work.metadata)
+        unencoded = r.to_xml
+        Base64.encode64(unencoded)
+      end
+
+      before do
+        stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
+        approved_work
+      end
+
+      it "transmits a PUT request with the DOI attributes" do
+        expect(
+          a_request(:put, "https://api.datacite.org/dois/10.34770/123-abc").with(
+            headers: {
+              "Content-Type" => "application/vnd.api+json"
+            },
+            body: {
+              "data": {
+                "attributes": {
+                  "event": "publish",
+                  "xml": payload_xml,
+                  "url": "https://datacommons.princeton.edu/discovery/doi/#{work.doi}"
+                }
+              }
+            }
+          )
+        ).to have_been_made
+      end
+    end
+
     it "notes a issue when an error occurs" do
       stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new(status: "bad", reason_phrase: "a problem"))))
       expect { approved_work }.to change { WorkActivity.where(activity_type: "DATACITE_ERROR").count }.by(1)

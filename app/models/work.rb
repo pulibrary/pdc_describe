@@ -594,11 +594,24 @@ class Work < ApplicationRecord
       curator.uid
     end
 
+    def doi_attribute_url
+      "https://datacommons.princeton.edu/discovery/doi/#{doi}"
+    end
+
+    def doi_attribute_resource
+      PDCMetadata::Resource.new_from_json(metadata)
+    end
+
+    def doi_attribute_xml
+      unencoded = doi_attribute_resource.to_xml
+      Base64.encode64(unencoded)
+    end
+
     def doi_attributes
       {
         "event" => "publish",
-        "xml" => Base64.encode64(PDCMetadata::Resource.new_from_json(metadata).to_xml),
-        "url" => "https://datacommons.princeton.edu/discovery/" # TODO: this should be a link to the item in PDC-discovery
+        "xml" => doi_attribute_xml,
+        "url" => doi_attribute_url
       }
     end
 
