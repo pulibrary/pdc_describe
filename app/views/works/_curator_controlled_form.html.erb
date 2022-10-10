@@ -17,6 +17,22 @@
     <input type="text" id="ark" name="ark" class="input-text-long" value="<%= @work.resource.ark %>" />
   </div>
 
+  <!-- ResourceType -->
+  <div class="field">
+    ResourceType:<span class="required-field">*</span><span class="text-muted field-hint">(please see <%= link_to("the DataCite schema documentation", "https://schema.datacite.org/meta/kernel-4.4/", target: "_blank", rel: "nofollow") %>)</span><br>
+    <input type="text" id="resource_type" name="resource_type" class="input-text-long" <%= current_user.can_admin?(@work.collection) ? "" : "disabled" %> value="<%= @work.resource_type %>" />
+  </div>
+
+  <!-- resourceTypeGeneral -->
+  <div class="field">
+    resourceTypeGeneral:<span class="required-field">*</span><span class="text-muted field-hint">(please see <%= link_to("the DataCite schema documentation", "https://schema.datacite.org/meta/kernel-4.4/", target: "_blank", rel: "nofollow") %> )</span><br>
+    <select id="resource_type_general" name="resource_type_general" class="" <%= current_user.can_admin?(@work.collection) ? "" : "disabled" %>>
+      <% Work.resource_type_general_options.each_pair do |key, value| %>
+        <option value="<%= key %>" <%= @work.resource_type_general == key.to_sym ? "selected" : "" %>><%= value %></option>
+      <% end %>
+    </select>
+  </div>
+
   <!-- Version number -->
   <div class="field">
     Version: <span class="required-field">*</span><br>

@@ -1,6 +1,11 @@
-form {
+.work-form {
   .deposit-uploads {
     display: grid;
+  }
 
+  .field {
+    &-hint {
+      margin-left: 0.2rem;
+    }
   }
 }

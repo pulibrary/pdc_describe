@@ -23,7 +23,7 @@
 
 <!-- Rights Management field -->
 <div class="field">
-  Rights:<span class="required-field">*</span><span class="text-muted field-hint"> (<%= link_to("need help selecting a license for your dataset?", "https://spdx.org/licenses/", {target: "_blank"}) %>)</span><br>
+  Rights:<span class="required-field">*</span><span class="text-muted field-hint">(<%= link_to("need help selecting a license for your dataset?", "https://spdx.org/licenses/", {target: "_blank"}) %>)</span><br>
   <select id="rights_identifier" name="rights_identifier" class="input-text-long" >
     <option value="" <%= @work.resource.rights.nil? ? "selected" : "" %>></option>
     <% ::PDCMetadata::Rights.all.each do |rights| %>
