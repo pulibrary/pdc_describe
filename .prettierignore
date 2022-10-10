@@ -1,0 +1,9 @@
+coverage
+config/storage.yml
+db
+log
+node_modules
+public
+storage
+tmp
+vendor

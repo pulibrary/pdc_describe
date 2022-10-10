@@ -37,8 +37,8 @@ jobs:
       - run: sudo apt update && sudo apt install postgresql-client libmsgpack-dev
       - install_dependencies
       - persist_to_workspace:
-          root: '~/rails_template'
-          paths: '*'
+          root: "~/rails_template"
+          paths: "*"
 
   rubocop:
     working_directory: ~/rails_template
@@ -48,7 +48,7 @@ jobs:
           RAILS_ENV: test
     steps:
       - attach_workspace:
-          at: '~/rails_template'
+          at: "~/rails_template"
       - install_dependencies
       - run:
           name: Run rubocop
@@ -67,7 +67,7 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: trust
     steps:
       - attach_workspace:
-          at: '~/rails_template'
+          at: "~/rails_template"
       - install_dependencies
       - browser-tools/install-browser-tools
       - run:

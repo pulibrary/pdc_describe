@@ -41,8 +41,8 @@ en:
       file_upload:
         heading: "New Submission (%{work_title})"
         actions: 'Once you have uploaded your files, select the "continue" button.'
-        go_back: 'Go Back'
-        continue: 'Continue'
+        go_back: "Go Back"
+        continue: "Continue"
       pre_curation_uploads:
         heading: "Uncurated Files"
         filename: "Filename"
