@@ -608,6 +608,7 @@ class Work < ApplicationRecord
       end
     end
 
+    # This needs to be called #before_save
     # This ensures that new ActiveStorage::Attachment objects are persisted with custom keys (which are generated from the file name and DOI)
     # @param new_attachments [Array<ActiveStorage::Attachment>]
     def save_new_attachments(new_attachments:)
