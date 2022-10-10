@@ -362,35 +362,6 @@ RSpec.describe Work, type: :model do
       work.pre_curation_uploads.attach(uploaded_file)
       work.save
     end
-
-    context "with configured to use the human-readable storage service", humanizable_storage: true do
-      xit "attaches deposited file uploads to the Work model with human-readable file paths" do
-        expect(work.pre_curation_uploads).not_to be_empty
-
-        attached = work.pre_curation_uploads.first
-        expect(attached).to be_a(ActiveStorage::Attachment)
-        expect(attached.blob).to be_a(ActiveStorage::Blob)
-        expect(attached.blob.key).to eq("#{work.doi}/#{work.id}/us_covid_2019.csv")
-        local_disk_path = Rails.root.join("spec", "fixtures", "storage", work.doi, work.id.to_s, "us_covid_2019.csv")
-        expect(File.exist?(local_disk_path)).to be true
-
-        work.pre_curation_uploads.attach(uploaded_file2)
-        attached2 = work.pre_curation_uploads.last
-        expect(attached2).to be_a(ActiveStorage::Attachment)
-        expect(attached2.blob).to be_a(ActiveStorage::Blob)
-        expect(attached2.blob.key).to eq("#{work.doi}/#{work.id}/us_covid_2019_2.csv")
-        local_disk_path = Rails.root.join("spec", "fixtures", "storage", work.doi, work.id.to_s, "us_covid_2019_2.csv")
-        expect(File.exist?(local_disk_path)).to be true
-
-        work2.pre_curation_uploads.attach(uploaded_file)
-        attached = work2.pre_curation_uploads.first
-        expect(attached).to be_a(ActiveStorage::Attachment)
-        expect(attached.blob).to be_a(ActiveStorage::Blob)
-        expect(attached.blob.key).to eq("#{work2.doi}/#{work2.id}/us_covid_2019.csv")
-        local_disk_path = Rails.root.join("spec", "fixtures", "storage", work2.doi, work2.id.to_s, "us_covid_2019.csv")
-        expect(File.exist?(local_disk_path)).to be true
-      end
-    end
   end
 
   describe "#draft" do
@@ -512,7 +483,6 @@ RSpec.describe Work, type: :model do
       work
     end
 
-    # here
     context "when the curator user has been set" do
       let(:data_cite_failure) { double }
       let(:data_cite_result) { double }
