@@ -1071,7 +1071,7 @@ RSpec.describe WorksController do
       }
     end
 
-    context "when the request parameters are valid" do
+    context "when the request parameters are invalid" do
       it "responds with 400 status code and the validation errors" do
         sign_in user
         allow(errors).to receive(:map).and_return(["test error"])
