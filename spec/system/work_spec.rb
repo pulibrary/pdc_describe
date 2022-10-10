@@ -59,6 +59,24 @@ RSpec.describe "Creating and updating works", type: :system do
     expect(work.reload.resource.rights.identifier).to eq "CC BY"
   end
 
+  it "Renders the ResourceType", js: true do
+    resource = FactoryBot.build(:resource)
+    work = FactoryBot.create(:draft_work, resource: resource)
+
+    sign_in user
+    visit work_path(work)
+    expect(page.html.include?("<p>Resource Type: Dataset</p>")).to be true
+  end
+
+  it "Renders the resourceTypeGeneral", js: true do
+    resource = FactoryBot.build(:resource)
+    work = FactoryBot.create(:draft_work, resource: resource)
+
+    sign_in user
+    visit work_path(work)
+    expect(page.html.include?("<small>General Type: Dataset</small>")).to be true
+  end
+
   context "datacite record" do
     let(:work) { FactoryBot.create :draft_work }
 
