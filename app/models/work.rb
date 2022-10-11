@@ -415,33 +415,80 @@ class Work < ApplicationRecord
 
   delegate :bucket_name, to: :s3_query_service
 
-  def post_curation_bucket_name
-    post_curation_s3_query_service.bucket_name
-  end
-
-  def add_post_curation_s3_object(blob:)
+  # Transmit a PUT request to upload an ActiveStorage Blob file to the post-curation S3 Bucket
+  # @param blob [ActiveStorage::Blob]
+  # @return [Aws::S3::Types::PutObjectOutput]
+  def put_post_curation_s3_object(blob:)
     s3_client.put_object({
-                           bucket: post_curation_bucket_name,
+                           bucket: bucket_name,
                            key: blob.key,
                            body: blob.download
                          })
+  rescue Aws::S3::Errors::ServiceError => error
+    raise(StandardError, "Failed to upload the following to the post-curation S3 Bucket object #{blob.key}: #{error}")
+  end
+
+  # Transmit a HEAD request for an S3 Object in the post-curation Bucket
+  # @param key [String]
+  # @return [Aws::S3::Types::HeadObjectOutput]
+  def find_post_curation_s3_object(key:)
+    s3_client.head_object({
+                            bucket: bucket_name,
+                            key: key
+                          })
+  rescue Aws::S3::Errors::NotFound
+    nil
+  end
+
+  # Transmit a HEAD request for the S3 Bucket directory for this Work
+  # @return [Aws::S3::Types::HeadObjectOutput]
+  def find_post_curation_s3_dir
+    s3_client.head_object({
+                            bucket: bucket_name,
+                            key: doi
+                          })
+  rescue Aws::S3::Errors::NotFound
+    nil
+  end
+
+  # Transmit a DELETE request for the S3 directory in the pre-curation Bucket
+  # @return [Aws::S3::Types::DeleteObjectOutput]
+  def delete_pre_curation_s3_dir
+    s3_client.delete_object({
+                              bucket: bucket_name,
+                              key: doi
+                            })
+  rescue Aws::S3::Errors::ServiceError => error
+    raise(StandardError, "Failed to delete the pre-curation S3 Bucket directory #{doi}: #{error}")
   end
 
   # This is invoked within the scope of #after_save. Attachment objects require that the parent record be persisted (hence, #before_save is not an option).
   # However, a consequence of this is that #after_save is invoked whenever a new attached Blob or Attachment object is persisted.
   def attach_s3_resources
     if approved?
+      # An error is raised if there are no files to be moved
+      # raise(StandardError, "Attempting to publish a Work without attached uploads for #{doi}") if pre_curation_uploads.empty?
+
       # This migrates pre-curation S3 Objects to the post-curation S3 Bucket
       transferred = []
+
+      s3_dir = find_post_curation_s3_dir
+      raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{doi}") unless s3_dir.nil?
+
       pre_curation_uploads.each do |attachment|
-        unless post_curation_s3_file?(filename: attachment.filename.to_s)
-          add_post_curation_s3_object(blob: attachment.blob)
-          transferred << attachment
-        end
+        next if post_curation_s3_file?(filename: attachment.filename.to_s)
+
+        put_post_curation_s3_object(blob: attachment.blob)
+        s3_object = find_post_curation_s3_object(key: attachment.key)
+        raise(StandardError, "Failed to validate the uploaded S3 Object #{attachment.key}") if s3_object.nil?
+
+        transferred << attachment
       end
 
       # There was a race-condition when I attempted the above
       transferred.each(&:purge)
+
+      delete_pre_curation_s3_dir
     else
       # This retrieves and adds S3 uploads if they do not exist
       pre_curation_s3_resources.each do |s3_file|
@@ -485,6 +532,7 @@ class Work < ApplicationRecord
     def publish(user)
       publish_doi(user)
       update_ark_information
+      save!
     end
 
     # Update EZID (our provider of ARKs) with the new information for this work.
@@ -627,22 +675,13 @@ class Work < ApplicationRecord
       end
     end
 
-    def pre_curation_s3_query_service
-      @pre_curation_s3_query_service ||= S3QueryService.new(self, true)
-    end
-
-    def post_curation_s3_query_service
-      @post_curation_s3_query_service ||= S3QueryService.new(self, false)
-    end
-
+    # S3QueryService object associated with this Work
+    # @return [S3QueryService]
     def s3_query_service
-      if approved?
-        post_curation_s3_query_service
-      else
-        pre_curation_s3_query_service
-      end
+      @s3_query_service = S3QueryService.new(self, !approved?)
     end
 
+    # Request S3 Bucket Objects associated with this Work
     # @return [Array<S3File>]
     def s3_resources
       data_profile = s3_query_service.data_profile

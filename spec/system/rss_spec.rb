@@ -9,6 +9,12 @@ RSpec.describe "RSS feed of approved works, for harvesting and indexing", type: 
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+
+    stub_request(:head, "https://example-bucket.s3.amazonaws.com/#{work1.doi}").to_return(status: 404)
+    stub_request(:head, "https://example-bucket.s3.amazonaws.com/#{work2.doi}").to_return(status: 404)
+    stub_request(:delete, "https://example-bucket.s3.amazonaws.com/#{work1.doi}").to_return(status: 200)
+    stub_request(:delete, "https://example-bucket.s3.amazonaws.com/#{work2.doi}").to_return(status: 200)
+
     allow(work1).to receive(:publish_doi).and_return(true)
     allow(work2).to receive(:publish_doi).and_return(true)
 

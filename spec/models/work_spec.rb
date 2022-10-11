@@ -117,47 +117,98 @@ RSpec.describe Work, type: :model do
   end
 
   context "when files are attached to a pre-curation Work" do
+    subject(:work) { FactoryBot.create(:draft_work) }
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
     let(:uploaded_file2) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
-    let(:s3_client) do
-      s3_client = instance_double(Aws::S3::Client)
-      pre_curated_data_profile = { objects: [] }
-      pre_curated_query_service = instance_double(S3QueryService)
+    let(:post_curation_data_profile) do
+      {
+        objects: [
+          S3File.new(
+            query_service: pre_curated_query_service,
+            filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
+            last_modified: nil,
+            size: nil,
+            checksum: ""
+          ),
+          S3File.new(
+            query_service: pre_curated_query_service,
+            filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv",
+            last_modified: nil,
+            size: nil,
+            checksum: ""
+          )
+        ]
+      }
+    end
+    let(:pre_curated_data_profile) do
+      {
+        objects: []
+      }
+    end
+    let(:pre_curated_query_service) { instance_double(S3QueryService) }
+    let(:s3_client) { instance_double(Aws::S3::Client) }
 
-      allow(pre_curated_query_service).to receive(:data_profile).and_return(pre_curated_data_profile)
+    before do
+      allow(s3_client).to receive(:put_object)
+      allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc")
+      allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc/#{work.id}/us_covid_2019.csv").and_return(true)
+      allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc/#{work.id}/us_covid_2019_2.csv").and_return(true)
+      allow(s3_client).to receive(:delete_object).and_return(nil)
+
+      allow(pre_curated_query_service).to receive(:data_profile).and_return(
+        pre_curated_data_profile,
+        pre_curated_data_profile,
+        pre_curated_data_profile,
+        post_curation_data_profile
+      )
       allow(pre_curated_query_service).to receive(:bucket_name).and_return("example-bucket")
       allow(pre_curated_query_service).to receive(:client).and_return(s3_client)
       allow(S3QueryService).to receive(:new).and_return(pre_curated_query_service)
-      s3_client
-    end
 
-    before do
       stub_request(:delete, /#{attachment_url}/).to_return(status: 200)
-      allow(s3_client).to receive(:put_object)
       stub_request(:get, /#{attachment_url}/).to_return(status: 200, body: "test_content")
       stub_request(:put, /#{attachment_url}/).with(
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
       ).to_return(status: 200)
+      stub_datacite_doi
 
-      20.times { work.pre_curation_uploads.attach(uploaded_file) }
+      work.complete_submission!(user)
+      work.reload
+      2.times { work.pre_curation_uploads.attach(uploaded_file) }
       work.save!
     end
 
     context "when a Work is approved" do
       it "transfers the files to the AWS Bucket" do
-        stub_datacite_doi
-        work.complete_submission!(user)
+        first_attachment = work.pre_curation_uploads.first
+        first_attachment_key = first_attachment.key
+        last_attachment = work.pre_curation_uploads.last
+        last_attachment_key = last_attachment.key
+
         work.approve!(curator_user)
+        work.reload
+
         expect(s3_client).to have_received(:put_object).with({
                                                                body: "test_content",
                                                                bucket: "example-bucket",
                                                                key: "10.34770/123-abc/#{work.id}/us_covid_2019.csv"
                                                              }).at_least(1).time
+        expect(s3_client).to have_received(:put_object).with({
+                                                               body: "test_content",
+                                                               bucket: "example-bucket",
+                                                               key: "10.34770/123-abc/#{work.id}/us_covid_2019_2.csv"
+                                                             }).at_least(1).time
         expect(work.pre_curation_uploads).to be_empty
+        expect(work.post_curation_uploads).not_to be_empty
+        expect(work.post_curation_uploads.length).to eq(2)
+        expect(work.post_curation_uploads.first).to be_an(S3File)
+        expect(work.post_curation_uploads.first.key).to eq(first_attachment_key)
+        expect(work.post_curation_uploads.last).to be_an(S3File)
+        expect(work.post_curation_uploads.last.key).to eq(last_attachment_key)
       end
     end
   end

@@ -516,6 +516,7 @@ RSpec.describe WorksController do
           allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
           allow(s3_query_service_double).to receive(:bucket_name).and_return("example-bucket")
           allow(s3_client).to receive(:delete_object)
+          allow(s3_client).to receive(:head_object)
           allow(s3_query_service_double).to receive(:client).and_return(s3_client)
           allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
 
