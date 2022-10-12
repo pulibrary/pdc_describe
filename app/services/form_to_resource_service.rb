@@ -22,6 +22,9 @@ class FormToResourceService
       # Process the creators
       resource = process_creators(params, resource)
 
+      # Process contributors
+      resource = process_contributors(params, resource)
+
       resource
     end
 
@@ -71,9 +74,27 @@ class FormToResourceService
         resource
       end
 
+      def process_contributors(params, resource)
+        (1..params["contributor_count"].to_i).each do |i|
+          given_name = params["contributor_given_name_#{i}"]
+          family_name = params["contributor_family_name_#{i}"]
+          orcid = params["contributor_orcid_#{i}"]
+          type = params["contributor_role_#{i}"]
+          sequence = params["contributor_sequence_#{i}"]
+          contributor = new_contributor(given_name, family_name, orcid, type, sequence)
+          resource.contributors << contributor unless contributor.nil?
+        end
+        resource
+      end
+
       def new_creator(given_name, family_name, orcid, sequence)
         return if family_name.blank? && given_name.blank? && orcid.blank?
         PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
+      end
+
+      def new_contributor(given_name, family_name, orcid, type, sequence)
+        return if family_name.blank? && given_name.blank? && orcid.blank?
+        PDCMetadata::Creator.new_contributor(given_name, family_name, orcid, type, sequence)
       end
   end
 end

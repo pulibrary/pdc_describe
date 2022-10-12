@@ -41,24 +41,117 @@
       $("#" + orcidId).focus();
     }
 
-    var deleteCreator = function(num) {
-      var rowToDelete = `#creator_row_${num}`;
+    var contributorRoles = function() {
+      var roles = [];
+      roles.push({key: "ContactPerson", value: "Contact Person"})
+      roles.push({key: "DataCollector", value: "Data Collector"})
+      roles.push({key: "DataCurator", value: "Data Curator"})
+      roles.push({key: "DataManager", value: "Data Manager"})
+      roles.push({key: "Distributor", value: "Distributor"})
+      roles.push({key: "Editor", value: "Editor"})
+      roles.push({key: "HostingInstitution", value: "Hosting Institution"})
+      roles.push({key: "Producer", value: "Producer"})
+      roles.push({key: "ProjectLeader", value: "Project Leader"})
+      roles.push({key: "ProjectManager", value: "Project Manager"})
+      roles.push({key: "ProjectMember", value: "Project Member"})
+      roles.push({key: "RegistrationAgency", value: "Registration Agency"})
+      roles.push({key: "RegistrationAuthority", value: "Registration Authority"})
+      roles.push({key: "RelatedPerson", value: "Related Person"})
+      roles.push({key: "Researcher", value: "Researcher"})
+      roles.push({key: "ResearchGroup", value: "Research Group"})
+      roles.push({key: "RightsHolder", value: "Rights Holder"})
+      roles.push({key: "Sponsor", value: "Sponsor"})
+      roles.push({key: "Supervisor", value: "Supervisor"})
+      roles.push({key: "WorkPackageLeader", value: "Work Package Leader"})
+      roles.push({key: "Other", value: "Other"})
+      return roles;
+    }
+
+    var rolesHtml = function(roleId, activeRole) {
+      var i, html, roles, key, value;
+      roles = contributorRoles();
+      html = `<select id="${roleId}" name="${roleId}">`;
+      for(i = 0; i < roles.length; i++) {
+        key = roles[i].key;
+        value = roles[i].value;
+        selected = activeRole == key ? "selected" : "";
+        html += `<option value="${key}" ${selected}>${value}</option>`;
+      }
+      html += `</select>`;
+      return html;
+    }
+
+    var addContributorHtml = function(num, orcid, givenName, familyName, role, sequence) {
+      var rowId = `contributor_row_${num}`;
+      var orcidId = `contributor_orcid_${num}`;
+      var roleId = `contributor_role_${num}`;
+      var givenNameId = `contributor_given_name_${num}`;
+      var familyNameId = `contributor_family_name_${num}`;
+      var sequenceId = `contributor_sequence_${num}`;
+      debugger;
+      var roleHtml = rolesHtml(roleId, role);
+
+      var rowHtml = `<tr id="${rowId}" class="contributors-table-row">
+        <td>
+          <input class="orcid-entry" type="text" id="${orcidId}" name="${orcidId}" value="${orcid}" data-num="${num}" placeholder="0000-0000-0000-0000" />
+        </td>
+        <td>
+          <input type="text" id="${givenNameId}" name="${givenNameId}" value="${givenName}" />
+        </td>
+        <td class="contributors-table-row-family-name">
+          <input type="text" id="${familyNameId}" name="${familyNameId}" value="${familyName}" />
+        </td>
+        <td>
+          ${roleHtml}
+        </td>
+        <td>
+          <input class="sequence hidden" type="text" id="${sequenceId}" name="${sequenceId}" value="${sequence}" />
+        </td>
+        <td>
+          <i class="bi bi-arrow-down-up" style="color: gray;" title="Click and drag to reorder"></i>
+        </td>
+        <td>
+          <span>
+            <a class="delete-contributor" data-contributor-num="${num}" href="#" title="Remove this contributor">
+              <i class="bi bi-trash delete_icon" data-contributor-num="${num}"></i>
+            </a>
+          </span>
+        </td>
+      </tr>`;
+      $("#contributors-table").append(rowHtml);
+      $("#" + orcidId).focus();
+    }
+
+    var deletePerson = function(rowToDelete, type) {
       var rowExists = $(rowToDelete).length > 0;
-      var orcidId = `#orcid_${num}`;
-      var givenNameId = `#given_name_${num}`;
-      var familyNameId = `#family_name_${num}`;
-      var name = $(orcidId).val() + " " + $(givenNameId).val() + " " + $(familyNameId).val();
-      var emptyName = (name.trim().length == 0);
+      var rowData = $(rowToDelete + " input:not(.hidden)");
+      var i, token;
+      var rowText = "";
+      for(i = 0; i < rowData.length; i++) {
+        token = $(rowData[i]).val();
+        if (token.trim().length > 0) {
+          rowText += token + " ";
+        }
+      }
+      var emptyRow = (rowText.trim().length == 0);
       if (rowExists) {
-        if (emptyName) {
+        if (emptyRow) {
           // delete it without asking
           $(rowToDelete).remove();
         } else {
-          if (confirm(`Remove creator ${name}`)) {
+          if (confirm(`Remove ${type} ${rowText}`)) {
             $(rowToDelete).remove();
           }
         }
       }
+    }
+
+    var deleteCreator = function(num) {
+      deletePerson(`#creator_row_${num}`, "creator")
+    }
+
+    var deleteContributor = function(num) {
+      deletePerson(`#contributor_row_${num}`, "contributor")
     }
 
     // Updates the creators sequence value to match the order
@@ -96,9 +189,9 @@
       $("#new-titles-anchor").append(html);
     }
 
-    var sortedCreators = function() {
+    var peopleSorted = function(selector) {
       var i, el, creator;
-      var creatorSpans = $(".creator-data");
+      var creatorSpans = $(selector);
       var creators = [];
       for(i = 0; i < creatorSpans.length; i++) {
         el = $(creatorSpans[i]);
@@ -107,7 +200,8 @@
           orcid: el.data("orcid"),
           givenName: el.data("given-name"),
           familyName: el.data("family-name"),
-          sequence: el.data("sequence")
+          sequence: el.data("sequence"),
+          role: el.data("role")
         }
         creators.push(creator);
       }
@@ -184,6 +278,12 @@
       return false;
     });
 
+    $("#btn-add-contributor").on("click", function(el) {
+      var num = incrementCounter("#contributor_count");
+      addContributorHtml(num, "", "", "", "Other");
+      return false;
+    });
+
     $("#btn-add-title").on("click", function(el) {
       addTitlePlaceholder(el);
       return false;
@@ -229,6 +329,12 @@
       return false;
     });
 
+    $(document).on("click", ".delete-contributor", function(el) {
+      var num = $(el.target).data("contributor-num");
+      deleteContributor(num);
+      return false;
+    });
+
     $(document).on("click", ".delete-title", function(el) {
       var num = $(el.target).data("title-num");
       var selector = `#new_title_container_${num}`
@@ -239,13 +345,27 @@
     if ($(".creator-data").length ==0) {
       // Add an empty creator for the use to fill it out
       var num = incrementCounter("#creator_count");
-      addCreatorHtml(num, "", "", "");
+      addCreatorHtml(num, "", "", "", 1);
     } else {
       // Adds the existing creators making sure we honor the ordering.
-      var creators = sortedCreators();
+      var creators = peopleSorted(".creator-data");
       for(i = 0; i < creators.length; i++) {
         var creator = creators[i];
         addCreatorHtml(creator.num, creator.orcid, creator.givenName, creator.familyName, creator.sequence);
+      }
+    }
+
+    if ($(".contributor-data").length ==0) {
+      // Add an empty contributor for the use to fill it out
+      var num = incrementCounter("#contributor_count");
+      addContributorHtml(num, "", "", "", "Other", 1);
+    } else {
+      // Adds the existing contributors making sure we honor the ordering.
+      var contributors = peopleSorted(".contributor-data");
+      debugger;
+      for(i = 0; i < contributors.length; i++) {
+        var contributor = contributors[i];
+        addContributorHtml(contributor.num, contributor.orcid, contributor.givenName, contributor.familyName, contributor.role, contributor.sequence);
       }
     }
 
@@ -282,16 +402,21 @@
       }
     });
 
-    // Allows the creators to be reordered via drag and drop.
+    // Allows the creators and contributors to be reordered via drag and drop.
     // The `cancel` property "prevents sorting if you start on elements matching the selector"
     // https://api.jqueryui.com/sortable/#method-cancel
     //
     //  tr:has(th)      - prevents reordering the header (https://stackoverflow.com/a/17897706/446681)
     //  input           - prevents reordering on the textboxes (so they are still editable)
+    //  select, option  - prevents reordering on the dropwdown (so they are still selectable)
     //  .delete-creator - prevents reording on the delete icon
     //
     $("#creators-table-sortable").sortable({
       cancel: "tr:has(th), input, .delete-creator"
+    });
+
+    $("#contributors-table-sortable").sortable({
+      cancel: "tr:has(th), input, select, option, .delete-contributor"
     });
 
     // Give the initial focus to the title.

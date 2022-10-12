@@ -6,7 +6,7 @@ module PDCMetadata
   # given_name: "Elizabeth"
   # family_name: "Miller"
   class Creator
-    attr_accessor :value, :name_type, :given_name, :family_name, :identifier, :affiliations, :sequence
+    attr_accessor :value, :name_type, :given_name, :family_name, :identifier, :affiliations, :sequence, :type
 
     class << self
       def from_hash(creator)
@@ -15,6 +15,15 @@ module PDCMetadata
         orcid = creator.dig("identifier", "scheme") == "ORCID" ? creator.dig("identifier", "value") : nil
         sequence = (creator["sequence"] || "").to_i
         PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
+      end
+
+      def contributor_from_hash(contributor)
+        given_name = contributor["given_name"]
+        family_name = contributor["family_name"]
+        orcid = contributor.dig("identifier", "scheme") == "ORCID" ? contributor.dig("identifier", "value") : nil
+        sequence = (contributor["sequence"] || "").to_i
+        type = contributor["type"]
+        PDCMetadata::Creator.new_contributor(given_name, family_name, orcid, type, sequence)
       end
     end
 
@@ -45,6 +54,12 @@ module PDCMetadata
         creator.identifier = NameIdentifier.new_orcid(orcid_id.strip)
       end
       creator
+    end
+
+    def self.new_contributor(given_name, family_name, orcid_id, type, sequence)
+      contributor = new_person(given_name, family_name, orcid_id, sequence)
+      contributor.type = type
+      contributor
     end
   end
 end

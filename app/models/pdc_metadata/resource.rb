@@ -5,7 +5,7 @@ module PDCMetadata
   #
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
-      :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords
+      :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :contributors
 
     def initialize(doi: nil, title: nil, resource_type: nil, resource_type_general: nil, creators: [], description: nil)
       @titles = []
@@ -22,6 +22,7 @@ module PDCMetadata
       @rights = nil
       @version_number = "1"
       @keywords = []
+      @contributors = []
     end
 
     def identifier
@@ -61,6 +62,7 @@ module PDCMetadata
 
         titles_from_json(resource, hash["titles"])
         creators_from_json(resource, hash["creators"])
+        contributors_from_json(resource, hash["contributors"])
         resource.publisher = hash["publisher"]
         resource.publication_year = hash["publication_year"]
         resource.rights = rights(hash["rights"])
@@ -112,6 +114,15 @@ module PDCMetadata
             resource.creators << Creator.from_hash(creator)
           end
           resource.creators.sort_by!(&:sequence)
+        end
+
+        def contributors_from_json(resource, contributors)
+          return if contributors.blank?
+
+          contributors.each do |contributor|
+            resource.contributors << Creator.contributor_from_hash(contributor)
+          end
+          resource.contributors.sort_by!(&:sequence)
         end
     end
   end
