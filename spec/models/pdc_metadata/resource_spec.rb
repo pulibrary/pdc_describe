@@ -112,6 +112,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
         "ark": "88435/dsp01zc77st047",
         "titles": [{ "title": "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events", "title_type" => nil }],
         "description": "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
+        "contributors": [],
         "creators": [
           { "value": "Kotin, Joshua", "name_type": "Personal", "given_name": "Joshua", "family_name": "Kotin", "affiliations": [], "sequence": 1, "identifier": nil }
         ],

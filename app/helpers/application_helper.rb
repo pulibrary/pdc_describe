@@ -43,13 +43,16 @@ module ApplicationHelper
                    end
     if contributor.orcid.present?
       icon_html = '<img alt="ORCID logo" src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height="16" />'
-      name_html = '<a href="https://orcid.org/' + contributor.orcid + '" target="_blank">' + display_name + "</a>"
+      name_html = '<a href="https://orcid.org/' + contributor.orcid + '" target="_blank">' + display_name + "</a>" + separator
     else
-      name_html = display_name
+      name_html = display_name + separator
     end
 
     html = <<-HTML
-      <span class="author-name">#{icon_html}#{name_html}#{separator}</span>
+      <span class="author-name">
+        #{icon_html}
+        #{name_html}
+      </span>
     HTML
     html.html_safe
   end

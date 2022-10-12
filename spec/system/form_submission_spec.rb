@@ -34,6 +34,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+    # Make the screen larger so the save button is alway on screen. This avoids random `Element is not clickable` errors
+    page.driver.browser.manage.window.resize_to(2000, 2000)
   end
   context "happy path" do
     it "produces and saves a valid datacite record", js: true do

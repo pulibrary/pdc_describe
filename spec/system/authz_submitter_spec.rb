@@ -15,6 +15,8 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
       Collection.create_defaults
       stub_s3
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+      # Make the screen larger so the save button is alway on screen. This avoids random `Element is not clickable` errors
+      page.driver.browser.manage.window.resize_to(2000, 2000)
     end
 
     it "should not be able to edit someone else's work" do
