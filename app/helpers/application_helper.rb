@@ -33,12 +33,12 @@ module ApplicationHelper
   def contributor_link(contributor, add_separator)
     return if contributor.value.blank?
 
-    icon_html = ''
+    icon_html = ""
     separator = add_separator ? ";" : ""
     display_name = if contributor.type.present?
                      "#{contributor.value} (#{contributor.type.titleize})"
                    else
-                     "#{contributor.value}"
+                     contributor.value
                    end
     if contributor.orcid.present?
       icon_html = '<img alt="ORCID logo" src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height="16" />'
@@ -47,11 +47,7 @@ module ApplicationHelper
       name_html = display_name
     end
 
-    html = <<-HTML
-    <span class="author-name">
-      #{icon_html}#{name_html}#{separator}
-    </span>
-    HTML
+    html = "<span class="author-name">#{icon_html}#{name_html}#{separator}</span>"
     html.html_safe
   end
   # rubocop:enable Rails/OutputSafety

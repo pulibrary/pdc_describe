@@ -7,6 +7,7 @@ module PDCMetadata
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
       :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :contributors
 
+    # rubocop:disable Metrics/MethodLength
     def initialize(doi: nil, title: nil, resource_type: nil, resource_type_general: nil, creators: [], description: nil)
       @titles = []
       @titles << PDCMetadata::Title.new(title: title) unless title.nil?
@@ -24,6 +25,7 @@ module PDCMetadata
       @keywords = []
       @contributors = []
     end
+    # rubocop:enable Metrics/MethodLength
 
     def identifier
       @doi
