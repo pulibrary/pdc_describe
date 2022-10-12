@@ -30,6 +30,7 @@ module ApplicationHelper
   # rubocop:enable Rails/OutputSafety
 
   # rubocop:disable Rails/OutputSafety
+  # rubocop:disable Metrics/MethodLength
   def contributor_link(contributor, add_separator)
     return if contributor.value.blank?
 
@@ -47,10 +48,13 @@ module ApplicationHelper
       name_html = display_name
     end
 
-    html = "<span class="author-name">#{icon_html}#{name_html}#{separator}</span>"
+    html = <<-HTML
+      <span class="author-name">#{icon_html}#{name_html}#{separator}</span>
+    HTML
     html.html_safe
   end
   # rubocop:enable Rails/OutputSafety
+  # rubocop:enable Metrics/MethodLength
 
   def pre_curation_uploads_file_name(file:)
     value = file.filename.to_s
