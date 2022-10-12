@@ -118,7 +118,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
         "description": "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
         "contributors": [
           { "value": "Smith, Robert", "name_type": "Personal", "given_name": "Robert", "family_name": "Smith", "affiliations": [], "sequence": 1, "identifier": nil, type: "ProjectLeader" },
-          { "value": "Gallup, Simon", "name_type": "Personal", "given_name": "Simon", "family_name": "Gallup", "affiliations": [], "sequence": 2, "identifier": nil, type: "Other" },
+          { "value": "Gallup, Simon", "name_type": "Personal", "given_name": "Simon", "family_name": "Gallup", "affiliations": [], "sequence": 2, "identifier": nil, type: "Other" }
         ],
         "creators": [
           { "value": "Kotin, Joshua", "name_type": "Personal", "given_name": "Joshua", "family_name": "Kotin", "affiliations": [], "sequence": 1, "identifier": nil }
