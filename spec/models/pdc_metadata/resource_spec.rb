@@ -10,6 +10,8 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     PDCMetadata::Creator.new_person("Jane", "Smith")
   end
 
+  let(:contributor1) { PDCMetadata::Creator.new_contributor("Robert", "Smith", "", "ProjectLeader", 1) }
+  let(:contributor2) { PDCMetadata::Creator.new_contributor("Simon", "Gallup", "", "Other", 2) }
   let(:doi) { "10.5072/example-full" }
 
   let(:ds) do
@@ -18,6 +20,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     ds.creators = [creator1, creator2]
     ds.ark = "ark:/88435/dsp01hx11xj13h"
     ds.rights = PDCMetadata::Rights.find("CC BY")
+    ds.contributors = [contributor1, contributor2]
     ds
   end
 
@@ -62,6 +65,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     expect(ds.main_title).to eq "hello world"
     expect(ds.resource_type).to eq "Dataset"
     expect(ds.creators.count).to be 2
+    expect(ds.contributors.count).to be 2
   end
 
   it "supports more than one title" do
@@ -112,7 +116,10 @@ RSpec.describe PDCMetadata::Resource, type: :model do
         "ark": "88435/dsp01zc77st047",
         "titles": [{ "title": "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events", "title_type" => nil }],
         "description": "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
-        "contributors": [],
+        "contributors": [
+          { "value": "Smith, Robert", "name_type": "Personal", "given_name": "Robert", "family_name": "Smith", "affiliations": [], "sequence": 1, "identifier": nil, type: "ProjectLeader" },
+          { "value": "Gallup, Simon", "name_type": "Personal", "given_name": "Simon", "family_name": "Gallup", "affiliations": [], "sequence": 2, "identifier": nil, type: "Other" },
+        ],
         "creators": [
           { "value": "Kotin, Joshua", "name_type": "Personal", "given_name": "Joshua", "family_name": "Kotin", "affiliations": [], "sequence": 1, "identifier": nil }
         ],
