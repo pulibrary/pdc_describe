@@ -1060,4 +1060,33 @@ RSpec.describe WorksController do
       end
     end
   end
+
+  describe "#assign_curator" do
+    let(:errors) { double }
+    let(:current_work) { instance_double(Work) }
+    let(:params) do
+      {
+        id: current_work.id,
+        uid: "test_user"
+      }
+    end
+
+    context "when the request parameters are invalid" do
+      it "responds with 400 status code and the validation errors" do
+        sign_in user
+        allow(errors).to receive(:map).and_return(["test error"])
+        allow(errors).to receive(:count).and_return(1)
+        allow(current_work).to receive(:errors).and_return(errors)
+        allow(current_work).to receive(:change_curator).and_return(false)
+        allow(current_work).to receive(:id).and_return("test_id")
+        allow(Work).to receive(:find).and_return(current_work)
+        put :assign_curator, params: params
+
+        expect(response.code).to eq("400")
+        expect(response.content_type).to eq("application/json; charset=utf-8")
+        json_body = JSON.parse(response.body)
+        expect(json_body).to include("errors" => ["test error"])
+      end
+    end
+  end
 end

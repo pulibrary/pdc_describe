@@ -75,6 +75,18 @@ RSpec.describe S3QueryService, mock_s3_query_service: false do
     expect(data_profile[:ok]).to eq false
   end
 
+  describe ".url_protocol" do
+    it "accesses the protocol for the S3 Bucket URL" do
+      expect(described_class.url_protocol).to eq("https")
+    end
+  end
+
+  describe ".s3_host" do
+    it "accesses the host for the S3 Bucket URL" do
+      expect(described_class.s3_host).to eq("s3.amazonaws.com")
+    end
+  end
+
   describe "#client" do
     before do
       allow(Aws::S3::Client).to receive(:new)
