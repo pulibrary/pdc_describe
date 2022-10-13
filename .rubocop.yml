@@ -21,6 +21,7 @@ Layout/LineLength:
   Exclude:
     - "spec/system/bitklavier_form_submission_spec.rb"
     - "spec/system/sowingseeds_spec.rb"
+    - "spec/system/attention_form_submission_spec.rb"
     - "spec/system/cytoskeletal_form_submissiion_spec.rb"
     - "spec/system/femtosecond_form_submission_spec.rb"
     - "spec/system/cytoskeletal_form_submission_spec.rb"
