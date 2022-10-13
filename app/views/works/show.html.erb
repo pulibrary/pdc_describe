@@ -81,6 +81,7 @@
   <% if @work.resource.version_number %>
     <p>Version: <%= @work.resource.version_number %></p>
   <% end %>
+
   <% if @work.resource_type %>
     <p>Resource Type: <%= @work.resource_type %></p>
     <% if @work.resource_type_general %>
@@ -90,6 +91,14 @@
         </p>
       </div>
     <% end %>
+  <% end %>
+
+  <% if @work.resource.contributors.count > 0 %>
+    <p>Contributors:
+      <% @work.resource.contributors.each_with_index do |contributor, ix| %>
+        <%= contributor_link(contributor, ix < (@work.resource.contributors.count-1) ) %>
+      <% end %>
+    </p>
   <% end %>
 
   <p>Added by: <%= @work.created_by_user.uid %></p>

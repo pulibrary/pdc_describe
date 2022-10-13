@@ -90,6 +90,31 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
         expect(mapping.publication_year).to eq 2020
       end
 
+      context "contributor types" do
+        it "maps contributor types" do
+          expect(described_class.datacite_contributor_type("DataCollector")).to eq Datacite::Mapping::ContributorType::DATA_COLLECTOR
+          expect(described_class.datacite_contributor_type("DataCurator")).to eq Datacite::Mapping::ContributorType::DATA_CURATOR
+          expect(described_class.datacite_contributor_type("DataManager")).to eq Datacite::Mapping::ContributorType::DATA_MANAGER
+          expect(described_class.datacite_contributor_type("Distributor")).to eq Datacite::Mapping::ContributorType::DISTRIBUTOR
+          expect(described_class.datacite_contributor_type("Editor")).to eq Datacite::Mapping::ContributorType::EDITOR
+          expect(described_class.datacite_contributor_type("HostingInstitution")).to eq Datacite::Mapping::ContributorType::HOSTING_INSTITUTION
+          expect(described_class.datacite_contributor_type("Producer")).to eq Datacite::Mapping::ContributorType::PRODUCER
+          expect(described_class.datacite_contributor_type("ProjectLeader")).to eq Datacite::Mapping::ContributorType::PROJECT_LEADER
+          expect(described_class.datacite_contributor_type("ProjectManager")).to eq Datacite::Mapping::ContributorType::PROJECT_MANAGER
+          expect(described_class.datacite_contributor_type("ProjectMember")).to eq Datacite::Mapping::ContributorType::PROJECT_MEMBER
+          expect(described_class.datacite_contributor_type("RegistrationAgency")).to eq Datacite::Mapping::ContributorType::REGISTRATION_AGENCY
+          expect(described_class.datacite_contributor_type("RegistrationAuthority")).to eq Datacite::Mapping::ContributorType::REGISTRATION_AUTHORITY
+          expect(described_class.datacite_contributor_type("RelatedPerson")).to eq Datacite::Mapping::ContributorType::RELATED_PERSON
+          expect(described_class.datacite_contributor_type("Researcher")).to eq Datacite::Mapping::ContributorType::RESEARCHER
+          expect(described_class.datacite_contributor_type("ResearchGroup")).to eq Datacite::Mapping::ContributorType::RESEARCH_GROUP
+          expect(described_class.datacite_contributor_type("RightsHolder")).to eq Datacite::Mapping::ContributorType::RIGHTS_HOLDER
+          expect(described_class.datacite_contributor_type("Sponsor")).to eq Datacite::Mapping::ContributorType::SPONSOR
+          expect(described_class.datacite_contributor_type("Supervisor")).to eq Datacite::Mapping::ContributorType::SUPERVISOR
+          expect(described_class.datacite_contributor_type("WorkPackageLeader")).to eq Datacite::Mapping::ContributorType::WORK_PACKAGE_LEADER
+          expect(described_class.datacite_contributor_type("Other")).to eq Datacite::Mapping::ContributorType::OTHER
+        end
+      end
+
       context "resource types" do
         it "maps dataset" do
           resource_type = described_class.datacite_resource_type("dataset")

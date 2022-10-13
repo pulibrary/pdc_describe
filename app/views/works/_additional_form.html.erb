@@ -25,3 +25,5 @@
     <input type="text" id="keywords" name="keywords" class="input-text-long" value="<%= @work.resource.keywords.join(', ') %>" />
   </div>
 </div>
+
+<%= render(partial: 'works/contributors_table') %>
