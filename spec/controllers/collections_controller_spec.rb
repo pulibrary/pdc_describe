@@ -22,7 +22,7 @@ RSpec.describe CollectionsController do
     expect(response).to render_template("edit")
   end
 
-  it "prevents user with no edit from editting" do
+  it "prevents user with no edit from editing" do
     sign_in user_no_edit
     get :edit, params: { id: collection.id }
     expect(response.status).to eq 302
@@ -80,6 +80,46 @@ RSpec.describe CollectionsController do
       post :update, params: params
       expect(response.status).to eq 302
       expect(response.location).to eq "http://test.host/collections"
+    end
+
+    context "when an update request uses invalid parameters" do
+      it "renders the Edit View with a 422 response" do
+        params = {
+          "collection" => {
+            "title" => nil,
+            "description" => "updated description"
+          },
+          "commit" => "Update Dataset",
+          "controller" => "collections",
+          "action" => "update",
+          "id" => collection.id
+        }
+        sign_in admin_user
+        post :update, params: params
+        expect(response.status).to eq 422
+        expect(response).to render_template("edit")
+      end
+
+      context "when the request is of the JSON content type" do
+        it "renders the Edit View with a 422 response" do
+          params = {
+            "collection" => {
+              "title" => nil,
+              "description" => "updated description"
+            },
+            "commit" => "Update Dataset",
+            "controller" => "collections",
+            "action" => "update",
+            "id" => collection.id
+          }
+          sign_in admin_user
+          post :update, params: params, format: :json
+          expect(response.status).to eq 422
+          expect(response.content_type).to eq("application/json; charset=utf-8")
+          json_body = JSON.parse(response.body)
+          expect(json_body).to include("base" => ["Title cannot be empty"])
+        end
+      end
     end
   end
 

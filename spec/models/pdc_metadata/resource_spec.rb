@@ -62,10 +62,20 @@ RSpec.describe PDCMetadata::Resource, type: :model do
 
   it "handles basic fields" do
     expect(ds.identifier).to eq doi
+    expect(ds.identifier_type).to eq("DOI")
     expect(ds.main_title).to eq "hello world"
     expect(ds.resource_type).to eq "Dataset"
     expect(ds.creators.count).to be 2
     expect(ds.contributors.count).to be 2
+  end
+
+  describe "#identifier_type" do
+    context "when the @doi instance variable is nil" do
+      it "returns nil" do
+        ds.doi = nil
+        expect(ds.identifier_type).to be nil
+      end
+    end
   end
 
   it "supports more than one title" do

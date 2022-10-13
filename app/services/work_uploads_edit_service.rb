@@ -1,15 +1,21 @@
 # frozen_string_literal: true
 class WorkUploadsEditService
   class << self
-    def precurated_file_list(work, work_params)
-      if work_params.key?(:pre_curation_uploads)
-        work_params[:pre_curation_uploads]
-      elsif work_params.key?(:replaced_uploads)
-        replace_uploads(work.pre_curation_uploads, work_params[:replaced_uploads])
-      elsif work_params.key?(:deleted_uploads)
-        remaining_pre_curation_uploads(work.pre_curation_uploads, work_params[:deleted_uploads])
-      else
-        work.pre_curation_uploads.map(&:blob)
+    def update_precurated_file_list(work, work_params)
+      if work_params.key?(:deleted_uploads) || work_params.key?(:pre_curation_uploads) || work_params.key?(:replaced_uploads)
+        if work_params.key?(:deleted_uploads)
+          delete_pre_curation_uploads(work.pre_curation_uploads, work_params[:deleted_uploads])
+        elsif work_params.key?(:pre_curation_uploads)
+          work.pre_curation_uploads.each(&:purge)
+          work.reload # reload the work to pick up the changes in the attachments
+          Array(work_params[:pre_curation_uploads]).each { |new_upload| work.pre_curation_uploads.attach(new_upload) }
+        elsif work_params.key?(:replaced_uploads)
+          replace_uploads(work, work_params[:replaced_uploads])
+        end
+        work.reload # reload the work to pick up the changes in the attachments
+
+      else # no changes in the parameters, just return the original work
+        work
       end
     end
 
@@ -21,32 +27,24 @@ class WorkUploadsEditService
 
       private
 
-        def replace_uploads(persisted_pre_curation_uploads, replaced_uploads_params)
-          updated_uploads = []
-          persisted_pre_curation_uploads.each_with_index do |existing, i|
+        def replace_uploads(work, replaced_uploads_params)
+          new_uploads = []
+          work.pre_curation_uploads.each_with_index do |existing, i|
             key = i.to_s
-
-            if replaced_uploads_params.key?(key)
-              replaced = replaced_uploads_params[key]
-              updated_uploads << replaced
-            else
-              updated_uploads << existing.blob
-            end
+            next unless replaced_uploads_params.key?(key)
+            new_uploads << replaced_uploads_params[key]
+            existing.purge
           end
-
-          updated_uploads
+          work.reload
+          new_uploads.each { |new_upload| work.pre_curation_uploads.attach(new_upload) }
         end
 
-        def remaining_pre_curation_uploads(persisted_pre_curation_uploads, deleted_uploads_params)
-          updated_uploads = []
-
+        def delete_pre_curation_uploads(persisted_pre_curation_uploads, deleted_uploads_params)
           persisted_pre_curation_uploads.each do |existing|
-            next if deleted_uploads_params.key?(existing.key) && deleted_uploads_params[existing.key] == "1"
-
-            updated_uploads << existing.blob
+            if deleted_uploads_params.key?(existing.key) && deleted_uploads_params[existing.key] == "1"
+              existing.purge
+            end
           end
-
-          updated_uploads
         end
   end
 end
