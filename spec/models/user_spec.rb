@@ -85,7 +85,8 @@ RSpec.describe User, type: :model do
 
     context "when an error is raised parsing the user IDs of super_admin users" do
       before do
-        allow(Rails.configuration.super_admins).to receive(:include?).and_raise(StandardError)
+        normal_user
+        allow(described_class).to receive(:adapter).and_raise(StandardError)
       end
 
       it "returns nil" do
