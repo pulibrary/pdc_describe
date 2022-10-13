@@ -22,17 +22,15 @@
   </tbody>
 </table>
 
-<% if @work %>
-  <% @work.resource.contributors.each_with_index do |contributor, i| %>
+<% @work.resource.contributors.each_with_index do |contributor, i| %>
   <span class="hidden contributor-data"
     data-num="<%= i + 1 %>"
     data-orcid="<%= contributor.orcid %>"
     data-given-name="<%= contributor.given_name %>"
     data-family-name="<%= contributor.family_name %>"
     data-role="<%= contributor.type %>"
-    data-sequence="<%= contributor.sequence || 0 %>"
-    ></span>
-  <% end %>
+    data-sequence="<%= contributor.sequence || 0 %>">
+  </span>
 <% end %>
 
 <!-- Let the user add new contributors -->

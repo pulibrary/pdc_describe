@@ -88,7 +88,6 @@
       var givenNameId = `contributor_given_name_${num}`;
       var familyNameId = `contributor_family_name_${num}`;
       var sequenceId = `contributor_sequence_${num}`;
-      debugger;
       var roleHtml = rolesHtml(roleId, role);
 
       var rowHtml = `<tr id="${rowId}" class="contributors-table-row">
@@ -362,7 +361,6 @@
     } else {
       // Adds the existing contributors making sure we honor the ordering.
       var contributors = peopleSorted(".contributor-data");
-      debugger;
       for(i = 0; i < contributors.length; i++) {
         var contributor = contributors[i];
         addContributorHtml(contributor.num, contributor.orcid, contributor.givenName, contributor.familyName, contributor.role, contributor.sequence);
