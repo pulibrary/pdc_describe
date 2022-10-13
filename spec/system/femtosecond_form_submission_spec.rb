@@ -95,7 +95,6 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       expect(page).to have_content "marked as draft"
       femtosecond_work = Work.last
       expect(femtosecond_work.title).to eq title
-      puts femtosecond_work.to_xml
     end
   end
 end
