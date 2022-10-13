@@ -53,7 +53,6 @@ This dataset is too large to download directly from this item page. You can acce
       expect(page).to have_content "marked as draft"
       attention_work = Work.last
       expect(attention_work.title).to eq title
-      puts attention_work.to_xml
     end
   end
 end
