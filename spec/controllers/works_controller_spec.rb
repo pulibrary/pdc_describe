@@ -915,6 +915,36 @@ RSpec.describe WorksController do
           expect(assigns[:errors]).to eq(["Cannot Approve: Unauthorized to Approve"])
         end
       end
+
+      context "when approving as a non-curator" do
+        let(:user) { FactoryBot.create(:pppl_submitter) }
+
+        before do
+          sign_in user
+          work.complete_submission!(user)
+          stub_datacite_doi
+          post :approve, params: { id: work.id }
+        end
+
+        it "raises an error" do
+          expect(response.status).to be 422
+        end
+      end
+
+      context "when approving as a non-super-admin" do
+        let(:user) { FactoryBot.create(:user) }
+
+        before do
+          sign_in user
+          work.complete_submission!(user)
+          stub_datacite_doi
+          post :approve, params: { id: work.id }
+        end
+
+        it "responds with a status code of 422" do
+          expect(response.status).to be 422
+        end
+      end
     end
 
     describe "#withdraw" do
