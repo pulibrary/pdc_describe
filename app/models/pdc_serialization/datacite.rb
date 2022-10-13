@@ -68,6 +68,7 @@ module PDCSerialization
       mapping = ::Datacite::Mapping::Resource.new(
         identifier: ::Datacite::Mapping::Identifier.new(value: resource.doi),
         creators: creators_from_work_resource(resource.creators),
+        contributors: contributors_from_work_resource(resource.contributors),
         titles: titles_from_work_resource(resource.titles),
         publisher: ::Datacite::Mapping::Publisher.new(value: resource.publisher),
         publication_year: resource.publication_year,
@@ -123,6 +124,58 @@ module PDCSerialization
       # rubocop:enable Metrics/MethodLength
       # rubocop:enable Metrics/CyclomaticComplexity
 
+      ##
+      # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # Returns the appropriate Datacite::Resource::ContributorType for a given string
+      # @param [String] type
+      def datacite_contributor_type(type)
+        case type
+        when "DataCollector"
+          ::Datacite::Mapping::ContributorType::DATA_COLLECTOR
+        when "DataCurator"
+          ::Datacite::Mapping::ContributorType::DATA_CURATOR
+        when "DataManager"
+          ::Datacite::Mapping::ContributorType::DATA_MANAGER
+        when "Distributor"
+          ::Datacite::Mapping::ContributorType::DISTRIBUTOR
+        when "Editor"
+          ::Datacite::Mapping::ContributorType::EDITOR
+        when "HostingInstitution"
+          ::Datacite::Mapping::ContributorType::HOSTING_INSTITUTION
+        when "Producer"
+          ::Datacite::Mapping::ContributorType::PRODUCER
+        when "ProjectLeader"
+          ::Datacite::Mapping::ContributorType::PROJECT_LEADER
+        when "ProjectManager"
+          ::Datacite::Mapping::ContributorType::PROJECT_MANAGER
+        when "ProjectMember"
+          ::Datacite::Mapping::ContributorType::PROJECT_MEMBER
+        when "RegistrationAgency"
+          ::Datacite::Mapping::ContributorType::REGISTRATION_AGENCY
+        when "RegistrationAuthority"
+          ::Datacite::Mapping::ContributorType::REGISTRATION_AUTHORITY
+        when "RelatedPerson"
+          ::Datacite::Mapping::ContributorType::RELATED_PERSON
+        when "Researcher"
+          ::Datacite::Mapping::ContributorType::RESEARCHER
+        when "ResearchGroup"
+          ::Datacite::Mapping::ContributorType::RESEARCH_GROUP
+        when "RightsHolder"
+          ::Datacite::Mapping::ContributorType::RIGHTS_HOLDER
+        when "Sponsor"
+          ::Datacite::Mapping::ContributorType::SPONSOR
+        when "Supervisor"
+          ::Datacite::Mapping::ContributorType::SUPERVISOR
+        when "WorkPackageLeader"
+          ::Datacite::Mapping::ContributorType::WORK_PACKAGE_LEADER
+        else
+          ::Datacite::Mapping::ContributorType::OTHER
+        end
+      end
+      # rubocop:enable Metrics/MethodLength
+      # rubocop:enable Metrics/CyclomaticComplexity
+
       private
 
         def creators_from_work_resource(creators)
@@ -133,6 +186,17 @@ module PDCSerialization
               family_name: creator.family_name,
               identifier: name_identifier_from_identifier(creator.identifier),
               affiliations: nil
+            )
+          end
+        end
+
+        def contributors_from_work_resource(contributors)
+          contributors.sort_by(&:sequence).map do |contributor|
+            ::Datacite::Mapping::Contributor.new(
+              name: contributor.value,
+              identifier: name_identifier_from_identifier(contributor.identifier),
+              affiliations: nil,
+              type: datacite_contributor_type(contributor.type)
             )
           end
         end

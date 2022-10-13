@@ -14,6 +14,8 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
     before do
       stub_s3
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+      # Make the screen larger so the save button is alway on screen. This avoids random `Element is not clickable` errors
+      page.driver.browser.manage.window.resize_to(2000, 2000)
     end
 
     it "should be able to edit someone else's work" do

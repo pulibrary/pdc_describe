@@ -20,6 +20,14 @@
   <publisher>Princeton University</publisher>
   <resourceType resourceTypeGeneral='Dataset'/>
   <publicationYear>2022</publicationYear>
+  <contributors>
+    <contributor contributorType='ProjectLeader'>
+      <contributorName>Smith, Robert</contributorName>
+    </contributor>
+    <contributor contributorType='Other'>
+      <contributorName>Gallup, Simon</contributorName>
+    </contributor>
+  </contributors>
   <relatedIdentifiers>
     <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp01hx11xj13h</relatedIdentifier>
   </relatedIdentifiers>
