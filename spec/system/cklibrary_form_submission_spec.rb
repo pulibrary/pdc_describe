@@ -43,7 +43,6 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       expect(page).to have_content "marked as draft"
       cklibrary_work = Work.last
       expect(cklibrary_work.title).to eq title
-      puts cklibrary_work.to.xml
     end
   end
 end
