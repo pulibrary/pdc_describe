@@ -7,6 +7,7 @@ RSpec.describe WorksController do
     Collection.create_defaults
     user
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+    allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
   end
   let(:curator) { FactoryBot.create(:user, collections_to_admin: [collection]) }
   let(:collection) { Collection.first }
@@ -91,6 +92,7 @@ RSpec.describe WorksController do
       work.reload
       expect(work.resource_type).to eq("Dataset")
       expect(work.resource_type_general).to eq(:DATASET)
+      expect(ActiveStorage::PurgeJob).not_to have_received(:new)
     end
 
     context "when the client uses wizard mode" do
@@ -114,6 +116,7 @@ RSpec.describe WorksController do
         post :update, params: params
         expect(response.status).to be 302
         expect(response.location).to eq "http://test.host/works/#{work.id}/attachment-select"
+        expect(ActiveStorage::PurgeJob).not_to have_received(:new)
       end
     end
 
@@ -230,6 +233,7 @@ RSpec.describe WorksController do
         saved_work = Work.find(work.id)
 
         expect(saved_work.pre_curation_uploads).not_to be_empty
+        expect(ActiveStorage::PurgeJob).not_to have_received(:new)
       end
     end
 
@@ -284,6 +288,7 @@ RSpec.describe WorksController do
         saved_work = Work.find(work.id)
 
         expect(saved_work.pre_curation_uploads).not_to be_empty
+        expect(ActiveStorage::PurgeJob).not_to have_received(:new)
       end
     end
 
@@ -292,13 +297,41 @@ RSpec.describe WorksController do
         fixture_file_upload("us_covid_2019.csv", "text/csv")
       end
 
+      let(:temp_file1) do
+        file = Tempfile.new("temp_file1")
+        file.write("hello world")
+        file.close
+        file
+      end
+      let(:uploaced_temp_file1) { Rack::Test::UploadedFile.new(temp_file1.path, "text/plain") }
+      let(:temp_file2) do
+        file = Tempfile.new("temp_file2")
+        file.write("hello world 2")
+        file.close
+        file
+      end
+      let(:uploaced_temp_file2) { Rack::Test::UploadedFile.new(temp_file2.path, "text/plain") }
+      let(:temp_file3) do
+        file = Tempfile.new("temp_file3")
+        file.write("hello world 3")
+        file.close
+        file
+      end
+      let(:uploaced_temp_file3) { Rack::Test::UploadedFile.new(temp_file3.path, "text/plain") }
+
+      after do
+        temp_file1.unlink
+        temp_file2.unlink
+        temp_file3.unlink
+      end
+
       let(:uploaded_file2) do
         fixture_file_upload("us_covid_2020.csv", "text/csv")
       end
 
       let(:uploaded_files) do
         {
-          "0" => uploaded_file2,
+          "0" => uploaded_file1,
           "2" => uploaded_file2
         }
       end
@@ -311,9 +344,9 @@ RSpec.describe WorksController do
         stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
 
-        work.pre_curation_uploads.attach(uploaded_file1)
-        work.pre_curation_uploads.attach(uploaded_file1)
-        work.pre_curation_uploads.attach(uploaded_file1)
+        work.pre_curation_uploads.attach(uploaced_temp_file1)
+        work.pre_curation_uploads.attach(uploaced_temp_file2)
+        work.pre_curation_uploads.attach(uploaced_temp_file3)
 
         params = {
           "title_main" => "test dataset updated",
@@ -344,9 +377,11 @@ RSpec.describe WorksController do
         expect(saved_work.pre_curation_uploads).not_to be_empty
         expect(saved_work.pre_curation_uploads.length).to eq(3)
 
-        expect(saved_work.pre_curation_uploads[0].blob.filename.to_s).to eq("us_covid_2019.csv")
-        expect(saved_work.pre_curation_uploads[1].blob.filename.to_s).to eq("us_covid_2020.csv")
-        expect(saved_work.pre_curation_uploads[2].blob.filename.to_s).to eq("us_covid_2020.csv")
+        # Remeber! Order is alpabetical
+        expect(saved_work.pre_curation_uploads[0].blob.filename.to_s).to eq(File.basename(temp_file2.path))
+        expect(saved_work.pre_curation_uploads[1].filename.to_s).to eq("us_covid_2019.csv")
+        expect(saved_work.pre_curation_uploads[2].filename.to_s).to eq("us_covid_2020.csv")
+        expect(ActiveStorage::PurgeJob).not_to have_received(:new)
       end
     end
 
@@ -364,7 +399,7 @@ RSpec.describe WorksController do
       end
 
       let(:deleted_uploads) do
-        # "1" indicates that the file has been delete
+        # "1" indicates that the file has been deleted
         {
           work.pre_curation_uploads.first.key => "1",
           work.pre_curation_uploads[1].key => "0",
@@ -441,6 +476,7 @@ RSpec.describe WorksController do
           expect(saved_work.pre_curation_uploads.length).to eq(1)
 
           expect(saved_work.pre_curation_uploads[0].blob.filename.to_s).to eq("us_covid_2019.csv")
+          expect(ActiveStorage::PurgeJob).not_to have_received(:new)
         end
       end
 
@@ -513,11 +549,12 @@ RSpec.describe WorksController do
           post :update, params: params_no_delete
 
           expect(response).to redirect_to(work_path(work))
+          expect(ActiveStorage::PurgeJob).not_to have_received(:new)
         end
       end
     end
 
-    context "when file uploads are reordered for an existing Work with uploads" do
+    context "when file uploads are resent for an existing Work with uploads" do
       let(:uploaded_file1) do
         fixture_file_upload("us_covid_2019.csv", "text/csv")
       end
@@ -561,6 +598,7 @@ RSpec.describe WorksController do
 
       before do
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+        stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
 
         work.pre_curation_uploads.attach(uploaded_file1)
         work.pre_curation_uploads.attach(uploaded_file2)
@@ -572,8 +610,6 @@ RSpec.describe WorksController do
       it "handles the update page" do
         expect(work.pre_curation_uploads).not_to be_empty
         expect(work.pre_curation_uploads.first).to be_an(ActiveStorage::Attachment)
-        first_upload = work.pre_curation_uploads.first
-        last_upload = work.pre_curation_uploads.last
 
         post :update, params: request_params
 
@@ -581,8 +617,14 @@ RSpec.describe WorksController do
 
         expect(saved_work.pre_curation_uploads).not_to be_empty
         expect(work.pre_curation_uploads.first).to be_an(ActiveStorage::Attachment)
-        expect(saved_work.pre_curation_uploads.first.filename).to eq(last_upload.filename)
-        expect(saved_work.pre_curation_uploads.last.filename).to eq(first_upload.filename)
+
+        # order is alphabetical, we can not change it by sending the files in a different order
+        expect(saved_work.pre_curation_uploads.first.filename).to eq(uploaded_files.first.original_filename)
+        expect(saved_work.pre_curation_uploads.last.filename).to eq(uploaded_files.last.original_filename)
+
+        # original copies of the files get deleted
+        expect(a_request(:delete, /#{bucket_url}/)).to have_been_made.twice
+        expect(ActiveStorage::PurgeJob).not_to have_received(:new)
       end
     end
 

@@ -12,22 +12,30 @@ RSpec.describe WorkUploadsEditService do
   let(:uploaded_file3) do
     fixture_file_upload("orcid.csv", "text/csv")
   end
+  let(:uploaded_file4) do
+    fixture_file_upload("datacite_basic.xml", "text/xml")
+  end
 
   let(:bucket_url) do
     "https://example-bucket.s3.amazonaws.com/"
   end
 
+  let(:attachment_url) { "#{bucket_url}#{work.doi}/#{work.id}/us_covid_2019.csv" }
+
   before do
     stub_request(:put, /#{bucket_url}/).to_return(status: 200)
     work.pre_curation_uploads.attach(uploaded_file)
+    stub_request(:delete, attachment_url).to_return(status: 200)
   end
 
   context "When no uploads changes are in the params" do
     let(:params) { { "work_id" => "" }.with_indifferent_access }
 
     it "returns all existing files" do
-      list = described_class.precurated_file_list(work, params)
+      updated_work = described_class.update_precurated_file_list(work, params)
+      list = updated_work.pre_curation_uploads
       expect(list.map(&:filename)).to eq([uploaded_file.original_filename])
+      expect(a_request(:delete, attachment_url)).not_to have_been_made
     end
   end
 
@@ -43,21 +51,28 @@ RSpec.describe WorkUploadsEditService do
     end
 
     it "returns all existing files except the deleted one" do
-      list = described_class.precurated_file_list(work, params)
+      updated_work = described_class.update_precurated_file_list(work, params)
+      list = updated_work.pre_curation_uploads
       expect(list.map(&:filename)).to eq([uploaded_file2.original_filename])
+      expect(a_request(:delete, attachment_url)).to have_been_made.once
     end
   end
 
   context "When upload replacements are in the params" do
+    let(:attachment_url) { "#{bucket_url}#{work.doi}/#{work.id}/us_covid_2020.csv" }
     before do
       work.pre_curation_uploads.attach(uploaded_file2)
+      work.pre_curation_uploads.attach(uploaded_file3)
     end
-    let(:params) { { "work_id" => "", "replaced_uploads" => { "0" => uploaded_file3 } }.with_indifferent_access }
+    let(:params) { { "work_id" => "", "replaced_uploads" => { "1" => uploaded_file4 } }.with_indifferent_access }
 
     it "replaces the correct file" do
-      list = described_class.precurated_file_list(work, params)
-      expect(list.first).to eq(uploaded_file3)
-      expect(list.last.filename).to eq(uploaded_file2.original_filename)
+      updated_work = described_class.update_precurated_file_list(work, params)
+      list = updated_work.pre_curation_uploads
+
+      # remeber order of the files will be alphabetical
+      expect(list.map(&:filename)).to eq([uploaded_file.original_filename, uploaded_file3.original_filename, uploaded_file4.original_filename])
+      expect(a_request(:delete, attachment_url)).to have_been_made.once
     end
   end
 
@@ -65,8 +80,23 @@ RSpec.describe WorkUploadsEditService do
     let(:params) { { "work_id" => "", "pre_curation_uploads" => [uploaded_file2, uploaded_file3] }.with_indifferent_access }
 
     it "replaces all the files" do
-      list = described_class.precurated_file_list(work, params)
-      expect(list).to eq([uploaded_file2, uploaded_file3])
+      updated_work = described_class.update_precurated_file_list(work, params)
+      list = updated_work.reload.pre_curation_uploads
+      expect(list.map(&:filename)).to eq([uploaded_file2.original_filename, uploaded_file3.original_filename])
+      expect(a_request(:delete, attachment_url)).to have_been_made.once
+    end
+  end
+
+  context "When replacing all uploads is the params, but some overlap" do
+    let(:params) { { "work_id" => "", "pre_curation_uploads" => [uploaded_file, uploaded_file3] }.with_indifferent_access }
+
+    it "replaces all the files" do
+      updated_work = described_class.update_precurated_file_list(work, params)
+      list = updated_work.pre_curation_uploads
+      expect(list.map(&:filename)).to eq([uploaded_file.original_filename, uploaded_file3.original_filename])
+
+      # we delete all items and start over becuase even if the filename matches we want the new version of the file they just uploaded
+      expect(a_request(:delete, attachment_url)).to have_been_made.once
     end
   end
 end
