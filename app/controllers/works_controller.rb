@@ -115,14 +115,10 @@ class WorksController < ApplicationController
 
       return head(:forbidden) unless deleted_uploads.empty?
     else
-      updated_pre_curation_uploads = WorkUploadsEditService.precurated_file_list(@work, work_params)
-      updates[:pre_curation_uploads] = updated_pre_curation_uploads
+      @work = WorkUploadsEditService.update_precurated_file_list(@work, work_params)
     end
 
     if @work.update(updates)
-      # pause to allow s3 time to remove the file completely
-      sleep(0.1) if work_params.key?(:deleted_uploads)
-
       if @wizard_mode
         redirect_to work_attachment_select_url(@work)
       else
