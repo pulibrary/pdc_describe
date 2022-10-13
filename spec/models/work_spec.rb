@@ -362,35 +362,6 @@ RSpec.describe Work, type: :model do
       work.pre_curation_uploads.attach(uploaded_file)
       work.save
     end
-
-    context "with configured to use the human-readable storage service", humanizable_storage: true do
-      it "attaches deposited file uploads to the Work model with human-readable file paths" do
-        expect(work.pre_curation_uploads).not_to be_empty
-
-        attached = work.pre_curation_uploads.first
-        expect(attached).to be_a(ActiveStorage::Attachment)
-        expect(attached.blob).to be_a(ActiveStorage::Blob)
-        expect(attached.blob.key).to eq("#{work.doi}/#{work.id}/us_covid_2019.csv")
-        local_disk_path = Rails.root.join("spec", "fixtures", "storage", work.doi, work.id.to_s, "us_covid_2019.csv")
-        expect(File.exist?(local_disk_path)).to be true
-
-        work.pre_curation_uploads.attach(uploaded_file2)
-        attached2 = work.pre_curation_uploads.last
-        expect(attached2).to be_a(ActiveStorage::Attachment)
-        expect(attached2.blob).to be_a(ActiveStorage::Blob)
-        expect(attached2.blob.key).to eq("#{work.doi}/#{work.id}/us_covid_2019_2.csv")
-        local_disk_path = Rails.root.join("spec", "fixtures", "storage", work.doi, work.id.to_s, "us_covid_2019_2.csv")
-        expect(File.exist?(local_disk_path)).to be true
-
-        work2.pre_curation_uploads.attach(uploaded_file)
-        attached = work2.pre_curation_uploads.first
-        expect(attached).to be_a(ActiveStorage::Attachment)
-        expect(attached.blob).to be_a(ActiveStorage::Blob)
-        expect(attached.blob.key).to eq("#{work2.doi}/#{work2.id}/us_covid_2019.csv")
-        local_disk_path = Rails.root.join("spec", "fixtures", "storage", work2.doi, work2.id.to_s, "us_covid_2019.csv")
-        expect(File.exist?(local_disk_path)).to be true
-      end
-    end
   end
 
   describe "#draft" do
@@ -409,6 +380,45 @@ RSpec.describe Work, type: :model do
       draft_work
       expect(a_request(:post, "https://#{Rails.configuration.datacite.host}/dois")).to have_been_made
       expect(draft_work.resource.doi).not_to eq nil
+    end
+
+    context "when deploying the server without a DataCite user configured" do
+      let!(:datacite_user) do
+        Rails.configuration.datacite.user
+      end
+
+      before do
+        Rails.configuration.datacite.user = nil
+        draft_work
+      end
+
+      after do
+        Rails.configuration.datacite.user = datacite_user
+      end
+
+      it "does not drafts a new DOI, but uses the test DOI" do
+        expect(draft_work.reload.state).to eq("draft")
+        expect(draft_work.doi).to eq("10.34770/tbd")
+      end
+    end
+
+    context "when creating the DataCite DOI fails" do
+      let(:data_cite_failure) { double }
+      let(:data_cite_result) { double }
+      let(:data_cite_connection) { double }
+
+      before do
+        allow(data_cite_failure).to receive(:reason_phrase).and_return("test status")
+        allow(data_cite_failure).to receive(:status).and_return("test status")
+        allow(data_cite_result).to receive(:failure).and_return(data_cite_failure)
+        allow(data_cite_result).to receive(:success?).and_return(false)
+        allow(data_cite_connection).to receive(:autogenerate_doi).and_return(data_cite_result)
+        allow(Datacite::Client).to receive(:new).and_return(data_cite_connection)
+      end
+
+      it "raises an error" do
+        expect { draft_work }.to raise_error(StandardError)
+      end
     end
 
     it "transitions from draft to withdrawn" do
@@ -471,6 +481,42 @@ RSpec.describe Work, type: :model do
       work.complete_submission!(user)
       work.approve!(curator_user)
       work
+    end
+
+    context "when the curator user has been set" do
+      let(:data_cite_failure) { double }
+      let(:data_cite_result) { double }
+      let(:data_cite_connection) { double }
+      let!(:datacite_user) { Rails.configuration.datacite.user }
+
+      before do
+        Rails.configuration.datacite.user = "test_user"
+
+        allow(data_cite_failure).to receive(:reason_phrase).and_return("test status")
+        allow(data_cite_failure).to receive(:status).and_return("test status")
+        allow(data_cite_result).to receive(:failure).and_return(data_cite_failure)
+
+        allow(data_cite_result).to receive(:failure?).and_return(true)
+        allow(data_cite_connection).to receive(:update).and_return(data_cite_result)
+        allow(Datacite::Client).to receive(:new).and_return(data_cite_connection)
+
+        stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
+      end
+
+      after do
+        Rails.configuration.datacite.user = datacite_user
+      end
+
+      it "is approved" do
+        draft_work = FactoryBot.create(:draft_work)
+
+        draft_work.complete_submission!(user)
+        draft_work.update_curator(curator_user.id, user)
+        draft_work.approve!(curator_user)
+        draft_work.reload
+
+        expect(draft_work.curator).to eq(curator_user)
+      end
     end
 
     it "is approved" do
@@ -680,22 +726,39 @@ RSpec.describe Work, type: :model do
       end
 
       context "a blob already exists for one of the files" do
-        let(:work1) do
-          work = FactoryBot.create(:draft_work)
-          blob = work.send(:s3_file_to_blob, file1)
-          blob.save
-          work.save
-          work
+        # Here is the first Blob which is already attached
+        let(:persisted_blob1) do
+          persisted = ActiveStorage::Blob.create_before_direct_upload!(
+            filename: file1.filename, content_type: "", byte_size: file1.size, checksum: ""
+          )
+          persisted.key = file1.filename
+          persisted
+        end
+        # Here is the second Blob which is exists in the S3 Bucket but is not yet attached
+        let(:persisted_blob2) do
+          persisted = ActiveStorage::Blob.create_before_direct_upload!(
+            filename: file2.filename, content_type: "", byte_size: file2.size, checksum: ""
+          )
+          persisted.key = file2.filename
+          persisted
+        end
+
+        before do
+          allow(ActiveStorage::Blob).to receive(:find_by).and_return(persisted_blob2)
+          work.pre_curation_uploads.attach(persisted_blob1)
+
+          work.attach_s3_resources
         end
 
         it "finds the blob and attaches it as an ActiveStorage Attachments" do
-          work.attach_s3_resources
           expect(work.pre_curation_uploads).not_to be_empty
           expect(work.pre_curation_uploads.length).to eq(2)
           expect(work.pre_curation_uploads.first).to be_a(ActiveStorage::Attachment)
           expect(work.pre_curation_uploads.first.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt")
+          expect(work.pre_curation_uploads.first.blob).to eq(persisted_blob1)
           expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
           expect(work.pre_curation_uploads.last.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
+          expect(work.pre_curation_uploads.last.blob).to eq(persisted_blob2)
         end
       end
     end
@@ -731,6 +794,13 @@ RSpec.describe Work, type: :model do
       expect(upload_attributes).to include(:url)
       expect(upload_attributes[:url]).to include("/rails/active_storage/blobs/redirect/")
       expect(upload_attributes[:url]).to include("/us_covid_2019.csv?disposition=attachment")
+    end
+  end
+
+  describe ".curator_or_current_uid" do
+    it "finds the existing User using the ID" do
+      persisted = work.curator_or_current_uid(user)
+      expect(persisted).to eq(user.uid)
     end
   end
 end
