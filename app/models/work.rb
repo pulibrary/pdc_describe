@@ -357,6 +357,11 @@ class Work < ApplicationRecord
     WorkActivity.add_system_activity(id, comment, current_user.id, activity_type: "COMMENT")
   end
 
+  def log_changes(changes, current_user)
+    return if changes == {}
+    WorkActivity.add_system_activity(id, changes.to_json, current_user.id, activity_type: "CHANGES")
+  end
+
   def activities
     WorkActivity.where(work_id: id).sort_by(&:updated_at).reverse
   end

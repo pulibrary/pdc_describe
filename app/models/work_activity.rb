@@ -40,6 +40,14 @@ class WorkActivity < ApplicationRecord
   end
 
   def message_html
+    if activity_type == "CHANGES"
+      changes_html
+    else
+      comment_html
+    end
+  end
+
+  def comment_html
     # convert user references to user links
     text = message.gsub(USER_REFERENCE) do |at_uid|
       uid = at_uid[1..-1]
@@ -50,5 +58,41 @@ class WorkActivity < ApplicationRecord
     # allow ``` for code blocks (Kramdown only supports ~~~)
     text = text.gsub("```", "~~~")
     Kramdown::Document.new(text).to_html
+  end
+
+  def changes_html
+    text = ""
+    json = JSON.parse(message)
+    json.keys.each do |key|
+      if json[key].is_a?(Array)
+        text += "<p><b>#{key}</b>:"
+        json[key].each do |value|
+          if value["action"] == "added"
+            text += <<-HTML
+              <i>(added)</i> <span>#{value["value"]}</span>
+            HTML
+          elsif value["action"] == "removed"
+            text += <<-HTML
+              <i>(removed)</i> <span>#{value["value"]}</span>
+            HTML
+          else
+            text += <<-HTML
+              <span style="text-decoration: line-through;">#{value["from"]}</span>
+              <span>#{value["to"]}</span>
+            HTML
+          end
+        end
+        text += "</p>"
+      else
+        value = json[key]
+        text += <<-HTML
+          <p><b>#{key}</b>:
+            <span style="text-decoration: line-through;">#{value["from"]}</span>
+            <span>#{value["to"]}</span>
+          </p>
+        HTML
+      end
+    end
+    text
   end
 end
