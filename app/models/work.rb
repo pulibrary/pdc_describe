@@ -436,8 +436,15 @@ class Work < ApplicationRecord
                             bucket: bucket_name,
                             key: key
                           })
+    true
   rescue Aws::S3::Errors::NotFound
     nil
+  end
+
+  # Generates the S3 Object key
+  # @return [String]
+  def s3_object_key
+    "#{doi}/#{id}"
   end
 
   # Transmit a HEAD request for the S3 Bucket directory for this Work
@@ -445,8 +452,9 @@ class Work < ApplicationRecord
   def find_post_curation_s3_dir
     s3_client.head_object({
                             bucket: bucket_name,
-                            key: doi
+                            key: s3_object_key
                           })
+    true
   rescue Aws::S3::Errors::NotFound
     nil
   end
@@ -456,10 +464,10 @@ class Work < ApplicationRecord
   def delete_pre_curation_s3_dir
     s3_client.delete_object({
                               bucket: bucket_name,
-                              key: doi
+                              key: s3_object_key
                             })
   rescue Aws::S3::Errors::ServiceError => error
-    raise(StandardError, "Failed to delete the pre-curation S3 Bucket directory #{doi}: #{error}")
+    raise(StandardError, "Failed to delete the pre-curation S3 Bucket directory #{s3_object_key}: #{error}")
   end
 
   # This is invoked within the scope of #after_save. Attachment objects require that the parent record be persisted (hence, #before_save is not an option).
@@ -467,13 +475,13 @@ class Work < ApplicationRecord
   def attach_s3_resources
     if approved?
       # An error is raised if there are no files to be moved
-      # raise(StandardError, "Attempting to publish a Work without attached uploads for #{doi}") if pre_curation_uploads.empty?
+      raise(StandardError, "Attempting to publish a Work without attached uploads for #{s3_object_key}") if pre_curation_uploads.empty? && post_curation_uploads.empty?
 
       # This migrates pre-curation S3 Objects to the post-curation S3 Bucket
       transferred = []
 
       s3_dir = find_post_curation_s3_dir
-      raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{doi}") unless s3_dir.nil?
+      raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{s3_object_key}") unless s3_dir.nil?
 
       pre_curation_uploads.each do |attachment|
         next if post_curation_s3_file?(filename: attachment.filename.to_s)

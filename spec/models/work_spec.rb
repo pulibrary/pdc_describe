@@ -154,7 +154,7 @@ RSpec.describe Work, type: :model do
 
     before do
       allow(s3_client).to receive(:put_object)
-      allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc")
+      allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc/#{work.id}").and_raise(Aws::S3::Errors::NotFound.new(true, "test error"))
       allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc/#{work.id}/us_covid_2019.csv").and_return(true)
       allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc/#{work.id}/us_covid_2019_2.csv").and_return(true)
       allow(s3_client).to receive(:delete_object).and_return(nil)
