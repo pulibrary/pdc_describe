@@ -148,6 +148,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
       expect(resource.doi).to eq(doi)
       expect(resource.collection_tags).to eq(["ABC", "123"])
       expect(resource.keywords).to eq(["red", "yellow", "green"])
+      expect(resource.description).to eq("All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.")
       expect(JSON.parse(resource.to_json)).to eq(JSON.parse(json))
     end
   end

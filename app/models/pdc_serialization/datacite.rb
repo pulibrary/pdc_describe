@@ -69,6 +69,7 @@ module PDCSerialization
         identifier: ::Datacite::Mapping::Identifier.new(value: resource.doi),
         creators: creators_from_work_resource(resource.creators),
         contributors: contributors_from_work_resource(resource.contributors),
+        descriptions: descriptions_from_work_resource(resource.description),
         titles: titles_from_work_resource(resource.titles),
         publisher: ::Datacite::Mapping::Publisher.new(value: resource.publisher),
         publication_year: resource.publication_year,
@@ -199,6 +200,13 @@ module PDCSerialization
               type: datacite_contributor_type(contributor.type)
             )
           end
+        end
+
+        ##
+        # We are deliberately not differentiating between "abstract", "methods" and other kinds of descriptions.
+        # We are instead putting all description into the same field and classifying it as "OTHER".
+        def descriptions_from_work_resource(description)
+          [] << ::Datacite::Mapping::Description.new(type: ::Datacite::Mapping::DescriptionType::OTHER, value: description)
         end
 
         def name_identifier_from_identifier(identifier)

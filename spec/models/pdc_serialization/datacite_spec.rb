@@ -90,6 +90,10 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
         expect(mapping.publication_year).to eq 2020
       end
 
+      it "has a description" do
+        expect(mapping.descriptions.first.value).to match(/All data is related to the Shakespeare and Company bookshop/)
+      end
+
       context "contributor types" do
         it "maps contributor types" do
           expect(described_class.datacite_contributor_type("DataCollector")).to eq Datacite::Mapping::ContributorType::DATA_COLLECTOR
