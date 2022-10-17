@@ -58,3 +58,5 @@ en:
         replace_upload: "Replace Upload"
         empty: "No files in S3"
         delete_upload: "Delete Upload"
+    approved:
+      uneditable: "This work has been approved.  Edits are no longer available."
