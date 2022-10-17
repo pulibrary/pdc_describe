@@ -82,11 +82,14 @@ FactoryBot.define do
       created_by_user_id { FactoryBot.create(:user).id }
     end
 
+    # json_from_spec file created from the output of
+    # spec/system/cytoskeletal_form_submission_spec.rb
     factory :distinct_cytoskeletal_proteins_work do
-      title { "Distinct cytoskeletal proteins define zones of enhanced cell wall synthesis in Helicobacter pylori" }
       collection { Collection.research_data }
-      doi { "https://doi.org/10.34770/r2dz-ys12" }
-      ark { "ark:/88435/dsp01h415pd457" }
+      resource do
+        json_from_spec = File.read(Rails.root.join("spec", "fixtures", "cytoskeletal_metadata_edited.json"))
+        PDCMetadata::Resource.new_from_json(json_from_spec)
+      end
       created_by_user_id { FactoryBot.create(:user).id }
     end
 

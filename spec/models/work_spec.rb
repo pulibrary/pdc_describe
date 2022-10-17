@@ -79,6 +79,15 @@ RSpec.describe Work, type: :model do
     end
   end
 
+  context "with related objects" do
+    subject(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+    it "has related objects" do
+      expect(work.resource.related_objects.first.related_identifier).to eq "https://handle.stage.datacite.org/10.34770/r2dz-ys12"
+      expect(work.resource.related_objects.first.related_identifier_type).to eq "arXiv"
+      expect(work.resource.related_objects.first.relation_type).to eq "IsCitedBy"
+    end
+  end
+
   context "with a persisted dataset work" do
     subject(:work) { FactoryBot.create(:draft_work) }
 
