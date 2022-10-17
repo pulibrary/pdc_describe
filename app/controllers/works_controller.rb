@@ -88,9 +88,13 @@ class WorksController < ApplicationController
   def edit
     @work = Work.find(params[:id])
     if current_user && @work.editable_by?(current_user)
-      @uploads = @work.uploads
-      @wizard_mode = wizard_mode?
-      render "edit"
+      if @work.approved? && @work.submitted_by?(current_user)
+        redirect_to root_path, notice: I18n.t("works.approved.uneditable")
+      else
+        @uploads = @work.uploads
+        @wizard_mode = wizard_mode?
+        render "edit"
+      end
     else
       Rails.logger.warn("Unauthorized attempt to edit work #{@work.id} by user #{current_user.uid}")
       redirect_to root_path

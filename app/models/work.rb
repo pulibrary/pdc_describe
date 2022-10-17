@@ -60,10 +60,14 @@ class Work < ApplicationRecord
   # @param [User]
   # @return [Boolean]
   def editable_by?(user)
-    return true if created_by_user_id == user.id
+    return true if submitted_by?(user)
     collection = Collection.find(collection_id)
     return true if user.has_role?(:collection_admin, collection)
     false
+  end
+
+  def submitted_by?(user)
+    return true if created_by_user_id == user.id
   end
 
   class << self
