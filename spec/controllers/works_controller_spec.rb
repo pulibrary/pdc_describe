@@ -61,12 +61,6 @@ RSpec.describe WorksController do
       expect(response.location.start_with?("http://test.host/works/")).to be true
     end
 
-    it "renders the edit page on edit" do
-      sign_in user
-      get :edit, params: { id: work.id }
-      expect(response).to render_template("edit")
-    end
-
     it "handles the update page" do
       params = {
         "title_main" => "test dataset updated",
@@ -1158,6 +1152,54 @@ RSpec.describe WorksController do
         expect(response.content_type).to eq("application/json; charset=utf-8")
         json_body = JSON.parse(response.body)
         expect(json_body).to include("errors" => ["test error"])
+      end
+    end
+  end
+
+  describe "#edit" do
+    it "renders the edit page on edit" do
+      sign_in user
+      get :edit, params: { id: work.id }
+      expect(response).to render_template("edit")
+    end
+
+    context "the work is approved" do
+      let(:work) { FactoryBot.create :approved_work }
+      context "the submitter" do
+        let(:user) { work.created_by_user }
+
+        it "redirects the home page on edit with informational message" do
+          sign_in user
+          get :edit, params: { id: work.id }
+          expect(response).to redirect_to(root_path)
+          expect(controller.flash[:notice]).to eq("This work has been approved.  Edits are no longer available.")
+        end
+      end
+      context "another user" do
+        let(:other_user) { FactoryBot.create(:user) }
+        it "redirects the home page on edit" do
+          sign_in other_user
+          get :edit, params: { id: work.id }
+          expect(response).to redirect_to(root_path)
+        end
+      end
+      context "a curator" do
+        let(:user) { FactoryBot.create(:research_data_moderator) }
+        it "renders the edit page on edit" do
+          stub_s3
+          sign_in user
+          get :edit, params: { id: work.id }
+          expect(response).to render_template("edit")
+        end
+      end
+      context "a super admin" do
+        let(:user) { FactoryBot.create(:super_admin_user) }
+        it "renders the edit page on edit" do
+          stub_s3
+          sign_in user
+          get :edit, params: { id: work.id }
+          expect(response).to render_template("edit")
+        end
       end
     end
   end

@@ -23,6 +23,17 @@ FactoryBot.define do
       resource { FactoryBot.build :resource, doi: doi, ark: ark }
     end
 
+    factory :approved_work do
+      transient do
+        doi { "10.34770/123-abc" }
+        ark { nil }
+      end
+      collection { Collection.research_data }
+      state { "approved" }
+      created_by_user_id { FactoryBot.create(:user).id }
+      resource { FactoryBot.build :resource, doi: doi, ark: ark }
+    end
+
     factory :shakespeare_and_company_work do
       collection { Collection.research_data }
       resource do
