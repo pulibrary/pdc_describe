@@ -47,52 +47,70 @@ class WorkActivity < ApplicationRecord
     end
   end
 
-  def comment_html
-    # convert user references to user links
-    text = message.gsub(USER_REFERENCE) do |at_uid|
-      uid = at_uid[1..-1]
-      user = User.where(uid: uid).first
-      user_info = user&.display_name_safe || uid
-      "<a class='comment-user-link' title='#{user_info}' href='{USER-PATH-PLACEHOLDER}/#{uid}'>#{at_uid}</a>"
-    end
-    # allow ``` for code blocks (Kramdown only supports ~~~)
-    text = text.gsub("```", "~~~")
-    Kramdown::Document.new(text).to_html
-  end
+  private
 
-  def changes_html
-    text = ""
-    json = JSON.parse(message)
-    json.keys.each do |key|
-      if json[key].is_a?(Array)
-        text += "<p><b>#{key}</b>:"
-        json[key].each do |value|
-          if value["action"] == "added"
-            text += <<-HTML
-              <i>(added)</i> <span>#{value["value"]}</span>
-            HTML
-          elsif value["action"] == "removed"
-            text += <<-HTML
-              <i>(removed)</i> <span>#{value["value"]}</span>
-            HTML
-          else
-            text += <<-HTML
-              <span style="text-decoration: line-through;">#{value["from"]}</span>
-              <span>#{value["to"]}</span>
-            HTML
+    def comment_html
+      # convert user references to user links
+      text = message.gsub(USER_REFERENCE) do |at_uid|
+        uid = at_uid[1..-1]
+        user = User.where(uid: uid).first
+        user_info = user&.display_name_safe || uid
+        "<a class='comment-user-link' title='#{user_info}' href='{USER-PATH-PLACEHOLDER}/#{uid}'>#{at_uid}</a>"
+      end
+      # allow ``` for code blocks (Kramdown only supports ~~~)
+      text = text.gsub("```", "~~~")
+      Kramdown::Document.new(text).to_html
+    end
+
+    # Returns the message formatted to display changes that were logged
+    def changes_html
+      text = ""
+      json = JSON.parse(message)
+      json.keys.each do |key|
+        if json[key].is_a?(Array)
+          # Multi-value change logged, process each individual entry
+          text += "<p><b>#{key}</b>:"
+          json[key].each do |value|
+            text += change_value_html(value)
           end
+          text += "</p>"
+        else
+          # Single-value change logged
+          value = json[key]
+          text += change_value_html(value)
         end
-        text += "</p>"
+      end
+      text
+    end
+
+    def change_value_html(value)
+      if value["action"] == "added"
+        change_added_html(value["value"])
+      elsif value["action"] == "removed"
+        change_removed_html(value["value"])
       else
-        value = json[key]
-        text += <<-HTML
-          <p><b>#{key}</b>:
-            <span style="text-decoration: line-through;">#{value["from"]}</span>
-            <span>#{value["to"]}</span>
-          </p>
-        HTML
+        change_set_html(value["from"], value["to"])
       end
     end
-    text
-  end
+
+    def change_added_html(value)
+      <<-HTML
+        <i>(added)</i> <span>#{value}</span><br/>
+      HTML
+    end
+
+    def change_removed_html(value)
+      <<-HTML
+        <i>(removed)</i> <span>#{value}</span><br/>
+      HTML
+    end
+
+    # In the future we could fine-tune this method to detect going from
+    # blank to something or viceversa vs a change.
+    def change_set_html(from, to)
+      <<-HTML
+        <span style="text-decoration: line-through;">#{from}</span>
+        <i>(set)</i> <span>#{to}</span><br/>
+      HTML
+    end
 end

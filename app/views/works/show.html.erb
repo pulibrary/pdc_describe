@@ -21,8 +21,12 @@
     padding-bottom: 10px;
   }
 
-  .activity-history-item-title {
+  .activity-history-comment-title {
     background-color: #ddf4ff;
+  }
+
+  .activity-history-log-title {
+    background-color: #f4edd2;
   }
 
   .comment-html > p {
@@ -168,7 +172,7 @@
     <h2>Activity History</h2>
     <% @work.activities.each do |activity| %>
       <div class="activity-history-item" >
-        <div class="activity-history-item-title">
+        <div class="<%= activity.activity_type == 'CHANGES' ? 'activity-history-log-title' : 'activity-history-comment-title' %>">
           <b><%= activity.created_by_user&.display_name_safe %></b>
           <span title="<%= activity.created_at.localtime %>"><%= distance_of_time_in_words_to_now(activity.created_at) %></span>
         </div>
