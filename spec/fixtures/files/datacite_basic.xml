@@ -35,4 +35,7 @@
   <rightsList>
     <rights rightsURI='https://creativecommons.org/licenses/by/4.0/' rightsIdentifier='CC BY'>Creative Commons Attribution 4.0 International</rights>
   </rightsList>
+  <descriptions>
+    <description descriptionType='Other'>this is an example description</description>
+  </descriptions>
 </resource>
