@@ -1,11 +1,18 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/PerceivedComplexity
-# rubocop:disable Metrics/CyclomaticComplexity
-# rubocop:disable Metrics/AbcSize
+# Compares two PDCMetadata::Resource objects and provides a hash with the `differences`
+#
+# If there are no differences between the two objects `identical?` returns `true` and `differences == {}`
+# If there are differences the `differences` hash has the following structure:
+#
+# ```
+#    :field_name = {action:, from:, to:, value: }     for single-value fields (e.g. description)
+#    :field_name = [{action:, from: to:, value: }]    for multi-value fields (e.g. keywords)
+# ```
+#
+# The `action` indicates whether a value changed, was added, or deleted.
+#
 # rubocop:disable Metrics/ClassLength
-# rubocop:disable Metrics/MethodLength
-# rubocop:disable Metrics/BlockLength
 class ResourceCompare
   attr_reader :differences
 
@@ -14,6 +21,10 @@ class ResourceCompare
     @after = after
     @differences = {}
     compare_resources
+  end
+
+  def identical?
+    @differences == {}
   end
 
   private
@@ -25,13 +36,14 @@ class ResourceCompare
       compare_simple_values
       compare_rights
       compare_keywords
+      compare_collection_tags
     end
 
     ##
-    # Compares simple values between the two resources.
+    # Compares simple single values between the two resources.
     def compare_simple_values
       field_names = [:description, :publisher, :publication_year, :resource_type, :resource_type_general,
-                     :doi, :ark, :version_number, :collection_tags]
+                     :doi, :ark, :version_number]
 
       field_names.each do |field_name|
         before_value = @before.send(field_name)
@@ -51,16 +63,43 @@ class ResourceCompare
     end
 
     def compare_keywords
-      before_value = @before.keywords.join(",")
-      after_value = @after.keywords.join(",")
-      if before_value != after_value
-        @differences[:keywords] = { action: :changed, from: before_value, to: after_value }
+      changes = compare_arrays(@before.keywords, @after.keywords)
+      @differences[:keywords] = changes if changes.count > 0
+    end
+
+    def compare_collection_tags
+      changes = compare_arrays(@before.collection_tags, @after.collection_tags)
+      @differences[:collection_tags] = changes if changes.count > 0
+    end
+
+    ##
+    # Compares two arrays of simple string values.
+    # Returns an array with the changes (values removed, values added)
+    def compare_arrays(before_values, after_values)
+      changes = []
+      removed = before_values - after_values
+      added = after_values - before_values
+      common = (before_values + after_values).uniq - removed - added
+
+      before_values.each do |value|
+        changes << { action: :removed, value: value } unless value.in?(common)
       end
+
+      after_values.each do |value|
+        changes << { action: :added, value: value } unless value.in?(added)
+      end
+
+      changes
     end
 
     ##
     # Compares the titles between the two resources. This is a bit tricky because we support many
     # titles and the title itself is an object with two properties (title and title_type)
+    # Returns an array with the changes (values removed, values added, values changed)
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     def compare_titles
       changes = []
       keys_before = @before.titles.map(&:title_type)
@@ -89,10 +128,19 @@ class ResourceCompare
 
       @differences[:titles] = changes if changes.count > 0
     end
+    # rubocop:enable Metrics/PerceivedComplexity
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/MethodLength
 
     ##
     # Compares the creators between the two resources. This is a bit tricky because we support many
     # creators and the creator objects have many properties.
+    # Returns an array with the changes (values removed, values added, values changed)
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     def compare_creators
       changes = []
       keys_before = @before.creators.map(&:compare_value)
@@ -121,10 +169,19 @@ class ResourceCompare
 
       @differences[:creators] = changes if changes.count > 0
     end
+    # rubocop:enable Metrics/PerceivedComplexity
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/MethodLength
 
     ##
     # Compares the contributors between the two resources. This is a bit tricky because we support many
     # contributors and the contributor objects have many properties.
+    # Returns an array with the changes (values removed, values added, values changed)
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     def compare_contributors
       changes = []
       keys_before = @before.contributors.map(&:compare_value)
@@ -153,10 +210,9 @@ class ResourceCompare
 
       @differences[:contributors] = changes if changes.count > 0
     end
+  # rubocop:enable Metrics/PerceivedComplexity
+  # rubocop:enable Metrics/CyclomaticComplexity
+  # rubocop:enable Metrics/AbcSize
+  # rubocop:enable Metrics/MethodLength
 end
-# rubocop:enable Metrics/PerceivedComplexity
-# rubocop:enable Metrics/CyclomaticComplexity
-# rubocop:enable Metrics/AbcSize
 # rubocop:enable Metrics/ClassLength
-# rubocop:enable Metrics/MethodLength
-# rubocop:enable Metrics/BlockLength

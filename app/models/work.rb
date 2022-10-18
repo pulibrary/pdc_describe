@@ -357,9 +357,9 @@ class Work < ApplicationRecord
     WorkActivity.add_system_activity(id, comment, current_user.id, activity_type: "COMMENT")
   end
 
-  def log_changes(changes, current_user)
-    return if changes == {}
-    WorkActivity.add_system_activity(id, changes.to_json, current_user.id, activity_type: "CHANGES")
+  def log_changes(resource_compare, current_user)
+    return if resource_compare.identical?
+    WorkActivity.add_system_activity(id, resource_compare.differences.to_json, current_user.id, activity_type: "CHANGES")
   end
 
   def activities

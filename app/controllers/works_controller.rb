@@ -135,8 +135,8 @@ class WorksController < ApplicationController
     end
 
     if @work.update(updates)
-      compare = ResourceCompare.new(resource_original, resource_updated)
-      @work.log_changes(compare.differences, current_user)
+      resource_compare = ResourceCompare.new(resource_original, resource_updated)
+      @work.log_changes(resource_compare, current_user)
 
       if @wizard_mode
         redirect_to work_attachment_select_url(@work)

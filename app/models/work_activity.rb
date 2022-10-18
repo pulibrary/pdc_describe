@@ -63,27 +63,22 @@ class WorkActivity < ApplicationRecord
     end
 
     # Returns the message formatted to display changes that were logged as an activity
-    # rubocop:disable Metrics/MethodLength
     def changes_html
       text = ""
       changes = JSON.parse(message)
       changes.keys.each do |field|
         if changes[field].is_a?(Array)
-          # Multi-value change logged, process each individual entry
-          text += "<p><b>#{field}</b>:"
-          changes[field].each do |value|
-            text += change_value_html(value)
-          end
-          text += "</p>"
+          # Multi-value change, process each individual entry
+          values = changes[field].map { |value| change_value_html(value) }
+          text += "<p><b>#{field}</b>:#{values.join}</p>"
         else
-          # Single-value change logged
+          # Single-value change
           value = changes[field]
           text += "<p><b>#{field}</b>: #{change_value_html(value)}</p>"
         end
       end
       text
     end
-    # rubocop:enable Metrics/MethodLength
 
     def change_value_html(value)
       if value["action"] == "added"
@@ -109,13 +104,14 @@ class WorkActivity < ApplicationRecord
 
     def change_set_html(from, to)
       if from.blank? && to.present?
+        # value was set
         "<span>#{to}</span><br/>"
       elsif from.present? && to.present?
-        "<span style=\"text-decoration: line-through;\">#{from}</span> <span>#{to}</span><br/>"
-      elsif from.present? && to.blank?
-        "<span style=\"text-decoration: line-through;\">#{from}</span>"
+        # value was changed
+        "<span>#{to}</span><br/>"
       else
-        "<span style=\"text-decoration: line-through;\">#{from}</span> <span>#{to}</span><br/>"
+        # value was cleared
+        "<span style=\"text-decoration: line-through;\">#{from.length <= 20 ? from : (from[0..15] + '...')}</span>"
       end
     end
 end
