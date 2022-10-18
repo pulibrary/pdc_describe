@@ -44,7 +44,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
       work.pre_curation_uploads.attach(file)
       work.save
       work.reload
-      work.state = "accepted"
+      work.state = "awaiting_approval"
       work.save
 
       visit work_path(work)
@@ -58,6 +58,32 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
       expect(page).to have_content "us_covid_2019.csv"
       expect(page).to have_content ActiveStorage::Filename.new(file1.filename).to_s
       expect(page).to have_content ActiveStorage::Filename.new(file2.filename).to_s
+    end
+
+    context "when item is approved" do
+      let(:work) { FactoryBot.create(:approved_work) }
+      it "shows data from S3" do
+        stub_s3(data: s3_data)
+        visit work_path(work)
+        expect(page).to have_content file1.filename
+        expect(page).to have_content file2.filename
+
+        expect(page).not_to have_button("Edit")
+      end
+
+      context "when user is a curator" do
+        let(:user) { FactoryBot.create(:research_data_moderator) }
+        pending "shows data from S3" do
+          stub_s3(data: s3_data)
+          visit work_path(work)
+          expect(page).to have_content file1.filename
+          expect(page).to have_content file2.filename
+
+          click_on "Edit"
+          expect(page).to have_content file1.filename
+          expect(page).to have_content file2.filename
+        end
+      end
     end
   end
 end
