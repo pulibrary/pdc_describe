@@ -101,37 +101,17 @@ class WorksController < ApplicationController
     end
   end
 
-  # rubocop:disable Metrics/MethodLength
   def update
     @work = Work.find(params[:id])
-    @wizard_mode = wizard_mode?
-    collection_id_param = params[:collection_id]
-    updates = {
-      collection_id: collection_id_param,
-      resource: FormToResourceService.convert(params, @work, current_user)
-    }
-
-    if @work.approved?
-      upload_keys = work_params[:deleted_uploads] || []
-      deleted_uploads = WorkUploadsEditService.find_post_curation_uploads(work: @work, upload_keys: upload_keys)
-
-      return head(:forbidden) unless deleted_uploads.empty?
+    if current_user.blank? || !@work.editable_by?(current_user)
+      Rails.logger.warn("Unauthorized attempt to update work #{@work.id} by user #{current_user.uid}")
+      redirect_to root_path
+    elsif @work.approved? && @work.submitted_by?(current_user)
+      redirect_to root_path, notice: I18n.t("works.approved.uneditable")
     else
-      @work = WorkUploadsEditService.update_precurated_file_list(@work, work_params)
-    end
-
-    if @work.update(updates)
-      if @wizard_mode
-        redirect_to work_attachment_select_url(@work)
-      else
-        redirect_to work_url(@work), notice: "Work was successfully updated."
-      end
-    else
-      @uploads = @work.uploads
-      render :edit, status: :unprocessable_entity
+      update_work
     end
   end
-  # rubocop:enable Metrics/MethodLength
 
   # Prompt to select how to submit their files
   def attachment_select
