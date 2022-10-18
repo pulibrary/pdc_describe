@@ -26,7 +26,7 @@ describe NotificationMailer, type: :mailer do
       expect(message.body.parts.first.content_type).to eq("text/plain; charset=UTF-8")
       expect(message.body.parts.last).to be_an(Mail::Part)
       expect(message.body.parts.last.content_type).to eq("text/html; charset=UTF-8")
-      expect(message.body.encoded).to include("Hello #{user.uid},")
+      expect(message.body.encoded).to include("Hello #{user.display_name},")
       expect(message.body.encoded).to include(work_activity.message)
       expect(message.body.encoded).to include("To view the notification, please browse to http://www.example.com/works/#{work.id}.")
     end
