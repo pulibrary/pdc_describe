@@ -41,7 +41,7 @@
 
 <div>
   <% if @work.draft?  || @work.awaiting_approval? || current_user.has_role?(:collection_admin, @work.collection) %>
-    <%= link_to("Edit", edit_work_path(@work, wizard: @work.draft? ? true : nil), class: "btn btn-primary") %>
+    <%= link_to("Edit", edit_work_path(@work, wizard: @work.draft?), class: "btn btn-primary") %>
   <% end %>
   <% if @work.awaiting_approval? && current_user.has_role?(:collection_admin, @work.collection) %>
     <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post) %>
