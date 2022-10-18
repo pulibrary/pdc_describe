@@ -38,6 +38,8 @@ class FormToResourceService
           resource.ark = params["ark"] if params["ark"].present?
           resource.version_number = params["version_number"] if params["version_number"].present?
           resource.collection_tags = params["collection_tags"].split(",").map(&:strip) if params["collection_tags"]
+          resource.resource_type = params["resource_type"] if params["resource_type"]
+          resource.resource_type_general = params["resource_type_general"] if params["resource_type_general"]
         end
         resource
       end

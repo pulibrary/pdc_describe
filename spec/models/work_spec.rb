@@ -812,4 +812,25 @@ RSpec.describe Work, type: :model do
       expect(persisted).to eq(user.uid)
     end
   end
+
+  describe "resource=" do
+    let(:resource_json) do
+      '{"titles":[{"title":"Planet of the Blue Rain","title_type":null},' \
+        '{"title":"the subtitle","title_type":"Subtitle"}],' \
+        '"description":"a new description",' \
+        '"collection_tags":["new-colletion-tag1","new-collection-tag2"],' \
+        '"creators":[{"value":"Morrison, Toni","name_type":"Personal","given_name":"Toni","family_name":"Morrison",' \
+        '"identifier":null,"affiliations":[],"sequence":1}],' \
+        '"resource_type":"digitized video",' \
+        '"resource_type_general":"AUDIOVISUAL",' \
+        '"publisher":"Princeton University","publication_year":2022,"ark":"new-ark","doi":"new-doi",' \
+        '"rights":{"identifier":"CC BY","uri":"https://creativecommons.org/licenses/by/4.0/",' \
+        '"name":"Creative Commons Attribution 4.0 International"},' \
+        '"version_number":"1","keywords":[],"contributors":[]}'
+    end
+    it "can change the entire resource" do
+      work.resource = PDCMetadata::Resource.new_from_json(resource_json)
+      expect(work.resource.to_json).to eq(resource_json)
+    end
+  end
 end

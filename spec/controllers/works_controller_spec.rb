@@ -1037,7 +1037,9 @@ RSpec.describe WorksController do
         sequence_2: "1",
         orcid_2: "1234-1234-1234-1234",
         creator_count: "1",
-        new_creator_count: "1"
+        new_creator_count: "1",
+        rights_identifier: "CC BY",
+        description: "a new description"
       }
     end
 
@@ -1083,6 +1085,9 @@ RSpec.describe WorksController do
             new_params = params.merge(doi: "new-doi")
                                .merge(ark: "new-ark")
                                .merge(collection_tags: "new-colletion-tag1, new-collection-tag2")
+                               .merge(resource_type: "digitized video")
+                               .merge(resource_type_general: Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL.key)
+
             patch :update, params: new_params
           end
 
@@ -1090,6 +1095,8 @@ RSpec.describe WorksController do
             expect(work.reload.doi).to eq("new-doi")
             expect(work.ark).to eq("new-ark")
             expect(work.resource.collection_tags).to eq(["new-colletion-tag1", "new-collection-tag2"])
+            expect(work.resource_type).to eq("digitized video")
+            expect(work.resource_type_general.to_sym).to eq(::Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL.key)
           end
         end
 
@@ -1122,6 +1129,52 @@ RSpec.describe WorksController do
           it "renders JSON-serialized error messages with a 422 response status code" do
             expect(response.code).to eq("422")
           end
+        end
+      end
+    end
+
+    context "the work is approved" do
+      let(:work) { FactoryBot.create :approved_work }
+      let(:new_params) { params.merge(doi: "new-doi").merge(ark: "new-ark").merge(collection_tags: "new-colletion-tag1, new-collection-tag2") }
+
+      context "the submitter" do
+        let(:user) { work.created_by_user }
+
+        it "redirects the home page on edit with informational message" do
+          sign_in user
+          patch :update, params: new_params
+          expect(response).to redirect_to(root_path)
+          expect(controller.flash[:notice]).to eq("This work has been approved.  Edits are no longer available.")
+        end
+      end
+      context "another user" do
+        let(:other_user) { FactoryBot.create(:user) }
+        it "redirects the home page on edit" do
+          sign_in other_user
+          patch :update, params: new_params
+          expect(response).to redirect_to(root_path)
+        end
+      end
+      context "a curator", mock_ezid_api: true do
+        let(:user) { FactoryBot.create(:research_data_moderator) }
+        it "renders the edit page on edit" do
+          stub_s3
+          sign_in user
+          patch :update, params: new_params
+          expect(work.reload.doi).to eq("new-doi")
+          expect(work.ark).to eq("new-ark")
+          expect(work.resource.collection_tags).to eq(["new-colletion-tag1", "new-collection-tag2"])
+        end
+      end
+      context "a super admin", mock_ezid_api: true do
+        let(:user) { FactoryBot.create(:super_admin_user) }
+        it "renders the edit page on edit" do
+          stub_s3
+          sign_in user
+          patch :update, params: new_params
+          expect(work.reload.doi).to eq("new-doi")
+          expect(work.ark).to eq("new-ark")
+          expect(work.resource.collection_tags).to eq(["new-colletion-tag1", "new-collection-tag2"])
         end
       end
     end

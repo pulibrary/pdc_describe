@@ -284,5 +284,40 @@ class WorksController < ApplicationController
     def wizard_mode?
       params[:wizard] == "true"
     end
+
+    def update_work
+      @wizard_mode = wizard_mode?
+
+      if @work.approved?
+        upload_keys = work_params[:deleted_uploads] || []
+        deleted_uploads = WorkUploadsEditService.find_post_curation_uploads(work: @work, upload_keys: upload_keys)
+
+        return head(:forbidden) unless deleted_uploads.empty?
+      else
+        @work = WorkUploadsEditService.update_precurated_file_list(@work, work_params)
+      end
+
+      process_updates
+    end
+
+    def update_params
+      {
+        collection_id: params[:collection_id],
+        resource: FormToResourceService.convert(params, @work, current_user)
+      }
+    end
+
+    def process_updates
+      if @work.update(update_params)
+        if @wizard_mode
+          redirect_to work_attachment_select_url(@work)
+        else
+          redirect_to work_url(@work), notice: "Work was successfully updated."
+        end
+      else
+        @uploads = @work.uploads
+        render :edit, status: :unprocessable_entity
+      end
+    end
 end
 # rubocop:enable Metrics/ClassLength

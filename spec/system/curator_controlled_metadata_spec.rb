@@ -43,9 +43,11 @@ RSpec.describe "Curator Controlled metadata tab", type: :system do
       expect(page).to have_css("#ark.input-text-long")
       fill_in "ark", with: "http://arks.princeton.edu/ark:/88435/dsp01hx11xj13h"
       fill_in "collection_tags", with: "ABC, 123"
+      find("#resource_type_general").find(:xpath, "option[1]").select_option
       click_on "Save Work"
       expect(draft_work.reload.ark).to eq "ark:/88435/dsp01hx11xj13h"
       expect(draft_work.resource.collection_tags).to eq(["ABC", "123"])
+      expect(draft_work.resource.resource_type_general).to eq(:AUDIOVISUAL)
     end
   end
 
@@ -56,9 +58,11 @@ RSpec.describe "Curator Controlled metadata tab", type: :system do
       expect(page).to have_css("#ark.input-text-long")
       fill_in "ark", with: "http://arks.princeton.edu/ark:/88435/dsp01hx11xj13h"
       fill_in "collection_tags", with: "ABC, 123"
+      find("#resource_type_general").find(:xpath, "option[1]").select_option
       click_on "Save Work"
       expect(draft_work.reload.ark).to eq "ark:/88435/dsp01hx11xj13h"
       expect(draft_work.resource.collection_tags).to eq(["ABC", "123"])
+      expect(draft_work.resource.resource_type_general).to eq(:AUDIOVISUAL)
     end
   end
 end

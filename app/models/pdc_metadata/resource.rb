@@ -91,6 +91,8 @@ module PDCMetadata
           resource.ark = hash["ark"]
           resource.version_number = hash["version_number"]
           resource.collection_tags = collection_tags(hash["collection_tags"])
+          resource.resource_type = hash["resource_type"]
+          resource.resource_type_general = hash["resource_type_general"]&.to_sym
           resource
         end
 
