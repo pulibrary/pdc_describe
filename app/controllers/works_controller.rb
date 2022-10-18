@@ -101,7 +101,6 @@ class WorksController < ApplicationController
     end
   end
 
-<<<<<<< HEAD
   def update
     @work = Work.find(params[:id])
     if current_user.blank? || !@work.editable_by?(current_user)
@@ -109,50 +108,10 @@ class WorksController < ApplicationController
       redirect_to root_path
     elsif @work.approved? && @work.submitted_by?(current_user)
       redirect_to root_path, notice: I18n.t("works.approved.uneditable")
-=======
-  # rubocop:disable Metrics/MethodLength
-  # rubocop:disable Metrics/AbcSize
-  def update
-    @work = Work.find(params[:id])
-    @wizard_mode = wizard_mode?
-
-    collection_id_param = params[:collection_id]
-
-    resource_original = @work.resource
-    resource_updated = FormToResourceService.convert(params, @work, current_user)
-    updates = {
-      collection_id: collection_id_param,
-      resource: resource_updated
-    }
-
-    if @work.approved?
-      upload_keys = work_params[:deleted_uploads] || []
-      deleted_uploads = WorkUploadsEditService.find_post_curation_uploads(work: @work, upload_keys: upload_keys)
-
-      return head(:forbidden) unless deleted_uploads.empty?
-    else
-      @work = WorkUploadsEditService.update_precurated_file_list(@work, work_params)
-    end
-
-    if @work.update(updates)
-      resource_compare = ResourceCompare.new(resource_original, resource_updated)
-      @work.log_changes(resource_compare, current_user)
-
-      if @wizard_mode
-        redirect_to work_attachment_select_url(@work)
-      else
-        redirect_to work_url(@work), notice: "Work was successfully updated."
-      end
->>>>>>> Fine tuned some of the code.
     else
       update_work
     end
   end
-<<<<<<< HEAD
-=======
-  # rubocop:enable Metrics/MethodLength
-  # rubocop:enable Metrics/AbcSize
->>>>>>> Fine tuned some of the code.
 
   # Prompt to select how to submit their files
   def attachment_select
@@ -352,9 +311,8 @@ class WorksController < ApplicationController
       resource_before = @work.resource
       if @work.update(update_params)
 
-        resource_compare = ResourceCompare.new(resource_before, update_params.resource)
-        changes = resource_compare.compare()
-        @work.log_changes(changes, current_user)
+        resource_compare = ResourceCompare.new(resource_before, update_params[:resource])
+        @work.log_changes(resource_compare, current_user)
 
         if @wizard_mode
           redirect_to work_attachment_select_url(@work)
