@@ -105,9 +105,7 @@ class WorksController < ApplicationController
   def update
     @work = Work.find(params[:id])
     @wizard_mode = wizard_mode?
-
     collection_id_param = params[:collection_id]
-
     updates = {
       collection_id: collection_id_param,
       resource: FormToResourceService.convert(params, @work, current_user)

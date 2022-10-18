@@ -83,4 +83,18 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       expect(ActiveStorage::PurgeJob).not_to have_received(:new)
     end
   end
+
+  context "when editing an existing draft work with related objects" do
+    let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+    let(:user) { work.created_by_user }
+
+    it "allows the user to edit existing related objects" do
+      sign_in user
+      visit edit_work_path(work)
+      click_on "Additional Metadata"
+      expect(page.find("#related_identifier_1").value).to eq "https://www.biorxiv.org/content/10.1101/545517v1"
+      expect(page.find("#related_identifier_type_1").value).to have_content "arXiv"
+      expect(page.find("#relation_type_1").value).to have_content "IsCitedBy"
+    end
+  end
 end

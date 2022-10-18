@@ -3,7 +3,30 @@
   <b>Related Objects (i.e., published dependencies)</b>
 </div>
 
-  <div class="related_identifier">
-    Related Identifier: <span class="text-muted field-hint">(Example: URI for a related publication or resource)</span><br>
-    <input type="text" id="related_identifier" name="related_identifier" class="input-text-long" value="<%= @work.resource.related_objects %>" />
+  <div class="related-objects">
+    <table id="related-objects-table">
+      <tbody id="related-objects-table-body" style="">
+        <tr class="header-row">
+          <th>Related Identifier (Example: URI for a related publication or resource)</th>
+          <th>Related Identifier Type</th>
+          <th>Relation Type</th>
+        </tr>
+      </tbody>
+    </table>
   </div>
+
+<% if @work %>
+  <% @work.resource.related_objects.each_with_index do |related_object, i| %>
+  <span class="hidden related-object-data"
+    data-num="<%= i + 1 %>"
+    data-related-identifier="<%= related_object.related_identifier %>"
+    data-related-identifier-type="<%= related_object.related_identifier_type %>"
+    data-relation-type="<%= related_object.relation_type %>"
+    ></span>
+  <% end %>
+<% end %>
+
+<!-- Let the user add new related objects -->
+<div>
+  <%= link_to "Add Another Related Object", "#", id: "btn-add-related-object", class: "btn btn-secondary" %>
+</div>

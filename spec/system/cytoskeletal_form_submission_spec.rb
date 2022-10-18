@@ -12,6 +12,8 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.34770/r2dz-ys12" }
   let(:related_identifier) { "https://www.biorxiv.org/content/10.1101/545517v1" }
+  let(:related_identifier_type) { "arXiv" }
+  let(:relation_type) { "isCitedBy" }
 
   before do
     page.driver.browser.manage.window.resize_to(2000, 2000)
@@ -73,17 +75,19 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       fill_in "publication_year", with: 2019
       find("#collection_id").find(:xpath, "option[1]").select_option
       click_on "v-pills-additional-tab"
-      # byebug
-
-      # fill_in "related_identifier_1", with: related_identifier
+      fill_in "related_identifier_1", with: related_identifier
+      fill_in "related_identifier_type_1", with: related_identifier_type
+      fill_in "relation_type_1", with: relation_type
       click_on "v-pills-curator-controlled-tab"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
-      # byebug
       click_on "Create"
       expect(page).to have_content "marked as draft"
       cytoskeletal_work = Work.last
       expect(cytoskeletal_work.title).to eq title
+      expect(cytoskeletal_work.resource.related_objects.first.related_identifier).to eq related_identifier
+      expect(cytoskeletal_work.resource.related_objects.first.related_identifier_type).to eq related_identifier_type
+      expect(cytoskeletal_work.resource.related_objects.first.relation_type).to eq relation_type
     end
   end
 end

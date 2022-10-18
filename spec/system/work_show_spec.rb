@@ -2,8 +2,8 @@
 require "rails_helper"
 
 RSpec.describe "Creating and updating works", type: :system, js: true do
-  let(:user) { FactoryBot.create(:princeton_submitter) }
   let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+  let(:user) { work.created_by_user }
 
   before do
     stub_s3
