@@ -184,8 +184,7 @@ RSpec.describe "Creating and updating works", type: :system do
       click_on "Add Another Contributor"
       fill_in "contributor_given_name_2", with: "Simon"
       fill_in "contributor_family_name_2", with: "Gallup"
-
-      contributor_text = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
+      contributor_text = page.find("#contributors-table").find_all("tr").map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
       expect(contributor_text).to eq("Robert Smith  Simon Gallup")
 
       # drag the first contributor to the second contributor
@@ -193,14 +192,13 @@ RSpec.describe "Creating and updating works", type: :system do
       target = page.all(".bi-arrow-down-up")[1].native
       builder = page.driver.browser.action
       builder.drag_and_drop(source, target).perform
-      contributor_text_after = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
-
+      contributor_text_after = page.find("#contributors-table").find_all("tr").map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
       # This is really strange, but my local machine likes to drag from bottom to top and CircleCI likes to drag
       #  from top to bottom.  So I am adding in trying the other direction when the first direction fails.
       # This will make the test pass more consistantly for everyone (I hope)
       if contributor_text_after != "Simon Gallup  Robert Smith"
         builder.drag_and_drop(target, source).perform
-        contributor_text_after = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
+        contributor_text_after = page.find("#contributors-table").find_all("tr").map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
       end
       expect(contributor_text_after).to eq("Simon Gallup  Robert Smith")
       click_on "Save Work"
