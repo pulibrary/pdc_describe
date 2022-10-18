@@ -109,7 +109,7 @@ class WorkActivity < ApplicationRecord
       elsif from.present? && to.present?
         # value was changed
         "<span>#{to}</span><br/>"
-      else
+      elsif from.present? && to.blank?
         # value was cleared
         "<span style=\"text-decoration: line-through;\">#{from.length <= 20 ? from : (from[0..15] + '...')}</span>"
       end
