@@ -1,8 +1,3 @@
-// This file was created by running spec/system/cytoskeletal_form_submission_spec.rb and grabbing the json metadata of object created
-// It was then edited by hand to figure out why I'm getting an error when I try to use it to make a new object for a different test.
-
-
-
 {
     "titles": [
         {
