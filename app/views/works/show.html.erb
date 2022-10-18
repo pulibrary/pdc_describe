@@ -105,7 +105,7 @@
 
   <% if @work.resource.related_objects.count > 0 %>
     <p>Related Objects:
-      <% @work.resource.related_objects.each_with_index do |related_object, ix| %>
+      <% @work.resource.related_objects.each do |related_object| %>
         <span class="related_object"><%= related_object.relation_type %>  <%= link_to(related_object.related_identifier, related_object.related_identifier) %></span>
       <% end %>
     </p>
