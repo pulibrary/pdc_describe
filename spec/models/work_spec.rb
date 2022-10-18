@@ -826,7 +826,7 @@ RSpec.describe Work, type: :model do
         '"publisher":"Princeton University","publication_year":2022,"ark":"new-ark","doi":"new-doi",' \
         '"rights":{"identifier":"CC BY","uri":"https://creativecommons.org/licenses/by/4.0/",' \
         '"name":"Creative Commons Attribution 4.0 International"},' \
-        '"version_number":"1","keywords":[],"contributors":[]}'
+        '"version_number":"1","related_objects":[],"keywords":[],"contributors":[]}'
     end
     it "can change the entire resource" do
       work.resource = PDCMetadata::Resource.new_from_json(resource_json)
