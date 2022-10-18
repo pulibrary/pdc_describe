@@ -87,7 +87,7 @@ FactoryBot.define do
     factory :distinct_cytoskeletal_proteins_work do
       collection { Collection.research_data }
       resource do
-        json_from_spec = File.read(Rails.root.join("spec", "fixtures", "cytoskeletal_metadata_edited.json"))
+        json_from_spec = File.read(Rails.root.join("spec", "fixtures", "cytoskeletal_metadata.json"))
         PDCMetadata::Resource.new_from_json(json_from_spec)
       end
       created_by_user_id { FactoryBot.create(:user).id }

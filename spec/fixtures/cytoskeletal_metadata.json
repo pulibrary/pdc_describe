@@ -1,4 +1,8 @@
 // This file was created by running spec/system/cytoskeletal_form_submission_spec.rb and grabbing the json metadata of object created
+// It was then edited by hand to figure out why I'm getting an error when I try to use it to make a new object for a different test.
+
+
+
 {
     "titles": [
         {
@@ -148,6 +152,13 @@
         "name": "Creative Commons Attribution 4.0 International"
     },
     "version_number": "1",
+    "related_objects": [
+        {
+            "related_identifier": "https://www.biorxiv.org/content/10.1101/545517v1",
+            "related_identifier_type": "arXiv",
+            "relation_type": "IsCitedBy"
+        }
+    ],
     "keywords": [],
     "contributors": []
 }
