@@ -311,7 +311,7 @@ class WorksController < ApplicationController
       resource_before = @work.resource
       if @work.update(update_params)
 
-        resource_compare = ResourceCompare.new(resource_before, update_params[:resource])
+        resource_compare = ResourceCompareService.new(resource_before, update_params[:resource])
         @work.log_changes(resource_compare, current_user)
 
         if @wizard_mode

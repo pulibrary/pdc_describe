@@ -13,7 +13,7 @@
 # The `action` indicates whether a value changed, was added, or deleted.
 #
 # rubocop:disable Metrics/ClassLength
-class ResourceCompare
+class ResourceCompareService
   attr_reader :differences
 
   def initialize(before, after)
@@ -86,7 +86,7 @@ class ResourceCompare
       end
 
       after_values.each do |value|
-        changes << { action: :added, value: value } unless value.in?(added)
+        changes << { action: :added, value: value } if value.in?(added)
       end
 
       changes
