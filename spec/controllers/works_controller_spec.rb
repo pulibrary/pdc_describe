@@ -1085,6 +1085,9 @@ RSpec.describe WorksController do
             new_params = params.merge(doi: "new-doi")
                                .merge(ark: "new-ark")
                                .merge(collection_tags: "new-colletion-tag1, new-collection-tag2")
+                               .merge(resource_type: "digitized video")
+                               .merge(resource_type_general: Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL.key)
+
             patch :update, params: new_params
           end
 
@@ -1092,6 +1095,8 @@ RSpec.describe WorksController do
             expect(work.reload.doi).to eq("new-doi")
             expect(work.ark).to eq("new-ark")
             expect(work.resource.collection_tags).to eq(["new-colletion-tag1", "new-collection-tag2"])
+            expect(work.resource_type).to eq("digitized video")
+            expect(work.resource_type_general.to_sym).to eq(::Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL.key)
           end
         end
 
