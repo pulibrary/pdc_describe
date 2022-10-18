@@ -76,7 +76,7 @@ RSpec.describe WorksController do
         "family_name_1" => "Smith",
         "creator_count" => "1",
         "resource_type" => "Dataset",
-        "resource_type_general" => "dataset"
+        "resource_type_general" => "DATASET"
       }
       sign_in user
       post :update, params: params
@@ -132,7 +132,9 @@ RSpec.describe WorksController do
         "given_name_2" => "Ada",
         "family_name_2" => "Lovelace",
         "sequence_2" => "2",
-        "creator_count" => "2"
+        "creator_count" => "2",
+        "resource_type" => "Dataset",
+        "resource_type_general" => "DATASET"
       }
       sign_in user
       post :update, params: params
@@ -168,7 +170,9 @@ RSpec.describe WorksController do
         "given_name_2" => "Ada",
         "family_name_2" => "Lovelace",
         "sequence_2" => "1",
-        "creator_count" => "2"
+        "creator_count" => "2",
+        "resource_type" => "Dataset",
+        "resource_type_general" => "DATASET"
       }
 
       post :update, params: params_reordered
