@@ -84,7 +84,7 @@ RSpec.describe Work, type: :model do
     it "has related objects" do
       expect(work.resource.related_objects.first.related_identifier).to eq "https://www.biorxiv.org/content/10.1101/545517v1"
       expect(work.resource.related_objects.first.related_identifier_type).to eq "arXiv"
-      expect(work.resource.related_objects.first.relation_type).to eq "IsCitedBy"
+      expect(work.resource.related_objects.first.relation_type).to eq "isCitedBy"
     end
   end
 

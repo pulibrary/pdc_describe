@@ -151,7 +151,7 @@
         {
             "related_identifier": "https://www.biorxiv.org/content/10.1101/545517v1",
             "related_identifier_type": "arXiv",
-            "relation_type": "IsCitedBy"
+            "relation_type": "isCitedBy"
         }
     ],
     "keywords": [],
