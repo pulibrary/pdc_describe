@@ -12,8 +12,8 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.34770/r2dz-ys12" }
   let(:related_identifier) { "https://www.biorxiv.org/content/10.1101/545517v1" }
-  let(:related_identifier_type) { "arXiv" }
-  let(:relation_type) { "isCitedBy" }
+  let(:related_identifier_type) { "ARXIV" }
+  let(:relation_type) { "IS_CITED_BY" }
 
   before do
     page.driver.browser.manage.window.resize_to(2000, 2000)
@@ -74,10 +74,14 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2019
       find("#collection_id").find(:xpath, "option[1]").select_option
+
+      # Select Additional Metadata Tab
       click_on "v-pills-additional-tab"
       fill_in "related_identifier_1", with: related_identifier
-      fill_in "related_identifier_type_1", with: related_identifier_type
-      fill_in "relation_type_1", with: relation_type
+      find("#related_identifier_type_1").find(:xpath, "option[@value='#{related_identifier_type}']").select_option
+      find("#relation_type_1").find(:xpath, "option[@value='#{relation_type}']").select_option
+
+      # Select Curator Controlled Tab
       click_on "v-pills-curator-controlled-tab"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
