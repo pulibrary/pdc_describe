@@ -26,8 +26,8 @@ RSpec.describe "Creating and updating works", type: :system do
     within("#creator_row_1") do
       fill_in "orcid_1", with: "0000-0000-1111-2222"
     end
-    expect(page.find_by_id("given_name_1").value).to eq "Sally"
-    expect(page.find_by_id("family_name_1").value).to eq "Smith"
+    expect(page).to have_field("given_name_1", with: "Sally")
+    expect(page).to have_field("family_name_1", with: "Smith")
   end
 
   it "Renders ORCID links for creators", js: true do
