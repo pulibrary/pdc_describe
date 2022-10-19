@@ -308,7 +308,12 @@ class WorksController < ApplicationController
     end
 
     def process_updates
+      resource_before = @work.resource
       if @work.update(update_params)
+
+        resource_compare = ResourceCompareService.new(resource_before, update_params[:resource])
+        @work.log_changes(resource_compare, current_user)
+
         if @wizard_mode
           redirect_to work_attachment_select_url(@work)
         else

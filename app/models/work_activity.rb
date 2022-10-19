@@ -40,15 +40,71 @@ class WorkActivity < ApplicationRecord
   end
 
   def message_html
-    # convert user references to user links
-    text = message.gsub(USER_REFERENCE) do |at_uid|
-      uid = at_uid[1..-1]
-      user = User.where(uid: uid).first
-      user_info = user&.display_name_safe || uid
-      "<a class='comment-user-link' title='#{user_info}' href='{USER-PATH-PLACEHOLDER}/#{uid}'>#{at_uid}</a>"
+    if activity_type == "CHANGES"
+      changes_html
+    else
+      comment_html
     end
-    # allow ``` for code blocks (Kramdown only supports ~~~)
-    text = text.gsub("```", "~~~")
-    Kramdown::Document.new(text).to_html
   end
+
+  private
+
+    def comment_html
+      # convert user references to user links
+      text = message.gsub(USER_REFERENCE) do |at_uid|
+        uid = at_uid[1..-1]
+        user = User.where(uid: uid).first
+        user_info = user&.display_name_safe || uid
+        "<a class='comment-user-link' title='#{user_info}' href='{USER-PATH-PLACEHOLDER}/#{uid}'>#{at_uid}</a>"
+      end
+      # allow ``` for code blocks (Kramdown only supports ~~~)
+      text = text.gsub("```", "~~~")
+      Kramdown::Document.new(text).to_html
+    end
+
+    # Returns the message formatted to display changes that were logged as an activity
+    def changes_html
+      text = ""
+      changes = JSON.parse(message)
+      changes.keys.each do |field|
+        values = changes[field].map { |value| change_value_html(value) }.join
+        text += "<p><b>#{field}</b>: #{values}</p>"
+      end
+      text
+    end
+
+    def change_value_html(value)
+      if value["action"] == "added"
+        change_added_html(value["value"])
+      elsif value["action"] == "removed"
+        change_removed_html(value["value"])
+      else
+        change_set_html(value["from"], value["to"])
+      end
+    end
+
+    def change_added_html(value)
+      <<-HTML
+        <i>(added)</i> <span>#{value}</span><br/>
+      HTML
+    end
+
+    def change_removed_html(value)
+      <<-HTML
+        <i>(removed)</i> <span>#{value}</span><br/>
+      HTML
+    end
+
+    def change_set_html(from, to)
+      if from.blank? && to.present?
+        # value was set
+        "<span>#{to}</span><br/>"
+      elsif from.present? && to.present?
+        # value was changed
+        "<span>#{to}</span><br/>"
+      elsif from.present? && to.blank?
+        # value was cleared
+        "<span style=\"text-decoration: line-through;\">#{from.length <= 20 ? from : (from[0..15] + '...')}</span>"
+      end
+    end
 end
