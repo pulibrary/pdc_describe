@@ -15,8 +15,6 @@ class FormToResourceService
       resource.publication_year = params["publication_year"] if params["publication_year"].present?
       resource.rights = PDCMetadata::Rights.find(params["rights_identifier"])
       resource.keywords = (params["keywords"] || "").split(",").map(&:strip)
-      resource.resource_type = params["resource_type"]
-      resource.resource_type_general = params["resource_type_general"]
 
       # Process the titles
       resource = process_titles(params, resource)

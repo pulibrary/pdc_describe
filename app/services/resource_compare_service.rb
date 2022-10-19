@@ -6,9 +6,12 @@
 # If there are differences the `differences` hash has the following structure:
 #
 # ```
-#    :field_name = {action:, from:, to:, value: }     for single-value fields (e.g. description)
-#    :field_name = [{action:, from: to:, value: }]    for multi-value fields (e.g. keywords)
+#    :field_name = [{action:, from: to:, value: }]
 # ```
+#
+# The array for ``:field_name` lists all the changes that happened to the field.
+# For single-value fields is always a single element array, for multi-value fields
+# in can contain multiple elements.
 #
 # The `action` indicates whether a value changed, was added, or deleted.
 #
@@ -49,7 +52,7 @@ class ResourceCompareService
         before_value = @before.send(field_name)
         after_value = @after.send(field_name)
         if before_value != after_value
-          @differences[field_name] = { action: :changed, from: before_value, to: after_value }
+          @differences[field_name] = [{ action: :changed, from: before_value, to: after_value }]
         end
       end
     end
@@ -58,7 +61,7 @@ class ResourceCompareService
       before_value = @before.rights&.name
       after_value = @after.rights&.name
       if before_value != after_value
-        @differences[:rights] = { action: :changed, from: before_value, to: after_value }
+        @differences[:rights] = [{ action: :changed, from: before_value, to: after_value }]
       end
     end
 

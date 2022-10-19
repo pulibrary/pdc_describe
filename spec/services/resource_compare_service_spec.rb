@@ -15,8 +15,8 @@ describe ResourceCompareService do
     work2 .resource.description = "hello"
     compare = described_class.new(work1.resource, work2.resource)
     expect(compare.identical?).to be false
-    expect(compare.differences[:description][:action]).to be :changed
-    expect(compare.differences[:description][:to]).to be "hello"
+    expect(compare.differences[:description].first[:action]).to be :changed
+    expect(compare.differences[:description].first[:to]).to be "hello"
   end
 
   it "detects changes in multi-value properties" do
