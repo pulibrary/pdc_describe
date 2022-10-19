@@ -79,6 +79,15 @@ RSpec.describe Work, type: :model do
     end
   end
 
+  context "with related objects" do
+    subject(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+    it "has related objects" do
+      expect(work.resource.related_objects.first.related_identifier).to eq "https://www.biorxiv.org/content/10.1101/545517v1"
+      expect(work.resource.related_objects.first.related_identifier_type).to eq "arXiv"
+      expect(work.resource.related_objects.first.relation_type).to eq "isCitedBy"
+    end
+  end
+
   context "with a persisted dataset work" do
     subject(:work) { FactoryBot.create(:draft_work) }
 
@@ -868,7 +877,7 @@ RSpec.describe Work, type: :model do
         '"publisher":"Princeton University","publication_year":2022,"ark":"new-ark","doi":"new-doi",' \
         '"rights":{"identifier":"CC BY","uri":"https://creativecommons.org/licenses/by/4.0/",' \
         '"name":"Creative Commons Attribution 4.0 International"},' \
-        '"version_number":"1","keywords":[],"contributors":[]}'
+        '"version_number":"1","related_objects":[],"keywords":[],"contributors":[]}'
     end
     it "can change the entire resource" do
       work.resource = PDCMetadata::Resource.new_from_json(resource_json)

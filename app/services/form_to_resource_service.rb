@@ -10,6 +10,7 @@ class FormToResourceService
     # @return [PDCMetadata::Resource] Fully formed resource containing updates from the user
     def convert(params, work, current_user)
       resource = process_curator_controlled(params: params, work: work, current_user: current_user)
+      resource = process_related_objects(params, resource)
       resource.description = params["description"]
       resource.publisher = params["publisher"] if params["publisher"].present?
       resource.publication_year = params["publication_year"] if params["publication_year"].present?
@@ -72,6 +73,19 @@ class FormToResourceService
         (1..params["creator_count"].to_i).each do |i|
           creator = new_creator(params["given_name_#{i}"], params["family_name_#{i}"], params["orcid_#{i}"], params["sequence_#{i}"])
           resource.creators << creator unless creator.nil?
+        end
+        resource
+      end
+
+      ## TODO: Do the right thing with blank form entries
+      def process_related_objects(params, resource)
+        (1..params["related_object_count"].to_i).each do |i|
+          related_object = PDCMetadata::RelatedObject.new(
+                            related_identifier: params["related_identifier_#{i}"],
+                            related_identifier_type: params["related_identifier_type_#{i}"],
+                            relation_type: params["relation_type_#{i}"]
+                          )
+          resource.related_objects << related_object
         end
         resource
       end
