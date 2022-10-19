@@ -13,7 +13,7 @@ Cataloging application for PDC content and more
 ## Local development
 
 ### Setup
-1. Check out code
+1. Check out code and `cd`
 1. Install tool dependencies
   1. [Lando](https://docs.lando.dev/getting-started/installation.html)
   1. [asdf](https://asdf-vm.com/guide/getting-started.html#_2-download-asdf)
