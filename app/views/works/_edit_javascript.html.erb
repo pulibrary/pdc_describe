@@ -393,9 +393,7 @@
       addRelatedObjectHtml(num, "", "", "");
     } else {
       // Add existing related objects for editing
-      var related_objects = $(".related-object-data");
-      for(i = 0; i < related_objects.length; i++) {
-        var related_object = related_objects[i];
+      for (const related_object of $(".related-object-data")) {
         const {num, relatedIdentifier, relatedIdentifierType, relationType} = related_object.dataset
         addRelatedObjectHtml(num, relatedIdentifier, relatedIdentifierType, relationType);
       }
