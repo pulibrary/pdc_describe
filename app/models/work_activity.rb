@@ -67,9 +67,7 @@ class WorkActivity < ApplicationRecord
       text = ""
       changes = JSON.parse(message)
       changes.keys.each do |field|
-        # changes[field] can be a hash (for single-value fields) or
-        # an array of hashes (for multi-value fields) - hence the call to Array.wrap()
-        values = Array.wrap(changes[field]).map { |value| change_value_html(value) }.join
+        values = changes[field].map { |value| change_value_html(value) }.join
         text += "<p><b>#{field}</b>: #{values}</p>"
       end
       text
