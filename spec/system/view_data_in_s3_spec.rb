@@ -63,11 +63,11 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
     context "when item is approved" do
       let(:work) { FactoryBot.create(:approved_work) }
       it "shows data from S3" do
-        stub_s3(data: s3_data)
-        visit work_path(work)
-        expect(page).to have_content file1.filename
-        expect(page).to have_content file2.filename
+        stub_work_s3_requests(work: work, file_name: file1.filename)
 
+        visit work_path(work)
+
+        expect(page).to have_content file1.filename
         expect(page).not_to have_button("Edit")
       end
 

@@ -514,19 +514,23 @@ RSpec.describe WorksController do
         end
         let(:s3_client) { instance_double(Aws::S3::Client) }
         let(:s3_object) { double }
+        let(:uploaded_file) { fixture_file_upload("us_covid_2019.csv", "text/csv") }
 
         before do
           # Account for files in S3 added outside of ActiveStorage
           allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
           allow(s3_query_service_double).to receive(:bucket_name).and_return("example-bucket")
           allow(s3_client).to receive(:delete_object)
+          allow(s3_client).to receive(:put_object)
+          allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "#{work.s3_object_key}/us_covid_2019.csv").and_return(true)
+          allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key.to_s)
           allow(s3_query_service_double).to receive(:client).and_return(s3_client)
           allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
 
           stub_request(:put, "https://api.datacite.org/dois/#{work.doi}").to_return(status: 200, body: "", headers: {})
+          work.pre_curation_uploads.attach(uploaded_file)
           work.approve!(user)
 
-          work.attach_s3_resources
           sign_in user
         end
 

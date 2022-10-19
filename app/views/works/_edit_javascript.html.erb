@@ -81,6 +81,31 @@
       return html;
     }
 
+    // Related Objects
+    // related_identifier:, related_identifier_type:, relation_type
+    var addRelatedObjectHtml = function(num, related_identifier, related_identifier_type, relation_type) {
+      var rowId = `related_object_row_${num}`;
+      var relatedIdentifierId = `related_identifier_${num}`;
+      var relatedIdentifierTypeId = `related_identifier_type_${num}`;
+      var relationTypeId = `relation_type_${num}`;
+
+      var rowHtml = `<tr id="${rowId}" class="related-objects-table-row">
+        <td>
+          <input type="text" id="${relatedIdentifierId}" name="${relatedIdentifierId}" value="${related_identifier}" data-num="${num}" placeholder="The URL web address for a related publication or other resource" />
+        </td>
+        <td>
+          <input type="text" id="${relatedIdentifierTypeId}" name="${relatedIdentifierTypeId}" value="${related_identifier_type}" />
+        </td>
+        <td>
+          <input type="text" id="${relationTypeId}" name="${relationTypeId}" value="${relation_type}" />
+        </td>
+      </tr>`;
+      $("#related-objects-table").append(rowHtml);
+    }
+
+
+    // Contributors
+
     var addContributorHtml = function(num, orcid, givenName, familyName, role, sequence) {
       var rowId = `contributor_row_${num}`;
       var orcidId = `contributor_orcid_${num}`;
@@ -263,6 +288,12 @@
       return false;
     });
 
+    $("#btn-add-related-object").on("click", function(el) {
+      var num = incrementCounter("#related_object_count");
+      addRelatedObjectHtml(num, "", "", "");
+      return false;
+    });
+
     $("#btn-add-me-creator").on("click", function(el) {
       var num = incrementCounter("#creator_count");
       var orcid = $("#user_orcid").val()
@@ -354,7 +385,21 @@
       }
     }
 
-    if ($(".contributor-data").length ==0) {
+    // Load any existing related objects into the edit form. 
+    // If there are any related objects they should appear in hidden <span> tags.
+    if ($(".related-object-data").length == 0) {
+      // Add an empty related object for the user to fill it out
+      var num = incrementCounter("#related_object_count");
+      addRelatedObjectHtml(num, "", "", "");
+    } else {
+      // Add existing related objects for editing
+      for (const related_object of $(".related-object-data")) {
+        const {num, relatedIdentifier, relatedIdentifierType, relationType} = related_object.dataset
+        addRelatedObjectHtml(num, relatedIdentifier, relatedIdentifierType, relationType);
+      }
+    }
+
+    if ($(".contributor-data").length == 0) {
       // Add an empty contributor for the use to fill it out
       var num = incrementCounter("#contributor_count");
       addContributorHtml(num, "", "", "", "Other", 1);

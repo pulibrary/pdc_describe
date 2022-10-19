@@ -12,7 +12,6 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
     let(:title3) { "Title Three" }
 
     before do
-      stub_s3
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
       # Make the screen larger so the save button is alway on screen. This avoids random `Element is not clickable` errors
       page.driver.browser.manage.window.resize_to(2000, 2000)
@@ -40,6 +39,8 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
 
       expect(page).to have_content "awaiting_approval"
       work = Work.last
+      file_name = "us_covid_2019.csv"
+      stub_work_s3_requests(work: work, file_name: file_name)
 
       sign_out submitter2
       sign_in super_admin
@@ -65,6 +66,15 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
     it "should be able to approve a work" do
       stub_datacite_doi
       work = FactoryBot.create :completed_work
+
+      file_name = "us_covid_2019.csv"
+      stub_work_s3_requests(work: work, file_name: file_name)
+      uploaded_file = fixture_file_upload(file_name, "text/csv")
+      work.pre_curation_uploads.attach(uploaded_file)
+
+      work.save!
+      work.reload
+
       sign_in super_admin
       visit work_path(work)
       click_on "Approve Dataset"
