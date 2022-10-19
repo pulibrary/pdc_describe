@@ -40,6 +40,7 @@ Metrics/ClassLength:
 Metrics/MethodLength:
   Exclude:
     - "app/models/work.rb"
+    - "spec/support/work_s3_requests_specs.rb"
 
 Metrics/ParameterLists:
   Enabled: false
