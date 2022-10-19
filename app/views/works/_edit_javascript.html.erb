@@ -396,7 +396,8 @@
       var related_objects = $(".related-object-data");
       for(i = 0; i < related_objects.length; i++) {
         var related_object = related_objects[i];
-        addRelatedObjectHtml(related_object.dataset.num, related_object.dataset.relatedIdentifier, related_object.dataset.relatedIdentifierType, related_object.dataset.relationType);
+        const {num, relatedIdentifier, relatedIdentifierType, relationType} = related_object.dataset
+        addRelatedObjectHtml(num, relatedIdentifier, relatedIdentifierType, relationType);
       }
     }
 
