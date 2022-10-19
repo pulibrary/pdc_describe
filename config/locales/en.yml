@@ -30,6 +30,12 @@
 # available at https://guides.rubyonrails.org/i18n.html.
 
 en:
+  users:
+    form:
+      create_work: "Start New Submission"
+      email_messages: "E-mail Message Settings"
+      email_messages_enabled: "Enable e-mail notifications"
+      email_messages_submit: "Update"
   works:
     uploads:
       pre_curation:

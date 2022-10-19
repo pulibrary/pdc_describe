@@ -208,5 +208,11 @@ class User < ApplicationRecord
     @just_created = true
     add_role(:submitter, default_collection) unless has_role?(:submitter, default_collection)
   end
+
+  # Returns true if the user has notification e-mails enabled
+  # @return [Boolean]
+  def email_messages_enabled?
+    email_messages_enabled
+  end
 end
 # rubocop:enable Metrics/ClassLength
