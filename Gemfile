@@ -52,6 +52,8 @@ gem "datacite", github: "sul-dlss/datacite-ruby", branch: "main"
 
 gem "kramdown"
 
+gem "mailcatcher"
+
 group :development, :test do
   gem "bixby"
   gem "byebug"
