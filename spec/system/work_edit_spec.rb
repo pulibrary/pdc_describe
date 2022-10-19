@@ -94,7 +94,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       click_on "Additional Metadata"
       expect(page.find("#related_identifier_1").value).to eq "https://www.biorxiv.org/content/10.1101/545517v1"
       expect(page.find("#related_identifier_type_1").value).to have_content "arXiv"
-      expect(page.find("#relation_type_1").value).to have_content "IsCitedBy"
+      expect(page.find("#relation_type_1").value).to have_content "isCitedBy"
     end
   end
 end
