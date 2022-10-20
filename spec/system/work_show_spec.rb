@@ -13,7 +13,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
   it "displays related identifiers" do
     sign_in user
     visit work_path(work)
-    expect(page).to have_content "isCitedBy"
+    expect(page).to have_content "IS_CITED_BY"
     expect(page).to have_content "https://www.biorxiv.org/content/10.1101/545517v1"
   end
 end
