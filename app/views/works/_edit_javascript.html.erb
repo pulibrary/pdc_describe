@@ -107,7 +107,7 @@
     }
 
     var relatedIdentififerTypeSelectHtml = function(relatedIdentifierTypeId, related_identifier_type) {
-      var i, html, related_identifier_type_options, key, value;
+      var i, html, key, value;
       types = relatedIdentifierTypes();
       html = `<select id="${relatedIdentifierTypeId}" name="${relatedIdentifierTypeId}">`;
       for(i = 0; i < types.length; i++) {
@@ -121,7 +121,7 @@
     }
 
     var relationTypeSelectHtml = function(relationTypeId, relation_type) {
-      var i, html, related_identifier_type_options, key, value;
+      var i, html, key, value;
       types = relationTypes();
       html = `<select id="${relationTypeId}" name="${relationTypeId}">`;
       for(i = 0; i < types.length; i++) {
