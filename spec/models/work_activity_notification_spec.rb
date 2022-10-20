@@ -20,5 +20,13 @@ describe WorkActivityNotification, type: :model do
     it "enqueues an e-mail message to be delivered for the notification" do
       expect(message_delivery).to have_received(:deliver_later)
     end
+
+    context "when e-mail notifications are disabled for the user" do
+      let(:user) { FactoryBot.create(:user, email_messages_enabled: false) }
+
+      it "does not enqueue any e-mail messages" do
+        expect(message_delivery).not_to have_received(:deliver_later)
+      end
+    end
   end
 end
