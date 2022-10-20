@@ -17,33 +17,7 @@
 @import "components/header.scss";
 @import "components/footer.scss";
 @import "components/works.scss";
-
-// @import "components/users.scss";
-.message-settings {
-  max-width: fit-content !important;
-  margin-top: 1.2rem !important;
-  margin-bottom: 1.2rem !important;
-
-  .form {
-    fieldset {
-      legend {
-        font-size: 1.35rem;
-        font-weight: 900;
-      }
-    }
-  }
-
-  .form-check {
-    margin-top: 1.2rem;
-    margin-bottom: 1.2rem;
-  }
-
-  .btn {
-    margin-top: 0px;
-    margin-bottom: 0px;
-  }
-}
-
+@import "components/users.scss";
 
 .hidden {
   display: none;
