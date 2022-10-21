@@ -61,14 +61,14 @@ Once you're added, try `pulbot deploy pdc_describe to staging`: You'll get an er
 > I'm sorry, @UserName (U0123456789), but you don't have access to do that.
 
 Copy the ID that looks like `U0123456789`, and make a PR to update the [list of allowed users](https://github.com/pulibrary/pulbot/blob/main/scripts/listener_middleware.coffee).
-A peer who already has privs should merge your PR, redeply pulbot itself with `pulbot deploy pulbot`.
+A peer who already has privs should merge your PR, and redeploy pulbot itself with `pulbot deploy pulbot`.
 When the pulbot redeploy is complete you'll be able to complete your deploy to staging.
 
 PDC applications are only available on campus, or through the VPN.
 
 To create a tagged release use the [steps in the RDSS handbook](https://github.com/pulibrary/rdss-handbook/blob/main/release_process.md)
 
-You can specify the tagged version in deployments to production: `pulbot deploy pdc_describe/v1.2.3 to production`
+You should specify the tagged version in deployments to production: `pulbot deploy pdc_describe/v1.2.3 to production`
 
 ## Design
 An early stages Entity-Relationship Diagram (ERD) is available in [this Google Doc](https://docs.google.com/drawings/d/1q2sfj8rrcNVgqQPK5uT_t79A9SYqncinh3HbnCSGMyQ/edit).
