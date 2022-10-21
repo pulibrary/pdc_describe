@@ -31,70 +31,16 @@ XML
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
 
-    stub_request(:head, "https://example-bucket.s3.amazonaws.com/#{work1.s3_object_key}").to_return(status: 404)
-    stub_request(:head, "https://example-bucket.s3.amazonaws.com/#{work2.s3_object_key}").to_return(status: 404)
-
-    stub_request(:head, "https://example-bucket.s3.amazonaws.com/#{work1.s3_object_key}").to_return(status: 404)
-    stub_request(:head, "https://example-bucket.s3.amazonaws.com/#{work2.s3_object_key}").to_return(status: 404)
-
-    stub_request(:delete, "https://example-bucket.s3.amazonaws.com/#{work1.s3_object_key}").to_return(status: 200)
-    stub_request(:delete, "https://example-bucket.s3.amazonaws.com/#{work2.s3_object_key}").to_return(status: 200)
-
-    stub_request(:put, "https://example-bucket.s3.amazonaws.com/#{work1.s3_object_key}/us_covid_2019.csv").to_return(status: 200)
-    stub_request(:put, "https://example-bucket.s3.amazonaws.com/#{work2.s3_object_key}/us_covid_2019.csv").to_return(status: 200)
-
-    stub_request(:get, "https://example-bucket.s3.amazonaws.com/?list-type=2&max-keys=1000&prefix=#{work1.s3_object_key}/").to_return(
-      status: 200,
-      body: list_objects_response
-    )
-    stub_request(:get, "https://example-bucket.s3.amazonaws.com/?list-type=2&max-keys=1000&prefix=#{work2.s3_object_key}/").to_return(
-      status: 200,
-      body: list_objects_response
-    )
-
-    stub_request(:get, "https://example-bucket.s3.amazonaws.com/#{work1.s3_object_key}/us_covid_2019.csv").to_return(
-      status: 200,
-      body: {
-        accept_ranges: "bytes",
-        content_length: 3191,
-        content_type: "image/jpeg",
-        etag: "\"6805f2cfc46c0f04559748bb039d69ae\"",
-        last_modified: Time.parse("Thu, 15 Dec 2016 01:19:41 GMT"),
-        metadata: {
-        },
-        tag_count: 2,
-        version_id: "null"
-      }.to_json
-    )
-    stub_request(:get, "https://example-bucket.s3.amazonaws.com/#{work2.s3_object_key}/us_covid_2019.csv").to_return(
-      status: 200,
-      body: {
-        accept_ranges: "bytes",
-        content_length: 3191,
-        content_type: "image/jpeg",
-        etag: "\"6805f2cfc46c0f04559748bb039d69ae\"",
-        last_modified: Time.parse("Thu, 15 Dec 2016 01:19:41 GMT"),
-        metadata: {
-        },
-        tag_count: 2,
-        version_id: "null"
-      }.to_json
-    )
-
-    stub_request(:head, "https://example-bucket.s3.amazonaws.com/#{work1.s3_object_key}/us_covid_2019.csv").to_return(status: 200)
-    stub_request(:head, "https://example-bucket.s3.amazonaws.com/#{work2.s3_object_key}/us_covid_2019.csv").to_return(status: 200)
-
-    stub_request(:delete, "https://example-bucket.s3.amazonaws.com/#{work1.s3_object_key}/us_covid_2019.csv").to_return(status: 200)
-    stub_request(:delete, "https://example-bucket.s3.amazonaws.com/#{work2.s3_object_key}/us_covid_2019.csv").to_return(status: 200)
-
     allow(work1).to receive(:publish_doi).and_return(true)
     allow(work2).to receive(:publish_doi).and_return(true)
 
     # Works 1 & 2 are approved, so they should show up in the RSS feed
+    stub_work_s3_requests(work: work1, file_name: uploaded_file.original_filename)
     work1.pre_curation_uploads.attach(uploaded_file)
     work1.complete_submission!(admin)
     work1.approve!(admin)
 
+    stub_work_s3_requests(work: work2, file_name: uploaded_file.original_filename)
     work2.pre_curation_uploads.attach(uploaded_file)
     work2.complete_submission!(admin)
     work2.approve!(admin)

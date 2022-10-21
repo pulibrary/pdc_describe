@@ -21,25 +21,36 @@ RSpec.configure do |_config|
 XML
   end
 
+  # rubocop:disable Metrics/AbcSize
   def stub_work_s3_requests(work:, file_name:)
     @works = [work]
     @works.each do |w|
       # Stub the request for the S3 directory object to determine if it exists
-      stub_request(:head, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}").to_return(status: 404)
+      stub_request(:head, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}").to_return(status: 200)
+      # Stub the request for the S3 directory object to determine if it exists
+      stub_request(:head, "https://example-bucket-post.s3.amazonaws.com/#{w.s3_object_key}").to_return(status: 404)
       # Stub the request for deleting the pre-curation S3 directory object
       stub_request(:delete, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}").to_return(status: 200)
       # Stub the request for retrieving the S3 file attachment object
       stub_request(:get, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
       # Stub the request for uploading the S3 file attachment object
       stub_request(:put, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
+      # Stub the request for moving the S3 file attachment object to the post curation bucket
+      stub_request(:put, "https://example-bucket-post.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
       # Stub the request for querying the contents of the S3 directory object
       s3_list_objects_response = build_s3_list_objects_response(work: w, file_name: file_name)
+      # Stub the pre-curation bucket list
       stub_request(:get, "https://example-bucket.s3.amazonaws.com/?list-type=2&max-keys=1000&prefix=#{w.s3_object_key}/").to_return(
         status: 200,
         body: s3_list_objects_response
       )
+      # Stub the post-curation bucket list
+      stub_request(:get, "https://example-bucket-post.s3.amazonaws.com/?list-type=2&max-keys=1000&prefix=#{w.s3_object_key}/").to_return(
+        status: 200,
+        body: s3_list_objects_response
+      )
       # Stub the request for retrieving the S3 file attachment object
-      stub_request(:get, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(
+      stub_request(:get, "https://example-bucket-post.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(
         status: 200,
         body: {
           accept_ranges: "bytes",
@@ -53,9 +64,11 @@ XML
           version_id: "null"
         }.to_json
       )
+      stub_request(:head, "https://example-bucket-post.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
 
-      stub_request(:head, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
+      # precuration deletes
       stub_request(:delete, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
     end
+    # rubocop:enable Metrics/AbcSize
   end
 end
