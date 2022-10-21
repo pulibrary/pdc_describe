@@ -30,8 +30,6 @@ const channels = import.meta.globEager('../channels/*.js')
 import Rails from "@rails/ujs"
 import Turbolinks from "turbolinks"
 import ActiveStorage from "@rails/activestorage"
-// Provides @mention functionality in textboxes (adds to jQuery UI autocomplete)
-import "./vendor/jquery-ui-triggeredAutocomplete"
 
 if (typeof(window._rails_loaded) == "undefined" || window._rails_loaded == null || !window._rails_loaded) {
   Rails.start()
