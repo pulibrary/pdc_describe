@@ -2,6 +2,9 @@
 
 class Collection < ApplicationRecord
   resourcify
+  # rubocop:disable Rails/HasAndBelongsToMany
+  has_and_belongs_to_many :users_with_messaging, join_table: :user_message_enabled_collections, class_name: "User"
+  # rubocop:enable Rails/HasAndBelongsToMany
 
   validate do |collection|
     if collection.title.blank?
@@ -84,6 +87,29 @@ class Collection < ApplicationRecord
 
   def submitters
     User.with_role(:submitter, self)
+  end
+
+  # Permit a User to receive notification messages for members of this Collection
+  # @param user [User]
+  def enable_messages_for(user:)
+    raise(ArgumentError, "User #{user.uid} is not an administrator for this collection #{title}") unless user.super_admin? || user.can_admin?(self)
+    users_with_messaging << user
+  end
+
+  # Disable a User from receiving notification messages for members of this Collection
+  # @param user [User]
+  def disable_messages_for(user:)
+    raise(ArgumentError, "User #{user.uid} is not an administrator for this collection #{title}") unless user.super_admin? || user.can_admin?(self)
+    users_with_messaging.delete_by(default_collection_id: id)
+  end
+
+  # Returns true if a given user has notification e-mails enabled for this collection
+  # @param user [User]
+  # @return [Boolean]
+  def messages_enabled_for?(user:)
+    found = users_with_messaging.find_by(id: user.id)
+
+    !found.nil?
   end
 
   def self.create_defaults

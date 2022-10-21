@@ -8,6 +8,22 @@
           <%= label_tag(:email_messages_enabled, t("users.form.email_messages_enabled"), class: ["form-check-label"]) %>
         </div>
       </fieldset>
+
+      <% if @user.curator? %>
+        <section class="card container">
+          <h2>Collections</h2>
+          <fieldset>
+            <% @user.admin_collections.each do |admin_collection| %>
+              <legend><%= admin_collection.title %></legend>
+              <div class="form-check ">
+                <%= check_box_tag("user[collections_with_messaging][#{admin_collection.id}]", "1", user.messages_enabled_from?(collection: admin_collection), { class: ["form-check-input"] }) %>
+                <%= label_tag("user[collections_with_messaging][#{admin_collection.id}]", t("users.form.email_messages_enabled"), class: ["form-check-label"]) %>
+              </div>
+            <% end %>
+          </fieldset>
+        </section>
+      <% end %>
+
       <button type="submit" class="btn btn-primary"><%= t("users.form.email_messages_submit") %></button>
     <% end %>
   </section>
