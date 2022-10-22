@@ -25,5 +25,5 @@ test:
     bucket: 'example-bucket'
     region: 'us-east-1'
   post_curation:
-    bucket: 'example-bucket'
+    bucket: 'example-bucket-post'
     region: 'us-east-1'

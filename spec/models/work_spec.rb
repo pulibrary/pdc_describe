@@ -22,6 +22,10 @@ RSpec.describe Work, type: :model do
   let(:identifier) { @identifier }
   let(:attachment_url) { /#{Regexp.escape("https://example-bucket.s3.amazonaws.com/")}/ }
 
+  let(:uploaded_file) do
+    fixture_file_upload("us_covid_2019.csv", "text/csv")
+  end
+
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
@@ -91,9 +95,6 @@ RSpec.describe Work, type: :model do
   context "with a persisted dataset work" do
     subject(:work) { FactoryBot.create(:draft_work) }
 
-    let(:uploaded_file) do
-      fixture_file_upload("us_covid_2019.csv", "text/csv")
-    end
     let(:uploaded_file2) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
@@ -118,9 +119,16 @@ RSpec.describe Work, type: :model do
   end
 
   it "approves works and records the change history" do
+    file_name = uploaded_file.original_filename
+    stub_work_s3_requests(work: work, file_name: file_name)
+    work.pre_curation_uploads.attach(uploaded_file)
     stub_datacite_doi
     work.complete_submission!(user)
     work.approve!(curator_user)
+    # The put for precuration upload
+    expect(a_request(:put, "https://example-bucket.s3.amazonaws.com/#{work.s3_object_key}/#{file_name}")).to have_been_made
+    # The put for postcuration move on save
+    expect(a_request(:put, "https://example-bucket-post.s3.amazonaws.com/#{work.s3_object_key}/#{file_name}")).to have_been_made
     expect(work.state_history.first.state).to eq "approved"
     expect(work.reload.state).to eq("approved")
   end
@@ -169,8 +177,6 @@ RSpec.describe Work, type: :model do
       allow(s3_client).to receive(:delete_object).and_return(nil)
 
       allow(pre_curated_query_service).to receive(:data_profile).and_return(
-        pre_curated_data_profile,
-        pre_curated_data_profile,
         pre_curated_data_profile,
         post_curation_data_profile
       )
@@ -250,6 +256,9 @@ RSpec.describe Work, type: :model do
     end
 
     it "updates the ARK metadata" do
+      file_name = uploaded_file.original_filename
+      stub_work_s3_requests(work: work, file_name: file_name)
+      work.pre_curation_uploads.attach(uploaded_file)
       work.resource.ark = ezid
       work.save
       work.complete_submission!(user)
@@ -258,7 +267,10 @@ RSpec.describe Work, type: :model do
       expect(Ark).to have_received(:update).exactly(1).times
     end
 
-    it "does not update the ARK metadata" do
+    it "does not update the ARK metadata when it is nil" do
+      file_name = uploaded_file.original_filename
+      stub_work_s3_requests(work: work, file_name: file_name)
+      work.pre_curation_uploads.attach(uploaded_file)
       work.resource.ark = nil
       work.save
       work.complete_submission!(user)
@@ -512,6 +524,9 @@ RSpec.describe Work, type: :model do
     end
 
     it "transitions from awaiting_approval to approved" do
+      file_name = uploaded_file.original_filename
+      stub_work_s3_requests(work: awaiting_approval_work, file_name: file_name)
+      awaiting_approval_work.pre_curation_uploads.attach(uploaded_file)
       stub_datacite_doi
       awaiting_approval_work.approve!(curator_user)
       expect(awaiting_approval_work.reload.state).to eq("approved")
@@ -539,6 +554,9 @@ RSpec.describe Work, type: :model do
     let(:approved_work) do
       work = FactoryBot.create :draft_work
       work.complete_submission!(user)
+      file_name = uploaded_file.original_filename
+      stub_work_s3_requests(work: work, file_name: file_name)
+      work.pre_curation_uploads.attach(uploaded_file)
       work.approve!(curator_user)
       work
     end
@@ -569,6 +587,9 @@ RSpec.describe Work, type: :model do
 
       it "is approved" do
         draft_work = FactoryBot.create(:draft_work)
+        file_name = uploaded_file.original_filename
+        stub_work_s3_requests(work: draft_work, file_name: file_name)
+        draft_work.pre_curation_uploads.attach(uploaded_file)
 
         draft_work.complete_submission!(user)
         draft_work.update_curator(curator_user.id, user)
