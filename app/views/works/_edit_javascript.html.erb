@@ -68,16 +68,12 @@
     }
 
     function makeSelectHtml(selectId, currentKey, kvList) {
-      var i, html, roles, key, value;
       html = `<select id="${selectId}" name="${selectId}">`;
-      for(i = 0; i < kvList.length; i++) {
-        key = kvList[i].key;
-        value = kvList[i].value;
-        selected = currentKey == key ? "selected" : "";
-        html += `<option value="${key}" ${selected}>${value}</option>`;
-      }
-      html += `</select>`;
-      return html;
+      const options = kvList.map(
+        ({key, value}) => 
+        `<option value="${key}" ${currentKey == key ? "selected" : ""}>${value}</option>`
+      );
+      return `<select id="${selectId}" name="${selectId}">${options}</select>`
     }
 
     // ************************************************ //
