@@ -67,41 +67,12 @@
       return roles;
     }
 
-    function rolesHtml(selectId, currentKey) {
+    function makeSelectHtml(selectId, currentKey, kvList) {
       var i, html, roles, key, value;
-      roles = contributorRoles();
       html = `<select id="${selectId}" name="${selectId}">`;
-      for(i = 0; i < roles.length; i++) {
-        key = roles[i].key;
-        value = roles[i].value;
-        selected = currentKey == key ? "selected" : "";
-        html += `<option value="${key}" ${selected}>${value}</option>`;
-      }
-      html += `</select>`;
-      return html;
-    }
-
-    function relatedIdentififerTypeSelectHtml(selectId, currentKey) {
-      var i, html, key, value;
-      types = relatedIdentifierTypes();
-      html = `<select id="${selectId}" name="${selectId}">`;
-      for(i = 0; i < types.length; i++) {
-        key = types[i].key;
-        value = types[i].value;
-        selected = currentKey == key ? "selected" : "";
-        html += `<option value="${key}" ${selected}>${value}</option>`;
-      }
-      html += `</select>`;
-      return html;
-    }
-
-    function relationTypeSelectHtml(selectId, currentKey) {
-      var i, html, key, value;
-      types = relationTypes();
-      html = `<select id="${selectId}" name="${selectId}">`;
-      for(i = 0; i < types.length; i++) {
-        key = types[i].key;
-        value = types[i].value;
+      for(i = 0; i < kvList.length; i++) {
+        key = kvList[i].key;
+        value = kvList[i].value;
         selected = currentKey == key ? "selected" : "";
         html += `<option value="${key}" ${selected}>${value}</option>`;
       }
@@ -117,8 +88,8 @@
       var relatedIdentifierId = `related_identifier_${num}`;
       var relatedIdentifierTypeId = `related_identifier_type_${num}`;
       var relationTypeId = `relation_type_${num}`;
-      var relatedIdentifierTypeHtml = relatedIdentififerTypeSelectHtml(relatedIdentifierTypeId, related_identifier_type);
-      var relationTypeHtml = relationTypeSelectHtml(relationTypeId, relation_type);
+      var relatedIdentifierTypeHtml = makeSelectHtml(relatedIdentifierTypeId, related_identifier_type, relatedIdentifierTypes());
+      var relationTypeHtml = makeSelectHtml(relationTypeId, relation_type, relationTypes());
 
       var rowHtml = `<tr id="${rowId}" class="related-objects-table-row">
         <td>
@@ -205,7 +176,7 @@
       var givenNameId = `contributor_given_name_${num}`;
       var familyNameId = `contributor_family_name_${num}`;
       var sequenceId = `contributor_sequence_${num}`;
-      var roleHtml = rolesHtml(roleId, role);
+      var roleHtml = makeSelectHtml(roleId, role, contributorRoles());
 
       var rowHtml = `<tr id="${rowId}" class="contributors-table-row">
         <td>
