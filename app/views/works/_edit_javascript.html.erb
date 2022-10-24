@@ -67,42 +67,42 @@
       return roles;
     }
 
-    function rolesHtml(roleId, activeRole) {
+    function rolesHtml(selectId, current) {
       var i, html, roles, key, value;
       roles = contributorRoles();
-      html = `<select id="${roleId}" name="${roleId}">`;
+      html = `<select id="${selectId}" name="${selectId}">`;
       for(i = 0; i < roles.length; i++) {
         key = roles[i].key;
         value = roles[i].value;
-        selected = activeRole == key ? "selected" : "";
+        selected = current == key ? "selected" : "";
         html += `<option value="${key}" ${selected}>${value}</option>`;
       }
       html += `</select>`;
       return html;
     }
 
-    function relatedIdentififerTypeSelectHtml(relatedIdentifierTypeId, related_identifier_type) {
+    function relatedIdentififerTypeSelectHtml(selectId, current) {
       var i, html, key, value;
       types = relatedIdentifierTypes();
-      html = `<select id="${relatedIdentifierTypeId}" name="${relatedIdentifierTypeId}">`;
+      html = `<select id="${selectId}" name="${selectId}">`;
       for(i = 0; i < types.length; i++) {
         key = types[i].key;
         value = types[i].value;
-        selected = related_identifier_type == key ? "selected" : "";
+        selected = current == key ? "selected" : "";
         html += `<option value="${key}" ${selected}>${value}</option>`;
       }
       html += `</select>`;
       return html;
     }
 
-    function relationTypeSelectHtml(relationTypeId, relation_type) {
+    function relationTypeSelectHtml(selectId, current) {
       var i, html, key, value;
       types = relationTypes();
-      html = `<select id="${relationTypeId}" name="${relationTypeId}">`;
+      html = `<select id="${selectId}" name="${selectId}">`;
       for(i = 0; i < types.length; i++) {
         key = types[i].key;
         value = types[i].value;
-        selected = relation_type == key ? "selected" : "";
+        selected = current == key ? "selected" : "";
         html += `<option value="${key}" ${selected}>${value}</option>`;
       }
       html += `</select>`;
