@@ -61,7 +61,7 @@ RSpec.describe WorkUploadsEditService do
       expect(a_request(:delete, attachment_url)).to have_been_made.once
       # it logs the delete
       activity_log = JSON.parse(work.work_activity.first.message)
-      expect(activity_log.find {|log| log["action"] == "deleted" && log["filename"]== "us_covid_2019.csv"}).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"] == "us_covid_2019.csv" }).not_to be nil
     end
   end
 
@@ -84,8 +84,8 @@ RSpec.describe WorkUploadsEditService do
 
       # it logs the activity
       activity_log = JSON.parse(work.work_activity.first.message)
-      expect(activity_log.find {|log| log["action"] == "deleted" && log["filename"]== "us_covid_2020.csv"}).not_to be nil
-      expect(activity_log.find {|log| log["action"] == "added" && log["filename"]== "datacite_basic.xml"}).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"] == "us_covid_2020.csv" }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "datacite_basic.xml" }).not_to be nil
     end
   end
 
@@ -101,9 +101,9 @@ RSpec.describe WorkUploadsEditService do
 
       # it logs the activity
       activity_log = JSON.parse(work.work_activity.first.message)
-      expect(activity_log.find {|log| log["action"] == "deleted" && log["filename"]== "us_covid_2019.csv"}).not_to be nil
-      expect(activity_log.find {|log| log["action"] == "added" && log["filename"]== "us_covid_2020.csv"}).not_to be nil
-      expect(activity_log.find {|log| log["action"] == "added" && log["filename"]== "orcid.csv"}).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"] == "us_covid_2019.csv" }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "us_covid_2020.csv" }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "orcid.csv" }).not_to be nil
     end
   end
 
@@ -121,9 +121,9 @@ RSpec.describe WorkUploadsEditService do
 
       # it logs the activity
       activity_log = JSON.parse(work.work_activity.first.message)
-      expect(activity_log.find {|log| log["action"] == "deleted" && log["filename"]== "us_covid_2019.csv"}).not_to be nil
-      expect(activity_log.find {|log| log["action"] == "added" && log["filename"]== "us_covid_2019.csv"}).not_to be nil
-      expect(activity_log.find {|log| log["action"] == "added" && log["filename"]== "orcid.csv"}).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"] == "us_covid_2019.csv" }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "us_covid_2019.csv" }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "orcid.csv" }).not_to be nil
     end
   end
 end
