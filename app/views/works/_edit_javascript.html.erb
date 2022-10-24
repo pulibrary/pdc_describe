@@ -67,7 +67,7 @@
       return roles;
     }
 
-    var rolesHtml = function(roleId, activeRole) {
+    function rolesHtml(roleId, activeRole) {
       var i, html, roles, key, value;
       roles = contributorRoles();
       html = `<select id="${roleId}" name="${roleId}">`;
@@ -81,7 +81,7 @@
       return html;
     }
 
-    var relatedIdentififerTypeSelectHtml = function(relatedIdentifierTypeId, related_identifier_type) {
+    function relatedIdentififerTypeSelectHtml(relatedIdentifierTypeId, related_identifier_type) {
       var i, html, key, value;
       types = relatedIdentifierTypes();
       html = `<select id="${relatedIdentifierTypeId}" name="${relatedIdentifierTypeId}">`;
@@ -95,7 +95,7 @@
       return html;
     }
 
-    var relationTypeSelectHtml = function(relationTypeId, relation_type) {
+    function relationTypeSelectHtml(relationTypeId, relation_type) {
       var i, html, key, value;
       types = relationTypes();
       html = `<select id="${relationTypeId}" name="${relationTypeId}">`;
