@@ -41,7 +41,7 @@ class WorkActivity < ApplicationRecord
 
   def message_html
     if activity_type == "CHANGES"
-      changes_html
+      metadata_changes_html
     elsif activity_type == "FILE-CHANGES"
       file_changes_html
     else
@@ -74,7 +74,7 @@ class WorkActivity < ApplicationRecord
     end
 
     # Returns the message formatted to display _metadata_ changes that were logged as an activity
-    def changes_html
+    def metadata_changes_html
       text = ""
       changes = JSON.parse(message)
       changes.keys.each do |field|

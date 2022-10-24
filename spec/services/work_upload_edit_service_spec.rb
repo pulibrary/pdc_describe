@@ -38,6 +38,7 @@ RSpec.describe WorkUploadsEditService do
       list = updated_work.pre_curation_uploads
       expect(list.map(&:filename)).to eq([uploaded_file.original_filename])
       expect(a_request(:delete, attachment_url)).not_to have_been_made
+      expect(work.work_activity.count).to be 0
     end
   end
 
@@ -58,6 +59,9 @@ RSpec.describe WorkUploadsEditService do
       list = updated_work.pre_curation_uploads
       expect(list.map(&:filename)).to eq([uploaded_file2.original_filename])
       expect(a_request(:delete, attachment_url)).to have_been_made.once
+      # it logs the delete
+      activity_log = JSON.parse(work.work_activity.first.message)
+      expect(activity_log.find {|log| log["action"] == "deleted" && log["filename"]== "us_covid_2019.csv"}).not_to be nil
     end
   end
 
@@ -77,6 +81,11 @@ RSpec.describe WorkUploadsEditService do
       # remeber order of the files will be alphabetical
       expect(list.map(&:filename)).to eq([uploaded_file.original_filename, uploaded_file3.original_filename, uploaded_file4.original_filename])
       expect(a_request(:delete, attachment_url)).to have_been_made.once
+
+      # it logs the activity
+      activity_log = JSON.parse(work.work_activity.first.message)
+      expect(activity_log.find {|log| log["action"] == "deleted" && log["filename"]== "us_covid_2020.csv"}).not_to be nil
+      expect(activity_log.find {|log| log["action"] == "added" && log["filename"]== "datacite_basic.xml"}).not_to be nil
     end
   end
 
@@ -89,6 +98,12 @@ RSpec.describe WorkUploadsEditService do
       list = updated_work.reload.pre_curation_uploads
       expect(list.map(&:filename)).to eq([uploaded_file2.original_filename, uploaded_file3.original_filename])
       expect(a_request(:delete, attachment_url)).to have_been_made.once
+
+      # it logs the activity
+      activity_log = JSON.parse(work.work_activity.first.message)
+      expect(activity_log.find {|log| log["action"] == "deleted" && log["filename"]== "us_covid_2019.csv"}).not_to be nil
+      expect(activity_log.find {|log| log["action"] == "added" && log["filename"]== "us_covid_2020.csv"}).not_to be nil
+      expect(activity_log.find {|log| log["action"] == "added" && log["filename"]== "orcid.csv"}).not_to be nil
     end
   end
 
@@ -101,8 +116,14 @@ RSpec.describe WorkUploadsEditService do
       list = updated_work.pre_curation_uploads
       expect(list.map(&:filename)).to eq([uploaded_file.original_filename, uploaded_file3.original_filename])
 
-      # we delete all items and start over becuase even if the filename matches we want the new version of the file they just uploaded
+      # we delete all items and start over because even if the filename matches we want the new version of the file they just uploaded
       expect(a_request(:delete, attachment_url)).to have_been_made.once
+
+      # it logs the activity
+      activity_log = JSON.parse(work.work_activity.first.message)
+      expect(activity_log.find {|log| log["action"] == "deleted" && log["filename"]== "us_covid_2019.csv"}).not_to be nil
+      expect(activity_log.find {|log| log["action"] == "added" && log["filename"]== "us_covid_2019.csv"}).not_to be nil
+      expect(activity_log.find {|log| log["action"] == "added" && log["filename"]== "orcid.csv"}).not_to be nil
     end
   end
 end
