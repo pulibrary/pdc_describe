@@ -422,8 +422,9 @@ class Work < ApplicationRecord
 
   # Transmit a PUT request to upload an ActiveStorage Blob file to the post-curation S3 Bucket
   # @param blob [ActiveStorage::Blob]
+  # @param bucket_name [String]
   # @return [Aws::S3::Types::PutObjectOutput]
-  def put_post_curation_s3_object(blob:)
+  def put_post_curation_s3_object(bucket_name:, blob:)
     s3_client.put_object({
                            bucket: bucket_name,
                            key: blob.key,
@@ -435,8 +436,9 @@ class Work < ApplicationRecord
 
   # Transmit a HEAD request for an S3 Object in the post-curation Bucket
   # @param key [String]
+  # @param bucket_name [String]
   # @return [Aws::S3::Types::HeadObjectOutput]
-  def find_post_curation_s3_object(key:)
+  def find_post_curation_s3_object(bucket_name:, key:)
     s3_client.head_object({
                             bucket: bucket_name,
                             key: key
@@ -453,8 +455,9 @@ class Work < ApplicationRecord
   end
 
   # Transmit a HEAD request for the S3 Bucket directory for this Work
+  # @param bucket_name location to be checked to be found
   # @return [Aws::S3::Types::HeadObjectOutput]
-  def find_post_curation_s3_dir
+  def find_post_curation_s3_dir(bucket_name:)
     s3_client.head_object({
                             bucket: bucket_name,
                             key: s3_object_key
@@ -478,35 +481,10 @@ class Work < ApplicationRecord
   # This is invoked within the scope of #after_save. Attachment objects require that the parent record be persisted (hence, #before_save is not an option).
   # However, a consequence of this is that #after_save is invoked whenever a new attached Blob or Attachment object is persisted.
   def attach_s3_resources
-    if approved?
-      # An error is raised if there are no files to be moved
-      raise(StandardError, "Attempting to publish a Work without attached uploads for #{s3_object_key}") if pre_curation_uploads.empty? && post_curation_uploads.empty?
-
-      # This migrates pre-curation S3 Objects to the post-curation S3 Bucket
-      transferred = []
-
-      s3_dir = find_post_curation_s3_dir
-      raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{s3_object_key}") unless s3_dir.nil?
-
-      pre_curation_uploads.each do |attachment|
-        next if post_curation_s3_file?(filename: attachment.filename.to_s)
-
-        put_post_curation_s3_object(blob: attachment.blob)
-        s3_object = find_post_curation_s3_object(key: attachment.key)
-        raise(StandardError, "Failed to validate the uploaded S3 Object #{attachment.key}") if s3_object.nil?
-
-        transferred << attachment
-      end
-
-      # There was a race-condition when I attempted the above
-      transferred.each(&:purge)
-
-      delete_pre_curation_s3_dir
-    else
-      # This retrieves and adds S3 uploads if they do not exist
-      pre_curation_s3_resources.each do |s3_file|
-        add_pre_curation_s3_object(s3_file)
-      end
+    return if approved?
+    # This retrieves and adds S3 uploads if they do not exist
+    pre_curation_s3_resources.each do |s3_file|
+      add_pre_curation_s3_object(s3_file)
     end
   end
 
@@ -545,6 +523,7 @@ class Work < ApplicationRecord
     def publish(user)
       publish_doi(user)
       update_ark_information
+      publish_precurated_files
       save!
     end
 
@@ -712,6 +691,35 @@ class Work < ApplicationRecord
 
       persisted = s3_file_to_blob(s3_file)
       pre_curation_uploads.attach(persisted)
+    end
+
+    def publish_precurated_files
+      # An error is raised if there are no files to be moved
+      raise(StandardError, "Attempting to publish a Work without attached uploads for #{s3_object_key}") if pre_curation_uploads.empty? && post_curation_uploads.empty?
+
+      # We need to explicitly access to post-curation services here.  Lets explicitly create it so the state of the work does not have any impact
+      s3_post_curation_query_service = S3QueryService.new(self, false)
+
+      # This migrates pre-curation S3 Objects to the post-curation S3 Bucket
+      transferred = []
+
+      s3_dir = find_post_curation_s3_dir(bucket_name: s3_post_curation_query_service.bucket_name)
+      raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{s3_object_key}") unless s3_dir.nil?
+
+      pre_curation_uploads.each do |attachment|
+        next if post_curation_s3_file?(filename: attachment.filename.to_s)
+
+        put_post_curation_s3_object(bucket_name: s3_post_curation_query_service.bucket_name, blob: attachment.blob)
+        s3_object = find_post_curation_s3_object(bucket_name: s3_post_curation_query_service.bucket_name, key: attachment.key)
+        raise(StandardError, "Failed to validate the uploaded S3 Object #{attachment.key}") if s3_object.nil?
+
+        transferred << attachment
+      end
+
+      # There was a race-condition when I attempted the above
+      transferred.each(&:purge)
+
+      delete_pre_curation_s3_dir
     end
 end
 # rubocop:ensable Metrics/ClassLength

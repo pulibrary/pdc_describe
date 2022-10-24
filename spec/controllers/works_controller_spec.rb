@@ -15,6 +15,8 @@ RSpec.describe WorksController do
   let(:work) { FactoryBot.create(:draft_work) }
   let(:user) { work.created_by_user }
 
+  let(:uploaded_file) { fixture_file_upload("us_covid_2019.csv", "text/csv") }
+
   context "valid user login" do
     it "handles the index page" do
       sign_in user
@@ -192,10 +194,6 @@ RSpec.describe WorksController do
     end
 
     context "with new file uploads for an existing Work without uploads" do
-      let(:uploaded_file) do
-        fixture_file_upload("us_covid_2019.csv", "text/csv")
-      end
-
       let(:bucket_url) do
         "https://example-bucket.s3.amazonaws.com/"
       end
@@ -479,7 +477,7 @@ RSpec.describe WorksController do
       end
 
       context "when the Work has been curated", mock_s3_query_service: false do
-        let(:work) { FactoryBot.create(:completed_work) }
+        let(:work) { FactoryBot.create(:approved_work) }
         let(:user) do
           FactoryBot.create :user, collections_to_admin: [work.collection]
         end
@@ -528,8 +526,6 @@ RSpec.describe WorksController do
           allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
 
           stub_request(:put, "https://api.datacite.org/dois/#{work.doi}").to_return(status: 200, body: "", headers: {})
-          work.pre_curation_uploads.attach(uploaded_file)
-          work.approve!(user)
 
           sign_in user
         end
@@ -658,10 +654,6 @@ RSpec.describe WorksController do
     end
 
     context "with an uploaded CSV file" do
-      let(:uploaded_file) do
-        fixture_file_upload("us_covid_2019.csv", "text/csv")
-      end
-
       let(:params) do
         {
           "_method" => "patch",
@@ -715,10 +707,6 @@ RSpec.describe WorksController do
     end
 
     context "when file uploads raise errors" do
-      let(:uploaded_file) do
-        fixture_file_upload("us_covid_2019.csv", "text/csv")
-      end
-
       let(:params) do
         {
           "_method" => "patch",
@@ -870,6 +858,10 @@ RSpec.describe WorksController do
       it "handles aprovals" do
         work.complete_submission!(user)
         stub_datacite_doi
+        file_name = uploaded_file.original_filename
+        stub_work_s3_requests(work: work, file_name: file_name)
+        work.pre_curation_uploads.attach(uploaded_file)
+
         sign_in curator
         post :approve, params: { id: work.id }
         expect(response.status).to be 302
@@ -882,6 +874,9 @@ RSpec.describe WorksController do
           sign_in curator
           work.complete_submission!(user)
           stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new)))
+          file_name = uploaded_file.original_filename
+          stub_work_s3_requests(work: work, file_name: file_name)
+          work.pre_curation_uploads.attach(uploaded_file)
         end
 
         it "aproves and notes that it was not published" do
