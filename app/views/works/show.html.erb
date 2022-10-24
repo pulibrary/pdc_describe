@@ -183,7 +183,7 @@
       <label class="form-check-label" for="flexSwitchCheckDefault">Show change history</label>
     </div>
     <% @work.activities.each do |activity| %>
-      <div class="activity-history-item <%= activity.activity_type == 'CHANGES' ? 'activity-history-log-item' : 'activity-history-comment-item' %>">
+      <div class="activity-history-item <%= activity.activity_type.in?(['CHANGES','FILE-CHANGES']) ? 'activity-history-log-item' : 'activity-history-comment-item' %>">
         <div class="<%= activity.activity_type.in?(['CHANGES','FILE-CHANGES']) ? 'activity-history-log-title' : 'activity-history-comment-title' %>">
           <b><%= activity.created_by_user&.display_name_safe %></b>
           <span title="<%= activity.created_at.localtime %>"><%= distance_of_time_in_words_to_now(activity.created_at) %></span>
