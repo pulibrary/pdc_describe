@@ -1,27 +1,31 @@
 # frozen_string_literal: true
 class WorkUploadsEditService
+  attr_reader :work
+
   def initialize(work, current_user)
     @work = work
     @current_user = current_user
     @changes = []
   end
 
-  def work
-    @work
-  end
-
+  # rubocop:disable Metrics/AbcSize
+  # rubocop:disable Metrics/MethodLength
   def update_precurated_file_list(work_params)
     if work_params.key?(:deleted_uploads) || work_params.key?(:pre_curation_uploads) || work_params.key?(:replaced_uploads)
       if work_params.key?(:deleted_uploads)
         # delete the files indicated in the parameters
         delete_pre_curation_uploads(work_params[:deleted_uploads])
       elsif work_params.key?(:pre_curation_uploads)
-        # delete all existing uploads and then and then add the ones indicated in the parameters
+        # delete all existing uploads...
         work.pre_curation_uploads.each do |existing_upload|
           track_change(:deleted, existing_upload.filename.to_s)
           existing_upload.purge
         end
-        work.reload # reload the work to pick up the changes in the attachments
+
+        # ...reload the work to pick up the changes in the attachments
+        work.reload
+
+        # ...and then and then add the ones indicated in the parameters
         Array(work_params[:pre_curation_uploads]).each do |new_upload|
           track_change(:added, new_upload.original_filename)
           work.pre_curation_uploads.attach(new_upload)
@@ -37,6 +41,8 @@ class WorkUploadsEditService
       work
     end
   end
+  # rubocop:enable Metrics/AbcSize
+  # rubocop:enable Metrics/MethodLength
 
   def find_post_curation_uploads(upload_keys: [])
     return [] unless work.approved? && !upload_keys.empty?

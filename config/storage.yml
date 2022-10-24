@@ -1,6 +1,9 @@
 local: &local
-  service: 'Disk'
-  root: <%= Rails.root.join("storage") %>
+  service: 'S3'
+  access_key_id: <%= ENV['AWS_S3_KEY_ID'] || 'not-used-access_key_id' %>
+  secret_access_key: <%= ENV['AWS_S3_SECRET_KEY'] || 'not-used-secret_access_key' %>
+  region: <%= S3QueryService.pre_curation_config.fetch(:region) %>
+  bucket: <%= S3QueryService.pre_curation_config.fetch(:bucket) %>
 
 development: &development
   <<: *local
