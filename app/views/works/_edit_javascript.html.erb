@@ -42,29 +42,7 @@
     }
 
     var contributorRoles = function() {
-      var roles = [];
-      roles.push({key: "ContactPerson", value: "Contact Person"})
-      roles.push({key: "DataCollector", value: "Data Collector"})
-      roles.push({key: "DataCurator", value: "Data Curator"})
-      roles.push({key: "DataManager", value: "Data Manager"})
-      roles.push({key: "Distributor", value: "Distributor"})
-      roles.push({key: "Editor", value: "Editor"})
-      roles.push({key: "HostingInstitution", value: "Hosting Institution"})
-      roles.push({key: "Producer", value: "Producer"})
-      roles.push({key: "ProjectLeader", value: "Project Leader"})
-      roles.push({key: "ProjectManager", value: "Project Manager"})
-      roles.push({key: "ProjectMember", value: "Project Member"})
-      roles.push({key: "RegistrationAgency", value: "Registration Agency"})
-      roles.push({key: "RegistrationAuthority", value: "Registration Authority"})
-      roles.push({key: "RelatedPerson", value: "Related Person"})
-      roles.push({key: "Researcher", value: "Researcher"})
-      roles.push({key: "ResearchGroup", value: "Research Group"})
-      roles.push({key: "RightsHolder", value: "Rights Holder"})
-      roles.push({key: "Sponsor", value: "Sponsor"})
-      roles.push({key: "Supervisor", value: "Supervisor"})
-      roles.push({key: "WorkPackageLeader", value: "Work Package Leader"})
-      roles.push({key: "Other", value: "Other"})
-      return roles;
+      return <%= raw(Datacite::Mapping::ContributorType.to_a.map{ |rel| { key: rel.key, value: rel.value } }.to_json) %>;
     }
 
     var rolesHtml = function(roleId, activeRole) {
