@@ -49,7 +49,7 @@
               <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
               <%= render(partial: 'works/uploads/post_curation_s3_resources') %>
             </section>
-         <% else %>
+          <% else %>
             <%= render(partial: 'works/uploads_form', locals: { form: form }) %>
           <% end %>
         </div>
