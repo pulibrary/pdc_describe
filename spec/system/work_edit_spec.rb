@@ -78,7 +78,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       check("work-uploads-#{work.pre_curation_uploads[0].id}-delete")
       click_on "Save Work"
       expect(page).to have_content("us_covid_2020.csv")
-      expect(page).not_to have_content("us_covid_2019.csv")
+      expect(page).to have_content("deleted us_covid_2019.csv")
       expect(a_request(:delete, delete_url)).to have_been_made
       expect(ActiveStorage::PurgeJob).not_to have_received(:new)
     end

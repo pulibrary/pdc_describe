@@ -41,7 +41,9 @@ class WorkActivity < ApplicationRecord
 
   def message_html
     if activity_type == "CHANGES"
-      changes_html
+      metadata_changes_html
+    elsif activity_type == "FILE-CHANGES"
+      file_changes_html
     else
       comment_html
     end
@@ -62,8 +64,17 @@ class WorkActivity < ApplicationRecord
       Kramdown::Document.new(text).to_html
     end
 
-    # Returns the message formatted to display changes that were logged as an activity
-    def changes_html
+    # Returns the message formatted to display _file_ changes that were logged as an activity
+    def file_changes_html
+      changes = JSON.parse(message)
+      changes_html = changes.map do |change|
+        "<i>#{change['action']}</i> <span>#{change['filename']}<span><br/>"
+      end
+      "<p><b>Files</b>: #{changes_html.join}</p>"
+    end
+
+    # Returns the message formatted to display _metadata_ changes that were logged as an activity
+    def metadata_changes_html
       text = ""
       changes = JSON.parse(message)
       changes.keys.each do |field|
