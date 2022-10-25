@@ -1,4 +1,23 @@
-$(function() {
+/*
+This is an interim solution: My sense is that jQuery doesn't work well with Vite and Turbolinks.
+
+The standard approach would be
+- vite_javascript_tag,
+- active on every page of the application,
+- and hooks that don't assume the element is already on the page.
+
+We considered running this for every page of the application, but it causes test failures:
+some of the jQuery hooks interfere with the operation of other pages.
+
+Turbolinks means that we don't get the expected page-load event,
+so the hooks aren't registered on successive visits to the page.
+
+Vite wraps it as an ESM, and there doesn't seem to be a way to specify an export that we can call as-needed.
+*/
+
+console.log('edit_utils.js loaded...')
+$(function () {
+  console.log('edit_utils.js hooks loading...')
   var incrementCounter = function(elementId) {
     var counter = parseInt($(elementId)[0].value, 10);
     counter++
