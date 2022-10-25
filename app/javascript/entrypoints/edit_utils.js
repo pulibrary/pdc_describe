@@ -348,7 +348,7 @@ $(function() {
   } else {
     // Adds the existing creators making sure we honor the ordering.
     var creators = peopleSorted(".creator-data");
-    for(i = 0; i < creators.length; i++) {
+    for(let i = 0; i < creators.length; i++) {
       var creator = creators[i];
       addCreatorHtml(creator.num, creator.orcid, creator.givenName, creator.familyName, creator.sequence);
     }
