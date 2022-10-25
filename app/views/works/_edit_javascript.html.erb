@@ -46,7 +46,6 @@
     }
 
     function makeSelectHtml(selectId, currentKey, kvList) {
-      html = `<select id="${selectId}" name="${selectId}">`;
       const options = kvList.map(
         ({key, value}) => 
         `<option value="${key}" ${currentKey == key ? "selected" : ""}>${value}</option>`
