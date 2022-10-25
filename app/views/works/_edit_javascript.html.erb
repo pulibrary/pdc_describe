@@ -42,29 +42,7 @@
     }
 
     var contributorRoles = function() {
-      var roles = [];
-      roles.push({key: "ContactPerson", value: "Contact Person"})
-      roles.push({key: "DataCollector", value: "Data Collector"})
-      roles.push({key: "DataCurator", value: "Data Curator"})
-      roles.push({key: "DataManager", value: "Data Manager"})
-      roles.push({key: "Distributor", value: "Distributor"})
-      roles.push({key: "Editor", value: "Editor"})
-      roles.push({key: "HostingInstitution", value: "Hosting Institution"})
-      roles.push({key: "Producer", value: "Producer"})
-      roles.push({key: "ProjectLeader", value: "Project Leader"})
-      roles.push({key: "ProjectManager", value: "Project Manager"})
-      roles.push({key: "ProjectMember", value: "Project Member"})
-      roles.push({key: "RegistrationAgency", value: "Registration Agency"})
-      roles.push({key: "RegistrationAuthority", value: "Registration Authority"})
-      roles.push({key: "RelatedPerson", value: "Related Person"})
-      roles.push({key: "Researcher", value: "Researcher"})
-      roles.push({key: "ResearchGroup", value: "Research Group"})
-      roles.push({key: "RightsHolder", value: "Rights Holder"})
-      roles.push({key: "Sponsor", value: "Sponsor"})
-      roles.push({key: "Supervisor", value: "Supervisor"})
-      roles.push({key: "WorkPackageLeader", value: "Work Package Leader"})
-      roles.push({key: "Other", value: "Other"})
-      return roles;
+      return <%= raw(Datacite::Mapping::ContributorType.to_a.map{ |rel| { key: rel.key, value: rel.value } }.to_json) %>;
     }
 
     var rolesHtml = function(roleId, activeRole) {
@@ -135,65 +113,11 @@
     }
 
     var relationTypes = function() {
-      var types = [];
-      types.push({key: "IS_CITED_BY", value: "IsCitedBy"})
-      types.push({key: "CITES", value: "Cites"})
-      types.push({key: "IS_SUPPLEMENT_TO", value: "IsSupplementTo"})
-      types.push({key: "IS_SUPPLEMENTED_BY", value: "IsSupplementedBy"})
-      types.push({key: "IS_CONTINUED_BY", value: "IsContinuedBy"})
-      types.push({key: "CONTINUES", value: "Continues"})
-      types.push({key: "HAS_METADATA", value: "HasMetadata"})
-      types.push({key: "IS_METADATA_FOR", value: "IsMetadataFor"})
-      types.push({key: "IS_NEW_VERSION_OF", value: "IsNewVersionOf"})
-      types.push({key: "IS_PREVIOUS_VERSION_OF", value: "IsPreviousVersionOf"})
-      types.push({key: "HAS_VERSION", value: "HasVersion"})
-      types.push({key: "IS_VERSION_OF", value: "IsVersionOf"})
-      types.push({key: "IS_PART_OF", value: "IsPartOf"})
-      types.push({key: "HAS_PART", value: "HasPart"})
-      types.push({key: "IS_REFERENCED_BY", value: "IsReferencedBy"})
-      types.push({key: "REFERENCES", value: "References"})
-      types.push({key: "IS_DOCUMENTED_BY", value: "IsDocumentedBy"})
-      types.push({key: "DOCUMENTS", value: "Documents"})
-      types.push({key: "IS_COMPILED_BY", value: "IsCompiledBy"})
-      types.push({key: "COMPILES", value: "Compiles"})
-      types.push({key: "IS_VARIANT_FORM_OF", value: "IsVariantFormOf"})
-      types.push({key: "IS_ORIGINAL_FORM_OF", value: "IsOriginalFormOf"})
-      types.push({key: "IS_IDENTICAL_TO", value: "IsIdenticalTo"})
-      types.push({key: "IS_REVIEWED_BY", value: "IsReviewedBy"})
-      types.push({key: "REVIEWS", value: "Reviews"})
-      types.push({key: "IS_DERIVED_FROM", value: "IsDerivedFrom"})
-      types.push({key: "IS_SOURCE_OF", value: "IsSourceOf"})
-      types.push({key: "IS_OBSOLETED_BY", value: "IsObsoletedBy"})
-      types.push({key: "OBSOLETES", value: "Obsoletes"})
-      types.push({key: "IS_DESCRIBED_BY", value: "IsDescribedBy"})
-      types.push({key: "DESCRIBES", value: "Describes"})
-      types.push({key: "IS_REQUIRED_BY", value: "IsRequiredBy"})
-      types.push({key: "REQUIRES", value: "Requires"})
-      return types;
+      return <%= raw(Datacite::Mapping::RelationType.to_a.map{ |rel| { key: rel.key, value: rel.value } }.to_json) %>;
     }
 
     var relatedIdentifierTypes = function() {
-      var types = [];
-      types.push({key: "ARK", value: "ARK"})
-      types.push({key: "ARXIV", value: "arXiv"})
-      types.push({key: "BIBCODE", value: "bibcode"})
-      types.push({key: "DOI", value: "DOI"})
-      types.push({key: "EAN13", value: "EAN13"})
-      types.push({key: "EISSN", value: "EISSN"})
-      types.push({key: "HANDLE", value: "Handle"})
-      types.push({key: "ISBN", value: "ISBN"})
-      types.push({key: "ISSN", value: "ISSN"})
-      types.push({key: "ISTC", value: "ISTC"})
-      types.push({key: "LISSN", value: "LISSN"})
-      types.push({key: "LSID", value: "LSID"})
-      types.push({key: "PMID", value: "PMID"})
-      types.push({key: "PURL", value: "PURL"})
-      types.push({key: "UPC", value: "UPC"})
-      types.push({key: "URL", value: "URL"})
-      types.push({key: "URN", value: "URN"})
-      types.push({key: "IGSN", value: "IGSN"})
-      types.push({key: "W3ID", value: "w3id"})
-      return types;
+      return <%= raw(Datacite::Mapping::RelatedIdentifierType.to_a.map{ |rel| { key: rel.key, value: rel.value } }.to_json) %>;
     }
 
     // ************************************************ //
