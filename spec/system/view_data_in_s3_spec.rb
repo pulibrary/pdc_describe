@@ -73,7 +73,21 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
 
       context "when user is a curator" do
         let(:user) { FactoryBot.create(:research_data_moderator) }
-        pending "shows data from S3" do
+        it "shows data from S3" do
+          stub_s3(data: s3_data)
+          visit work_path(work)
+          expect(page).to have_content file1.filename
+          expect(page).to have_content file2.filename
+
+          click_on "Edit"
+          expect(page).to have_content file1.filename
+          expect(page).to have_content file2.filename
+        end
+      end
+
+      context "when user is a super admin user" do
+        let(:user) { FactoryBot.create(:research_data_moderator) }
+        it "shows data from S3" do
           stub_s3(data: s3_data)
           visit work_path(work)
           expect(page).to have_content file1.filename

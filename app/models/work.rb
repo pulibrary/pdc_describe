@@ -60,14 +60,15 @@ class Work < ApplicationRecord
   # @param [User]
   # @return [Boolean]
   def editable_by?(user)
-    return true if submitted_by?(user)
-    collection = Collection.find(collection_id)
-    return true if user.has_role?(:collection_admin, collection)
-    false
+    submitted_by?(user) || administered_by?(user)
   end
 
   def submitted_by?(user)
-    return true if created_by_user_id == user.id
+    created_by_user_id == user.id
+  end
+
+  def administered_by?(user)
+    user.has_role?(:collection_admin, collection)
   end
 
   class << self
@@ -242,6 +243,7 @@ class Work < ApplicationRecord
   end
 
   def uploads_attributes
+    return [] if approved? # once approved we no longer allow the updating of uploads via the application
     uploads.map do |upload|
       {
         id: upload.id,
