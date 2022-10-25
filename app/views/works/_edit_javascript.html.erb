@@ -41,10 +41,6 @@
       $("#" + orcidId).focus();
     }
 
-    var contributorRoles = function() {
-      return <%= raw(Datacite::Mapping::ContributorType.to_a.map{ |rel| { key: rel.key, value: rel.value } }.to_json) %>;
-    }
-
     function makeSelectHtml(selectId, currentKey, kvList) {
       const options = kvList.map(
         ({key, value}) => 
@@ -61,8 +57,8 @@
       var relatedIdentifierId = `related_identifier_${num}`;
       var relatedIdentifierTypeId = `related_identifier_type_${num}`;
       var relationTypeId = `relation_type_${num}`;
-      var relatedIdentifierTypeHtml = makeSelectHtml(relatedIdentifierTypeId, related_identifier_type, relatedIdentifierTypes());
-      var relationTypeHtml = makeSelectHtml(relationTypeId, relation_type, relationTypes());
+      var relatedIdentifierTypeHtml = makeSelectHtml(relatedIdentifierTypeId, related_identifier_type, pdc.datacite.RelatedIdentifierType);
+      var relationTypeHtml = makeSelectHtml(relationTypeId, relation_type, pdc.datacite.RelationType);
 
       var rowHtml = `<tr id="${rowId}" class="related-objects-table-row">
         <td>
@@ -78,14 +74,6 @@
       $("#related-objects-table").append(rowHtml);
     }
 
-    var relationTypes = function() {
-      return <%= raw(Datacite::Mapping::RelationType.to_a.map{ |rel| { key: rel.key, value: rel.value } }.to_json) %>;
-    }
-
-    var relatedIdentifierTypes = function() {
-      return <%= raw(Datacite::Mapping::RelatedIdentifierType.to_a.map{ |rel| { key: rel.key, value: rel.value } }.to_json) %>;
-    }
-
     // ************************************************ //
 
     var addContributorHtml = function(num, orcid, givenName, familyName, role, sequence) {
@@ -95,7 +83,7 @@
       var givenNameId = `contributor_given_name_${num}`;
       var familyNameId = `contributor_family_name_${num}`;
       var sequenceId = `contributor_sequence_${num}`;
-      var roleHtml = makeSelectHtml(roleId, role, contributorRoles());
+      var roleHtml = makeSelectHtml(roleId, role, pdc.datacite.ContributorType);
 
       var rowHtml = `<tr id="${rowId}" class="contributors-table-row">
         <td>
@@ -400,7 +388,7 @@
       var orcid = $(el.target).val().trim();
       if (isOrcid(orcid)) {
         $.ajax({
-          url: `<%= ORCID_URL %>/${orcid}`,
+          url: `${pdc.orcid_url}/${orcid}`,
           dataType: 'jsonp'
         })
         .done(function(data) {
