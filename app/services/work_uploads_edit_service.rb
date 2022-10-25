@@ -8,41 +8,21 @@ class WorkUploadsEditService
     @changes = []
   end
 
-  # rubocop:disable Metrics/AbcSize
-  # rubocop:disable Metrics/MethodLength
   def update_precurated_file_list(work_params)
     if work_params.key?(:deleted_uploads) || work_params.key?(:pre_curation_uploads) || work_params.key?(:replaced_uploads)
       if work_params.key?(:deleted_uploads)
-        # delete the files indicated in the parameters
         delete_pre_curation_uploads(work_params[:deleted_uploads])
       elsif work_params.key?(:pre_curation_uploads)
-        # delete all existing uploads...
-        work.pre_curation_uploads.each do |existing_upload|
-          track_change(:deleted, existing_upload.filename.to_s)
-          existing_upload.purge
-        end
-
-        # ...reload the work to pick up the changes in the attachments
-        work.reload
-
-        # ...and then and then add the ones indicated in the parameters
-        Array(work_params[:pre_curation_uploads]).each do |new_upload|
-          track_change(:added, new_upload.original_filename)
-          work.pre_curation_uploads.attach(new_upload)
-        end
+        update_uploads(work_params)
       elsif work_params.key?(:replaced_uploads)
-        # replace the files indicated in the parameters
         replace_uploads(work_params[:replaced_uploads])
       end
-
       work.log_file_changes(@changes, @current_user)
       work.reload # reload the work to pick up the changes in the attachments
     else # no changes in the parameters, just return the original work
       work
     end
   end
-  # rubocop:enable Metrics/AbcSize
-  # rubocop:enable Metrics/MethodLength
 
   def find_post_curation_uploads(upload_keys: [])
     return [] unless work.approved? && !upload_keys.empty?
@@ -73,6 +53,23 @@ class WorkUploadsEditService
           track_change(:deleted, existing.filename.to_s)
           existing.purge
         end
+      end
+    end
+
+    def update_uploads(work_params)
+      # delete all existing uploads...
+      work.pre_curation_uploads.each do |existing_upload|
+        track_change(:deleted, existing_upload.filename.to_s)
+        existing_upload.purge
+      end
+
+      # ...reload the work to pick up the changes in the attachments
+      work.reload
+
+      # ...and then and then add the ones indicated in the parameters
+      Array(work_params[:pre_curation_uploads]).each do |new_upload|
+        track_change(:added, new_upload.original_filename)
+        work.pre_curation_uploads.attach(new_upload)
       end
     end
 
