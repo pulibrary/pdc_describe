@@ -355,18 +355,18 @@ class Work < ApplicationRecord
     persisted.uid
   end
 
-  def add_comment(comment, current_user)
-    WorkActivity.add_system_activity(id, comment, current_user.id, activity_type: "COMMENT")
+  def add_comment(comment, current_user_id)
+    WorkActivity.add_system_activity(id, comment, current_user_id, activity_type: "COMMENT")
   end
 
-  def log_changes(resource_compare, current_user)
+  def log_changes(resource_compare, current_user_id)
     return if resource_compare.identical?
-    WorkActivity.add_system_activity(id, resource_compare.differences.to_json, current_user.id, activity_type: "CHANGES")
+    WorkActivity.add_system_activity(id, resource_compare.differences.to_json, current_user_id, activity_type: "CHANGES")
   end
 
-  def log_file_changes(changes, current_user)
+  def log_file_changes(changes, current_user_id)
     return if changes.count == 0
-    WorkActivity.add_system_activity(id, changes.to_json, current_user&.id, activity_type: "FILE-CHANGES")
+    WorkActivity.add_system_activity(id, changes.to_json, current_user_id, activity_type: "FILE-CHANGES")
   end
 
   def activities
