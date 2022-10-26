@@ -11,27 +11,20 @@ ignorePatterns:
 rules:
   block-scoped-var: off
   camelcase: off
-  consistent-return: off
   eqeqeq: off
-  guard-for-in: off
   import/prefer-default-export: off
   max-len: off
   no-alert: off
   no-console: off
-  no-new-object: off
   no-param-reassign: off
   no-plusplus: off
   no-redeclare: off
   no-restricted-globals: off
   no-restricted-syntax: off
-  no-shadow-restricted-names: off
   no-shadow: off
-  no-tabs: off
   no-undef: off
   no-underscore-dangle: off
   no-unused-vars: off
-  no-useless-concat: off
   no-var: off
   prefer-const: off
-  prefer-rest-params: off
   vars-on-top: off
