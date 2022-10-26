@@ -86,6 +86,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         expect(page).to have_content upload_file_name
         expect(page).to have_content filename1
         expect(page).to have_content filename2
+        expect(page.find_link(filename2)['href'].split('?')[0]).to eq "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/1/SCoData_combined_v1_2020-07_README.txt"
       end
 
       context "when files are deleted from a Work" do
