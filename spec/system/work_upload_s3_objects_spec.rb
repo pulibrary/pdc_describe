@@ -24,7 +24,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
       )
     end
     let(:filename1) { ActiveStorage::Filename.new(file1.filename).to_s }
-    let(:filename2) { ActiveStorage::Filename.new(file1.filename).to_s }
+    let(:filename2) { ActiveStorage::Filename.new(file2.filename).to_s }
     let(:s3_data) { [file1, file2] }
     let(:bucket_url) do
       "https://example-bucket.s3.amazonaws.com/"
@@ -86,7 +86,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         expect(page).to have_content upload_file_name
         expect(page).to have_content filename1
         expect(page).to have_content filename2
-        expect(page.find_link(filename2)['href'].split('?')[0]).to eq "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/1/SCoData_combined_v1_2020-07_README.txt"
+        expect(page.find_link(filename2)['href'].split('?')[0]).to eq "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/2/SCoData_combined_v1_2020-07_datapackage.json"
       end
 
       context "when files are deleted from a Work" do
