@@ -492,11 +492,12 @@ class Work < ApplicationRecord
     changes = []
     # This retrieves and adds S3 uploads if they do not exist
     pre_curation_s3_resources.each do |s3_file|
-      changes << { action: :added, filename: s3_file.filename }
-      add_pre_curation_s3_object(s3_file)
+      if add_pre_curation_s3_object(s3_file)
+        changes << { action: :added, filename: s3_file.filename }
+      end
     end
 
-    # Log the new files, but don't link the change to the current_user since we do not know
+    # Log the new files, but don't link the change to the current_user since we really don't know
     # who added the files directly to AWS S3.
     log_file_changes(changes, nil) if changes.count > 0
   end
