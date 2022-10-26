@@ -396,12 +396,12 @@ $(() => {
     addRelatedObjectHtml(num, '', '', '');
   } else {
     // Add existing related objects for editing
-    for (const related_object of $('.related-object-data')) {
+    $('.related-object-data').each((related_object) => {
       const {
         num, relatedIdentifier, relatedIdentifierType, relationType,
       } = related_object.dataset;
       addRelatedObjectHtml(num, relatedIdentifier, relatedIdentifierType, relationType);
-    }
+    });
   }
 
   if ($('.contributor-data').length == 0) {
