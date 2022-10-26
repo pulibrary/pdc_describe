@@ -21,7 +21,7 @@ $(() => {
   console.log('edit_utils.js hooks loading...');
   function incrementCounter(elementId) {
     let counter = parseInt($(elementId)[0].value, 10);
-    counter++;
+    counter += 1;
     $(elementId)[0].value = counter;
     return counter;
   }
@@ -148,7 +148,7 @@ $(() => {
     let i; let
       token;
     let rowText = '';
-    for (i = 0; i < rowData.length; i++) {
+    for (i = 0; i < rowData.length; i += 1) {
       token = $(rowData[i]).val();
       if (token.trim().length > 0) {
         rowText += `${token} `;
@@ -179,7 +179,7 @@ $(() => {
   function updateCreatorsSequence() {
     let i;
     const sequences = $('.creators-table-row > td > input.sequence');
-    for (i = 0; i < sequences.length; i++) {
+    for (i = 0; i < sequences.length; i += 1) {
       sequences[i].value = i + 1;
     }
   }
@@ -213,7 +213,7 @@ $(() => {
       creator;
     const creatorSpans = $(selector);
     const creators = [];
-    for (i = 0; i < creatorSpans.length; i++) {
+    for (i = 0; i < creatorSpans.length; i += 1) {
       el = $(creatorSpans[i]);
       creator = {
         num: el.data('num'),
@@ -235,7 +235,7 @@ $(() => {
       value;
     selector = `#${rowId} > td > input`;
     textboxes = $(selector);
-    for (i = 0; i < textboxes.length; i++) {
+    for (i = 0; i < textboxes.length; i += 1) {
       textboxId = textboxes[i].id;
       if (textboxId.startsWith('orcid_') || textboxId.startsWith('given_name_') || textboxId.startsWith('family_name_')) {
         value = $(`#${textboxId}`).val().trim();
@@ -251,7 +251,7 @@ $(() => {
   function findEmptyCreator() {
     let i;
     const rows = $('.creators-table-row');
-    for (i = 0; i < rows.length; i++) {
+    for (i = 0; i < rows.length; i += 1) {
       if (isEmptyRow(rows[i].id)) {
         return rows[i].id;
       }
@@ -263,7 +263,7 @@ $(() => {
   function hasCreators() {
     let i;
     const rows = $('.creators-table-row');
-    for (i = 0; i < rows.length; i++) {
+    for (i = 0; i < rows.length; i += 1) {
       if (!isEmptyRow(rows[i].id)) {
         return true;
       }
@@ -376,7 +376,7 @@ $(() => {
   } else {
     // Adds the existing creators making sure we honor the ordering.
     const creators = peopleSorted('.creator-data');
-    for (let i = 0; i < creators.length; i++) {
+    for (let i = 0; i < creators.length; i += 1) {
       const creator = creators[i];
       addCreatorHtml(
         creator.num,
@@ -411,7 +411,7 @@ $(() => {
   } else {
     // Adds the existing contributors making sure we honor the ordering.
     const contributors = peopleSorted('.contributor-data');
-    for (i = 0; i < contributors.length; i++) {
+    for (i = 0; i < contributors.length; i += 1) {
       const contributor = contributors[i];
       addContributorHtml(
         contributor.num,
