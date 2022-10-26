@@ -85,9 +85,9 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
 
         expect(page).to have_content upload_file_name
         expect(page).to have_content filename1
-        expect(page.find_link(filename1)['href'].split('?')[0]).to eq "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_README.txt"
+        expect(page.find_link(filename1)['href'].split('?')[0]).to eq "https://example.data.globus.org/10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_README.txt"
         expect(page).to have_content filename2
-        expect(page.find_link(filename2)['href'].split('?')[0]).to eq "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/has%20space.txt"
+        expect(page.find_link(filename2)['href'].split('?')[0]).to eq "https://example.data.globus.org/10.34770/pe9w-x904/#{work.id}/has%20space.txt"
       end
 
       context "when files are deleted from a Work" do
@@ -127,7 +127,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
           # approved_work.pre_curation_uploads.attach(upload_file)
           # approved_work.save
           # approved_work.reload
-          approved_work.state = "accepted"
+          approved_work.state = "approved"
           approved_work.save
         end
 
@@ -139,7 +139,9 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
 
           expect(page).to have_content upload_file_name
           expect(page).to have_content filename1
+          expect(page.find_link(filename1)['href'].split('?')[0]).to eq "https://example.data.globus.org/10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_README.txt"
           expect(page).to have_content filename2
+          expect(page.find_link(filename2)['href'].split('?')[0]).to eq "https://example.data.globus.org/10.34770/pe9w-x904/#{work.id}/has%20space.txt"
         end
 
         it "renders S3 Bucket Objects and file uploads on the edit page", js: true do
