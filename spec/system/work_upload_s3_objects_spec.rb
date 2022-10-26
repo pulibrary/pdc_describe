@@ -17,7 +17,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
     end
     let(:file2) do
       S3File.new(
-        filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json",
+        filename: "#{work.doi}/#{work.id}/has space.txt",
         last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
         size: 12_739,
         checksum: "abc567"
@@ -86,7 +86,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         expect(page).to have_content upload_file_name
         expect(page).to have_content filename1
         expect(page).to have_content filename2
-        expect(page.find_link(filename2)['href'].split('?')[0]).to eq "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/2/SCoData_combined_v1_2020-07_datapackage.json"
+        expect(page.find_link(filename2)['href'].split('?')[0]).to eq "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/2/has%20space.txt"
       end
 
       context "when files are deleted from a Work" do
