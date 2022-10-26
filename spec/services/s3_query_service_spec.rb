@@ -100,7 +100,6 @@ RSpec.describe S3QueryService, mock_s3_query_service: false do
 
   context "with persisted Works" do
     let(:user) { FactoryBot.create(:user) }
-    let(:collection) { Collection.library_resources }
     let(:doi) { "10.34770/doc-1" }
     let(:work) { FactoryBot.create(:draft_work, doi: doi) }
     let(:uploaded_file) do

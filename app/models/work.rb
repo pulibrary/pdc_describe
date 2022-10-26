@@ -25,7 +25,7 @@ class Work < ApplicationRecord
     end
 
     event :complete_submission do
-      transitions from: :draft, to: :awaiting_approval, guard: :valid_to_submit
+      transitions from: :draft, to: :awaiting_approval, guard: :valid_to_submit, after: :notify_collection_curators
     end
 
     event :request_changes do
@@ -727,6 +727,12 @@ class Work < ApplicationRecord
       transferred.each(&:purge)
 
       delete_pre_curation_s3_dir
+    end
+
+    def notify_collection_curators(current_user)
+      curators = collection.administrators.map { |admin| "@#{admin.uid}" }.join(", ")
+      notification = "#{curators} The [work](#{work_url(self)}) is ready for review."
+      WorkActivity.add_system_activity(id, notification, current_user.id)
     end
 end
 # rubocop:ensable Metrics/ClassLength
