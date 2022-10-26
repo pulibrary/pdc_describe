@@ -499,7 +499,7 @@ class Work < ApplicationRecord
 
     # Log the new files, but don't link the change to the current_user since we really don't know
     # who added the files directly to AWS S3.
-    log_file_changes(changes, nil) if changes.count > 0
+    log_file_changes(changes, nil)
   end
 
   delegate :resource_type, :resource_type=, :resource_type_general, :resource_type_general=, to: :resource
