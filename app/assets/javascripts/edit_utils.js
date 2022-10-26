@@ -12,7 +12,8 @@ some of the jQuery hooks interfere with the operation of other pages.
 Turbolinks means that we don't get the expected page-load event,
 so the hooks aren't registered on successive visits to the page.
 
-Vite wraps it as an ESM, and there doesn't seem to be a way to specify an export that we can call as-needed.
+Vite wraps it as an ESM, and there doesn't seem to be a way to specify
+an export that we can call as-needed.
 */
 
 console.log('edit_utils.js loaded...');
@@ -74,8 +75,16 @@ $(() => {
     const relatedIdentifierId = `related_identifier_${num}`;
     const relatedIdentifierTypeId = `related_identifier_type_${num}`;
     const relationTypeId = `relation_type_${num}`;
-    const relatedIdentifierTypeHtml = makeSelectHtml(relatedIdentifierTypeId, related_identifier_type, pdc.datacite.RelatedIdentifierType);
-    const relationTypeHtml = makeSelectHtml(relationTypeId, relation_type, pdc.datacite.RelationType);
+    const relatedIdentifierTypeHtml = makeSelectHtml(
+      relatedIdentifierTypeId,
+      related_identifier_type,
+      pdc.datacite.RelatedIdentifierType,
+    );
+    const relationTypeHtml = makeSelectHtml(
+      relationTypeId,
+      relation_type,
+      pdc.datacite.RelationType,
+    );
 
     const rowHtml = `<tr id="${rowId}" class="related-objects-table-row">
       <td>
@@ -369,7 +378,13 @@ $(() => {
     const creators = peopleSorted('.creator-data');
     for (let i = 0; i < creators.length; i++) {
       const creator = creators[i];
-      addCreatorHtml(creator.num, creator.orcid, creator.givenName, creator.familyName, creator.sequence);
+      addCreatorHtml(
+        creator.num,
+        creator.orcid,
+        creator.givenName,
+        creator.familyName,
+        creator.sequence,
+      );
     }
   }
 
@@ -398,7 +413,14 @@ $(() => {
     const contributors = peopleSorted('.contributor-data');
     for (i = 0; i < contributors.length; i++) {
       const contributor = contributors[i];
-      addContributorHtml(contributor.num, contributor.orcid, contributor.givenName, contributor.familyName, contributor.role, contributor.sequence);
+      addContributorHtml(
+        contributor.num,
+        contributor.orcid,
+        contributor.givenName,
+        contributor.familyName,
+        contributor.role,
+        contributor.sequence,
+      );
     }
   }
 

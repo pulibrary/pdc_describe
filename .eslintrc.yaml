@@ -13,7 +13,7 @@ rules:
   camelcase: off
   eqeqeq: off
   import/prefer-default-export: off
-  max-len: off
+  # max-len: off
   no-alert: off
   no-console: off
   no-param-reassign: off
