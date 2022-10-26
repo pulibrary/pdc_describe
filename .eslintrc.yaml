@@ -13,7 +13,6 @@ rules:
   camelcase: off
   eqeqeq: off
   import/prefer-default-export: off
-  # max-len: off
   no-alert: off
   no-console: off
   no-param-reassign: off
@@ -21,7 +20,6 @@ rules:
   no-redeclare: off
   no-restricted-globals: off
   no-restricted-syntax: off
-  no-shadow: off
   no-undef: off
   no-underscore-dangle: off
   no-unused-vars: off

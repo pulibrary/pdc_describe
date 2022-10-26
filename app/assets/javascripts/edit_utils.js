@@ -371,7 +371,7 @@ $(() => {
 
   if ($('.creator-data').length == 0) {
     // Add an empty creator for the use to fill it out
-    var num = incrementCounter('#creator_count');
+    const num = incrementCounter('#creator_count');
     addCreatorHtml(num, '', '', '', 1);
   } else {
     // Adds the existing creators making sure we honor the ordering.
@@ -392,7 +392,7 @@ $(() => {
   // If there are any related objects they should appear in hidden <span> tags.
   if ($('.related-object-data').length == 0) {
     // Add an empty related object for the user to fill it out
-    var num = incrementCounter('#related_object_count');
+    const num = incrementCounter('#related_object_count');
     addRelatedObjectHtml(num, '', '', '');
   } else {
     // Add existing related objects for editing
@@ -406,7 +406,7 @@ $(() => {
 
   if ($('.contributor-data').length == 0) {
     // Add an empty contributor for the use to fill it out
-    var num = incrementCounter('#contributor_count');
+    const num = incrementCounter('#contributor_count');
     addContributorHtml(num, '', '', '', 'Other', 1);
   } else {
     // Adds the existing contributors making sure we honor the ordering.
