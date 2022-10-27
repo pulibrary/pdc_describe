@@ -49,7 +49,6 @@ jobs:
     steps:
       - attach_workspace:
           at: '~/rails_template'
-      - install_dependencies
       - run:
           name: Run rubocop
           command: bundle exec rubocop
@@ -68,7 +67,6 @@ jobs:
     steps:
       - attach_workspace:
           at: '~/rails_template'
-      - install_dependencies
       - browser-tools/install-browser-tools
       - run:
           name: Wait for PostgreSQL
