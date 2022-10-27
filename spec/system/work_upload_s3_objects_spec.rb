@@ -23,8 +23,8 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         checksum: "abc567"
       )
     end
-    let(:filename1) { ActiveStorage::Filename.new(file1.filename).to_s }
-    let(:filename2) { ActiveStorage::Filename.new(file2.filename).to_s }
+    let(:filename1) { file1.filename.split('/').last }
+    let(:filename2) { file2.filename.split('/').last }
     let(:s3_data) { [file1, file2] }
     let(:bucket_url) do
       "https://example-bucket.s3.amazonaws.com/"
@@ -135,7 +135,6 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
           visit work_path(approved_work)
           expect(page).to have_content approved_work.title
 
-          expect(page).to have_content upload_file_name
           expect(page).to have_content filename1
           expect(page).to have_content filename2
         end
@@ -146,7 +145,6 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
           visit work_path(approved_work)
           click_on "Edit"
 
-          expect(page).to have_content upload_file_name
           expect(page).to have_content filename1
           expect(page).to have_content filename2
         end
@@ -161,7 +159,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
 
           it "renders only the S3 Bucket Objects on the show page", js: true do
             visit work_path(approved_work)
-            expect(approved_work.reload.pre_curation_uploads.length).to eq(2)
+            expect(approved_work.reload.pre_curation_uploads.length).to eq(0)
 
             expect(page).to have_content approved_work.title
             expect(page).to have_content filename1
@@ -170,7 +168,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
 
           it "renders only the S3 Bucket Objects on the edit page", js: true do
             visit work_path(approved_work)
-            expect(approved_work.reload.pre_curation_uploads.length).to eq(2)
+            expect(approved_work.reload.pre_curation_uploads.length).to eq(0)
             click_on "Edit"
 
             expect(page).not_to have_content upload_file_name
