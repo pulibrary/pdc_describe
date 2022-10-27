@@ -23,8 +23,8 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         checksum: "abc567"
       )
     end
-    let(:filename1) { file1.filename.split('/').last }
-    let(:filename2) { file2.filename.split('/').last }
+    let(:filename1) { file1.filename.split("/").last }
+    let(:filename2) { file2.filename.split("/").last }
     let(:s3_data) { [file1, file2] }
     let(:bucket_url) do
       "https://example-bucket.s3.amazonaws.com/"
