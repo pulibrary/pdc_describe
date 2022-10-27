@@ -11,11 +11,15 @@ ignorePatterns:
 rules:
   block-scoped-var: off
   camelcase: off
+  eqeqeq: off
   import/prefer-default-export: off
   no-alert: off
   no-console: off
   no-param-reassign: off
+  no-plusplus: off
+  no-redeclare: off
   no-restricted-globals: off
+  no-restricted-syntax: off
   no-undef: off
   no-underscore-dangle: off
   no-unused-vars: off

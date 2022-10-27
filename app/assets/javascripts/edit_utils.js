@@ -21,7 +21,7 @@ $(() => {
   console.log('edit_utils.js hooks loading...');
   function incrementCounter(elementId) {
     let counter = parseInt($(elementId)[0].value, 10);
-    counter += 1;
+    counter++;
     $(elementId)[0].value = counter;
     return counter;
   }
@@ -62,7 +62,7 @@ $(() => {
 
   function makeSelectHtml(selectId, currentKey, kvList) {
     const options = kvList.map(
-      ({ key, value }) => `<option value="${key}" ${currentKey === key ? 'selected' : ''}>${value}</option>`,
+      ({ key, value }) => `<option value="${key}" ${currentKey == key ? 'selected' : ''}>${value}</option>`,
     );
     return `<select id="${selectId}" name="${selectId}">${options}</select>`;
   }
@@ -148,13 +148,13 @@ $(() => {
     let i; let
       token;
     let rowText = '';
-    for (i = 0; i < rowData.length; i += 1) {
+    for (i = 0; i < rowData.length; i++) {
       token = $(rowData[i]).val();
       if (token.trim().length > 0) {
         rowText += `${token} `;
       }
     }
-    const emptyRow = (rowText.trim().length === 0);
+    const emptyRow = (rowText.trim().length == 0);
     if (rowExists) {
       if (emptyRow) {
         // delete it without asking
@@ -179,7 +179,7 @@ $(() => {
   function updateCreatorsSequence() {
     let i;
     const sequences = $('.creators-table-row > td > input.sequence');
-    for (i = 0; i < sequences.length; i += 1) {
+    for (i = 0; i < sequences.length; i++) {
       sequences[i].value = i + 1;
     }
   }
@@ -213,7 +213,7 @@ $(() => {
       creator;
     const creatorSpans = $(selector);
     const creators = [];
-    for (i = 0; i < creatorSpans.length; i += 1) {
+    for (i = 0; i < creatorSpans.length; i++) {
       el = $(creatorSpans[i]);
       creator = {
         num: el.data('num'),
@@ -235,11 +235,11 @@ $(() => {
       value;
     selector = `#${rowId} > td > input`;
     textboxes = $(selector);
-    for (i = 0; i < textboxes.length; i += 1) {
+    for (i = 0; i < textboxes.length; i++) {
       textboxId = textboxes[i].id;
       if (textboxId.startsWith('orcid_') || textboxId.startsWith('given_name_') || textboxId.startsWith('family_name_')) {
         value = $(`#${textboxId}`).val().trim();
-        if (value !== '') {
+        if (value != '') {
           return false;
         }
       }
@@ -251,7 +251,7 @@ $(() => {
   function findEmptyCreator() {
     let i;
     const rows = $('.creators-table-row');
-    for (i = 0; i < rows.length; i += 1) {
+    for (i = 0; i < rows.length; i++) {
       if (isEmptyRow(rows[i].id)) {
         return rows[i].id;
       }
@@ -263,7 +263,7 @@ $(() => {
   function hasCreators() {
     let i;
     const rows = $('.creators-table-row');
-    for (i = 0; i < rows.length; i += 1) {
+    for (i = 0; i < rows.length; i++) {
       if (!isEmptyRow(rows[i].id)) {
         return true;
       }
@@ -334,7 +334,7 @@ $(() => {
       status = false;
     }
 
-    if (title.trim() === '') {
+    if (title.trim() == '') {
       $('#title_main').focus();
       $('#title-required-message').removeClass('hidden');
       status = false;
@@ -369,14 +369,14 @@ $(() => {
     return false;
   });
 
-  if ($('.creator-data').length === 0) {
+  if ($('.creator-data').length == 0) {
     // Add an empty creator for the use to fill it out
     const num = incrementCounter('#creator_count');
     addCreatorHtml(num, '', '', '', 1);
   } else {
     // Adds the existing creators making sure we honor the ordering.
     const creators = peopleSorted('.creator-data');
-    for (let i = 0; i < creators.length; i += 1) {
+    for (let i = 0; i < creators.length; i++) {
       const creator = creators[i];
       addCreatorHtml(
         creator.num,
@@ -390,28 +390,28 @@ $(() => {
 
   // Load any existing related objects into the edit form.
   // If there are any related objects they should appear in hidden <span> tags.
-  if ($('.related-object-data').length === 0) {
+  if ($('.related-object-data').length == 0) {
     // Add an empty related object for the user to fill it out
     const num = incrementCounter('#related_object_count');
     addRelatedObjectHtml(num, '', '', '');
   } else {
     // Add existing related objects for editing
-    $('.related-object-data').each((related_object) => {
+    for (const related_object of $('.related-object-data')) {
       const {
         num, relatedIdentifier, relatedIdentifierType, relationType,
       } = related_object.dataset;
       addRelatedObjectHtml(num, relatedIdentifier, relatedIdentifierType, relationType);
-    });
+    }
   }
 
-  if ($('.contributor-data').length === 0) {
+  if ($('.contributor-data').length == 0) {
     // Add an empty contributor for the use to fill it out
     const num = incrementCounter('#contributor_count');
     addContributorHtml(num, '', '', '', 'Other', 1);
   } else {
     // Adds the existing contributors making sure we honor the ordering.
     const contributors = peopleSorted('.contributor-data');
-    for (i = 0; i < contributors.length; i += 1) {
+    for (i = 0; i < contributors.length; i++) {
       const contributor = contributors[i];
       addContributorHtml(
         contributor.num,
