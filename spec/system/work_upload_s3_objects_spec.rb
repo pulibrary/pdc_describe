@@ -24,7 +24,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
       )
     end
     let(:filename1) { ActiveStorage::Filename.new(file1.filename).to_s }
-    let(:filename2) { ActiveStorage::Filename.new(file1.filename).to_s }
+    let(:filename2) { ActiveStorage::Filename.new(file2.filename).to_s }
     let(:s3_data) { [file1, file2] }
     let(:bucket_url) do
       "https://example-bucket.s3.amazonaws.com/"
@@ -125,7 +125,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
           # approved_work.pre_curation_uploads.attach(upload_file)
           # approved_work.save
           # approved_work.reload
-          approved_work.state = "accepted"
+          approved_work.state = "approved"
           approved_work.save
         end
 
