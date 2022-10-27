@@ -12,20 +12,21 @@ some of the jQuery hooks interfere with the operation of other pages.
 Turbolinks means that we don't get the expected page-load event,
 so the hooks aren't registered on successive visits to the page.
 
-Vite wraps it as an ESM, and there doesn't seem to be a way to specify an export that we can call as-needed.
+Vite wraps it as an ESM, and there doesn't seem to be a way to specify
+an export that we can call as-needed.
 */
 
 console.log('edit_utils.js loaded...');
 $(() => {
   console.log('edit_utils.js hooks loading...');
-  const incrementCounter = function (elementId) {
+  function incrementCounter(elementId) {
     let counter = parseInt($(elementId)[0].value, 10);
     counter++;
     $(elementId)[0].value = counter;
     return counter;
-  };
+  }
 
-  const addCreatorHtml = function (num, orcid, givenName, familyName, sequence) {
+  function addCreatorHtml(num, orcid, givenName, familyName, sequence) {
     const rowId = `creator_row_${num}`;
     const orcidId = `orcid_${num}`;
     const givenNameId = `given_name_${num}`;
@@ -57,7 +58,7 @@ $(() => {
     </tr>`;
     $('#creators-table').append(rowHtml);
     $(`#${orcidId}`).focus();
-  };
+  }
 
   function makeSelectHtml(selectId, currentKey, kvList) {
     const options = kvList.map(
@@ -69,13 +70,21 @@ $(() => {
   // ************************************************ //
   // Related Objects
   // related_identifier:, related_identifier_type:, relation_type
-  const addRelatedObjectHtml = function (num, related_identifier, related_identifier_type, relation_type) {
+  function addRelatedObjectHtml(num, related_identifier, related_identifier_type, relation_type) {
     const rowId = `related_object_row_${num}`;
     const relatedIdentifierId = `related_identifier_${num}`;
     const relatedIdentifierTypeId = `related_identifier_type_${num}`;
     const relationTypeId = `relation_type_${num}`;
-    const relatedIdentifierTypeHtml = makeSelectHtml(relatedIdentifierTypeId, related_identifier_type, pdc.datacite.RelatedIdentifierType);
-    const relationTypeHtml = makeSelectHtml(relationTypeId, relation_type, pdc.datacite.RelationType);
+    const relatedIdentifierTypeHtml = makeSelectHtml(
+      relatedIdentifierTypeId,
+      related_identifier_type,
+      pdc.datacite.RelatedIdentifierType,
+    );
+    const relationTypeHtml = makeSelectHtml(
+      relationTypeId,
+      relation_type,
+      pdc.datacite.RelationType,
+    );
 
     const rowHtml = `<tr id="${rowId}" class="related-objects-table-row">
       <td>
@@ -89,11 +98,11 @@ $(() => {
       </td>
     </tr>`;
     $('#related-objects-table').append(rowHtml);
-  };
+  }
 
   // ************************************************ //
 
-  const addContributorHtml = function (num, orcid, givenName, familyName, role, sequence) {
+  function addContributorHtml(num, orcid, givenName, familyName, role, sequence) {
     const rowId = `contributor_row_${num}`;
     const orcidId = `contributor_orcid_${num}`;
     const roleId = `contributor_role_${num}`;
@@ -131,9 +140,9 @@ $(() => {
     </tr>`;
     $('#contributors-table').append(rowHtml);
     $(`#${orcidId}`).focus();
-  };
+  }
 
-  const deletePerson = function (rowToDelete, type) {
+  function deletePerson(rowToDelete, type) {
     const rowExists = $(rowToDelete).length > 0;
     const rowData = $(`${rowToDelete} input:not(.hidden)`);
     let i; let
@@ -154,28 +163,28 @@ $(() => {
         $(rowToDelete).remove();
       }
     }
-  };
+  }
 
-  const deleteCreator = function (num) {
+  function deleteCreator(num) {
     deletePerson(`#creator_row_${num}`, 'creator');
-  };
+  }
 
-  const deleteContributor = function (num) {
+  function deleteContributor(num) {
     deletePerson(`#contributor_row_${num}`, 'contributor');
-  };
+  }
 
   // Updates the creators sequence value to match the order
   // in which they are displayed. This is needed if the user
   // reordered the creators (via drag and drop).
-  const updateCreatorsSequence = function () {
+  function updateCreatorsSequence() {
     let i;
     const sequences = $('.creators-table-row > td > input.sequence');
     for (i = 0; i < sequences.length; i++) {
       sequences[i].value = i + 1;
     }
-  };
+  }
 
-  const addTitlePlaceholder = function (_el) {
+  function addTitlePlaceholder(_el) {
     const newTitleCount = incrementCounter('#new_title_count');
     const containerId = `new_title_container_${newTitleCount}`;
     const titleId = `new_title_${newTitleCount}`;
@@ -197,9 +206,9 @@ $(() => {
         </span>
       </div>`;
     $('#new-titles-anchor').append(html);
-  };
+  }
 
-  const peopleSorted = function (selector) {
+  function peopleSorted(selector) {
     let i; let el; let
       creator;
     const creatorSpans = $(selector);
@@ -218,10 +227,10 @@ $(() => {
     }
     creators.sort((a, b) => a.sequence - b.sequence);
     return creators;
-  };
+  }
 
   // Returns true if the "user entered" textboxes for the row are empty.
-  const isEmptyRow = function (rowId) {
+  function isEmptyRow(rowId) {
     let selector; let textboxes; let i; let textboxId; let
       value;
     selector = `#${rowId} > td > input`;
@@ -236,10 +245,10 @@ $(() => {
       }
     }
     return true;
-  };
+  }
 
   // Returns the ID of the first row that has an empty creator (if any)
-  const findEmptyCreator = function () {
+  function findEmptyCreator() {
     let i;
     const rows = $('.creators-table-row');
     for (i = 0; i < rows.length; i++) {
@@ -248,10 +257,10 @@ $(() => {
       }
     }
     return null;
-  };
+  }
 
   // Returns true if there is at least one creator with information
-  const hasCreators = function () {
+  function hasCreators() {
     let i;
     const rows = $('.creators-table-row');
     for (i = 0; i < rows.length; i++) {
@@ -260,15 +269,15 @@ $(() => {
       }
     }
     return false;
-  };
+  }
 
   // Sets the values of a creator given a rowId
-  const setCreatorValues = function (rowId, orcid, givenName, familyName) {
+  function setCreatorValues(rowId, orcid, givenName, familyName) {
     const suffix = rowId.replace('creator_row_', '');
     $(`#orcid_${suffix}`).val(orcid);
     $(`#given_name_${suffix}`).val(givenName);
     $(`#family_name_${suffix}`).val(familyName);
-  };
+  }
 
   $('#btn-add-creator').on('click', (el) => {
     const num = incrementCounter('#creator_count');
@@ -362,14 +371,20 @@ $(() => {
 
   if ($('.creator-data').length == 0) {
     // Add an empty creator for the use to fill it out
-    var num = incrementCounter('#creator_count');
+    const num = incrementCounter('#creator_count');
     addCreatorHtml(num, '', '', '', 1);
   } else {
     // Adds the existing creators making sure we honor the ordering.
     const creators = peopleSorted('.creator-data');
     for (let i = 0; i < creators.length; i++) {
       const creator = creators[i];
-      addCreatorHtml(creator.num, creator.orcid, creator.givenName, creator.familyName, creator.sequence);
+      addCreatorHtml(
+        creator.num,
+        creator.orcid,
+        creator.givenName,
+        creator.familyName,
+        creator.sequence,
+      );
     }
   }
 
@@ -377,7 +392,7 @@ $(() => {
   // If there are any related objects they should appear in hidden <span> tags.
   if ($('.related-object-data').length == 0) {
     // Add an empty related object for the user to fill it out
-    var num = incrementCounter('#related_object_count');
+    const num = incrementCounter('#related_object_count');
     addRelatedObjectHtml(num, '', '', '');
   } else {
     // Add existing related objects for editing
@@ -391,14 +406,21 @@ $(() => {
 
   if ($('.contributor-data').length == 0) {
     // Add an empty contributor for the use to fill it out
-    var num = incrementCounter('#contributor_count');
+    const num = incrementCounter('#contributor_count');
     addContributorHtml(num, '', '', '', 'Other', 1);
   } else {
     // Adds the existing contributors making sure we honor the ordering.
     const contributors = peopleSorted('.contributor-data');
     for (i = 0; i < contributors.length; i++) {
       const contributor = contributors[i];
-      addContributorHtml(contributor.num, contributor.orcid, contributor.givenName, contributor.familyName, contributor.role, contributor.sequence);
+      addContributorHtml(
+        contributor.num,
+        contributor.orcid,
+        contributor.givenName,
+        contributor.familyName,
+        contributor.role,
+        contributor.sequence,
+      );
     }
   }
 
