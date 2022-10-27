@@ -355,18 +355,18 @@ class Work < ApplicationRecord
     persisted.uid
   end
 
-  def add_comment(comment, current_user)
-    WorkActivity.add_system_activity(id, comment, current_user.id, activity_type: "COMMENT")
+  def add_comment(comment, current_user_id)
+    WorkActivity.add_system_activity(id, comment, current_user_id, activity_type: "COMMENT")
   end
 
-  def log_changes(resource_compare, current_user)
+  def log_changes(resource_compare, current_user_id)
     return if resource_compare.identical?
-    WorkActivity.add_system_activity(id, resource_compare.differences.to_json, current_user.id, activity_type: "CHANGES")
+    WorkActivity.add_system_activity(id, resource_compare.differences.to_json, current_user_id, activity_type: "CHANGES")
   end
 
-  def log_file_changes(changes, current_user)
+  def log_file_changes(changes, current_user_id)
     return if changes.count == 0
-    WorkActivity.add_system_activity(id, changes.to_json, current_user.id, activity_type: "FILE-CHANGES")
+    WorkActivity.add_system_activity(id, changes.to_json, current_user_id, activity_type: "FILE-CHANGES")
   end
 
   def activities
@@ -489,10 +489,17 @@ class Work < ApplicationRecord
   # However, a consequence of this is that #after_save is invoked whenever a new attached Blob or Attachment object is persisted.
   def attach_s3_resources
     return if approved?
+    changes = []
     # This retrieves and adds S3 uploads if they do not exist
     pre_curation_s3_resources.each do |s3_file|
-      add_pre_curation_s3_object(s3_file)
+      if add_pre_curation_s3_object(s3_file)
+        changes << { action: :added, filename: s3_file.filename }
+      end
     end
+
+    # Log the new files, but don't link the change to the current_user since we really don't know
+    # who added the files directly to AWS S3.
+    log_file_changes(changes, nil)
   end
 
   delegate :resource_type, :resource_type=, :resource_type_general, :resource_type_general=, to: :resource
