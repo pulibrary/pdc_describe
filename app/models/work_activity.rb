@@ -68,9 +68,14 @@ class WorkActivity < ApplicationRecord
     def file_changes_html
       changes = JSON.parse(message)
       changes_html = changes.map do |change|
-        "<i>#{change['action']}</i> <span>#{change['filename']}<span><br/>"
+        icon = if change["action"] == "deleted"
+                 '<i class="bi bi-file-earmark-minus-fill file-deleted-icon"></i>'
+               else
+                 '<i class="bi bi-file-earmark-plus-fill file-added-icon"></i>'
+               end
+        "<tr><td>#{icon}</td><td>#{change['action']}</td> <td>#{change['filename']}</td>"
       end
-      "<p><b>Files</b>: #{changes_html.join}</p>"
+      "<p><b>Files updated:</b></p><table>#{changes_html.join}</table>"
     end
 
     # Returns the message formatted to display _metadata_ changes that were logged as an activity
