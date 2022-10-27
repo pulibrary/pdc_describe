@@ -55,7 +55,7 @@ class Work < ApplicationRecord
     new_state_sym = new_state.to_sym
     valid_states = self.class.aasm.states.map(&:name)
     raise(StandardError, "Invalid state '#{new_state}'") unless valid_states.include?(new_state_sym)
-    aasm_write_state(new_state_sym)
+    aasm_write_state_without_persistence(new_state_sym)
   end
 
   ##
