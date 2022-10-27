@@ -217,7 +217,7 @@ class WorksController < ApplicationController
   def add_comment
     work = Work.find(params[:id])
     if params["new-comment"].present?
-      work.add_comment(params["new-comment"], current_user)
+      work.add_comment(params["new-comment"], current_user.id)
     end
     redirect_to work_path(id: params[:id])
   end
@@ -312,7 +312,7 @@ class WorksController < ApplicationController
       if @work.update(update_params)
 
         resource_compare = ResourceCompareService.new(resource_before, update_params[:resource])
-        @work.log_changes(resource_compare, current_user)
+        @work.log_changes(resource_compare, current_user.id)
 
         if @wizard_mode
           redirect_to work_attachment_select_url(@work)

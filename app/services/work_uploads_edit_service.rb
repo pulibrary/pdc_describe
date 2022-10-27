@@ -17,7 +17,7 @@ class WorkUploadsEditService
       elsif work_params.key?(:replaced_uploads)
         replace_uploads(work_params[:replaced_uploads])
       end
-      work.log_file_changes(@changes, @current_user)
+      work.log_file_changes(@changes, @current_user.id)
       work.reload # reload the work to pick up the changes in the attachments
     else # no changes in the parameters, just return the original work
       work
