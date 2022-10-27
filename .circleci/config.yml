@@ -53,6 +53,21 @@ jobs:
           name: Run rubocop
           command: bundle exec rubocop
 
+  eslint:
+    # We don't actually need any of the ruby environment to lint JS... but use what we have for now.
+    working_directory: ~/rails_template
+    docker:
+      - image: cimg/ruby:3.0.3-browsers
+        environment:
+          RAILS_ENV: test
+    steps:
+      - attach_workspace:
+          at: '~/rails_template'
+      - install_dependencies
+      - run:
+          name: Run eslint
+          command: yarn run eslint app/assets app/javascript    
+
   test:
     working_directory: ~/rails_template
     docker:
@@ -89,5 +104,8 @@ workflows:
           requires:
             - build
       - rubocop:
+          requires:
+            - build
+      - eslint:
           requires:
             - build
