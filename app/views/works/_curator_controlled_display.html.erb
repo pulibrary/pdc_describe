@@ -1,35 +1,37 @@
 <div class="section-title">
-  <!-- DOI field (mostly for legacy DSpace works) -->
+  <!-- DOI field -->
   <div class="field">
-    DOI <br>
-    <%= @work.doi %>
+    DOI:<br>
+    <input class="text-not-editable" type="text" id="doi" name="doi" value="<%= @work.resource.doi %>" readonly />
   </div>
 
-  <!-- ARK field (mostly for legacy DSpace works) -->
+  <!-- ARK field -->
   <div class="field">
-    ARK <br>
-    <%= @work.ark %>
+    ARK:<br>
+    <input type="text" id="ark" name="ark" class="text-not-editable input-text-long" value="<%= @work.resource.ark %>" readonly/>
   </div>
 
   <!-- ResourceType -->
   <div class="field">
-    ResourceType:<span class="required-field">*</span><span class="text-muted field-hint">(please see <%= link_to("the DataCite schema documentation", "https://schema.datacite.org/meta/kernel-4.4/", target: "_blank", rel: "nofollow") %>)</span><br>
-    <input type="text" id="resource_type" name="resource_type" class="input-text-long" <%= current_user.can_admin?(@work.collection) ? "" : "disabled" %> value="<%= @work.resource_type %>" />
+    Resource Type:<br/>
+    <input type="text" id="resource_type" name="resource_type" class="text-not-editable input-text-long" value="<%= @work.resource_type %>" readonly/>
   </div>
 
   <!-- resourceTypeGeneral -->
   <div class="field">
-    resourceTypeGeneral:<span class="required-field">*</span><span class="text-muted field-hint">(please see <%= link_to("the DataCite schema documentation", "https://schema.datacite.org/meta/kernel-4.4/", target: "_blank", rel: "nofollow") %> )</span><br>
-    <select id="resource_type_general" name="resource_type_general" class="" <%= current_user.can_admin?(@work.collection) ? "" : "disabled" %>>
-      <% Work.resource_type_general_options.each_pair do |key, value| %>
-        <option value="<%= key %>" <%= @work.resource_type_general == key.to_sym ? "selected" : "" %>><%= value %></option>
-      <% end %>
-    </select>
+    Resource Type General:<br>
+    <input type="text" id="resource_type_general" name="resource_type_general" class="text-not-editable input-text-long" value="<%= @work.resource_type_general %>" readonly/>
+  </div>
+
+  <!-- Version number -->
+  <div class="field">
+    Version:<br>
+    <input type="text" id="version_number" name="version_number" class="text-not-editable input-text-long" value="<%= @work.resource.version_number %>" readonly/>
   </div>
 
   <!-- Collection Tags -->
   <div class="field">
-    Collection Tags <br>
-    <%= @work.resource.collection_tags.join(", ") %>
+    Collection Tags:<br>
+    <input type="text" id="collection_tags" name="collection_tags" class="text-not-editable input-text-long" value="<%= @work.resource.collection_tags.join(', ') %>" readonly/>
   </div>
 </div>

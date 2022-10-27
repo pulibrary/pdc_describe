@@ -123,3 +123,8 @@
   color:#27c0fb;
   font-size: 18px;
 }
+
+input[readonly] {
+  border-width: 1px;
+  border-style: solid;
+}

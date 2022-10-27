@@ -22,7 +22,9 @@ describe FormToResourceService do
         sequence_2: "1",
         orcid_2: "1234-1234-1234-1234",
         creator_count: "1",
-        new_creator_count: "1"
+        new_creator_count: "1",
+        resource_type: "Dataset",
+        resource_type_general: "AUDIOVISUAL"
       }.with_indifferent_access
     end
     let(:current_user) { FactoryBot.create(:user) }
@@ -46,6 +48,11 @@ describe FormToResourceService do
       last_title = resource.titles.last
       expect(last_title.title).to eq("the subtitle")
       expect(last_title.title_type).to eq("Subtitle")
+    end
+
+    it "handles resource_type_general" do
+      resource
+      expect(resource.resource_type_general).to eq(:AUDIOVISUAL)
     end
   end
 end

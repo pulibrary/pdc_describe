@@ -8,8 +8,8 @@ class FormToResourceService
     #  @param [User] current_user user currently authorized with the system.  Utilizes the current_user to validate access.
     #
     # @return [PDCMetadata::Resource] Fully formed resource containing updates from the user
-    def convert(params, work, current_user)
-      resource = process_curator_controlled(params: params, work: work, current_user: current_user)
+    def convert(params, work, _current_user)
+      resource = process_curator_controlled(params: params, work: work)
       resource = process_related_objects(params, resource)
       resource.description = params["description"]
       resource.publisher = params["publisher"] if params["publisher"].present?
@@ -31,16 +31,14 @@ class FormToResourceService
 
     private
 
-      def process_curator_controlled(params:, work:, current_user:)
+      def process_curator_controlled(params:, work:)
         resource = reset_resource_to_work(work)
-        if current_user.has_role?(:collection_admin, work.collection)
-          resource.doi = params["doi"] if params["doi"].present?
-          resource.ark = params["ark"] if params["ark"].present?
-          resource.version_number = params["version_number"] if params["version_number"].present?
-          resource.collection_tags = params["collection_tags"].split(",").map(&:strip) if params["collection_tags"]
-          resource.resource_type = params["resource_type"] if params["resource_type"]
-          resource.resource_type_general = params["resource_type_general"] if params["resource_type_general"]
-        end
+        resource.doi = params["doi"] if params["doi"].present?
+        resource.ark = params["ark"] if params["ark"].present?
+        resource.version_number = params["version_number"] if params["version_number"].present?
+        resource.collection_tags = params["collection_tags"].split(",").map(&:strip) if params["collection_tags"]
+        resource.resource_type = params["resource_type"] if params["resource_type"]
+        resource.resource_type_general = params["resource_type_general"].to_sym if params["resource_type_general"]
         resource
       end
 
