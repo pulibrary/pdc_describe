@@ -175,24 +175,7 @@
   <% end %>
 <% end %>
 
-<div id="activity-history">
-  <% if @work.work_activity.count > 0 %>
-    <h2>Activity History</h2>
-    <div class="form-check form-switch">
-      <input id="show-change-history" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" checked>
-      <label class="form-check-label" for="flexSwitchCheckDefault">Show change history</label>
-    </div>
-    <% @work.activities.each do |activity| %>
-      <div class="activity-history-item <%= activity.activity_type.in?(['CHANGES','FILE-CHANGES']) ? 'activity-history-log-item' : 'activity-history-comment-item' %>">
-        <div class="<%= activity.activity_type.in?(['CHANGES','FILE-CHANGES']) ? 'activity-history-log-title' : 'activity-history-comment-title' %>">
-          <b><%= activity.created_by_user&.display_name_safe %></b>
-          <span title="<%= activity.created_at.localtime %>"><%= distance_of_time_in_words_to_now(activity.created_at) %></span>
-        </div>
-        <span class="comment-html"><%= activity.message_html.gsub('{USER-PATH-PLACEHOLDER}', users_path).html_safe %></span>
-      </div>
-    <% end %>
-  <% end %>
-</div>
+<%= render 'work_activity' %>
 
 <div id="new-comment-section">
   <%= form_with url: add_comment_work_path(@work) do |f| %>
