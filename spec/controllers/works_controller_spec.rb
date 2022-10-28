@@ -1067,17 +1067,16 @@ RSpec.describe WorksController do
             sign_in user
             new_params = params.merge(doi: "new-doi")
                                .merge(ark: "new-ark")
-                               .merge(collection_tags: "new-colletion-tags")
+                               .merge(collection_tags: "new-collection-tags")
+                               .merge(resource_type: "digitized video")
+                               .merge(resource_type_general: Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL.key)
             patch :update, params: new_params
           end
 
-          it "does not update the curator controlled fields" do
-            original_doi = work.doi
-            original_ark = work.ark
-            original_collection_tags = work.resource.collection_tags
-            expect(work.reload.doi).to eq(original_doi)
-            expect(work.ark).to eq(original_ark)
-            expect(work.resource.collection_tags).to eq(original_collection_tags)
+          it "also saves the curator controlled fields", mock_ezid_api: true do
+            expect(work.reload.doi).to eq("new-doi")
+            expect(work.ark).to eq("new-ark")
+            expect(work.resource.collection_tags).to eq(["new-collection-tags"])
           end
         end
 

@@ -40,7 +40,7 @@ class WorksController < ApplicationController
 
   def create
     @work = Work.new(created_by_user_id: current_user.id, collection_id: params[:collection_id], user_entered_doi: params["doi"].present?)
-    @work.resource = FormToResourceService.convert(params, @work, current_user)
+    @work.resource = FormToResourceService.convert(params, @work)
     if @work.valid?
       @work.draft!(current_user)
       redirect_to work_url(@work), notice: "Work was successfully created."
@@ -53,7 +53,7 @@ class WorksController < ApplicationController
   def new_submission
     default_collection_id = current_user.default_collection.id
     work = Work.new(created_by_user_id: current_user.id, collection_id: default_collection_id)
-    work.resource = FormToResourceService.convert(params, work, current_user)
+    work.resource = FormToResourceService.convert(params, work)
     work.draft!(current_user)
     redirect_to edit_work_path(work, wizard: true)
   end
@@ -303,7 +303,7 @@ class WorksController < ApplicationController
     def update_params
       {
         collection_id: params[:collection_id],
-        resource: FormToResourceService.convert(params, @work, current_user)
+        resource: FormToResourceService.convert(params, @work)
       }
     end
 
