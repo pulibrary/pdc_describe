@@ -5,7 +5,7 @@ class FormToResourceService
     #
     #  @param [Hash] params controller params to be converted
     #  @param [Work] work params will be applied to. Utilizes the work for old values if needed.
-    #  @param [User] current_user user currently authorized with the system.  Utilizes the current_user to validate access.
+    #  @param [User] _current_user user currently authorized with the system.  Utilizes the _current_user to validate access.
     #
     # @return [PDCMetadata::Resource] Fully formed resource containing updates from the user
     def convert(params, work, _current_user)
@@ -38,7 +38,7 @@ class FormToResourceService
         resource.version_number = params["version_number"] if params["version_number"].present?
         resource.collection_tags = params["collection_tags"].split(",").map(&:strip) if params["collection_tags"]
         resource.resource_type = params["resource_type"] if params["resource_type"]
-        resource.resource_type_general = params["resource_type_general"].to_sym if params["resource_type_general"]
+        resource.resource_type_general = params["resource_type_general"]&.to_sym
         resource
       end
 
