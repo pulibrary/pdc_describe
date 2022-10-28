@@ -3,7 +3,7 @@
   <div class="field">
     <% if  @wizard_mode || @work.persisted? %>
       DOI: <br>
-      <%= @work.doi %>
+      <input type="text" id="doi" name="doi" class="input-text-long" value="<%= @work.doi %>" readonly/>
     <% else %>
       DOI: <span class="text-muted field-hint">(enter the Digital Object Identifier, e.g. 10.80021/62qy-nj36)</span><br>
       <input type="text" id="doi" name="doi" class="input-text-long" value="<%= @work.doi %>"/>
