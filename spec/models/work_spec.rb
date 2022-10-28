@@ -54,6 +54,11 @@ RSpec.describe Work, type: :model do
     expect { work.save! }.to raise_error ActiveRecord::RecordInvalid
   end
 
+  it "prevents invalid state assignment" do
+    work = Work.new
+    expect { work.state = "sorry" }.to raise_error(StandardError, /Invalid state 'sorry'/)
+  end
+
   describe "#editable_by?" do
     subject(:work) { FactoryBot.create(:tokamak_work) }
     let(:submitter) { work.created_by_user }

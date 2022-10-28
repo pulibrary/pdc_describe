@@ -51,6 +51,13 @@ class Work < ApplicationRecord
     after_all_events :track_state_change
   end
 
+  def state=(new_state)
+    new_state_sym = new_state.to_sym
+    valid_states = self.class.aasm.states.map(&:name)
+    raise(StandardError, "Invalid state '#{new_state}'") unless valid_states.include?(new_state_sym)
+    aasm_write_state_without_persistence(new_state_sym)
+  end
+
   ##
   # Is this work editable by a given user?
   # A work is editable when:
