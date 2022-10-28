@@ -8,30 +8,30 @@
   <!-- ARK field -->
   <div class="field">
     ARK:<br>
-    <input type="text" id="ark" name="ark" class="text-not-editable input-text-long" value="<%= @work.resource.ark %>" readonly/>
+    <input id="ark" name="ark" class="input-text-long" value="<%= @work.resource.ark %>" readonly/>
   </div>
 
   <!-- ResourceType -->
   <div class="field">
     Resource Type:<br/>
-    <input type="text" id="resource_type" name="resource_type" class="text-not-editable input-text-long" value="<%= @work.resource_type %>" readonly/>
+    <input id="resource_type" name="resource_type" class="input-text-long" value="<%= @work.resource_type %>" readonly/>
   </div>
 
   <!-- resourceTypeGeneral -->
   <div class="field">
     Resource Type General:<br>
-    <input type="text" id="resource_type_general" name="resource_type_general" class="text-not-editable input-text-long" value="<%= @work.resource_type_general %>" readonly/>
+    <input id="resource_type_general" name="resource_type_general" class="input-text-long" value="<%= @work.resource_type_general %>" readonly/>
   </div>
 
   <!-- Version number -->
   <div class="field">
     Version:<br>
-    <input type="text" id="version_number" name="version_number" class="text-not-editable input-text-long" value="<%= @work.resource.version_number %>" readonly/>
+    <input id="version_number" name="version_number" class="input-text-long" value="<%= @work.resource.version_number %>" readonly/>
   </div>
 
   <!-- Collection Tags -->
   <div class="field">
     Collection Tags:<br>
-    <input type="text" id="collection_tags" name="collection_tags" class="text-not-editable input-text-long" value="<%= @work.resource.collection_tags.join(', ') %>" readonly/>
+    <input id="collection_tags" name="collection_tags" class="input-text-long" value="<%= @work.resource.collection_tags.join(', ') %>" readonly/>
   </div>
 </div>

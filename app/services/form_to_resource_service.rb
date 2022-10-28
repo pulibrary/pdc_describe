@@ -5,10 +5,9 @@ class FormToResourceService
     #
     #  @param [Hash] params controller params to be converted
     #  @param [Work] work params will be applied to. Utilizes the work for old values if needed.
-    #  @param [User] _current_user user currently authorized with the system.  Utilizes the _current_user to validate access.
     #
     # @return [PDCMetadata::Resource] Fully formed resource containing updates from the user
-    def convert(params, work, _current_user)
+    def convert(params, work)
       resource = process_curator_controlled(params: params, work: work)
       resource = process_related_objects(params, resource)
       resource.description = params["description"]

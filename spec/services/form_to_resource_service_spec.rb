@@ -28,13 +28,7 @@ describe FormToResourceService do
       }.with_indifferent_access
     end
     let(:current_user) { FactoryBot.create(:user) }
-    let(:resource) do
-      described_class.convert(
-        params,
-        work,
-        current_user
-      )
-    end
+    let(:resource) { described_class.convert(params, work) }
 
     it "processes titles" do
       resource
