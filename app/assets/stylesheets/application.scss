@@ -31,10 +31,6 @@
   color: #d71616;
 }
 
-.text-not-editable {
-  background: #f4f4f4;
-}
-
 .wizard-area {
   max-width: 960px; /* does this value need bang important too? */
 }
@@ -122,4 +118,10 @@
 .file-added-icon {
   color:#27c0fb;
   font-size: 18px;
+}
+
+input[readonly] {
+  border-width: 1px;
+  border-style: solid;
+  background: #f4f4f4;
 }
