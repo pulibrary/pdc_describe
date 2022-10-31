@@ -12,21 +12,15 @@ class S3File
   end
 
   def bucket_name
-    return if @query_service.nil?
-
-    @query_service.bucket_name
+    @query_service&.bucket_name
   end
 
   def url_protocol
-    return if @query_service.nil?
-
-    @query_service.class.url_protocol
+    @query_service&.class.url_protocol
   end
 
   def s3_host
-    return if @query_service.nil?
-
-    @query_service.class.s3_host
+    @query_service&.class.s3_host
   end
 
   def uri
@@ -36,8 +30,6 @@ class S3File
   end
 
   def url
-    return if uri.nil?
-
-    uri.to_s
+    uri&.to_s
   end
 end
