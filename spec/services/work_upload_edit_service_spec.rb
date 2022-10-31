@@ -71,7 +71,7 @@ RSpec.describe WorkUploadsEditService do
       work.pre_curation_uploads.attach(uploaded_file2)
       work.pre_curation_uploads.attach(uploaded_file3)
     end
-    let(:params) { { "work_id" => "", "replaced_uploads" => { "1" => uploaded_file4 } }.with_indifferent_access }
+    let(:params) { { "work_id" => "", "replaced_uploads" => { work.pre_curation_uploads[1].key => uploaded_file4 } }.with_indifferent_access }
 
     it "replaces the correct file" do
       upload_service = described_class.new(work, user)

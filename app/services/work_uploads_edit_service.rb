@@ -33,8 +33,8 @@ class WorkUploadsEditService
 
     def replace_uploads(replaced_uploads_params)
       new_uploads = []
-      work.pre_curation_uploads.each_with_index do |existing, i|
-        key = i.to_s
+      work.pre_curation_uploads.each_with_index do |existing|
+        key = existing.key
         next unless replaced_uploads_params.key?(key)
         new_uploads << replaced_uploads_params[key]
         track_change(:deleted, existing.filename.to_s)
