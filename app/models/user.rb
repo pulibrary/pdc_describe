@@ -146,6 +146,9 @@ class User < ApplicationRecord
   # @return [Boolean]
   def super_admin?
     has_role? :super_admin
+  rescue => ex
+    Rails.logger.error("Unexpected error checking super_admin: #{ex}")
+    false
   end
 
   # Returns a display name that always has a value
