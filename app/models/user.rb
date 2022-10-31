@@ -229,7 +229,7 @@ class User < ApplicationRecord
   # @param collection [Collection]
   def disable_messages_from(collection:)
     raise(ArgumentError, "User #{uid} is not an administrator for the collection #{collection.title}") unless super_admin? || can_admin?(collection)
-    collections_with_messaging.delete_by(id: collection.id)
+    collections_with_messaging.destroy(collection)
   end
 
   # Returns true if the user has notification e-mails enabled for a given collection

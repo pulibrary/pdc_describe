@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 class UsersController < ApplicationController
+  # Constants set by the <form> <input> parameters transmitted using POST/PATCH/PUT requests
+  COLLECTION_MESSAGING_DISABLED = "0"
+  COLLECTION_MESSAGING_ENABLED = "1"
+
   before_action :set_user, only: %i[show edit update]
 
   def index
@@ -34,10 +38,10 @@ class UsersController < ApplicationController
         if user_params.key?(:collections_with_messaging)
           collections_with_messaging = parsed_params.delete(:collections_with_messaging)
           user_params[:collections_with_messaging] = nil
-          collections_with_messaging.each_pair do |key, value|
-            selected_collection = Collection.find_by(id: key)
+          collections_with_messaging.each_pair do |collection_id, param|
+            selected_collection = Collection.find_by(id: collection_id)
 
-            if value.to_s == 1.to_s
+            if parameter_enables_messaging?(param)
               @user.enable_messages_from(collection: selected_collection)
             else
               @user.disable_messages_from(collection: selected_collection)
@@ -75,5 +79,9 @@ class UsersController < ApplicationController
     def can_edit?
       return true if current_user.id == @user.id
       current_user.super_admin?
+    end
+
+    def parameter_enables_messaging?(form_value)
+      form_value.to_s == COLLECTION_MESSAGING_ENABLED
     end
 end

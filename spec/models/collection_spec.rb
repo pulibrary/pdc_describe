@@ -110,6 +110,7 @@ RSpec.describe Collection, type: :model do
       let(:user) { User.new_super_admin("test-admin") }
 
       it "disables email messages for notifications for a User" do
+        # Initially messages are disabled for the user
         state = collection.messages_enabled_for?(user: user)
         expect(state).to be false
 
@@ -117,15 +118,17 @@ RSpec.describe Collection, type: :model do
         collection.save!
         collection.reload
 
-        updated_state = collection.messages_enabled_for?(user: user)
-        expect(updated_state).to be true
+        # After enabling messages for the user, that they are enabled is verified
+        enabled_state = collection.messages_enabled_for?(user: user)
+        expect(enabled_state).to be true
 
         collection.disable_messages_for(user: user)
         collection.save!
         collection.reload
 
-        updated_state = collection.messages_enabled_for?(user: user)
-        expect(updated_state).to be true
+        # After disabling messages for the user, that they are disabled is verified
+        disabled_state = collection.messages_enabled_for?(user: user)
+        expect(disabled_state).to be false
       end
     end
 
@@ -136,6 +139,7 @@ RSpec.describe Collection, type: :model do
       end
 
       it "disables email messages for notifications for a User" do
+        # Initially messages are disabled for the user
         state = collection.messages_enabled_for?(user: user)
         expect(state).to be false
 
@@ -143,15 +147,17 @@ RSpec.describe Collection, type: :model do
         collection.save!
         collection.reload
 
-        updated_state = collection.messages_enabled_for?(user: user)
-        expect(updated_state).to be true
+        # After enabling messages for the user, that they are enabled is verified
+        enabled_state = collection.messages_enabled_for?(user: user)
+        expect(enabled_state).to be true
 
         collection.disable_messages_for(user: user)
         collection.save!
         collection.reload
 
-        updated_state = collection.messages_enabled_for?(user: user)
-        expect(updated_state).to be true
+        # After disabling messages for the user, that they are disabled is verified
+        disabled_state = collection.messages_enabled_for?(user: user)
+        expect(disabled_state).to be false
       end
     end
 
