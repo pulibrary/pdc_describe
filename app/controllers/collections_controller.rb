@@ -41,44 +41,34 @@ class CollectionsController < ApplicationController
   def add_admin
     @collection = Collection.find(params[:id])
     @collection.add_administrator(current_user, User.new_for_uid(params[:uid]))
-    if @collection.errors.count > 0 && @collection.errors.first.message == "Unauthorized"
-      render status: :unauthorized, json: { message: "Unauthorized" }
-    elsif @collection.errors.count > 0
-      render status: :bad_request, json: { message: @collection.errors.first.message }
-    else
-      render status: :ok, json: { message: "OK" }
-    end
+    check_and_render
   end
 
   # This is a JSON only endpoint
   def add_submitter
     @collection = Collection.find(params[:id])
     @collection.add_submitter(current_user, User.new_for_uid(params[:uid]))
-    if @collection.errors.count > 0 && @collection.errors.first.message == "Unauthorized"
-      render status: :unauthorized, json: { message: "Unauthorized" }
-    elsif @collection.errors.count > 0
-      render status: :bad_request, json: { message: @collection.errors.first.message }
-    else
-      render status: :ok, json: { message: "OK" }
-    end
+    check_and_render
   end
 
   # This is a JSON only endpoint
-  # rubocop:disable Metrics/MethodLength
   def delete_user_from_collection
     @collection = Collection.find(params[:id])
     @collection.delete_permission(current_user, User.find_by(uid: params[:uid]))
-    if @collection.errors.count > 0 && @collection.errors.first.message == "Unauthorized"
-      render status: :unauthorized, json: { message: "Unauthorized" }
-    elsif @collection.errors.count > 0
-      render status: :bad_request, json: { message: @collection.errors.first.message }
-    else
-      render status: :ok, json: { message: "OK" }
-    end
+    check_and_render
   end
-  # rubocop:enable Metrics/MethodLength
 
   private
+
+    def check_and_render
+      if @collection.errors.count > 0 && @collection.errors.first.message == "Unauthorized"
+        render status: :unauthorized, json: { message: "Unauthorized" }
+      elsif @collection.errors.count > 0
+        render status: :bad_request, json: { message: @collection.errors.first.message }
+      else
+        render status: :ok, json: { message: "OK" }
+      end
+    end
 
     # Only allow trusted parameters through.
     def collection_params
