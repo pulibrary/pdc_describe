@@ -146,8 +146,6 @@ class User < ApplicationRecord
   # @return [Boolean]
   def super_admin?
     has_role? :super_admin
-  rescue
-    false
   end
 
   # Returns a display name that always has a value
