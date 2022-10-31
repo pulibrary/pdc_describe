@@ -81,6 +81,7 @@ class Collection < ApplicationRecord
         errors.add(:delete_permission, "Cannot remove yourself from a collection. Contact a super-admin for help.")
       else
         errors.delete(:delete_permission)
+        removed_user.remove_role :collection_admin, self
         removed_user.remove_role :submitter, self
       end
     else
@@ -95,14 +96,14 @@ class Collection < ApplicationRecord
   # Permit a User to receive notification messages for members of this Collection
   # @param user [User]
   def enable_messages_for(user:)
-    raise(ArgumentError, "User #{user.uid} is not an administrator for this collection #{title}") unless user.super_admin? || user.can_admin?(self)
+    raise(ArgumentError, "User #{user.uid} is not an administrator for this collection #{title}") unless user.can_admin?(self)
     collection_messaging_options << CollectionOption.new(option_type: CollectionOption::EMAIL_MESSAGES, collection: self, user: user)
   end
 
   # Disable a User from receiving notification messages for members of this Collection
   # @param user [User]
   def disable_messages_for(user:)
-    raise(ArgumentError, "User #{user.uid} is not an administrator for this collection #{title}") unless user.super_admin? || user.can_admin?(self)
+    raise(ArgumentError, "User #{user.uid} is not an administrator for this collection #{title}") unless user.can_admin?(self)
     users_with_messaging.destroy(user)
   end
 
@@ -112,7 +113,7 @@ class Collection < ApplicationRecord
   def messages_enabled_for?(user:)
     found = users_with_messaging.find_by(id: user.id)
 
-    !found.nil?
+    found.present?
   end
 
   def self.create_defaults

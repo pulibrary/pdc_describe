@@ -223,21 +223,17 @@ class User < ApplicationRecord
     email_messages_enabled
   end
 
-  def collections_with_messaging_dis
-    collection_messaging_options.select { |option| option.option_type == CollectionOption::EMAIL_MESSAGES }
-  end
-
   # Permit this user to receive notification messages for members of a given Collection
   # @param collection [Collection]
   def enable_messages_from(collection:)
-    raise(ArgumentError, "User #{uid} is not an administrator for the collection #{collection.title}") unless super_admin? || can_admin?(collection)
+    raise(ArgumentError, "User #{uid} is not an administrator for the collection #{collection.title}") unless can_admin?(collection)
     collection_messaging_options << CollectionOption.new(option_type: CollectionOption::EMAIL_MESSAGES, user: self, collection: collection)
   end
 
   # Disable this user from receiving notification messages for members of a given Collection
   # @param collection [Collection]
   def disable_messages_from(collection:)
-    raise(ArgumentError, "User #{uid} is not an administrator for the collection #{collection.title}") unless super_admin? || can_admin?(collection)
+    raise(ArgumentError, "User #{uid} is not an administrator for the collection #{collection.title}") unless can_admin?(collection)
     collections_with_messaging.destroy(collection)
   end
 
