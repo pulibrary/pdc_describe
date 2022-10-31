@@ -1,6 +1,6 @@
 $(() => {
   // Issues the HTTP DELETE to remove a user's access from a collection
-  var deleteUserFromCollection = function (el, url, uid) {
+  function deleteUserFromCollection(el, url, uid) {
     $.ajax({
       type: 'DELETE',
       url: url.replace('uid-placeholder', uid),
@@ -13,12 +13,12 @@ $(() => {
         alert(x.responseJSON.message);
       },
     });
-  };
+  }
 
   // Adds the information for a given user to the lists of administrators/submitters
   // for the collection.
   // `elList` is the reference to the <ul> HTML element that hosts the list.
-  var addUserHtml = function (elList, uid, collectionId, role, canDelete, isYou, is_super_admin) {
+  function addUserHtml(elList, uid, collectionId, role, canDelete, isYou, is_super_admin) {
     var base_user_url = "<%= user_path('user-placeholder') %>";
     var show_user_url = base_user_url.replace('user-placeholder', uid);
     var html = `<li class="li-user-${uid}"> <a href="${show_user_url}">${uid}</a>`;
@@ -38,10 +38,10 @@ $(() => {
       </span>`;
     }
     $(elList).append(html);
-  };
+  }
 
   // Issues the HTTP POST to add a user to a collection and updates the UI
-  var addUserToCollection = function (url, elTxt, elError, elList, role) {
+  function addUserToCollection(url, elTxt, elError, elList, role) {
     var collectionId = '<%= @collection.id %>';
     var uid = $(elTxt).val().trim();
     if (uid == '') {
@@ -65,7 +65,7 @@ $(() => {
         $(elError).text(x.responseJSON.message);
       },
     });
-  };
+  }
 
   // Adds a submitter to the collection
   $('#btn-add-submitter').on('click', (x) => {
