@@ -16,11 +16,11 @@ class S3File
   end
 
   def url_protocol
-    @query_service&.class.url_protocol
+    @query_service&.class&.url_protocol
   end
 
   def s3_host
-    @query_service&.class.s3_host
+    @query_service&.class&.s3_host
   end
 
   def uri
