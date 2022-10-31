@@ -4,7 +4,7 @@ $(() => {
     $.ajax({
       type: 'DELETE',
       url: url.replace('uid-placeholder', uid),
-      data: { authenticity_token: '<%= form_authenticity_token %>' },
+      data: { authenticity_token: pdc.formAuthenticityToken },
       success() {
         // Remove the <li> for the user
         $(`.li-user-${uid}`).remove();
@@ -19,7 +19,7 @@ $(() => {
   // for the collection.
   // `elList` is the reference to the <ul> HTML element that hosts the list.
   function addUserHtml(elList, uid, collectionId, role, canDelete, isYou, is_super_admin) {
-    var base_user_url = "<%= user_path('user-placeholder') %>";
+    var base_user_url = pdc.userPath;
     var show_user_url = base_user_url.replace('user-placeholder', uid);
     var html = `<li class="li-user-${uid}"> <a href="${show_user_url}">${uid}</a>`;
     if (isYou == true) {
@@ -42,7 +42,7 @@ $(() => {
 
   // Issues the HTTP POST to add a user to a collection and updates the UI
   function addUserToCollection(url, elTxt, elError, elList, role) {
-    var collectionId = '<%= @collection.id %>';
+    var { collectionId } = pdc;
     var uid = $(elTxt).val().trim();
     if (uid == '') {
       $(elError).text('Enter netid of user to add');
@@ -52,7 +52,7 @@ $(() => {
     $.ajax({
       type: 'POST',
       url: url.replace('uid-placeholder', uid),
-      data: { authenticity_token: '<%= form_authenticity_token %>' },
+      data: { authenticity_token: pdc.formAuthenticityToken },
       success() {
         $(elTxt).val('');
         $(elError).text('');
@@ -69,7 +69,7 @@ $(() => {
 
   // Adds a submitter to the collection
   $('#btn-add-submitter').on('click', (x) => {
-    var url = '<%= add_submitter_url(id: @collection.id, uid: "uid-placeholder") %>';
+    var url = pdc.addSubmitterUrl;
     addUserToCollection(url, '#submitter-uid-to-add', '#add-submitter-message', '#submitter-list', 'submit');
     $('#submitter-uid-to-add').focus();
     return false;
@@ -77,7 +77,7 @@ $(() => {
 
   // Adds an administrator to the collection
   $('#btn-add-admin').on('click', (x) => {
-    var url = '<%= add_admin_url(id: @collection.id, uid: "uid-placeholder") %>';
+    var url = pdc.addAdminUrl;
     addUserToCollection(url, '#admin-uid-to-add', '#add-admin-message', '#curator-list', 'admin');
     $('#admin-uid-to-add').focus();
     return false;
@@ -127,7 +127,7 @@ $(() => {
   // is the case when a user adds a new submitter or admin to the collection.
   // Reference: https://stackoverflow.com/a/17086311/446681
   $(document).on('click', '.delete-user-from-collection', (el) => {
-    var url = '<%= delete_user_from_collection_url(id: @collection.id, uid: "uid-placeholder") %>';
+    var url = pdc.deleteUserFromCollectionUrl;
     var uid = $(el.target).data('uid');
     var message = `Revoke access to user ${uid}`;
     if (confirm(message)) {
