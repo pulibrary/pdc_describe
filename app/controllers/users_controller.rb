@@ -34,22 +34,9 @@ class UsersController < ApplicationController
   def update
     if can_edit?
       respond_to do |format|
-        parsed_params = user_params.to_h
-        if user_params.key?(:collections_with_messaging)
-          collections_with_messaging = parsed_params.delete(:collections_with_messaging)
-          user_params[:collections_with_messaging] = nil
-          collections_with_messaging.each_pair do |collection_id, param|
-            selected_collection = Collection.find_by(id: collection_id)
+        update_collections_with_messaging if user_params.key?(:collections_with_messaging)
 
-            if parameter_enables_messaging?(param)
-              @user.enable_messages_from(collection: selected_collection)
-            else
-              @user.disable_messages_from(collection: selected_collection)
-            end
-          end
-        end
-
-        if @user.update(parsed_params)
+        if @user.update(user_params)
           format.html { redirect_to user_url(@user), notice: "User was successfully updated." }
           format.json { render :show, status: :ok, location: @user }
         else
@@ -73,7 +60,7 @@ class UsersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
-      params.require(:user).permit([:display_name, :full_name, :family_name, :orcid, :email_messages_enabled, { collections_with_messaging: {} }])
+      @user_params ||= params.require(:user).permit([:display_name, :full_name, :family_name, :orcid, :email_messages_enabled, { collections_with_messaging: {} }])
     end
 
     def can_edit?
@@ -83,5 +70,22 @@ class UsersController < ApplicationController
 
     def parameter_enables_messaging?(form_value)
       form_value.to_s == COLLECTION_MESSAGING_ENABLED
+    end
+
+    def update_collections_with_messaging
+      if user_params.key?(:collections_with_messaging)
+        extracted = user_params.extract!(:collections_with_messaging)
+        collections_with_messaging = extracted[:collections_with_messaging]
+
+        collections_with_messaging.each_pair do |collection_id, param|
+          selected_collection = Collection.find_by(id: collection_id)
+
+          if parameter_enables_messaging?(param)
+            @user.enable_messages_from(collection: selected_collection)
+          else
+            @user.disable_messages_from(collection: selected_collection)
+          end
+        end
+      end
     end
 end

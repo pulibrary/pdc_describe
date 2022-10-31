@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_10_21_202710) do
+ActiveRecord::Schema.define(version: 2022_10_31_150209) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -43,6 +43,15 @@ ActiveRecord::Schema.define(version: 2022_10_21_202710) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "collection_options", force: :cascade do |t|
+    t.integer "option_type"
+    t.integer "option_value"
+    t.bigint "collection_id"
+    t.bigint "user_id"
+    t.index ["collection_id"], name: "index_collection_options_on_collection_id"
+    t.index ["user_id"], name: "index_collection_options_on_user_id"
+  end
+
   create_table "collections", force: :cascade do |t|
     t.string "title"
     t.text "description"
@@ -60,13 +69,6 @@ ActiveRecord::Schema.define(version: 2022_10_21_202710) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id"
     t.index ["resource_type", "resource_id"], name: "index_roles_on_resource"
-  end
-
-  create_table "user_message_enabled_collections", id: false, force: :cascade do |t|
-    t.bigint "user_id"
-    t.bigint "collection_id"
-    t.index ["collection_id"], name: "index_user_message_enabled_collections_on_collection_id"
-    t.index ["user_id"], name: "index_user_message_enabled_collections_on_user_id"
   end
 
   create_table "user_works", force: :cascade do |t|

@@ -2,9 +2,13 @@
 
 class Collection < ApplicationRecord
   resourcify
-  # rubocop:disable Rails/HasAndBelongsToMany
-  has_and_belongs_to_many :users_with_messaging, join_table: :user_message_enabled_collections, class_name: "User"
-  # rubocop:enable Rails/HasAndBelongsToMany
+
+  # CollectionOptions model extensible options set for Collections and Users
+  has_many :collection_options, dependent: :destroy
+  has_many :collection_messaging_options, -> { where(option_type: CollectionOption::EMAIL_MESSAGES) }, class_name: "CollectionOption", dependent: :destroy
+
+  has_many :users_with_options, through: :collection_options, source: :user
+  has_many :users_with_messaging, through: :collection_messaging_options, source: :user
 
   validate do |collection|
     if collection.title.blank?
@@ -77,7 +81,6 @@ class Collection < ApplicationRecord
         errors.add(:delete_permission, "Cannot remove yourself from a collection. Contact a super-admin for help.")
       else
         errors.delete(:delete_permission)
-        removed_user.remove_role :collection_admin, self
         removed_user.remove_role :submitter, self
       end
     else
@@ -93,7 +96,7 @@ class Collection < ApplicationRecord
   # @param user [User]
   def enable_messages_for(user:)
     raise(ArgumentError, "User #{user.uid} is not an administrator for this collection #{title}") unless user.super_admin? || user.can_admin?(self)
-    users_with_messaging << user
+    collection_messaging_options << CollectionOption.new(option_type: CollectionOption::EMAIL_MESSAGES, collection: self, user: user)
   end
 
   # Disable a User from receiving notification messages for members of this Collection

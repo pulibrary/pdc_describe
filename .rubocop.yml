@@ -28,10 +28,6 @@ Layout/LineLength:
     - "spec/system/cklibrary_form_submission_spec.rb"
     
 
-Metrics/AbcSize:
-  Exclude:
-    - "app/controllers/users_controller.rb"
-   
 Metrics/BlockLength:
   Exclude:
     - "config/environments/**/*"

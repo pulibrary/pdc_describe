@@ -8,9 +8,14 @@ class User < ApplicationRecord
   friendly_id :uid
 
   devise :rememberable, :omniauthable
-  # rubocop:disable Rails/HasAndBelongsToMany
-  has_and_belongs_to_many :collections_with_messaging, join_table: :user_message_enabled_collections, class_name: "Collection"
-  # rubocop:enable Rails/HasAndBelongsToMany
+
+  # CollectionOptions model extensible options set for Collections and Users
+  has_many :collection_options, dependent: :destroy
+  has_many :collection_messaging_options, -> { where(option_type: CollectionOption::EMAIL_MESSAGES) }, class_name: "CollectionOption", dependent: :destroy
+
+  has_many :collections_with_options, through: :collection_options, source: :collection
+  has_many :collections_with_messaging, through: :collection_messaging_options, source: :collection
+
   after_create :assign_default_role
 
   attr_accessor :just_created
@@ -218,11 +223,15 @@ class User < ApplicationRecord
     email_messages_enabled
   end
 
+  def collections_with_messaging_dis
+    collection_messaging_options.select { |option| option.option_type == CollectionOption::EMAIL_MESSAGES }
+  end
+
   # Permit this user to receive notification messages for members of a given Collection
   # @param collection [Collection]
   def enable_messages_from(collection:)
     raise(ArgumentError, "User #{uid} is not an administrator for the collection #{collection.title}") unless super_admin? || can_admin?(collection)
-    collections_with_messaging << collection
+    collection_messaging_options << CollectionOption.new(option_type: CollectionOption::EMAIL_MESSAGES, user: self, collection: collection)
   end
 
   # Disable this user from receiving notification messages for members of a given Collection
@@ -236,7 +245,7 @@ class User < ApplicationRecord
   # @param collection [Collection]
   # @return [Boolean]
   def messages_enabled_from?(collection:)
-    found = collections_with_messaging.find_by(id: collection.id)
+    found = collection_messaging_options.find_by(collection: collection)
 
     !found.nil?
   end
