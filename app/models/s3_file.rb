@@ -11,33 +11,13 @@ class S3File
     @query_service = query_service
   end
 
-  def bucket_name
-    return if @query_service.nil?
-
-    @query_service.bucket_name
-  end
-
-  def url_protocol
-    return if @query_service.nil?
-
-    @query_service.class.url_protocol
-  end
-
-  def s3_host
-    return if @query_service.nil?
-
-    @query_service.class.s3_host
-  end
-
-  def uri
-    return if @query_service.nil?
-
-    URI("#{url_protocol}://#{bucket_name}.#{s3_host}/#{filename}")
-  end
-
-  def url
-    return if uri.nil?
-
+  def globus_url
     uri.to_s
   end
+
+  private
+
+    def uri
+      URI(File.join(Rails.configuration.globus["post_curation_base_url"], filename))
+    end
 end

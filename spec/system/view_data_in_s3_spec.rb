@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "View status of data in S3", mock_ezid_api: true do
+RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
   before do
     sign_in user
   end
@@ -33,7 +33,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
       "https://example-bucket.s3.amazonaws.com/"
     end
 
-    it "shows data from S3 on the Show and Edit pages", js: true do
+    it "shows data from S3 on the Show and Edit pages" do
       # Account for files in S3 added outside of ActiveStorage
       allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
       allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
@@ -63,11 +63,11 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
     context "when item is approved" do
       let(:work) { FactoryBot.create(:approved_work) }
       it "shows data from S3" do
-        stub_work_s3_requests(work: work, file_name: file1.filename)
+        stub_s3(data: [file1])
 
         visit work_path(work)
 
-        expect(page).to have_content file1.filename
+        expect(page).to have_link file1.filename, href: "https://example.data.globus.org/#{file1.filename}"
         expect(page).not_to have_button("Edit")
       end
 
@@ -76,12 +76,12 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
         it "shows data from S3" do
           stub_s3(data: s3_data)
           visit work_path(work)
-          expect(page).to have_content file1.filename
-          expect(page).to have_content file2.filename
+          expect(page).to have_link file1.filename, href: "https://example.data.globus.org/#{file1.filename}"
+          expect(page).to have_link file2.filename, href: "https://example.data.globus.org/#{file2.filename}"
 
           click_on "Edit"
-          expect(page).to have_content file1.filename
-          expect(page).to have_content file2.filename
+          expect(page).to have_link file1.filename, href: "https://example.data.globus.org/#{file1.filename}"
+          expect(page).to have_link file2.filename, href: "https://example.data.globus.org/#{file2.filename}"
         end
       end
 
@@ -90,12 +90,12 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true do
         it "shows data from S3" do
           stub_s3(data: s3_data)
           visit work_path(work)
-          expect(page).to have_content file1.filename
-          expect(page).to have_content file2.filename
+          expect(page).to have_link file1.filename, href: "https://example.data.globus.org/#{file1.filename}"
+          expect(page).to have_link file2.filename, href: "https://example.data.globus.org/#{file2.filename}"
 
           click_on "Edit"
-          expect(page).to have_content file1.filename
-          expect(page).to have_content file2.filename
+          expect(page).to have_link file1.filename, href: "https://example.data.globus.org/#{file1.filename}"
+          expect(page).to have_link file2.filename, href: "https://example.data.globus.org/#{file2.filename}"
         end
       end
     end
