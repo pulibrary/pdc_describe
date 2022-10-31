@@ -33,7 +33,7 @@
                     </td>
                     <td><span><%= upload.created_at %></span></td>
                     <td>
-                      <input id="work-deposit-uploads" name="work[replaced_uploads][<%= upload.id %>]" type="file" />
+                      <input id="work-deposit-uploads-<%= upload.id %>" name="work[replaced_uploads][<%= upload.key %>]" type="file" />
                     </td>
                     <td>
                       <input id="work-uploads-<%= upload.id %>-delete" name="work[deleted_uploads][<%= upload.key %>]" type="checkbox" value="1"/>

@@ -299,21 +299,21 @@ RSpec.describe WorksController do
         file.close
         file
       end
-      let(:uploaced_temp_file1) { Rack::Test::UploadedFile.new(temp_file1.path, "text/plain") }
+      let(:uploaded_temp_file1) { Rack::Test::UploadedFile.new(temp_file1.path, "text/plain") }
       let(:temp_file2) do
         file = Tempfile.new("temp_file2")
         file.write("hello world 2")
         file.close
         file
       end
-      let(:uploaced_temp_file2) { Rack::Test::UploadedFile.new(temp_file2.path, "text/plain") }
+      let(:uploaded_temp_file2) { Rack::Test::UploadedFile.new(temp_file2.path, "text/plain") }
       let(:temp_file3) do
         file = Tempfile.new("temp_file3")
         file.write("hello world 3")
         file.close
         file
       end
-      let(:uploaced_temp_file3) { Rack::Test::UploadedFile.new(temp_file3.path, "text/plain") }
+      let(:uploaded_temp_file3) { Rack::Test::UploadedFile.new(temp_file3.path, "text/plain") }
 
       after do
         temp_file1.unlink
@@ -327,8 +327,8 @@ RSpec.describe WorksController do
 
       let(:uploaded_files) do
         {
-          "0" => uploaded_file1,
-          "2" => uploaded_file2
+          work.pre_curation_uploads[0].key => uploaded_file1,
+          work.pre_curation_uploads[2].key => uploaded_file2
         }
       end
 
@@ -340,9 +340,9 @@ RSpec.describe WorksController do
         stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
 
-        work.pre_curation_uploads.attach(uploaced_temp_file1)
-        work.pre_curation_uploads.attach(uploaced_temp_file2)
-        work.pre_curation_uploads.attach(uploaced_temp_file3)
+        work.pre_curation_uploads.attach(uploaded_temp_file1)
+        work.pre_curation_uploads.attach(uploaded_temp_file2)
+        work.pre_curation_uploads.attach(uploaded_temp_file3)
 
         params = {
           "title_main" => "test dataset updated",
