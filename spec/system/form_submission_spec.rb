@@ -3,6 +3,7 @@ require "rails_helper"
 
 RSpec.describe "Form submission for a legacy dataset", type: :system do
   let(:user) { FactoryBot.create(:princeton_submitter) }
+  let!(:curator) { FactoryBot.create(:user, collections_to_admin: [Collection.first]) }
   let(:title) { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
   let(:contributors) do
     [
@@ -75,6 +76,17 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Complete"
 
       expect(page).to have_content "awaiting_approval"
+
+      # Now sign is as the collection curator and see the notification on your dashboard
+      sign_out user
+      sign_in curator
+      visit(user_path(curator))
+      expect(page).to have_content curator.display_name
+      # This is the blue badge on the work that should show up for a curator
+      #  when a work is marked completed by a submitter
+      within("#unfinished_datasets span.badge.rounded-pill.bg-primary") do
+        expect(page).to have_content "1"
+      end
     end
   end
 end
