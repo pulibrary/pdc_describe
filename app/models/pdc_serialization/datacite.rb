@@ -232,16 +232,39 @@ module PDCSerialization
           end.compact
         end
 
+        ##
+        # Add related identifiers from various locations in the metadata.
+        # @param [PDCMetadata::Resource] resource
+        # @return [<::Datacite::Mapping::RelatedIdentifier>]
         def related_identifiers_from_work_resource(resource)
           related_identifiers = []
+          related_identifiers = related_identifiers.union(extract_ark_as_related_identfier(resource))
+          related_identifiers = related_identifiers.union(extract_related_objects(resource))
+          related_identifiers
+        end
+
+        def extract_ark_as_related_identfier(resource)
+          related_ids = []
           if resource.ark.present?
-            related_identifiers << ::Datacite::Mapping::RelatedIdentifier.new(
+            related_ids << ::Datacite::Mapping::RelatedIdentifier.new(
               relation_type: ::Datacite::Mapping::RelationType::IS_IDENTICAL_TO,
               value: resource.ark,
               identifier_type: ::Datacite::Mapping::RelatedIdentifierType::ARK
             )
           end
-          related_identifiers
+          related_ids
+        end
+
+        def extract_related_objects(resource)
+          related_objects = []
+          resource.related_objects.each do |ro|
+            related_objects << ::Datacite::Mapping::RelatedIdentifier.new(
+              relation_type: ::Datacite::Mapping::RelationType.find_by_key(ro.relation_type.to_sym),
+              value: ro.related_identifier,
+              identifier_type: ::Datacite::Mapping::RelatedIdentifierType.find_by_key(ro.related_identifier_type.to_sym)
+            )
+          end
+          related_objects
         end
 
         def rights_from_work_resource(resource)

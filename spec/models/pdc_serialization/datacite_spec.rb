@@ -233,4 +233,16 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
       end
     end
   end
+
+  context "with an external related object" do
+    let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+    let(:datacite) { work.resource.to_xml }
+    let(:parsed_xml) { Datacite::Mapping::Resource.parse_xml(datacite) }
+
+    it "references the related object in the datacite record" do
+      expect(parsed_xml.related_identifiers.count).to eq 2
+      expect(parsed_xml.related_identifiers.first.identifier_type.value).to eq "ARK"
+      expect(parsed_xml.related_identifiers.last.identifier_type.value).to eq "arXiv"
+    end
+  end
 end
