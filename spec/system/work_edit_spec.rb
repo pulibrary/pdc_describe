@@ -41,6 +41,9 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
     let(:uploaded_file2) do
       fixture_file_upload("us_covid_2020.csv", "text/csv")
     end
+    let(:uploaded_file3) do
+      fixture_file_upload("orcid.csv", "text/csv")
+    end
     let(:bucket_url) do
       "https://example-bucket.s3.amazonaws.com/"
     end
@@ -79,6 +82,31 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       click_on "Save Work"
       expect(page).to have_content("us_covid_2020.csv")
       expect(page).to have_content("deleted us_covid_2019.csv")
+      expect(a_request(:delete, delete_url)).to have_been_made
+      expect(ActiveStorage::PurgeJob).not_to have_received(:new)
+    end
+
+    it "allows users to replace one of the uploads" do
+      allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
+      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
+      page.driver.browser.manage.window.resize_to(2000, 2000)
+      expect(page).to have_content "Filename"
+      expect(page).to have_content "Created At"
+      expect(page).to have_content "Replace Upload"
+      expect(page).to have_content "Delete Upload"
+      within(".files.card-body") do
+        expect(page).to have_content("us_covid_2019.csv")
+        expect(page).to have_content("us_covid_2020.csv")
+      end
+      attach_file("work-deposit-uploads-#{work.pre_curation_uploads.first.id}", Rails.root.join("spec", "fixtures", "files", "orcid.csv"))
+      click_on "Save Work"
+      within(".files.card-body") do
+        expect(page).to have_content("orcid.csv")
+        expect(page).to have_content("us_covid_2020.csv")
+        expect(page).not_to have_content("us_covid_2019.csv")
+      end
+      expect(page).to have_content("deleted us_covid_2019.csv")
+      expect(page).to have_content("added orcid.csv")
       expect(a_request(:delete, delete_url)).to have_been_made
       expect(ActiveStorage::PurgeJob).not_to have_received(:new)
     end
