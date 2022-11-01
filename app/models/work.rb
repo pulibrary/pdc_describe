@@ -25,7 +25,7 @@ class Work < ApplicationRecord
     end
 
     event :complete_submission do
-      transitions from: :draft, to: :awaiting_approval, guard: :valid_to_submit
+      transitions from: :draft, to: :awaiting_approval, guard: :valid_to_submit, after: :notify_collection_curators
     end
 
     event :request_changes do
@@ -51,6 +51,13 @@ class Work < ApplicationRecord
     after_all_events :track_state_change
   end
 
+  def state=(new_state)
+    new_state_sym = new_state.to_sym
+    valid_states = self.class.aasm.states.map(&:name)
+    raise(StandardError, "Invalid state '#{new_state}'") unless valid_states.include?(new_state_sym)
+    aasm_write_state_without_persistence(new_state_sym)
+  end
+
   ##
   # Is this work editable by a given user?
   # A work is editable when:
@@ -60,10 +67,15 @@ class Work < ApplicationRecord
   # @param [User]
   # @return [Boolean]
   def editable_by?(user)
-    return true if created_by_user_id == user.id
-    collection = Collection.find(collection_id)
-    return true if user.has_role?(:collection_admin, collection)
-    false
+    submitted_by?(user) || administered_by?(user)
+  end
+
+  def submitted_by?(user)
+    created_by_user_id == user.id
+  end
+
+  def administered_by?(user)
+    user.has_role?(:collection_admin, collection)
   end
 
   class << self
@@ -238,6 +250,7 @@ class Work < ApplicationRecord
   end
 
   def uploads_attributes
+    return [] if approved? # once approved we no longer allow the updating of uploads via the application
     uploads.map do |upload|
       {
         id: upload.id,
@@ -349,8 +362,18 @@ class Work < ApplicationRecord
     persisted.uid
   end
 
-  def add_comment(comment, current_user)
-    WorkActivity.add_system_activity(id, comment, current_user.id, activity_type: "COMMENT")
+  def add_comment(comment, current_user_id)
+    WorkActivity.add_system_activity(id, comment, current_user_id, activity_type: "COMMENT")
+  end
+
+  def log_changes(resource_compare, current_user_id)
+    return if resource_compare.identical?
+    WorkActivity.add_system_activity(id, resource_compare.differences.to_json, current_user_id, activity_type: "CHANGES")
+  end
+
+  def log_file_changes(changes, current_user_id)
+    return if changes.count == 0
+    WorkActivity.add_system_activity(id, changes.to_json, current_user_id, activity_type: "FILE-CHANGES")
   end
 
   def activities
@@ -411,39 +434,79 @@ class Work < ApplicationRecord
 
   delegate :bucket_name, to: :s3_query_service
 
-  def post_curation_bucket_name
-    post_curation_s3_query_service.bucket_name
-  end
-
-  def add_post_curation_s3_object(blob:)
+  # Transmit a PUT request to upload an ActiveStorage Blob file to the post-curation S3 Bucket
+  # @param blob [ActiveStorage::Blob]
+  # @param bucket_name [String]
+  # @return [Aws::S3::Types::PutObjectOutput]
+  def put_post_curation_s3_object(bucket_name:, blob:)
     s3_client.put_object({
-                           bucket: post_curation_bucket_name,
+                           bucket: bucket_name,
                            key: blob.key,
                            body: blob.download
                          })
+  rescue Aws::S3::Errors::ServiceError => error
+    raise(StandardError, "Failed to upload the following to the post-curation S3 Bucket object #{blob.key}: #{error}")
+  end
+
+  # Transmit a HEAD request for an S3 Object in the post-curation Bucket
+  # @param key [String]
+  # @param bucket_name [String]
+  # @return [Aws::S3::Types::HeadObjectOutput]
+  def find_post_curation_s3_object(bucket_name:, key:)
+    s3_client.head_object({
+                            bucket: bucket_name,
+                            key: key
+                          })
+    true
+  rescue Aws::S3::Errors::NotFound
+    nil
+  end
+
+  # Generates the S3 Object key
+  # @return [String]
+  def s3_object_key
+    "#{doi}/#{id}"
+  end
+
+  # Transmit a HEAD request for the S3 Bucket directory for this Work
+  # @param bucket_name location to be checked to be found
+  # @return [Aws::S3::Types::HeadObjectOutput]
+  def find_post_curation_s3_dir(bucket_name:)
+    s3_client.head_object({
+                            bucket: bucket_name,
+                            key: s3_object_key
+                          })
+    true
+  rescue Aws::S3::Errors::NotFound
+    nil
+  end
+
+  # Transmit a DELETE request for the S3 directory in the pre-curation Bucket
+  # @return [Aws::S3::Types::DeleteObjectOutput]
+  def delete_pre_curation_s3_dir
+    s3_client.delete_object({
+                              bucket: bucket_name,
+                              key: s3_object_key
+                            })
+  rescue Aws::S3::Errors::ServiceError => error
+    raise(StandardError, "Failed to delete the pre-curation S3 Bucket directory #{s3_object_key}: #{error}")
   end
 
   # This is invoked within the scope of #after_save. Attachment objects require that the parent record be persisted (hence, #before_save is not an option).
   # However, a consequence of this is that #after_save is invoked whenever a new attached Blob or Attachment object is persisted.
   def attach_s3_resources
-    if approved?
-      # This migrates pre-curation S3 Objects to the post-curation S3 Bucket
-      transferred = []
-      pre_curation_uploads.each do |attachment|
-        unless post_curation_s3_file?(filename: attachment.filename.to_s)
-          add_post_curation_s3_object(blob: attachment.blob)
-          transferred << attachment
-        end
-      end
-
-      # There was a race-condition when I attempted the above
-      transferred.each(&:purge)
-    else
-      # This retrieves and adds S3 uploads if they do not exist
-      pre_curation_s3_resources.each do |s3_file|
-        add_pre_curation_s3_object(s3_file)
+    return if approved?
+    changes = []
+    # This retrieves and adds S3 uploads if they do not exist
+    pre_curation_s3_resources.each do |s3_file|
+      if add_pre_curation_s3_object(s3_file)
+        changes << { action: :added, filename: s3_file.filename }
       end
     end
+
+    # Log the new files, but don't link the change to the current_user since we really don't know
+    # who added the files directly to AWS S3.
+    log_file_changes(changes, nil)
   end
 
   delegate :resource_type, :resource_type=, :resource_type_general, :resource_type_general=, to: :resource
@@ -481,6 +544,8 @@ class Work < ApplicationRecord
     def publish(user)
       publish_doi(user)
       update_ark_information
+      publish_precurated_files
+      save!
     end
 
     # Update EZID (our provider of ARKs) with the new information for this work.
@@ -623,22 +688,13 @@ class Work < ApplicationRecord
       end
     end
 
-    def pre_curation_s3_query_service
-      @pre_curation_s3_query_service ||= S3QueryService.new(self, true)
-    end
-
-    def post_curation_s3_query_service
-      @post_curation_s3_query_service ||= S3QueryService.new(self, false)
-    end
-
+    # S3QueryService object associated with this Work
+    # @return [S3QueryService]
     def s3_query_service
-      if approved?
-        post_curation_s3_query_service
-      else
-        pre_curation_s3_query_service
-      end
+      @s3_query_service = S3QueryService.new(self, !approved?)
     end
 
+    # Request S3 Bucket Objects associated with this Work
     # @return [Array<S3File>]
     def s3_resources
       data_profile = s3_query_service.data_profile
@@ -656,6 +712,41 @@ class Work < ApplicationRecord
 
       persisted = s3_file_to_blob(s3_file)
       pre_curation_uploads.attach(persisted)
+    end
+
+    def publish_precurated_files
+      # An error is raised if there are no files to be moved
+      raise(StandardError, "Attempting to publish a Work without attached uploads for #{s3_object_key}") if pre_curation_uploads.empty? && post_curation_uploads.empty?
+
+      # We need to explicitly access to post-curation services here.  Lets explicitly create it so the state of the work does not have any impact
+      s3_post_curation_query_service = S3QueryService.new(self, false)
+
+      # This migrates pre-curation S3 Objects to the post-curation S3 Bucket
+      transferred = []
+
+      s3_dir = find_post_curation_s3_dir(bucket_name: s3_post_curation_query_service.bucket_name)
+      raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{s3_object_key}") unless s3_dir.nil?
+
+      pre_curation_uploads.each do |attachment|
+        next if post_curation_s3_file?(filename: attachment.filename.to_s)
+
+        put_post_curation_s3_object(bucket_name: s3_post_curation_query_service.bucket_name, blob: attachment.blob)
+        s3_object = find_post_curation_s3_object(bucket_name: s3_post_curation_query_service.bucket_name, key: attachment.key)
+        raise(StandardError, "Failed to validate the uploaded S3 Object #{attachment.key}") if s3_object.nil?
+
+        transferred << attachment
+      end
+
+      # There was a race-condition when I attempted the above
+      transferred.each(&:purge)
+
+      delete_pre_curation_s3_dir
+    end
+
+    def notify_collection_curators(current_user)
+      curators = collection.administrators.map { |admin| "@#{admin.uid}" }.join(", ")
+      notification = "#{curators} The [work](#{work_url(self)}) is ready for review."
+      WorkActivity.add_system_activity(id, notification, current_user.id)
     end
 end
 # rubocop:ensable Metrics/ClassLength

@@ -3,7 +3,7 @@
   <div class="field">
     <% if  @wizard_mode || @work.persisted? %>
       DOI: <br>
-      <%= @work.doi %>
+      <input type="text" id="doi" name="doi" class="input-text-long" value="<%= @work.doi %>" readonly/>
     <% else %>
       DOI: <span class="text-muted field-hint">(enter the Digital Object Identifier, e.g. 10.80021/62qy-nj36)</span><br>
       <input type="text" id="doi" name="doi" class="input-text-long" value="<%= @work.doi %>"/>
@@ -46,7 +46,7 @@
   <!-- Collection Tags field -->
   <div class="field">
     Collection Tags: <span class="text-muted field-hint">(enter tags that identify the collect in a comma separated list, e.g. Humanities, Life Sciences)</span><br>
-    <input type="text" id="collection_tags" name="collection_tags" class="input-text-long" value="<%= @work.resource.ark %>" />
+    <input type="text" id="collection_tags" name="collection_tags" class="input-text-long" value="<%= @work.resource.collection_tags.join(', ') %>" />
   </div>
 
 </div>

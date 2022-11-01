@@ -106,13 +106,26 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
     let(:curator) { FactoryBot.create(:research_data_moderator) }
     let(:datacite_stub) { stub_datacite_doi }
     let(:identifier) { @identifier } # from the mock_ezid_api
+    let(:file_name) { "us_covid_2019.csv" }
+    let(:uploaded_file) { fixture_file_upload(file_name, "text/csv") }
+    let(:s3_client) { @s3_client }
+    let(:work) { Work.last }
+
     before do
-      stub_s3
       datacite_stub # make sure the stub is created before we start the test
+
       Rails.configuration.update_ark_url = true
       Rails.configuration.datacite.user = curator
+
       allow(Honeybadger).to receive(:notify)
+
       sign_in curator
+
+      stub_work_s3_requests(work: work, file_name: file_name)
+      work.pre_curation_uploads.attach(uploaded_file)
+      work.save!
+      work.reload
+
       visit work_path(work)
       click_on "Approve"
     end

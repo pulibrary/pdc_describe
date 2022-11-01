@@ -1,0 +1,164 @@
+{
+    "titles": [
+        {
+            "title": "Distinct cytoskeletal proteins define zones of enhanced cell wall synthesis in Helicobacter pylori",
+            "title_type": null
+        }
+    ],
+    "description": "Helical cell shape is necessary for efficient stomach colonization by Helicobacter pylori, but the molecular mechanisms for generating helical shape remain unclear. We show that the helical centerline pitch and radius of wild-type H. pylori cells dictate surface curvatures of considerably higher positive and negative Gaussian curvatures than those present in straight- or curved-rod bacteria. Quantitative 3D microscopy analysis of short pulses with either N-acetylmuramic acid or D-alanine metabolic probes showed that cell wall growth is enhanced at both sidewall curvature extremes. Immunofluorescence revealed MreB is most abundant at negative Gaussian curvature, while the bactofilin CcmA is most abundant at positive Gaussian curvature. Strains expressing CcmA variants with altered polymerization properties lose helical shape and associated positive Gaussian curvatures. We thus propose a model where CcmA and MreB promote PG synthesis at positive and negative Gaussian curvatures, respectively, and that this patterning is one mechanism necessary for maintaining helical shape. This dataset includes structured illumination fluorescence microscopy images (SIM) and their associated cell shape reconstructions, phase contrast micrographs, and transmission electron micrographs. See the README.txt for detailed description of the strains and conditions represented in each data file.",
+    "collection_tags": [],
+    "creators": [
+        {
+            "value": "Taylor, Jenny A",
+            "name_type": "Personal",
+            "given_name": "Jenny A",
+            "family_name": "Taylor",
+            "identifier": null,
+            "affiliations": [],
+            "sequence": 1
+        },
+        {
+            "value": "Bratton, Benjamin P",
+            "name_type": "Personal",
+            "given_name": "Benjamin P",
+            "family_name": "Bratton",
+            "identifier": null,
+            "affiliations": [],
+            "sequence": 2
+        },
+        {
+            "value": "Sichel, Sophie R",
+            "name_type": "Personal",
+            "given_name": "Sophie R",
+            "family_name": "Sichel",
+            "identifier": null,
+            "affiliations": [],
+            "sequence": 3
+        },
+        {
+            "value": "Blair, Kris M",
+            "name_type": "Personal",
+            "given_name": "Kris M",
+            "family_name": "Blair",
+            "identifier": null,
+            "affiliations": [],
+            "sequence": 4
+        },
+        {
+            "value": "Jacobs, Holly M",
+            "name_type": "Personal",
+            "given_name": "Holly M",
+            "family_name": "Jacobs",
+            "identifier": null,
+            "affiliations": [],
+            "sequence": 5
+        },
+        {
+            "value": "DeMeester, Kristen E",
+            "name_type": "Personal",
+            "given_name": "Kristen E",
+            "family_name": "DeMeester",
+            "identifier": null,
+            "affiliations": [],
+            "sequence": 6
+        },
+        {
+            "value": "Kuru, Erkin",
+            "name_type": "Personal",
+            "given_name": "Erkin",
+            "family_name": "Kuru",
+            "identifier": null,
+            "affiliations": [],
+            "sequence": 7
+        },
+        {
+            "value": "Gray, Joe",
+            "name_type": "Personal",
+            "given_name": "Joe",
+            "family_name": "Gray",
+            "identifier": null,
+            "affiliations": [],
+            "sequence": 8
+        },
+        {
+            "value": "Biboy, Jacob",
+            "name_type": "Personal",
+            "given_name": "Jacob",
+            "family_name": "Biboy",
+            "identifier": null,
+            "affiliations": [],
+            "sequence": 9
+        },
+        {
+            "value": "VanNieuwenhze, Michael S",
+            "name_type": "Personal",
+            "given_name": "Michael S",
+            "family_name": "VanNieuwenhze",
+            "identifier": null,
+            "affiliations": [],
+            "sequence": 10
+        },
+        {
+            "value": "Vollmer, Waldemar",
+            "name_type": "Personal",
+            "given_name": "Waldemar",
+            "family_name": "Vollmer",
+            "identifier": null,
+            "affiliations": [],
+            "sequence": 11
+        },
+        {
+            "value": "Grimes, Catherine L",
+            "name_type": "Personal",
+            "given_name": "Catherine L",
+            "family_name": "Grimes",
+            "identifier": null,
+            "affiliations": [],
+            "sequence": 12
+        },
+        {
+            "value": "Shaevitz, Joshua W",
+            "name_type": "Personal",
+            "given_name": "Joshua W",
+            "family_name": "Shaevitz",
+            "identifier": null,
+            "affiliations": [],
+            "sequence": 13
+        },
+        {
+            "value": "Salama, Nina R",
+            "name_type": "Personal",
+            "given_name": "Nina R",
+            "family_name": "Salama",
+            "identifier": null,
+            "affiliations": [],
+            "sequence": 14
+        }
+    ],
+    "resource_type": "Dataset",
+    "resource_type_general": "DATASET",
+    "publisher": "Princeton University",
+    "publication_year": "2019",
+    "ark": "ark:/88435/dsp01h415pd457",
+    "doi": "10.34770/r2dz-ys12",
+    "rights": {
+        "identifier": "CC BY",
+        "uri": "https://creativecommons.org/licenses/by/4.0/",
+        "name": "Creative Commons Attribution 4.0 International"
+    },
+    "version_number": "1",
+    "related_objects": [
+        {
+            "related_identifier": "https://www.biorxiv.org/content/10.1101/545517v1",
+            "related_identifier_type": "ARXIV",
+            "relation_type": "IS_CITED_BY"
+        },
+        {
+            "related_identifier": "https://doi.org/10.7554/eLife.52482",
+            "related_identifier_type": "DOI",
+            "relation_type": "IS_CITED_BY"
+        }
+    ],
+    "keywords": [],
+    "contributors": []
+}

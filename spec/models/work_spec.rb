@@ -22,6 +22,10 @@ RSpec.describe Work, type: :model do
   let(:identifier) { @identifier }
   let(:attachment_url) { /#{Regexp.escape("https://example-bucket.s3.amazonaws.com/")}/ }
 
+  let(:uploaded_file) do
+    fixture_file_upload("us_covid_2019.csv", "text/csv")
+  end
+
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
@@ -48,6 +52,11 @@ RSpec.describe Work, type: :model do
   it "prevents datasets with no collections" do
     work = Work.new(collection: nil, resource: FactoryBot.build(:resource))
     expect { work.save! }.to raise_error ActiveRecord::RecordInvalid
+  end
+
+  it "prevents invalid state assignment" do
+    work = Work.new
+    expect { work.state = "sorry" }.to raise_error(StandardError, /Invalid state 'sorry'/)
   end
 
   describe "#editable_by?" do
@@ -79,12 +88,18 @@ RSpec.describe Work, type: :model do
     end
   end
 
+  context "with related objects" do
+    subject(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+    it "has related objects" do
+      expect(work.resource.related_objects.first.related_identifier).to eq "https://www.biorxiv.org/content/10.1101/545517v1"
+      expect(work.resource.related_objects.first.related_identifier_type).to eq "ARXIV"
+      expect(work.resource.related_objects.first.relation_type).to eq "IS_CITED_BY"
+    end
+  end
+
   context "with a persisted dataset work" do
     subject(:work) { FactoryBot.create(:draft_work) }
 
-    let(:uploaded_file) do
-      fixture_file_upload("us_covid_2019.csv", "text/csv")
-    end
     let(:uploaded_file2) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
@@ -109,55 +124,111 @@ RSpec.describe Work, type: :model do
   end
 
   it "approves works and records the change history" do
+    file_name = uploaded_file.original_filename
+    stub_work_s3_requests(work: work, file_name: file_name)
+    work.pre_curation_uploads.attach(uploaded_file)
     stub_datacite_doi
     work.complete_submission!(user)
     work.approve!(curator_user)
+    # The put for precuration upload
+    expect(a_request(:put, "https://example-bucket.s3.amazonaws.com/#{work.s3_object_key}/#{file_name}")).to have_been_made
+    # The put for postcuration move on save
+    expect(a_request(:put, "https://example-bucket-post.s3.amazonaws.com/#{work.s3_object_key}/#{file_name}")).to have_been_made
     expect(work.state_history.first.state).to eq "approved"
     expect(work.reload.state).to eq("approved")
   end
 
   context "when files are attached to a pre-curation Work" do
+    subject(:work) { FactoryBot.create(:draft_work) }
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
     let(:uploaded_file2) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
-    let(:s3_client) do
-      s3_client = instance_double(Aws::S3::Client)
-      pre_curated_data_profile = { objects: [] }
-      pre_curated_query_service = instance_double(S3QueryService)
+    let(:post_curation_data_profile) do
+      {
+        objects: [
+          S3File.new(
+            query_service: pre_curated_query_service,
+            filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
+            last_modified: nil,
+            size: nil,
+            checksum: ""
+          ),
+          S3File.new(
+            query_service: pre_curated_query_service,
+            filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv",
+            last_modified: nil,
+            size: nil,
+            checksum: ""
+          )
+        ]
+      }
+    end
+    let(:pre_curated_data_profile) do
+      {
+        objects: []
+      }
+    end
+    let(:pre_curated_query_service) { instance_double(S3QueryService) }
+    let(:s3_client) { instance_double(Aws::S3::Client) }
 
-      allow(pre_curated_query_service).to receive(:data_profile).and_return(pre_curated_data_profile)
+    before do
+      allow(s3_client).to receive(:put_object)
+      allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc/#{work.id}").and_raise(Aws::S3::Errors::NotFound.new(true, "test error"))
+      allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc/#{work.id}/us_covid_2019.csv").and_return(true)
+      allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc/#{work.id}/us_covid_2019_2.csv").and_return(true)
+      allow(s3_client).to receive(:delete_object).and_return(nil)
+
+      allow(pre_curated_query_service).to receive(:data_profile).and_return(
+        pre_curated_data_profile,
+        post_curation_data_profile
+      )
       allow(pre_curated_query_service).to receive(:bucket_name).and_return("example-bucket")
       allow(pre_curated_query_service).to receive(:client).and_return(s3_client)
       allow(S3QueryService).to receive(:new).and_return(pre_curated_query_service)
-      s3_client
-    end
 
-    before do
       stub_request(:delete, /#{attachment_url}/).to_return(status: 200)
-      allow(s3_client).to receive(:put_object)
       stub_request(:get, /#{attachment_url}/).to_return(status: 200, body: "test_content")
       stub_request(:put, /#{attachment_url}/).with(
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
       ).to_return(status: 200)
+      stub_datacite_doi
 
-      20.times { work.pre_curation_uploads.attach(uploaded_file) }
+      work.complete_submission!(user)
+      work.reload
+      2.times { work.pre_curation_uploads.attach(uploaded_file) }
       work.save!
     end
 
     context "when a Work is approved" do
       it "transfers the files to the AWS Bucket" do
-        stub_datacite_doi
-        work.complete_submission!(user)
+        first_attachment = work.pre_curation_uploads.first
+        first_attachment_key = first_attachment.key
+        last_attachment = work.pre_curation_uploads.last
+        last_attachment_key = last_attachment.key
+
         work.approve!(curator_user)
+        work.reload
+
         expect(s3_client).to have_received(:put_object).with({
                                                                body: "test_content",
                                                                bucket: "example-bucket",
                                                                key: "10.34770/123-abc/#{work.id}/us_covid_2019.csv"
                                                              }).at_least(1).time
+        expect(s3_client).to have_received(:put_object).with({
+                                                               body: "test_content",
+                                                               bucket: "example-bucket",
+                                                               key: "10.34770/123-abc/#{work.id}/us_covid_2019_2.csv"
+                                                             }).at_least(1).time
         expect(work.pre_curation_uploads).to be_empty
+        expect(work.post_curation_uploads).not_to be_empty
+        expect(work.post_curation_uploads.length).to eq(2)
+        expect(work.post_curation_uploads.first).to be_an(S3File)
+        expect(work.post_curation_uploads.first.key).to eq(first_attachment_key)
+        expect(work.post_curation_uploads.last).to be_an(S3File)
+        expect(work.post_curation_uploads.last.key).to eq(last_attachment_key)
       end
     end
   end
@@ -190,6 +261,9 @@ RSpec.describe Work, type: :model do
     end
 
     it "updates the ARK metadata" do
+      file_name = uploaded_file.original_filename
+      stub_work_s3_requests(work: work, file_name: file_name)
+      work.pre_curation_uploads.attach(uploaded_file)
       work.resource.ark = ezid
       work.save
       work.complete_submission!(user)
@@ -198,7 +272,10 @@ RSpec.describe Work, type: :model do
       expect(Ark).to have_received(:update).exactly(1).times
     end
 
-    it "does not update the ARK metadata" do
+    it "does not update the ARK metadata when it is nil" do
+      file_name = uploaded_file.original_filename
+      stub_work_s3_requests(work: work, file_name: file_name)
+      work.pre_curation_uploads.attach(uploaded_file)
       work.resource.ark = nil
       work.save
       work.complete_submission!(user)
@@ -317,7 +394,7 @@ RSpec.describe Work, type: :model do
 
   describe "#add_comment" do
     it "adds a comment" do
-      work.add_comment("hello world", user)
+      work.add_comment("hello world", user.id)
       activity = work.activities.find { |a| a.message.include?("hello world") }
       expect(activity.created_by_user.id).to eq user.id
       expect(activity.activity_type).to eq "COMMENT"
@@ -327,8 +404,8 @@ RSpec.describe Work, type: :model do
       expect(work.new_notification_count_for_user(user.id)).to eq 0
       expect(work.new_notification_count_for_user(curator_user.id)).to eq 0
 
-      work.add_comment("taggging @#{curator_user.uid}", user)
-      work2.add_comment("taggging @#{curator_user.uid}", user)
+      work.add_comment("taggging @#{curator_user.uid}", user.id)
+      work2.add_comment("taggging @#{curator_user.uid}", user.id)
       expect(work.new_notification_count_for_user(user.id)).to eq 0
       expect(work.new_notification_count_for_user(curator_user.id)).to eq 1
 
@@ -338,7 +415,7 @@ RSpec.describe Work, type: :model do
 
     it "parses tagged users correctly" do
       message = "taggging @#{curator_user.uid} and @#{user_other.uid}"
-      work.add_comment(message, user)
+      work.add_comment(message, user.id)
       activity = work.activities.find { |a| a.message.include?(message) }
       expect(activity.message_html.include?("#{curator_user.uid}</a>")).to be true
       expect(activity.message_html.include?("#{user_other.uid}</a>")).to be true
@@ -452,6 +529,9 @@ RSpec.describe Work, type: :model do
     end
 
     it "transitions from awaiting_approval to approved" do
+      file_name = uploaded_file.original_filename
+      stub_work_s3_requests(work: awaiting_approval_work, file_name: file_name)
+      awaiting_approval_work.pre_curation_uploads.attach(uploaded_file)
       stub_datacite_doi
       awaiting_approval_work.approve!(curator_user)
       expect(awaiting_approval_work.reload.state).to eq("approved")
@@ -473,12 +553,24 @@ RSpec.describe Work, type: :model do
     it "can not transition from awaiting_approval to draft" do
       expect { awaiting_approval_work.draft!(user) }.to raise_error AASM::InvalidTransition
     end
+
+    it "notifies the curators it is ready for review" do
+      curator = FactoryBot.create(:research_data_moderator)
+      expect { awaiting_approval_work }.to change { WorkActivity.where(activity_type: "SYSTEM").count }.by(2)
+      expect(WorkActivity.where(activity_type: "SYSTEM").last.message).to eq("marked as awaiting_approval")
+      curator_notification = WorkActivity.where(activity_type: "SYSTEM").first.message
+      expect(curator_notification).to include("@#{curator.uid}")
+      expect(curator_notification). to include(Rails.application.routes.url_helpers.work_url(awaiting_approval_work))
+    end
   end
 
   describe "#approve" do
     let(:approved_work) do
       work = FactoryBot.create :draft_work
       work.complete_submission!(user)
+      file_name = uploaded_file.original_filename
+      stub_work_s3_requests(work: work, file_name: file_name)
+      work.pre_curation_uploads.attach(uploaded_file)
       work.approve!(curator_user)
       work
     end
@@ -509,6 +601,9 @@ RSpec.describe Work, type: :model do
 
       it "is approved" do
         draft_work = FactoryBot.create(:draft_work)
+        file_name = uploaded_file.original_filename
+        stub_work_s3_requests(work: draft_work, file_name: file_name)
+        draft_work.pre_curation_uploads.attach(uploaded_file)
 
         draft_work.complete_submission!(user)
         draft_work.update_curator(curator_user.id, user)
@@ -719,10 +814,12 @@ RSpec.describe Work, type: :model do
         expect(work.pre_curation_uploads.first.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt")
         expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
         expect(work.pre_curation_uploads.last.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
+        expect(work.activities.count { |a| a.activity_type == "FILE-CHANGES" }).to eq(1)
 
         # call the s3 reload and make sure no more files get added to the model
         work.attach_s3_resources
         expect(work.pre_curation_uploads.length).to eq(2)
+        expect(work.activities.count { |a| a.activity_type == "FILE-CHANGES" }).to eq(1)
       end
 
       context "a blob already exists for one of the files" do
@@ -801,6 +898,27 @@ RSpec.describe Work, type: :model do
     it "finds the existing User using the ID" do
       persisted = work.curator_or_current_uid(user)
       expect(persisted).to eq(user.uid)
+    end
+  end
+
+  describe "resource=" do
+    let(:resource_json) do
+      '{"titles":[{"title":"Planet of the Blue Rain","title_type":null},' \
+        '{"title":"the subtitle","title_type":"Subtitle"}],' \
+        '"description":"a new description",' \
+        '"collection_tags":["new-colletion-tag1","new-collection-tag2"],' \
+        '"creators":[{"value":"Morrison, Toni","name_type":"Personal","given_name":"Toni","family_name":"Morrison",' \
+        '"identifier":null,"affiliations":[],"sequence":1}],' \
+        '"resource_type":"digitized video",' \
+        '"resource_type_general":"AUDIOVISUAL",' \
+        '"publisher":"Princeton University","publication_year":2022,"ark":"new-ark","doi":"new-doi",' \
+        '"rights":{"identifier":"CC BY","uri":"https://creativecommons.org/licenses/by/4.0/",' \
+        '"name":"Creative Commons Attribution 4.0 International"},' \
+        '"version_number":"1","related_objects":[],"keywords":[],"contributors":[]}'
+    end
+    it "can change the entire resource" do
+      work.resource = PDCMetadata::Resource.new_from_json(resource_json)
+      expect(work.resource.to_json).to eq(resource_json)
     end
   end
 end

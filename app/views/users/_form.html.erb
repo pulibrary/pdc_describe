@@ -1,3 +1,18 @@
+<% if current_user.id == @user.id %>
+  <section class="card message-settings">
+    <%= form_with(model: @user, class: ["form", "container"]) do |form| %>
+      <fieldset>
+        <legend><%= t("users.form.email_messages") %></legend>
+        <div class="form-check ">
+          <%= form.check_box(:email_messages_enabled, class: ["form-check-input"]) %>
+          <%= label_tag(:email_messages_enabled, t("users.form.email_messages_enabled"), class: ["form-check-label"]) %>
+        </div>
+      </fieldset>
+      <button type="submit" class="btn btn-primary"><%= t("users.form.email_messages_submit") %></button>
+    <% end %>
+  </section>
+<% end %>
+
 <%= form_with(model: user) do |form| %>
   <% if user.errors.any? %>
     <div id="error_explanation">

@@ -43,7 +43,8 @@ RSpec.describe UsersController do
       {
         id: user.friendly_id,
         user: {
-          email: email
+          email: email,
+          email_messages_enabled: true
         },
         format: format
       }
@@ -63,6 +64,24 @@ RSpec.describe UsersController do
           it "renders the edit view with a 422 response status code" do
             expect(response.code).to eq("422")
             expect(response).to render_template(:edit)
+          end
+        end
+
+        context "" do
+          before do
+            user.email_messages_enabled = false
+            user.save!
+
+            sign_in user
+
+            patch :update, params: params
+          end
+
+          it "updates the user" do
+            expect(response).to redirect_to(user_path(user))
+
+            user.reload
+            expect(user.email_messages_enabled).to be true
           end
         end
       end

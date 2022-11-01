@@ -21,8 +21,12 @@
     padding-bottom: 10px;
   }
 
-  .activity-history-item-title {
-    background-color: #ddf4ff;
+  .activity-history-comment-title {
+    background-color:#bfe9fd;
+  }
+
+  .activity-history-log-title {
+    background-color:#f4d28f;
   }
 
   .comment-html > p {
@@ -40,7 +44,9 @@
 </style>
 
 <div>
-  <%= link_to("Edit", edit_work_path(@work, wizard: @work.draft? ? true : nil), class: "btn btn-primary") %>
+  <% if @work.draft?  || @work.awaiting_approval? || current_user.has_role?(:collection_admin, @work.collection) %>
+    <%= link_to("Edit", edit_work_path(@work, wizard: @work.draft?), class: "btn btn-primary") %>
+  <% end %>
   <% if @work.awaiting_approval? && current_user.has_role?(:collection_admin, @work.collection) %>
     <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post) %>
   <% elsif @work.approved? %>
@@ -97,6 +103,14 @@
     <p>Contributors:
       <% @work.resource.contributors.each_with_index do |contributor, ix| %>
         <%= contributor_link(contributor, ix < (@work.resource.contributors.count-1) ) %>
+      <% end %>
+    </p>
+  <% end %>
+
+  <% if @work.resource.related_objects.count > 0 %>
+    <p>Related Objects:
+      <% @work.resource.related_objects.each do |related_object| %>
+        <span class="related_object"><%= related_object.relation_type %>  <%= link_to(related_object.related_identifier, related_object.related_identifier) %></span>
       <% end %>
     </p>
   <% end %>
@@ -161,20 +175,7 @@
   <% end %>
 <% end %>
 
-<div id="activity-history">
-  <% if @work.work_activity.count > 0 %>
-    <h2>Activity History</h2>
-    <% @work.activities.each do |activity| %>
-      <div class="activity-history-item" >
-        <div class="activity-history-item-title">
-          <b><%= activity.created_by_user&.display_name_safe %></b>
-          <span title="<%= activity.created_at.localtime %>"><%= distance_of_time_in_words_to_now(activity.created_at) %></span>
-        </div>
-        <span class="comment-html"><%= activity.message_html.gsub('{USER-PATH-PLACEHOLDER}', users_path).html_safe %></span>
-      </div>
-    <% end %>
-  <% end %>
-</div>
+<%= render 'work_activity' %>
 
 <div id="new-comment-section">
   <%= form_with url: add_comment_work_path(@work) do |f| %>
@@ -223,6 +224,11 @@
       hidden: '#hidden_inputbox',
       source: userList,
       trigger: "@"
+    });
+
+    // Toggle display of change history
+    $("#show-change-history").on("click", function(el) {
+      $(".activity-history-log-item").toggleClass("hidden");
     });
   });
 </script>
