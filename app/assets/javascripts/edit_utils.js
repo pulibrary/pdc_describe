@@ -34,7 +34,7 @@ $(() => {
     const sequenceId = `sequence_${num}`;
     const rowHtml = `<tr id="${rowId}" class="creators-table-row">
       <td>
-        <input class="orcid-entry" type="text" id="${orcidId}" name="${orcidId}" value="${orcid}" data-num="${num}" placeholder="0000-0000-0000-0000" />
+        <input class="orcid-entry-creator" type="text" id="${orcidId}" name="${orcidId}" value="${orcid}" data-num="${num}" placeholder="0000-0000-0000-0000" />
       </td>
       <td>
         <input type="text" id="${givenNameId}" name="${givenNameId}" value="${givenName}" />
@@ -113,7 +113,7 @@ $(() => {
 
     const rowHtml = `<tr id="${rowId}" class="contributors-table-row">
       <td>
-        <input class="orcid-entry" type="text" id="${orcidId}" name="${orcidId}" value="${orcid}" data-num="${num}" placeholder="0000-0000-0000-0000" />
+        <input class="orcid-entry-collaborator" type="text" id="${orcidId}" name="${orcidId}" value="${orcid}" data-num="${num}" placeholder="0000-0000-0000-0000" />
       </td>
       <td>
         <input type="text" id="${givenNameId}" name="${givenNameId}" value="${givenName}" />
@@ -279,6 +279,25 @@ $(() => {
     $(`#family_name_${suffix}`).val(familyName);
   }
 
+  // Fetch information for a creator via ORCID's public API
+  function fetchOrcid(orcidValue, givenNameId, familyNameId) {
+    if (isOrcid(orcidValue)) {
+      $.ajax({
+        url: `${pdc.orcid_url}/${orcidValue}`,
+        dataType: 'jsonp',
+      })
+      .done((data) => {
+        const givenName = data.person.name['given-names'].value;
+        const familyName = data.person.name['family-name'].value;
+        $(givenNameId).val(givenName);
+        $(familyNameId).val(familyName);
+      })
+      .fail((XMLHttpRequest, textStatus, errorThrown) => {
+        console.log(`Error fetching ORCID for ${errorThrown}`);
+      });
+    }
+  }
+
   $('#btn-add-creator').on('click', (el) => {
     const num = incrementCounter('#creator_count');
     addCreatorHtml(num, '', '', '');
@@ -424,27 +443,18 @@ $(() => {
     }
   }
 
-  // Fetch name information for a given ORCID via ORCID's public API
-  $(document).on('input', '.orcid-entry', (el) => {
+  // Fetch information for a creator via ORCID's public API
+  $(document).on('input', '.orcid-entry-creator', (el) => {
     const num = el.target.attributes['data-num'].value;
     const orcid = $(el.target).val().trim();
-    if (isOrcid(orcid)) {
-      $.ajax({
-        url: `${pdc.orcid_url}/${orcid}`,
-        dataType: 'jsonp',
-      })
-        .done((data) => {
-          const givenName = data.person.name['given-names'].value;
-          const familyName = data.person.name['family-name'].value;
-          const givenNameId = `#given_name_${num}`;
-          const familyNameId = `#family_name_${num}`;
-          $(givenNameId).val(givenName);
-          $(familyNameId).val(familyName);
-        })
-        .fail((XMLHttpRequest, textStatus, errorThrown) => {
-          console.log(`Error fetching ORCID for ${errorThrown}`);
-        });
-    }
+    fetchOrcid(orcid, `#given_name_${num}`, `#family_name_${num}`)
+  });
+
+  // Fetch information for a collaborator/contributor via ORCID's public API
+  $(document).on('input', '.orcid-entry-collaborator', (el) => {
+    const num = el.target.attributes['data-num'].value;
+    const orcid = $(el.target).val().trim();
+    fetchOrcid(orcid, `#contributor_given_name_${num}`, `#contributor_family_name_${num}`)
   });
 
   // Drop the "http..."" portion of the URL if the user enters the full URL of a DataSpace ARK
