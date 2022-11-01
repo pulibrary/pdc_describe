@@ -284,15 +284,15 @@ $(() => {
         url: `${pdc.orcid_url}/${orcidValue}`,
         dataType: 'jsonp',
       })
-      .done((data) => {
-        const givenName = data.person.name['given-names'].value;
-        const familyName = data.person.name['family-name'].value;
-        $(givenNameId).val(givenName);
-        $(familyNameId).val(familyName);
-      })
-      .fail((XMLHttpRequest, textStatus, errorThrown) => {
-        console.log(`Error fetching ORCID for ${errorThrown}`);
-      });
+        .done((data) => {
+          const givenName = data.person.name['given-names'].value;
+          const familyName = data.person.name['family-name'].value;
+          $(givenNameId).val(givenName);
+          $(familyNameId).val(familyName);
+        })
+        .fail((XMLHttpRequest, textStatus, errorThrown) => {
+          console.log(`Error fetching ORCID for ${errorThrown}`);
+        });
     }
   }
 
@@ -445,14 +445,14 @@ $(() => {
   $(document).on('input', '.orcid-entry-creator', (el) => {
     const num = el.target.attributes['data-num'].value;
     const orcid = $(el.target).val().trim();
-    fetchOrcid(orcid, `#given_name_${num}`, `#family_name_${num}`)
+    fetchOrcid(orcid, `#given_name_${num}`, `#family_name_${num}`);
   });
 
   // Fetch information for a collaborator/contributor via ORCID's public API
   $(document).on('input', '.orcid-entry-collaborator', (el) => {
     const num = el.target.attributes['data-num'].value;
     const orcid = $(el.target).val().trim();
-    fetchOrcid(orcid, `#contributor_given_name_${num}`, `#contributor_family_name_${num}`)
+    fetchOrcid(orcid, `#contributor_given_name_${num}`, `#contributor_family_name_${num}`);
   });
 
   // Drop the "http..."" portion of the URL if the user enters the full URL of a DataSpace ARK
