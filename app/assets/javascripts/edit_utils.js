@@ -277,7 +277,7 @@ $(() => {
     $(`#family_name_${suffix}`).val(familyName);
   }
 
-  // Fetch information for a creator via ORCID's public API
+  // Fetch information via ORCID's public API and dumps the data into the elements indicated.
   function fetchOrcid(orcidValue, givenNameId, familyNameId) {
     if (isOrcid(orcidValue)) {
       $.ajax({
