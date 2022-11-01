@@ -13,9 +13,19 @@ Cataloging application for PDC content and more
 ## Local development
 
 ### Setup
-1. Check out code
-2. `bundle install`
-3. `yarn install`
+1. Check out code and `cd`
+1. Install tool dependencies
+    1. [Lando](https://docs.lando.dev/getting-started/installation.html)
+    1. [asdf](https://asdf-vm.com/guide/getting-started.html#_2-download-asdf)
+1. Install asdf dependencies
+    1. `asdf plugin add ruby`
+    1. `asdf plugin add node`
+    1. `asdf plugin add yarn`
+    1. `asdf install`
+    1. ... but because asdf is not a dependency manager, if there are errors, you may need to install other dependencies. For example: `brew install gpg`
+1. Install language-specific dependencies
+    1. `bundle install`
+    1. `yarn install`
 
 ### Starting / stopping services
 We use lando to run services required for both test and development environments.
@@ -40,10 +50,9 @@ To stop database services:
 ## DataCite integration
 We use DataCite to mint DOIs and in production you must to define the `DATACITE_*` environment values indicated [here](https://github.com/pulibrary/princeton_ansible/blob/main/group_vars/pdc_describe/production.yml) for the system to run. During development if you do not set these values the system will use a hard-coded DOI.
 
-## Deploying
-pulbot: `pulbot deploy pdc_describe to [staging|production]`
+## Release and deployment
 
-To create a tagged release use the [steps in the RDSS handbook](https://github.com/pulibrary/rdss-handbook/blob/main/release_process.md)
+RDSS uses the same [release and deployment process](https://github.com/pulibrary/rdss-handbook/blob/main/release_process.md) for all projects.
 
 ## Design
 An early stages Entity-Relationship Diagram (ERD) is available in [this Google Doc](https://docs.google.com/drawings/d/1q2sfj8rrcNVgqQPK5uT_t79A9SYqncinh3HbnCSGMyQ/edit).

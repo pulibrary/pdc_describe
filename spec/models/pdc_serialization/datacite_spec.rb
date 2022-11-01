@@ -90,6 +90,10 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
         expect(mapping.publication_year).to eq 2020
       end
 
+      it "has a description" do
+        expect(mapping.descriptions.first.value).to match(/All data is related to the Shakespeare and Company bookshop/)
+      end
+
       context "contributor types" do
         it "maps contributor types" do
           expect(described_class.datacite_contributor_type("DataCollector")).to eq Datacite::Mapping::ContributorType::DATA_COLLECTOR
@@ -227,6 +231,19 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
           expect(translated_title.type.value).to eq("TranslatedTitle")
         end
       end
+    end
+  end
+
+  context "with an external related object" do
+    let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+    let(:datacite) { work.resource.to_xml }
+    let(:parsed_xml) { Datacite::Mapping::Resource.parse_xml(datacite) }
+
+    it "references the related object in the datacite record" do
+      expect(parsed_xml.related_identifiers.count).to eq 3
+      expect(parsed_xml.related_identifiers[0].identifier_type.value).to eq "ARK"
+      expect(parsed_xml.related_identifiers[1].identifier_type.value).to eq "arXiv"
+      expect(parsed_xml.related_identifiers[2].identifier_type.value).to eq "DOI"
     end
   end
 end

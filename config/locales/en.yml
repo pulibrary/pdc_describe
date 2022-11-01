@@ -30,6 +30,12 @@
 # available at https://guides.rubyonrails.org/i18n.html.
 
 en:
+  users:
+    form:
+      create_work: "Submit New"
+      email_messages: "E-mail Message Settings"
+      email_messages_enabled: "Enable e-mail notifications"
+      email_messages_submit: "Update"
   works:
     uploads:
       pre_curation:
@@ -58,3 +64,5 @@ en:
         replace_upload: "Replace Upload"
         empty: "No files in S3"
         delete_upload: "Delete Upload"
+    approved:
+      uneditable: "This work has been approved.  Edits are no longer available."

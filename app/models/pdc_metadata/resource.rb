@@ -5,7 +5,7 @@ module PDCMetadata
   #
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
-      :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :contributors
+      :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :contributors, :related_objects
 
     # rubocop:disable Metrics/MethodLength
     def initialize(doi: nil, title: nil, resource_type: nil, resource_type_general: nil, creators: [], description: nil)
@@ -22,6 +22,7 @@ module PDCMetadata
       @doi = doi
       @rights = nil
       @version_number = "1"
+      @related_objects = []
       @keywords = []
       @contributors = []
     end
@@ -61,10 +62,10 @@ module PDCMetadata
         resource = curator_controlled_metadata(hash, resource)
 
         resource.description = hash["description"]
-
         titles_from_json(resource, hash["titles"])
         creators_from_json(resource, hash["creators"])
         contributors_from_json(resource, hash["contributors"])
+        related_objects_from_json(resource, hash["related_objects"] || [])
         resource.publisher = hash["publisher"]
         resource.publication_year = hash["publication_year"]
         resource.rights = rights(hash["rights"])
@@ -90,6 +91,8 @@ module PDCMetadata
           resource.ark = hash["ark"]
           resource.version_number = hash["version_number"]
           resource.collection_tags = collection_tags(hash["collection_tags"])
+          resource.resource_type = hash["resource_type"]
+          resource.resource_type_general = hash["resource_type_general"]&.to_sym
           resource
         end
 
@@ -106,6 +109,17 @@ module PDCMetadata
 
           titles.each do |title|
             resource.titles << PDCMetadata::Title.new(title: title["title"], title_type: title["title_type"])
+          end
+        end
+
+        def related_objects_from_json(resource, related_objects)
+          return if related_objects.blank?
+          related_objects.each do |related_object|
+            resource.related_objects << PDCMetadata::RelatedObject.new(
+                                          related_identifier: related_object["related_identifier"],
+                                          related_identifier_type: related_object["related_identifier_type"],
+                                          relation_type: related_object["relation_type"]
+                                        )
           end
         end
 

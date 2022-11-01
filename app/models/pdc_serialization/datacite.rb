@@ -69,6 +69,7 @@ module PDCSerialization
         identifier: ::Datacite::Mapping::Identifier.new(value: resource.doi),
         creators: creators_from_work_resource(resource.creators),
         contributors: contributors_from_work_resource(resource.contributors),
+        descriptions: descriptions_from_work_resource(resource.description),
         titles: titles_from_work_resource(resource.titles),
         publisher: ::Datacite::Mapping::Publisher.new(value: resource.publisher),
         publication_year: resource.publication_year,
@@ -201,6 +202,13 @@ module PDCSerialization
           end
         end
 
+        ##
+        # We are deliberately not differentiating between "abstract", "methods" and other kinds of descriptions.
+        # We are instead putting all description into the same field and classifying it as "OTHER".
+        def descriptions_from_work_resource(description)
+          [] << ::Datacite::Mapping::Description.new(type: ::Datacite::Mapping::DescriptionType::OTHER, value: description)
+        end
+
         def name_identifier_from_identifier(identifier)
           return nil if identifier.nil?
           ::Datacite::Mapping::NameIdentifier.new(
@@ -224,16 +232,39 @@ module PDCSerialization
           end.compact
         end
 
+        ##
+        # Add related identifiers from various locations in the metadata.
+        # @param [PDCMetadata::Resource] resource
+        # @return [<::Datacite::Mapping::RelatedIdentifier>]
         def related_identifiers_from_work_resource(resource)
           related_identifiers = []
+          related_identifiers = related_identifiers.union(extract_ark_as_related_identfier(resource))
+          related_identifiers = related_identifiers.union(extract_related_objects(resource))
+          related_identifiers
+        end
+
+        def extract_ark_as_related_identfier(resource)
+          related_ids = []
           if resource.ark.present?
-            related_identifiers << ::Datacite::Mapping::RelatedIdentifier.new(
+            related_ids << ::Datacite::Mapping::RelatedIdentifier.new(
               relation_type: ::Datacite::Mapping::RelationType::IS_IDENTICAL_TO,
               value: resource.ark,
               identifier_type: ::Datacite::Mapping::RelatedIdentifierType::ARK
             )
           end
-          related_identifiers
+          related_ids
+        end
+
+        def extract_related_objects(resource)
+          related_objects = []
+          resource.related_objects.each do |ro|
+            related_objects << ::Datacite::Mapping::RelatedIdentifier.new(
+              relation_type: ::Datacite::Mapping::RelationType.find_by_key(ro.relation_type.to_sym),
+              value: ro.related_identifier,
+              identifier_type: ::Datacite::Mapping::RelatedIdentifierType.find_by_key(ro.related_identifier_type.to_sym)
+            )
+          end
+          related_objects
         end
 
         def rights_from_work_resource(resource)

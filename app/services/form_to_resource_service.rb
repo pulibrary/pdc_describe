@@ -5,16 +5,16 @@ class FormToResourceService
     #
     #  @param [Hash] params controller params to be converted
     #  @param [Work] work params will be applied to. Utilizes the work for old values if needed.
-    #  @param [User] current_user user currently authorized with the system.  Utilizes the current_user to validate access.
     #
     # @return [PDCMetadata::Resource] Fully formed resource containing updates from the user
-    def convert(params, work, current_user)
-      resource = process_curator_controlled(params: params, work: work, current_user: current_user)
+    def convert(params, work)
+      resource = process_curator_controlled(params: params, work: work)
+      resource = process_related_objects(params, resource)
       resource.description = params["description"]
       resource.publisher = params["publisher"] if params["publisher"].present?
       resource.publication_year = params["publication_year"] if params["publication_year"].present?
       resource.rights = PDCMetadata::Rights.find(params["rights_identifier"])
-      resource.keywords = (params["keywords"] || "").split(",")
+      resource.keywords = (params["keywords"] || "").split(",").map(&:strip)
 
       # Process the titles
       resource = process_titles(params, resource)
@@ -30,14 +30,14 @@ class FormToResourceService
 
     private
 
-      def process_curator_controlled(params:, work:, current_user:)
+      def process_curator_controlled(params:, work:)
         resource = reset_resource_to_work(work)
-        if current_user.has_role?(:collection_admin, work.collection)
-          resource.doi = params["doi"] if params["doi"].present?
-          resource.ark = params["ark"] if params["ark"].present?
-          resource.version_number = params["version_number"] if params["version_number"].present?
-          resource.collection_tags = params["collection_tags"].split(",").map(&:strip) if params["collection_tags"]
-        end
+        resource.doi = params["doi"] if params["doi"].present?
+        resource.ark = params["ark"] if params["ark"].present?
+        resource.version_number = params["version_number"] if params["version_number"].present?
+        resource.collection_tags = params["collection_tags"].split(",").map(&:strip) if params["collection_tags"]
+        resource.resource_type = params["resource_type"] if params["resource_type"]
+        resource.resource_type_general = params["resource_type_general"]&.to_sym
         resource
       end
 
@@ -70,6 +70,19 @@ class FormToResourceService
         (1..params["creator_count"].to_i).each do |i|
           creator = new_creator(params["given_name_#{i}"], params["family_name_#{i}"], params["orcid_#{i}"], params["sequence_#{i}"])
           resource.creators << creator unless creator.nil?
+        end
+        resource
+      end
+
+      ## TODO: Do the right thing with blank form entries
+      def process_related_objects(params, resource)
+        (1..params["related_object_count"].to_i).each do |i|
+          related_object = PDCMetadata::RelatedObject.new(
+                            related_identifier: params["related_identifier_#{i}"],
+                            related_identifier_type: params["related_identifier_type_#{i}"],
+                            relation_type: params["relation_type_#{i}"]
+                          )
+          resource.related_objects << related_object
         end
         resource
       end

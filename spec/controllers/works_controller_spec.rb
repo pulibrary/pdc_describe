@@ -15,6 +15,8 @@ RSpec.describe WorksController do
   let(:work) { FactoryBot.create(:draft_work) }
   let(:user) { work.created_by_user }
 
+  let(:uploaded_file) { fixture_file_upload("us_covid_2019.csv", "text/csv") }
+
   context "valid user login" do
     it "handles the index page" do
       sign_in user
@@ -61,12 +63,6 @@ RSpec.describe WorksController do
       expect(response.location.start_with?("http://test.host/works/")).to be true
     end
 
-    it "renders the edit page on edit" do
-      sign_in user
-      get :edit, params: { id: work.id }
-      expect(response).to render_template("edit")
-    end
-
     it "handles the update page" do
       params = {
         "title_main" => "test dataset updated",
@@ -82,7 +78,7 @@ RSpec.describe WorksController do
         "family_name_1" => "Smith",
         "creator_count" => "1",
         "resource_type" => "Dataset",
-        "resource_type_general" => "dataset"
+        "resource_type_general" => "DATASET"
       }
       sign_in user
       post :update, params: params
@@ -138,7 +134,9 @@ RSpec.describe WorksController do
         "given_name_2" => "Ada",
         "family_name_2" => "Lovelace",
         "sequence_2" => "2",
-        "creator_count" => "2"
+        "creator_count" => "2",
+        "resource_type" => "Dataset",
+        "resource_type_general" => "DATASET"
       }
       sign_in user
       post :update, params: params
@@ -174,7 +172,9 @@ RSpec.describe WorksController do
         "given_name_2" => "Ada",
         "family_name_2" => "Lovelace",
         "sequence_2" => "1",
-        "creator_count" => "2"
+        "creator_count" => "2",
+        "resource_type" => "Dataset",
+        "resource_type_general" => "DATASET"
       }
 
       post :update, params: params_reordered
@@ -194,10 +194,6 @@ RSpec.describe WorksController do
     end
 
     context "with new file uploads for an existing Work without uploads" do
-      let(:uploaded_file) do
-        fixture_file_upload("us_covid_2019.csv", "text/csv")
-      end
-
       let(:bucket_url) do
         "https://example-bucket.s3.amazonaws.com/"
       end
@@ -303,21 +299,21 @@ RSpec.describe WorksController do
         file.close
         file
       end
-      let(:uploaced_temp_file1) { Rack::Test::UploadedFile.new(temp_file1.path, "text/plain") }
+      let(:uploaded_temp_file1) { Rack::Test::UploadedFile.new(temp_file1.path, "text/plain") }
       let(:temp_file2) do
         file = Tempfile.new("temp_file2")
         file.write("hello world 2")
         file.close
         file
       end
-      let(:uploaced_temp_file2) { Rack::Test::UploadedFile.new(temp_file2.path, "text/plain") }
+      let(:uploaded_temp_file2) { Rack::Test::UploadedFile.new(temp_file2.path, "text/plain") }
       let(:temp_file3) do
         file = Tempfile.new("temp_file3")
         file.write("hello world 3")
         file.close
         file
       end
-      let(:uploaced_temp_file3) { Rack::Test::UploadedFile.new(temp_file3.path, "text/plain") }
+      let(:uploaded_temp_file3) { Rack::Test::UploadedFile.new(temp_file3.path, "text/plain") }
 
       after do
         temp_file1.unlink
@@ -331,8 +327,8 @@ RSpec.describe WorksController do
 
       let(:uploaded_files) do
         {
-          "0" => uploaded_file1,
-          "2" => uploaded_file2
+          work.pre_curation_uploads[0].key => uploaded_file1,
+          work.pre_curation_uploads[2].key => uploaded_file2
         }
       end
 
@@ -344,9 +340,9 @@ RSpec.describe WorksController do
         stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
 
-        work.pre_curation_uploads.attach(uploaced_temp_file1)
-        work.pre_curation_uploads.attach(uploaced_temp_file2)
-        work.pre_curation_uploads.attach(uploaced_temp_file3)
+        work.pre_curation_uploads.attach(uploaded_temp_file1)
+        work.pre_curation_uploads.attach(uploaded_temp_file2)
+        work.pre_curation_uploads.attach(uploaded_temp_file3)
 
         params = {
           "title_main" => "test dataset updated",
@@ -481,7 +477,7 @@ RSpec.describe WorksController do
       end
 
       context "when the Work has been curated", mock_s3_query_service: false do
-        let(:work) { FactoryBot.create(:completed_work) }
+        let(:work) { FactoryBot.create(:approved_work) }
         let(:user) do
           FactoryBot.create :user, collections_to_admin: [work.collection]
         end
@@ -516,19 +512,21 @@ RSpec.describe WorksController do
         end
         let(:s3_client) { instance_double(Aws::S3::Client) }
         let(:s3_object) { double }
+        let(:uploaded_file) { fixture_file_upload("us_covid_2019.csv", "text/csv") }
 
         before do
           # Account for files in S3 added outside of ActiveStorage
           allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
           allow(s3_query_service_double).to receive(:bucket_name).and_return("example-bucket")
           allow(s3_client).to receive(:delete_object)
+          allow(s3_client).to receive(:put_object)
+          allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "#{work.s3_object_key}/us_covid_2019.csv").and_return(true)
+          allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key.to_s)
           allow(s3_query_service_double).to receive(:client).and_return(s3_client)
           allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
 
           stub_request(:put, "https://api.datacite.org/dois/#{work.doi}").to_return(status: 200, body: "", headers: {})
-          work.approve!(user)
 
-          work.attach_s3_resources
           sign_in user
         end
 
@@ -656,10 +654,6 @@ RSpec.describe WorksController do
     end
 
     context "with an uploaded CSV file" do
-      let(:uploaded_file) do
-        fixture_file_upload("us_covid_2019.csv", "text/csv")
-      end
-
       let(:params) do
         {
           "_method" => "patch",
@@ -713,10 +707,6 @@ RSpec.describe WorksController do
     end
 
     context "when file uploads raise errors" do
-      let(:uploaded_file) do
-        fixture_file_upload("us_covid_2019.csv", "text/csv")
-      end
-
       let(:params) do
         {
           "_method" => "patch",
@@ -868,6 +858,10 @@ RSpec.describe WorksController do
       it "handles aprovals" do
         work.complete_submission!(user)
         stub_datacite_doi
+        file_name = uploaded_file.original_filename
+        stub_work_s3_requests(work: work, file_name: file_name)
+        work.pre_curation_uploads.attach(uploaded_file)
+
         sign_in curator
         post :approve, params: { id: work.id }
         expect(response.status).to be 302
@@ -880,6 +874,9 @@ RSpec.describe WorksController do
           sign_in curator
           work.complete_submission!(user)
           stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new)))
+          file_name = uploaded_file.original_filename
+          stub_work_s3_requests(work: work, file_name: file_name)
+          work.pre_curation_uploads.attach(uploaded_file)
         end
 
         it "aproves and notes that it was not published" do
@@ -1043,7 +1040,9 @@ RSpec.describe WorksController do
         sequence_2: "1",
         orcid_2: "1234-1234-1234-1234",
         creator_count: "1",
-        new_creator_count: "1"
+        new_creator_count: "1",
+        rights_identifier: "CC BY",
+        description: "a new description"
       }
     end
 
@@ -1068,17 +1067,16 @@ RSpec.describe WorksController do
             sign_in user
             new_params = params.merge(doi: "new-doi")
                                .merge(ark: "new-ark")
-                               .merge(collection_tags: "new-colletion-tags")
+                               .merge(collection_tags: "new-collection-tags")
+                               .merge(resource_type: "digitized video")
+                               .merge(resource_type_general: Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL.key)
             patch :update, params: new_params
           end
 
-          it "does not update the curator controlled fields" do
-            original_doi = work.doi
-            original_ark = work.ark
-            original_collection_tags = work.resource.collection_tags
-            expect(work.reload.doi).to eq(original_doi)
-            expect(work.ark).to eq(original_ark)
-            expect(work.resource.collection_tags).to eq(original_collection_tags)
+          it "also saves the curator controlled fields", mock_ezid_api: true do
+            expect(work.reload.doi).to eq("new-doi")
+            expect(work.ark).to eq("new-ark")
+            expect(work.resource.collection_tags).to eq(["new-collection-tags"])
           end
         end
 
@@ -1089,6 +1087,9 @@ RSpec.describe WorksController do
             new_params = params.merge(doi: "new-doi")
                                .merge(ark: "new-ark")
                                .merge(collection_tags: "new-colletion-tag1, new-collection-tag2")
+                               .merge(resource_type: "digitized video")
+                               .merge(resource_type_general: Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL.key)
+
             patch :update, params: new_params
           end
 
@@ -1096,6 +1097,8 @@ RSpec.describe WorksController do
             expect(work.reload.doi).to eq("new-doi")
             expect(work.ark).to eq("new-ark")
             expect(work.resource.collection_tags).to eq(["new-colletion-tag1", "new-collection-tag2"])
+            expect(work.resource_type).to eq("digitized video")
+            expect(work.resource_type_general.to_sym).to eq(::Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL.key)
           end
         end
 
@@ -1131,6 +1134,52 @@ RSpec.describe WorksController do
         end
       end
     end
+
+    context "the work is approved" do
+      let(:work) { FactoryBot.create :approved_work }
+      let(:new_params) { params.merge(doi: "new-doi").merge(ark: "new-ark").merge(collection_tags: "new-colletion-tag1, new-collection-tag2") }
+
+      context "the submitter" do
+        let(:user) { work.created_by_user }
+
+        it "redirects the home page on edit with informational message" do
+          sign_in user
+          patch :update, params: new_params
+          expect(response).to redirect_to(root_path)
+          expect(controller.flash[:notice]).to eq("This work has been approved.  Edits are no longer available.")
+        end
+      end
+      context "another user" do
+        let(:other_user) { FactoryBot.create(:user) }
+        it "redirects the home page on edit" do
+          sign_in other_user
+          patch :update, params: new_params
+          expect(response).to redirect_to(root_path)
+        end
+      end
+      context "a curator", mock_ezid_api: true do
+        let(:user) { FactoryBot.create(:research_data_moderator) }
+        it "renders the edit page on edit" do
+          stub_s3
+          sign_in user
+          patch :update, params: new_params
+          expect(work.reload.doi).to eq("new-doi")
+          expect(work.ark).to eq("new-ark")
+          expect(work.resource.collection_tags).to eq(["new-colletion-tag1", "new-collection-tag2"])
+        end
+      end
+      context "a super admin", mock_ezid_api: true do
+        let(:user) { FactoryBot.create(:super_admin_user) }
+        it "renders the edit page on edit" do
+          stub_s3
+          sign_in user
+          patch :update, params: new_params
+          expect(work.reload.doi).to eq("new-doi")
+          expect(work.ark).to eq("new-ark")
+          expect(work.resource.collection_tags).to eq(["new-colletion-tag1", "new-collection-tag2"])
+        end
+      end
+    end
   end
 
   describe "#assign_curator" do
@@ -1158,6 +1207,54 @@ RSpec.describe WorksController do
         expect(response.content_type).to eq("application/json; charset=utf-8")
         json_body = JSON.parse(response.body)
         expect(json_body).to include("errors" => ["test error"])
+      end
+    end
+  end
+
+  describe "#edit" do
+    it "renders the edit page on edit" do
+      sign_in user
+      get :edit, params: { id: work.id }
+      expect(response).to render_template("edit")
+    end
+
+    context "the work is approved" do
+      let(:work) { FactoryBot.create :approved_work }
+      context "the submitter" do
+        let(:user) { work.created_by_user }
+
+        it "redirects the home page on edit with informational message" do
+          sign_in user
+          get :edit, params: { id: work.id }
+          expect(response).to redirect_to(root_path)
+          expect(controller.flash[:notice]).to eq("This work has been approved.  Edits are no longer available.")
+        end
+      end
+      context "another user" do
+        let(:other_user) { FactoryBot.create(:user) }
+        it "redirects the home page on edit" do
+          sign_in other_user
+          get :edit, params: { id: work.id }
+          expect(response).to redirect_to(root_path)
+        end
+      end
+      context "a curator" do
+        let(:user) { FactoryBot.create(:research_data_moderator) }
+        it "renders the edit page on edit" do
+          stub_s3
+          sign_in user
+          get :edit, params: { id: work.id }
+          expect(response).to render_template("edit")
+        end
+      end
+      context "a super admin" do
+        let(:user) { FactoryBot.create(:super_admin_user) }
+        it "renders the edit page on edit" do
+          stub_s3
+          sign_in user
+          get :edit, params: { id: work.id }
+          expect(response).to render_template("edit")
+        end
       end
     end
   end

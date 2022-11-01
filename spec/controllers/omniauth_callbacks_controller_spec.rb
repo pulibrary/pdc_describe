@@ -10,7 +10,7 @@ RSpec.describe Users::OmniauthCallbacksController do
       allow(User).to receive(:from_cas) { FactoryBot.create(:user) }
       get :cas
       expect(response).to redirect_to(root_path)
-      expect(flash[:notice]).to eq("Successfully authenticated from from Princeton Central Authentication Service account.")
+      expect(flash[:notice]).to eq("Successfully authenticated from Princeton Central Authentication Service account.")
     end
   end
 

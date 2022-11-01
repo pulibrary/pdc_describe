@@ -47,6 +47,10 @@ module PDCMetadata
       identifier&.orcid
     end
 
+    def compare_value
+      "#{value} | #{sequence} | #{type}"
+    end
+
     def self.new_person(given_name, family_name, orcid_id = nil, sequence = 0)
       full_name = "#{family_name}, #{given_name}"
       creator = Creator.new(value: full_name, name_type: "Personal", given_name: given_name, family_name: family_name, sequence: sequence)

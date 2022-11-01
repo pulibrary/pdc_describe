@@ -17,6 +17,7 @@
 @import "components/header.scss";
 @import "components/footer.scss";
 @import "components/works.scss";
+@import "components/users.scss";
 
 .hidden {
   display: none;
@@ -28,10 +29,6 @@
 
 .required-field {
   color: #d71616;
-}
-
-.text-not-editable {
-  background: #f4f4f4;
 }
 
 .wizard-area {
@@ -111,4 +108,20 @@
 
 .input-version {
   width: 100px;
+}
+
+.file-deleted-icon {
+  color:#f94a4a;
+  font-size: 18px;
+}
+
+.file-added-icon {
+  color:#27c0fb;
+  font-size: 18px;
+}
+
+input[readonly] {
+  border-width: 1px;
+  border-style: solid;
+  background: #f4f4f4;
 }

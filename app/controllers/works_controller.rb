@@ -40,7 +40,7 @@ class WorksController < ApplicationController
 
   def create
     @work = Work.new(created_by_user_id: current_user.id, collection_id: params[:collection_id], user_entered_doi: params["doi"].present?)
-    @work.resource = FormToResourceService.convert(params, @work, current_user)
+    @work.resource = FormToResourceService.convert(params, @work)
     if @work.valid?
       @work.draft!(current_user)
       redirect_to work_url(@work), notice: "Work was successfully created."
@@ -53,7 +53,7 @@ class WorksController < ApplicationController
   def new_submission
     default_collection_id = current_user.default_collection.id
     work = Work.new(created_by_user_id: current_user.id, collection_id: default_collection_id)
-    work.resource = FormToResourceService.convert(params, work, current_user)
+    work.resource = FormToResourceService.convert(params, work)
     work.draft!(current_user)
     redirect_to edit_work_path(work, wizard: true)
   end
@@ -88,48 +88,30 @@ class WorksController < ApplicationController
   def edit
     @work = Work.find(params[:id])
     if current_user && @work.editable_by?(current_user)
-      @uploads = @work.uploads
-      @wizard_mode = wizard_mode?
-      render "edit"
+      if @work.approved? && !@work.administered_by?(current_user)
+        redirect_to root_path, notice: I18n.t("works.approved.uneditable")
+      else
+        @uploads = @work.uploads
+        @wizard_mode = wizard_mode?
+        render "edit"
+      end
     else
       Rails.logger.warn("Unauthorized attempt to edit work #{@work.id} by user #{current_user.uid}")
       redirect_to root_path
     end
   end
 
-  # rubocop:disable Metrics/MethodLength
   def update
     @work = Work.find(params[:id])
-    @wizard_mode = wizard_mode?
-
-    collection_id_param = params[:collection_id]
-
-    updates = {
-      collection_id: collection_id_param,
-      resource: FormToResourceService.convert(params, @work, current_user)
-    }
-
-    if @work.approved?
-      upload_keys = work_params[:deleted_uploads] || []
-      deleted_uploads = WorkUploadsEditService.find_post_curation_uploads(work: @work, upload_keys: upload_keys)
-
-      return head(:forbidden) unless deleted_uploads.empty?
+    if current_user.blank? || !@work.editable_by?(current_user)
+      Rails.logger.warn("Unauthorized attempt to update work #{@work.id} by user #{current_user.uid}")
+      redirect_to root_path
+    elsif @work.approved? && @work.submitted_by?(current_user)
+      redirect_to root_path, notice: I18n.t("works.approved.uneditable")
     else
-      @work = WorkUploadsEditService.update_precurated_file_list(@work, work_params)
-    end
-
-    if @work.update(updates)
-      if @wizard_mode
-        redirect_to work_attachment_select_url(@work)
-      else
-        redirect_to work_url(@work), notice: "Work was successfully updated."
-      end
-    else
-      @uploads = @work.uploads
-      render :edit, status: :unprocessable_entity
+      update_work
     end
   end
-  # rubocop:enable Metrics/MethodLength
 
   # Prompt to select how to submit their files
   def attachment_select
@@ -235,7 +217,7 @@ class WorksController < ApplicationController
   def add_comment
     work = Work.find(params[:id])
     if params["new-comment"].present?
-      work.add_comment(params["new-comment"], current_user)
+      work.add_comment(params["new-comment"], current_user.id)
     end
     redirect_to work_path(id: params[:id])
   end
@@ -301,6 +283,46 @@ class WorksController < ApplicationController
 
     def wizard_mode?
       params[:wizard] == "true"
+    end
+
+    def update_work
+      @wizard_mode = wizard_mode?
+      upload_service = WorkUploadsEditService.new(@work, current_user)
+      if @work.approved?
+        upload_keys = work_params[:deleted_uploads] || []
+        deleted_uploads = upload_service.find_post_curation_uploads(upload_keys: upload_keys)
+
+        return head(:forbidden) unless deleted_uploads.empty?
+      else
+        @work = upload_service.update_precurated_file_list(work_params)
+      end
+
+      process_updates
+    end
+
+    def update_params
+      {
+        collection_id: params[:collection_id],
+        resource: FormToResourceService.convert(params, @work)
+      }
+    end
+
+    def process_updates
+      resource_before = @work.resource
+      if @work.update(update_params)
+
+        resource_compare = ResourceCompareService.new(resource_before, update_params[:resource])
+        @work.log_changes(resource_compare, current_user.id)
+
+        if @wizard_mode
+          redirect_to work_attachment_select_url(@work)
+        else
+          redirect_to work_url(@work), notice: "Work was successfully updated."
+        end
+      else
+        @uploads = @work.uploads
+        render :edit, status: :unprocessable_entity
+      end
     end
 end
 # rubocop:enable Metrics/ClassLength

@@ -5,22 +5,21 @@ commands:
       - run: gem install bundler -v '2.3.11'
       - run: cp Gemfile.lock Gemfile.lock.bak
       - restore_cache:
-          keys:
-            - rails_template-cimg-{{ checksum "Gemfile.lock.bak" }}
+          keys: &gem_key rails_template-cimg-{{ checksum "Gemfile.lock.bak" }}
       - run: bundle install --path ./vendor/bundle
       - save_cache:
-          key: rails_template-cimg-{{ checksum "Gemfile.lock.bak" }}
+          key: *gem_key
           paths:
             - ./vendor/bundle
       - restore_cache:
           name: Restore Yarn Package Cache
-          key: rails_template-yarn-cimg-{{ checksum "yarn.lock" }}
+          key: &yarn_key rails_template-yarn-cimg-{{ checksum "yarn.lock" }}
       - run:
           name: Install NPM Dependencies via Yarn
           command: yarn install --frozen-lockfile
       - save_cache:
           name: Save Yarn Package Cache
-          key: rails_template-yarn-cimg-{{ checksum "yarn.lock" }}
+          key: *yarn_key
           paths:
             - ~/.cache/yarn
 orbs:
@@ -29,7 +28,8 @@ jobs:
   build:
     working_directory: ~/rails_template
     docker:
-      - image: cimg/ruby:3.0.3-browsers
+      - &ruby_docker
+        image: cimg/ruby:3.0.3-browsers
         environment:
           RAILS_ENV: test
     steps:
@@ -37,10 +37,22 @@ jobs:
       - run: sudo apt update && sudo apt install postgresql-client libmsgpack-dev
       - install_dependencies
       - persist_to_workspace:
-          root: '~/rails_template'
+          root: &root '~/rails_template'
           paths: '*'
 
   rubocop:
+    working_directory: *root
+    docker:
+      - *ruby_docker
+    steps:
+      - attach_workspace:
+          at: *root
+      - run:
+          name: Run rubocop
+          command: bundle exec rubocop
+
+  eslint:
+    # We don't actually need any of the ruby environment to lint JS... but use what we have for now.
     working_directory: ~/rails_template
     docker:
       - image: cimg/ruby:3.0.3-browsers
@@ -51,15 +63,13 @@ jobs:
           at: '~/rails_template'
       - install_dependencies
       - run:
-          name: Run rubocop
-          command: bundle exec rubocop
+          name: Run eslint
+          command: yarn run eslint app/assets app/javascript    
 
   test:
-    working_directory: ~/rails_template
+    working_directory: *root
     docker:
-      - image: cimg/ruby:3.0.3-browsers
-        environment:
-          RAILS_ENV: test
+      - *ruby_docker
       - image: postgres:13.5-alpine
         environment:
           POSTGRES_USER: rails_template_user
@@ -67,8 +77,7 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: trust
     steps:
       - attach_workspace:
-          at: '~/rails_template'
-      - install_dependencies
+          at: *root
       - browser-tools/install-browser-tools
       - run:
           name: Wait for PostgreSQL
@@ -91,5 +100,8 @@ workflows:
           requires:
             - build
       - rubocop:
+          requires:
+            - build
+      - eslint:
           requires:
             - build

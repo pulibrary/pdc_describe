@@ -37,10 +37,12 @@ Metrics/BlockLength:
 Metrics/ClassLength:
   Exclude:
     - "app/services/s3_query_service.rb"
+    - "app/models/pdc_metadata/resource.rb"
 
 Metrics/MethodLength:
   Exclude:
     - "app/models/work.rb"
+    - "spec/support/work_s3_requests_specs.rb"
 
 Metrics/ParameterLists:
   Enabled: false

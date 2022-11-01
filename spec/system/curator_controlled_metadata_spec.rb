@@ -17,13 +17,15 @@ RSpec.describe "Curator Controlled metadata tab", type: :system do
   context "As a princeton submitter" do
     let(:user) { FactoryBot.create :princeton_submitter }
     it "does not allow editing of curator controlled fields", js: true, mock_ezid_api: true do
-      # I can not edit curator fields
-      expect(page).to have_content("ARK")
-      expect(page).not_to have_css("#ark.input-text-long")
-      expect(page).to have_content("Version")
-      expect(page).not_to have_css("#version_number.input-version")
-      expect(page).to have_content("Collection Tags")
-      expect(page).not_to have_css("#collection_tags.input-collection-tags")
+      # I can not edit curator fields.
+      # Notice that we expect these fields to be rendered as HTML INPUT elements marked readonly.
+      # We want them as HTML INPUT elements (rather than SPANs) so their values are submitted during save.
+      expect(page).to have_field("doi", readonly: true)
+      expect(page).to have_field("ark", readonly: true)
+      expect(page).to have_field("resource_type", readonly: true)
+      expect(page).to have_field("resource_type_general", readonly: true)
+      expect(page).to have_field("version_number", readonly: true)
+      expect(page).to have_field("collection_tags", readonly: true)
 
       # I can edit other fields
       click_on "Additional Metadata"
@@ -43,9 +45,11 @@ RSpec.describe "Curator Controlled metadata tab", type: :system do
       expect(page).to have_css("#ark.input-text-long")
       fill_in "ark", with: "http://arks.princeton.edu/ark:/88435/dsp01hx11xj13h"
       fill_in "collection_tags", with: "ABC, 123"
+      find("#resource_type_general").find(:xpath, "option[1]").select_option
       click_on "Save Work"
       expect(draft_work.reload.ark).to eq "ark:/88435/dsp01hx11xj13h"
       expect(draft_work.resource.collection_tags).to eq(["ABC", "123"])
+      expect(draft_work.resource.resource_type_general).to eq(:AUDIOVISUAL)
     end
   end
 
@@ -56,9 +60,11 @@ RSpec.describe "Curator Controlled metadata tab", type: :system do
       expect(page).to have_css("#ark.input-text-long")
       fill_in "ark", with: "http://arks.princeton.edu/ark:/88435/dsp01hx11xj13h"
       fill_in "collection_tags", with: "ABC, 123"
+      find("#resource_type_general").find(:xpath, "option[1]").select_option
       click_on "Save Work"
       expect(draft_work.reload.ark).to eq "ark:/88435/dsp01hx11xj13h"
       expect(draft_work.resource.collection_tags).to eq(["ABC", "123"])
+      expect(draft_work.resource.resource_type_general).to eq(:AUDIOVISUAL)
     end
   end
 end

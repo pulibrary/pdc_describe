@@ -2,6 +2,7 @@
 require "rails_helper"
 
 RSpec.describe WorkUploadsEditService do
+  let(:user) { FactoryBot.create :research_data_moderator }
   let(:work) { FactoryBot.create :draft_work }
   let(:uploaded_file) do
     fixture_file_upload("us_covid_2019.csv", "text/csv")
@@ -32,10 +33,12 @@ RSpec.describe WorkUploadsEditService do
     let(:params) { { "work_id" => "" }.with_indifferent_access }
 
     it "returns all existing files" do
-      updated_work = described_class.update_precurated_file_list(work, params)
+      upload_service = described_class.new(work, user)
+      updated_work = upload_service.update_precurated_file_list(params)
       list = updated_work.pre_curation_uploads
       expect(list.map(&:filename)).to eq([uploaded_file.original_filename])
       expect(a_request(:delete, attachment_url)).not_to have_been_made
+      expect(work.work_activity.count).to be 0
     end
   end
 
@@ -51,10 +54,14 @@ RSpec.describe WorkUploadsEditService do
     end
 
     it "returns all existing files except the deleted one" do
-      updated_work = described_class.update_precurated_file_list(work, params)
+      upload_service = described_class.new(work, user)
+      updated_work = upload_service.update_precurated_file_list(params)
       list = updated_work.pre_curation_uploads
       expect(list.map(&:filename)).to eq([uploaded_file2.original_filename])
       expect(a_request(:delete, attachment_url)).to have_been_made.once
+      # it logs the delete
+      activity_log = JSON.parse(work.work_activity.first.message)
+      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"] == "us_covid_2019.csv" }).not_to be nil
     end
   end
 
@@ -64,15 +71,21 @@ RSpec.describe WorkUploadsEditService do
       work.pre_curation_uploads.attach(uploaded_file2)
       work.pre_curation_uploads.attach(uploaded_file3)
     end
-    let(:params) { { "work_id" => "", "replaced_uploads" => { "1" => uploaded_file4 } }.with_indifferent_access }
+    let(:params) { { "work_id" => "", "replaced_uploads" => { work.pre_curation_uploads[1].key => uploaded_file4 } }.with_indifferent_access }
 
     it "replaces the correct file" do
-      updated_work = described_class.update_precurated_file_list(work, params)
+      upload_service = described_class.new(work, user)
+      updated_work = upload_service.update_precurated_file_list(params)
       list = updated_work.pre_curation_uploads
 
       # remeber order of the files will be alphabetical
       expect(list.map(&:filename)).to eq([uploaded_file.original_filename, uploaded_file3.original_filename, uploaded_file4.original_filename])
       expect(a_request(:delete, attachment_url)).to have_been_made.once
+
+      # it logs the activity
+      activity_log = JSON.parse(work.work_activity.first.message)
+      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"] == "us_covid_2020.csv" }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "datacite_basic.xml" }).not_to be nil
     end
   end
 
@@ -80,10 +93,17 @@ RSpec.describe WorkUploadsEditService do
     let(:params) { { "work_id" => "", "pre_curation_uploads" => [uploaded_file2, uploaded_file3] }.with_indifferent_access }
 
     it "replaces all the files" do
-      updated_work = described_class.update_precurated_file_list(work, params)
+      upload_service = described_class.new(work, user)
+      updated_work = upload_service.update_precurated_file_list(params)
       list = updated_work.reload.pre_curation_uploads
       expect(list.map(&:filename)).to eq([uploaded_file2.original_filename, uploaded_file3.original_filename])
       expect(a_request(:delete, attachment_url)).to have_been_made.once
+
+      # it logs the activity
+      activity_log = JSON.parse(work.work_activity.first.message)
+      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"] == "us_covid_2019.csv" }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "us_covid_2020.csv" }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "orcid.csv" }).not_to be nil
     end
   end
 
@@ -91,12 +111,19 @@ RSpec.describe WorkUploadsEditService do
     let(:params) { { "work_id" => "", "pre_curation_uploads" => [uploaded_file, uploaded_file3] }.with_indifferent_access }
 
     it "replaces all the files" do
-      updated_work = described_class.update_precurated_file_list(work, params)
+      upload_service = described_class.new(work, user)
+      updated_work = upload_service.update_precurated_file_list(params)
       list = updated_work.pre_curation_uploads
       expect(list.map(&:filename)).to eq([uploaded_file.original_filename, uploaded_file3.original_filename])
 
-      # we delete all items and start over becuase even if the filename matches we want the new version of the file they just uploaded
+      # we delete all items and start over because even if the filename matches we want the new version of the file they just uploaded
       expect(a_request(:delete, attachment_url)).to have_been_made.once
+
+      # it logs the activity
+      activity_log = JSON.parse(work.work_activity.first.message)
+      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"] == "us_covid_2019.csv" }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "us_covid_2019.csv" }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "orcid.csv" }).not_to be nil
     end
   end
 end
