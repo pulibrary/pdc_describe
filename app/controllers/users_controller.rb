@@ -31,7 +31,6 @@ class UsersController < ApplicationController
   end
 
   # PATCH/PUT /users/1 or /users/1.json
-  # rubocop:disable Metrics/MethodLength
   def update
     if can_edit?
       respond_to do |format|
@@ -49,7 +48,6 @@ class UsersController < ApplicationController
       Rails.logger.warn("Unauthorized to update user #{@user.id} (current user: #{current_user.id})")
       redirect_to user_path(@user)
     end
-    # rubocop:enable Metrics/MethodLength
   end
 
   private
