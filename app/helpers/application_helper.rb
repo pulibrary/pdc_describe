@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 module ApplicationHelper
-  # include PdcDescribeHelper
-
   ##
   # Attributes to add to the <html> tag (e.g. lang and dir)
   # @return [Hash]

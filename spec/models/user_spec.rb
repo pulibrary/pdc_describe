@@ -239,53 +239,6 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe "#enable_messages_from" do
-    let(:collection) { Collection.default }
-    let(:user) { described_class.create(uid: "test") }
-
-    context "when the user is a super admin" do
-      let(:user) { described_class.new_super_admin("test-admin") }
-
-      it "enables email messages for notifications from a Collection" do
-        state = user.messages_enabled_from?(collection: collection)
-        expect(state).to be false
-
-        user.enable_messages_from(collection: collection)
-        user.save!
-        user.reload
-
-        updated_state = user.messages_enabled_from?(collection: collection)
-        expect(updated_state).to be true
-      end
-    end
-
-    context "when the user is an administrator for a Collection" do
-      before do
-        user.add_role(:collection_admin, collection)
-        user.save!
-      end
-
-      it "enables email messages for notifications from a Collection" do
-        state = user.messages_enabled_from?(collection: collection)
-        expect(state).to be false
-
-        user.enable_messages_from(collection: collection)
-        user.save!
-        user.reload
-
-        updated_state = user.messages_enabled_from?(collection: collection)
-        expect(updated_state).to be true
-      end
-    end
-
-    it "raises an ArgumentError" do
-      state = user.messages_enabled_from?(collection: collection)
-      expect(state).to be false
-
-      expect { user.enable_messages_from(collection: collection) }.to raise_error(ArgumentError, "User #{user.uid} is not an administrator for the collection #{collection.title}")
-    end
-  end
-
   describe "#disable_messages_from" do
     let(:collection) { Collection.default }
     let(:user) { described_class.create(uid: "test") }

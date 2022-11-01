@@ -55,53 +55,6 @@ RSpec.describe Collection, type: :model do
     end
   end
 
-  describe "#enable_messages_for" do
-    let(:user) { FactoryBot.create(:user) }
-    let(:collection) { described_class.create(title: "test") }
-
-    context "when the user is a super admin" do
-      let(:user) { User.new_super_admin("test-admin") }
-
-      it "enables email messages for notifications for a User" do
-        state = collection.messages_enabled_for?(user: user)
-        expect(state).to be false
-
-        collection.enable_messages_for(user: user)
-        collection.save!
-        collection.reload
-
-        updated_state = collection.messages_enabled_for?(user: user)
-        expect(updated_state).to be true
-      end
-    end
-
-    context "when the user is an administrator for a Collection" do
-      before do
-        user.add_role(:collection_admin, collection)
-        user.save!
-      end
-
-      it "enables email messages for notifications for a User" do
-        state = collection.messages_enabled_for?(user: user)
-        expect(state).to be false
-
-        collection.enable_messages_for(user: user)
-        collection.save!
-        collection.reload
-
-        updated_state = collection.messages_enabled_for?(user: user)
-        expect(updated_state).to be true
-      end
-    end
-
-    it "raises an ArgumentError" do
-      state = collection.messages_enabled_for?(user: user)
-      expect(state).to be false
-
-      expect { collection.enable_messages_for(user: user) }.to raise_error(ArgumentError, "User #{user.uid} is not an administrator for this collection #{collection.title}")
-    end
-  end
-
   describe "#disable_messages_for" do
     let(:user) { FactoryBot.create(:user) }
     let(:collection) { described_class.create(title: "test") }
