@@ -140,4 +140,26 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       expect(page.find(".activity-history-log-title", visible: false).tag_name).to eq "div"
     end
   end
+
+  context "ORCID information" do
+    let(:work) { FactoryBot.create(:draft_work) }
+    let(:user) { work.created_by_user }
+
+    it "fetches information for creators" do
+      sign_in user
+      visit edit_work_path(work)
+      fill_in "orcid_1", with: "0000-0001-8965-6820"
+      expect(page.find("#given_name_1").value).to eq "Carmen"
+      expect(page.find("#family_name_1").value).to eq "Valdez"
+    end
+
+    it "fetches information for contributors" do
+      sign_in user
+      visit edit_work_path(work)
+      click_on "Additional Metadata"
+      fill_in "contributor_orcid_1", with: "0000-0001-5443-5964"
+      expect(page.find("#contributor_given_name_1").value).to eq "Melody"
+      expect(page.find("#contributor_family_name_1").value).to eq "Loya"
+    end
+  end
 end

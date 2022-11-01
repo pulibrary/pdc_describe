@@ -16,9 +16,7 @@ Vite wraps it as an ESM, and there doesn't seem to be a way to specify
 an export that we can call as-needed.
 */
 
-console.log('edit_utils.js loaded...');
 $(() => {
-  console.log('edit_utils.js hooks loading...');
   function incrementCounter(elementId) {
     let counter = parseInt($(elementId)[0].value, 10);
     counter++;
