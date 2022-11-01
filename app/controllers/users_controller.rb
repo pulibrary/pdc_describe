@@ -19,7 +19,8 @@ class UsersController < ApplicationController
   def edit
     unless can_edit?
       Rails.logger.warn("Unauthorized to edit user #{@user.id} (current user: #{current_user.id})")
-      redirect_to user_path(@user) and return
+      redirect_to user_path(@user)
+      return
     end
   end
 
