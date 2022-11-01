@@ -12,12 +12,6 @@ class S3File
   end
 
   def globus_url
-    uri.to_s
+    File.join(Rails.configuration.globus["post_curation_base_url"], filename)
   end
-
-  private
-
-    def uri
-      URI(File.join(Rails.configuration.globus["post_curation_base_url"], filename))
-    end
 end
