@@ -31,6 +31,7 @@ class UsersController < ApplicationController
   end
 
   # PATCH/PUT /users/1 or /users/1.json
+  # rubocop:disable Metrics/MethodLength
   def update
     if can_edit?
       respond_to do |format|
@@ -49,6 +50,7 @@ class UsersController < ApplicationController
       redirect_to user_path(@user)
     end
   end
+  # rubocop:enable Metrics/MethodLength
 
   private
 
