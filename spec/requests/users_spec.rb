@@ -65,6 +65,53 @@ RSpec.describe "/users", type: :request do
       end
     end
 
+    context "when updating Collection notification settings" do
+      let(:collection1) { Collection.plasma_laboratory }
+      let(:collection2) { Collection.research_data }
+      let(:updated_attributes1) do
+        {
+          collections_with_messaging: {
+            collection1.id => "1",
+            collection2.id => "1"
+          }
+        }
+      end
+      let(:updated_attributes2) do
+        {
+          collections_with_messaging: {
+            collection1.id => "0",
+            collection2.id => "0"
+          }
+        }
+      end
+      let(:user) do
+        FactoryBot.create(:user)
+      end
+
+      before do
+        Collection.create_defaults
+        user.add_role(:collection_admin, collection1)
+        user.add_role(:collection_admin, collection2)
+        user.save!
+        user.reload
+
+        sign_in(user)
+        patch user_url(user), params: { user: updated_attributes1 }
+        user.reload
+      end
+
+      it "updates the notification settings for multiple Collections" do
+        expect(user.messages_enabled_from?(collection: collection1)).to be true
+        expect(user.messages_enabled_from?(collection: collection2)).to be true
+
+        patch user_url(user), params: { user: updated_attributes2 }
+        user.reload
+
+        expect(user.messages_enabled_from?(collection: collection1)).to be false
+        expect(user.messages_enabled_from?(collection: collection2)).to be false
+      end
+    end
+
     context "with invalid parameters" do
       it "renders a successful response (i.e. to display the 'edit' template)" do
         user = User.create! valid_attributes

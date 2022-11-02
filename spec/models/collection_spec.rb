@@ -54,4 +54,71 @@ RSpec.describe Collection, type: :model do
       end
     end
   end
+
+  describe "#disable_messages_for" do
+    let(:user) { FactoryBot.create(:user) }
+    let(:collection) { described_class.create(title: "test") }
+
+    context "when the user is a super admin" do
+      let(:user) { User.new_super_admin("test-admin") }
+
+      it "disables email messages for notifications for a User" do
+        # Initially messages are disabled for the user
+        state = collection.messages_enabled_for?(user: user)
+        expect(state).to be false
+
+        collection.enable_messages_for(user: user)
+        collection.save!
+        collection.reload
+
+        # After enabling messages for the user, that they are enabled is verified
+        enabled_state = collection.messages_enabled_for?(user: user)
+        expect(enabled_state).to be true
+
+        collection.disable_messages_for(user: user)
+        collection.save!
+        collection.reload
+
+        # After disabling messages for the user, that they are disabled is verified
+        disabled_state = collection.messages_enabled_for?(user: user)
+        expect(disabled_state).to be false
+      end
+    end
+
+    context "when the user is an administrator for a Collection" do
+      before do
+        user.add_role(:collection_admin, collection)
+        user.save!
+      end
+
+      it "disables email messages for notifications for a User" do
+        # Initially messages are disabled for the user
+        state = collection.messages_enabled_for?(user: user)
+        expect(state).to be false
+
+        collection.enable_messages_for(user: user)
+        collection.save!
+        collection.reload
+
+        # After enabling messages for the user, that they are enabled is verified
+        enabled_state = collection.messages_enabled_for?(user: user)
+        expect(enabled_state).to be true
+
+        collection.disable_messages_for(user: user)
+        collection.save!
+        collection.reload
+
+        # After disabling messages for the user, that they are disabled is verified
+        disabled_state = collection.messages_enabled_for?(user: user)
+        expect(disabled_state).to be false
+      end
+    end
+
+    it "raises an ArgumentError" do
+      state = collection.messages_enabled_for?(user: user)
+      expect(state).to be false
+
+      expect { collection.disable_messages_for(user: user) }.to raise_error(ArgumentError, "User #{user.uid} is not an administrator for this collection #{collection.title}")
+    end
+  end
 end

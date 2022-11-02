@@ -3,6 +3,13 @@
 class Collection < ApplicationRecord
   resourcify
 
+  # CollectionOptions model extensible options set for Collections and Users
+  has_many :collection_options, dependent: :destroy
+  has_many :collection_messaging_options, -> { where(option_type: CollectionOption::EMAIL_MESSAGES) }, class_name: "CollectionOption", dependent: :destroy
+
+  has_many :users_with_options, through: :collection_options, source: :user
+  has_many :users_with_messaging, through: :collection_messaging_options, source: :user
+
   validate do |collection|
     if collection.title.blank?
       collection.errors.add :base, "Title cannot be empty"
@@ -84,6 +91,29 @@ class Collection < ApplicationRecord
 
   def submitters
     User.with_role(:submitter, self)
+  end
+
+  # Permit a User to receive notification messages for members of this Collection
+  # @param user [User]
+  def enable_messages_for(user:)
+    raise(ArgumentError, "User #{user.uid} is not an administrator for this collection #{title}") unless user.can_admin?(self)
+    collection_messaging_options << CollectionOption.new(option_type: CollectionOption::EMAIL_MESSAGES, collection: self, user: user)
+  end
+
+  # Disable a User from receiving notification messages for members of this Collection
+  # @param user [User]
+  def disable_messages_for(user:)
+    raise(ArgumentError, "User #{user.uid} is not an administrator for this collection #{title}") unless user.can_admin?(self)
+    users_with_messaging.destroy(user)
+  end
+
+  # Returns true if a given user has notification e-mails enabled for this collection
+  # @param user [User]
+  # @return [Boolean]
+  def messages_enabled_for?(user:)
+    found = users_with_messaging.find_by(id: user.id)
+
+    found.present?
   end
 
   def self.create_defaults
