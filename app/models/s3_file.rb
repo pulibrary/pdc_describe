@@ -12,7 +12,7 @@ class S3File
   end
 
   def globus_url
-    encoded_filename = filename.split("/").map{ |name| CGI.escape(name) }.join("/")
+    encoded_filename = filename.split("/").map { |name| CGI.escape(name) }.join("/")
     File.join(Rails.configuration.globus["post_curation_base_url"], encoded_filename)
   end
 end
