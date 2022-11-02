@@ -1,0 +1,9 @@
+---
+production:
+  post_curation_base_url: 'https://g-ef94ef.f0ad1.36fe.data.globus.org'
+staging:
+  post_curation_base_url: 'https://g-5beea4.90d4e.bd7c.data.globus.org/pdc-describe-staging-postcuration'
+development:
+  post_curation_base_url: 'https://g-5beea4.90d4e.bd7c.data.globus.org/pdc-describe-staging-postcuration'
+test:
+  post_curation_base_url: 'https://example.data.globus.org'

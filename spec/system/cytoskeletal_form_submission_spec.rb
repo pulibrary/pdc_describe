@@ -77,8 +77,14 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
 
       # Select Additional Metadata Tab
       click_on "v-pills-additional-tab"
+
+      # Related Objects
       fill_in "related_identifier_1", with: related_identifier
       find("#related_identifier_type_1").find(:xpath, "option[@value='#{related_identifier_type}']").select_option
+      find("#relation_type_1").find(:xpath, "option[@value='#{relation_type}']").select_option
+      click_on "Add Another Related Object"
+      fill_in "related_identifier_2", with: "https://doi.org/10.7554/eLife.52482"
+      find("#related_identifier_type_2").find(:xpath, "option[@value='DOI']").select_option
       find("#relation_type_1").find(:xpath, "option[@value='#{relation_type}']").select_option
 
       # Select Curator Controlled Tab
@@ -92,6 +98,9 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       expect(cytoskeletal_work.resource.related_objects.first.related_identifier).to eq related_identifier
       expect(cytoskeletal_work.resource.related_objects.first.related_identifier_type).to eq related_identifier_type
       expect(cytoskeletal_work.resource.related_objects.first.relation_type).to eq relation_type
+      # ARK is not a related object in the resource, but it IS a "related identifer" in the DataCite serialization
+      # This object has 2 related objects, but 3 related identifiers
+      expect(cytoskeletal_work.resource.related_objects.count).to eq 2
     end
   end
 end

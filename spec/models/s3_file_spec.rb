@@ -31,67 +31,9 @@ RSpec.describe S3File, type: :model do
     end
   end
 
-  describe "#bucket_name" do
-    it "accesses the name of the S3 Bucket" do
-      expect(s3_file.bucket_name).to eq(bucket_name)
-    end
-  end
-
-  describe "#url_protocol" do
-    it "accesses the HTTP protocol for the S3 URL" do
-      expect(s3_file.url_protocol).to eq(url_protocol)
-    end
-  end
-
-  describe "#s3_host" do
-    it "accesses the host name for the S3 endpoint" do
-      expect(s3_file.s3_host).to eq(s3_host)
-    end
-  end
-
-  describe "#uri" do
-    it "builds the URI for the S3 endpoint" do
-      expect(s3_file.uri).to be_a(URI)
-      expect(s3_file.uri.to_s).to eq("https://test-bucket.#{s3_host}/#{filename}")
-    end
-  end
-
-  describe "#url" do
+  describe "#globus_url" do
     it "builds the URL for the S3 endpoint" do
-      expect(s3_file.url).to eq("https://test-bucket.#{s3_host}/#{filename}")
-    end
-  end
-
-  context "when #query_service is nil" do
-    let(:query_service) { nil }
-    describe "#bucket_name" do
-      it "accesses the name of the S3 Bucket" do
-        expect(s3_file.bucket_name).to be nil
-      end
-    end
-
-    describe "#url_protocol" do
-      it "accesses the HTTP protocol for the S3 URL" do
-        expect(s3_file.url_protocol).to be nil
-      end
-    end
-
-    describe "#s3_host" do
-      it "accesses the host name for the S3 endpoint" do
-        expect(s3_file.s3_host).to be nil
-      end
-    end
-
-    describe "#uri" do
-      it "builds the URI for the S3 endpoint" do
-        expect(s3_file.uri).to be nil
-      end
-    end
-
-    describe "#url" do
-      it "builds the URL for the S3 endpoint" do
-        expect(s3_file.url).to be nil
-      end
+      expect(s3_file.globus_url).to eq("https://example.data.globus.org/#{filename}")
     end
   end
 end
