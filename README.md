@@ -46,6 +46,10 @@ To stop database services:
 1. `bundle exec rails s -p 3000`
 2. Access application at [http://localhost:3000/](http://localhost:3000/)
 
+### Give yourself admin privs in your local dev instance
+1. Login at [http://localhost:3000/](http://localhost:3000/) so a `User` exists.
+2. Enter the rails console: `bundle exec rails console`
+3. Elevate your privs: `User.new_super_admin("your NetID here")`
 
 ## DataCite integration
 We use DataCite to mint DOIs and in production you must to define the `DATACITE_*` environment values indicated [here](https://github.com/pulibrary/princeton_ansible/blob/main/group_vars/pdc_describe/production.yml) for the system to run. During development if you do not set these values the system will use a hard-coded DOI.
