@@ -13,14 +13,11 @@ class UsersController < ApplicationController
     @unfinished_works = Work.unfinished_works(@user)
     @completed_works = Work.completed_works(@user)
     @withdrawn_works = Work.withdrawn_works(@user)
-    render "show"
   end
 
   # GET /users/1/edit
   def edit
-    if can_edit?
-      render "edit"
-    else
+    unless can_edit?
       Rails.logger.warn("Unauthorized to edit user #{@user.id} (current user: #{current_user.id})")
       redirect_to user_path(@user)
     end
@@ -58,7 +55,6 @@ class UsersController < ApplicationController
     end
 
     def can_edit?
-      return true if current_user.id == @user.id
-      current_user.super_admin?
+      current_user.id == @user.id or current_user.super_admin?
     end
 end
