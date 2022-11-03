@@ -3,7 +3,7 @@ require "rails_helper"
 
 RSpec.describe S3File, type: :model do
   subject(:s3_file) { described_class.new(filename: filename, last_modified: last_modified, size: size, checksum: checksum, query_service: query_service) }
-  let(:filename) { "10-34770/pe9w-x904/SCoData_combined_v1_2020-07_README.txt" }
+  let(:filename) { "10-34770/pe9w-x904/filename [with spaces] wéî®∂ chars.txt" }
   let(:last_modified) { Time.parse("2022-04-21T18:29:40.000Z") }
   let(:size) { 10_759 }
   let(:checksum) { "abc123" }
@@ -33,7 +33,10 @@ RSpec.describe S3File, type: :model do
 
   describe "#globus_url" do
     it "builds the URL for the S3 endpoint" do
-      expect(s3_file.globus_url).to eq("https://example.data.globus.org/#{filename}")
+      expect(s3_file.globus_url).to match(%r(https://example.data.globus.org/10-34770/pe9w-x904/filename))
+      url_file = s3_file.globus_url.split('/').last
+      expect(url_file).to eq("filename+%5Bwith+spaces%5D+w%C3%A9%C3%AE%C2%AE%E2%88%82+chars.txt")
+      expect(CGI.unescape(url_file)).to eq(filename.split("/").last)
     end
   end
 end
