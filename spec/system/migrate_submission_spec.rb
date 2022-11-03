@@ -54,7 +54,6 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
-      click_on "Additional Metadata"
       fill_in "publication_year", with: issue_date
       click_on "Create"
       click_on "Complete"
@@ -91,7 +90,6 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
-      click_on "Additional Metadata"
       fill_in "publication_year", with: issue_date
       click_on "Create"
       expect(page).to have_content "Must provide a title"
