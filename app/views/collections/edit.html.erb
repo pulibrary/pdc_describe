@@ -89,4 +89,15 @@
 <% end %>
 </ul>
 
-<%= render 'edit_javascript' %>
+<script>
+pdc = {
+  ...pdc,
+  deleteUserFromCollectionUrl: '<%= delete_user_from_collection_url(id: @collection.id, uid: "uid-placeholder") %>',
+  formAuthenticityToken: '<%= form_authenticity_token %>',
+  collectionId: '<%= @collection.id %>',
+  addSubmitterUrl: '<%= add_submitter_url(id: @collection.id, uid: "uid-placeholder") %>',
+  addAdminUrl: '<%= add_admin_url(id: @collection.id, uid: "uid-placeholder") %>',
+  userPath: "<%= user_path('user-placeholder') %>"
+}
+</script>
+<%= javascript_include_tag 'edit_collection_utils' %>

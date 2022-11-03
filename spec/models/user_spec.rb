@@ -238,4 +238,65 @@ RSpec.describe User, type: :model do
       expect(user).to be_super_admin
     end
   end
+
+  describe "#disable_messages_from" do
+    let(:collection) { Collection.default }
+    let(:user) { described_class.create(uid: "test") }
+
+    context "when the user is a super admin" do
+      let(:user) { described_class.new_super_admin("test-admin") }
+
+      it "disables email messages for notifications from a Collection" do
+        initial_state = user.messages_enabled_from?(collection: collection)
+        expect(initial_state).to be false
+
+        user.enable_messages_from(collection: collection)
+        user.save!
+        user.reload
+
+        enabled_state = user.messages_enabled_from?(collection: collection)
+        expect(enabled_state).to be true
+
+        user.disable_messages_from(collection: collection)
+        user.save!
+        user.reload
+
+        disabled_state = user.messages_enabled_from?(collection: collection)
+        expect(disabled_state).to be false
+      end
+    end
+
+    context "when the user is an administrator for a Collection" do
+      before do
+        user.add_role(:collection_admin, collection)
+        user.save!
+      end
+
+      it "disables email messages for notifications from a Collection" do
+        initial_state = user.messages_enabled_from?(collection: collection)
+        expect(initial_state).to be false
+
+        user.enable_messages_from(collection: collection)
+        user.save!
+        user.reload
+
+        enabled_state = user.messages_enabled_from?(collection: collection)
+        expect(enabled_state).to be true
+
+        user.disable_messages_from(collection: collection)
+        user.save!
+        user.reload
+
+        disabled_state = user.messages_enabled_from?(collection: collection)
+        expect(disabled_state).to be false
+      end
+    end
+
+    it "raises an ArgumentError" do
+      state = user.messages_enabled_from?(collection: collection)
+      expect(state).to be false
+
+      expect { user.disable_messages_from(collection: collection) }.to raise_error(ArgumentError, "User #{user.uid} is not an administrator for the collection #{collection.title}")
+    end
+  end
 end

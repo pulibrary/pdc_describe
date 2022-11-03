@@ -6,9 +6,13 @@ class WorkActivityNotification < ApplicationRecord
 
   after_create do
     if user.email_messages_enabled?
-      mailer = NotificationMailer.with(user: user, work_activity: work_activity)
-      message = mailer.build_message
-      message.deliver_later
+      work = work_activity.work
+      if work.collection&.messages_enabled_for?(user: user)
+
+        mailer = NotificationMailer.with(user: user, work_activity: work_activity)
+        message = mailer.build_message
+        message.deliver_later
+      end
     end
   end
 end

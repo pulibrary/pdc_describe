@@ -8,6 +8,14 @@ class User < ApplicationRecord
   friendly_id :uid
 
   devise :rememberable, :omniauthable
+
+  # CollectionOptions model extensible options set for Collections and Users
+  has_many :collection_options, dependent: :destroy
+  has_many :collection_messaging_options, -> { where(option_type: CollectionOption::EMAIL_MESSAGES) }, class_name: "CollectionOption", dependent: :destroy
+
+  has_many :collections_with_options, through: :collection_options, source: :collection
+  has_many :collections_with_messaging, through: :collection_messaging_options, source: :collection
+
   after_create :assign_default_role
 
   attr_accessor :just_created
@@ -214,6 +222,29 @@ class User < ApplicationRecord
   # @return [Boolean]
   def email_messages_enabled?
     email_messages_enabled
+  end
+
+  # Permit this user to receive notification messages for members of a given Collection
+  # @param collection [Collection]
+  def enable_messages_from(collection:)
+    raise(ArgumentError, "User #{uid} is not an administrator for the collection #{collection.title}") unless can_admin?(collection)
+    collection_messaging_options << CollectionOption.new(option_type: CollectionOption::EMAIL_MESSAGES, user: self, collection: collection)
+  end
+
+  # Disable this user from receiving notification messages for members of a given Collection
+  # @param collection [Collection]
+  def disable_messages_from(collection:)
+    raise(ArgumentError, "User #{uid} is not an administrator for the collection #{collection.title}") unless can_admin?(collection)
+    collections_with_messaging.destroy(collection)
+  end
+
+  # Returns true if the user has notification e-mails enabled for a given collection
+  # @param collection [Collection]
+  # @return [Boolean]
+  def messages_enabled_from?(collection:)
+    found = collection_messaging_options.find_by(collection: collection)
+
+    !found.nil?
   end
 end
 # rubocop:enable Metrics/ClassLength
