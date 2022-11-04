@@ -9,7 +9,7 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
   end
   let(:ark) { "ark:/88435/dsp0159999n626m" }
   let(:collection) { "Research Data" }
-  let(:publisher) { "Princeton University Lewis-Sigler Institute" }
+  let(:publisher) { "Princeton University" }
   let(:doi) { "10.34770/gg40-tc15" }
   let(:keywords) { "de novo genes, synthetic, Next-generation sequencing, DNA library" }
 
@@ -27,13 +27,17 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       fill_in "title_main", with: title
       fill_in "description", with: description
       find("#rights_identifier").find(:xpath, "option[2]").select_option
-      fill_in "given_name_1", with: "Christina"
-      fill_in "family_name_1", with: "Karas"
+      fill_in "given_name_1", with: "Robert"
+      fill_in "family_name_1", with: "Leach"
       click_on "Add Another Creator"
-      fill_in "given_name_2", with: "National Science Foundation"
+      fill_in "given_name_2", with: "Michael"
+      fill_in "family_name_2", with: "Hecht"
+      click_on "Add Another Creator"
+      fill_in "given_name_3", with: "Christina"
+      fill_in "family_name_3", with: "karas"
       click_on "v-pills-additional-tab"
       fill_in "publisher", with: publisher
-      fill_in "publication_year", with: 2020
+      fill_in "publication_year", with: 2019
       find("#collection_id").find(:xpath, "option[1]").select_option
       fill_in "keywords", with: keywords
       click_on "v-pills-curator-controlled-tab"

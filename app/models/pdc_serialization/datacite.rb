@@ -256,6 +256,7 @@ module PDCSerialization
         end
 
         def extract_related_objects(resource)
+          byebug
           related_objects = []
           resource.related_objects.each do |ro|
             related_objects << ::Datacite::Mapping::RelatedIdentifier.new(
