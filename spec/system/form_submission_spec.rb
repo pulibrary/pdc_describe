@@ -67,7 +67,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Create New"
       fill_in "description", with: description
       find("#rights_identifier").find(:xpath, "option[2]").select_option
-      click_on "Additional Metadata"
+      click_on "Curator Controlled"
       fill_in "publication_year", with: issue_date
       click_on "Save Work"
       page.find(:xpath, "//input[@value='file_other']").choose

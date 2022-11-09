@@ -32,11 +32,11 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       click_on "Add Another Creator"
       fill_in "given_name_2", with: "National Science Foundation"
       click_on "v-pills-additional-tab"
+      fill_in "keywords", with: keywords
+      click_on "v-pills-curator-controlled-tab"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2020
       find("#collection_id").find(:xpath, "option[1]").select_option
-      fill_in "keywords", with: keywords
-      click_on "v-pills-curator-controlled-tab"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"
