@@ -22,9 +22,9 @@ RSpec.describe "Curator Controlled metadata tab", type: :system do
       # We want them as HTML INPUT elements (rather than SPANs) so their values are submitted during save.
       expect(page).to have_field("doi", readonly: true)
       expect(page).to have_field("ark", readonly: true)
-      expect(page).to have_field("resource_type", disabled: true)
-      expect(page).to have_field("resource_type_general", disabled: true)
-      expect(page).to have_field("version_number", disabled: true)
+      expect(page).to have_field("resource_type", readonly: true)
+      expect(page).to have_field("resource_type_general", readonly: true)
+      expect(page).to have_field("version_number", readonly: true)
       expect(page).to have_field("collection_tags", readonly: true)
 
       # I can edit other fields
