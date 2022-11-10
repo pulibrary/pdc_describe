@@ -115,6 +115,7 @@ module PDCMetadata
         def related_objects_from_json(resource, related_objects)
           return if related_objects.blank?
           related_objects.each do |related_object|
+            next if related_object["related_identifier"].nil?
             resource.related_objects << PDCMetadata::RelatedObject.new(
                                           related_identifier: related_object["related_identifier"],
                                           related_identifier_type: related_object["related_identifier_type"],
