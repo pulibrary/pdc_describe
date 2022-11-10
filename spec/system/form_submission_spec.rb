@@ -43,6 +43,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       sign_in user
       visit new_work_path(params: { wizard: true })
       fill_in "title_main", with: title
+      expect(find("#related_object_count", visible: false).value).to eq("1")
 
       fill_in "given_name_1", with: "Samantha"
       fill_in "family_name_1", with: "Abrams"
@@ -65,6 +66,9 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       fill_in "given_name_7", with: "Stefanie"
       fill_in "family_name_7", with: "Ramsay"
       click_on "Create New"
+      work = Work.last
+      expect(work.resource.related_objects.count).to eq(0)
+      expect(find("#related_object_count", visible: false).value).to eq("1")
       fill_in "description", with: description
       find("#rights_identifier").find(:xpath, "option[2]").select_option
       click_on "Curator Controlled"
