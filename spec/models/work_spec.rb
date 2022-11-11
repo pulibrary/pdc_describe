@@ -921,4 +921,22 @@ RSpec.describe Work, type: :model do
       expect(work.resource.to_json).to eq(resource_json)
     end
   end
+
+  describe "valid_to_submit" do
+    it "validates the work is ready to submit" do
+      expect(work.valid_to_submit).to be_truthy
+    end
+
+    context "with a related identifier without a type" do
+      before do
+        work.resource.related_objects << PDCMetadata::RelatedObject.new(related_identifier: "http://related.example.com", related_identifier_type: nil, relation_type: nil)
+      end
+
+      it "validates the work is not ready to submit" do
+        expect(work.valid_to_submit).to be_falsey
+        expect(work.errors.count).to eq(1)
+        expect(work.errors.first.type). to eq("Related Obejcts are invalid: Related Identifier Type is missing or invalid for http://related.example.com, Relationship Type is missing or invalid for http://related.example.com")
+      end
+    end
+  end
 end
