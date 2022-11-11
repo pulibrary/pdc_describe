@@ -77,6 +77,7 @@ class FormToResourceService
       ## TODO: Do the right thing with blank form entries
       def process_related_objects(params, resource)
         (1..params["related_object_count"].to_i).each do |i|
+          next if params["related_identifier_#{i}"].blank? && params["related_identifier_type_#{i}"].blank? # do not store blank related identifiers
           related_object = PDCMetadata::RelatedObject.new(
                             related_identifier: params["related_identifier_#{i}"],
                             related_identifier_type: params["related_identifier_type_#{i}"],
