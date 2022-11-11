@@ -62,7 +62,7 @@ $(() => {
     const options = kvList.map(
       ({ key, value }) => `<option value="${key}" ${currentKey == key ? 'selected' : ''}>${value}</option>`,
     );
-    return `<select id="${selectId}" name="${selectId}">${options}</select>`;
+    return `<select id="${selectId}" name="${selectId}"><option value="" ${currentKey == '' ? 'selected' : ''}></option>${options}</select>`;
   }
 
   // ************************************************ //
