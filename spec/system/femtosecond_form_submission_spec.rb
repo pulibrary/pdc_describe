@@ -84,11 +84,11 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       fill_in "given_name_19", with: "Thomas S"
       fill_in "family_name_19", with: "Duffy"
       click_on "v-pills-additional-tab"
+      fill_in "keywords", with: keywords
+      click_on "v-pills-curator-controlled-tab"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2020
       find("#collection_id").find(:xpath, "option[1]").select_option
-      fill_in "keywords", with: keywords
-      click_on "v-pills-curator-controlled-tab"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"

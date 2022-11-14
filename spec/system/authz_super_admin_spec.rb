@@ -29,7 +29,7 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
       click_on "Create New"
       fill_in "description", with: FFaker::Lorem.paragraph
       find("#rights_identifier").find(:xpath, "option[2]").select_option
-      click_on "Additional Metadata"
+      click_on "Curator Controlled"
       expect(page).to have_content "Research Data"
       click_on "Save Work"
       page.find(:xpath, "//input[@value='file_other']").choose

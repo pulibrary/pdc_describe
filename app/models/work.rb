@@ -613,6 +613,7 @@ class Work < ApplicationRecord
       errors.add(:base, "Must indicate a Rights statement") if resource.rights.nil?
       errors.add(:base, "Must provide a Version number") if resource.version_number.blank?
       validate_creators
+      validate_related_objects
     end
     # rubocop:enable Metrics/AbcSize
 
@@ -626,6 +627,12 @@ class Work < ApplicationRecord
           end
         end
       end
+    end
+
+    def validate_related_objects
+      return if resource.related_objects.empty?
+      invalid = resource.related_objects.reject(&:valid?)
+      errors.add(:base, "Related Obejcts are invalid: #{invalid.map(&:errors).join(', ')}") if invalid.count.positive?
     end
 
     def publish_doi(user)
