@@ -37,7 +37,8 @@
   <!-- Resource Type General -->
   <div class="field">
     Resource Type General:<span class="required-field">*</span><span class="text-muted field-hint">(please see <%= link_to("the DataCite schema documentation", "https://schema.datacite.org/meta/kernel-4.4/", target: "_blank", rel: "nofollow") %> )</span><br>
-    <select id="resource_type_general" name="resource_type_general" <%= is_collection_admin ? '' : 'readonly' %> >
+    <input type="hidden" name="resource_type_general" value="<%=@workresource_type_general %>"/> <!-- put the value in the form as disabled will not send the data back -->
+    <select id="resource_type_general" name="resource_type_general" <%= is_collection_admin ? '' : 'disabled' %> >
       <% Work.resource_type_general_options.each_pair do |key, value| %>
         <option value="<%= key %>" <%= @work.resource_type_general == key.to_sym ? "selected" : "" %>><%= value %></option>
       <% end %>
@@ -47,7 +48,8 @@
   <!-- Version number -->
   <div class="field">
     Version: <span class="required-field">*</span><br>
-    <select id="version_number" name="version_number" class="input-version" <%= is_collection_admin ? '' : 'readonly' %> >
+    <input type="hidden" name="version_number" value="<%= @work.resource.version_number%>"/> <!-- put the value in the form as disabled will not send the data back -->
+    <select id="version_number" name="version_number" class="input-version" <%= is_collection_admin ? '' : 'disabled' %> >
       <% (1..10).each do |i| %>
         <option value="<%= i %>" <%= i.to_s == @work.resource.version_number ? "selected" : "" %>><%= i %></option>
       <% end %>
@@ -57,7 +59,8 @@
   <!-- Collection field -->
   <div class="field">
     Collection: <span class="required-field">*</span><br>
-    <select id="collection_id" name="collection_id" class="input-text-long" >
+    <input type="hidden" name="collection_id" value="<%= @work.collection_id%>"/> <!-- put the value in the form as disabled will not send the data back -->
+    <select id="collection_id" name="collection_id" class="input-text-long"  <%= is_collection_admin ? '' : 'disabled' %> >
       <% current_user.submitter_collections.each do |collection| %>
         <option value="<%=collection.id%>" <%= @work.collection_id == collection.id ? "selected" : "" %>><%=collection.title%></option>
       <% end %>
