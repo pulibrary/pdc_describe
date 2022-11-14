@@ -49,12 +49,12 @@ A full description of the structure of the dataset and how to reproduce the figu
       fill_in "given_name_7", with: "Karen"
       fill_in "family_name_7", with: "Paffendorf"
       click_on "v-pills-additional-tab"
+      click_on "v-pills-curator-controlled-tab"      
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2019
-      find("#collection_id").find(:xpath, "option[1]").select_option
-      click_on "v-pills-curator-controlled-tab"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
+      find("#collection_id").find(:xpath, "option[1]").select_option
       click_on "Create"
       expect(page).to have_content "marked as draft"
       baldwin_work = Work.last
