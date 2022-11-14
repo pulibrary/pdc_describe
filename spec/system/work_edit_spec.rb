@@ -162,4 +162,23 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       expect(page.find("#contributor_family_name_1").value).to eq "Loya"
     end
   end
+
+  context "as a user without curator privileges" do
+    let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+    let(:user) { work.created_by_user }
+
+    it "renders the publisher and publication year form fields as read-only" do
+      sign_in user
+      visit edit_work_path(work)
+      click_on "Curator Controlled"
+
+      publisher_element = page.find("#publisher")
+      expect(publisher_element.tag_name).to eq("input")
+      expect(publisher_element["readonly"]).to eq("true")
+
+      publication_year_element = page.find("#publication_year")
+      expect(publication_year_element.tag_name).to eq("input")
+      expect(publication_year_element["readonly"]).to eq("true")
+    end
+  end
 end

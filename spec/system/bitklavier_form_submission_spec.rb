@@ -42,7 +42,7 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       click_on "Add Another Creator"
       fill_in "given_name_5", with: "Christien"
       fill_in "family_name_5", with: "Ayres"
-      click_on "v-pills-additional-tab"
+      click_on "v-pills-curator-controlled-tab"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2021
       find("#collection_id").find(:xpath, "option[1]").select_option

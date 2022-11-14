@@ -38,6 +38,8 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       fill_in "given_name_3", with: "Christina"
       fill_in "family_name_3", with: "Karas"
       click_on "v-pills-additional-tab"
+      fill_in "keywords", with: keywords
+      click_on "v-pills-curator-controlled-tab"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2019
       find("#collection_id").find(:xpath, "option[1]").select_option

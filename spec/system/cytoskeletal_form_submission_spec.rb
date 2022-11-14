@@ -70,7 +70,7 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       click_on "Add Another Creator"
       fill_in "given_name_14", with: "Nina R"
       fill_in "family_name_14", with: "Salama"
-      click_on "v-pills-additional-tab"
+      click_on "v-pills-curator-controlled-tab"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2019
       find("#collection_id").find(:xpath, "option[1]").select_option
