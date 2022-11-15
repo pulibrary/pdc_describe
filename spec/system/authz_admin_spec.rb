@@ -79,7 +79,7 @@ RSpec.describe "Authz for curators", type: :system, js: true do
       end
 
       context "with submitter rights" do
-        let(:other_work) { FactoryBot.create :draft_work, created_by_user_id: research_data_moderator.id, collection: collection}
+        let(:other_work) { FactoryBot.create :draft_work, created_by_user_id: research_data_moderator.id, collection: collection }
         let(:user_work) { FactoryBot.create :draft_work }
         before do
           research_data_moderator.add_role :submitter, collection
