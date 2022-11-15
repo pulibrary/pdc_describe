@@ -116,10 +116,11 @@ class Work < ApplicationRecord
 
       def works_by_user_state(user, state)
         works = []
-        if user.admin_collections.count == 0
-          # Just the user's own works by state
-          works += Work.where(created_by_user_id: user, state: state)
-        else
+
+        # The user's own works by state (if any)
+        works += Work.where(created_by_user_id: user, state: state)
+
+        if user.admin_collections.count > 0
           # The works that match the given state, in all the collections the user can admin
           # (regardless of who created those works)
           user.admin_collections.each do |collection|
@@ -133,7 +134,7 @@ class Work < ApplicationRecord
           works << work unless already_included
         end
 
-        works.sort_by(&:updated_at).reverse
+        works.uniq(&:id).sort_by(&:updated_at).reverse
       end
 
       # Returns an array of work ids where a particular user has been mentioned
