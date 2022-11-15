@@ -228,25 +228,9 @@ class Work < ApplicationRecord
     resource.main_title
   end
 
-  def doi
-    resource.doi
-  end
-
-  def ark
-    resource.ark
-  end
-
   def curator
     return nil if curator_user_id.nil?
     User.find(curator_user_id)
-  end
-
-  def to_xml
-    resource.to_xml
-  end
-
-  def to_json
-    resource.to_json
   end
 
   def uploads_attributes
@@ -509,7 +493,8 @@ class Work < ApplicationRecord
     log_file_changes(changes, nil)
   end
 
-  delegate :resource_type, :resource_type=, :resource_type_general, :resource_type_general=, to: :resource
+  delegate :ark, :doi, :resource_type, :resource_type=, :resource_type_general, :resource_type_general=,
+           :to_xml, :to_json, to: :resource
 
   protected
 
