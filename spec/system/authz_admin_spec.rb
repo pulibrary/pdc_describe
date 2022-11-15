@@ -77,6 +77,23 @@ RSpec.describe "Authz for curators", type: :system, js: true do
         visit edit_work_path(work)
         expect(page).not_to have_content("Editing Dataset")
       end
+
+      context "with submitter rights" do
+        let(:other_work) { FactoryBot.create :draft_work, created_by_user_id: research_data_moderator.id, collection: collection}
+        let(:user_work) { FactoryBot.create :draft_work }
+        before do
+          research_data_moderator.add_role :submitter, collection
+          other_work
+          user_work
+        end
+        it "allows them to see a work they submitted on thier dashboard" do
+          login_as research_data_moderator
+          visit user_path(research_data_moderator)
+          expect(page).to have_content("Curator")
+          expect(page).to have_content(user_work.title)
+          expect(page).to have_content(other_work.title)
+        end
+      end
     end
 
     describe "menu at the top" do
