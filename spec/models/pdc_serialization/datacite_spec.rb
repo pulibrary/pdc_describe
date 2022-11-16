@@ -251,7 +251,7 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
     let(:resource) { described_class.new_from_work(work) }
     context "valid XML record" do
       let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
-      it "easily validates against the official datacite schema" do
+      it "easily validates against our local datacite schema" do
         expect(resource.valid?).to eq true
         expect(resource.errors.empty?).to eq true
       end

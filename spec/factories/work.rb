@@ -12,16 +12,6 @@ FactoryBot.define do
       resource { FactoryBot.build :resource, doi: doi }
     end
 
-    factory :invalid_work do
-      transient do
-        doi { "10.34770/123-abc" }
-      end
-      collection { Collection.research_data }
-      state { "draft" }
-      created_by_user_id { FactoryBot.create(:user).id }
-      resource { FactoryBot.build :incomplete_resource, doi: doi }
-    end
-
     factory :completed_work do
       transient do
         doi { "10.34770/123-abc" }
