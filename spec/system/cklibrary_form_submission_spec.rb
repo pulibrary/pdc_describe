@@ -11,7 +11,7 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
   let(:ark) { "ark:/88435/dsp015999n626m" }
   let(:collection) { "Research Data" }
   let(:publisher) { "Princeton University" }
-  let(:doi) { "10.34770/gg40-tc15" }
+  let(:doi) {}
   let(:keywords) { "de novo genes, synthetic biology, Next-generation sequencing, DNA library" }
 
   before do

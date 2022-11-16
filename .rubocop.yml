@@ -28,7 +28,7 @@ Layout/LineLength:
     - "spec/system/baldwin_form_submission_spec.rb"
     - "spec/system/cklibrary_form_submission_spec.rb"
     - "spec/system/bitklavierimage_form_submission_spec.rb"
-    
+    - "spec/system/flume_form_submission_spec.rb"
 
 Metrics/BlockLength:
   Exclude:
