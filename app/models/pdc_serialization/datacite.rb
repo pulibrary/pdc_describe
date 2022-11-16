@@ -84,7 +84,6 @@ module PDCSerialization
     ##
     # Creates a PDCSerialization::Datacite object from a PDCMetadata::Resource
     def self.new_from_work_resource(resource)
-      byebug
       mapping = ::Datacite::Mapping::Resource.new(
         identifier: ::Datacite::Mapping::Identifier.new(value: resource.doi),
         creators: creators_from_work_resource(resource.creators),
@@ -98,7 +97,6 @@ module PDCSerialization
         rights_list: rights_from_work_resource(resource),
         version: resource.version_number
       )
-      byebug
       Datacite.new(mapping)
     end
 
