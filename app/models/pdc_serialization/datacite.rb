@@ -22,16 +22,35 @@ module PDCSerialization
   #
   # rubocop:disable Metrics/ClassLength
   class Datacite
-    attr_reader :mapping
+    attr_reader :mapping, :errors
 
     def initialize(mapping)
       @mapping = mapping
+      @errors = []
     end
 
     # Returns the XML serialization for the Datacite record
     # Note that the actual XML serialization is done by the datacite-mapping gem.
     def to_xml
       @mapping.write_xml
+    end
+
+    # Validate this DataCite XML serialization against the official DataCite schema
+    # By default we validate against DataCite 4.4. This will shift over time as new
+    # versions of the datacite schema are released.
+    # @return [Boolean]
+    def valid?
+      @errors = []
+      datacite_xml = Nokogiri::XML(to_xml)
+      schema_location = Rails.root.join("config", "schema")
+      Dir.chdir(schema_location) do
+        xsd = Nokogiri::XML::Schema(File.read("datacite_4_4.xsd"))
+        xsd.validate(datacite_xml).each do |error|
+          @errors << error
+        end
+      end
+      return true if @errors.empty?
+      false
     end
 
     ##
@@ -65,6 +84,7 @@ module PDCSerialization
     ##
     # Creates a PDCSerialization::Datacite object from a PDCMetadata::Resource
     def self.new_from_work_resource(resource)
+      byebug
       mapping = ::Datacite::Mapping::Resource.new(
         identifier: ::Datacite::Mapping::Identifier.new(value: resource.doi),
         creators: creators_from_work_resource(resource.creators),
@@ -78,6 +98,7 @@ module PDCSerialization
         rights_list: rights_from_work_resource(resource),
         version: resource.version_number
       )
+      byebug
       Datacite.new(mapping)
     end
 
@@ -206,6 +227,7 @@ module PDCSerialization
         # We are deliberately not differentiating between "abstract", "methods" and other kinds of descriptions.
         # We are instead putting all description into the same field and classifying it as "OTHER".
         def descriptions_from_work_resource(description)
+          return [] if description.blank?
           [] << ::Datacite::Mapping::Description.new(type: ::Datacite::Mapping::DescriptionType::OTHER, value: description)
         end
 

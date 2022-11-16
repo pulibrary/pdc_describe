@@ -246,4 +246,22 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
       expect(parsed_xml.related_identifiers[2].identifier_type.value).to eq "DOI"
     end
   end
+
+  context "schema validation" do
+    let(:resource) { described_class.new_from_work(work) }
+    context "valid XML record" do
+      let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+      it "easily validates against the official datacite schema" do
+        expect(resource.valid?).to eq true
+        expect(resource.errors.empty?).to eq true 
+      end
+    end
+    context "invalid XML record" do
+      let(:work) { FactoryBot.build(:invalid_work) }
+      it "easily validates against the official datacite schema" do
+        expect(resource.valid?).to eq false
+        expect(resource.errors.empty?).to eq false
+      end
+    end
+  end
 end

@@ -17,4 +17,12 @@ FactoryBot.define do
     rights { PDCMetadata::Rights.find("CC BY") }
     version_number { "1" }
   end
+
+  factory :incomplete_resource, class: "PDCMetadata::Resource" do
+    transient do
+      title { FFaker::Book.title }
+    end
+    titles { [PDCMetadata::Title.new(title: title)] }
+    creators { [PDCMetadata::Creator.new_person(FFaker::Name.first_name, FFaker::Name.last_name)] }
+  end
 end
