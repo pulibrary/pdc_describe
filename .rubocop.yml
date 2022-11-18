@@ -23,7 +23,7 @@ Layout/LineLength:
     - "spec/system/sowingseeds_spec.rb"
     - "spec/system/attention_form_submission_spec.rb"
     - "spec/system/cytoskeletal_form_submissiion_spec.rb"
-    - "spec/system/femtosecond_form_submission_spec.rb"
+    - "spec/system/data_migration/femtosecond_form_submission_spec.rb"
     - "spec/system/data_migration/cytoskeletal_form_submission_spec.rb"
     - "spec/system/baldwin_form_submission_spec.rb"
     - "spec/system/cklibrary_form_submission_spec.rb"
