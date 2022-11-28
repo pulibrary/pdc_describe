@@ -1020,6 +1020,21 @@ RSpec.describe WorksController do
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/works/#{work.id}"
     end
+
+    context "when posting a comment containing HTML" do
+      render_views
+
+      it "posts a comment with sanitized HTML" do
+        sign_in user
+        post :add_comment, params: { id: work.id, "new-comment" => "<div>hello world</div>" }
+        expect(response.status).to be 302
+        expect(response.location).to eq "http://test.host/works/#{work.id}"
+        stub_s3
+        get :show, params: { id: work.id }
+        expect(response.body).not_to include("<div>hello world</div>")
+        expect(response.body).to include("&lt;div&gt;hello world&lt;/div&gt;")
+      end
+    end
   end
 
   describe "#update" do

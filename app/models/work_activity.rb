@@ -61,7 +61,8 @@ class WorkActivity < ApplicationRecord
       end
       # allow ``` for code blocks (Kramdown only supports ~~~)
       text = text.gsub("```", "~~~")
-      Kramdown::Document.new(text).to_html
+      parsed_document = Kramdown::Document.new(text)
+      parsed_document.to_html
     end
 
     # Returns the message formatted to display _file_ changes that were logged as an activity
