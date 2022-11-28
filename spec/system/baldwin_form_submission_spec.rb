@@ -3,15 +3,15 @@ require "rails_helper"
 
 RSpec.describe "Form submission for migrating baldwin", type: :system, mock_ezid_api: true, js: true do
   let(:user) { FactoryBot.create(:research_data_moderator) }
-  let(:title) { "Supporting data for Baldwin et al 2019 Temporally Compound Heat Waves and Global Warming: An Emerging Hazard" }
+  let(:title) { "Supporting data for Baldwin et al 2019 \"Temporally Compound Heat Waves and Global Warming: An Emerging Hazard\"" }
   let(:description) do
-    "This data is compiled to support a publication in the journal Earth's Future: Baldwin et al 2019 Temporally Compound Heat Waves and Global Warming: An Emerging Hazard. The GCM GFDL CM2.5-FLOR was used to produce the raw climate model data. The model code for FLOR is freely available and can be downloaded at https://www.gfdl.noaa.gov/cm2-5-and-flor/. Code used to calculate the derived heat wave statistics data and produce figures in the paper is available at https://github.com/janewbaldwin/Compound-Heat-Waves The heat wave statistics derived output for only one definition is provided (daily minimum temperature, 90th percentile threshold, temporal structure 3114) which is the definition used the most in the paper figures. Statistics for the other definitions can be created by running the HWSTATS code provided in the corresponding github folder, which includes python scripts which do the analysis and PBS job scheduling and submission scripts which show how to run the python scripts. For more information on this, please see the github readme.
+    "This data is compiled to support a publication in the journal Earth's Future: Baldwin et al 2019 \"Temporally Compound Heat Waves and Global Warming: An Emerging Hazard\". The GCM GFDL CM2.5-FLOR was used to produce the raw climate model data. The model code for FLOR is freely available and can be downloaded at https://www.gfdl.noaa.gov/cm2-5-and-flor/. Code used to calculate the derived heat wave statistics data and produce figures in the paper is available at https://github.com/janewbaldwin/Compound-Heat-Waves The heat wave statistics derived output for only one definition is provided (daily minimum temperature, 90th percentile threshold, temporal structure 3114) which is the definition used the most in the paper figures. Statistics for the other definitions can be created by running the HWSTATS code provided in the corresponding github folder, which includes python scripts which do the analysis and PBS job scheduling and submission scripts which show how to run the python scripts. For more information on this, please see the github readme.
 
 A full description of the structure of the dataset and how to reproduce the figures in the manuscript are given in the dataset README file. This dataset is too large to download directly from this item page. You can access and download the data via Globus at this link: https://app.globus.org/file-manager?origin_id=dc43f461-0ca7-4203-848c-33a9fc00a464&origin_path=%2Fxajd-5n64%2F (See https://docs.globus.org/how-to/get-started/ for instructions on how to use Globus; sign-in is required)."
   end
   let(:ark) { "ark:/88435/dsp01bz60d033c" }
   let(:collection) { "Research Data" }
-  let(:publisher) { "GFDL Data Portal" }
+  let(:publisher) { "Princeton University" }
   let(:doi) { "10.34770/xajd-5n64" }
 
   before do
@@ -59,6 +59,11 @@ A full description of the structure of the dataset and how to reproduce the figu
       expect(page).to have_content "marked as draft"
       baldwin_work = Work.last
       expect(baldwin_work.title).to eq title
+
+      # Ensure the datacite record produced validates against our local copy of the datacite schema.
+      # This will allow us to evolve our local datacite standards and test our records against them.
+      datacite = PDCSerialization::Datacite.new_from_work(baldwin_work)
+      expect(datacite.valid?).to eq true
     end
   end
 end
