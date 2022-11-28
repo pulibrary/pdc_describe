@@ -140,4 +140,77 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       expect(page.find(".activity-history-log-title", visible: false).tag_name).to eq "div"
     end
   end
+
+  context "ORCID information" do
+    let(:work) { FactoryBot.create(:draft_work) }
+    let(:user) { work.created_by_user }
+
+    it "fetches information for creators" do
+      sign_in user
+      visit edit_work_path(work)
+      fill_in "orcid_1", with: "0000-0001-8965-6820"
+      expect(page.find("#given_name_1").value).to eq "Carmen"
+      expect(page.find("#family_name_1").value).to eq "Valdez"
+    end
+
+    it "fetches information for contributors" do
+      sign_in user
+      visit edit_work_path(work)
+      click_on "Additional Metadata"
+      fill_in "contributor_orcid_1", with: "0000-0001-5443-5964"
+      expect(page.find("#contributor_given_name_1").value).to eq "Melody"
+      expect(page.find("#contributor_family_name_1").value).to eq "Loya"
+    end
+  end
+
+  context "as a user without curator privileges" do
+    let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+    let(:user) { work.created_by_user }
+
+    it "renders the curator controlled metadata as read-only" do
+      sign_in user
+      visit edit_work_path(work)
+      click_on "Curator Controlled"
+
+      publisher_element = page.find("#publisher")
+      expect(publisher_element.tag_name).to eq("input")
+      expect(publisher_element["readonly"]).to eq("true")
+
+      publication_year_element = page.find("#publication_year")
+      expect(publication_year_element.tag_name).to eq("input")
+      expect(publication_year_element["readonly"]).to eq("true")
+
+      doi_element = page.find("#doi")
+      expect(doi_element.tag_name).to eq("input")
+      expect(doi_element["readonly"]).to eq("true")
+
+      ark_element = page.find("#ark")
+      expect(ark_element.tag_name).to eq("input")
+      expect(ark_element["readonly"]).to eq("true")
+
+      resource_type_element = page.find("#resource_type")
+      expect(resource_type_element.tag_name).to eq("input")
+      expect(resource_type_element["readonly"]).to eq("true")
+
+      resource_type_general_element = page.find("#resource_type_general")
+      expect(resource_type_general_element.tag_name).to eq("select")
+      expect(resource_type_general_element["disabled"]).to eq("true")
+
+      version_number_element = page.find("#version_number")
+      expect(version_number_element.tag_name).to eq("select")
+      expect(version_number_element["disabled"]).to eq("true")
+
+      collection_id_element = page.find("#collection_id")
+      expect(collection_id_element.tag_name).to eq("select")
+      expect(collection_id_element["disabled"]).to eq("true")
+
+      collection_tags_element = page.find("#collection_tags")
+      expect(collection_tags_element.tag_name).to eq("input")
+      expect(collection_tags_element["readonly"]).to eq("true")
+
+      expect(page.all("input[type=text][readonly]").count).to eq(page.all("input[type=text]").count) # all inputs on curator controlled metadata should be readonly
+
+      expect(page.all("select[disabled]").count).to eq(page.all("select").count) # all selects inputs on curator controlled metadata should be disabled
+    end
+  end
 end

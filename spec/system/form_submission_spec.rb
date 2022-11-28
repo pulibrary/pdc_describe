@@ -43,6 +43,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       sign_in user
       visit new_work_path(params: { wizard: true })
       fill_in "title_main", with: title
+      expect(find("#related_object_count", visible: false).value).to eq("1")
 
       fill_in "given_name_1", with: "Samantha"
       fill_in "family_name_1", with: "Abrams"
@@ -65,12 +66,25 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       fill_in "given_name_7", with: "Stefanie"
       fill_in "family_name_7", with: "Ramsay"
       click_on "Create New"
+      work = Work.last
+      expect(work.resource.related_objects.count).to eq(0)
       fill_in "description", with: description
       find("#rights_identifier").find(:xpath, "option[2]").select_option
-      click_on "Additional Metadata"
+      click_on "Curator Controlled"
       fill_in "publication_year", with: issue_date
+      expect(find("#related_object_count", visible: false).value).to eq("1")
+      click_on "Additional Metadata"
+      fill_in "related_identifier_1", with: "https://related.example.com"
       click_on "Save Work"
       page.find(:xpath, "//input[@value='file_other']").choose
+      click_on "Continue"
+      click_on "Continue"
+      click_on "Complete"
+      expect(page).to have_content("Related Identifier Type is missing or invalid for https://related.example.com, Relationship Type is missing or invalid for https://related.example.com")
+      click_on "Additional Metadata"
+      select "DOI", from: "related_identifier_type_1"
+      select "Cites", from: "relation_type_1"
+      click_on "Save Work"
       click_on "Continue"
       click_on "Continue"
       click_on "Complete"

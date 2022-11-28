@@ -46,6 +46,24 @@ To stop database services:
 1. `bundle exec rails s -p 3000`
 2. Access application at [http://localhost:3000/](http://localhost:3000/)
 
+### Give yourself admin privs in your local dev instance
+1. Login at [http://localhost:3000/](http://localhost:3000/) so a `User` exists.
+2. Enter the rails console: `bundle exec rails console`
+3. Elevate your privs: `User.new_super_admin("your NetID here")`
+
+### Development with AWS resources
+Tests should never depend on outside resources, and it's best minimize dependencies during development, too, but it can be useful. To give your local instance access to the staging S3 create `~/s3-envvars.sh`:
+```
+export AWS_S3_PRE_CURATE_BUCKET=pdc-describe-staging-precuration
+export AWS_S3_POST_CURATE_BUCKET=pdc-describe-staging-postcuration
+# For these last two, open Lastpass and look under `princeton_ansible/RDSS Globus AWS`:
+export AWS_S3_KEY_ID=...
+export AWS_S3_SECRET_KEY=...
+```
+Then source this file before starting rails:
+```
+$ . ~/s3-envvars.sh; bundle exec rails s -p 3000
+```
 
 ## DataCite integration
 We use DataCite to mint DOIs and in production you must to define the `DATACITE_*` environment values indicated [here](https://github.com/pulibrary/princeton_ansible/blob/main/group_vars/pdc_describe/production.yml) for the system to run. During development if you do not set these values the system will use a hard-coded DOI.

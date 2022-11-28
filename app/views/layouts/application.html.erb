@@ -26,6 +26,11 @@
     <script type="text/javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
     <%= favicon_link_tag asset_path('favicon.png') %>
     <%= auto_discovery_link_tag :rss, works_url(:format => :rss) %>
+    <script>
+      // ERB partials can include snippets of JS to add values to this object;
+      // Then the stand-alone JS files can reference this.
+      let pdc = {};
+    </script>
   </head>
 
   <body>
@@ -39,7 +44,8 @@
   </body>
 
   <script>
-    window.pdc = {
+    pdc = {
+      ...pdc,
       orcid_url: '<%= raw(ORCID_URL) %>',
       datacite: <%= raw(
         ['ContributorType', 'RelationType', 'RelatedIdentifierType'].map { |name|

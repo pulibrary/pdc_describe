@@ -115,11 +115,10 @@ class Work < ApplicationRecord
     private
 
       def works_by_user_state(user, state)
-        works = []
-        if user.admin_collections.count == 0
-          # Just the user's own works by state
-          works += Work.where(created_by_user_id: user, state: state)
-        else
+        # The user's own works by state (if any)
+        works = Work.where(created_by_user_id: user, state: state).to_a
+
+        if user.admin_collections.count > 0
           # The works that match the given state, in all the collections the user can admin
           # (regardless of who created those works)
           user.admin_collections.each do |collection|
@@ -133,7 +132,7 @@ class Work < ApplicationRecord
           works << work unless already_included
         end
 
-        works.sort_by(&:updated_at).reverse
+        works.uniq(&:id).sort_by(&:updated_at).reverse
       end
 
       # Returns an array of work ids where a particular user has been mentioned
@@ -228,25 +227,9 @@ class Work < ApplicationRecord
     resource.main_title
   end
 
-  def doi
-    resource.doi
-  end
-
-  def ark
-    resource.ark
-  end
-
   def curator
     return nil if curator_user_id.nil?
     User.find(curator_user_id)
-  end
-
-  def to_xml
-    resource.to_xml
-  end
-
-  def to_json
-    resource.to_json
   end
 
   def uploads_attributes
@@ -509,7 +492,8 @@ class Work < ApplicationRecord
     log_file_changes(changes, nil)
   end
 
-  delegate :resource_type, :resource_type=, :resource_type_general, :resource_type_general=, to: :resource
+  delegate :ark, :doi, :resource_type, :resource_type=, :resource_type_general, :resource_type_general=,
+           :to_xml, :to_json, to: :resource
 
   protected
 
@@ -613,6 +597,7 @@ class Work < ApplicationRecord
       errors.add(:base, "Must indicate a Rights statement") if resource.rights.nil?
       errors.add(:base, "Must provide a Version number") if resource.version_number.blank?
       validate_creators
+      validate_related_objects
     end
     # rubocop:enable Metrics/AbcSize
 
@@ -626,6 +611,12 @@ class Work < ApplicationRecord
           end
         end
       end
+    end
+
+    def validate_related_objects
+      return if resource.related_objects.empty?
+      invalid = resource.related_objects.reject(&:valid?)
+      errors.add(:base, "Related Obejcts are invalid: #{invalid.map(&:errors).join(', ')}") if invalid.count.positive?
     end
 
     def publish_doi(user)

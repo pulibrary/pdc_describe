@@ -42,17 +42,21 @@ This dataset is too large to download directly from this item page. You can acce
       click_on "Add Another Creator"
       fill_in "given_name_5", with: "Michael"
       fill_in "family_name_5", with: "Graziano"
-      click_on "v-pills-additional-tab"
+      click_on "v-pills-curator-controlled-tab"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2020
       find("#collection_id").find(:xpath, "option[1]").select_option
-      click_on "v-pills-curator-controlled-tab"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"
       expect(page).to have_content "marked as draft"
       attention_work = Work.last
       expect(attention_work.title).to eq title
+
+      # Ensure the datacite record produced validates against our local copy of the datacite schema.
+      # This will allow us to evolve our local datacite standards and test our records against them.
+      datacite = PDCSerialization::Datacite.new_from_work(attention_work)
+      expect(datacite.valid?).to eq true
     end
   end
 end
