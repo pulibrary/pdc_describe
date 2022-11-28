@@ -26,6 +26,8 @@ Layout/LineLength:
     - "spec/system/data_migration/femtosecond_form_submission_spec.rb"
     - "spec/system/data_migration/cytoskeletal_form_submission_spec.rb"
     - "spec/system/data_migration/baldwin_form_submission_spec.rb"
+    - "spec/system/cklibrary_form_submission_spec.rb"
+    - "spec/system/data_migration/bitklavierimage_form_submission_spec.rb"
     - "spec/system/data_migration/cklibrary_form_submission_spec.rb"
     - "spec/system/bitklavierimage_form_submission_spec.rb"
     - "spec/system/data_migration/flume_form_submission_spec.rb"
