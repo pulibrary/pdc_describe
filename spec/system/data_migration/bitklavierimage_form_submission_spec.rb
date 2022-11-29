@@ -64,6 +64,11 @@ This dataset is too large to download directly from this item page. You can acce
       expect(page).to have_content "marked as draft"
       bitklavierimage_work = Work.last
       expect(bitklavierimage_work.title).to eq title
+
+      # Ensure the datacite record produced validates against our local copy of the datacite schema.
+      # This will allow us to evolve our local datacite standards and test our records against them.
+      datacite = PDCSerialization::Datacite.new_from_work(bitklavierimage_work)
+      expect(datacite.valid?).to eq true
     end
   end
 end
