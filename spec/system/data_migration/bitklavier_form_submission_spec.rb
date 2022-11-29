@@ -53,6 +53,11 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       expect(page).to have_content "marked as draft"
       bitklavier_work = Work.last
       expect(bitklavier_work.title).to eq title
+
+      # Ensure the datacite record produced validates against our local copy of the datacite schema.
+      # This will allow us to evolve our local datacite standards and test our records against them.
+      datacite = PDCSerialization::Datacite.new_from_work(bitklavier_work)
+      expect(datacite.valid?).to eq true
     end
   end
 end
