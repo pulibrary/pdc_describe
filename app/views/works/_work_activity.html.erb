@@ -6,11 +6,10 @@
       <label class="form-check-label" for="flexSwitchCheckDefault">Show change history</label>
     </div>
     <% @work.activities.each do |activity| %>
-      <% if activity.activity_type == 'CHANGES' || activity.activity_type == 'FILE-CHANGES' %>
-        <%= render partial: 'work_activity_event', locals: {event_type: 'log', activity: activity} %>
-      <% else %>
-        <%= render partial: 'work_activity_event', locals: {event_type: 'comment', activity: activity} %>
-      <% end %>
+      <%= render partial: 'work_activity_event', locals: {
+        activity: activity,
+        event_type: ['CHANGES', 'FILE-CHANGES'].include?(activity.activity_type) ? 'log' : 'comment'
+      } %>
     <% end %>
   <% end %>
 </div>
