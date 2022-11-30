@@ -130,12 +130,17 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
     let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
     let(:user) { work.created_by_user }
 
+    before do
+      now = Time.parse("2000-01-01 12:34")
+      allow(Time).to receive(:now) { now }
+    end
+
     it "toggles the display of changes" do
       sign_in user
       visit edit_work_path(work)
       fill_in "title_main", with: "UPDATED" + work.resource.titles.first.title
       click_on "Save Work"
-      expect(page.find(".activity-history-log-title", visible: true).tag_name).to eq "div"
+      expect(page.find(".activity-history-log-title", visible: true)).to have_content "January 01, 2000 12:34"
       uncheck "show-change-history"
       expect(page.find(".activity-history-log-title", visible: false).tag_name).to eq "div"
     end
