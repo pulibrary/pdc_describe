@@ -7,21 +7,9 @@
     </div>
     <% @work.activities.each do |activity| %>
       <% if activity.activity_type == 'CHANGES' || activity.activity_type == 'FILE-CHANGES' %>
-        <div class="activity-history-item activity-history-log-item">
-          <div class="activity-history-log-title">
-            <b><%= activity.created_by_user&.display_name_safe || "Unknown user outside the system" %></b>
-            <span title="<%= activity.created_at.localtime %>"><%= distance_of_time_in_words_to_now(activity.created_at) %></span>
-          </div>
-          <span class="comment-html"><%= activity.message_html.gsub('{USER-PATH-PLACEHOLDER}', users_path).html_safe %></span>
-        </div>
+        <%= render partial: 'work_activity_event', locals: {event_type: 'log', activity: activity} %>
       <% else %>
-        <div class="activity-history-item activity-history-comment-item">
-          <div class="activity-history-comment-title">
-            <b><%= activity.created_by_user&.display_name_safe || "Unknown user outside the system" %></b>
-            <span title="<%= activity.created_at.localtime %>"><%= distance_of_time_in_words_to_now(activity.created_at) %></span>
-          </div>
-          <span class="comment-html"><%= activity.message_html.gsub('{USER-PATH-PLACEHOLDER}', users_path).html_safe %></span>
-        </div>
+        <%= render partial: 'work_activity_event', locals: {event_type: 'comment', activity: activity} %>
       <% end %>
     <% end %>
   <% end %>
