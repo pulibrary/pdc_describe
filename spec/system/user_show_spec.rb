@@ -7,7 +7,7 @@ RSpec.describe "User dashboard" do
     let(:moderator_user) { FactoryBot.create :pppl_moderator }
 
     it "renders the proper date value for sorting by last edited", js: true do
-      work_last_edited = work.updated_at.strftime("%Y-%m-%d %H:%M:%S %Z")
+      work_last_edited = work.updated_at.to_s
       sign_in user_admin
       visit user_path(user_admin)
       expect(page).to have_css('td.last-edited[data-sort="' + work_last_edited + '"]')
