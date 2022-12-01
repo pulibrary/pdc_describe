@@ -68,7 +68,11 @@ class WorksController < ApplicationController
     @work.attach_s3_resources
     respond_to do |format|
       format.html do
-        @can_curate = current_user.can_admin?(@work.collection)
+        # Ensure that the Work belongs to a Collection
+        @collection = @work.collection
+        raise(Work::InvalidCollectionError, "The Work #{@work.id} does not belong to any Collection") unless @collection
+
+        @can_curate = current_user.can_admin?(@collection)
         @work.mark_new_notifications_as_read(current_user.id)
       end
       format.json { render json: @work.resource }
