@@ -101,6 +101,11 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       # ARK is not a related object in the resource, but it IS a "related identifer" in the DataCite serialization
       # This object has 2 related objects, but 3 related identifiers
       expect(cytoskeletal_work.resource.related_objects.count).to eq 2
+
+      # Ensure the datacite record produced validates against our local copy of the datacite schema.
+      # This will allow us to evolve our local datacite standards and test our records against them.
+      datacite = PDCSerialization::Datacite.new_from_work(cytoskeletal_work)
+      expect(datacite.valid?).to eq true
     end
   end
 end
