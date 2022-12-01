@@ -28,6 +28,6 @@ module DrdsRailsTemplate
 
     # Explicitly set timezome rather than relying on system,
     # which may be different in CI environment.
-    config.time_zone = 'America/New_York'
+    config.time_zone = "America/New_York"
   end
 end
