@@ -40,6 +40,7 @@ class ResourceCompareService
       compare_rights
       compare_keywords
       compare_collection_tags
+      compare_related_objects
     end
 
     ##
@@ -213,9 +214,39 @@ class ResourceCompareService
 
       @differences[:contributors] = changes if changes.count > 0
     end
-  # rubocop:enable Metrics/PerceivedComplexity
-  # rubocop:enable Metrics/CyclomaticComplexity
-  # rubocop:enable Metrics/AbcSize
-  # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/PerceivedComplexity
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/MethodLength
+
+    def compare_related_objects
+      # TODO: Cleanup copy and paste!
+      changes = []
+      keys_before = @before.related_objects.map(&:compare_value)
+      keys_after = @after.related_objects.map(&:compare_value)
+
+      removed = keys_before - keys_after
+      added = keys_after - keys_before
+      common = (keys_before + keys_after).uniq - removed - added
+
+      @before.related_objects.each do |before_related_object|
+        if before_related_object.compare_value.in?(common)
+          after_related_object = @after.related_objects.find { |c| c.compare_value == before_related_object.compare_value }
+          if before_related_object.compare_value != after_related_object.compare_value
+            changes << { action: :changed, from: before_related_object.compare_value, to: after_related_object.compare_value }
+          end
+        elsif before_related_object.compare_value.in?(removed)
+          changes << { action: :removed, value: before_related_object.compare_value }
+        end
+      end
+
+      @after.related_objects.each do |after_related_object|
+        if after_related_object.compare_value.in?(added)
+          changes << { action: :added, value: after_related_object.compare_value }
+        end
+      end
+
+      @differences[:related_objects] = changes if changes.count > 0
+    end
 end
 # rubocop:enable Metrics/ClassLength
