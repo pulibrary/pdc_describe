@@ -1,36 +1,7 @@
-<div id="activity-history">
-  <% if @work.work_activity.count > 0 %>
-    <h2>Activity History</h2>
-    <div class="form-check form-switch">
-      <input id="show-change-history" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" checked>
-      <label class="form-check-label" for="flexSwitchCheckDefault">Show change history</label>
-    </div>
-    <% @work.activities.each do |activity| %>
-      <% if activity.activity_type == 'CHANGES' %>
-        <div class="activity-history-item activity-history-log-item">
-          <div class="activity-history-log-title">
-            <b><%= activity.created_by_user&.display_name_safe %></b>
-            <span title="<%= activity.created_at.localtime %>"><%= distance_of_time_in_words_to_now(activity.created_at) %></span>
-          </div>
-          <span class="comment-html"><%= activity.message_html.gsub('{USER-PATH-PLACEHOLDER}', users_path).html_safe %></span>
-        </div>
-      <% elsif activity.activity_type == 'FILE-CHANGES' %>
-        <div class="activity-history-item activity-history-log-item">
-          <div class="activity-history-log-title">
-            <b><%= activity.created_by_user&.display_name_safe || "Unknown user outside the system" %></b>
-            <span title="<%= activity.created_at.localtime %>"><%= distance_of_time_in_words_to_now(activity.created_at) %></span>
-          </div>
-          <span class="comment-html"><%= activity.message_html.gsub('{USER-PATH-PLACEHOLDER}', users_path).html_safe %></span>
-        </div>
-      <% else %>
-        <div class="activity-history-item activity-history-comment-item">
-          <div class="activity-history-comment-title">
-            <b><%= activity.created_by_user&.display_name_safe %></b>
-            <span title="<%= activity.created_at.localtime %>"><%= distance_of_time_in_words_to_now(activity.created_at) %></span>
-          </div>
-          <span class="comment-html"><%= activity.message_html.gsub('{USER-PATH-PLACEHOLDER}', users_path).html_safe %></span>
-        </div>
-      <% end %>
-    <% end %>
-  <% end %>
+<div class="activity-history-item activity-history-<%= event_type %>-item">
+  <div class="activity-history-<%= event_type %>-title">
+    <b><%= activity.created_by_user&.display_name_safe || "Unknown user outside the system" %></b>
+    <%= activity.created_at.time.strftime("%B %d, %Y %H:%M") %>
+  </div>
+  <span class="comment-html"><%= activity.message_html.gsub('{USER-PATH-PLACEHOLDER}', users_path).html_safe %></span>
 </div>
