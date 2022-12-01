@@ -5,6 +5,7 @@ require "open-uri"
 
 # rubocop:disable Metrics/ClassLength
 class WorksController < ApplicationController
+  include ERB::Util
   around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :validate, :create]
 
   skip_before_action :authenticate_user!
@@ -217,7 +218,10 @@ class WorksController < ApplicationController
   def add_comment
     work = Work.find(params[:id])
     if params["new-comment"].present?
-      work.add_comment(params["new-comment"], current_user.id)
+      new_comment_param = params["new-comment"]
+      sanitized_new_comment = html_escape(new_comment_param)
+
+      work.add_comment(sanitized_new_comment, current_user.id)
     end
     redirect_to work_path(id: params[:id])
   end
