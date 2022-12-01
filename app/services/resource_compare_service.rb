@@ -33,7 +33,7 @@ class ResourceCompareService
   private
 
     def compare_resources
-      compare_titles
+      compare_objects(:titles)
       compare_objects(:creators)
       compare_objects(:contributors)
       compare_objects(:related_objects)
@@ -95,47 +95,6 @@ class ResourceCompareService
 
       changes
     end
-
-    ##
-    # Compares the titles between the two resources. This is a bit tricky because we support many
-    # titles and the title itself is an object with two properties (title and title_type)
-    # Returns an array with the changes (values removed, values added, values changed)
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/AbcSize
-    # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/PerceivedComplexity
-    def compare_titles
-      changes = []
-      keys_before = @before.titles.map(&:title_type)
-      keys_after = @after.titles.map(&:title_type)
-
-      removed = keys_before - keys_after
-      added = keys_after - keys_before
-      common = (keys_before + keys_after).uniq - removed - added
-
-      @before.titles.each do |before_title|
-        if before_title.title_type.in?(common)
-          after_title = @after.titles.find { |t| t.title_type == before_title.title_type }
-          if before_title.title != after_title.title
-            changes << { action: :changed, from: before_title.title, to: after_title.title }
-          end
-        elsif before_title.title_type.in?(removed)
-          changes << { action: :removed, value: before_title.title }
-        end
-      end
-
-      @after.titles.each do |after_title|
-        if after_title.title_type.in?(added)
-          changes << { action: :added, value: after_title.title }
-        end
-      end
-
-      @differences[:titles] = changes if changes.count > 0
-    end
-    # rubocop:enable Metrics/PerceivedComplexity
-    # rubocop:enable Metrics/CyclomaticComplexity
-    # rubocop:enable Metrics/AbcSize
-    # rubocop:enable Metrics/MethodLength
 
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/AbcSize
