@@ -1,7 +1,7 @@
 <div class="activity-history-item activity-history-<%= event_type %>-item">
   <div class="activity-history-<%= event_type %>-title">
     <b><%= activity.created_by_user&.display_name_safe || "Unknown user outside the system" %></b>
-    <%= activity.created_at.localtime.strftime("%B %d, %Y %H:%M") %>
+    <%= activity.created_at.time.strftime("%B %d, %Y %H:%M") %>
   </div>
   <span class="comment-html"><%= activity.message_html.gsub('{USER-PATH-PLACEHOLDER}', users_path).html_safe %></span>
 </div>
