@@ -31,9 +31,7 @@ module PDCMetadata
     end
 
     def compare_value
-      # TODO: Lookup relation types, ie "DOCUMENTS"
-      # TODO: More readable representation?
-      "#{related_identifier} | #{related_identifier_type} | #{relation_type}"
+      "#{related_identifier} ('#{relation_type}' relation #{related_identifier_type})"
     end
 
     def self.new_related_object(related_identifier, related_identifier_type, relation_type)
