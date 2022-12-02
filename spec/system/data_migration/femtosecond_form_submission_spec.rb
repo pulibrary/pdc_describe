@@ -95,6 +95,11 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       expect(page).to have_content "marked as draft"
       femtosecond_work = Work.last
       expect(femtosecond_work.title).to eq title
+
+      # Ensure the datacite record produced validates against our local copy of the datacite schema.
+      # This will allow us to evolve our local datacite standards and test our records against them.
+      datacite = PDCSerialization::Datacite.new_from_work(femtosecond_work)
+      expect(datacite.valid?).to eq true
     end
   end
 end

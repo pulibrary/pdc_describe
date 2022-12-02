@@ -44,10 +44,10 @@
 </style>
 
 <div>
-  <% if @work.draft?  || @work.awaiting_approval? || current_user.has_role?(:collection_admin, @work.collection) %>
+  <% if @work.draft?  || @work.awaiting_approval? || current_user.has_role?(:collection_admin, @collection) %>
     <%= link_to("Edit", edit_work_path(@work, wizard: @work.draft?), class: "btn btn-primary") %>
   <% end %>
-  <% if @work.awaiting_approval? && current_user.has_role?(:collection_admin, @work.collection) %>
+  <% if @work.awaiting_approval? && current_user.has_role?(:collection_admin, @collection) %>
     <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post) %>
   <% elsif @work.approved? %>
     <%= button_to("Withdraw Dataset", withdraw_work_path(@work), class: "btn btn-secondary", method: :post) %>
@@ -116,7 +116,7 @@
   <% end %>
 
   <p>Added by: <%= @work.created_by_user.uid %></p>
-  <p>Collection: <%= @work.collection.title %></p>
+  <p>Collection: <%= @collection.title %></p>
   <% if @work.resource.rights.present? %>
     <p>Rights: <%= @work.resource.rights.name %> (<%= link_to(@work.resource.rights.identifier, @work.resource.rights.uri, {target: "_blank"}) %>)</p>
   <% end %>
@@ -146,7 +146,7 @@
   <% if @can_curate %>
     <p>Curator: <select id="curator_select">
       <option value="no-one">(no one)</option>
-      <% @work.collection.administrators.each do |user| %>
+      <% @collection.administrators.each do |user| %>
         <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.display_name_safe %></option>
       <% end %>
     </select></p>
