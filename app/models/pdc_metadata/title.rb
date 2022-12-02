@@ -13,5 +13,9 @@ module PDCMetadata
     def main?
       @title_type.blank?
     end
+
+    def compare_value
+      "#{title} (#{title_type})"
+    end
   end
 end
