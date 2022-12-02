@@ -59,8 +59,10 @@ class WorkActivity < ApplicationRecord
         user_info = user&.display_name_safe || uid
         "<a class='comment-user-link' title='#{user_info}' href='{USER-PATH-PLACEHOLDER}/#{uid}'>#{at_uid}</a>"
       end
-      # allow ``` for code blocks (Kramdown only supports ~~~)
+      # Allow ``` for code blocks (Kramdown only supports ~~~)
       text = text.gsub("```", "~~~")
+      # Escape line-starting hash marks: Headers are distracting.
+      text = text.gsub(/^#+/, "\\#")
       parsed_document = Kramdown::Document.new(text)
       parsed_document.to_html
     end
