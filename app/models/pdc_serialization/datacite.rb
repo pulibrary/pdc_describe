@@ -95,7 +95,8 @@ module PDCSerialization
         resource_type: datacite_resource_type(resource.resource_type),
         related_identifiers: related_identifiers_from_work_resource(resource),
         rights_list: rights_from_work_resource(resource),
-        version: resource.version_number
+        version: resource.version_number,
+        funding_references: funding_reference_from_work_resource(resource)
       )
       Datacite.new(mapping)
     end
@@ -297,6 +298,12 @@ module PDCSerialization
             )
           end
           rights
+        end
+
+        def funding_reference_from_work_resource(resource)
+          award = ::Datacite::Mapping::AwardNumber.new(uri: resource.award_uri, value: resource.award_number) if resource.award_number.present?
+          funding_reference = ::Datacite::Mapping::FundingReference.new(name: resource.funder_name, award_number: award)
+          [funding_reference]
         end
       end
   end
