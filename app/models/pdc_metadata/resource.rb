@@ -73,7 +73,7 @@ module PDCMetadata
         resource.publisher = hash["publisher"]
         resource.publication_year = hash["publication_year"]
         resource.rights = rights(hash["rights"])
-        resource = curator_controlled_metadata(hash, resource)
+        resource = additional_metadata(hash, resource)
 
         resource
       end
@@ -105,6 +105,7 @@ module PDCMetadata
           resource.funder_name = hash["funder_name"]
           resource.award_number = hash["award_number"]
           resource.award_uri = hash["award_uri"]
+          resource
         end
 
         def rights(form_rights)
