@@ -14,7 +14,7 @@ RSpec.describe "Add an ORCiD" do
       expect(page).to have_content "Welcome"
       expect(page).to have_content "You do not have an ORCID iD on file."
       click_on "Add one"
-      expect(page).to have_content "Editing User"
+      expect(page).to have_content "My Profile Settings"
       fill_in "user_orcid", with: orcid
       click_on "Save"
       expect(page).to_not have_content "You do not have an ORCID iD on file."
