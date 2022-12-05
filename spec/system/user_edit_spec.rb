@@ -12,7 +12,7 @@ RSpec.describe "Editing users" do
       visit user_path(user)
       expect(page).to have_content user.display_name
       click_on "Edit"
-      expect(page).to have_content "My Profile"
+      expect(page).to have_content "My Profile Settings"
       fill_in "user_orcid", with: orcid
       click_on "Save"
     end
