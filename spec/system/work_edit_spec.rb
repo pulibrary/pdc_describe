@@ -126,6 +126,24 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
     end
   end
 
+  context "when editing funding information" do
+    let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+    let(:user) { work.created_by_user }
+
+    it "allows the user to edit funding information" do
+      sign_in user
+      visit edit_work_path(work)
+      click_on "Additional Metadata"
+      fill_in "funder_name", with: "National Science Foundation"
+      fill_in "award_number", with: "nsf-123"
+      fill_in "award_uri", with: "http://nsg.gov/award/123"
+      click_on "Save Work"
+      expect(page).to have_content("Funder Name: National Science Foundation")
+      expect(page).to have_content("Award Number: nsf-123")
+      expect(page).to have_content("Award URI: http://nsg.gov/award/123")
+    end
+  end
+
   context "change log" do
     let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
     let(:user) { work.created_by_user }
