@@ -52,6 +52,11 @@ The attached readme.txt file explains the data attributes"
       expect(page).to have_content "marked as draft"
       flume_work = Work.last
       expect(flume_work.title).to eq title
+
+      # Ensure the datacite record produced validates against our local copy of the datacite schema.
+      # This will allow us to evolve our local datacite standards and test our records against them.
+      datacite = PDCSerialization::Datacite.new_from_work(flume_work)
+      expect(datacite.valid?).to eq true
     end
   end
 end

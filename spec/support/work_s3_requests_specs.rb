@@ -22,33 +22,58 @@ XML
   end
 
   # rubocop:disable Metrics/AbcSize
-  def stub_work_s3_requests(work:, file_name:)
-    @works = [work]
+  def stub_work_s3_requests(works: [], work: nil, file_name: nil)
+    @works = if work.nil?
+               works
+             else
+               [work]
+             end
+
     @works.each do |w|
-      # Stub the request for the S3 directory object to determine if it exists
+      ## Implicit context: S3 Bucket exists for a pre-curation Work
+      # Stub the request for the S3 directory object to determine if it exists (pre-curation bucket)
       stub_request(:head, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}").to_return(status: 200)
-      # Stub the request for the S3 directory object to determine if it exists
+
+      ## Implicit context: S3 Bucket exists for a pre-curation Work, Work is being updated into the post-curation state
+      # Stub the request for the S3 directory object to determine if it exists (post-curation)
       stub_request(:head, "https://example-bucket-post.s3.amazonaws.com/#{w.s3_object_key}").to_return(status: 404)
-      # Stub the request for deleting the pre-curation S3 directory object
+      # Stub the request to delete the S3 directory object to determine if it exists (pre-curation bucket)
       stub_request(:delete, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}").to_return(status: 200)
-      # Stub the request for retrieving the S3 file attachment object
-      stub_request(:get, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
-      # Stub the request for uploading the S3 file attachment object
-      stub_request(:put, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
-      # Stub the request for moving the S3 file attachment object to the post curation bucket
-      stub_request(:put, "https://example-bucket-post.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
-      # Stub the request for querying the contents of the S3 directory object
-      s3_list_objects_response = build_s3_list_objects_response(work: w, file_name: file_name)
+
+      # Build the request body for the request to query the contents of the S3 directory object
+      # By default, this is empty
+      s3_list_objects_response = []
+
+      unless file_name.nil?
+        ## Implicit context: S3 Bucket exists for a pre-curation Work, the Work has one S3 file attachment Object stored
+        # Stub the request for retrieving the S3 file attachment object
+        stub_request(:get, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
+        # Stub the request for uploading the S3 file attachment object
+        stub_request(:put, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
+
+        ## Implicit context: S3 Bucket exists for a pre-curation Work, Work is being updated into the post-curation state
+        # Stub the request for moving the S3 file attachment object to the post curation bucket
+        stub_request(:put, "https://example-bucket-post.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
+
+        # Build the request body for the request to query the contents of the S3 directory object
+        s3_list_objects_response = build_s3_list_objects_response(work: w, file_name: file_name)
+      end
+
+      ## Implicit context: S3 Bucket exists for a pre-curation Work, the Work has one S3 file attachment Object stored
       # Stub the pre-curation bucket list
       stub_request(:get, "https://example-bucket.s3.amazonaws.com/?list-type=2&max-keys=1000&prefix=#{w.s3_object_key}/").to_return(
         status: 200,
         body: s3_list_objects_response
       )
+
+      ## Implicit context: S3 Bucket exists for a post-curation Work, the Work has one S3 file attachment Object stored
       # Stub the post-curation bucket list
       stub_request(:get, "https://example-bucket-post.s3.amazonaws.com/?list-type=2&max-keys=1000&prefix=#{w.s3_object_key}/").to_return(
         status: 200,
         body: s3_list_objects_response
       )
+
+      next if file_name.nil?
       # Stub the request for retrieving the S3 file attachment object
       stub_request(:get, "https://example-bucket-post.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(
         status: 200,
@@ -64,9 +89,10 @@ XML
           version_id: "null"
         }.to_json
       )
+      # Stub the request for the S3 directory object to determine if it exists (post-curation)
       stub_request(:head, "https://example-bucket-post.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
 
-      # precuration deletes
+      # Stub the request to delete the S3 file object (pre-curation bucket)
       stub_request(:delete, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
     end
     # rubocop:enable Metrics/AbcSize

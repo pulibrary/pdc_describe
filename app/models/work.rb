@@ -4,6 +4,9 @@
 class Work < ApplicationRecord
   MAX_UPLOADS = 20
 
+  # Errors for cases where there is no valid Collection
+  class InvalidCollectionError < ::ArgumentError; end
+
   has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many_attached :pre_curation_uploads, service: :amazon_pre_curation
 
