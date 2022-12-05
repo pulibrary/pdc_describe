@@ -2,7 +2,10 @@
   <!-- Keywords field -->
   <div class="field">
     Keywords: <span class="text-muted field-hint">(enter keywords, e.g. Humanities, Life Sciences)</span><br>
-    <input type="text" id="keywords" name="keywords" class="input-text-long" value="<%= @work.resource.keywords.join(', ') %>" />
+    <input type="text" id="keywords" name="keywords" class="input-text-long"
+      placeholder="Three or more unique keywords separated by commas that assist discovery"
+      value="<%= @work.resource.keywords.join(', ') %>"
+    />
   </div>
 </div>
 
