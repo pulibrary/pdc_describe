@@ -23,7 +23,7 @@
                   <td></td>
                 </tr>
               <% else %>
-                <% @work.uploads.each_with_index do |upload, index| %>
+                <% @work.uploads.sort_by(&:filename).each_with_index do |upload, index| %>
                   <tr class="uploads-row" id="uploads-<%= upload.id %>" data-upload-key="<%= index %>">
                     <td>
                       <span>
