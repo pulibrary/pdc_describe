@@ -85,7 +85,7 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       click_on "Add Another Related Object"
       fill_in "related_identifier_2", with: "https://doi.org/10.7554/eLife.52482"
       find("#related_identifier_type_2").find(:xpath, "option[@value='DOI']").select_option
-      find("#relation_type_1").find(:xpath, "option[@value='#{relation_type}']").select_option
+      find("#relation_type_2").find(:xpath, "option[@value='#{relation_type}']").select_option
 
       # Select Curator Controlled Tab
       click_on "v-pills-curator-controlled-tab"
@@ -101,6 +101,10 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       # ARK is not a related object in the resource, but it IS a "related identifer" in the DataCite serialization
       # This object has 2 related objects, but 3 related identifiers
       expect(cytoskeletal_work.resource.related_objects.count).to eq 2
+      # Ensure the datacite record produced validates against our local copy of the datacite schema.
+      # This will allow us to evolve our local datacite standards and test our records against them.
+      datacite = PDCSerialization::Datacite.new_from_work(cytoskeletal_work)
+      expect(datacite.valid?).to eq true
     end
   end
 end

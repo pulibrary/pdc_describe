@@ -33,6 +33,46 @@
     margin-bottom: 0px;
   }
 
+  .comment-html h1, .comment-html h2, .comment-html h3, .comment-html h4, .comment-html h5, .comment-html h6 {
+    font-weight: bold;
+    font-size: 100%;
+    display: table;
+    margin-top: 0.5em;
+    padding: 1px;
+  }
+
+  .comment-html h1 {
+    padding-bottom: 2px;
+    border-bottom: 4px solid gray;
+  }
+
+  .comment-html h2 {
+    padding-bottom: 1.5px;
+    border-bottom: 2px solid gray;
+  }
+
+  .comment-html h3 {
+    border-bottom: 1px solid gray;
+  }
+
+  .comment-html h4 {
+    border: 1px solid gray;
+    padding: 1px 4px;
+  }
+
+  .comment-html h5 {
+    font-weight: normal;
+    border: 1px solid gray;
+    padding: 1px 4px;
+  }
+
+  .comment-html h6 {
+    font-weight: normal;
+    font-size: small;
+    border: 1px solid gray;
+    padding: 1px 4px;
+  }
+  
   .comment-user-link {
     color: rgb(36, 41, 47);
     background-color: rgb(255, 248, 197);
@@ -74,7 +114,7 @@
 
 <div>
   <p>Description:<br/>
-    <%= @work.resource.description %>
+    <span style="white-space: pre-wrap;"><%= @work.resource.description %></span>
   </p>
   <p>Publisher: <%= @work.resource.publisher %></p>
   <p>Publication Year: <%= @work.resource.publication_year %></p>
