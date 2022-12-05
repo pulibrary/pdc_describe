@@ -5,7 +5,8 @@ module PDCMetadata
   #
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
-      :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :contributors, :related_objects
+      :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :contributors, :related_objects,
+      :funder_name, :award_number, :award_uri
 
     # rubocop:disable Metrics/MethodLength
     def initialize(doi: nil, title: nil, resource_type: nil, resource_type_general: nil, creators: [], description: nil)
@@ -25,6 +26,9 @@ module PDCMetadata
       @related_objects = []
       @keywords = []
       @contributors = []
+      @funder_name = nil
+      @award_number = nil
+      @award_uri = nil
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -69,7 +73,7 @@ module PDCMetadata
         resource.publisher = hash["publisher"]
         resource.publication_year = hash["publication_year"]
         resource.rights = rights(hash["rights"])
-        resource.keywords = hash["keywords"] || []
+        resource = additional_metadata(hash, resource)
 
         resource
       end
@@ -93,6 +97,14 @@ module PDCMetadata
           resource.collection_tags = collection_tags(hash["collection_tags"])
           resource.resource_type = hash["resource_type"]
           resource.resource_type_general = hash["resource_type_general"]&.to_sym
+          resource
+        end
+
+        def additional_metadata(hash, resource)
+          resource.keywords = hash["keywords"] || []
+          resource.funder_name = hash["funder_name"]
+          resource.award_number = hash["award_number"]
+          resource.award_uri = hash["award_uri"]
           resource
         end
 
