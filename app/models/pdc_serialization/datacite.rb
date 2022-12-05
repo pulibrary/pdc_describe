@@ -83,6 +83,7 @@ module PDCSerialization
 
     ##
     # Creates a PDCSerialization::Datacite object from a PDCMetadata::Resource
+    # rubocop: disable Metrics/MethodLength
     def self.new_from_work_resource(resource)
       mapping = ::Datacite::Mapping::Resource.new(
         identifier: ::Datacite::Mapping::Identifier.new(value: resource.doi),
@@ -95,10 +96,12 @@ module PDCSerialization
         resource_type: datacite_resource_type(resource.resource_type),
         related_identifiers: related_identifiers_from_work_resource(resource),
         rights_list: rights_from_work_resource(resource),
-        version: resource.version_number
+        version: resource.version_number,
+        funding_references: funding_reference_from_work_resource(resource)
       )
       Datacite.new(mapping)
     end
+    # rubocop: enable Metrics/MethodLength
 
     class << self
       ##
@@ -297,6 +300,13 @@ module PDCSerialization
             )
           end
           rights
+        end
+
+        def funding_reference_from_work_resource(resource)
+          return nil unless resource.award_number.present? && resource.funder_name.present?
+          award = ::Datacite::Mapping::AwardNumber.new(uri: resource.award_uri, value: resource.award_number)
+          funding_reference = ::Datacite::Mapping::FundingReference.new(name: resource.funder_name, award_number: award)
+          [funding_reference]
         end
       end
   end

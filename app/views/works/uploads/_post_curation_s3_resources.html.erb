@@ -17,7 +17,7 @@
                 <td><span></span></td>
               </tr>
               <% else %>
-                <% @work.post_curation_uploads.each_with_index do |file, ix| %>
+                <% @work.post_curation_uploads.sort_by(&:filename).each_with_index do |file, ix| %>
                 <tr class="files">
                   <td>
                     <span>

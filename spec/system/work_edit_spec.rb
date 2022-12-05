@@ -6,6 +6,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+    page.driver.browser.manage.window.resize_to(2000, 2000)
   end
 
   let(:contents1) do
@@ -123,6 +124,24 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       expect(page.find("#related_identifier_1").value).to eq "https://www.biorxiv.org/content/10.1101/545517v1"
       expect(page.find("#related_identifier_type_1").value).to eq "ARXIV"
       expect(page.find("#relation_type_1").value).to have_content "IS_CITED_BY"
+    end
+  end
+
+  context "when editing funding information" do
+    let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+    let(:user) { work.created_by_user }
+
+    it "allows the user to edit funding information" do
+      sign_in user
+      visit edit_work_path(work)
+      click_on "Additional Metadata"
+      fill_in "funder_name", with: "National Science Foundation"
+      fill_in "award_number", with: "nsf-123"
+      fill_in "award_uri", with: "http://nsg.gov/award/123"
+      click_on "Save Work"
+      expect(page).to have_content("Funder Name: National Science Foundation")
+      expect(page).to have_content("Award Number: nsf-123")
+      expect(page).to have_content("Award URI: http://nsg.gov/award/123")
     end
   end
 
