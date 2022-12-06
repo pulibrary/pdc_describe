@@ -33,7 +33,7 @@ class ResourceCompareService
   private
 
     def compare_resources
-      [:titles, :creators, :contributors].each do |field|
+      [:titles, :creators, :contributors, :related_objects].each do |field|
         compare_objects(field)
       end
       [:description, :publisher, :publication_year,
