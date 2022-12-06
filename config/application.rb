@@ -25,5 +25,9 @@ module DrdsRailsTemplate
       port: ENV.fetch("APPLICATION_PORT", "3000"),
       protocol: ENV.fetch("APPLICATION_HOST_PROTOCOL", "http")
     }
+
+    # Explicitly set timezome rather than relying on system,
+    # which may be different in CI environment.
+    config.time_zone = "America/New_York"
   end
 end
