@@ -5,7 +5,10 @@
     <i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a title
   </span>
   <br>
-  <input type="text" id="title_main" name="title_main" class="input-text-long" value="<%= @work&.resource&.main_title %>" />
+  <input type="text" id="title_main" name="title_main" class="input-text-long"
+    value="<%= @work&.resource&.main_title %>"
+    placeholder="The title should be unique and different from one used for a corresponding paper."
+  />
   <% if allow_many %>
     <span>
       <a id="btn-add-title" class="add-title-button" href="#" title="Add an additional title for this dataset, like a subtitle or a translated title">
