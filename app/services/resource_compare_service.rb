@@ -33,9 +33,9 @@ class ResourceCompareService
   private
 
     def compare_resources
-      compare_titles
-      compare_creators
-      compare_contributors
+      [:titles, :creators, :contributors].each do |field|
+        compare_objects(field)
+      end
       [:description, :publisher, :publication_year,
        :resource_type, :resource_type_general,
        :doi, :ark, :version_number].each do |field|
@@ -87,123 +87,37 @@ class ResourceCompareService
       @differences[method_sym] = changes if changes.count > 0
     end
 
-    ##
-    # Compares the titles between the two resources. This is a bit tricky because we support many
-    # titles and the title itself is an object with two properties (title and title_type)
-    # Returns an array with the changes (values removed, values added, values changed)
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/AbcSize
     # rubocop:disable Metrics/CyclomaticComplexity
     # rubocop:disable Metrics/PerceivedComplexity
-    def compare_titles
+    def compare_objects(method_sym)
       changes = []
-      keys_before = @before.titles.map(&:title_type)
-      keys_after = @after.titles.map(&:title_type)
+      keys_before = @before.send(method_sym).map(&:compare_value)
+      keys_after = @after.send(method_sym).map(&:compare_value)
 
       removed = keys_before - keys_after
       added = keys_after - keys_before
       common = (keys_before + keys_after).uniq - removed - added
 
-      @before.titles.each do |before_title|
-        if before_title.title_type.in?(common)
-          after_title = @after.titles.find { |t| t.title_type == before_title.title_type }
-          if before_title.title != after_title.title
-            changes << { action: :changed, from: before_title.title, to: after_title.title }
+      @before.send(method_sym).each do |before_object|
+        if before_object.compare_value.in?(common)
+          after_object = @after.send(method_sym).find { |c| c.compare_value == before_object.compare_value }
+          if before_object.compare_value != after_object.compare_value
+            changes << { action: :changed, from: before_object.compare_value, to: after_object.compare_value }
           end
-        elsif before_title.title_type.in?(removed)
-          changes << { action: :removed, value: before_title.title }
+        elsif before_object.compare_value.in?(removed)
+          changes << { action: :removed, value: before_object.compare_value }
         end
       end
 
-      @after.titles.each do |after_title|
-        if after_title.title_type.in?(added)
-          changes << { action: :added, value: after_title.title }
+      @after.send(method_sym).each do |after_object|
+        if after_object.compare_value.in?(added)
+          changes << { action: :added, value: after_object.compare_value }
         end
       end
 
-      @differences[:titles] = changes if changes.count > 0
-    end
-    # rubocop:enable Metrics/PerceivedComplexity
-    # rubocop:enable Metrics/CyclomaticComplexity
-    # rubocop:enable Metrics/AbcSize
-    # rubocop:enable Metrics/MethodLength
-
-    ##
-    # Compares the creators between the two resources. This is a bit tricky because we support many
-    # creators and the creator objects have many properties.
-    # Returns an array with the changes (values removed, values added, values changed)
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/AbcSize
-    # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/PerceivedComplexity
-    def compare_creators
-      changes = []
-      keys_before = @before.creators.map(&:compare_value)
-      keys_after = @after.creators.map(&:compare_value)
-
-      removed = keys_before - keys_after
-      added = keys_after - keys_before
-      common = (keys_before + keys_after).uniq - removed - added
-
-      @before.creators.each do |before_creator|
-        if before_creator.compare_value.in?(common)
-          after_creator = @after.creators.find { |c| c.compare_value == before_creator.compare_value }
-          if before_creator.compare_value != after_creator.compare_value
-            changes << { action: :changed, from: before_creator.compare_value, to: after_creator.compare_value }
-          end
-        elsif before_creator.compare_value.in?(removed)
-          changes << { action: :removed, value: before_creator.compare_value }
-        end
-      end
-
-      @after.creators.each do |after_creator|
-        if after_creator.compare_value.in?(added)
-          changes << { action: :added, value: after_creator.compare_value }
-        end
-      end
-
-      @differences[:creators] = changes if changes.count > 0
-    end
-    # rubocop:enable Metrics/PerceivedComplexity
-    # rubocop:enable Metrics/CyclomaticComplexity
-    # rubocop:enable Metrics/AbcSize
-    # rubocop:enable Metrics/MethodLength
-
-    ##
-    # Compares the contributors between the two resources. This is a bit tricky because we support many
-    # contributors and the contributor objects have many properties.
-    # Returns an array with the changes (values removed, values added, values changed)
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/AbcSize
-    # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/PerceivedComplexity
-    def compare_contributors
-      changes = []
-      keys_before = @before.contributors.map(&:compare_value)
-      keys_after = @after.contributors.map(&:compare_value)
-
-      removed = keys_before - keys_after
-      added = keys_after - keys_before
-      common = (keys_before + keys_after).uniq - removed - added
-
-      @before.contributors.each do |before_contributor|
-        if before_contributor.compare_value.in?(common)
-          after_contributor = @after.contributors.find { |c| c.compare_value == before_contributor.compare_value }
-          if before_contributor.compare_value != after_contributor.compare_value
-            changes << { action: :changed, from: before_contributor.compare_value, to: after_contributor.compare_value }
-          end
-        elsif before_contributor.compare_value.in?(removed)
-          changes << { action: :removed, value: before_contributor.compare_value }
-        end
-      end
-
-      @after.contributors.each do |after_contributor|
-        if after_contributor.compare_value.in?(added)
-          changes << { action: :added, value: after_contributor.compare_value }
-        end
-      end
-
-      @differences[:contributors] = changes if changes.count > 0
+      @differences[method_sym] = changes if changes.count > 0
     end
   # rubocop:enable Metrics/PerceivedComplexity
   # rubocop:enable Metrics/CyclomaticComplexity
