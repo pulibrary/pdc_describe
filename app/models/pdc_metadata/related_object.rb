@@ -30,6 +30,10 @@ module PDCMetadata
       @related_identifier
     end
 
+    def compare_value
+      "#{related_identifier} ('#{relation_type}' relation #{related_identifier_type})"
+    end
+
     def self.new_related_object(related_identifier, related_identifier_type, relation_type)
       RelatedObject.new(related_identifier: related_identifier, related_identifier_type: related_identifier_type, relation_type: relation_type)
     end
