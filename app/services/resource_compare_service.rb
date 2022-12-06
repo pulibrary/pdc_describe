@@ -36,6 +36,12 @@ class ResourceCompareService
       compare_titles
       compare_creators
       compare_contributors
+      [:description, :publisher, :publication_year,
+        :resource_type, :resource_type_general,
+        :doi, :ark, :version_number
+      ].each do |field_name|
+        compare_simple_value(field_name)
+      end
       compare_simple_values
       compare_rights
       compare_keywords
@@ -43,17 +49,12 @@ class ResourceCompareService
     end
 
     ##
-    # Compares simple single values between the two resources.
-    def compare_simple_values
-      field_names = [:description, :publisher, :publication_year, :resource_type, :resource_type_general,
-                     :doi, :ark, :version_number]
-
-      field_names.each do |field_name|
-        before_value = @before.send(field_name)
-        after_value = @after.send(field_name)
-        if before_value != after_value
-          @differences[field_name] = [{ action: :changed, from: before_value, to: after_value }]
-        end
+    # Compares simple single value between the two resources.
+    def compare_simple_value(method_sym)
+      before_value = @before.send(method_sym)
+      after_value = @after.send(method_sym)
+      if before_value != after_value
+        @differences[method_sym] = [{ action: :changed, from: before_value, to: after_value }]
       end
     end
 
