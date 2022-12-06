@@ -37,9 +37,8 @@ class ResourceCompareService
       compare_creators
       compare_contributors
       [:description, :publisher, :publication_year,
-        :resource_type, :resource_type_general,
-        :doi, :ark, :version_number
-      ].each do |field|
+       :resource_type, :resource_type_general,
+       :doi, :ark, :version_number].each do |field|
         compare_simple_values(field)
       end
       compare_rights
