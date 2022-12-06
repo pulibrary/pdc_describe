@@ -36,24 +36,24 @@ class ResourceCompareService
       [:titles, :creators, :contributors, :related_objects].each do |field|
         compare_objects(field)
       end
-      compare_simple_values
+      [:description, :publisher, :publication_year,
+       :resource_type, :resource_type_general,
+       :doi, :ark, :version_number].each do |field|
+        compare_simple_values(field)
+      end
       compare_rights
-      compare_keywords
-      compare_collection_tags
+      [:keywords, :collection_tags].each do |field|
+        compare_arrays(field)
+      end
     end
 
     ##
-    # Compares simple single values between the two resources.
-    def compare_simple_values
-      field_names = [:description, :publisher, :publication_year, :resource_type, :resource_type_general,
-                     :doi, :ark, :version_number]
-
-      field_names.each do |field_name|
-        before_value = @before.send(field_name)
-        after_value = @after.send(field_name)
-        if before_value != after_value
-          @differences[field_name] = [{ action: :changed, from: before_value, to: after_value }]
-        end
+    # Compares simple single value between the two resources.
+    def compare_simple_values(method_sym)
+      before_value = @before.send(method_sym)
+      after_value = @after.send(method_sym)
+      if before_value != after_value
+        @differences[method_sym] = [{ action: :changed, from: before_value, to: after_value }]
       end
     end
 
@@ -65,20 +65,12 @@ class ResourceCompareService
       end
     end
 
-    def compare_keywords
-      changes = compare_arrays(@before.keywords, @after.keywords)
-      @differences[:keywords] = changes if changes.count > 0
-    end
-
-    def compare_collection_tags
-      changes = compare_arrays(@before.collection_tags, @after.collection_tags)
-      @differences[:collection_tags] = changes if changes.count > 0
-    end
-
     ##
     # Compares two arrays of simple string values.
     # Returns an array with the changes (values removed, values added)
-    def compare_arrays(before_values, after_values)
+    def compare_arrays(method_sym)
+      before_values = @before.send(method_sym)
+      after_values = @after.send(method_sym)
       changes = []
       removed = before_values - after_values
       added = after_values - before_values
@@ -92,7 +84,7 @@ class ResourceCompareService
         changes << { action: :added, value: value } if value.in?(added)
       end
 
-      changes
+      @differences[method_sym] = changes if changes.count > 0
     end
 
     # rubocop:disable Metrics/MethodLength
