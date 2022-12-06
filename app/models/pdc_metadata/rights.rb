@@ -11,6 +11,8 @@ module PDCMetadata
 
     def self.all
       @all ||= [
+        Rights.new(identifier: "MIT", uri: "https://mit-license.org/", name: "MIT License"),
+        Rights.new(identifier: "GPLv3", uri: "https://www.gnu.org/licenses/gpl-3.0.en.html", name: "GNU General Public License"),
         Rights.new(identifier: "CC BY", uri: "https://creativecommons.org/licenses/by/4.0/", name: "Creative Commons Attribution 4.0 International"),
         Rights.new(identifier: "CC BY-SA", uri: "https://creativecommons.org/licenses/by-sa/4.0/", name: "Creative Commons Attribution-ShareAlike 4.0 International"),
         Rights.new(identifier: "CC BY-NC", uri: "https://creativecommons.org/licenses/by-nc/4.0/", name: "Creative Commons Attribution-NonCommercial 4.0 International"),
