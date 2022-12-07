@@ -40,7 +40,7 @@ class WorksController < ApplicationController
   end
 
   def create
-    @work = Work.new(created_by_user_id: current_user.id, collection_id: params[:collection_id], user_entered_doi: params["doi"].present?)
+    @work = Work.new(created_by_user_id: current_user.id, collection_id: params_collection_id, user_entered_doi: params["doi"].present?)
     @work.resource = FormToResourceService.convert(params, @work)
     if @work.valid?
       @work.draft!(current_user)
@@ -310,7 +310,7 @@ class WorksController < ApplicationController
 
     def update_params
       {
-        collection_id: params[:collection_id],
+        collection_id: params_collection_id,
         resource: FormToResourceService.convert(params, @work)
       }
     end
@@ -330,6 +330,18 @@ class WorksController < ApplicationController
       else
         @uploads = @work.uploads
         render :edit, status: :unprocessable_entity
+      end
+    end
+
+    def params_collection_id
+      # Do not allow a nil for the collection id
+      @params_collection_id ||= begin
+        collection_id = params[:collection_id]
+        if collection_id.blank?
+          collection_id = current_user.default_collection.id
+          Honeybadger.notify("We got a nil collection as part of the parameters #{params} #{request}")
+        end
+        collection_id
       end
     end
 end

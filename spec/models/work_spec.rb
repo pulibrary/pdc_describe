@@ -942,4 +942,17 @@ RSpec.describe Work, type: :model do
       end
     end
   end
+
+  describe "valid?" do
+    it "requires a collection" do
+      work = Work.new(created_by_user_id: user.id, collection_id: nil, user_entered_doi: false)
+      expect(work).not_to be_valid
+    end
+
+    it "requires a collection on update of a draft work" do
+      work.update({ collection_id: "", resource: work.resource })
+      expect(work.collection).to be_nil
+      expect(work).not_to be_valid
+    end
+  end
 end

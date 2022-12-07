@@ -203,7 +203,6 @@ class Work < ApplicationRecord
   end
 
   def valid_to_draft
-    errors.clear
     errors.add(:base, "Must provide a title") if resource.main_title.blank?
     validate_ark
     validate_creators
