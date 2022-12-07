@@ -121,7 +121,7 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
 
       context "resource types" do
         it "maps dataset" do
-          resource_type = described_class.datacite_resource_type("dataset")
+          resource_type = described_class.datacite_resource_type("Dataset")
           expect(resource_type.resource_type_general.value).to eq "Dataset"
         end
         it "Audiovisual" do

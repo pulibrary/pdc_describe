@@ -104,13 +104,13 @@ module PDCSerialization
     # rubocop: enable Metrics/MethodLength
 
     class << self
-      resource_types = Datacite::Mapping::ResourceTypeGeneral.to_a.map { |ct| [ct.value, ct] }.to_h
       def datacite_resource_type(resource_type)
+        resource_types = ::Datacite::Mapping::ResourceTypeGeneral.to_a.map { |ct| [ct.value, ct] }.to_h
         ::Datacite::Mapping::ResourceType.new(resource_type_general: resource_types[resource_type])
       end
 
-      contributor_types = Datacite::Mapping::ContributorType.to_a.map { |ct| [ct.value, ct] }.to_h
       def datacite_contributor_type(type)
+        contributor_types = ::Datacite::Mapping::ContributorType.to_a.map { |ct| [ct.value, ct] }.to_h
         contributor_types[type]
       end
 
