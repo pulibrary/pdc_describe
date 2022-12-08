@@ -938,7 +938,7 @@ RSpec.describe Work, type: :model do
       it "validates the work is not ready to submit" do
         expect(work.valid_to_submit).to be_falsey
         expect(work.errors.count).to eq(1)
-        expect(work.errors.first.type). to eq("Related Obejcts are invalid: Related Identifier Type is missing or invalid for http://related.example.com, Relationship Type is missing or invalid for http://related.example.com")
+        expect(work.errors.first.type). to eq("Related Objects are invalid: Related Identifier Type is missing or invalid for http://related.example.com, Relationship Type is missing or invalid for http://related.example.com")
       end
     end
   end

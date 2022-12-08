@@ -618,7 +618,7 @@ class Work < ApplicationRecord
     def validate_related_objects
       return if resource.related_objects.empty?
       invalid = resource.related_objects.reject(&:valid?)
-      errors.add(:base, "Related Obejcts are invalid: #{invalid.map(&:errors).join(', ')}") if invalid.count.positive?
+      errors.add(:base, "Related Objects are invalid: #{invalid.map(&:errors).join(', ')}") if invalid.count.positive?
     end
 
     def publish_doi(user)
