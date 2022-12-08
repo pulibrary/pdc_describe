@@ -1,11 +1,19 @@
 <div id="activity-history">
-  <% if @work.work_activity.count > 0 %>
-    <h2>Activity History</h2>
-    <% @work.activities.each do |activity| %>
-      <%= render partial: 'work_activity', locals: {
-        activity: activity,
-        event_type: ['CHANGES', 'FILE-CHANGES'].include?(activity.activity_type) ? 'log' : 'comment'
-      } %>
-    <% end %>
+  <h2>Comments</h2>
+  <% @work.activities.select{|activity| activity.activity_type == 'SYSTEM' }.each do |activity| %>
+    <%= render partial: 'work_activity', locals: {
+      activity: activity,
+      event_type: 'comment'
+    } %>
+  <% end %>
+
+
+  <h2>Activity History</h2>
+  <% @work.activities.select{|activity| activity.activity_type != 'SYSTEM' }.each do |activity| %>
+    <em><%= activity.activity_type %><em>
+    <%= render partial: 'work_activity', locals: {
+      activity: activity,
+      event_type: 'log'
+    } %>
   <% end %>
 </div>
