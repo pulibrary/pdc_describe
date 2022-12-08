@@ -2,6 +2,9 @@
   <% comments, changes = @work.activities.partition { |act| act.activity_type == 'SYSTEM' } %>
 
   <h2>Comments</h2>
+  <% if comments.size == 0 %>
+    No comments
+  <% end %>
   <% comments.each do |activity| %>
     <%= render partial: 'work_activity', locals: {
       activity: activity,
@@ -10,10 +13,14 @@
   <% end %>
 
   <h2>Activity History</h2>
+  <% if changes.size == 0 %>
+    No activity
+  <% end %>
   <% changes.each do |activity| %>
     <%= render partial: 'work_activity', locals: {
       activity: activity,
       event_type: 'log'
     } %>
   <% end %>
+  
 </div>
