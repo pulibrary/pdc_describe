@@ -41,6 +41,7 @@ Metrics/ClassLength:
     - "app/services/s3_query_service.rb"
     - "app/models/pdc_metadata/resource.rb"
     - "app/models/collection.rb"
+    - "app/models/work_activity.rb"
 
 Metrics/MethodLength:
   Exclude:
