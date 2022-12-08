@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
 class WorkActivity < ApplicationRecord
   belongs_to :work
+
+  has_many :work_activity_notifications, dependent: :destroy
 
   USER_REFERENCE = /@[\w]*/.freeze # e.g. @xy123
 
@@ -125,3 +128,4 @@ class WorkActivity < ApplicationRecord
       end
     end
 end
+# rubocop:enable Metrics/ClassLength
