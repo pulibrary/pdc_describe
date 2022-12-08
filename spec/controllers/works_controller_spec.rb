@@ -1062,12 +1062,14 @@ RSpec.describe WorksController do
     end
 
     context "when authenticated" do
+      before do
+        sign_in user
+      end
       context "when requesting a HTML representation" do
         let(:format) { :html }
 
         context "when the update succeeds" do
           before do
-            sign_in user
             patch :update, params: params
           end
 
@@ -1079,7 +1081,6 @@ RSpec.describe WorksController do
 
         context "a submitter trying to update the curator conrolled fields" do
           before do
-            sign_in user
             new_params = params.merge(doi: "new-doi")
                                .merge(ark: "new-ark")
                                .merge(collection_tags: "new-collection-tags")
@@ -1098,7 +1099,6 @@ RSpec.describe WorksController do
         context "a collection admin trying to update curator controlled fields" do
           let(:user) { FactoryBot.create :research_data_moderator }
           before do
-            sign_in user
             new_params = params.merge(doi: "new-doi")
                                .merge(ark: "new-ark")
                                .merge(collection_tags: "new-colletion-tag1, new-collection-tag2")
@@ -1119,7 +1119,6 @@ RSpec.describe WorksController do
 
         context "when the update fails" do
           before do
-            sign_in user
             allow(Work).to receive(:find).and_return(work)
             allow(work).to receive(:update).and_return(false)
             patch :update, params: params
@@ -1128,6 +1127,18 @@ RSpec.describe WorksController do
           it "renders the edit view with a 422 response status code" do
             expect(response.code).to eq("422")
             expect(response).to render_template(:edit)
+          end
+        end
+
+        context "when sending a nil collection" do
+          before do
+            params[:collection_id] = nil
+            allow(Honeybadger).to receive(:notify)
+          end
+          it "uses the updators default collection" do
+            patch :update, params: params
+            expect(work.reload.collection).to eq(user.default_collection)
+            expect(Honeybadger).to have_received(:notify)
           end
         end
       end
@@ -1270,6 +1281,54 @@ RSpec.describe WorksController do
           get :edit, params: { id: work.id }
           expect(response).to render_template("edit")
         end
+      end
+    end
+  end
+
+  describe "#create" do
+    it "creates a work" do
+      params = {
+        "title_main" => "test dataset updated",
+        "description" => "a new description",
+        "collection_id" => collection.id,
+        "commit" => "Update Dataset",
+        "publisher" => "Princeton University",
+        "publication_year" => "2022",
+        "given_name_1" => "Jane",
+        "family_name_1" => "Smith",
+        "creator_count" => "1",
+        "resource_type" => "Dataset",
+        "resource_type_general" => "DATASET"
+      }
+      sign_in user
+      expect { post :create, params: params }.to change { Work.count }.by 1
+      work = Work.last
+      expect(work.title).to eq("test dataset updated")
+      expect(work.resource.description).to eq("a new description")
+      expect(work.collection).to eq(collection)
+    end
+
+    context "when the collection is empty" do
+      it "creates a work in the user's default collection" do
+        params = {
+          "title_main" => "test dataset updated",
+          "description" => "a new description",
+          "collection_id" => "",
+          "commit" => "Update Dataset",
+          "publisher" => "Princeton University",
+          "publication_year" => "2022",
+          "given_name_1" => "Jane",
+          "family_name_1" => "Smith",
+          "creator_count" => "1",
+          "resource_type" => "Dataset",
+          "resource_type_general" => "DATASET"
+        }
+        sign_in user
+        expect { post :create, params: params }.to change { Work.count }.by 1
+        work = Work.last
+        expect(work.title).to eq("test dataset updated")
+        expect(work.resource.description).to eq("a new description")
+        expect(work.collection).to eq(user.default_collection)
       end
     end
   end
