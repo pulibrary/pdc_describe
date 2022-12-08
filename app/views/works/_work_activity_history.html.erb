@@ -1,5 +1,5 @@
 <div>
-  <% comments, changes = @work.activities.partition { |act| act.activity_type == 'SYSTEM' } %>
+  <% comments, changes = @work.activities.partition { |act| act.activity_type == 'COMMENT' } %>
 
   <h2>Comments</h2>
   <% if comments.size == 0 %>
