@@ -104,100 +104,15 @@ module PDCSerialization
     # rubocop: enable Metrics/MethodLength
 
     class << self
-      ##
-      # rubocop:disable Metrics/MethodLength
-      # rubocop:disable Metrics/CyclomaticComplexity
-      # Returns the appropriate Datacite::Resource::ResourceType for a given string
-      # @param [String] resource_type
       def datacite_resource_type(resource_type)
-        resource_type_general = case resource_type.downcase
-                                when "dataset"
-                                  ::Datacite::Mapping::ResourceTypeGeneral::DATASET
-                                when "audiovisual"
-                                  ::Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL
-                                when "collection"
-                                  ::Datacite::Mapping::ResourceTypeGeneral::COLLECTION
-                                when "datapaper"
-                                  ::Datacite::Mapping::ResourceTypeGeneral::DATA_PAPER
-                                when "event"
-                                  ::Datacite::Mapping::ResourceTypeGeneral::EVENT
-                                when "image"
-                                  ::Datacite::Mapping::ResourceTypeGeneral::IMAGE
-                                when "interactiveresource"
-                                  ::Datacite::Mapping::ResourceTypeGeneral::INTERACTIVE_RESOURCE
-                                when "model"
-                                  ::Datacite::Mapping::ResourceTypeGeneral::MODEL
-                                when "physicalobject"
-                                  ::Datacite::Mapping::ResourceTypeGeneral::PHYSICAL_OBJECT
-                                when "service"
-                                  ::Datacite::Mapping::ResourceTypeGeneral::SERVICE
-                                when "software"
-                                  ::Datacite::Mapping::ResourceTypeGeneral::SOFTWARE
-                                when "sound"
-                                  ::Datacite::Mapping::ResourceTypeGeneral::SOUND
-                                when "text"
-                                  ::Datacite::Mapping::ResourceTypeGeneral::TEXT
-                                when "workflow"
-                                  ::Datacite::Mapping::ResourceTypeGeneral::WORKFLOW
-                                else
-                                  ::Datacite::Mapping::ResourceTypeGeneral::OTHER
-                                end
-        ::Datacite::Mapping::ResourceType.new(resource_type_general: resource_type_general)
+        resource_types = ::Datacite::Mapping::ResourceTypeGeneral.to_a.index_by(&:value)
+        ::Datacite::Mapping::ResourceType.new(resource_type_general: resource_types[resource_type])
       end
-      # rubocop:enable Metrics/MethodLength
-      # rubocop:enable Metrics/CyclomaticComplexity
 
-      ##
-      # rubocop:disable Metrics/MethodLength
-      # rubocop:disable Metrics/CyclomaticComplexity
-      # Returns the appropriate Datacite::Resource::ContributorType for a given string
-      # @param [String] type
       def datacite_contributor_type(type)
-        case type
-        when "DataCollector"
-          ::Datacite::Mapping::ContributorType::DATA_COLLECTOR
-        when "DataCurator"
-          ::Datacite::Mapping::ContributorType::DATA_CURATOR
-        when "DataManager"
-          ::Datacite::Mapping::ContributorType::DATA_MANAGER
-        when "Distributor"
-          ::Datacite::Mapping::ContributorType::DISTRIBUTOR
-        when "Editor"
-          ::Datacite::Mapping::ContributorType::EDITOR
-        when "HostingInstitution"
-          ::Datacite::Mapping::ContributorType::HOSTING_INSTITUTION
-        when "Producer"
-          ::Datacite::Mapping::ContributorType::PRODUCER
-        when "ProjectLeader"
-          ::Datacite::Mapping::ContributorType::PROJECT_LEADER
-        when "ProjectManager"
-          ::Datacite::Mapping::ContributorType::PROJECT_MANAGER
-        when "ProjectMember"
-          ::Datacite::Mapping::ContributorType::PROJECT_MEMBER
-        when "RegistrationAgency"
-          ::Datacite::Mapping::ContributorType::REGISTRATION_AGENCY
-        when "RegistrationAuthority"
-          ::Datacite::Mapping::ContributorType::REGISTRATION_AUTHORITY
-        when "RelatedPerson"
-          ::Datacite::Mapping::ContributorType::RELATED_PERSON
-        when "Researcher"
-          ::Datacite::Mapping::ContributorType::RESEARCHER
-        when "ResearchGroup"
-          ::Datacite::Mapping::ContributorType::RESEARCH_GROUP
-        when "RightsHolder"
-          ::Datacite::Mapping::ContributorType::RIGHTS_HOLDER
-        when "Sponsor"
-          ::Datacite::Mapping::ContributorType::SPONSOR
-        when "Supervisor"
-          ::Datacite::Mapping::ContributorType::SUPERVISOR
-        when "WorkPackageLeader"
-          ::Datacite::Mapping::ContributorType::WORK_PACKAGE_LEADER
-        else
-          ::Datacite::Mapping::ContributorType::OTHER
-        end
+        contributor_types = ::Datacite::Mapping::ContributorType.to_a.index_by(&:value)
+        contributor_types[type]
       end
-      # rubocop:enable Metrics/MethodLength
-      # rubocop:enable Metrics/CyclomaticComplexity
 
       private
 
