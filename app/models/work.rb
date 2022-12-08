@@ -364,6 +364,14 @@ class Work < ApplicationRecord
     WorkActivity.where(work_id: id).sort_by(&:updated_at).reverse
   end
 
+  def changes
+    @changes = activities.select(&:system_event_type?)
+  end
+
+  def comments
+    @comments = activities.select(&:comment_event_type?)
+  end
+
   def new_notification_count_for_user(user_id)
     WorkActivityNotification.joins(:work_activity)
                             .where(user_id: user_id, read_at: nil)

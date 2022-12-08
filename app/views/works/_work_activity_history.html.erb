@@ -1,26 +1,23 @@
 <div>
-  <% comments, changes = @work.activities.partition { |act| ["COMMENT", "SYSTEM"].include? act.activity_type } %>
-
   <h2>Comments</h2>
-  <% if comments.size == 0 %>
+  <% if @comments.size == 0 %>
     No comments
   <% end %>
-  <% comments.each do |activity| %>
+  <% @comments.each do |activity| %>
     <%= render partial: 'work_activity', locals: {
       activity: activity,
-      event_type: 'comment'
+      event_type: activity.event_type
     } %>
   <% end %>
 
   <h2>Change History</h2>
-  <% if changes.size == 0 %>
+  <% if @changes.size == 0 %>
     No activity
   <% end %>
-  <% changes.each do |activity| %>
+  <% @changes.each do |activity| %>
     <%= render partial: 'work_activity', locals: {
       activity: activity,
-      event_type: 'log'
+      event_type: activity.event_type
     } %>
   <% end %>
-  
 </div>

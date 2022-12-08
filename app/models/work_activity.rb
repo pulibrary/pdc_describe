@@ -2,11 +2,16 @@
 
 # rubocop:disable Metrics/ClassLength
 class WorkActivity < ApplicationRecord
-  belongs_to :work
-
-  has_many :work_activity_notifications, dependent: :destroy
-
+  CHANGES = "CHANGES"
+  COMMENT = "COMMENT"
+  FILE_CHANGES = "FILE-CHANGES"
+  SYSTEM = "SYSTEM"
   USER_REFERENCE = /@[\w]*/.freeze # e.g. @xy123
+
+  include Rails.application.routes.url_helpers
+
+  belongs_to :work
+  has_many :work_activity_notifications, dependent: :destroy
 
   def self.add_system_activity(work_id, message, user_id, activity_type: "SYSTEM")
     activity = WorkActivity.new(
@@ -38,34 +43,82 @@ class WorkActivity < ApplicationRecord
   end
 
   def created_by_user
-    return nil if created_by_user_id.nil?
+    return nil unless created_by_user_id
+
     User.find(created_by_user_id)
   end
 
-  def message_html
-    if activity_type == "CHANGES"
+  def self.unknown_user
+    "Unknown user outside the system"
+  end
+
+  def changes_event_type?
+    activity_type == CHANGES
+  end
+
+  def comment_event_type?
+    activity_type == COMMENT
+  end
+
+  def file_changes_event_type?
+    activity_type == FILE_CHANGES
+  end
+
+  def log_event_type?
+    changes_event_type? || file_changes_event_type?
+  end
+
+  def system_event_type?
+    activity_type == SYSTEM
+  end
+
+  def event_type
+    @event_type ||= if log_event_type?
+                      "log"
+                    else
+                      "comment"
+                    end
+  end
+
+  def to_html
+    if changes_event_type?
       metadata_changes_html
-    elsif activity_type == "FILE-CHANGES"
+    elsif file_changes_event_type?
       file_changes_html
     else
       comment_html
     end
   end
+  alias message_html to_html
 
   private
 
-    def comment_html
-      # convert user references to user links
-      text = message.gsub(USER_REFERENCE) do |at_uid|
-        uid = at_uid[1..-1]
-        user = User.where(uid: uid).first
-        user_info = user&.display_name_safe || uid
-        "<a class='comment-user-link' title='#{user_info}' href='{USER-PATH-PLACEHOLDER}/#{uid}'>#{at_uid}</a>"
-      end
-      # allow ``` for code blocks (Kramdown only supports ~~~)
-      text = text.gsub("```", "~~~")
-      parsed_document = Kramdown::Document.new(text)
-      parsed_document.to_html
+    def created_at_time
+      created_at.time
+    end
+
+    def event_timestamp
+      created_at_time.strftime("%B %d, %Y %H:%M")
+    end
+
+    def event_timestamp_html
+      "#{event_timestamp} by " if log_event_type?
+    end
+
+    def comment_timestamp_html
+      "at #{event_timestamp}" if comment_event_type?
+    end
+
+    def event_html(children:)
+      <<-HTML
+<div class="activity-history-#{event_type}-title">
+  #{event_timestamp_html}
+  #{created_by_user_html}
+  #{comment_timestamp_html}
+  #{created_at_html}
+</div>
+<span class="comment-html">#{children}</span>
+    HTML
     end
 
     # Returns the message formatted to display _file_ changes that were logged as an activity
@@ -79,18 +132,67 @@ class WorkActivity < ApplicationRecord
                end
         "<tr><td>#{icon}</td><td>#{change['action']}</td> <td>#{change['filename']}</td>"
       end
-      "<p><b>Files updated:</b></p><table>#{changes_html.join}</table>"
+
+      children = "<p><b>Files updated:</b></p><table>#{changes_html.join}</table>"
+      event_html(children: children)
     end
 
     # Returns the message formatted to display _metadata_ changes that were logged as an activity
     def metadata_changes_html
       text = ""
       changes = JSON.parse(message)
+
       changes.keys.each do |field|
-        values = changes[field].map { |value| change_value_html(value) }.join
-        text += "<p><b>#{field}</b>: #{values}</p>"
+        change = changes[field]
+        mapped = change.map { |value| change_value_html(value) }
+        values = mapped.join
+
+        children = "<p><b>#{field}</b>: #{values}</p>"
+        text += event_html(children: children)
       end
+
       text
+    end
+
+    # rubocop:disable Metrics/MethodLength
+    def comment_html
+      # convert user references to user links
+      text = message.gsub(USER_REFERENCE) do |at_uid|
+        uid = at_uid[1..-1]
+        user_info = self.class.unknown_user
+
+        if uid
+          user = User.find_by(uid: uid)
+          user_info = if user
+                        user.display_name_safe
+                      else
+                        uid
+                      end
+        end
+
+        "<a class='comment-user-link' title='#{user_info}' href='#{users_path}/#{uid}'>#{at_uid}</a>"
+      end
+
+      # allow ``` for code blocks (Kramdown only supports ~~~)
+      text = text.gsub("```", "~~~")
+      parsed_document = Kramdown::Document.new(text)
+      children = parsed_document.to_html
+
+      event_html(children: children)
+    end
+    # rubocop:enable Metrics/MethodLength
+
+    def created_by_user_html
+      return self.class.unknown_user unless created_by_user
+
+      created_by_user.display_name_safe
+    end
+
+    def created_at_html
+      return unless created_at
+
+      created_at_time = created_at.time
+      created_at_time.strftime("%B %d, %Y %H:%M")
     end
 
     def change_value_html(value)

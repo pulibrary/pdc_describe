@@ -160,7 +160,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       fill_in "title_main", with: "UPDATED" + work.resource.titles.first.title
       click_on "Save Work"
       # This depends on the timezone configured in application.rb:
-      expect(page.find(".activity-history-log-title", visible: true)).to have_content "December 31, 2021 19:00"
+      expect(page.first(".activity-history-log-title", visible: true)).to have_content "December 31, 2021 19:00"
     end
   end
 

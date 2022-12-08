@@ -41,6 +41,7 @@ RSpec.describe "/works", type: :request do
 
         before do
           allow(work).to receive(:id).and_return("test-id")
+          allow(work).to receive(:activities).and_return([])
           allow(work).to receive(:collection).and_return(nil)
           allow(work).to receive(:attach_s3_resources)
 
