@@ -1,5 +1,5 @@
 <div>
-  <% comments, changes = @work.activities.partition { |act| act.activity_type == 'COMMENT' } %>
+  <% comments, changes = @work.activities.partition { |act| ["COMMENT", "SYSTEM"].include? act.activity_type } %>
 
   <h2>Comments</h2>
   <% if comments.size == 0 %>
@@ -12,7 +12,7 @@
     } %>
   <% end %>
 
-  <h2>Activity History</h2>
+  <h2>Change History</h2>
   <% if changes.size == 0 %>
     No activity
   <% end %>
