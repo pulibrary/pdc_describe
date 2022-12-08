@@ -1,6 +1,8 @@
 <div>
+  <% comments, changes = @work.activities.partition { |act| act.activity_type == 'SYSTEM' } %>
+
   <h2>Comments</h2>
-  <% @work.activities.select{|activity| activity.activity_type == 'SYSTEM' }.each do |activity| %>
+  <% comments.each do |activity| %>
     <%= render partial: 'work_activity', locals: {
       activity: activity,
       event_type: 'comment'
@@ -8,7 +10,7 @@
   <% end %>
 
   <h2>Activity History</h2>
-  <% @work.activities.select{|activity| activity.activity_type != 'SYSTEM' }.each do |activity| %>
+  <% changes.each do |activity| %>
     <%= render partial: 'work_activity', locals: {
       activity: activity,
       event_type: 'log'
