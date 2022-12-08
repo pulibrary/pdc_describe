@@ -1309,7 +1309,7 @@ RSpec.describe WorksController do
     end
 
     context "when the collection is empty" do
-      it "creates a work" do
+      it "creates a work in the user's default collection" do
         params = {
           "title_main" => "test dataset updated",
           "description" => "a new description",
