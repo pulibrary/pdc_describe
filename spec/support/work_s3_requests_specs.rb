@@ -26,7 +26,7 @@ XML
     # Use the built-in AWS S3 stub
     s3 = Aws::S3::Client.new(stub_responses: true)
     allow(Aws::S3::Client).to receive(:new).and_return(s3)
-    s3.stub_responses(:head_object, [Aws::S3::Errors::NotFound.new("1","2"), true])
+    s3.stub_responses(:head_object, [Aws::S3::Errors::NotFound.new("1", "2"), true])
 
     @works = if work.nil?
                works
