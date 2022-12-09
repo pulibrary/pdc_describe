@@ -27,9 +27,9 @@ class S3QueryService
   end
 
   ##
-  # @param [String] doi
+  # @param [Work] model
   # @param [Boolean] pre_curation
-  # @example S3QueryService.new("https://doi.org/10.34770/0q6b-cj27")
+  # @example S3QueryService.new(Work.find(1), true)
   def initialize(model, pre_curation = true)
     @model = model
     @doi = model.doi
@@ -173,6 +173,27 @@ class S3QueryService
     Rails.logger.error("Error querying S3. Bucket: #{bucket_name}. DOI: #{@doi}. Exception: #{ex.message}")
 
     { objects: [], ok: false }
+  end
+
+  ##
+  # Copies the existing files from the pre-curation bucket to the post-curation bucket.
+  # Notice that the copy process happens at AWS (i.e. the files are not downloaded and re-uploaded).
+  # Returns an array with the files that were copied.
+  def publish_files
+    files = []
+    source_bucket = S3QueryService.pre_curation_config[:bucket]
+    target_bucket = S3QueryService.post_curation_config[:bucket]
+    model.pre_curation_uploads.each do |file|
+      params = {
+        copy_source: "/#{source_bucket}/#{file.key}",
+        bucket: target_bucket,
+        key: file.key
+      }
+      Rails.logger.info("Copying #{params[:copy_source]} to #{params[:bucket]}/#{params[:key]}")
+      client.copy_object(params)
+      files << file
+    end
+    files
   end
 
   private

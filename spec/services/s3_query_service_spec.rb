@@ -128,6 +128,16 @@ RSpec.describe S3QueryService, mock_s3_query_service: false do
       fake_s3_resp.stub(:to_h).and_return(s3_hash)
     end
 
+    describe "#publish_files" do
+      it "calls S3 copy_object twice, once for each file" do
+        s3_stub = Aws::S3::Client.new(stub_responses: true)
+        subject.stub(:client).and_return(s3_stub)
+        allow(subject.client).to receive(:copy_object)
+        subject.publish_files
+        expect(subject.client).to have_received(:copy_object).twice
+      end
+    end
+
     describe "#data_profile" do
       context "when an error is encountered requesting the file resources" do
         let(:output) { subject.data_profile }

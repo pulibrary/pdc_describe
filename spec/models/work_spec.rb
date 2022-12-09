@@ -132,8 +132,6 @@ RSpec.describe Work, type: :model do
     work.approve!(curator_user)
     # The put for precuration upload
     expect(a_request(:put, "https://example-bucket.s3.amazonaws.com/#{work.s3_object_key}/#{file_name}")).to have_been_made
-    # The put for postcuration move on save
-    expect(a_request(:put, "https://example-bucket-post.s3.amazonaws.com/#{work.s3_object_key}/#{file_name}")).to have_been_made
     expect(work.state_history.first.state).to eq "approved"
     expect(work.reload.state).to eq("approved")
   end
@@ -175,7 +173,7 @@ RSpec.describe Work, type: :model do
     let(:s3_client) { instance_double(Aws::S3::Client) }
 
     before do
-      allow(s3_client).to receive(:put_object)
+      allow(s3_client).to receive(:copy_object)
       allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc/#{work.id}").and_raise(Aws::S3::Errors::NotFound.new(true, "test error"))
       allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc/#{work.id}/us_covid_2019.csv").and_return(true)
       allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc/#{work.id}/us_covid_2019_2.csv").and_return(true)
@@ -200,6 +198,7 @@ RSpec.describe Work, type: :model do
       work.reload
       2.times { work.pre_curation_uploads.attach(uploaded_file) }
       work.save!
+      allow(pre_curated_query_service).to receive(:publish_files).and_return([work.pre_curation_uploads.first, work.pre_curation_uploads.last])
     end
 
     context "when a Work is approved" do
@@ -212,16 +211,7 @@ RSpec.describe Work, type: :model do
         work.approve!(curator_user)
         work.reload
 
-        expect(s3_client).to have_received(:put_object).with({
-                                                               body: "test_content",
-                                                               bucket: "example-bucket",
-                                                               key: "10.34770/123-abc/#{work.id}/us_covid_2019.csv"
-                                                             }).at_least(1).time
-        expect(s3_client).to have_received(:put_object).with({
-                                                               body: "test_content",
-                                                               bucket: "example-bucket",
-                                                               key: "10.34770/123-abc/#{work.id}/us_covid_2019_2.csv"
-                                                             }).at_least(1).time
+        expect(pre_curated_query_service).to have_received(:publish_files).once
         expect(work.pre_curation_uploads).to be_empty
         expect(work.post_curation_uploads).not_to be_empty
         expect(work.post_curation_uploads.length).to eq(2)
@@ -533,6 +523,7 @@ RSpec.describe Work, type: :model do
       stub_work_s3_requests(work: awaiting_approval_work, file_name: file_name)
       awaiting_approval_work.pre_curation_uploads.attach(uploaded_file)
       stub_datacite_doi
+
       awaiting_approval_work.approve!(curator_user)
       expect(awaiting_approval_work.reload.state).to eq("approved")
     end
