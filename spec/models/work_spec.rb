@@ -955,4 +955,13 @@ RSpec.describe Work, type: :model do
       expect(work).not_to be_valid
     end
   end
+
+  describe "delete" do
+    it "cleans up all the related objects" do
+      work.complete_submission!(user)
+      expect { work.destroy }.to change { Work.count }.by(-1)
+                                                      .and change { UserWork.count }.by(-1)
+                                                                                    .and change { WorkActivity.count }.by(-2)
+    end
+  end
 end

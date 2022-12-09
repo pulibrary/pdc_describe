@@ -8,6 +8,7 @@ class Work < ApplicationRecord
   class InvalidCollectionError < ::ArgumentError; end
 
   has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
+  has_many :user_work, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many_attached :pre_curation_uploads, service: :amazon_pre_curation
 
   belongs_to :collection
@@ -16,6 +17,8 @@ class Work < ApplicationRecord
   attribute :profile, :string, default: "DATACITE"
 
   attr_accessor :user_entered_doi
+
+  alias state_history user_work
 
   include AASM
 
@@ -267,10 +270,6 @@ class Work < ApplicationRecord
                      end
                    end
     save!
-  end
-
-  def state_history
-    UserWork.where(work_id: id).order(updated_at: :desc)
   end
 
   def created_by_user
