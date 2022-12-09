@@ -12,11 +12,22 @@ describe ResourceCompareService do
   it "detects simple changes" do
     work1 = FactoryBot.create(:shakespeare_and_company_work)
     work2 = FactoryBot.create(:shakespeare_and_company_work)
-    work2 .resource.description = "hello"
+    work2 .resource.description = "All data related to Shakespeare and Company bookshop"
     compare = described_class.new(work1.resource, work2.resource)
     expect(compare.identical?).to be false
-    expect(compare.differences[:description].first[:action]).to be :changed
-    expect(compare.differences[:description].first[:to]).to be "hello"
+    expect(compare.differences[:description].first[:action]).to be :diff
+    expect(compare.differences[:description].first[:diff]).to eq [
+      {:action=>"=", :new=>"All data ", :old=>"All data "},
+      {:action=>"-", :new=>"", :old=>"is "},
+      {:action=>"=", :new=>"related to ", :old=>"related to "},
+      {:action=>"-", :new=>"", :old=>"the "},
+      {:action=>"=",
+       :new=>"Shakespeare and Company bookshop",
+       :old=>"Shakespeare and Company bookshop"},
+      {:action=>"-",
+       :new=>"",
+       :old=>
+        " and lending library opened and operated by Sylvia Beach in Paris, 1919–1962."}]
   end
 
   it "detects changes in multi-value properties" do
