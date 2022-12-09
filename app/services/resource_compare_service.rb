@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'diff/lcs'
+require "diff/lcs"
 
 # Compares two PDCMetadata::Resource objects and provides a hash with the `differences`
 #

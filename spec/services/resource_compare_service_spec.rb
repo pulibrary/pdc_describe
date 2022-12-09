@@ -17,17 +17,17 @@ describe ResourceCompareService do
     expect(compare.identical?).to be false
     expect(compare.differences[:description].first[:action]).to be :diff
     expect(compare.differences[:description].first[:diff]).to eq [
-      {:action=>"=", :new=>"All data ", :old=>"All data "},
-      {:action=>"-", :new=>"", :old=>"is "},
-      {:action=>"=", :new=>"related to ", :old=>"related to "},
-      {:action=>"-", :new=>"", :old=>"the "},
-      {:action=>"=",
-       :new=>"Shakespeare and Company bookshop",
-       :old=>"Shakespeare and Company bookshop"},
-      {:action=>"-",
-       :new=>"",
-       :old=>
-        " and lending library opened and operated by Sylvia Beach in Paris, 1919–1962."}]
+      { action: "=", new: "All data ", old: "All data " },
+      { action: "-", new: "", old: "is " },
+      { action: "=", new: "related to ", old: "related to " },
+      { action: "-", new: "", old: "the " },
+      { action: "=",
+        new: "Shakespeare and Company bookshop",
+        old: "Shakespeare and Company bookshop" },
+      { action: "-",
+        new: "",
+        old: " and lending library opened and operated by Sylvia Beach in Paris, 1919–1962." }
+    ]
   end
 
   it "detects changes in multi-value properties" do

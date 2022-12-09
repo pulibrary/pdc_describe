@@ -9,18 +9,18 @@ describe WorkActivity, type: :model do
     let(:work_activity) do
       activity = WorkActivity.new(
         work_id: work.id,
-        activity_type: 'CHANGES',
-        message: {"fake_field_name": [
+        activity_type: "CHANGES",
+        message: { "fake_field_name": [
           {
-            "action":"diff",
-            "diff":[
-              {"action":"-","old":"a","new":""},
-              {"action":"=","old":"b","new":"b"},
-              {"action":"+","old":"","new":"c"},
-              {"action":"!","old":"?","new":"!"}
+            "action": "diff",
+            "diff": [
+              { "action": "-", "old": "a", "new": "" },
+              { "action": "=", "old": "b", "new": "b" },
+              { "action": "+", "old": "", "new": "c" },
+              { "action": "!", "old": "?", "new": "!" }
             ]
           }
-        ]}.to_json,
+        ] }.to_json,
         created_by_user_id: user.id
       )
       activity.save!
