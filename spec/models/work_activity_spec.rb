@@ -5,6 +5,33 @@ describe WorkActivity, type: :model do
   let(:user) { FactoryBot.create :user }
   let(:work) { FactoryBot.create(:draft_work) }
 
+  describe "#message_html" do
+    let(:work_activity) do
+      activity = WorkActivity.new(
+        work_id: work.id,
+        activity_type: 'CHANGES',
+        message: {"fake_field_name": [
+          {
+            "action":"diff",
+            "diff":[
+              {"action":"-","old":"a","new":""},
+              {"action":"=","old":"b","new":"b"},
+              {"action":"+","old":"","new":"c"},
+              {"action":"!","old":"?","new":"!"}
+            ]
+          }
+        ]}.to_json,
+        created_by_user_id: user.id
+      )
+      activity.save!
+      activity
+    end
+
+    it "formats diff as html" do
+      expect(work_activity.message_html).to eq("<p><b>fake_field_name</b>: <del>a</del>b<ins>c</ins><del>?</del><ins>!</ins></p>")
+    end
+  end
+
   describe "#notify_users" do
     let(:message) { "test message for @#{user.uid}" }
     let(:work_activity) do

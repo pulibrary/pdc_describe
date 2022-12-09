@@ -81,6 +81,7 @@ class WorkActivity < ApplicationRecord
 
     # Returns the message formatted to display _metadata_ changes that were logged as an activity
     def metadata_changes_html
+      text = ""
       changes = JSON.parse(message)
       changes.keys.each do |field|
         values = changes[field].map { |value| change_value_html(value) }.join
