@@ -1,0 +1,25 @@
+Deleting a work and its content on Amazon is not as easy as running `work.destroy`.
+These steps assume the work is assigned to a variable called `work`.
+1. Delete the pre curation uploads
+   * `work.pre_curation_uploads.each(&:destroy)`
+1. Delete the post curation uploads 
+   * ```
+     service = S3QueryService.new(work, false)
+     work.post_curation_uploads.each{|upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key})}
+     ```
+1. Delete the UserWork records
+   * `UserWork.where(work_id: work.id).each(&:destroy)` 
+1. Delete the Work Activities
+   * `WorkActivity.where(work_id: work.id).each(&:destroy)`
+1. Finally destroy the work
+   * `work.destroy`
+
+Full script below...
+```ruby
+work.pre_curation_uploads.each(&:destroy)
+service = S3QueryService.new(work, false)
+work.post_curation_uploads.each{|upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key})}
+UserWork.where(work_id: work.id).each(&:destroy)
+WorkActivity.where(work_id: work.id).each{|work_activity| WorkActivityNotification.where(work_activity_id: work_activity.id).each(&:destroy); work_activity.destroy}
+work.destroy
+```
