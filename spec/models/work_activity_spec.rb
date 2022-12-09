@@ -4,13 +4,12 @@ require "rails_helper"
 describe WorkActivity, type: :model do
   let(:user) { FactoryBot.create :user }
   let(:work) { FactoryBot.create(:draft_work) }
+  let(:message) { "test message for @#{user.uid}" }
+  let(:work_activity) do
+    described_class.add_system_activity(work.id, message, user.id)
+  end
 
   describe "#notify_users" do
-    let(:message) { "test message for @#{user.uid}" }
-    let(:work_activity) do
-      described_class.add_system_activity(work.id, message, user.id)
-    end
-
     before do
       work_activity
       work_activity.notify_users
@@ -35,6 +34,15 @@ describe WorkActivity, type: :model do
 
         expect(Rails.logger).to have_received(:info).with("Message #{work_activity.id} for work #{work.id} referenced an non-existing user: invalid").at_least(1).time
       end
+    end
+  end
+
+  describe "#destroy" do
+    it "destroys related WorkActivityNotifications" do
+      work_activity.notify_users
+      expect(WorkActivityNotification.where(work_activity_id: work_activity.id)).not_to be_empty
+      work_activity.destroy
+      expect(WorkActivityNotification.where(work_activity_id: work_activity.id)).to be_empty
     end
   end
 end
