@@ -23,6 +23,11 @@ XML
 
   # rubocop:disable Metrics/AbcSize
   def stub_work_s3_requests(works: [], work: nil, file_name: nil)
+    # Use the built-in AWS S3 stub
+    s3 = Aws::S3::Client.new(stub_responses: true)
+    allow(Aws::S3::Client).to receive(:new).and_return(s3)
+    s3.stub_responses(:head_object, [Aws::S3::Errors::NotFound.new("1","2"), true])
+
     @works = if work.nil?
                works
              else
@@ -50,30 +55,6 @@ XML
         stub_request(:get, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
         # Stub the request for uploading the S3 file attachment object
         stub_request(:put, "https://example-bucket.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
-
-        ## Implicit context: S3 Bucket exists for a pre-curation Work, Work is being updated into the post-curation state
-        # Stub the request for moving the S3 file attachment object to the post curation bucket
-        #
-        # With this stub the test throws error "Seahorse::Client::NetworkingError: Empty or incomplete response body"
-        # stub_request(:put, "https://example-bucket-post.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
-        #
-        # Commenting that stub gives the (expected) error suggesting how to stub the request
-        # which is the code below. But this also produces error "Seahorse::Client::NetworkingError: Empty or incomplete response body"
-        #
-        stub_request(:put, "https://example-bucket-post.s3.amazonaws.com/10.34770/123-abc/1/us_covid_2019.csv").
-          with(
-            headers: {
-            'Accept'=>'*/*',
-            'Accept-Encoding'=>'',
-            'Authorization'=> /.+/,
-            'Content-Length'=>'0',
-            'Host'=>'example-bucket-post.s3.amazonaws.com',
-            'User-Agent'=>'aws-sdk-ruby3/3.130.2 ruby/3.0.3 x86_64-darwin19 aws-sdk-s3/1.113.2',
-            'X-Amz-Content-Sha256'=> /.+/,
-            'X-Amz-Copy-Source'=>'/example-bucket/10.34770/123-abc/1/us_covid_2019.csv',
-            }).
-          to_return(status: 200)
-
         # Build the request body for the request to query the contents of the S3 directory object
         s3_list_objects_response = build_s3_list_objects_response(work: w, file_name: file_name)
       end
