@@ -533,6 +533,7 @@ RSpec.describe Work, type: :model do
       stub_work_s3_requests(work: awaiting_approval_work, file_name: file_name)
       awaiting_approval_work.pre_curation_uploads.attach(uploaded_file)
       stub_datacite_doi
+      # This is the test that I am using
       awaiting_approval_work.approve!(curator_user)
       expect(awaiting_approval_work.reload.state).to eq("approved")
     end

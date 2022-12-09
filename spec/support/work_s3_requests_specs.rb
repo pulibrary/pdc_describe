@@ -53,7 +53,26 @@ XML
 
         ## Implicit context: S3 Bucket exists for a pre-curation Work, Work is being updated into the post-curation state
         # Stub the request for moving the S3 file attachment object to the post curation bucket
-        stub_request(:put, "https://example-bucket-post.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
+        #
+        # With this stub the test throws error "Seahorse::Client::NetworkingError: Empty or incomplete response body"
+        # stub_request(:put, "https://example-bucket-post.s3.amazonaws.com/#{w.s3_object_key}/#{file_name}").to_return(status: 200)
+        #
+        # Commenting that stub gives the (expected) error suggesting how to stub the request
+        # which is the code below. But this also produces error "Seahorse::Client::NetworkingError: Empty or incomplete response body"
+        #
+        stub_request(:put, "https://example-bucket-post.s3.amazonaws.com/10.34770/123-abc/1/us_covid_2019.csv").
+          with(
+            headers: {
+            'Accept'=>'*/*',
+            'Accept-Encoding'=>'',
+            'Authorization'=> /.+/,
+            'Content-Length'=>'0',
+            'Host'=>'example-bucket-post.s3.amazonaws.com',
+            'User-Agent'=>'aws-sdk-ruby3/3.130.2 ruby/3.0.3 x86_64-darwin19 aws-sdk-s3/1.113.2',
+            'X-Amz-Content-Sha256'=> /.+/,
+            'X-Amz-Copy-Source'=>'/example-bucket/10.34770/123-abc/1/us_covid_2019.csv',
+            }).
+          to_return(status: 200)
 
         # Build the request body for the request to query the contents of the S3 directory object
         s3_list_objects_response = build_s3_list_objects_response(work: w, file_name: file_name)
