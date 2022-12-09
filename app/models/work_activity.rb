@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
 class WorkActivity < ApplicationRecord
   belongs_to :work
 
@@ -96,7 +97,7 @@ class WorkActivity < ApplicationRecord
       elsif value["action"] == "removed"
         change_removed_html(value["value"])
       elsif value["action"] == "diff"
-
+        change_diff_html(value["value"])
       else
         change_set_html(value["from"], value["to"])
       end
@@ -139,3 +140,4 @@ class WorkActivity < ApplicationRecord
       end
     end
 end
+# rubocop:enable Metrics/ClassLength
