@@ -5,13 +5,13 @@
       <div class="files card-body">
         <!-- Only render file download table if there are files in S3 -->
         <% if @work.pre_curation_uploads.empty? %>
-          <p><%= t('works.form.pre_curation_uploads.empty') %></p>
+          <p><%= t('works.form.curation_uploads.empty') %></p>
         <% else %>
           <table id="files-table" class="table">
             <thead>
               <tr>
-                <th scope="col" nowrap="nowrap"><span><%= t('works.form.pre_curation_uploads.filename') %></span></th>
-                <th scope="col"><span><%= t('works.form.pre_curation_uploads.created_at') %></span></th>
+                <th scope="col" nowrap="nowrap"><span><%= t('works.form.curation_uploads.filename') %></span></th>
+                <th scope="col"><span><%= t('works.form.curation_uploads.created_at') %></span></th>
               </tr>
             </thead>
             <tbody>
