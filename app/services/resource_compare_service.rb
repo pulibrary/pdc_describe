@@ -19,8 +19,10 @@ require "diff/lcs"
 #
 # rubocop:disable Metrics/ClassLength
 
-def diff(old, new)
-  Diff::LCS.sdiff(old, new).chunk(&:action).map do |action, changes|
+def diff(old_value, new_value)
+  old_value ||= ""
+  new_value ||= ""
+  Diff::LCS.sdiff(old_value, new_value).chunk(&:action).map do |action, changes|
     {
       action: action,
       old: changes.map(&:old_element).join,
