@@ -125,3 +125,22 @@ input[readonly] {
   border-style: solid;
   background: #f4f4f4;
 }
+
+summary {
+  font-size: medium;
+  font-weight: bold;
+  list-style-type: none;
+}
+summary::after {
+  content: '?';
+  font-weight: bold;
+  padding: 0rem .25rem;
+  border: 1px solid black;
+  border-radius: .25rem;
+}
+details {
+  font-size: smaller;
+}
+details[open] summary::after {
+  background-color: #ddd;
+}
