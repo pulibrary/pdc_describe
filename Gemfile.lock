@@ -482,6 +482,7 @@ DEPENDENCIES
   datacite!
   datacite-mapping
   devise
+  diff-lcs (~> 1.5)
   ezid-client!
   factory_bot_rails
   faraday
@@ -518,4 +519,4 @@ DEPENDENCIES
   whenever
 
 BUNDLED WITH
-   2.3.22
+   2.3.26

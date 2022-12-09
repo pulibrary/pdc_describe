@@ -81,7 +81,6 @@ class WorkActivity < ApplicationRecord
 
     # Returns the message formatted to display _metadata_ changes that were logged as an activity
     def metadata_changes_html
-      text = ""
       changes = JSON.parse(message)
       changes.keys.each do |field|
         values = changes[field].map { |value| change_value_html(value) }.join
@@ -95,6 +94,21 @@ class WorkActivity < ApplicationRecord
         change_added_html(value["value"])
       elsif value["action"] == "removed"
         change_removed_html(value["value"])
+      elsif value["action"] == "diff"
+        value["diff"].map{ |chunk|
+          old_html = CGI::escapeHTML(chunk['old'])
+          new_html = CGI::escapeHTML(chunk['new'])
+          case chunk["action"]
+          when "!"
+            "<del>#{old_html}</del><ins>#{new_html}</ins>"
+          when "="
+            new_html
+          when "+"
+            "<ins>#{new_html}</ins>"
+          when "-"
+            "<del>#{old_html}</del>"
+          end
+        }.join
       else
         change_set_html(value["from"], value["to"])
       end

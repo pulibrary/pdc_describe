@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'diff/lcs'
+
 # Compares two PDCMetadata::Resource objects and provides a hash with the `differences`
 #
 # If there are no differences between the two objects `identical?` returns `true` and `differences == {}`
@@ -16,6 +18,17 @@
 # The `action` indicates whether a value changed, was added, or deleted.
 #
 # rubocop:disable Metrics/ClassLength
+
+def diff(old, new)
+  Diff::LCS.sdiff(old, new).chunk(&:action).map do |action, changes|
+    {
+      action: action,
+      old: changes.map(&:old_element).join,
+      new: changes.map(&:new_element).join
+    }
+  end
+end
+
 class ResourceCompareService
   attr_reader :differences
 
@@ -53,7 +66,7 @@ class ResourceCompareService
       before_value = @before.send(method_sym)
       after_value = @after.send(method_sym)
       if before_value != after_value
-        @differences[method_sym] = [{ action: :changed, from: before_value, to: after_value }]
+        @differences[method_sym] = [{ action: :diff, diff: diff(before_value, after_value) }]
       end
     end
 
