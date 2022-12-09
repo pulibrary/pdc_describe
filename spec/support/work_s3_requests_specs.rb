@@ -24,6 +24,7 @@ XML
   # rubocop:disable Metrics/AbcSize
   def stub_work_s3_requests(works: [], work: nil, file_name: nil)
     # Use the built-in AWS S3 stub
+    # (https://docs.aws.amazon.com/sdk-for-ruby/v3/developer-guide/stubbing.html)
     s3 = Aws::S3::Client.new(stub_responses: true)
     allow(Aws::S3::Client).to receive(:new).and_return(s3)
     s3.stub_responses(:head_object, [Aws::S3::Errors::NotFound.new("1", "2"), true])
