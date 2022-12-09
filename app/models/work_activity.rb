@@ -97,7 +97,7 @@ class WorkActivity < ApplicationRecord
       elsif value["action"] == "removed"
         change_removed_html(value["value"])
       elsif value["action"] == "diff"
-        change_diff_html(value["value"])
+        change_diff_html(value["diff"])
       else
         change_set_html(value["from"], value["to"])
       end
@@ -115,8 +115,8 @@ class WorkActivity < ApplicationRecord
       HTML
     end
 
-    def change_diff_html(value)
-      value["diff"].map do |chunk|
+    def change_diff_html(diff)
+      diff.map do |chunk|
         old_html = CGI.escapeHTML(chunk["old"])
         new_html = CGI.escapeHTML(chunk["new"])
         if chunk["action"] == "="
