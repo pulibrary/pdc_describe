@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../lib/diff"
+
 # rubocop:disable Metrics/ClassLength
 class WorkActivity < ApplicationRecord
   belongs_to :work
@@ -116,16 +118,7 @@ class WorkActivity < ApplicationRecord
     end
 
     def change_set_html(from, to)
-      if from.blank? && to.present?
-        # value was set
-        "<span>#{to}</span><br/>"
-      elsif from.present? && to.present?
-        # value was changed
-        "<span>#{to}</span><br/>"
-      elsif from.present? && to.blank?
-        # value was cleared
-        "<span style=\"text-decoration: line-through;\">#{from.length <= 20 ? from : (from[0..15] + '...')}</span>"
-      end
+      SimpleDiff.new(from, to).to_html
     end
 end
 # rubocop:enable Metrics/ClassLength
