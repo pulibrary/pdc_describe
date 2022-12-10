@@ -22,7 +22,8 @@ class SimpleDiff
       if chunk[:action] == "="
         new_html
       else
-        (old_html.empty? ? "" : "<del>#{old_html}</del>") + (new_html.empty? ? "" : "<ins>#{new_html}</ins>")
+        (old_html.empty? ? "" : "<del>#{old_html}</del>") + \
+        (new_html.empty? ? "" : "<ins>#{new_html}</ins>")
       end
     end.join
   end
