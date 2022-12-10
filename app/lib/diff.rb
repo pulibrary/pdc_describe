@@ -15,7 +15,7 @@ class SimpleDiff
     end
   end
 
-  def to_html()
+  def to_html
     @changes.map do |chunk|
       old_html = CGI.escapeHTML(chunk[:old])
       new_html = CGI.escapeHTML(chunk[:new])
@@ -23,7 +23,7 @@ class SimpleDiff
         new_html
       else
         (old_html.empty? ? "" : "<del>#{old_html}</del>") + \
-        (new_html.empty? ? "" : "<ins>#{new_html}</ins>")
+          (new_html.empty? ? "" : "<ins>#{new_html}</ins>")
       end
     end.join
   end
