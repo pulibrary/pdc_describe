@@ -29,8 +29,8 @@ RSpec.describe SimpleDiff do
   end
   it "repeats the entire string" do
     expect(SimpleDiff.new(
-      "This repeats the entire string even if its just a tiny typo in the middle that changes.",
-      "This repeats the entire string even if it's just a tiny typo in the middle that changes."
-    ).to_html).to eq "This repeats the entire string even if it<ins>&#39;</ins>s just a tiny typo in the middle that changes."
+      "This does not repeat the entire string if its just a tiny typo in the middle that changes.",
+      "This does not repeat the entire string if it's just a tiny typo in the middle that changes."
+    ).to_html).to eq "This does not ... string if it<ins>&#39;</ins>s just a ... middle that changes."
   end
 end

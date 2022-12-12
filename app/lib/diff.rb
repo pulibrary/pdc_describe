@@ -17,8 +17,10 @@ class SimpleDiff
 
   def to_html
     @changes.map do |chunk|
-      old_html = CGI.escapeHTML(chunk[:old])
-      new_html = CGI.escapeHTML(chunk[:new])
+      old_ellipsis = chunk[:old].gsub(/((?:\S+\s+){3})(.+)((?:\s+\S+){3})/, '\1...\3')
+      new_ellipsis = chunk[:new].gsub(/((?:\S+\s+){3})(.+)((?:\s+\S+){3})/, '\1...\3')
+      old_html = CGI.escapeHTML(old_ellipsis)
+      new_html = CGI.escapeHTML(new_ellipsis)
       if chunk[:action] == "="
         new_html
       else
