@@ -20,4 +20,42 @@ namespace :works do
       end
     end
   end
+
+  desc "Delete works from a user"
+  task :delete_user_works, [:user_netid] => :environment do |_, args|
+    if args[:user_netid].blank?
+      puts "Useage: bundle exec rake works:delete_user_works\\[<netid>\\]"
+      exit 1
+    end
+    userid = args[:user_netid]
+    user = User.find_by(uid: userid)
+    if user.blank?
+      puts "No records exist for that user"
+      exit 1
+    end
+    works = Work.where(created_by_user_id: user.id)
+    works.each do |work|
+      work.pre_curation_uploads.each(&:destroy)
+      service = S3QueryService.new(work, false)
+      work.post_curation_uploads.each { |upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key }) }
+      work.destroy
+    end
+  end
+
+  desc "Delete all works except the passed excluded list"
+  task :delete_works_not_including, [:excluded_works] => :environment do |_, args|
+    if args[:excluded_works].blank?
+      puts "Useage: bundle exec rake works:delete_works_not_including\\[<workid>+<workid>\\]"
+      exit 1
+    end
+    works_str = args[:excluded_works]
+    work_exclusion_ids = works_str.split("+").map(&:to_i)
+    works = Work.where.not(id: work_exclusion_ids)
+    works.each do |work|
+      work.pre_curation_uploads.each(&:destroy)
+      service = S3QueryService.new(work, false)
+      work.post_curation_uploads.each { |upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key }) }
+      work.destroy
+    end
+  end
 end
