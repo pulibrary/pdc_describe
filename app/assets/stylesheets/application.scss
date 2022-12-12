@@ -126,7 +126,11 @@ input[readonly] {
   background: #f4f4f4;
 }
 
-.activity-history-item {
+.activity-history-item .comment-html {
+  // For all fields we just do a string diff; 
+  // For arrays, we join the values with "\n",
+  // but we need to make sure this is preserved when rendered.
+  white-space: pre-wrap;
   del {
     background-color: #EE9090;
   }

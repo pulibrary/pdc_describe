@@ -69,22 +69,11 @@ class ResourceCompareService
     # Compares two arrays of simple string values.
     # Returns an array with the changes (values removed, values added)
     def compare_arrays(method_sym)
-      before_values = @before.send(method_sym)
-      after_values = @after.send(method_sym)
-      changes = []
-      removed = before_values - after_values
-      added = after_values - before_values
-      common = (before_values + after_values).uniq - removed - added
-
-      before_values.each do |value|
-        changes << { action: :removed, value: value } unless value.in?(common)
+      before_value = @before.send(method_sym).join("\n")
+      after_value = @after.send(method_sym).join("\n")
+      if before_value != after_value
+        @differences[method_sym] = [{ action: :changed, from: before_value, to: after_value }]
       end
-
-      after_values.each do |value|
-        changes << { action: :added, value: value } if value.in?(added)
-      end
-
-      @differences[method_sym] = changes if changes.count > 0
     end
 
     # rubocop:disable Metrics/MethodLength
