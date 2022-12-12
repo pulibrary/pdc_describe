@@ -2,7 +2,6 @@
 
 require_relative "../lib/diff"
 
-# rubocop:disable Metrics/ClassLength
 class WorkActivity < ApplicationRecord
   belongs_to :work
 
@@ -103,4 +102,3 @@ class WorkActivity < ApplicationRecord
       end
     end
 end
-# rubocop:enable Metrics/ClassLength
