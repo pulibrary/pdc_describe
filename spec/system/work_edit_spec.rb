@@ -154,15 +154,13 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       allow(Time).to receive(:now) { now }
     end
 
-    it "toggles the display of changes" do
+    it "displays changes" do
       sign_in user
       visit edit_work_path(work)
       fill_in "title_main", with: "UPDATED" + work.resource.titles.first.title
       click_on "Save Work"
       # This depends on the timezone configured in application.rb:
       expect(page.find(".activity-history-log-title", visible: true)).to have_content "December 31, 2021 19:00"
-      uncheck "show-change-history"
-      expect(page.find(".activity-history-log-title", visible: false).tag_name).to eq "div"
     end
   end
 
