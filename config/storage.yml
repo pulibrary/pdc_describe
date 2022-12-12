@@ -14,6 +14,7 @@ development: &development
 # Or uncomment this line to develop against AWS:
 #   <<: *amazon
 
+
 amazon_pre_curation:
   <% if Rails.env.development? %>
     <<: *development

@@ -138,9 +138,8 @@ input[readonly] {
 details {
   font-size: smaller;
 
-  &[open] summary::after {
-    background-color: #ddd;
-  }
+  // A different style could be applied when the component is open.
+  // &[open] summary::after { }
 
   summary {
     font-size: medium;
@@ -151,8 +150,10 @@ details {
       content: '?';
       font-weight: bold;
       padding: 0rem .25rem;
-      border: 1px solid black;
+      background-color: #0d6efd;
+      color: #fff;
       border-radius: .25rem;
+      border: 0;
     }
   }
 }
