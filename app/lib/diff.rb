@@ -17,8 +17,13 @@ class SimpleDiff
 
   def to_html
     @changes.map do |chunk|
-      old_ellipsis = chunk[:old].gsub(/((?:\S+\s+){3})(.+)((?:\s+\S+){3})/, '\1...\3')
-      new_ellipsis = chunk[:new].gsub(/((?:\S+\s+){3})(.+)((?:\s+\S+){3})/, '\1...\3')
+      too_many_words_re = /
+        ((?:\S+\s+){3}) # group 1: Three words, including trailing space
+        (.+)            # group 2: The part to drop
+        ((?:\s+\S+){3}) # group 3: Three words, including leading space
+      /x
+      old_ellipsis = chunk[:old].gsub(too_many_words_re, '\1...\3')
+      new_ellipsis = chunk[:new].gsub(too_many_words_re, '\1...\3')
       old_html = CGI.escapeHTML(old_ellipsis)
       new_html = CGI.escapeHTML(new_ellipsis)
       if chunk[:action] == "="
