@@ -6,14 +6,14 @@
         <table id="files-table" class="table">
           <thead>
             <tr>
-              <th scope="col" nowrap="nowrap"><span><%= t('works.form.post_curation_uploads.filename') %></span></th>
-              <th scope="col"><span><%= t('works.form.post_curation_uploads.created_at') %></span></th>
+              <th scope="col" nowrap="nowrap"><span><%= t('works.form.curation_uploads.filename') %></span></th>
+              <th scope="col"><span><%= t('works.form.curation_uploads.created_at') %></span></th>
             </tr>
           </thead>
           <tbody>
             <% if @work.uploads.empty? %>
               <tr class="files">
-                <td><span><%= t('works.form.post_curation_uploads.empty') %></span></td>
+                <td><span><%= t('works.form.curation_uploads.empty') %></span></td>
                 <td><span></span></td>
               </tr>
               <% else %>
