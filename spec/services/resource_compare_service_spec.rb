@@ -25,13 +25,13 @@ describe ResourceCompareService do
     work2.resource.keywords = ["a", "b"]
     compare = described_class.new(work1.resource, work2.resource)
     differences = compare.differences[:keywords]
-    expect(differences).to eq [] # TODO
+    expect(differences).to eq [{:action=>:changed, :from=>"", :to=>"a\nb"}]
 
     work3 = FactoryBot.create(:shakespeare_and_company_work)
     work3.resource.keywords = ["b", "c"]
     compare = described_class.new(work2.resource, work3.resource)
     differences = compare.differences[:keywords]
-    expect(differences).to eq [] # TODO
+    expect(differences).to eq [{:action=>:changed, :from=>"a\nb", :to=>"b\nc"}]
   end
 
   it "detects changes in creators" do
@@ -42,12 +42,16 @@ describe ResourceCompareService do
 
     compare = described_class.new(work1.resource, work2.resource)
     differences = compare.differences[:creators]
-    expect(differences).to eq [] # TODO
+    expect(differences).to eq [{:action=>:changed,
+         :from=>"Kotin, Joshua | 1 | ",
+         :to=>"Kotin, Joshua | 1 | \nSmith, Robert | 2 | "}]
 
     work3 = FactoryBot.create(:shakespeare_and_company_work)
     work3.resource.creators = [creator_other]
     compare = described_class.new(work2.resource, work3.resource)
     differences = compare.differences[:creators]
-    expect(differences).to eq [] # TODO
+    expect(differences).to eq [{:action=>:changed,
+        :from=>"Kotin, Joshua | 1 | \nSmith, Robert | 2 | ",
+        :to=>"Smith, Robert | 2 | "}]
   end
 end
