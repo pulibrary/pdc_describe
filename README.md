@@ -52,6 +52,27 @@ To stop database services:
 3. Elevate your privs: `User.new_super_admin("your NetID here")`
 
 ### Development with AWS resources
+During development, by default, files are stored using the Local file system. This is configured in `./config/storage.yml`:
+
+```
+local: &local
+  service: 'Disk'
+  root: <%= Rails.root.join("storage") %>
+
+development: &development
+  <<: *local
+```
+
+You can easily switch to use AWS for storage by changing the `development` section:
+
+```
+development: &development
+  <<: *amazon
+```
+
+You'll need to set the AWS environment variables in your machine to point to the buckets that you want to use.
+
+### Testing with AWS resource
 Tests should never depend on outside resources, and it's best minimize dependencies during development, too, but it can be useful. To give your local instance access to the staging S3 create `~/s3-envvars.sh`:
 ```
 export AWS_S3_PRE_CURATE_BUCKET=pdc-describe-staging-precuration
