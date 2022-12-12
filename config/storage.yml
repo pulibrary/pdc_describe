@@ -2,9 +2,6 @@ local: &local
   service: 'Disk'
   root: <%= Rails.root.join("storage") %>
 
-development: &development
-  <<: *local
-
 amazon: &amazon
   service: 'S3'
   access_key_id: <%= ENV['AWS_S3_KEY_ID'] || 'not-used-access_key_id' %>
@@ -12,7 +9,9 @@ amazon: &amazon
   region: <%= S3QueryService.pre_curation_config.fetch(:region) %>
   bucket: <%= S3QueryService.pre_curation_config.fetch(:bucket) %>
 
-# development: &development
+development: &development
+  <<: *local
+# Or uncomment this line to develop against AWS:
 #   <<: *amazon
 
 amazon_pre_curation:
