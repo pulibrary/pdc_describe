@@ -52,32 +52,32 @@ class WorkActivity < ApplicationRecord
     "Unknown user outside the system"
   end
 
-  def changes_event_type?
-    activity_type == CHANGES
-  end
-
   def comment_event_type?
     activity_type == COMMENT
+  end
+
+  def changes_event_type?
+    activity_type == CHANGES
   end
 
   def file_changes_event_type?
     activity_type == FILE_CHANGES
   end
 
-  def log_event_type?
-    changes_event_type? || file_changes_event_type?
-  end
-
   def system_event_type?
     activity_type == SYSTEM
   end
 
+  def log_event_type?
+    system_event_type? || file_changes_event_type? || changes_event_type?
+  end
+
   def event_type
-    @event_type ||= if log_event_type?
-                      "log"
-                    else
-                      "comment"
-                    end
+    if comment_event_type?
+      "comment"
+    else
+      "log"
+    end
   end
 
   def to_html
@@ -102,9 +102,10 @@ class WorkActivity < ApplicationRecord
     end
 
     def event_timestamp_html
-      "#{event_timestamp} by " if log_event_type?
+      "#{event_timestamp} by " if system_event_type? || log_event_type?
     end
 
+    # This is working
     def comment_timestamp_html
       "at #{event_timestamp}" if comment_event_type?
     end
@@ -115,7 +116,6 @@ class WorkActivity < ApplicationRecord
   #{event_timestamp_html}
   #{created_by_user_html}
   #{comment_timestamp_html}
-  #{created_at_html}
 </div>
 <span class="comment-html">#{children}</span>
     HTML

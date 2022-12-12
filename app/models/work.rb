@@ -365,11 +365,11 @@ class Work < ApplicationRecord
   end
 
   def changes
-    @changes = activities.select(&:system_event_type?)
+    activities.select(&:log_event_type?)
   end
 
   def comments
-    @comments = activities.select(&:comment_event_type?)
+    activities.select(&:comment_event_type?)
   end
 
   def new_notification_count_for_user(user_id)
