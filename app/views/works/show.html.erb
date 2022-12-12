@@ -72,7 +72,7 @@
     border: 1px solid gray;
     padding: 1px 4px;
   }
-  
+
   .comment-user-link {
     color: rgb(36, 41, 47);
     background-color: rgb(255, 248, 197);
@@ -119,7 +119,13 @@
   <p>Publisher: <%= @work.resource.publisher %></p>
   <p>Publication Year: <%= @work.resource.publication_year %></p>
   <% if @work.resource.doi %>
-    <p>DOI: <%= link_to(@work.resource.doi, doi_url(@work.resource.doi)) %></p>
+    <p>DOI:
+      <span><%= link_to(@work.resource.doi, doi_url(@work.resource.doi), target: '_blank', rel: 'noopener noreferrer') %></span>
+      <button id="copy-doi" class="btn btn-sm" data-url="<%= doi_url(@work.resource.doi) %>" title="Copy DOI URL to the clipboard">
+        <i id="copy-doi-icon" class="bi bi-clipboard" title="Copy DOI URL to the clipboard"></i>
+        <span id="copy-doi-label" class="copy-doi-label-normal">COPY</span>
+      </button>
+    </p>
   <% end %>
   <% if @work.resource.ark %>
     <p>ARK: <%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></p>
@@ -242,6 +248,53 @@
 
 <script>
   $(function() {
+   // Sets the elements to the proper CSS classes once a value has been copied to the clipboard.
+   var setCopiedToClipboard = function(iconEl, labelEl, normalClass, copiedClass) {
+      $(iconEl).removeClass("bi-clipboard");
+      $(iconEl).addClass("bi-clipboard-check");
+      $(labelEl).text("COPIED");
+      $(labelEl).removeClass(normalClass);
+      $(labelEl).addClass(copiedClass);
+    }
+
+    // Resets the elements to the proper CSS classes (e.g. displays as if the copy has not happened)
+    var resetCopyToClipboard = function(iconEl, labelEl, normalClass, copiedClass) {
+      $(labelEl).text("COPY");
+      $(labelEl).removeClass(copiedClass);
+      $(labelEl).addClass(normalClass);
+      $(iconEl).addClass("bi-clipboard");
+      $(iconEl).removeClass("bi-clipboard-check");
+    }
+
+    // Sets icon and label to indicate that an error happened when copying a value to the clipboard
+    var errorCopyToClipboard = function(iconEl, errorMsg) {
+      $(iconEl).removeClass("bi-clipboard");
+      $(iconEl).addClass("bi-clipboard-minus")
+      console.log(errorMsg);
+    }
+
+    // Copies a value to the clipboard and notifies the user
+    // value - value to copy to the clipboard
+    // iconEl - selector for the HTML element with the clipboard icon
+    // labelEl - selector for the HTML element with the COPY label next to the icon
+    // normalClass - CSS to style the label with initially
+    // copiedClass - CSS to style the label with after a value has been copied to the clipboard
+    // iconEl and labelEl could be any jQuery valid selector (e.g. ".some-id" or a reference to an element)
+    var copyToClipboard = function(value, iconEl, labelEl, normalClass, copiedClass) {
+        // Copy value to the clipboard....
+        navigator.clipboard.writeText(value).then(function() {
+          // ...and notify the user
+          setCopiedToClipboard(iconEl, labelEl, normalClass, copiedClass);
+          setTimeout(function() {
+            resetCopyToClipboard(iconEl, labelEl, normalClass, copiedClass);
+          }, 20000);
+        }, function() {
+          errorCopyToClipboard(iconEl, "Copy to clipboard failed");
+        });
+        // Clear focus from the button.
+        document.activeElement.blur();
+    }
+
     // Issues HTTP POST to update the curator assigned to the work.
     $("#curator_select").on("change", function(event) {
       var newCuratorId = event.currentTarget.value;
@@ -276,6 +329,13 @@
       hidden: '#hidden_inputbox',
       source: userList,
       trigger: "@"
+    });
+
+    // Setup the DOI's COPY button to copy the DOI URL to the clipboard
+    $("#copy-doi").click(function(_x) {
+      var doi = this.dataset["url"];
+      copyToClipboard(doi, "#copy-doi-icon", "#copy-doi-label", "copy-doi-label-normal", "copy-doi-label-copied");
+      return false;
     });
   });
 </script>
