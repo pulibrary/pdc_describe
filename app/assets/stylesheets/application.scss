@@ -126,7 +126,14 @@ input[readonly] {
   background: #f4f4f4;
 }
 
-
+.activity-history-item {
+  del {
+    background-color: #EE9090;
+  }
+  ins {
+    background-color: #90EE90;
+  }
+}
 
 details {
   font-size: smaller;
