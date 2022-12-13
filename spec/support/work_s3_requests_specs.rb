@@ -22,6 +22,7 @@ XML
   end
 
   # rubocop:disable Metrics/AbcSize
+  # rubocop:disable Metrics/MethodLength
   def stub_work_s3_requests(works: [], work: nil, file_name: nil)
     # Use the built-in AWS S3 stub
     # (https://docs.aws.amazon.com/sdk-for-ruby/v3/developer-guide/stubbing.html)
