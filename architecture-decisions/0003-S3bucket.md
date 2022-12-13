@@ -13,7 +13,7 @@ Researchers need access to our Globus pre-curation endpoint to deposit their lar
 ## Decisions
 
 * We will make the pre-curation s3 bucket private and allow access for deposit only via Globus
-* We will make the pre-curation bucket accessible for read and write via a Globus guest collection with public Read/Write to any user.
+* We will NOT make the pre-curation bucket accessible to the public.
 * We will make the post-curation s3 bucket private to only allow curators and systems write to access the data.
 * We will make the post-curation s3 bucket accessible via Globus to the public utilizing a Globus Guest Collection with Read only access permissions.
 
