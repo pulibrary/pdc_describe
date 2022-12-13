@@ -27,7 +27,7 @@ RSpec.describe SimpleDiff do
   it "encodes html" do
     expect(SimpleDiff.new("1 < 2", "2 > 1").to_html).to eq "<del>1</del><ins>2</ins> <del>&lt;</del><ins>&gt;</ins> <del>2</del><ins>1</ins>"
   end
-  it "repeats the entire string" do
+  it "abbreviates really long strings" do
     expect(SimpleDiff.new(
       "This does not repeat the entire string if its just a tiny typo in the middle that changes.",
       "This does not repeat the entire string if it's just a tiny typo in the middle that changes."
