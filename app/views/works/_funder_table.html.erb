@@ -1,0 +1,27 @@
+<!-- Funding section -->
+<details><summary>Funding Reference</summary>
+  <ul>
+    <li>Funder Name: The name of the funder. (Example: National Science Foundation)</li>
+    <li>Award Number: The grant number or funding code for your award</li>
+    <li>Award URI: The URL web address for your award</li>
+  </ul>
+</details>
+
+
+<table>
+  <thead>
+    <tr>
+      <th>Funder Name</th>
+      <th>Award Number</th>
+      <th>Award URI</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><input type="text" id="funder_name" name="funder_name" value="<%= @work.resource.funder_name %>" /></td>
+      <td><input type="text" id="award_number" name="award_number" value="<%= @work.resource.award_number %>" /></td>
+      <td><input type="text" id="award_uri" name="award_uri" value="<%= @work.resource.award_uri %>" /></td>
+    </tr>
+  </tbody>
+</table>
+
