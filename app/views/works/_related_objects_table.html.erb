@@ -3,17 +3,17 @@
   <b>Related Objects (i.e., published dependencies)</b>
 </div>
 
-  <div class="related-objects">
-    <table id="related-objects-table">
-      <tbody id="related-objects-table-body" style="">
-        <tr class="header-row">
-          <th>Related Identifier (Example: URI for a related publication or resource)</th>
-          <th>Related Identifier Type</th>
-          <th>Relation Type</th>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+<div class="related-objects">
+  <table id="related-objects-table">
+    <tbody id="related-objects-table-body">
+      <tr class="header-row">
+        <th>Related Identifier (Example: URI for a related publication or resource)</th>
+        <th>Related Identifier Type</th>
+        <th>Relation Type</th>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
 <% if @work %>
   <% @work.resource.related_objects.each_with_index do |related_object, i| %>
