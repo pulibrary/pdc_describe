@@ -2,7 +2,6 @@
 
 require_relative "../lib/diff"
 
-# rubocop:disable Metrics/ClassLength
 class WorkActivity < ApplicationRecord
   belongs_to :work
 
@@ -121,4 +120,3 @@ class WorkActivity < ApplicationRecord
       SimpleDiff.new(from, to).to_html
     end
 end
-# rubocop:enable Metrics/ClassLength
