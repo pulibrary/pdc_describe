@@ -40,7 +40,7 @@ class FormToResourceService
         resource.version_number = params["version_number"] if params["version_number"].present?
         resource.collection_tags = params["collection_tags"].split(",").map(&:strip) if params["collection_tags"]
         resource.resource_type = params["resource_type"] if params["resource_type"]
-        resource.resource_type_general = params["resource_type_general"]&.to_sym
+        resource.resource_type_general = params["resource_type_general"]&.to_sym if params["resource_type_general"]
         resource
       end
 
