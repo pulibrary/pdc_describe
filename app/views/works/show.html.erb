@@ -250,7 +250,7 @@
 
 <script>
   $(function() {
-     // Issues HTTP POST to update the curator assigned to the work.
+    // Issues HTTP POST to update the curator assigned to the work.
     $("#curator_select").on("change", function(event) {
       var newCuratorId = event.currentTarget.value;
       var url = '<%= work_assign_curator_url(id: @work.id, uid: "uid-placeholder") %>';
