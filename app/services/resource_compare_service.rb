@@ -14,8 +14,7 @@
 # in can contain multiple elements.
 #
 # The `action` indicates whether a value changed, was added, or deleted.
-#
-# rubocop:disable Metrics/ClassLength
+
 class ResourceCompareService
   attr_reader :differences
 
@@ -124,4 +123,3 @@ class ResourceCompareService
   # rubocop:enable Metrics/AbcSize
   # rubocop:enable Metrics/MethodLength
 end
-# rubocop:enable Metrics/ClassLength
