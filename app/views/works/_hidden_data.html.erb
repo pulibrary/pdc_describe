@@ -1,0 +1,8 @@
+<% records.each_with_index do |record, i| %>
+  <span class="hidden <%= name %>-data"
+    data-num="<%= i + 1 %>"
+    <% record.instance_values.each_pair do |key, value| %>
+      data-<%= key.gsub("_","-") %>="<%= value %>"
+    <% end %>
+  ></span>
+<% end %>

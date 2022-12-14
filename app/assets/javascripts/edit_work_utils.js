@@ -215,7 +215,7 @@ $(() => {
       el = $(creatorSpans[i]);
       creator = {
         num: el.data('num'),
-        orcid: el.data('orcid'),
+        identifier: el.data('identifier'),
         givenName: el.data('given-name'),
         familyName: el.data('family-name'),
         sequence: el.data('sequence'),
@@ -397,7 +397,7 @@ $(() => {
       const creator = creators[i];
       addCreatorHtml(
         creator.num,
-        creator.orcid,
+        creator.identifier,
         creator.givenName,
         creator.familyName,
         creator.sequence,
@@ -432,10 +432,10 @@ $(() => {
       const contributor = contributors[i];
       addContributorHtml(
         contributor.num,
-        contributor.orcid,
+        contributor.identifer,
         contributor.givenName,
         contributor.familyName,
-        contributor.role,
+        contributor.type,
         contributor.sequence,
       );
     }

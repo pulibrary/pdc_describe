@@ -25,17 +25,8 @@
   </tbody>
 </table>
 
-<% if @work %>
-  <% @work.resource.creators.each_with_index do |creator, i| %>
-  <span class="hidden creator-data"
-    data-num="<%= i + 1 %>"
-    data-orcid="<%= creator.orcid %>"
-    data-given-name="<%= creator.given_name %>"
-    data-family-name="<%= creator.family_name %>"
-    data-sequence="<%= creator.sequence %>"
-    ></span>
-  <% end %>
-<% end %>
+
+<%= render 'hidden_data', records: @work.resource.creators, name: 'creator' %>
 
 <!-- Let the user add new creators -->
 <div>
