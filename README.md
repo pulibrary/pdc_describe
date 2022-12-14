@@ -72,6 +72,17 @@ We use DataCite to mint DOIs and in production you must to define the `DATACITE_
 
 RDSS uses the same [release and deployment process](https://github.com/pulibrary/rdss-handbook/blob/main/release_process.md) for all projects.
 
+## Mail on Staging
+To See mail that has been sent on the staging server you must ssh tunnel into the server.  Since there are two staging servers, the mail could have been sent on either machine. You may have to check both and will need two terminals.
+
+* terminal 1
+`ssh -L 1082:localhost:1080 pulsys@pdc-describe-staging1`
+* terminal 2
+`ssh -L 1083:localhost:1080 pulsys@pdc-describe-staging2`
+
+Once the tunnel is open you can see the mail that has been sent on [staging1 here](http://localhost:1082/) and on [staging 2 here](http://localhost:1083/)
+
+
 ## Design
 An early stages Entity-Relationship Diagram (ERD) is available in [this Google Doc](https://docs.google.com/drawings/d/1q2sfj8rrcNVgqQPK5uT_t79A9SYqncinh3HbnCSGMyQ/edit).
 
