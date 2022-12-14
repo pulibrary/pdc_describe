@@ -25,8 +25,9 @@
   </tbody>
 </table>
 
-
-<%= render 'hidden_data', records: @work.resource.creators, name: 'creator' %>
+<% if @work %>
+  <%= render 'hidden_data', records: @work.resource.creators, name: 'creator' %>
+<% end %>
 
 <!-- Let the user add new creators -->
 <div>
