@@ -25,17 +25,13 @@ describe ResourceCompareService do
     work2.resource.keywords = ["a", "b"]
     compare = described_class.new(work1.resource, work2.resource)
     differences = compare.differences[:keywords]
-    expect(differences.find { |diff| diff[:action] == :added && diff[:value] == "a" }).not_to be nil
-    expect(differences.find { |diff| diff[:action] == :added && diff[:value] == "b" }).not_to be nil
-    expect(differences.find { |diff| diff[:action] == :added && diff[:value] == "d" }).to be nil
+    expect(differences).to eq [{ action: :changed, from: "", to: "a\nb" }]
 
     work3 = FactoryBot.create(:shakespeare_and_company_work)
     work3.resource.keywords = ["b", "c"]
     compare = described_class.new(work2.resource, work3.resource)
     differences = compare.differences[:keywords]
-    expect(differences.find { |diff| diff[:action] == :removed && diff[:value] == "a" }).not_to be nil
-    expect(differences.find { |diff| diff[:action] == :added && diff[:value] == "c" }).not_to be nil
-    expect(differences.find { |diff| diff[:value] == "b" }).to be nil
+    expect(differences).to eq [{ action: :changed, from: "a\nb", to: "b\nc" }]
   end
 
   it "detects changes in creators" do
@@ -46,12 +42,16 @@ describe ResourceCompareService do
 
     compare = described_class.new(work1.resource, work2.resource)
     differences = compare.differences[:creators]
-    expect(differences.find { |diff| diff[:action] == :added && diff[:value] == "Smith, Robert | 2 | " }).not_to be nil
+    expect(differences).to eq [{ action: :changed,
+                                 from: "Kotin, Joshua | 1 | ",
+                                 to: "Kotin, Joshua | 1 | \nSmith, Robert | 2 | " }]
 
     work3 = FactoryBot.create(:shakespeare_and_company_work)
     work3.resource.creators = [creator_other]
     compare = described_class.new(work2.resource, work3.resource)
     differences = compare.differences[:creators]
-    expect(differences.find { |diff| diff[:action] == :removed && diff[:value] == "Kotin, Joshua | 1 | " }).not_to be nil
+    expect(differences).to eq [{ action: :changed,
+                                 from: "Kotin, Joshua | 1 | \nSmith, Robert | 2 | ",
+                                 to: "Smith, Robert | 2 | " }]
   end
 end

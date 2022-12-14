@@ -68,58 +68,18 @@ class ResourceCompareService
     # Compares two arrays of simple string values.
     # Returns an array with the changes (values removed, values added)
     def compare_arrays(method_sym)
-      before_values = @before.send(method_sym)
-      after_values = @after.send(method_sym)
-      changes = []
-      removed = before_values - after_values
-      added = after_values - before_values
-      common = (before_values + after_values).uniq - removed - added
-
-      before_values.each do |value|
-        changes << { action: :removed, value: value } unless value.in?(common)
+      before_value = @before.send(method_sym).join("\n")
+      after_value = @after.send(method_sym).join("\n")
+      if before_value != after_value
+        @differences[method_sym] = [{ action: :changed, from: before_value, to: after_value }]
       end
-
-      after_values.each do |value|
-        changes << { action: :added, value: value } if value.in?(added)
-      end
-
-      @differences[method_sym] = changes if changes.count > 0
     end
 
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/AbcSize
-    # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/PerceivedComplexity
     def compare_objects(method_sym)
-      changes = []
-      keys_before = @before.send(method_sym).map(&:compare_value)
-      keys_after = @after.send(method_sym).map(&:compare_value)
-
-      removed = keys_before - keys_after
-      added = keys_after - keys_before
-      common = (keys_before + keys_after).uniq - removed - added
-
-      @before.send(method_sym).each do |before_object|
-        if before_object.compare_value.in?(common)
-          after_object = @after.send(method_sym).find { |c| c.compare_value == before_object.compare_value }
-          if before_object.compare_value != after_object.compare_value
-            changes << { action: :changed, from: before_object.compare_value, to: after_object.compare_value }
-          end
-        elsif before_object.compare_value.in?(removed)
-          changes << { action: :removed, value: before_object.compare_value }
-        end
+      before_value = @before.send(method_sym).map(&:compare_value).join("\n")
+      after_value = @after.send(method_sym).map(&:compare_value).join("\n")
+      if before_value != after_value
+        @differences[method_sym] = [{ action: :changed, from: before_value, to: after_value }]
       end
-
-      @after.send(method_sym).each do |after_object|
-        if after_object.compare_value.in?(added)
-          changes << { action: :added, value: after_object.compare_value }
-        end
-      end
-
-      @differences[method_sym] = changes if changes.count > 0
     end
-  # rubocop:enable Metrics/PerceivedComplexity
-  # rubocop:enable Metrics/CyclomaticComplexity
-  # rubocop:enable Metrics/AbcSize
-  # rubocop:enable Metrics/MethodLength
 end

@@ -95,28 +95,10 @@ class WorkActivity < ApplicationRecord
     end
 
     def change_value_html(value)
-      if value["action"] == "added"
-        change_added_html(value["value"])
-      elsif value["action"] == "removed"
-        change_removed_html(value["value"])
+      if value["action"] == "changed"
+        SimpleDiff.new(value["from"], value["to"]).to_html
       else
-        change_set_html(value["from"], value["to"])
+        "old change"
       end
-    end
-
-    def change_added_html(value)
-      <<-HTML
-        <i>(added)</i> <span>#{value}</span><br/>
-      HTML
-    end
-
-    def change_removed_html(value)
-      <<-HTML
-        <i>(removed)</i> <span>#{value}</span><br/>
-      HTML
-    end
-
-    def change_set_html(from, to)
-      SimpleDiff.new(from, to).to_html
     end
 end
