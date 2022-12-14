@@ -85,16 +85,25 @@ class Work < ApplicationRecord
   end
 
   class << self
-    def unfinished_works(user)
-      works_by_user_state(user, ["none", "draft", "awaiting_approval"])
+    def unfinished_works(user, search_terms = nil)
+      works = works_by_user_state(user, ["none", "draft", "awaiting_approval"])
+      filter_works(works, search_terms)
     end
 
-    def completed_works(user)
-      works_by_user_state(user, "approved")
+    def completed_works(user, search_terms = nil)
+      works = works_by_user_state(user, "approved")
+      filter_works(works, search_terms)
     end
 
-    def withdrawn_works(user)
-      works_by_user_state(user, "withdrawn")
+    def withdrawn_works(user, search_terms = nil)
+      works = works_by_user_state(user, "withdrawn")
+      filter_works(works, search_terms)
+    end
+
+    def filter_works(works, search_terms)
+      return works if search_terms.nil?
+      terms = search_terms.strip.downcase
+      works.select { |work| work.match?(terms) }
     end
 
     def find_by_doi(doi)
@@ -485,6 +494,17 @@ class Work < ApplicationRecord
     # Log the new files, but don't link the change to the current_user since we really don't know
     # who added the files directly to AWS S3.
     log_file_changes(changes, nil)
+  end
+
+  # Returns true if the work matches the search terms. It searches inside
+  # the resource, the curator, and the work fields.
+  # Uses a brute-force approach to search for the value.
+  # A more fine tuned version could be developed to search within certain specific fields.
+  def match?(search_terms)
+    return true if resource && resource.to_json.downcase.include?(search_terms)
+    return true if curator && curator.to_json.downcase.include?(search_terms)
+    return true if to_json.downcase.include?(search_terms)
+    false
   end
 
   delegate :ark, :doi, :resource_type, :resource_type=, :resource_type_general, :resource_type_general=,
