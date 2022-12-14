@@ -27,11 +27,16 @@
 
 <!-- Rights Management field -->
 <div class="field">
-  Rights:<span class="required-field">*</span><span class="text-muted field-hint">(<%= link_to("need help selecting a license for your dataset?", "https://spdx.org/licenses/", {target: "_blank"}) %>)</span><br>
+  <details>
+    <summary>Rights:<span class="required-field">*</span></summary>
+    Licenses for data can be distinguished from licenses for software.
+    <%= link_to("Guidance on picking a license", "https://ufal.github.io/public-license-selector/", {target: "_blank"}) %>.
+  </details>
   <select id="rights_identifier" name="rights_identifier" class="input-text-long" >
-    <option value="" <%= @work.resource.rights.nil? ? "selected" : "" %>></option>
     <% ::PDCMetadata::Rights.all.each do |rights| %>
-      <option value="<%=rights.identifier%>" <%= @work.resource.rights&.identifier == rights.identifier ? "selected" : "" %>><%=rights.name%></option>
+      <option value="<%=rights.identifier%>"
+        <%= @work.resource.rights&.identifier == rights.identifier || (@work.resource.rights&.identifier.nil? && rights.identifier == "CC BY") ? "selected" : "" %>
+      ><%=rights.name%></option>
     <% end %>
   </select>
 </div>

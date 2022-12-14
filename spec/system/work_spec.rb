@@ -71,7 +71,7 @@ RSpec.describe "Creating and updating works", type: :system do
     visit edit_work_path(work)
     find("#rights_identifier").find(:xpath, "option[2]").select_option
     click_on "Save Work"
-    expect(work.reload.resource.rights.identifier).to eq "MIT"
+    expect(work.reload.resource.rights.identifier).to eq "GPLv3"
   end
 
   it "Renders the ResourceType", js: true do
