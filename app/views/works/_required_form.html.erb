@@ -1,17 +1,16 @@
-<% if @wizard_mode %>
-  <div>
-    <p class="doi-text">By initiating this new submission, we have reserved a draft DOI for your use. This unique
-      identifier will become searchable at the completion of this process.</p>
+<div class="field">  
+  <p class="doi-text">
+    By initiating this new submission, we have reserved a draft DOI for your use.
+    This DOI will not go live until the data review process is complete,
+    but you can provide this DOI to a publisher now.
+    This unique identifier will become searchable at the completion of this process.
+  </p>
+  <% if @wizard_mode %>
     <input id="doi" name="doi" value="<%= @work.resource.doi %>" readonly/>
-  </div>
-  <div>&nbsp;</div>
-<% else %>
-  <div class="field">
-    <p class="doi-text">By initiating this new submission, we have reserved a draft DOI for your use.<br/>
-      This unique identifier will become fully minted and searchable at the completion of this process.</p>
+  <% else %>
     <p>DOI: <%= @work.resource.doi %></p>
-  </div>
-<% end %>
+  <% end %>
+</div>
 
 <%= render(partial: 'works/required_title', locals: {allow_many: true}) %>
 
@@ -28,11 +27,16 @@
 
 <!-- Rights Management field -->
 <div class="field">
-  Rights:<span class="required-field">*</span><span class="text-muted field-hint">(<%= link_to("need help selecting a license for your dataset?", "https://spdx.org/licenses/", {target: "_blank"}) %>)</span><br>
+  <details>
+    <summary>Rights:<span class="required-field">*</span></summary>
+    Licenses for data can be distinguished from licenses for software.
+    <%= link_to("Guidance on picking a license", "https://ufal.github.io/public-license-selector/", {target: "_blank"}) %>.
+  </details>
   <select id="rights_identifier" name="rights_identifier" class="input-text-long" >
-    <option value="" <%= @work.resource.rights.nil? ? "selected" : "" %>></option>
     <% ::PDCMetadata::Rights.all.each do |rights| %>
-      <option value="<%=rights.identifier%>" <%= @work.resource.rights&.identifier == rights.identifier ? "selected" : "" %>><%=rights.name%></option>
+      <option value="<%=rights.identifier%>"
+        <%= @work.resource.rights&.identifier == rights.identifier || (@work.resource.rights&.identifier.nil? && rights.identifier == "CC BY") ? "selected" : "" %>
+      ><%=rights.name%></option>
     <% end %>
   </select>
 </div>

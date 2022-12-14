@@ -19,41 +19,28 @@ Layout/IndentationConsistency:
   
 Layout/LineLength:
   Exclude:
-    - "spec/system/data_migration/bitklavier_form_submission_spec.rb"
-    - "spec/system/data_migration/attention_form_submission_spec.rb"
-    - "spec/system/data_migration/femtosecond_form_submission_spec.rb"
-    - "spec/system/data_migration/cytoskeletal_form_submission_spec.rb"
-    - "spec/system/data_migration/baldwin_form_submission_spec.rb"
-    - "spec/system/data_migration/bitklavierimage_form_submission_spec.rb"
-    - "spec/system/data_migration/cklibrary_form_submission_spec.rb"
-    - "spec/system/data_migration/flume_form_submission_spec.rb"
-    - "spec/system/data_migration/sowingseeds_form_submission_spec.rb"
+    - "spec/system/data_migration/*"
 
 Metrics/BlockLength:
   Exclude:
     - "config/environments/**/*"
     - "lib/tasks/**/*"
     - "spec/**/*"
-    - "app/models/work.rb"
+  Max: 40 # default: 25
 
 Metrics/ClassLength:
-  Exclude:
-    - "app/services/s3_query_service.rb"
-    - "app/models/pdc_metadata/resource.rb"
-    - "app/models/collection.rb"
-    - "app/models/work_activity.rb"
+  Exclude: []
+  Max: 150 # default: 100
 
 Metrics/MethodLength:
-  Exclude:
-    - "app/models/work.rb"
-    - "spec/support/work_s3_requests_specs.rb"
+  Exclude: []
+  Max: 15 # default: 10
 
 Metrics/ParameterLists:
   Enabled: false
 
 Metrics/PerceivedComplexity:
-  Exclude:
-    - "app/controllers/works_controller.rb"
+  Exclude: []
 
 Style/GuardClause:
   Enabled: false

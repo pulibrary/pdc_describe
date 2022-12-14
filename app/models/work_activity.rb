@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../lib/diff"
+
 # rubocop:disable Metrics/ClassLength
 class WorkActivity < ApplicationRecord
   CHANGES = "CHANGES"
@@ -196,37 +198,10 @@ class WorkActivity < ApplicationRecord
     end
 
     def change_value_html(value)
-      if value["action"] == "added"
-        change_added_html(value["value"])
-      elsif value["action"] == "removed"
-        change_removed_html(value["value"])
+      if value["action"] == "changed"
+        SimpleDiff.new(value["from"], value["to"]).to_html
       else
-        change_set_html(value["from"], value["to"])
-      end
-    end
-
-    def change_added_html(value)
-      <<-HTML
-        <i>(added)</i> <span>#{value}</span><br/>
-      HTML
-    end
-
-    def change_removed_html(value)
-      <<-HTML
-        <i>(removed)</i> <span>#{value}</span><br/>
-      HTML
-    end
-
-    def change_set_html(from, to)
-      if from.blank? && to.present?
-        # value was set
-        "<span>#{to}</span><br/>"
-      elsif from.present? && to.present?
-        # value was changed
-        "<span>#{to}</span><br/>"
-      elsif from.present? && to.blank?
-        # value was cleared
-        "<span style=\"text-decoration: line-through;\">#{from.length <= 20 ? from : (from[0..15] + '...')}</span>"
+        "old change"
       end
     end
 end

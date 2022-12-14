@@ -72,7 +72,7 @@
     border: 1px solid gray;
     padding: 1px 4px;
   }
-  
+
   .comment-user-link {
     color: rgb(36, 41, 47);
     background-color: rgb(255, 248, 197);
@@ -119,7 +119,13 @@
   <p>Publisher: <%= @work.resource.publisher %></p>
   <p>Publication Year: <%= @work.resource.publication_year %></p>
   <% if @work.resource.doi %>
-    <p>DOI: <%= link_to(@work.resource.doi, doi_url(@work.resource.doi)) %></p>
+    <p>DOI:
+      <span><%= link_to(@work.resource.doi, doi_url(@work.resource.doi), target: '_blank', rel: 'noopener noreferrer') %></span>
+      <button id="copy-doi" class="btn btn-sm" data-url="<%= doi_url(@work.resource.doi) %>" title="Copy DOI URL to the clipboard">
+        <i id="copy-doi-icon" class="bi bi-clipboard" title="Copy DOI URL to the clipboard"></i>
+        <span id="copy-doi-label" class="copy-doi-label-normal">COPY</span>
+      </button>
+    </p>
   <% end %>
   <% if @work.resource.ark %>
     <p>ARK: <%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></p>
@@ -239,6 +245,8 @@
     </span>
   <% end %>
 </div>
+
+<%= javascript_include_tag 'show_work_utils' %>
 
 <script>
   $(function() {

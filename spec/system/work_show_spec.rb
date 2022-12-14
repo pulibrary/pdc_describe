@@ -16,4 +16,23 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     expect(page).to have_content "IS_CITED_BY"
     expect(page).to have_content "https://www.biorxiv.org/content/10.1101/545517v1"
   end
+
+  it "copies DOI to the clipboard" do
+    sign_in user
+    visit work_path(work)
+    expect(page.html.include?('<button id="copy-doi"')).to be true
+
+    # A test as follows would be preferrable
+    #
+    # ```
+    #   expect(page).to have_content "COPY"
+    #   click_on "COPY"
+    #   expect(page).to have_content "COPIED"
+    # ```
+    #
+    # but unfortunately this kind of test only works when we run RSpec like this:
+    #
+    #   RUN_IN_BROWSER=true bundle exec rspec spec/system/work_show_spec.rb
+    #
+  end
 end
