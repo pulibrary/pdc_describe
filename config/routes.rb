@@ -13,6 +13,8 @@ Rails.application.routes.draw do
     get "sign_out", to: "devise/sessions#destroy", as: :destroy_user_session
   end
 
+  get "about", to: "welcome#about", as: :welcome_about
+
   post "works/new-submission", to: "works#new_submission", as: :work_new_submission
   get "works/:id/attachment-select", to: "works#attachment_select", as: :work_attachment_select
   post "works/:id/attachment-select", to: "works#attachment_selected", as: :work_attachment_selected
