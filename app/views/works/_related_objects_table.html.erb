@@ -15,16 +15,9 @@
   </table>
 </div>
 
-<% if @work %>
-  <% @work.resource.related_objects.each_with_index do |related_object, i| %>
-  <span class="hidden related-object-data"
-    data-num="<%= i + 1 %>"
-    data-related-identifier="<%= related_object.related_identifier %>"
-    data-related-identifier-type="<%= related_object.related_identifier_type %>"
-    data-relation-type="<%= related_object.relation_type %>"
-    ></span>
-  <% end %>
-<% end %>
+<script>
+  document.relatedObjects = <%= @work.resource.related_objects.map {|h| h.instance_values }.to_json.html_safe %>;
+</script>
 
 <!-- Let the user add new related objects -->
 <div>

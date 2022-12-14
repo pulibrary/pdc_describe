@@ -407,17 +407,17 @@ $(() => {
 
   // Load any existing related objects into the edit form.
   // If there are any related objects they should appear in hidden <span> tags.
-  if ($('.related-object-data').length == 0) {
+  if (document.relatedObjects.length == 0) {
     // Add an empty related object for the user to fill it out
     const num = incrementCounter('#related_object_count');
     addRelatedObjectHtml(num, '', '', '');
   } else {
     // Add existing related objects for editing
-    for (const related_object of $('.related-object-data')) {
-      const {
-        num, relatedIdentifier, relatedIdentifierType, relationType,
-      } = related_object.dataset;
-      addRelatedObjectHtml(num, relatedIdentifier, relatedIdentifierType, relationType);
+    let num = 1;
+    for (const relatedObject of document.relatedObjects) {
+      const { related_identifier, related_identifier_type, relation_type } = relatedObject;
+      addRelatedObjectHtml(num, related_identifier, related_identifier_type, relation_type);
+      num++;
     }
   }
 
