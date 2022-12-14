@@ -58,7 +58,7 @@
     <span id="add-submitter-message"></span>
 </div>
 
-<h2 class="user-section-heading">Curators</h2>
+<h2 class="user-section-heading">Moderators</h2>
 <p>Users that are allowed to approve submissions to this collection</p>
 <ul id="curator-list">
 <% @collection.administrators.each do |user| %>
@@ -72,7 +72,7 @@
 
 <div>
     <input id="admin-uid-to-add" placeholder="netid"></input>
-    <%= link_to "Add Curator", "#", id: "btn-add-admin", class: "btn btn-secondary" %>
+    <%= link_to "Add Moderator", "#", id: "btn-add-admin", class: "btn btn-secondary" %>
     <span id="add-admin-message"></span>
 </div>
 

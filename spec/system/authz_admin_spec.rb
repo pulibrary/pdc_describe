@@ -49,7 +49,7 @@ RSpec.describe "Authz for curators", type: :system, js: true do
         expect(new_submitter.can_admin?(Collection.research_data)).to eq false
         visit edit_collection_path(Collection.research_data)
         fill_in "admin-uid-to-add", with: new_submitter.uid
-        click_on "Add Curator"
+        click_on "Add Moderator"
         expect(page).to have_content new_submitter.uid
         expect(new_submitter.reload.can_admin?(Collection.research_data)).to eq true
       end
@@ -65,7 +65,7 @@ RSpec.describe "Authz for curators", type: :system, js: true do
         expect(research_data_moderator.can_admin?(Collection.plasma_laboratory)).to eq false
         visit collection_path(Collection.plasma_laboratory)
         expect(page).not_to have_content "Add Submitter"
-        expect(page).not_to have_content "Add Curator"
+        expect(page).not_to have_content "Add Moderator"
       end
 
       it "can NOT edit works" do

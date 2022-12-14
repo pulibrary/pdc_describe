@@ -6,8 +6,8 @@
   <%= @my_dashboard ? "Welcome " : "" %><%= @user.display_name_safe %>
   <% if @user.super_admin? %>
     <span class="badge rounded-pill bg-primary text-bg-secondary">Administrator</span>
-  <% elsif @user.curator? %>
-    <span class="badge rounded-pill bg-primary text-bg-secondary">Curator</span>
+  <% elsif @user.moderator? %>
+    <span class="badge rounded-pill bg-primary text-bg-secondary">Moderator</span>
   <% end %>
 </h2>
 
@@ -21,8 +21,8 @@
 
 <% if @user.super_admin? %>
   <!-- not sure we want to display the collections here, it's pointless -->
-<% elsif @user.curator? %>
-  <p>Curator for:
+<% elsif @user.moderator? %>
+  <p>Moderator for:
     <%= @user.admin_collections.map do |collection|
       link_to(collection.title, collection_path(collection))
     end.to_sentence.html_safe %></p>
