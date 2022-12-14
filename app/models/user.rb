@@ -166,7 +166,7 @@ class User < ApplicationRecord
     display_name.presence || uid
   end
 
-  def curator?
+  def moderator?
     admin_collections.count > 0
   end
 

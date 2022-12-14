@@ -56,7 +56,7 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
       sign_in super_admin
       visit edit_collection_path(collection)
       expect(page).to have_content "Add Submitter"
-      expect(page).to have_content "Add Curator"
+      expect(page).to have_content "Add Moderator"
       fill_in "collection_title", with: title3
       click_on "Update Collection"
       expect(current_path).to eq collection_path(collection)

@@ -57,7 +57,7 @@ RSpec.describe "Editing collections" do
     sign_in collection_admin_user
     visit edit_collection_path(collection)
     fill_in "admin-uid-to-add", with: "admin123"
-    click_on "Add Curator"
+    click_on "Add Moderator"
     expect(page).to have_content "admin123"
   end
 

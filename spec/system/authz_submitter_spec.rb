@@ -59,7 +59,7 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
       sign_in submitter1
       visit collection_path(submitter1.default_collection)
       expect(page).not_to have_content "Add Submitter"
-      expect(page).not_to have_content "Add Curator"
+      expect(page).not_to have_content "Add Moderator"
       visit edit_collection_path(submitter1.default_collection)
       expect(page).not_to have_content "Update Collection"
       expect(current_path).to eq "/collections"
