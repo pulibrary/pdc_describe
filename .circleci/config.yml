@@ -90,6 +90,8 @@ jobs:
           command: COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN bundle exec rspec
       - store_artifacts:
           path: coverage
+      - store_artifacts:
+          path: /home/circleci/rails_template/tmp/screenshots
 
 workflows:
   version: 2
