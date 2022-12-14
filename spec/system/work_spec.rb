@@ -9,6 +9,21 @@ RSpec.describe "Creating and updating works", type: :system do
     stub_s3
   end
 
+  it "Defaults correct values for resource_type and resource_type_general", js: true do
+    sign_in user
+    visit user_path(user)
+    click_on "Submit New"
+    fill_in "title_main", with: "Supreme"
+    within("#creator_row_1") do
+      fill_in "given_name_1", with: "Sonia"
+      fill_in "family_name_1", with: "Sotomayor"
+    end
+    click_on "Create New"
+    work = Work.last
+    expect(work.resource.resource_type).to eq "Dataset"
+    expect(work.resource.resource_type_general).to eq :DATASET
+  end
+
   it "Prevents empty title", js: true do
     sign_in user
     visit user_path(user)
