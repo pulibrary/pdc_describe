@@ -14,6 +14,7 @@
 # in can contain multiple elements.
 #
 # The `action` indicates whether a value changed, was added, or deleted.
+
 class ResourceCompareService
   attr_reader :differences
 

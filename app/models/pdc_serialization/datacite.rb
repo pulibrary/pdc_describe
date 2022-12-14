@@ -83,7 +83,6 @@ module PDCSerialization
 
     ##
     # Creates a PDCSerialization::Datacite object from a PDCMetadata::Resource
-    # rubocop: disable Metrics/MethodLength
     def self.new_from_work_resource(resource)
       mapping = ::Datacite::Mapping::Resource.new(
         identifier: ::Datacite::Mapping::Identifier.new(value: resource.doi),
@@ -101,7 +100,6 @@ module PDCSerialization
       )
       Datacite.new(mapping)
     end
-    # rubocop: enable Metrics/MethodLength
 
     class << self
       def datacite_resource_type(resource_type)

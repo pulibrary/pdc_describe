@@ -1,15 +1,15 @@
-<div class="section-title">
-  <!-- Keywords field -->
-  <div class="field">
-    Keywords: <span class="text-muted field-hint">(enter keywords, e.g. Humanities, Life Sciences)</span><br>
-    <input type="text" id="keywords" name="keywords" class="input-text-long"
-      placeholder="Three or more unique keywords separated by commas that assist discovery"
-      value="<%= @work.resource.keywords.join(', ') %>"
-    />
-  </div>
-</div>
+<details>
+  <summary>Keywords</summary>
+  Three or more unique keywords separated by commas that assist discovery.
+  e.g. "Humanities, Life Sciences"
+</details>
 
-<%= render(partial: 'works/funder') %>
+<input type="text" id="keywords" name="keywords" class="input-text-long"
+  value="<%= @work.resource.keywords.join(', ') %>"
+/>
+
+
+<%= render(partial: 'works/funder_table') %>
 
 <%= render(partial: 'works/related_objects_table') %>
 
