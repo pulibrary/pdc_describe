@@ -25,17 +25,10 @@
   </tbody>
 </table>
 
-<% if @work %>
-  <% @work.resource.creators.each_with_index do |creator, i| %>
-  <span class="hidden creator-data"
-    data-num="<%= i + 1 %>"
-    data-orcid="<%= creator.orcid %>"
-    data-given-name="<%= creator.given_name %>"
-    data-family-name="<%= creator.family_name %>"
-    data-sequence="<%= creator.sequence %>"
-    ></span>
-  <% end %>
-<% end %>
+
+<script>
+  document.creators = <%= @work.resource.creators.map {|h| h.instance_values }.to_json.html_safe %>;
+</script>
 
 <!-- Let the user add new creators -->
 <div>

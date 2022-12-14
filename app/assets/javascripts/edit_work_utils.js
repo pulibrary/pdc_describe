@@ -386,22 +386,17 @@ $(() => {
     return false;
   });
 
-  if ($('.creator-data').length == 0) {
+  if (document.creators.length == 0) {
     // Add an empty creator for the use to fill it out
     const num = incrementCounter('#creator_count');
     addCreatorHtml(num, '', '', '', 1);
   } else {
     // Adds the existing creators making sure we honor the ordering.
-    const creators = peopleSorted('.creator-data');
-    for (let i = 0; i < creators.length; i++) {
-      const creator = creators[i];
-      addCreatorHtml(
-        creator.num,
-        creator.orcid,
-        creator.givenName,
-        creator.familyName,
-        creator.sequence,
-      );
+    let num = 1;
+    for (const creator of document.creators) {
+      const {orcid, given_name, family_name, sequence } = creator;
+      addCreatorHtml(num, orcid || '', given_name || '', family_name || '', sequence);
+      num++;
     }
   }
 
