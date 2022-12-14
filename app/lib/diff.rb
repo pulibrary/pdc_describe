@@ -17,8 +17,8 @@ class SimpleDiff
 
   def to_html
     @changes.map do |chunk|
-      old_html = CGI.escapeHTML(chunk[:old])
-      new_html = CGI.escapeHTML(chunk[:new])
+      old_html = value_to_html(chunk[:old])
+      new_html = value_to_html(chunk[:new])
       if chunk[:action] == "="
         new_html
       else
@@ -27,4 +27,14 @@ class SimpleDiff
       end
     end.join
   end
+end
+
+def value_to_html(value)
+  too_many_words_re = /
+    ((?:\S+\s+){3}) # group 1: Three words, including trailing space
+    (.+)            # group 2: Drop this
+    ((?:\s+\S+){3}) # group 3: Three words, including leading space
+  /x
+  ellipsis = value.gsub(too_many_words_re, '\1...\3')
+  CGI.escapeHTML(ellipsis)
 end
