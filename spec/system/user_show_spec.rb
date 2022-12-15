@@ -21,4 +21,61 @@ RSpec.describe "User dashboard" do
       expect(page.html.include?(expected_link)).to be true
     end
   end
+
+  describe "Search feature" do
+    let(:pppl_moderator) { FactoryBot.create :pppl_moderator }
+    let(:rd_moderator) { FactoryBot.create :research_data_moderator }
+    let(:user_admin) { FactoryBot.create :super_admin_user }
+
+    before do
+      FactoryBot.create(:tokamak_work)
+      FactoryBot.create(:shakespeare_and_company_work)
+    end
+
+    it "finds works for the user logged in", js: true do
+      sign_in pppl_moderator
+      visit user_path(pppl_moderator) + "?q=tokamak"
+      expect(page.html.include?("Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas")).to be true
+      expect(page.html.include?("Shakespeare and Company Project Dataset: Lending Library Members, Books, Events")).to be false
+
+      sign_in rd_moderator
+      visit user_path(rd_moderator) + "?q=shakespeare"
+      expect(page.html.include?("Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas")).to be false
+      expect(page.html.include?("Shakespeare and Company Project Dataset: Lending Library Members, Books, Events")).to be true
+    end
+
+    it "allows administrators to find works regardless of the collection" do
+      sign_in user_admin
+      visit user_path(user_admin) + "?q=shakespeare"
+      expect(page.html.include?("Shakespeare and Company Project Dataset: Lending Library Members, Books, Events")).to be true
+      visit user_path(user_admin) + "?q=tokamak"
+      expect(page.html.include?("Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas")).to be true
+    end
+
+    it "shows no results found" do
+      sign_in user_admin
+      visit user_path(user_admin) + "?q=gobbledygook"
+      expect(page.html.include?("No works found")).to be true
+    end
+
+    it "searches within several fields inside the work" do
+      sign_in rd_moderator
+
+      # search within the DOI
+      visit user_path(rd_moderator) + "?q=10.34770/pe9w-x904"
+      expect(page.html.include?("Shakespeare and Company")).to be true
+
+      # search within the ARK
+      visit user_path(rd_moderator) + "?q=ark:/88435/dsp01zc77st047"
+      expect(page.html.include?("Shakespeare and Company")).to be true
+
+      # search within the description
+      visit user_path(rd_moderator) + "?q=Sylvia Beach"
+      expect(page.html.include?("Shakespeare and Company")).to be true
+
+      # search within the creators
+      visit user_path(rd_moderator) + "?q=Kotin"
+      expect(page.html.include?("Shakespeare and Company")).to be true
+    end
+  end
 end
