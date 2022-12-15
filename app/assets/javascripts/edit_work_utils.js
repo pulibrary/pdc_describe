@@ -333,6 +333,12 @@ $(() => {
     return false;
   });
 
+  // TODO:
+  // $('#btn-add-funder').on('click', (el) => {
+  //   ...
+  //   return false;
+  // });
+
   $('#btn-submit').on('click', (el) => {
     updateCreatorsSequence();
   });
@@ -438,6 +444,20 @@ $(() => {
         contributor.role,
         contributor.sequence,
       );
+    }
+  }
+
+  if ($('.funder-data').length == 0) {
+    // Add an empty contributor for the use to fill it out
+    const num = incrementCounter('#funder_count');
+    addFunderHtml(num, TODO, 1);
+  } else {
+    // Adds the existing contributors making sure we honor the ordering.
+    for (const funder of $('.funder-data')) {
+      const {
+        num, relatedIdentifier, relatedIdentifierType, relationType,
+      } = funder.dataset;
+      addFunderHtml(num, relatedIdentifier, relatedIdentifierType, relationType);
     }
   }
 
