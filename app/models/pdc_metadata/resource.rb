@@ -63,16 +63,16 @@ module PDCMetadata
 
         hash = JSON.parse(json_string)
 
-        resource = curator_controlled_metadata(hash, resource)
-
         resource.description = hash["description"]
+        resource.publisher = hash["publisher"]
+        resource.publication_year = hash["publication_year"]
+        resource.rights = rights(hash["rights"])
+
+        resource = curator_controlled_metadata(hash, resource)
         titles_from_json(resource, hash["titles"])
         creators_from_json(resource, hash["creators"])
         contributors_from_json(resource, hash["contributors"])
         related_objects_from_json(resource, hash["related_objects"] || [])
-        resource.publisher = hash["publisher"]
-        resource.publication_year = hash["publication_year"]
-        resource.rights = rights(hash["rights"])
         resource = additional_metadata(hash, resource)
 
         resource
