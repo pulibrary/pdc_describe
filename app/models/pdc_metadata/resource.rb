@@ -61,18 +61,14 @@ module PDCMetadata
 
         hash = JSON.parse(json_string)
 
-        resource = curator_controlled_metadata(hash, resource)
-
-        resource.description = hash["description"]
-        titles_from_json(resource, hash["titles"])
-        creators_from_json(resource, hash["creators"])
-        contributors_from_json(resource, hash["contributors"])
-        related_objects_from_json(resource, hash["related_objects"] || [])
-        funders_from_json(resource, hash["funders"])
-        resource.publisher = hash["publisher"]
-        resource.publication_year = hash["publication_year"]
-        resource.rights = rights(hash["rights"])
-        resource = additional_metadata(hash, resource)
+        set_basics(resource, hash)
+        set_curator_controlled_metadata(resource, hash)
+        set_additional_metadata(resource, hash)
+        set_titles(resource, hash)
+        set_creators(resource, hash)
+        set_contributors(resource, hash)
+        set_related_objects(resource, hash)
+        set_funders(resource, hash)
 
         resource
       end
@@ -89,39 +85,41 @@ module PDCMetadata
 
       private
 
-        def curator_controlled_metadata(hash, resource)
-          resource.doi = hash["doi"]
-          resource.ark = hash["ark"]
-          resource.version_number = hash["version_number"]
-          resource.collection_tags = collection_tags(hash["collection_tags"])
-          resource.resource_type = hash["resource_type"]
-          resource.resource_type_general = hash["resource_type_general"]&.to_sym
-          resource
-        end
-
-        def additional_metadata(hash, resource)
-          resource.keywords = hash["keywords"] || []
-          resource
-        end
-
         def rights(form_rights)
           PDCMetadata::Rights.find(form_rights["identifier"]) if form_rights
         end
 
-        def collection_tags(form_tags)
-          form_tags || []
+        def set_basics(resource, hash)
+          resource.description = hash["description"]
+          resource.publisher = hash["publisher"]
+          resource.publication_year = hash["publication_year"]
+          resource.rights = rights(hash["rights"])
         end
 
-        def titles_from_json(resource, titles)
-          return if titles.blank?
+        def set_curator_controlled_metadata(resource, hash)
+          resource.doi = hash["doi"]
+          resource.ark = hash["ark"]
+          resource.version_number = hash["version_number"]
+          resource.collection_tags = hash["collection_tags"] || []
+          resource.resource_type = hash["resource_type"]
+          resource.resource_type_general = hash["resource_type_general"]&.to_sym
+        end
+
+        def set_additional_metadata(resource, hash)
+          resource.keywords = hash["keywords"] || []
+        end
+
+        def set_titles(resource, hash)
+          titles = hash["titles"] || []
 
           titles.each do |title|
             resource.titles << PDCMetadata::Title.new(title: title["title"], title_type: title["title_type"])
           end
         end
 
-        def related_objects_from_json(resource, related_objects)
-          return if related_objects.blank?
+        def set_related_objects(resource, hash)
+          related_objects = hash["related_objects"] || []
+
           related_objects.each do |related_object|
             next if related_object["related_identifier"].blank? && related_object["related_identifier_type"].blank?
             resource.related_objects << PDCMetadata::RelatedObject.new(
@@ -132,8 +130,8 @@ module PDCMetadata
           end
         end
 
-        def creators_from_json(resource, creators)
-          return if creators.blank?
+        def set_creators(resource, hash)
+          creators = hash["creators"] || []
 
           creators.each do |creator|
             resource.creators << Creator.from_hash(creator)
@@ -141,8 +139,8 @@ module PDCMetadata
           resource.creators.sort_by!(&:sequence)
         end
 
-        def contributors_from_json(resource, contributors)
-          return if contributors.blank?
+        def set_contributors(resource, hash)
+          contributors = hash["contributors"] || []
 
           contributors.each do |contributor|
             resource.contributors << Creator.contributor_from_hash(contributor)
@@ -150,8 +148,8 @@ module PDCMetadata
           resource.contributors.sort_by!(&:sequence)
         end
 
-        def funders_from_json(resource, funders)
-          return if funders.blank?
+        def set_funders(resource, hash)
+          funders = hash["funders"] || []
 
           funders.each do |funder|
             resource.funders << Funder.funder_from_hash(funder)
