@@ -12,7 +12,7 @@ class UsersController < ApplicationController
 
   # GET /users/1
   def show
-    @search_terms = params["q"].present? ? params["q"] : nil
+    @search_terms = params["q"].presence
     @can_edit = can_edit?
     @my_dashboard = current_user.id == @user.id
     @unfinished_works = Work.unfinished_works(@user, @search_terms)
