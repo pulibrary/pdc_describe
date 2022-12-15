@@ -4,7 +4,7 @@ class UsersController < ApplicationController
   COLLECTION_MESSAGING_DISABLED = "0"
   COLLECTION_MESSAGING_ENABLED = "1"
 
-  before_action :set_user, only: %i[show edit update, dashboard_search]
+  before_action :set_user, only: %i[show edit update]
 
   def index
     @users = User.all
@@ -12,22 +12,12 @@ class UsersController < ApplicationController
 
   # GET /users/1
   def show
+    @search_terms = params["q"].present? ? params["q"] : nil
     @can_edit = can_edit?
     @my_dashboard = current_user.id == @user.id
-    @unfinished_works = Work.unfinished_works(@user)
-    @completed_works = Work.completed_works(@user)
-    @withdrawn_works = Work.withdrawn_works(@user)
-  end
-
-  def dashboard_search
-    byebug
-    search_terms = params["search_terms"].present? ? params["search_terms"] : nil
-    @can_edit = can_edit?
-    @my_dashboard = current_user.id == @user.id
-    @unfinished_works = Work.unfinished_works(@user, search_terms)
-    @completed_works = Work.completed_works(@user, search_terms)
-    @withdrawn_works = Work.withdrawn_works(@user, search_terms)
-    render "show"
+    @unfinished_works = Work.unfinished_works(@user, @search_terms)
+    @completed_works = Work.completed_works(@user, @search_terms)
+    @withdrawn_works = Work.withdrawn_works(@user, @search_terms)
   end
 
   # GET /users/1/edit

@@ -14,7 +14,6 @@ Rails.application.routes.draw do
   end
 
   get "about", to: "welcome#about", as: :welcome_about
-  post "users/:id/search", to: "users#dashboard_search", as: :user_dashboard_search
 
   post "works/new-submission", to: "works#new_submission", as: :work_new_submission
   get "works/:id/attachment-select", to: "works#attachment_select", as: :work_attachment_select
