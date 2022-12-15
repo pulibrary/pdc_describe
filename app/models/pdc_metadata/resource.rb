@@ -101,9 +101,6 @@ module PDCMetadata
 
         def additional_metadata(hash, resource)
           resource.keywords = hash["keywords"] || []
-          resource.funder_name = hash["funder_name"]
-          resource.award_number = hash["award_number"]
-          resource.award_uri = hash["award_uri"]
           resource
         end
 
