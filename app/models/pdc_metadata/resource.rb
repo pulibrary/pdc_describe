@@ -68,7 +68,7 @@ module PDCMetadata
         resource.publication_year = hash["publication_year"]
         resource.rights = rights(hash["rights"])
 
-        resource = curator_controlled_metadata(hash, resource)
+        set_curator_controlled_metadata(resource, hash)
         titles_from_json(resource, hash["titles"])
         creators_from_json(resource, hash["creators"])
         contributors_from_json(resource, hash["contributors"])
@@ -90,7 +90,7 @@ module PDCMetadata
 
       private
 
-        def curator_controlled_metadata(hash, resource)
+        def set_curator_controlled_metadata(resource, hash)
           resource.doi = hash["doi"]
           resource.ark = hash["ark"]
           resource.version_number = hash["version_number"]
