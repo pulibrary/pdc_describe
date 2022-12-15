@@ -96,7 +96,7 @@ module PDCSerialization
         related_identifiers: related_identifiers_from_work_resource(resource),
         rights_list: rights_from_work_resource(resource),
         version: resource.version_number,
-        funding_references: funding_reference_from_work_resource(resource)
+        funding_references: funding_references_from_work_resource(resource)
       )
       Datacite.new(mapping)
     end
