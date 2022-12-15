@@ -127,7 +127,7 @@ input[readonly] {
 }
 
 .activity-history-item .comment-html {
-  // For all fields we just do a string diff; 
+  // For all fields we just do a string diff;
   // For arrays, we join the values with "\n",
   // but we need to make sure this is preserved when rendered.
   white-space: pre-wrap;
@@ -171,4 +171,13 @@ details {
 .copy-doi-label-copied {
   font-size: 8pt;
   color: green;
+}
+
+.search-bar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.search-form > form > input[type=text]{
+  width: 300px;
 }

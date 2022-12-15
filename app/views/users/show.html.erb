@@ -3,10 +3,12 @@
 <% end %>
 
 <div class="search-bar">
-  <%= form_with(url: user_path(@user.uid), method: "get") do %>
-    <%= text_field_tag(:q, @search_terms, {placeholder: "Search by DOI, Title, Name, ARK"}) %>
-    <%= submit_tag("Search") %>
-  <% end %>
+  <div class="search-form">
+    <%= form_with(url: user_path(@user.uid), method: "get") do %>
+      <%= text_field_tag(:q, @search_terms, {placeholder: "Search by DOI, Title, Name, ARK"}) %>
+      <%= submit_tag("Search", class: "btn btn-primary") %>
+    <% end %>
+  </div>
 </div>
 
 <h2>
