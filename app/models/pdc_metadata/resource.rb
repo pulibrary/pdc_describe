@@ -6,7 +6,7 @@ module PDCMetadata
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
       :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :contributors, :related_objects,
-      :funder_name, :award_number, :award_uri
+      :funders
 
     # rubocop:disable Metrics/MethodLength
     def initialize(doi: nil, title: nil, resource_type: nil, resource_type_general: nil, creators: [], description: nil)
@@ -26,9 +26,7 @@ module PDCMetadata
       @related_objects = []
       @keywords = []
       @contributors = []
-      @funder_name = nil
-      @award_number = nil
-      @award_uri = nil
+      @funders = []
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -70,6 +68,7 @@ module PDCMetadata
         creators_from_json(resource, hash["creators"])
         contributors_from_json(resource, hash["contributors"])
         related_objects_from_json(resource, hash["related_objects"] || [])
+        funders_from_json(resource, hash["funders"])
         resource.publisher = hash["publisher"]
         resource.publication_year = hash["publication_year"]
         resource.rights = rights(hash["rights"])
@@ -152,6 +151,15 @@ module PDCMetadata
             resource.contributors << Creator.contributor_from_hash(contributor)
           end
           resource.contributors.sort_by!(&:sequence)
+        end
+
+        def funders_from_json(resource, funders)
+          return if funders.blank?
+
+          funders.each do |funder|
+            resource.funders << Funder.funder_from_hash(funder)
+          end
+          resource.funders.sort_by!(&:sequence)
         end
     end
   end
