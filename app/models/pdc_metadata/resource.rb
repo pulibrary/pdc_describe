@@ -63,11 +63,7 @@ module PDCMetadata
 
         hash = JSON.parse(json_string)
 
-        resource.description = hash["description"]
-        resource.publisher = hash["publisher"]
-        resource.publication_year = hash["publication_year"]
-        resource.rights = rights(hash["rights"])
-
+        set_basics(resource, hash)
         set_curator_controlled_metadata(resource, hash)
         set_additional_metadata(resource, hash)
         set_titles(resource, hash)
@@ -92,6 +88,13 @@ module PDCMetadata
 
         def rights(form_rights)
           PDCMetadata::Rights.find(form_rights["identifier"]) if form_rights
+        end
+
+        def set_basics(resource, hash)
+          resource.description = hash["description"]
+          resource.publisher = hash["publisher"]
+          resource.publication_year = hash["publication_year"]
+          resource.rights = rights(hash["rights"])
         end
 
         def set_curator_controlled_metadata(resource, hash)
