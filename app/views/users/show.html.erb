@@ -8,6 +8,10 @@
       <%= text_field_tag(:q, @search_terms, {placeholder: "Search by DOI, Title, Name, ARK"}) %>
       <%= submit_tag("Search", class: "btn btn-primary") %>
     <% end %>
+
+    <% if @works_found == 0 && @search_terms.present? %>
+      <p>No works found for <i><%= @search_terms %></i></p>
+    <% end %>
   </div>
 </div>
 

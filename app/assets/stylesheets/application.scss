@@ -178,6 +178,10 @@ details {
   justify-content: flex-end;
 }
 
+.search-form > form {
+  margin-bottom: -20px;
+}
+
 .search-form > form > input[type=text]{
   width: 300px;
 }

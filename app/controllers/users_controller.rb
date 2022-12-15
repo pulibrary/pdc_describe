@@ -18,6 +18,7 @@ class UsersController < ApplicationController
     @unfinished_works = Work.unfinished_works(@user, @search_terms)
     @completed_works = Work.completed_works(@user, @search_terms)
     @withdrawn_works = Work.withdrawn_works(@user, @search_terms)
+    @works_found = @unfinished_works.count + @completed_works.count + @withdrawn_works.count
   end
 
   # GET /users/1/edit
