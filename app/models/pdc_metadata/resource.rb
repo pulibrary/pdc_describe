@@ -113,7 +113,7 @@ module PDCMetadata
         def set_titles(resource, hash)
           titles = hash["titles"] || []
 
-          title.each do |title|
+          titles.each do |title|
             resource.titles << PDCMetadata::Title.new(title: title["title"], title_type: title["title_type"])
           end
         end
@@ -140,7 +140,7 @@ module PDCMetadata
           resource.creators.sort_by!(&:sequence)
         end
 
-        def set_contributors(resource, contributors)
+        def set_contributors(resource, hash)
           contributors = hash["contributors"] || []
 
           contributors.each do |contributor|
