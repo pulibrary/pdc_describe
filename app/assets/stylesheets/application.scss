@@ -91,6 +91,12 @@
   margin-bottom: 25px;
 }
 
+.dataset-section-no-works {
+  background-color: rgb(247, 177, 177);
+  margin-top: 25px !important;
+  margin-bottom: 25px;
+}
+
 .dashboard-options {
   margin-top: -5px;
   margin-bottom: -25px;
@@ -180,8 +186,7 @@ details {
 
 .search-form > form {
   margin-bottom: -20px;
-}
-
-.search-form > form > input[type=text]{
-  width: 300px;
+  & > input[type=text] {
+    width: 300px;
+  }
 }
