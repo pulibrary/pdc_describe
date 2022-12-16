@@ -296,6 +296,13 @@ $(() => {
     }
   }
 
+  $('#btn-add-funder').on('click', (el) => {
+    const $funders = $('#funders');
+    const $newTr = $funders.find('tr').last().clone();
+    $funders.append($newTr);
+    return false;
+  });
+
   $('#btn-add-creator').on('click', (el) => {
     const num = incrementCounter('#creator_count');
     addCreatorHtml(num, '', '', '');
