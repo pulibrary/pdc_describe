@@ -66,7 +66,7 @@ class FormToResourceService
 
       def new_title(title, title_type)
         return if title.blank?
-        PDCMetadata::Title.new(title, title_type)
+        PDCMetadata::Title.new(title: title, title_type: title_type)
       end
 
       # Related Objects:
