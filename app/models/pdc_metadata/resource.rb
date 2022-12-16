@@ -155,7 +155,7 @@ module PDCMetadata
             resource.funders << Funder.funder_from_hash(funder)
           end
           # TODO: Make funders reorderable
-          #resource.funders.sort_by!(&:sequence)
+          # resource.funders.sort_by!(&:sequence)
         end
     end
   end
