@@ -26,7 +26,7 @@ class FormToResourceService
       resource = process_contributors(params, resource)
 
       # Process funders
-      resource = process_funders(params, resource)
+      process_funders(params, resource)
 
       resource
     end
@@ -117,7 +117,7 @@ class FormToResourceService
       # Funders:
 
       def process_funders(params, resource)
-        resource.funders = params[:funders].filter_map do |funder|
+        resource.funders = (params[:funders] || []).filter_map do |funder|
           new_funder(funder[:funder_name], funder[:award_number], funder[:award_uri])
         end
       end

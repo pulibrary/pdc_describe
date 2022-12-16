@@ -20,9 +20,13 @@
     <% (@work.resource.funders + [nil]).each do |funder| %>
       <tr>
         <td>
-          <input name="funders[][funder_name]" value="${funder&.funder_name}" />
-          <input name="funders[][award_number]" value="${funder&.award_number}" />
-          <input name="funders[][award_uri]" value="${funder&.award_uri}" />
+          <input name="funders[][funder_name]" value="<%= funder&.funder_name %>" />
+        </td>
+        <td>
+          <input name="funders[][award_number]" value="<%= funder&.award_number %>" />
+        </td>
+        <td>
+          <input name="funders[][award_uri]" value="<%= funder&.award_uri %>" />
         </td>
       </tr>
     <% end %>
