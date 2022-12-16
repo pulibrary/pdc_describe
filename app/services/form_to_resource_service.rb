@@ -64,10 +64,18 @@ class FormToResourceService
       end
 
       def process_creators(params, resource)
-        (1..params["creator_count"].to_i).each do |i|
-          creator = new_creator(params["given_name_#{i}"], params["family_name_#{i}"], params["orcid_#{i}"], params["sequence_#{i}"])
-          resource.creators << creator unless creator.nil?
+        resource.creators = (1..params["creator_count"].to_i).filter_map do |i|
+          given_name = params["given_name_#{i}"]
+          family_name = params["family_name_#{i}"]
+          orcid = params["orcid_#{i}"]
+          sequence = params["sequence_#{i}"]
+          new_creator(given_name, family_name, orcid, sequence)
         end
+      end
+
+      def new_creator(given_name, family_name, orcid, sequence)
+        return if family_name.blank? && given_name.blank? && orcid.blank?
+        PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
       end
 
       ## TODO: Do the right thing with blank form entries
@@ -84,20 +92,14 @@ class FormToResourceService
       end
 
       def process_contributors(params, resource)
-        (1..params["contributor_count"].to_i).each do |i|
+        resource.contributors = (1..params["contributor_count"].to_i).filter_map do |i|
           given_name = params["contributor_given_name_#{i}"]
           family_name = params["contributor_family_name_#{i}"]
           orcid = params["contributor_orcid_#{i}"]
           type = params["contributor_role_#{i}"]
           sequence = params["contributor_sequence_#{i}"]
-          contributor = new_contributor(given_name, family_name, orcid, type, sequence)
-          resource.contributors << contributor unless contributor.nil?
+          new_contributor(given_name, family_name, orcid, type, sequence)
         end
-      end
-
-      def new_creator(given_name, family_name, orcid, sequence)
-        return if family_name.blank? && given_name.blank? && orcid.blank?
-        PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
       end
 
       def new_contributor(given_name, family_name, orcid, type, sequence)
