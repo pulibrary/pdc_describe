@@ -16,7 +16,7 @@
       <th>Award URI</th>
     </tr>
   </thead>
-  <tbody id="funders">
+  <tbody>
     <% (@work.resource.funders + [nil]).each do |funder| %>
       <tr>
         <td>
@@ -31,10 +31,13 @@
       </tr>
     <% end %>
   </tbody>
+  <tfoot>
+    <tr>
+      <td>
+        <button class="btn btn-secondary btn-add-row">
+          Add Another Funder
+        </button>
+      </td>
+    </tr>
+  </tfoot>
 </table>
-
-<!-- Let the user add new funders -->
-<div>
-  <%= link_to "Add Another Funder", "#", id: "btn-add-funder", class: "btn btn-secondary" %>
-</div>
-

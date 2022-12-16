@@ -296,11 +296,12 @@ $(() => {
     }
   }
 
-  $('#btn-add-funder').on('click', (el) => {
-    const $funders = $('#funders');
-    const $newTr = $funders.find('tr').last().clone();
+  // This is generic and could be used to add blank rows to any table.
+  $('.btn-add-row').on('click', (event) => {
+    const $tbody = $(event.target).closest('table').find('tbody');
+    const $newTr = $tbody.find('tr').last().clone();
     $newTr.find('input').val('');
-    $funders.append($newTr);
+    $tbody.append($newTr);
     return false;
   });
 
