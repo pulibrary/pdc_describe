@@ -299,6 +299,7 @@ $(() => {
   $('#btn-add-funder').on('click', (el) => {
     const $funders = $('#funders');
     const $newTr = $funders.find('tr').last().clone();
+    $newTr.find('input').val('');
     $funders.append($newTr);
     return false;
   });
