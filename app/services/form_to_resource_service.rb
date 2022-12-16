@@ -26,6 +26,7 @@ class FormToResourceService
       resource = process_contributors(params, resource)
 
       # Process funders
+      # (New pattern: method modifies resource in place.)
       process_funders(params, resource)
 
       resource
@@ -117,9 +118,11 @@ class FormToResourceService
       # Funders:
 
       def process_funders(params, resource)
+        # (New pattern: Use rails param name conventions rather than numbering fields.)
         resource.funders = (params[:funders] || []).filter_map do |funder|
           new_funder(funder[:funder_name], funder[:award_number], funder[:award_uri])
         end
+        # (New pattern: no return -- method modifies resource in place.)
       end
 
       def new_funder(funder_name, award_number, award_uri)
