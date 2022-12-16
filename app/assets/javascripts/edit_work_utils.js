@@ -342,12 +342,6 @@ $(() => {
     return false;
   });
 
-  // TODO:
-  // $('#btn-add-funder').on('click', (el) => {
-  //   ...
-  //   return false;
-  // });
-
   $('#btn-submit').on('click', (el) => {
     updateCreatorsSequence();
   });
