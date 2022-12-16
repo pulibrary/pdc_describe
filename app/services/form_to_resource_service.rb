@@ -115,15 +115,9 @@ class FormToResourceService
       end
 
       def process_funders(params, resource)
-        (1..params["funder_count"].to_i).each do |i|
-          funder_name = params["funder_name_#{i}"]
-          award_number = params["award_number_#{i}"]
-          award_uri = params["award_uri_#{i}"]
-          sequence = params["funder_sequence_#{i}"]
-          funder = new_funder(funder_name, award_number, award_uri, sequence)
-          resource.funders << funder unless funder.nil?
+        resource.funders = params[:funders].filter_map do |funder|
+          new_funder(funder[:funder_name], funder[:award_number], funder[:award_uri])
         end
-        resource
       end
   end
 end
