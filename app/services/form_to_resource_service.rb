@@ -52,17 +52,21 @@ class FormToResourceService
 
       def process_titles(params, resource)
         resource.titles << PDCMetadata::Title.new(title: params["title_main"])
-        (1..params["existing_title_count"].to_i).each do |i|
-          if params["title_#{i}"].present?
-            resource.titles << PDCMetadata::Title.new(title: params["title_#{i}"], title_type: params["title_type_#{i}"])
-          end
-        end
+        resource.titles.concat((1..params["existing_title_count"].to_i).filter_map do |i|
+          title = params["title_#{i}"]
+          title_type = params["title_type_#{i}"]
+          new_title(title, title_type)
+        end)
+        resource.titles.concat((1..params["new_title_count"].to_i).filter_map do |i|
+          title = params["new_title_#{i}"]
+          title_type = params["new_title_type_#{i}"]
+          new_title(title, title_type)
+        end)
+      end
 
-        (1..params["new_title_count"].to_i).each do |i|
-          if params["new_title_#{i}"].present?
-            resource.titles << PDCMetadata::Title.new(title: params["new_title_#{i}"], title_type: params["new_title_type_#{i}"])
-          end
-        end
+      def new_title(title, title_type)
+        return if title.blank?
+        PDCMetadata::Title.new(title, title_type)
       end
 
       # Related Objects:
