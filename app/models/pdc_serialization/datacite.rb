@@ -216,12 +216,10 @@ module PDCSerialization
         end
 
         def funding_references_from_work_resource(resource)
-          funders = []
-          resource.funders.each do |funder|
+          resource.funders.map do |funder|
             award = ::Datacite::Mapping::AwardNumber.new(uri: funder.award_uri, value: funder.award_number)
-            funders << ::Datacite::Mapping::FundingReference.new(name: resource.funder_name, award_number: award)
+            ::Datacite::Mapping::FundingReference.new(name: resource.funder_name, award_number: award)
           end
-          funders
         end
       end
   end
