@@ -8,8 +8,8 @@ class FormToResourceService
     #
     # @return [PDCMetadata::Resource] Fully formed resource containing updates from the user
     def convert(params, work)
-      resource = process_curator_controlled(params: params, work: work)
-      resource = process_related_objects(params, resource)
+      resource = reset_resource_to_work(work)
+
       resource.description = params["description"]
       resource.publisher = params["publisher"] if params["publisher"].present?
       resource.publication_year = params["publication_year"] if params["publication_year"].present?
@@ -19,22 +19,18 @@ class FormToResourceService
       resource.award_number = params["award_number"]
       resource.award_uri = params["award_uri"]
 
-      # Process the titles
-      resource = process_titles(params, resource)
-
-      # Process the creators
-      resource = process_creators(params, resource)
-
-      # Process contributors
-      resource = process_contributors(params, resource)
+      process_curator_controlled(params, resource)
+      process_related_objects(params, resource)
+      process_titles(params, resource)
+      process_creators(params, resource)
+      process_contributors(params, resource)
 
       resource
     end
 
     private
 
-      def process_curator_controlled(params:, work:)
-        resource = reset_resource_to_work(work)
+      def process_curator_controlled(params)
         resource.doi = params["doi"] if params["doi"].present?
         resource.ark = params["ark"] if params["ark"].present?
         resource.version_number = params["version_number"] if params["version_number"].present?
@@ -66,7 +62,6 @@ class FormToResourceService
             resource.titles << PDCMetadata::Title.new(title: params["new_title_#{i}"], title_type: params["new_title_type_#{i}"])
           end
         end
-        resource
       end
 
       def process_creators(params, resource)
@@ -74,7 +69,6 @@ class FormToResourceService
           creator = new_creator(params["given_name_#{i}"], params["family_name_#{i}"], params["orcid_#{i}"], params["sequence_#{i}"])
           resource.creators << creator unless creator.nil?
         end
-        resource
       end
 
       ## TODO: Do the right thing with blank form entries
@@ -88,7 +82,6 @@ class FormToResourceService
                           )
           resource.related_objects << related_object
         end
-        resource
       end
 
       def process_contributors(params, resource)
@@ -101,7 +94,6 @@ class FormToResourceService
           contributor = new_contributor(given_name, family_name, orcid, type, sequence)
           resource.contributors << contributor unless contributor.nil?
         end
-        resource
       end
 
       def new_creator(given_name, family_name, orcid, sequence)
