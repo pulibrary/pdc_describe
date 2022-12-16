@@ -20,8 +20,8 @@ class FormToResourceService
       resource.award_uri = params["award_uri"]
 
       process_curator_controlled(params, resource)
-      process_related_objects(params, resource)
       process_titles(params, resource)
+      process_related_objects(params, resource)
       process_creators(params, resource)
       process_contributors(params, resource)
 
@@ -29,6 +29,15 @@ class FormToResourceService
     end
 
     private
+
+      def reset_resource_to_work(work)
+        resource = PDCMetadata::Resource.new
+
+        resource.doi = work.doi
+        resource.ark = work.ark
+        resource.collection_tags = work.resource.collection_tags || []
+        resource
+      end
 
       def process_curator_controlled(params, resource)
         resource.doi = params["doi"] if params["doi"].present?
@@ -39,14 +48,7 @@ class FormToResourceService
         resource.resource_type_general = params["resource_type_general"]&.to_sym if params["resource_type_general"]
       end
 
-      def reset_resource_to_work(work)
-        resource = PDCMetadata::Resource.new
-
-        resource.doi = work.doi
-        resource.ark = work.ark
-        resource.collection_tags = work.resource.collection_tags || []
-        resource
-      end
+      # Titles:
 
       def process_titles(params, resource)
         resource.titles << PDCMetadata::Title.new(title: params["title_main"])
@@ -63,6 +65,22 @@ class FormToResourceService
         end
       end
 
+      # Related Objects:
+
+      def process_related_objects(params, resource)
+        (1..params["related_object_count"].to_i).each do |i|
+          next if params["related_identifier_#{i}"].blank? && params["related_identifier_type_#{i}"].blank? # do not store blank related identifiers
+          related_object = PDCMetadata::RelatedObject.new(
+                            related_identifier: params["related_identifier_#{i}"],
+                            related_identifier_type: params["related_identifier_type_#{i}"],
+                            relation_type: params["relation_type_#{i}"]
+                          )
+          resource.related_objects << related_object
+        end
+      end
+
+      # Creators:
+
       def process_creators(params, resource)
         resource.creators = (1..params["creator_count"].to_i).filter_map do |i|
           given_name = params["given_name_#{i}"]
@@ -78,18 +96,7 @@ class FormToResourceService
         PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
       end
 
-      ## TODO: Do the right thing with blank form entries
-      def process_related_objects(params, resource)
-        (1..params["related_object_count"].to_i).each do |i|
-          next if params["related_identifier_#{i}"].blank? && params["related_identifier_type_#{i}"].blank? # do not store blank related identifiers
-          related_object = PDCMetadata::RelatedObject.new(
-                            related_identifier: params["related_identifier_#{i}"],
-                            related_identifier_type: params["related_identifier_type_#{i}"],
-                            relation_type: params["relation_type_#{i}"]
-                          )
-          resource.related_objects << related_object
-        end
-      end
+      # Contributors:
 
       def process_contributors(params, resource)
         resource.contributors = (1..params["contributor_count"].to_i).filter_map do |i|
