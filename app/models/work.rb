@@ -97,12 +97,6 @@ class Work < ApplicationRecord
       works_by_user_state(user, "withdrawn", search_terms)
     end
 
-    def filter_works(works, search_terms)
-      return works if search_terms.nil?
-      terms = search_terms.strip.downcase
-      works.select { |work| work.match?(terms) }
-    end
-
     def find_by_doi(doi)
       models = all.select { |work| !work.doi.nil? && work.doi.include?(doi) }
       raise ActiveRecord::RecordNotFound if models.empty?
