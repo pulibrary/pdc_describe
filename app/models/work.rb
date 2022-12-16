@@ -86,18 +86,15 @@ class Work < ApplicationRecord
 
   class << self
     def unfinished_works(user, search_terms = nil)
-      works = works_by_user_state(user, ["none", "draft", "awaiting_approval"])
-      filter_works(works, search_terms)
+      works_by_user_state(user, ["none", "draft", "awaiting_approval"], search_terms)
     end
 
     def completed_works(user, search_terms = nil)
-      works = works_by_user_state(user, "approved")
-      filter_works(works, search_terms)
+      works_by_user_state(user, "approved", search_terms)
     end
 
     def withdrawn_works(user, search_terms = nil)
-      works = works_by_user_state(user, "withdrawn")
-      filter_works(works, search_terms)
+      works_by_user_state(user, "withdrawn", search_terms)
     end
 
     def filter_works(works, search_terms)
@@ -129,20 +126,30 @@ class Work < ApplicationRecord
 
     private
 
-      def works_by_user_state(user, state)
-        # The user's own works by state (if any)
-        works = Work.where(created_by_user_id: user, state: state).to_a
+      def search_terms_where_clause(search_terms)
+        if search_terms.nil?
+          Work.where("true")
+        else
+          Work.where("CAST(metadata AS VARCHAR) ilike :search_terms", search_terms: "%" + search_terms.strip + "%")
+        end
+      end
+
+      def works_by_user_state(user, state, search_terms)
+        search_terms_filter = search_terms_where_clause(search_terms)
+
+        # The user's own works (if any) by state and search terms
+        works = Work.where(created_by_user_id: user, state: state).and(search_terms_filter).to_a
 
         if user.admin_collections.count > 0
           # The works that match the given state, in all the collections the user can admin
           # (regardless of who created those works)
           user.admin_collections.each do |collection|
-            works += Work.where(collection_id: collection.id, state: state)
+            works += Work.where(collection_id: collection.id, state: state).and(search_terms_filter)
           end
         end
 
         # Any other works where the user is mentioned
-        works_mentioned_by_user_state(user, state).each do |work|
+        works_mentioned_by_user_state(user, state, search_terms_filter).each do |work|
           already_included = !works.find { |existing_work| existing_work[:id] == work.id }.nil?
           works << work unless already_included
         end
@@ -152,11 +159,12 @@ class Work < ApplicationRecord
 
       # Returns an array of work ids where a particular user has been mentioned
       # and the work is in a given state.
-      def works_mentioned_by_user_state(user, state)
+      def works_mentioned_by_user_state(user, state, search_terms_filter)
         Work.joins(:work_activity)
             .joins('INNER JOIN "work_activity_notifications" ON "work_activities"."id" = "work_activity_notifications"."work_activity_id"')
             .where(state: state)
             .where('"work_activity_notifications"."user_id" = ?', user.id)
+            .and(search_terms_filter)
       end
   end
 
@@ -494,17 +502,6 @@ class Work < ApplicationRecord
     # Log the new files, but don't link the change to the current_user since we really don't know
     # who added the files directly to AWS S3.
     log_file_changes(changes, nil)
-  end
-
-  # Returns true if the work matches the search terms. It searches inside
-  # the resource, the curator, and the work fields.
-  # Uses a brute-force approach to search for the value.
-  # A more fine tuned version could be developed to search within certain specific fields.
-  def match?(search_terms)
-    return true if resource && resource.to_json.downcase.include?(search_terms)
-    return true if curator && curator.to_json.downcase.include?(search_terms)
-    return true if to_json.downcase.include?(search_terms)
-    false
   end
 
   delegate :ark, :doi, :resource_type, :resource_type=, :resource_type_general, :resource_type_general=,
