@@ -114,10 +114,17 @@ class FormToResourceService
         PDCMetadata::Creator.new_contributor(given_name, family_name, orcid, type, sequence)
       end
 
+      # Funders:
+
       def process_funders(params, resource)
         resource.funders = params[:funders].filter_map do |funder|
           new_funder(funder[:funder_name], funder[:award_number], funder[:award_uri])
         end
+      end
+
+      def new_funder(funder_name, award_number, award_uri)
+        return if funder_name.blank? && award_number.blank? && award_uri.blank?
+        PDCMetadata::Funder.new(funder_name, award_number, award_uri)
       end
   end
 end
