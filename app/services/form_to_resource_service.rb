@@ -30,7 +30,7 @@ class FormToResourceService
 
     private
 
-      def process_curator_controlled(params)
+      def process_curator_controlled(params, resource)
         resource.doi = params["doi"] if params["doi"].present?
         resource.ark = params["ark"] if params["ark"].present?
         resource.version_number = params["version_number"] if params["version_number"].present?
