@@ -17,18 +17,17 @@
     </tr>
   </thead>
   <tbody>
+    <% (@work.resource.funders + [nil]).each do |funder| %>
+      <tr>
+        <td>
+          <input name="funders[][funder_name]" value="${funder&.funder_name}" />
+          <input name="funders[][award_number]" value="${funder&.award_number}" />
+          <input name="funders[][award_uri]" value="${funder&.award_uri}" />
+        </td>
+      </tr>
+    <% end %>
   </tbody>
 </table>
-
-<% @work.resource.funders.each_with_index do |funder, i| %>
-  <span class="hidden funder-data"
-    data-num="<%= i + 1 %>"
-    data-funder-name="<%= funder.funder_name %>"
-    data-award-number="<%= funder.award_number %>"
-    data-award-uri="<%= funder.award_uri %>"
-    data-sequence="<%= funder.sequence || 0 %>">
-  </span>
-<% end %>
 
 <!-- Let the user add new funders -->
 <div>
