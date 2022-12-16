@@ -177,10 +177,11 @@
   <% if @work.resource.funders.count > 0 %>
     <p>Funders:
       <% @work.resource.funders.each do |funder| %>
-        TODO!
-        <%= funder.funder_name %>
-        <%= funder.award_number %>
-        <%= funder.award_uri %>
+        <div>
+          <%= funder.funder_name %>,
+          <%= funder.award_number %>,
+          <%= funder.award_uri %>
+        </div>
       <% end %>
     </p>
   <% end %> 
