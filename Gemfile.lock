@@ -185,6 +185,8 @@ GEM
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.7)
     dumb_delegator (1.0.0)
+    equivalent-xml (0.6.0)
+      nokogiri (>= 1.4.3)
     erubi (1.11.0)
     factory_bot (6.2.1)
       activesupport (>= 5.0.0)
@@ -482,6 +484,7 @@ DEPENDENCIES
   datacite!
   datacite-mapping
   devise
+  equivalent-xml (~> 0.6.0)
   ezid-client!
   factory_bot_rails
   faraday
