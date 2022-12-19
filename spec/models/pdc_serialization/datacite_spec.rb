@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require "rails_helper"
-require 'rexml'
+require "rexml"
 
 RSpec.describe PDCSerialization::Datacite, type: :model do
   context "create a skeleton datacite record" do
@@ -264,7 +264,7 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
 
     it "does not contain stray files" do
       Dir.glob("#{fixtures_dir}/*").each do |path|
-        expect(path).to match /\.resource\.yaml$|\.datacite\.xml$/
+        expect(path).to match(/\.resource\.yaml$|\.datacite\.xml$/)
       end
     end
   end

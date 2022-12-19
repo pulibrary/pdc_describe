@@ -57,9 +57,9 @@ gem "net-smtp"
 group :development, :test do
   gem "bixby"
   gem "byebug"
+  gem "equivalent-xml", "~> 0.6.0"
   gem "pry-byebug"
   gem "pry-rails"
-  gem "equivalent-xml", "~> 0.6.0"
 end
 
 group :development do
