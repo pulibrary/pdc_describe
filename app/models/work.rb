@@ -124,7 +124,7 @@ class Work < ApplicationRecord
         if search_terms.nil?
           Work.where("true")
         else
-          Work.where("CAST(metadata AS VARCHAR) ilike :search_terms", search_terms: "%" + search_terms.strip + "%")
+          Work.where("CAST(metadata AS VARCHAR) ILIKE :search_terms", search_terms: "%" + search_terms.strip + "%")
         end
       end
 
