@@ -249,14 +249,22 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
   end
 
   describe "resource JSON to Datacite XML" do
-    Dir.glob("spec/fixtures/resource-to-datacite/*.resource.yaml").each do |resource_path|
+    fixtures_dir = "spec/fixtures/resource-to-datacite"
+    Dir.glob("#{fixtures_dir}/*.resource.yaml").each do |resource_path|
       it "handles #{resource_path}" do
-        datacite_path = resource_path.gsub(".resource.yaml", ".datacite.xml")
-        resource_json = YAML.load_file("spec/fixtures/resource-to-datacite/basic.resource.yaml").to_json
+        resource_json = YAML.load_file(resource_path).to_json
         resource = PDCMetadata::Resource.new_from_json(resource_json)
         datacite_xml = resource.to_xml
-        datacite_xml_expected = File.read("spec/fixtures/resource-to-datacite/basic.datacite.xml")
+
+        datacite_path = resource_path.gsub(".resource.yaml", ".datacite.xml")
+        datacite_xml_expected = File.read(datacite_path)
         expect(datacite_xml).to be_equivalent_to(datacite_xml_expected)
+      end
+    end
+
+    it "does not contain stray files" do
+      Dir.glob("#{fixtures_dir}/*").each do |path|
+        expect(path).to match /\.resource\.yaml$|\.datacite\.xml$/
       end
     end
   end
