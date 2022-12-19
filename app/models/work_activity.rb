@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../lib/diff"
+require_relative "../lib/simple_diff"
 
 # rubocop:disable Metrics/ClassLength
 class WorkActivity < ApplicationRecord
