@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require "rails_helper"
+require 'rexml'
 
 RSpec.describe PDCSerialization::Datacite, type: :model do
   context "create a skeleton datacite record" do
@@ -245,6 +246,21 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
       expect(parsed_xml.related_identifiers[1].identifier_type.value).to eq "arXiv"
       expect(parsed_xml.related_identifiers[2].identifier_type.value).to eq "DOI"
     end
+  end
+
+  it "works with fixtures" do
+    def pretty(xml)
+      output = []
+      doc = REXML::Document.new(xml)
+      doc.write(output: output, indent: 2)
+      output.join()
+    end
+
+    resource_json = YAML.load_file("spec/fixtures/resource-to-datacite/basic.resource.yaml").to_json
+    resource = PDCMetadata::Resource.new_from_json(resource_json)
+    datacite_xml = resource.to_xml
+    datacite_xml_expected = File.read("spec/fixtures/resource-to-datacite/basic.datacite.xml")
+    expect(pretty(datacite_xml)).to eq pretty(datacite_xml_expected)
   end
 
   context "schema validation" do

@@ -1,0 +1,12 @@
+{
+  "doi": "https://doi.org/10.34770/pe9w-x904",
+  "identifier_type": "DOI",
+  "titles": [{ "title": "This is the title" }],
+  "description": "The quick brown fox jumped over the lazy dog.",
+  "creators": [
+    { "value": "Adams, Ansel", "name_type": "Personal", "given_name": "Ansel", "family_name": "Adams", "affiliations": [], "sequence": "1" }
+  ],
+  "resource_type": "Dataset",
+  "publisher": "Princeton University",
+  "publication_year": "2020"
+}

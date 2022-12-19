@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<resource xsi:schemaLocation='http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://datacite.org/schema/kernel-4'>
+  <identifier identifierType='DOI'>https://doi.org/10.34770/pe9w-x904</identifier>
+  <creators>
+    <creator>
+      <creatorName>Adams, Ansel</creatorName>
+      <givenName>Ansel</givenName>
+      <familyName>Adams</familyName>
+    </creator>
+  </creators>
+  <titles>
+    <title>This is the title</title>
+  </titles>
+  <publisher>Princeton University</publisher>
+  <resourceType resourceTypeGeneral='Dataset'/>
+  <publicationYear>2020</publicationYear>
+  <descriptions>
+    <description descriptionType='Other'>The quick brown fox jumped over the lazy dog.</description>
+  </descriptions>
+</resource>
