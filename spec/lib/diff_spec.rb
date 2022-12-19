@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../app/lib/diff"
+require_relative "../../app/lib/simple_diff"
 
 RSpec.describe SimpleDiff do
   it "handles complete change" do
