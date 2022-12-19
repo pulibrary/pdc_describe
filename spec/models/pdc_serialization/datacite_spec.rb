@@ -249,18 +249,11 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
   end
 
   it "works with fixtures" do
-    def pretty(xml)
-      output = []
-      doc = REXML::Document.new(xml)
-      doc.write(output: output, indent: 2)
-      output.join()
-    end
-
     resource_json = YAML.load_file("spec/fixtures/resource-to-datacite/basic.resource.yaml").to_json
     resource = PDCMetadata::Resource.new_from_json(resource_json)
     datacite_xml = resource.to_xml
     datacite_xml_expected = File.read("spec/fixtures/resource-to-datacite/basic.datacite.xml")
-    expect(pretty(datacite_xml)).to eq pretty(datacite_xml_expected)
+    expect(datacite_xml).to be_equivalent_to(datacite_xml_expected)
   end
 
   context "schema validation" do
