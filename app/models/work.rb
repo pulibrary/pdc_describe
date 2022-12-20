@@ -167,7 +167,7 @@ class Work < ApplicationRecord
 
   before_save do |work|
     # Ensure that the metadata JSON is persisted properly
-    work.metadata = work.resource.to_json
+    work.metadata = JSON.parse(work.resource.to_json)
     work.save_pre_curation_uploads
   end
 
@@ -176,6 +176,12 @@ class Work < ApplicationRecord
       work.attach_s3_resources if !work.pre_curation_uploads.empty? && work.pre_curation_uploads.length > work.post_curation_uploads.length
       work.reload
     end
+  end
+
+  # Deal with Historic works where the metadata was stored as a String
+  #   New metadata records should be stored as JSON not a string blob in a JSON field
+  after_initialize do |work|
+    work.metadata = JSON.parse(work.metadata) if work.metadata.is_a? String
   end
 
   validate do |work|
@@ -287,7 +293,7 @@ class Work < ApplicationRecord
 
   def resource=(resource)
     @resource = resource
-    self.metadata = resource.to_json
+    self.metadata = JSON.parse(resource.to_json)
   end
 
   def resource

@@ -100,7 +100,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
 
   it "creates the expected json" do
     work = FactoryBot.create(:shakespeare_and_company_work)
-    expect(work.metadata).to eq(work.to_json)
+    expect(work.metadata).to eq(JSON.parse(work.to_json))
   end
 
   it "allows for collection tags" do
@@ -122,30 +122,31 @@ RSpec.describe PDCMetadata::Resource, type: :model do
   describe "##new_from_json" do
     let(:json) do
       {
-        "doi": doi,
-        "ark": "88435/dsp01zc77st047",
-        "titles": [{ "title": "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events", "title_type" => nil }],
-        "description": "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
-        "contributors": [
-          { "value": "Smith, Robert", "name_type": "Personal", "given_name": "Robert", "family_name": "Smith", "affiliations": [], "sequence": 1, "identifier": nil, type: "ProjectLeader" },
-          { "value": "Gallup, Simon", "name_type": "Personal", "given_name": "Simon", "family_name": "Gallup", "affiliations": [], "sequence": 2, "identifier": nil, type: "Other" }
+        "doi" => doi,
+        "ark" => "88435/dsp01zc77st047",
+        "titles" => [{ "title" => "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events", "title_type" => nil }],
+        "description" => "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
+        "contributors" => [
+          { "value" => "Smith, Robert", "name_type" => "Personal", "given_name" => "Robert", "family_name" => "Smith", "affiliations" => [], "sequence" => 1, "identifier" => nil,
+            "type" => "ProjectLeader" },
+          { "value" => "Gallup, Simon", "name_type" => "Personal", "given_name" => "Simon", "family_name" => "Gallup", "affiliations" => [], "sequence" => 2, "identifier" => nil, "type" => "Other" }
         ],
-        "creators": [
-          { "value": "Kotin, Joshua", "name_type": "Personal", "given_name": "Joshua", "family_name": "Kotin", "affiliations": [], "sequence": 1, "identifier": nil }
+        "creators" => [
+          { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => 1, "identifier" => nil }
         ],
-        "resource_type": "Dataset",
+        "resource_type" => "Dataset",
         "resource_type_general" => "DATASET",
-        "publisher": "Princeton University",
-        "publication_year": "2020",
-        "collection_tags": ["ABC", "123"],
-        "keywords": ["red", "yellow", "green"],
-        "related_objects": [],
-        "rights": { "identifier" => "CC BY", "name" => "Creative Commons Attribution 4.0 International", "uri" => "https://creativecommons.org/licenses/by/4.0/" },
+        "publisher" => "Princeton University",
+        "publication_year" => "2020",
+        "collection_tags" => ["ABC", "123"],
+        "keywords" => ["red", "yellow", "green"],
+        "related_objects" => [],
+        "rights" => { "identifier" => "CC BY", "name" => "Creative Commons Attribution 4.0 International", "uri" => "https://creativecommons.org/licenses/by/4.0/" },
         "version_number" => 1,
         "funder_name" => nil,
         "award_number" => nil,
         "award_uri" => nil
-      }.to_json
+      }
     end
     it "parses the json" do
       resource = described_class.new_from_json(json)
@@ -153,7 +154,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
       expect(resource.collection_tags).to eq(["ABC", "123"])
       expect(resource.keywords).to eq(["red", "yellow", "green"])
       expect(resource.description).to eq("All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.")
-      expect(JSON.parse(resource.to_json)).to eq(JSON.parse(json))
+      expect(JSON.parse(resource.to_json)).to eq(json)
     end
   end
 end
