@@ -132,13 +132,16 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       sign_in user
       visit edit_work_path(work)
       click_on "Additional Metadata"
-      fill_in "funders[][funder_name]", with: "National Science Foundation"
-      fill_in "funders[][award_number]", with: "nsf-123"
-      fill_in "funders[][award_uri]", with: "http://nsg.gov/award/123"
+      find("input[name='funders[][funder_name]']").set "National Science Foundation"
+      find("input[name='funders[][award_number]']").set "nsf-123"
+      find("input[name='funders[][award_uri]']").set "http://nsg.gov/award/123"
+      click_on "Add Another Funder"
+      find("tr:last-child input[name='funders[][funder_name]']").set "National Sigh, Hence Foundation"
       click_on "Save Work"
       expect(page).to have_content("National Science Foundation")
       expect(page).to have_content("nsf-123")
       expect(page).to have_content("http://nsg.gov/award/123")
+      expect(page).to have_content("National Sigh, Hence Foundation")
     end
   end
 
