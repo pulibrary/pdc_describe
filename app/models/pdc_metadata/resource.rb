@@ -57,11 +57,11 @@ module PDCMetadata
 
     class << self
       # Creates a PDCMetadata::Resource from a JSON string
-      def new_from_json(json_string)
+      def new_from_json(json_data)
         resource = PDCMetadata::Resource.new
-        return resource if json_string.blank?
+        return resource if json_data.blank?
 
-        hash = JSON.parse(json_string)
+        hash = json_data
 
         set_basics(resource, hash)
         set_curator_controlled_metadata(resource, hash)
