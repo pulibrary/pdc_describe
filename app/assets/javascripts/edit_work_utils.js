@@ -469,17 +469,12 @@ $(() => {
   // The `cancel` property "prevents sorting if you start on elements matching the selector"
   // https://api.jqueryui.com/sortable/#method-cancel
   //
-  //  tr:has(th)      - prevents reordering the header (https://stackoverflow.com/a/17897706/446681)
   //  input           - prevents reordering on the textboxes (so they are still editable)
   //  select, option  - prevents reordering on the dropwdown (so they are still selectable)
   //  .delete-creator - prevents reording on the delete icon
   //
-  $('#creators-table-sortable').sortable({
-    cancel: 'tr:has(th), input, .delete-creator',
-  });
-
-  $('#contributors-table-sortable').sortable({
-    cancel: 'tr:has(th), input, select, option, .delete-contributor',
+  $('.sortable').sortable({
+    cancel: 'input, select, option, .delete-contributor, .delete-creator',
   });
 
   // Give the initial focus to the title.
