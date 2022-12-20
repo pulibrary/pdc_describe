@@ -47,17 +47,17 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
     let(:doi) { "https://doi.org/10.34770/pe9w-x904" }
     let(:work_resource) do
       json = {
-        "doi": doi,
-        "identifier_type": "DOI",
-        "titles": [{ "title": "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events" }],
-        "description": "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
-        "creators": [
-          { "value": "Kotin, Joshua", "name_type": "Personal", "given_name": "Joshua", "family_name": "Kotin", "affiliations": [], "sequence": "1" }
+        "doi" => doi,
+        "identifier_type" => "DOI",
+        "titles" => [{ "title" => "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events" }],
+        "description" => "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
+        "creators" => [
+          { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => "1" }
         ],
-        "resource_type": "Dataset",
-        "publisher": "Princeton University",
-        "publication_year": "2020"
-      }.to_json
+        "resource_type" => "Dataset",
+        "publisher" => "Princeton University",
+        "publication_year" => "2020"
+      }
       PDCMetadata::Resource.new_from_json(json)
     end
     let(:datacite) { described_class.new_from_work_resource(work_resource) }
@@ -185,24 +185,24 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
       context "with multiple titles" do
         let(:resource_titles) do
           [
-            PDCMetadata::Title.new(title: "example subtitle", title_type: "Subtitle"),
-            PDCMetadata::Title.new(title: "example alternative title", title_type: "AlternativeTitle"),
-            PDCMetadata::Title.new(title: "example translated title", title_type: "TranslatedTitle")
+            { "title" => "example subtitle", "title_type" => "Subtitle" },
+            { "title" => "example alternative title", "title_type" => "AlternativeTitle" },
+            { "title" => "example translated title", "title_type" => "TranslatedTitle" }
           ]
         end
         let(:work_resource) do
           json = {
-            "doi": doi,
-            "identifier_type": "DOI",
-            "titles": resource_titles,
-            "description": "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
-            "creators": [
-              { "value": "Kotin, Joshua", "name_type": "Personal", "given_name": "Joshua", "family_name": "Kotin", "affiliations": [], "sequence": "1" }
+            "doi" => doi,
+            "identifier_type" => "DOI",
+            "titles" => resource_titles,
+            "description" => "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
+            "creators" => [
+              { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => "1" }
             ],
-            "resource_type": "Dataset",
-            "publisher": "Princeton University",
-            "publication_year": "2020"
-          }.to_json
+            "resource_type" => "Dataset",
+            "publisher" => "Princeton University",
+            "publication_year" => "2020"
+          }
           PDCMetadata::Resource.new_from_json(json)
         end
 

@@ -942,8 +942,9 @@ RSpec.describe Work, type: :model do
       }'
     end
     it "can change the entire resource" do
-      work.resource = PDCMetadata::Resource.new_from_json(resource_json)
-      expect(work.resource.to_json).to eq(JSON.parse(resource_json).to_json)
+      parsed_json = JSON.parse(resource_json)
+      work.resource = PDCMetadata::Resource.new_from_json(parsed_json)
+      expect(work.resource.to_json).to eq(parsed_json.to_json)
     end
   end
 
