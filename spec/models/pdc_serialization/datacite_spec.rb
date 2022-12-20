@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require "rails_helper"
+require "rexml"
 
 RSpec.describe PDCSerialization::Datacite, type: :model do
   context "create a skeleton datacite record" do
@@ -244,6 +245,27 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
       expect(parsed_xml.related_identifiers[0].identifier_type.value).to eq "ARK"
       expect(parsed_xml.related_identifiers[1].identifier_type.value).to eq "arXiv"
       expect(parsed_xml.related_identifiers[2].identifier_type.value).to eq "DOI"
+    end
+  end
+
+  describe "resource JSON to Datacite XML" do
+    fixtures_dir = "spec/fixtures/resource-to-datacite"
+    Dir.glob("#{fixtures_dir}/*.resource.yaml").each do |resource_path|
+      it "handles #{resource_path}" do
+        resource_json = YAML.load_file(resource_path).to_json
+        resource = PDCMetadata::Resource.new_from_json(resource_json)
+        datacite_xml = resource.to_xml
+
+        datacite_path = resource_path.gsub(".resource.yaml", ".datacite.xml")
+        datacite_xml_expected = File.read(datacite_path)
+        expect(datacite_xml).to be_equivalent_to(datacite_xml_expected)
+      end
+    end
+
+    it "does not contain stray files" do
+      Dir.glob("#{fixtures_dir}/*").each do |path|
+        expect(path).to match(/\.resource\.yaml$|\.datacite\.xml$/)
+      end
     end
   end
 
