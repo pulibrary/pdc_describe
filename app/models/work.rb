@@ -98,15 +98,19 @@ class Work < ApplicationRecord
     end
 
     def find_by_doi(doi)
-      models = all.select { |work| !work.doi.nil? && work.doi.include?(doi) }
-      raise ActiveRecord::RecordNotFound if models.empty?
-      models.first
+      # This does a string compare to allow for partial matches
+      # I'm not entirely sure why we are allowing partial matches in a find by
+      Work.find_by!("metadata->>'doi' like ? ", "%#{doi}" )
+      # I think we should be doing the following instead, which matches exactly
+      # Work.find_by!('metadata @> ?', "{\"doi\":\"#{doi}\"}")
     end
 
     def find_by_ark(ark)
-      models = all.select { |work| !work.ark.nil? && work.ark.include?(ark) }
-      raise ActiveRecord::RecordNotFound if models.empty?
-      models.first
+      # This does a string compare to allow for partial matches
+      # I'm not entirely sure why we are allowing partial matches in a find by
+      Work.find_by!("metadata->>'ark' like ? ", "%#{ark}")
+      # I think we should be doing the following instead, which matches exactly
+      # Work.find_by!('metadata @> ?', "{\"ark\":\"#{ark}\"}")
     end
 
     delegate :resource_type_general_options, to: PDCMetadata::Resource
