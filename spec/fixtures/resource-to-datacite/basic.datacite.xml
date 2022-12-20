@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<resource xsi:schemaLocation='http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://datacite.org/schema/kernel-4'>
+  <identifier identifierType='DOI'>10.34770/r2dz-ys12</identifier>
+  <creators>
+    <creator>
+      <creatorName>Adams, Ansel</creatorName>
+      <givenName>Ansel</givenName>
+      <familyName>Adams</familyName>
+    </creator>
+  </creators>
+  <titles>
+    <title>This is the title</title>
+  </titles>
+  <publisher>Princeton University</publisher>
+  <resourceType resourceTypeGeneral='Dataset'/>
+  <publicationYear>2019</publicationYear>
+  <contributors>
+    <contributor contributorType='Other'>
+      <contributorName>Simpson, Lisa</contributorName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>fake-orcid</nameIdentifier>
+    </contributor>
+  </contributors>
+  <relatedIdentifiers>
+    <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp01h415pd457</relatedIdentifier>
+    <relatedIdentifier relationType='IsCitedBy' relatedIdentifierType='arXiv'>https://www.biorxiv.org/content/10.1101/545517v1</relatedIdentifier>
+    <relatedIdentifier relationType='IsCitedBy' relatedIdentifierType='DOI'>https://doi.org/10.7554/eLife.52482</relatedIdentifier>
+  </relatedIdentifiers>
+  <version>1</version>
+  <rightsList>
+    <rights rightsURI='https://creativecommons.org/licenses/by/4.0/' rightsIdentifier='CC BY'>Creative Commons Attribution 4.0 International</rights>
+  </rightsList>
+  <descriptions>
+    <description descriptionType='Other'>The quick brown fox jumped over the lazy dog.</description>
+  </descriptions>
+  <fundingReferences>
+    <fundingReference>
+      <funderName>Scrooge McDuck</funderName>
+      <awardNumber awardURI='http://example.com/ducks'>1234</awardNumber>
+    </fundingReference>
+  </fundingReferences>
+</resource>
