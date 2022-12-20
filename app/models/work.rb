@@ -12,6 +12,7 @@ class Work < ApplicationRecord
   has_many_attached :pre_curation_uploads, service: :amazon_pre_curation
 
   belongs_to :collection
+  belongs_to :curator, class_name: "User", foreign_key: "curator_user_id", optional: true
 
   attribute :work_type, :string, default: "DATASET"
   attribute :profile, :string, default: "DATACITE"
@@ -241,11 +242,6 @@ class Work < ApplicationRecord
 
   def title
     resource.main_title
-  end
-
-  def curator
-    return nil if curator_user_id.nil?
-    User.find(curator_user_id)
   end
 
   def uploads_attributes
