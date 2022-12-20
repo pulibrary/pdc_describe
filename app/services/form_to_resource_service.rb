@@ -16,15 +16,15 @@ class FormToResourceService
       resource.rights = PDCMetadata::Rights.find(params["rights_identifier"])
       resource.keywords = (params["keywords"] || "").split(",").map(&:strip)
 
-      process_curator_controlled(params, resource)
-      process_titles(params, resource)
-      process_related_objects(params, resource)
-      process_creators(params, resource)
-      process_contributors(params, resource)
+      add_curator_controlled(params, resource)
+      add_titles(params, resource)
+      add_related_objects(params, resource)
+      add_creators(params, resource)
+      add_contributors(params, resource)
 
       # Process funders
       # (New pattern: method modifies resource in place.)
-      process_funders(params, resource)
+      add_funders(params, resource)
 
       resource
     end
@@ -40,7 +40,7 @@ class FormToResourceService
         resource
       end
 
-      def process_curator_controlled(params, resource)
+      def add_curator_controlled(params, resource)
         resource.doi = params["doi"] if params["doi"].present?
         resource.ark = params["ark"] if params["ark"].present?
         resource.version_number = params["version_number"] if params["version_number"].present?
@@ -51,7 +51,7 @@ class FormToResourceService
 
       # Titles:
 
-      def process_titles(params, resource)
+      def add_titles(params, resource)
         resource.titles << PDCMetadata::Title.new(title: params["title_main"])
         resource.titles.concat((1..params["existing_title_count"].to_i).filter_map do |i|
           title = params["title_#{i}"]
@@ -72,7 +72,7 @@ class FormToResourceService
 
       # Related Objects:
 
-      def process_related_objects(params, resource)
+      def add_related_objects(params, resource)
         resource.related_objects = (1..params["related_object_count"].to_i).filter_map do |i|
           related_identifier = params["related_identifier_#{i}"]
           related_identifier_type = params["related_identifier_type_#{i}"]
@@ -88,7 +88,7 @@ class FormToResourceService
 
       # Creators:
 
-      def process_creators(params, resource)
+      def add_creators(params, resource)
         resource.creators = (1..params["creator_count"].to_i).filter_map do |i|
           given_name = params["given_name_#{i}"]
           family_name = params["family_name_#{i}"]
@@ -105,7 +105,7 @@ class FormToResourceService
 
       # Contributors:
 
-      def process_contributors(params, resource)
+      def add_contributors(params, resource)
         resource.contributors = (1..params["contributor_count"].to_i).filter_map do |i|
           given_name = params["contributor_given_name_#{i}"]
           family_name = params["contributor_family_name_#{i}"]
@@ -123,12 +123,11 @@ class FormToResourceService
 
       # Funders:
 
-      def process_funders(params, resource)
+      def add_funders(params, resource)
         # (New pattern: Use rails param name conventions rather than numbering fields.)
         resource.funders = (params[:funders] || []).filter_map do |funder|
           new_funder(funder[:funder_name], funder[:award_number], funder[:award_uri])
         end
-        # (New pattern: no return -- method modifies resource in place.)
       end
 
       def new_funder(funder_name, award_number, award_uri)
