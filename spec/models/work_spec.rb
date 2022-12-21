@@ -936,9 +936,13 @@ RSpec.describe Work, type: :model do
         "related_objects": [],
         "keywords": [],
         "contributors": [],
-        "funder_name": "National Science Foundation",
-        "award_number": "nsf-123",
-        "award_uri": "http://nsg.gov/award/123"
+        "funders":[
+          {
+            "funder_name": "National Science Foundation",
+            "award_number": "nsf-123",
+            "award_uri": "http://nsg.gov/award/123"
+          }
+        ]
       }'
     end
     it "can change the entire resource" do

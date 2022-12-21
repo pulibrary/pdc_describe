@@ -50,7 +50,11 @@
       "type": "Other"
     },
   ],
-  "funder_name": "Scrooge McDuck",
-  "award_number": "1234",
-  "award_uri": "http://example.com/ducks"
+  "funders": [
+    {
+      "funder_name": "Scrooge McDuck",
+      "award_number": "1234",
+      "award_uri": "http://example.com/ducks"
+    }
+  ]
 }

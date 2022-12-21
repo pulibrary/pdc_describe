@@ -6,7 +6,7 @@ module PDCMetadata
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
       :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :contributors, :related_objects,
-      :funder_name, :award_number, :award_uri
+      :funders
 
     # rubocop:disable Metrics/MethodLength
     def initialize(doi: nil, title: nil, resource_type: nil, resource_type_general: nil, creators: [], description: nil)
@@ -26,9 +26,7 @@ module PDCMetadata
       @related_objects = []
       @keywords = []
       @contributors = []
-      @funder_name = nil
-      @award_number = nil
-      @award_uri = nil
+      @funders = []
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -70,6 +68,7 @@ module PDCMetadata
         set_creators(resource, hash)
         set_contributors(resource, hash)
         set_related_objects(resource, hash)
+        set_funders(resource, hash)
 
         resource
       end
@@ -108,9 +107,6 @@ module PDCMetadata
 
         def set_additional_metadata(resource, hash)
           resource.keywords = hash["keywords"] || []
-          resource.funder_name = hash["funder_name"]
-          resource.award_number = hash["award_number"]
-          resource.award_uri = hash["award_uri"]
         end
 
         def set_titles(resource, hash)
@@ -150,6 +146,16 @@ module PDCMetadata
             resource.contributors << Creator.contributor_from_hash(contributor)
           end
           resource.contributors.sort_by!(&:sequence)
+        end
+
+        def set_funders(resource, hash)
+          funders = hash["funders"] || []
+
+          funders.each do |funder|
+            resource.funders << Funder.funder_from_hash(funder)
+          end
+          # TODO: Make funders reorderable
+          # resource.funders.sort_by!(&:sequence)
         end
     end
   end
