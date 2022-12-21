@@ -196,17 +196,17 @@
 
   <p>Collection: <%= @collection.title %></p>
 
-  <% if @work.resource.funder_name.present? %>
-    <p>Funder Name: <%= @work.resource.funder_name %></p>
-  <% end %>
-
-  <% if @work.resource.award_number.present? %>
-    <p>Award Number: <%= @work.resource.award_number %></p>
-  <% end %>
-
-  <% if @work.resource.award_uri.present? %>
-    <p>Award URI: <%= @work.resource.award_uri %></p>
-  <% end %>
+  <% if @work.resource.funders.count > 0 %>
+    <p>Funders:
+      <% @work.resource.funders.each do |funder| %>
+        <div>
+          <%= funder.funder_name %>,
+          <%= funder.award_number %>,
+          <%= funder.award_uri %>
+        </div>
+      <% end %>
+    </p>
+  <% end %> 
 
   <% if @work.pre_curation_uploads.present? %>
     <p>Location: Amazon S3 Curation Storage</p>

@@ -17,11 +17,27 @@
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <td><input type="text" id="funder_name" name="funder_name" value="<%= @work.resource.funder_name %>" /></td>
-      <td><input type="text" id="award_number" name="award_number" value="<%= @work.resource.award_number %>" /></td>
-      <td><input type="text" id="award_uri" name="award_uri" value="<%= @work.resource.award_uri %>" /></td>
-    </tr>
+    <% (@work.resource.funders + [nil]).each do |funder| %>
+      <tr>
+        <td>
+          <input name="funders[][funder_name]" value="<%= funder&.funder_name %>" />
+        </td>
+        <td>
+          <input name="funders[][award_number]" value="<%= funder&.award_number %>" />
+        </td>
+        <td>
+          <input name="funders[][award_uri]" value="<%= funder&.award_uri %>" />
+        </td>
+      </tr>
+    <% end %>
   </tbody>
+  <tfoot>
+    <tr>
+      <td>
+        <button class="btn btn-secondary btn-add-row">
+          Add Another Funder
+        </button>
+      </td>
+    </tr>
+  </tfoot>
 </table>
-
