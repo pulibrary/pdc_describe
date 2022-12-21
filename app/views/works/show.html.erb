@@ -113,6 +113,20 @@
 </p>
 
 <div>
+  <% if @can_curate %>
+    <p>Curator: <select id="curator_select">
+      <option value="no-one">(no one)</option>
+      <% @collection.administrators.each do |user| %>
+        <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.display_name_safe %></option>
+      <% end %>
+    </select></p>
+  <% else %>
+    <% if @work.curator_user_id.nil? %>
+      <p>Curator: none</p>
+    <% else %>
+      <p>Curator: <%= User.find(@work.curator_user_id).display_name_safe %></p>
+    <% end %>
+  <% end %>
 
   <% if @work.resource.doi %>
     <p>DOI:
@@ -127,7 +141,7 @@
     <p>ARK: <%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></p>
   <% end %>
 
-  <p>Creator(s): <%= @work.created_by_user.uid %></p>
+  <p>Creator: <%= @work.created_by_user.uid %></p>
 
   <% if @work.resource.contributors.count > 0 %>
     <p>Contributors:
@@ -206,21 +220,6 @@
 
   <% if @work.submission_notes.present? %>
     <p>Notes: <%= @work.submission_notes %></p>
-  <% end %>
-
-  <% if @can_curate %>
-    <p>Curator: <select id="curator_select">
-      <option value="no-one">(no one)</option>
-      <% @collection.administrators.each do |user| %>
-        <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.display_name_safe %></option>
-      <% end %>
-    </select></p>
-  <% else %>
-    <% if @work.curator_user_id.nil? %>
-      <p>Curator: none</p>
-    <% else %>
-      <p>Curator: <%= User.find(@work.curator_user_id).display_name_safe %></p>
-    <% end %>
   <% end %>
 </div>
 
