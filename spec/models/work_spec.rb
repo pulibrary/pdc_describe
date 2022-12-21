@@ -337,6 +337,7 @@ RSpec.describe Work, type: :model do
 
   describe "datasets waiting for approval by user type" do
     before do
+      FactoryBot.create(:completed_work, created_by_user_id: user.id)
       FactoryBot.create(:draft_work, created_by_user_id: user.id)
       FactoryBot.create(:draft_work, created_by_user_id: user.id)
       FactoryBot.create(:draft_work, created_by_user_id: pppl_user.id, collection_id: Collection.plasma_laboratory.id)
