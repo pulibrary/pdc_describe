@@ -113,11 +113,7 @@
 </p>
 
 <div>
-  <p>Description:<br/>
-    <span style="white-space: pre-wrap;"><%= @work.resource.description %></span>
-  </p>
-  <p>Publisher: <%= @work.resource.publisher %></p>
-  <p>Publication Year: <%= @work.resource.publication_year %></p>
+
   <% if @work.resource.doi %>
     <p>DOI:
       <span><%= link_to(@work.resource.doi, doi_url(@work.resource.doi), target: '_blank', rel: 'noopener noreferrer') %></span>
@@ -130,6 +126,36 @@
   <% if @work.resource.ark %>
     <p>ARK: <%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></p>
   <% end %>
+
+  <p>Creator(s): <%= @work.created_by_user.uid %></p>
+
+  <% if @work.resource.contributors.count > 0 %>
+    <p>Contributors:
+      <% @work.resource.contributors.each_with_index do |contributor, ix| %>
+        <%= contributor_link(contributor, ix < (@work.resource.contributors.count-1) ) %>
+      <% end %>
+    </p>
+  <% end %>
+
+  <p>Description:<br/>
+    <span style="white-space: pre-wrap;"><%= @work.resource.description %></span>
+  </p>
+
+  <% if @work.resource.keywords.count > 0 %>
+    <p>Keywords:
+      <% @work.resource.keywords.each do |keyword| %>
+        <span class="badge bg-dark"><%= keyword %></span>
+      <% end %>
+    </p>
+  <% end %>
+
+  <% if @work.resource.rights.present? %>
+    <p>Rights: <%= @work.resource.rights.name %> (<%= link_to(@work.resource.rights.identifier, @work.resource.rights.uri, {target: "_blank"}) %>)</p>
+  <% end %>
+
+  <p>Publisher: <%= @work.resource.publisher %></p>
+  <p>Publication Year: <%= @work.resource.publication_year %></p>
+
   <% if @work.resource.version_number %>
     <p>Version: <%= @work.resource.version_number %></p>
   <% end %>
@@ -145,14 +171,6 @@
     <% end %>
   <% end %>
 
-  <% if @work.resource.contributors.count > 0 %>
-    <p>Contributors:
-      <% @work.resource.contributors.each_with_index do |contributor, ix| %>
-        <%= contributor_link(contributor, ix < (@work.resource.contributors.count-1) ) %>
-      <% end %>
-    </p>
-  <% end %>
-
   <% if @work.resource.related_objects.count > 0 %>
     <p>Related Objects:
       <% @work.resource.related_objects.each do |related_object| %>
@@ -161,18 +179,7 @@
     </p>
   <% end %>
 
-  <p>Added by: <%= @work.created_by_user.uid %></p>
   <p>Collection: <%= @collection.title %></p>
-  <% if @work.resource.rights.present? %>
-    <p>Rights: <%= @work.resource.rights.name %> (<%= link_to(@work.resource.rights.identifier, @work.resource.rights.uri, {target: "_blank"}) %>)</p>
-  <% end %>
-  <% if @work.resource.keywords.count > 0 %>
-    <p>Keywords:
-      <% @work.resource.keywords.each do |keyword| %>
-        <span class="badge bg-dark"><%= keyword %></span>
-      <% end %>
-    </p>
-  <% end %>
 
   <% if @work.resource.funder_name.present? %>
     <p>Funder Name: <%= @work.resource.funder_name %></p>
