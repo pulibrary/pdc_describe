@@ -137,19 +137,8 @@
       </button>
     </p>
   <% end %>
-  <% if @work.resource.ark %>
-    <p>ARK: <%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></p>
-  <% end %>
 
   <p>Creator: <%= @work.created_by_user.uid %></p>
-
-  <% if @work.resource.contributors.count > 0 %>
-    <p>Contributors:
-      <% @work.resource.contributors.each_with_index do |contributor, ix| %>
-        <%= contributor_link(contributor, ix < (@work.resource.contributors.count-1) ) %>
-      <% end %>
-    </p>
-  <% end %>
 
   <p>Description:<br/>
     <span style="white-space: pre-wrap;"><%= @work.resource.description %></span>
@@ -183,6 +172,18 @@
         </p>
       </div>
     <% end %>
+  <% end %>
+
+  <% if @work.resource.ark %>
+    <p>ARK: <%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></p>
+  <% end %>
+
+  <% if @work.resource.contributors.count > 0 %>
+    <p>Contributors:
+      <% @work.resource.contributors.each_with_index do |contributor, ix| %>
+        <%= contributor_link(contributor, ix < (@work.resource.contributors.count-1) ) %>
+      <% end %>
+    </p>
   <% end %>
 
   <% if @work.resource.related_objects.count > 0 %>
