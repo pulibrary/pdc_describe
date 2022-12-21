@@ -12,11 +12,13 @@ class UsersController < ApplicationController
 
   # GET /users/1
   def show
+    @search_terms = params["q"].presence
     @can_edit = can_edit?
     @my_dashboard = current_user.id == @user.id
-    @unfinished_works = Work.unfinished_works(@user)
-    @completed_works = Work.completed_works(@user)
-    @withdrawn_works = Work.withdrawn_works(@user)
+    @unfinished_works = Work.unfinished_works(@user, @search_terms)
+    @completed_works = Work.completed_works(@user, @search_terms)
+    @withdrawn_works = Work.withdrawn_works(@user, @search_terms)
+    @works_found = @unfinished_works.length + @completed_works.length + @withdrawn_works.length
   end
 
   # GET /users/1/edit

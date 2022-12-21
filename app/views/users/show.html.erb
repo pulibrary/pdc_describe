@@ -2,6 +2,15 @@
   <p id="notice"><%= notice %></p>
 <% end %>
 
+<div class="search-bar">
+  <div class="search-form">
+    <%= form_with(url: user_path(@user.uid), method: "get") do %>
+      <%= text_field_tag(:q, @search_terms, {placeholder: "Search by DOI, Title, Name, ARK"}) %>
+      <%= submit_tag("Search", class: "btn btn-primary") %>
+    <% end %>
+  </div>
+</div>
+
 <h2>
   <%= @my_dashboard ? "Welcome " : "" %><%= @user.display_name_safe %>
   <% if @user.super_admin? %>
@@ -53,6 +62,11 @@
 <% if @withdrawn_works.count > 0 %>
   <h2 class="dataset-section">Withdrawn Submissions</h2>
   <%= render partial: "dataset_table", locals: {table_id: "withdrawn_datasets", datasets: @withdrawn_works} %>
+<% end %>
+
+<% if @works_found == 0 && @search_terms.present? %>
+  <h2 class="dataset-section-no-works">No works found</h2>
+  <p>No works found for <i><%= @search_terms %></i></p>
 <% end %>
 
 <script type="text/javascript">
