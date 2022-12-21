@@ -58,9 +58,4 @@ namespace :works do
       work.destroy
     end
   end
-
-  desc "Convert metadata to JSON"
-  task convert_metadata_to_JSON: :environment do
-    Work.all.each(&:save!) # each metadata record will be updated to JSON when we load it
-  end
 end

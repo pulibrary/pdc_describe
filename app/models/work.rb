@@ -182,12 +182,6 @@ class Work < ApplicationRecord
     end
   end
 
-  # Deal with Historic works where the metadata was stored as a String
-  #   New metadata records should be stored as JSON not a string blob in a JSON field
-  after_initialize do |work|
-    work.metadata = JSON.parse(work.metadata) if work.metadata.is_a? String
-  end
-
   validate do |work|
     if none?
       work.validate_doi
