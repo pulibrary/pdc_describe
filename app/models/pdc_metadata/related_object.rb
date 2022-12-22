@@ -38,22 +38,6 @@ module PDCMetadata
       RelatedObject.new(related_identifier: related_identifier, related_identifier_type: related_identifier_type, relation_type: relation_type)
     end
 
-    # ##
-    # # Generate a list of valid options for the related_identifier_type field
-    # def self.related_identifier_type_options
-    #   pairs = Datacite::Mapping::RelatedIdentifierType.map { |value| [value.key, value.value] }
-    #   built = Hash[pairs]
-    #   built.with_indifferent_access
-    # end
-
-    # ##
-    # # Generate a list of valid options for the relation_type field
-    # def self.relation_type_options
-    #   pairs = Datacite::Mapping::RelationType.map { |value| [value.key, value.value] }
-    #   built = Hash[pairs]
-    #   built.with_indifferent_access
-    # end
-
     private
 
       def valid_related_identifier_type?
