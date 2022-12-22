@@ -161,6 +161,12 @@ details {
       margin-left: 0.5rem;
     }
   }
+
+  summary.show-changes {
+    &::after {
+      content: 'Show Changes';
+    }
+  }
 }
 
 .copy-doi-label-normal {
