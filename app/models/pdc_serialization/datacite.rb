@@ -103,12 +103,12 @@ module PDCSerialization
 
     class << self
       def datacite_resource_type(resource_type)
-        resource_types = ::Datacite::Mapping::ResourceTypeGeneral.to_a.index_by(&:value)
+        resource_types = ::Datacite::Mapping::ResourceTypeGeneral.index_by(&:value)
         ::Datacite::Mapping::ResourceType.new(resource_type_general: resource_types[resource_type])
       end
 
       def datacite_contributor_type(type)
-        contributor_types = ::Datacite::Mapping::ContributorType.to_a.index_by(&:value)
+        contributor_types = ::Datacite::Mapping::ContributorType.index_by(&:value)
         contributor_types[type]
       end
 

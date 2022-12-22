@@ -74,7 +74,7 @@ module PDCMetadata
       end
 
       def resource_type_general_options
-        pairs = Datacite::Mapping::ResourceTypeGeneral.to_a.map { |value| [value.key, value.value] }
+        pairs = Datacite::Mapping::ResourceTypeGeneral.map { |value| [value.key, value.value] }
         built = Hash[pairs]
         built.with_indifferent_access
       end

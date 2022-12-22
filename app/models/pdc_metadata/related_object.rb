@@ -41,7 +41,7 @@ module PDCMetadata
     ##
     # Generate a list of valid options for the related_identifier_type field
     def self.related_identifier_type_options
-      pairs = Datacite::Mapping::RelatedIdentifierType.to_a.map { |value| [value.key, value.value] }
+      pairs = Datacite::Mapping::RelatedIdentifierType.map { |value| [value.key, value.value] }
       built = Hash[pairs]
       built.with_indifferent_access
     end
@@ -49,7 +49,7 @@ module PDCMetadata
     ##
     # Generate a list of valid options for the relation_type field
     def self.relation_type_options
-      pairs = Datacite::Mapping::RelationType.to_a.map { |value| [value.key, value.value] }
+      pairs = Datacite::Mapping::RelationType.map { |value| [value.key, value.value] }
       built = Hash[pairs]
       built.with_indifferent_access
     end
