@@ -57,19 +57,19 @@ module PDCMetadata
     private
 
       def valid_related_identifier_type?
-        @valid_related_identifier_type ||= valid_type_values.include?(related_identifier_type&.upcase)
+        @valid_related_identifier_type ||= valid_type_values.include?(related_identifier_type)
       end
 
       def valid_relation_type?
-        @valid_relation_type ||= valid_relationship_types.include?(relation_type&.upcase)
+        @valid_relation_type ||= valid_relationship_types.include?(relation_type)
       end
 
       def valid_type_values
-        @valid_type_values ||= Datacite::Mapping::RelatedIdentifierType.to_a.map(&:value).map(&:upcase)
+        @valid_type_values ||= Datacite::Mapping::RelatedIdentifierType.map(&:key).map(&:to_s)
       end
 
       def valid_relationship_types
-        @valid_relationship_types ||= Datacite::Mapping::RelationType.to_a.map(&:value).map(&:upcase)
+        @valid_relationship_types ||= Datacite::Mapping::RelationType.map(&:key).map(&:to_s)
       end
   end
 end
