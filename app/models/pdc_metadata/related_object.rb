@@ -65,11 +65,11 @@ module PDCMetadata
       end
 
       def valid_type_values
-        @valid_type_values ||= Datacite::Mapping::RelatedIdentifierType.map(&:key).map(&:to_s)
+        @valid_type_values ||= Datacite::Mapping::RelatedIdentifierType.map(&:value)
       end
 
       def valid_relationship_types
-        @valid_relationship_types ||= Datacite::Mapping::RelationType.map(&:key).map(&:to_s)
+        @valid_relationship_types ||= Datacite::Mapping::RelationType.map(&:value)
       end
   end
 end
