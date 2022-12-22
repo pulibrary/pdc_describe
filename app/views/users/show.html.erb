@@ -25,7 +25,16 @@
 <% end %>
 
 <% if @my_dashboard && @user.orcid.blank? %>
-  <p class="orcid-label">You do not have an  ORCID iD on file. <%= link_to("Add one", edit_user_path(@user)) %> to your profile.</p>
+  <p>
+    You do not have an  ORCID iD on file. <%= link_to("Add one", edit_user_path(@user)) %> to your profile.
+  </p>
+  <p>
+    ORCID, Open Research and Contributor ID, is a non-profit organization that promotes the use of
+    a unique digital identifier in an effort to help link researchers to their scholarly works
+    regardless of institutional affiliation, moves or names. You can learn more about ORCID in
+    our <a target="_blank" href="https://researchdata.princeton.edu/research-lifecycle-guide/orcid">ORCID guide</a>
+    and register for one at <a target="_blank" href="https://orcid.org/register">https://orcid.org/register</a>.
+  </p>
 <% end %>
 
 <% if @user.super_admin? %>
