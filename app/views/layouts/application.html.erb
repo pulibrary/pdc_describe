@@ -51,7 +51,7 @@
         ['ContributorType', 'RelationType', 'RelatedIdentifierType'].map { |name|
           [
             name, 
-            Datacite::Mapping.const_get(name).to_a.map{ |rel| rel.value }
+            Datacite::Mapping.const_get(name).to_a.map(&:value)
           ] 
         }.to_h.to_json
       ) %>,

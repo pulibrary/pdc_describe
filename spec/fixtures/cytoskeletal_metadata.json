@@ -150,13 +150,13 @@
     "related_objects": [
         {
             "related_identifier": "https://www.biorxiv.org/content/10.1101/545517v1",
-            "related_identifier_type": "ARXIV",
-            "relation_type": "IS_CITED_BY"
+            "related_identifier_type": "arXiv",
+            "relation_type": "IsCitedBy"
         },
         {
             "related_identifier": "https://doi.org/10.7554/eLife.52482",
             "related_identifier_type": "DOI",
-            "relation_type": "IS_CITED_BY"
+            "relation_type": "IsCitedBy"
         }
     ],
     "keywords": [],
