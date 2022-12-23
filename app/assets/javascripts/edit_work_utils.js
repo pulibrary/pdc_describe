@@ -296,6 +296,15 @@ $(() => {
     }
   }
 
+  // This is generic and could be used to add blank rows to any table.
+  $('.btn-add-row').on('click', (event) => {
+    const $tbody = $(event.target).closest('table').find('tbody');
+    const $newTr = $tbody.find('tr').last().clone();
+    $newTr.find('input').val('');
+    $tbody.append($newTr);
+    return false;
+  });
+
   $('#btn-add-creator').on('click', (el) => {
     const num = incrementCounter('#creator_count');
     addCreatorHtml(num, '', '', '');

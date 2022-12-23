@@ -96,7 +96,7 @@ module PDCSerialization
         related_identifiers: related_identifiers_from_work_resource(resource),
         rights_list: rights_from_work_resource(resource),
         version: resource.version_number,
-        funding_references: funding_reference_from_work_resource(resource)
+        funding_references: funding_references_from_work_resource(resource)
       )
       Datacite.new(mapping)
     end
@@ -215,11 +215,11 @@ module PDCSerialization
           rights
         end
 
-        def funding_reference_from_work_resource(resource)
-          return nil unless resource.award_number.present? && resource.funder_name.present?
-          award = ::Datacite::Mapping::AwardNumber.new(uri: resource.award_uri, value: resource.award_number)
-          funding_reference = ::Datacite::Mapping::FundingReference.new(name: resource.funder_name, award_number: award)
-          [funding_reference]
+        def funding_references_from_work_resource(resource)
+          resource.funders.map do |funder|
+            award = ::Datacite::Mapping::AwardNumber.new(uri: funder.award_uri, value: funder.award_number)
+            ::Datacite::Mapping::FundingReference.new(name: funder.funder_name, award_number: award)
+          end
         end
       end
   end

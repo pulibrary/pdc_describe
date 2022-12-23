@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require "rails_helper"
+require "rexml"
 
 RSpec.describe PDCSerialization::Datacite, type: :model do
   context "create a skeleton datacite record" do
@@ -47,17 +48,17 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
     let(:doi) { "https://doi.org/10.34770/pe9w-x904" }
     let(:work_resource) do
       json = {
-        "doi": doi,
-        "identifier_type": "DOI",
-        "titles": [{ "title": "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events" }],
-        "description": "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
-        "creators": [
-          { "value": "Kotin, Joshua", "name_type": "Personal", "given_name": "Joshua", "family_name": "Kotin", "affiliations": [], "sequence": "1" }
+        "doi" => doi,
+        "identifier_type" => "DOI",
+        "titles" => [{ "title" => "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events" }],
+        "description" => "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
+        "creators" => [
+          { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => "1" }
         ],
-        "resource_type": "Dataset",
-        "publisher": "Princeton University",
-        "publication_year": "2020"
-      }.to_json
+        "resource_type" => "Dataset",
+        "publisher" => "Princeton University",
+        "publication_year" => "2020"
+      }
       PDCMetadata::Resource.new_from_json(json)
     end
     let(:datacite) { described_class.new_from_work_resource(work_resource) }
@@ -185,24 +186,24 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
       context "with multiple titles" do
         let(:resource_titles) do
           [
-            PDCMetadata::Title.new(title: "example subtitle", title_type: "Subtitle"),
-            PDCMetadata::Title.new(title: "example alternative title", title_type: "AlternativeTitle"),
-            PDCMetadata::Title.new(title: "example translated title", title_type: "TranslatedTitle")
+            { "title" => "example subtitle", "title_type" => "Subtitle" },
+            { "title" => "example alternative title", "title_type" => "AlternativeTitle" },
+            { "title" => "example translated title", "title_type" => "TranslatedTitle" }
           ]
         end
         let(:work_resource) do
           json = {
-            "doi": doi,
-            "identifier_type": "DOI",
-            "titles": resource_titles,
-            "description": "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
-            "creators": [
-              { "value": "Kotin, Joshua", "name_type": "Personal", "given_name": "Joshua", "family_name": "Kotin", "affiliations": [], "sequence": "1" }
+            "doi" => doi,
+            "identifier_type" => "DOI",
+            "titles" => resource_titles,
+            "description" => "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
+            "creators" => [
+              { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => "1" }
             ],
-            "resource_type": "Dataset",
-            "publisher": "Princeton University",
-            "publication_year": "2020"
-          }.to_json
+            "resource_type" => "Dataset",
+            "publisher" => "Princeton University",
+            "publication_year" => "2020"
+          }
           PDCMetadata::Resource.new_from_json(json)
         end
 
@@ -244,6 +245,26 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
       expect(parsed_xml.related_identifiers[0].identifier_type.value).to eq "ARK"
       expect(parsed_xml.related_identifiers[1].identifier_type.value).to eq "arXiv"
       expect(parsed_xml.related_identifiers[2].identifier_type.value).to eq "DOI"
+    end
+  end
+
+  describe "resource JSON to Datacite XML" do
+    fixtures_dir = "spec/fixtures/resource-to-datacite"
+    Dir.glob("#{fixtures_dir}/*.resource.yaml").each do |resource_path|
+      it "handles #{resource_path}" do
+        resource = PDCMetadata::Resource.new_from_json(YAML.load_file(resource_path))
+        datacite_xml = resource.to_xml
+
+        datacite_path = resource_path.gsub(".resource.yaml", ".datacite.xml")
+        datacite_xml_expected = File.read(datacite_path)
+        expect(datacite_xml).to be_equivalent_to(datacite_xml_expected)
+      end
+    end
+
+    it "does not contain stray files" do
+      Dir.glob("#{fixtures_dir}/*").each do |path|
+        expect(path).to match(/\.resource\.yaml$|\.datacite\.xml$/)
+      end
     end
   end
 

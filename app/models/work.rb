@@ -12,6 +12,7 @@ class Work < ApplicationRecord
   has_many_attached :pre_curation_uploads, service: :amazon_pre_curation
 
   belongs_to :collection
+  belongs_to :curator, class_name: "User", foreign_key: "curator_user_id", optional: true
 
   attribute :work_type, :string, default: "DATASET"
   attribute :profile, :string, default: "DATACITE"
@@ -98,15 +99,19 @@ class Work < ApplicationRecord
     end
 
     def find_by_doi(doi)
-      models = all.select { |work| !work.doi.nil? && work.doi.include?(doi) }
-      raise ActiveRecord::RecordNotFound if models.empty?
-      models.first
+      # This does a string compare to allow for partial matches
+      # I'm not entirely sure why we are allowing partial matches in a find by
+      Work.find_by!("metadata->>'doi' like ? ", "%#{doi}")
+      # I think we should be doing the following instead, which matches exactly
+      # Work.find_by!('metadata @> ?', "{\"doi\":\"#{doi}\"}")
     end
 
     def find_by_ark(ark)
-      models = all.select { |work| !work.ark.nil? && work.ark.include?(ark) }
-      raise ActiveRecord::RecordNotFound if models.empty?
-      models.first
+      # This does a string compare to allow for partial matches
+      # I'm not entirely sure why we are allowing partial matches in a find by
+      Work.find_by!("metadata->>'ark' like ? ", "%#{ark}")
+      # I think we should be doing the following instead, which matches exactly
+      # Work.find_by!('metadata @> ?', "{\"ark\":\"#{ark}\"}")
     end
 
     delegate :resource_type_general_options, to: PDCMetadata::Resource
@@ -166,7 +171,7 @@ class Work < ApplicationRecord
 
   before_save do |work|
     # Ensure that the metadata JSON is persisted properly
-    work.metadata = work.resource.to_json
+    work.metadata = JSON.parse(work.resource.to_json)
     work.save_pre_curation_uploads
   end
 
@@ -243,11 +248,6 @@ class Work < ApplicationRecord
     resource.main_title
   end
 
-  def curator
-    return nil if curator_user_id.nil?
-    User.find(curator_user_id)
-  end
-
   def uploads_attributes
     return [] if approved? # once approved we no longer allow the updating of uploads via the application
     uploads.map do |upload|
@@ -291,7 +291,7 @@ class Work < ApplicationRecord
 
   def resource=(resource)
     @resource = resource
-    self.metadata = resource.to_json
+    self.metadata = JSON.parse(resource.to_json)
   end
 
   def resource

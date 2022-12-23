@@ -1,75 +1,80 @@
-<div class="section-title">
-  <!-- Publisher field -->
-  <div class="field">
-    Publisher:<span class="required-field">*</span><br>
-    <input type="text" id="publisher" name="publisher" class="input-text-long" value="<%= @work.resource.publisher %>" <%= is_collection_admin ? '' : 'readonly' %> />
-  </div>
+<p>
+  These metadata properties include defaults for any submissions published to the Research Data Repository.
+  These fields can only be changed by the collection moderators.
+  Please reach out to the curator for assistance with any desired changes.
+</p>
 
-  <!-- Publication year field -->
-  <div class="field">
-    Publication Year:<span class="required-field">*</span><br>
-    <input type="text" id="publication_year" name="publication_year" class="input-text-year" value="<%= @work.resource.publication_year %>" <%= is_collection_admin ? '' : 'readonly' %> />
-  </div>
 
-  <!-- DOI field (mostly for legacy DSpace works) -->
-  <div class="field">
-    <% if  @wizard_mode || @work.persisted? %>
-      DOI: <br>
-      <input type="text" id="doi" name="doi" class="input-text-long" value="<%= @work.doi %>" <%= is_collection_admin ? '' : 'readonly' %> />
-    <% else %>
-      DOI: <span class="text-muted field-hint">(enter the Digital Object Identifier, e.g. 10.80021/62qy-nj36)</span><br>
-      <input type="text" id="doi" name="doi" class="input-text-long" value="<%= @work.doi %>"/>
+<!-- Publisher field -->
+<div class="field">
+  Publisher:<span class="required-field">*</span><br>
+  <input type="text" id="publisher" name="publisher" class="input-text-long" value="<%= @work.resource.publisher %>" <%= is_collection_admin ? '' : 'readonly' %> />
+</div>
+
+<!-- Publication year field -->
+<div class="field">
+  Publication Year:<span class="required-field">*</span><br>
+  <input type="text" id="publication_year" name="publication_year" class="input-text-year" value="<%= @work.resource.publication_year %>" <%= is_collection_admin ? '' : 'readonly' %> />
+</div>
+
+<!-- DOI field (mostly for legacy DSpace works) -->
+<div class="field">
+  <% if  @wizard_mode || @work.persisted? %>
+    DOI: <br>
+    <input type="text" id="doi" name="doi" class="input-text-long" value="<%= @work.doi %>" <%= is_collection_admin ? '' : 'readonly' %> />
+  <% else %>
+    DOI: <span class="text-muted field-hint">(enter the Digital Object Identifier, e.g. 10.80021/62qy-nj36)</span><br>
+    <input type="text" id="doi" name="doi" class="input-text-long" value="<%= @work.doi %>"/>
+  <% end %>
+</div>
+
+<!-- ARK field (mostly for legacy DSpace works) -->
+<div class="field">
+  ARK: <span class="text-muted field-hint">(enter the core ARK identifier, e.g. ark:/88435/xyz123)</span><br>
+  <input type="text" id="ark" name="ark" class="input-text-long" value="<%= @work.resource.ark %>" <%= is_collection_admin ? '' : 'readonly' %> />
+</div>
+
+<!-- Resource Type -->
+<div class="field">
+  Resource Type:<span class="required-field">*</span><span class="text-muted field-hint">(please see <%= link_to("the DataCite schema documentation", "https://schema.datacite.org/meta/kernel-4.4/", target: "_blank", rel: "nofollow") %>)</span><br>
+  <input type="text" id="resource_type" name="resource_type" class="input-text-long" value="<%= @work.resource_type %>" <%= is_collection_admin ? '' : 'readonly' %> />
+</div>
+
+<!-- Resource Type General -->
+<div class="field">
+  Resource Type General:<span class="required-field">*</span><span class="text-muted field-hint">(please see <%= link_to("the DataCite schema documentation", "https://schema.datacite.org/meta/kernel-4.4/", target: "_blank", rel: "nofollow") %> )</span><br>
+  <input type="hidden" name="resource_type_general" value="<%=@workresource_type_general %>"/> <!-- put the value in the form as disabled will not send the data back -->
+  <select id="resource_type_general" name="resource_type_general" <%= is_collection_admin ? '' : 'disabled' %> >
+    <% Work.resource_type_general_options.each_pair do |key, value| %>
+      <option value="<%= key %>" <%= @work.resource_type_general == key.to_sym ? "selected" : "" %>><%= value %></option>
     <% end %>
-  </div>
+  </select>
+</div>
 
-  <!-- ARK field (mostly for legacy DSpace works) -->
-  <div class="field">
-    ARK: <span class="text-muted field-hint">(enter the core ARK identifier, e.g. ark:/88435/xyz123)</span><br>
-    <input type="text" id="ark" name="ark" class="input-text-long" value="<%= @work.resource.ark %>" <%= is_collection_admin ? '' : 'readonly' %> />
-  </div>
+<!-- Version number -->
+<div class="field">
+  Version: <span class="required-field">*</span><br>
+  <input type="hidden" name="version_number" value="<%= @work.resource.version_number%>"/> <!-- put the value in the form as disabled will not send the data back -->
+  <select id="version_number" name="version_number" class="input-version" <%= is_collection_admin ? '' : 'disabled' %> >
+    <% (1..10).each do |i| %>
+      <option value="<%= i %>" <%= i.to_s == @work.resource.version_number ? "selected" : "" %>><%= i %></option>
+    <% end %>
+  </select>
+</div>
 
-  <!-- Resource Type -->
-  <div class="field">
-    Resource Type:<span class="required-field">*</span><span class="text-muted field-hint">(please see <%= link_to("the DataCite schema documentation", "https://schema.datacite.org/meta/kernel-4.4/", target: "_blank", rel: "nofollow") %>)</span><br>
-    <input type="text" id="resource_type" name="resource_type" class="input-text-long" value="<%= @work.resource_type %>" <%= is_collection_admin ? '' : 'readonly' %> />
-  </div>
+<!-- Collection field -->
+<div class="field">
+  Collection: <span class="required-field">*</span><br>
+  <input type="hidden" name="collection_id" value="<%= @work.collection_id%>"/> <!-- put the value in the form as disabled will not send the data back -->
+  <select id="collection_id" name="collection_id" class="input-text-long"  <%= is_collection_admin ? '' : 'disabled' %> >
+    <% current_user.submitter_collections.each do |collection| %>
+      <option value="<%=collection.id%>" <%= @work.collection_id == collection.id ? "selected" : "" %>><%=collection.title%></option>
+    <% end %>
+  </select>
+</div>
 
-  <!-- Resource Type General -->
-  <div class="field">
-    Resource Type General:<span class="required-field">*</span><span class="text-muted field-hint">(please see <%= link_to("the DataCite schema documentation", "https://schema.datacite.org/meta/kernel-4.4/", target: "_blank", rel: "nofollow") %> )</span><br>
-    <input type="hidden" name="resource_type_general" value="<%=@workresource_type_general %>"/> <!-- put the value in the form as disabled will not send the data back -->
-    <select id="resource_type_general" name="resource_type_general" <%= is_collection_admin ? '' : 'disabled' %> >
-      <% Work.resource_type_general_options.each_pair do |key, value| %>
-        <option value="<%= key %>" <%= @work.resource_type_general == key.to_sym ? "selected" : "" %>><%= value %></option>
-      <% end %>
-    </select>
-  </div>
-
-  <!-- Version number -->
-  <div class="field">
-    Version: <span class="required-field">*</span><br>
-    <input type="hidden" name="version_number" value="<%= @work.resource.version_number%>"/> <!-- put the value in the form as disabled will not send the data back -->
-    <select id="version_number" name="version_number" class="input-version" <%= is_collection_admin ? '' : 'disabled' %> >
-      <% (1..10).each do |i| %>
-        <option value="<%= i %>" <%= i.to_s == @work.resource.version_number ? "selected" : "" %>><%= i %></option>
-      <% end %>
-    </select>
-  </div>
-
-  <!-- Collection field -->
-  <div class="field">
-    Collection: <span class="required-field">*</span><br>
-    <input type="hidden" name="collection_id" value="<%= @work.collection_id%>"/> <!-- put the value in the form as disabled will not send the data back -->
-    <select id="collection_id" name="collection_id" class="input-text-long"  <%= is_collection_admin ? '' : 'disabled' %> >
-      <% current_user.submitter_collections.each do |collection| %>
-        <option value="<%=collection.id%>" <%= @work.collection_id == collection.id ? "selected" : "" %>><%=collection.title%></option>
-      <% end %>
-    </select>
-  </div>
-
-  <!-- Collection Tags field -->
-  <div class="field">
-    Collection Tags: <span class="text-muted field-hint">(enter tags that identify the collect in a comma separated list, e.g. Humanities, Life Sciences)</span><br>
-    <input type="text" id="collection_tags" name="collection_tags" class="input-text-long" value="<%= @work.resource.collection_tags.join(', ') %>" <%= is_collection_admin ? '' : 'readonly' %> />
-  </div>
+<!-- Collection Tags field -->
+<div class="field">
+  Collection Tags: <span class="text-muted field-hint">(enter tags that identify the collect in a comma separated list, e.g. Humanities, Life Sciences)</span><br>
+  <input type="text" id="collection_tags" name="collection_tags" class="input-text-long" value="<%= @work.resource.collection_tags.join(', ') %>" <%= is_collection_admin ? '' : 'readonly' %> />
 </div>

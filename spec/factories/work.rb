@@ -12,7 +12,7 @@ FactoryBot.define do
       resource { FactoryBot.build :resource, doi: doi }
     end
 
-    factory :completed_work do
+    factory :awaiting_approval_work do
       transient do
         doi { "10.34770/123-abc" }
         ark { nil }
@@ -37,19 +37,22 @@ FactoryBot.define do
     factory :shakespeare_and_company_work do
       collection { Collection.research_data }
       resource do
-        PDCMetadata::Resource.new_from_json({
-          "doi": "10.34770/pe9w-x904",
-          "ark": "ark:/88435/dsp01zc77st047",
-          "identifier_type": "DOI",
-          "titles": [{ "title": "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events" }],
-          "description": "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
-          "creators": [
-            { "value": "Kotin, Joshua", "name_type": "Personal", "given_name": "Joshua", "family_name": "Kotin", "affiliations": [], "sequence": "1" }
-          ],
-          "resource_type": "Dataset", "publisher": "Princeton University", "publication_year": "2020",
-          "version_number": "1",
-          "rights": { "identifier": "CC BY" }
-        }.to_json)
+        PDCMetadata::Resource.new_from_json(
+          {
+            "doi" => "10.34770/pe9w-x904",
+            "ark" => "ark:/88435/dsp01zc77st047",
+            "identifier_type" => "DOI",
+            "titles" => [{ "title" => "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events" }],
+            "description" =>
+                                                "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
+            "creators" => [
+              { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => "1" }
+            ],
+            "resource_type" => "Dataset", "publisher" => "Princeton University", "publication_year" => "2020",
+            "version_number" => "1",
+            "rights" => { "identifier" => "CC BY" }
+          }
+        )
       end
       created_by_user_id { FactoryBot.create(:princeton_submitter).id }
     end
@@ -58,18 +61,18 @@ FactoryBot.define do
       collection { Collection.plasma_laboratory }
       resource do
         PDCMetadata::Resource.new_from_json({
-          "doi": "10.34770/not_yet_assigned",
-          "ark": "ark:/88435/dsp015d86p342b",
-          "identifier_type": "DOI",
-          "titles": [{ "title": "Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas" }],
-          "description": "A new model for electron temperature gradient (ETG) modes is developed as a component of the Multi-Mode anomalous transport module.",
-          "creators": [
-            { "value": "Rafiq, Tariq", "name_type": "Personal", "given_name": "Tariq", "family_name": "Rafiq", "affiliations": [], "sequence": "1" }
-          ],
-          "resource_type": "Dataset", "publisher": "Princeton University", "publication_year": "2022",
-          "version_number": "1",
-          "rights": { "identifier": "CC BY" }
-        }.to_json)
+                                              "doi" => "10.34770/not_yet_assigned",
+                                              "ark" => "ark:/88435/dsp015d86p342b",
+                                              "identifier_type" => "DOI",
+                                              "titles" => [{ "title" => "Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas" }],
+                                              "description" => "A new model for electron temperature gradient (ETG) modes is developed as a component of the Multi-Mode anomalous transport module.",
+                                              "creators" => [
+                                                { "value" => "Rafiq, Tariq", "name_type" => "Personal", "given_name" => "Tariq", "family_name" => "Rafiq", "affiliations" => [], "sequence" => "1" }
+                                              ],
+                                              "resource_type" => "Dataset", "publisher" => "Princeton University", "publication_year" => "2022",
+                                              "version_number" => "1",
+                                              "rights" => { "identifier" => "CC BY" }
+                                            })
       end
       created_by_user_id { FactoryBot.create(:pppl_submitter).id }
     end
@@ -88,7 +91,7 @@ FactoryBot.define do
       collection { Collection.research_data }
       resource do
         json_from_spec = File.read(Rails.root.join("spec", "fixtures", "cytoskeletal_metadata.json"))
-        PDCMetadata::Resource.new_from_json(json_from_spec)
+        PDCMetadata::Resource.new_from_json(JSON.parse(json_from_spec))
       end
       created_by_user_id { FactoryBot.create(:user).id }
     end
