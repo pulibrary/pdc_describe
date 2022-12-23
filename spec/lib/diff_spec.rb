@@ -28,13 +28,13 @@ RSpec.describe DiffTools::SimpleDiff do
   end
 
   it "handles number to equivalent string" do
-    expect(SimpleDiff.new(2022, "2022").to_html).to eq "2022"
+    expect(DiffTools::SimpleDiff.new(2022, "2022").to_html).to eq "2022"
   end
   it "handles string to equivalent number" do
-    expect(SimpleDiff.new("2022", 2022).to_html).to eq "2022"
+    expect(DiffTools::SimpleDiff.new("2022", 2022).to_html).to eq "2022"
   end
   it "handles numbers" do
-    expect(SimpleDiff.new(2022, 2023).to_html).to eq "202<del>2</del><ins>3</ins>"
+    expect(DiffTools::SimpleDiff.new(2022, 2023).to_html).to eq "202<del>2</del><ins>3</ins>"
   end
 
   it "encodes html" do
