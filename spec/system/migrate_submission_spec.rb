@@ -129,7 +129,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
     end
 
     context "Approving a work with a DOI we own" do
-      let(:work) { FactoryBot.create :completed_work, doi: "#{Rails.configuration.datacite.prefix}/abc-123", ark: "ark:/88435/dsp01d791sj97j" }
+      let(:work) { FactoryBot.create :awaiting_approval_work, doi: "#{Rails.configuration.datacite.prefix}/abc-123", ark: "ark:/88435/dsp01d791sj97j" }
 
       it "updates the DOI and ARK url when approved" do
         expect(datacite_stub).to have_received("update")
@@ -139,7 +139,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
     end
 
     context "Approving a work with a DOI we own do not own, but also has an ARK" do
-      let(:work) { FactoryBot.create :completed_work, doi: "10.99999/abc-123", ark: "ark:/88435/dsp01d791sj97j" }
+      let(:work) { FactoryBot.create :awaiting_approval_work, doi: "10.99999/abc-123", ark: "ark:/88435/dsp01d791sj97j" }
 
       it "updates the ARK url when approved" do
         expect(datacite_stub).not_to have_received("update")
@@ -150,7 +150,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
     end
 
     context "Approving a work with a DOI we own do not own, but does not have an ARK" do
-      let(:work) { FactoryBot.create :completed_work, doi: "10.99999/abc-123", ark: nil }
+      let(:work) { FactoryBot.create :awaiting_approval_work, doi: "10.99999/abc-123", ark: nil }
       it "updates the ARK url when approved" do
         expect(datacite_stub).not_to have_received("update")
         expect(identifier).not_to have_received("target=")
