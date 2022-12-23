@@ -66,7 +66,7 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
     end
 
     it "should not be able to approve a work" do
-      work = FactoryBot.create :completed_work
+      work = FactoryBot.create :awaiting_approval_work
       sign_in submitter1
       visit work_path(work)
       expect(page).not_to have_button "Approve Dataset"

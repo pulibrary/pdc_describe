@@ -79,12 +79,6 @@
   font-size: smaller;
 }
 
-.orcid-label {
-  color:#a4a4a4;
-  margin-top: -10px;
-  margin-bottom: 0px;
-}
-
 .dataset-section {
   background-color: rgb(226, 223, 223);
   margin-top: 25px !important;
@@ -165,6 +159,12 @@ details {
       border-radius: .25rem;
       border: 0;
       margin-left: 0.5rem;
+    }
+  }
+
+  summary.show-changes {
+    &::after {
+      content: 'Show Changes';
     }
   }
 }

@@ -139,7 +139,7 @@ RSpec.describe "Creating and updating works", type: :system do
 
   context "when editing a work" do
     let(:draft_work) { FactoryBot.create(:draft_work) }
-    let(:completed_work) { FactoryBot.create(:completed_work) }
+    let(:awaiting_approval_work) { FactoryBot.create(:awaiting_approval_work) }
     let(:user) { draft_work.created_by_user }
 
     it "uses the wizard if the work is in draft" do
@@ -150,8 +150,8 @@ RSpec.describe "Creating and updating works", type: :system do
 
     it "does not use the wizard if the work once the work is not in draft" do
       sign_in user
-      visit work_path(completed_work)
-      expect(page.html.include?("/works/#{completed_work.id}/edit")).to be true
+      visit work_path(awaiting_approval_work)
+      expect(page.html.include?("/works/#{awaiting_approval_work.id}/edit")).to be true
     end
 
     it "allows users to modify the order of the creators", js: true do
