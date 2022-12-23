@@ -113,11 +113,21 @@
 </p>
 
 <div>
-  <p>Description:<br/>
-    <span style="white-space: pre-wrap;"><%= @work.resource.description %></span>
-  </p>
-  <p>Publisher: <%= @work.resource.publisher %></p>
-  <p>Publication Year: <%= @work.resource.publication_year %></p>
+  <% if @can_curate %>
+    <p>Curator: <select id="curator_select">
+      <option value="no-one">(no one)</option>
+      <% @collection.administrators.each do |user| %>
+        <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.display_name_safe %></option>
+      <% end %>
+    </select></p>
+  <% else %>
+    <% if @work.curator_user_id.nil? %>
+      <p>Curator: none</p>
+    <% else %>
+      <p>Curator: <%= User.find(@work.curator_user_id).display_name_safe %></p>
+    <% end %>
+  <% end %>
+
   <% if @work.resource.doi %>
     <p>DOI:
       <span><%= link_to(@work.resource.doi, doi_url(@work.resource.doi), target: '_blank', rel: 'noopener noreferrer') %></span>
@@ -127,9 +137,28 @@
       </button>
     </p>
   <% end %>
-  <% if @work.resource.ark %>
-    <p>ARK: <%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></p>
+
+  <p>Creator: <%= @work.created_by_user.uid %></p>
+
+  <p>Description:<br/>
+    <span style="white-space: pre-wrap;"><%= @work.resource.description %></span>
+  </p>
+
+  <% if @work.resource.keywords.count > 0 %>
+    <p>Keywords:
+      <% @work.resource.keywords.each do |keyword| %>
+        <span class="badge bg-dark"><%= keyword %></span>
+      <% end %>
+    </p>
   <% end %>
+
+  <% if @work.resource.rights.present? %>
+    <p>Rights: <%= @work.resource.rights.name %> (<%= link_to(@work.resource.rights.identifier, @work.resource.rights.uri, {target: "_blank"}) %>)</p>
+  <% end %>
+
+  <p>Publisher: <%= @work.resource.publisher %></p>
+  <p>Publication Year: <%= @work.resource.publication_year %></p>
+
   <% if @work.resource.version_number %>
     <p>Version: <%= @work.resource.version_number %></p>
   <% end %>
@@ -143,6 +172,10 @@
         </p>
       </div>
     <% end %>
+  <% end %>
+
+  <% if @work.resource.ark %>
+    <p>ARK: <%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></p>
   <% end %>
 
   <% if @work.resource.contributors.count > 0 %>
@@ -161,18 +194,7 @@
     </p>
   <% end %>
 
-  <p>Added by: <%= @work.created_by_user.uid %></p>
   <p>Collection: <%= @collection.title %></p>
-  <% if @work.resource.rights.present? %>
-    <p>Rights: <%= @work.resource.rights.name %> (<%= link_to(@work.resource.rights.identifier, @work.resource.rights.uri, {target: "_blank"}) %>)</p>
-  <% end %>
-  <% if @work.resource.keywords.count > 0 %>
-    <p>Keywords:
-      <% @work.resource.keywords.each do |keyword| %>
-        <span class="badge bg-dark"><%= keyword %></span>
-      <% end %>
-    </p>
-  <% end %>
 
   <% if @work.resource.funders.count > 0 %>
     <p>Funders:
@@ -199,21 +221,6 @@
 
   <% if @work.submission_notes.present? %>
     <p>Notes: <%= @work.submission_notes %></p>
-  <% end %>
-
-  <% if @can_curate %>
-    <p>Curator: <select id="curator_select">
-      <option value="no-one">(no one)</option>
-      <% @collection.administrators.each do |user| %>
-        <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.display_name_safe %></option>
-      <% end %>
-    </select></p>
-  <% else %>
-    <% if @work.curator_user_id.nil? %>
-      <p>Curator: none</p>
-    <% else %>
-      <p>Curator: <%= User.find(@work.curator_user_id).display_name_safe %></p>
-    <% end %>
   <% end %>
 </div>
 
