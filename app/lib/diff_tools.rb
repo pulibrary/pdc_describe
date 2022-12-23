@@ -18,8 +18,8 @@ module DiffTools
 
     def to_html
       @changes.map do |chunk|
-        old_html = value_to_html(chunk[:old])
-        new_html = value_to_html(chunk[:new])
+        old_html = DiffTools.value_to_html(chunk[:old])
+        new_html = DiffTools.value_to_html(chunk[:new])
         if chunk[:action] == "="
           new_html
         else
