@@ -7,7 +7,7 @@ RSpec.describe DiffTools::SimpleDiff do
     expect(DiffTools::SimpleDiff.new("cat", "dog").to_html).to eq "<del>cat</del><ins>dog</ins>"
   end
   it "handles single character change" do
-    expect(DiffTools::SimpleDiff.new("cat", "bat").to_html).to eq "<del>c</del><ins>b</ins>at"
+    expect(DiffTools::SimpleDiff.new("cat", "bat").to_html).to eq "<del>cat</del><ins>bat</ins>"
   end
 
   it "handles nil old" do
@@ -34,17 +34,17 @@ RSpec.describe DiffTools::SimpleDiff do
     expect(DiffTools::SimpleDiff.new("2022", 2022).to_html).to eq "2022"
   end
   it "handles numbers" do
-    expect(DiffTools::SimpleDiff.new(2022, 2023).to_html).to eq "202<del>2</del><ins>3</ins>"
+    expect(DiffTools::SimpleDiff.new(2022, 2023).to_html).to eq "<del>2022</del><ins>2023</ins>"
   end
 
   it "encodes html" do
-    expect(DiffTools::SimpleDiff.new("1 < 2", "2 > 1").to_html).to eq "<del>1</del><ins>2</ins> <del>&lt;</del><ins>&gt;</ins> <del>2</del><ins>1</ins>"
+    expect(DiffTools::SimpleDiff.new("1 < 2", "2 > 1").to_html).to eq "<del>1 &lt; </del>2<ins> &gt; 1</ins>"
   end
 
   it "abbreviates really long strings" do
     expect(DiffTools::SimpleDiff.new(
       "This does not repeat the entire string if its just a tiny typo in the middle that changes.",
       "This does not repeat the entire string if it's just a tiny typo in the middle that changes."
-    ).to_html).to eq "This does not ... string if it<ins>&#39;</ins>s just a ... middle that changes."
+    ).to_html).to eq "This does not ... entire string if <del>its</del><ins>it</ins><ins>&#39;s</ins> just a tiny ... middle that changes."
   end
 end
