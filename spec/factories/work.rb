@@ -12,7 +12,7 @@ FactoryBot.define do
       resource { FactoryBot.build :resource, doi: doi }
     end
 
-    factory :completed_work do
+    factory :awaiting_approval_work do
       transient do
         doi { "10.34770/123-abc" }
         ark { nil }
