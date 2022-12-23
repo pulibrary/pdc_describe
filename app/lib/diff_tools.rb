@@ -10,8 +10,8 @@ module DiffTools
       # and it preserves the whitespace between words.
       #
       # "cat dog".split /\b/ == ["cat", " ", "dog"]
-      old_value = old_value.to_s.split /\b/
-      new_value = new_value.to_s.split /\b/
+      old_value = old_value.to_s.split(/\b/)
+      new_value = new_value.to_s.split(/\b/)
       @changes = ::Diff::LCS.sdiff(old_value, new_value).chunk(&:action).map do |action, changes|
         {
           action: action,
