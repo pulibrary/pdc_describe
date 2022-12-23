@@ -85,8 +85,8 @@ RSpec.describe "Creating and updating works", type: :system do
       page.find(:xpath, "//dt[contains(text(), '#{label}')]/following-sibling::dd[1]").text
     end
 
-    expect(value_for "Resource Type").to eq "Dataset"
-    expect(value_for "General Type").to eq "Dataset"
+    expect(value_for("Resource Type")).to eq "Dataset"
+    expect(value_for("General Type")).to eq "Dataset"
   end
 
   it "Renders contributors", js: true do
