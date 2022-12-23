@@ -74,7 +74,7 @@ RSpec.describe "Creating and updating works", type: :system do
     expect(work.reload.resource.rights.identifier).to eq "GPLv3"
   end
 
-  it "Renders the ResourceType", js: true do
+  it "Renders ResourceType and GeneralType", js: true do
     resource = FactoryBot.build(:resource)
     work = FactoryBot.create(:draft_work, resource: resource)
 
