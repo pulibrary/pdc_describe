@@ -5,8 +5,8 @@ require "diff/lcs"
 module DiffTools
   class SimpleDiff
     def initialize(old_value, new_value)
-      old_value ||= ""
-      new_value ||= ""
+      old_value = old_value.to_s
+      new_value = new_value.to_s
       @changes = ::Diff::LCS.sdiff(old_value, new_value).chunk(&:action).map do |action, changes|
         {
           action: action,
@@ -18,8 +18,8 @@ module DiffTools
 
     def to_html
       @changes.map do |chunk|
-        old_html = DiffTools.value_to_html(chunk[:old])
-        new_html = DiffTools.value_to_html(chunk[:new])
+        old_html = value_to_html(chunk[:old])
+        new_html = value_to_html(chunk[:new])
         if chunk[:action] == "="
           new_html
         else

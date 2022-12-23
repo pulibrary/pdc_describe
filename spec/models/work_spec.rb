@@ -337,6 +337,7 @@ RSpec.describe Work, type: :model do
 
   describe "datasets waiting for approval by user type" do
     before do
+      FactoryBot.create(:approved_work, created_by_user_id: user.id)
       FactoryBot.create(:draft_work, created_by_user_id: user.id)
       FactoryBot.create(:draft_work, created_by_user_id: user.id)
       FactoryBot.create(:draft_work, created_by_user_id: pppl_user.id, collection_id: Collection.plasma_laboratory.id)
@@ -936,9 +937,13 @@ RSpec.describe Work, type: :model do
         "related_objects": [],
         "keywords": [],
         "contributors": [],
-        "funder_name": "National Science Foundation",
-        "award_number": "nsf-123",
-        "award_uri": "http://nsg.gov/award/123"
+        "funders":[
+          {
+            "funder_name": "National Science Foundation",
+            "award_number": "nsf-123",
+            "award_uri": "http://nsg.gov/award/123"
+          }
+        ]
       }'
     end
     it "can change the entire resource" do

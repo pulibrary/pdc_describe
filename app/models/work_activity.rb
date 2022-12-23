@@ -149,7 +149,7 @@ class WorkActivity < ApplicationRecord
         mapped = change.map { |value| change_value_html(value) }
         values = mapped.join
 
-        children = "<p><b>#{field}</b>: #{values}</p>"
+        children = "<details><summary class='show-changes'>#{field}</summary>#{values}</details>"
         text += event_html(children: children)
       end
 

@@ -143,9 +143,11 @@ RSpec.describe PDCMetadata::Resource, type: :model do
         "related_objects" => [],
         "rights" => { "identifier" => "CC BY", "name" => "Creative Commons Attribution 4.0 International", "uri" => "https://creativecommons.org/licenses/by/4.0/" },
         "version_number" => 1,
-        "funder_name" => nil,
-        "award_number" => nil,
-        "award_uri" => nil
+        "funders" => [{
+          "funder_name" => nil,
+          "award_number" => nil,
+          "award_uri" => nil
+        }]
       }
     end
     it "parses the json" do

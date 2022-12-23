@@ -99,15 +99,19 @@ class Work < ApplicationRecord
     end
 
     def find_by_doi(doi)
-      models = all.select { |work| !work.doi.nil? && work.doi.include?(doi) }
-      raise ActiveRecord::RecordNotFound if models.empty?
-      models.first
+      # This does a string compare to allow for partial matches
+      # I'm not entirely sure why we are allowing partial matches in a find by
+      Work.find_by!("metadata->>'doi' like ? ", "%#{doi}")
+      # I think we should be doing the following instead, which matches exactly
+      # Work.find_by!('metadata @> ?', "{\"doi\":\"#{doi}\"}")
     end
 
     def find_by_ark(ark)
-      models = all.select { |work| !work.ark.nil? && work.ark.include?(ark) }
-      raise ActiveRecord::RecordNotFound if models.empty?
-      models.first
+      # This does a string compare to allow for partial matches
+      # I'm not entirely sure why we are allowing partial matches in a find by
+      Work.find_by!("metadata->>'ark' like ? ", "%#{ark}")
+      # I think we should be doing the following instead, which matches exactly
+      # Work.find_by!('metadata @> ?', "{\"ark\":\"#{ark}\"}")
     end
 
     delegate :resource_type_general_options, to: PDCMetadata::Resource
@@ -176,12 +180,6 @@ class Work < ApplicationRecord
       work.attach_s3_resources if !work.pre_curation_uploads.empty? && work.pre_curation_uploads.length > work.post_curation_uploads.length
       work.reload
     end
-  end
-
-  # Deal with Historic works where the metadata was stored as a String
-  #   New metadata records should be stored as JSON not a string blob in a JSON field
-  after_initialize do |work|
-    work.metadata = JSON.parse(work.metadata) if work.metadata.is_a? String
   end
 
   validate do |work|
