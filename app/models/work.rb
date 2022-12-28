@@ -462,6 +462,7 @@ class Work < ApplicationRecord
       update_ark_information
       publish_precurated_files
       save!
+      WorkActivity.add_system_activity(id, "successfully published", user.id)
     end
 
     # Update EZID (our provider of ARKs) with the new information for this work.

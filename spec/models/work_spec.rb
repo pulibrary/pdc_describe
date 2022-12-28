@@ -577,6 +577,20 @@ RSpec.describe Work, type: :model do
 
         expect(draft_work.curator).to eq(curator_user)
       end
+
+      it "sends a notification for the approval of the work" do
+        allow(WorkActivity).to receive(:add_system_activity)
+        draft_work = FactoryBot.create(:draft_work)
+        file_name = uploaded_file.original_filename
+        stub_work_s3_requests(work: draft_work, file_name: file_name)
+        draft_work.pre_curation_uploads.attach(uploaded_file)
+
+        draft_work.complete_submission!(user)
+        draft_work.update_curator(curator_user.id, user)
+        draft_work.approve!(curator_user)
+
+        expect(WorkActivity).to have_received(:add_system_activity).with(draft_work.id, "successfully published", curator_user.id)
+      end
     end
 
     it "is approved" do
