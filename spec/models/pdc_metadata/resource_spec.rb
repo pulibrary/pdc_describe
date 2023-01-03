@@ -21,6 +21,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     ds.ark = "ark:/88435/dsp01hx11xj13h"
     ds.rights = PDCMetadata::Rights.find("CC BY")
     ds.contributors = [contributor1, contributor2]
+    ds.publication_year = 2022
     ds
   end
 
