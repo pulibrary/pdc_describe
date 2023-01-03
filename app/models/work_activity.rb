@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../lib/simple_diff"
+require_relative "../lib/diff_tools"
 
 # rubocop:disable Metrics/ClassLength
 class WorkActivity < ApplicationRecord
@@ -199,7 +199,7 @@ class WorkActivity < ApplicationRecord
 
     def change_value_html(value)
       if value["action"] == "changed"
-        SimpleDiff.new(value["from"], value["to"]).to_html
+        DiffTools::SimpleDiff.new(value["from"], value["to"]).to_html
       else
         "old change"
       end

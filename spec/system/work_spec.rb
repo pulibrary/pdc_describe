@@ -74,22 +74,19 @@ RSpec.describe "Creating and updating works", type: :system do
     expect(work.reload.resource.rights.identifier).to eq "GPLv3"
   end
 
-  it "Renders the ResourceType", js: true do
+  it "Renders ResourceType and GeneralType", js: true do
     resource = FactoryBot.build(:resource)
     work = FactoryBot.create(:draft_work, resource: resource)
 
     sign_in user
     visit work_path(work)
-    expect(page.html.include?("<p>Resource Type: Dataset</p>")).to be true
-  end
 
-  it "Renders the resourceTypeGeneral", js: true do
-    resource = FactoryBot.build(:resource)
-    work = FactoryBot.create(:draft_work, resource: resource)
+    def value_for(label)
+      page.find(:xpath, "//dt[contains(text(), '#{label}')]/following-sibling::dd[1]").text
+    end
 
-    sign_in user
-    visit work_path(work)
-    expect(page.html.include?("<small>General Type: Dataset</small>")).to be true
+    expect(value_for("Resource Type")).to eq "Dataset"
+    expect(value_for("General Type")).to eq "Dataset"
   end
 
   it "Renders contributors", js: true do
