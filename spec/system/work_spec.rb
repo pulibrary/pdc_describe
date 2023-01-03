@@ -21,7 +21,7 @@ RSpec.describe "Creating and updating works", type: :system do
     click_on "Create New"
     work = Work.last
     expect(work.resource.resource_type).to eq "Dataset"
-    expect(work.resource.resource_type_general).to eq :DATASET
+    expect(work.resource.resource_type_general).to eq "Dataset"
   end
 
   it "Prevents empty title", js: true do

@@ -87,7 +87,7 @@ RSpec.describe WorksController do
 
       work.reload
       expect(work.resource_type).to eq("Dataset")
-      expect(work.resource_type_general).to eq(:DATASET)
+      expect(work.resource_type_general).to eq("Dataset")
       expect(ActiveStorage::PurgeJob).not_to have_received(:new)
     end
 

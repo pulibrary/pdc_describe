@@ -114,7 +114,7 @@ class Work < ApplicationRecord
       # Work.find_by!('metadata @> ?', "{\"ark\":\"#{ark}\"}")
     end
 
-    delegate :resource_type_general_options, to: PDCMetadata::Resource
+    delegate :resource_type_general_values, to: PDCMetadata::Resource
 
     # Determines whether or not a test DOI should be referenced
     # (this avoids requests to the DOI API endpoint for non-production deployments)

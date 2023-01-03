@@ -24,39 +24,37 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     ds
   end
 
-  describe ".resource_type_general_options" do
+  describe ".resource_type_general_values" do
     it "accesses all options configured for the Open Access Repository (OAR)" do
-      expect(described_class.resource_type_general_options).to be_a(Hash)
-      expect(described_class.resource_type_general_options.values).to include("Collection")
-      expect(described_class.resource_type_general_options.values).to include("Dataset")
-      expect(described_class.resource_type_general_options.values).to include("DataPaper")
-      expect(described_class.resource_type_general_options.values).to include("Event")
-      expect(described_class.resource_type_general_options.values).to include("Image")
-      expect(described_class.resource_type_general_options.values).to include("InteractiveResource")
-      expect(described_class.resource_type_general_options.values).to include("Model")
-      expect(described_class.resource_type_general_options.values).to include("PhysicalObject")
-      expect(described_class.resource_type_general_options.values).to include("Service")
-      expect(described_class.resource_type_general_options.values).to include("Software")
-      expect(described_class.resource_type_general_options.values).to include("Sound")
-      expect(described_class.resource_type_general_options.values).to include("Text")
-      expect(described_class.resource_type_general_options.values).to include("Workflow")
-      expect(described_class.resource_type_general_options.values).to include("Other")
+      expect(described_class.resource_type_general_values).to include("Collection")
+      expect(described_class.resource_type_general_values).to include("Dataset")
+      expect(described_class.resource_type_general_values).to include("DataPaper")
+      expect(described_class.resource_type_general_values).to include("Event")
+      expect(described_class.resource_type_general_values).to include("Image")
+      expect(described_class.resource_type_general_values).to include("InteractiveResource")
+      expect(described_class.resource_type_general_values).to include("Model")
+      expect(described_class.resource_type_general_values).to include("PhysicalObject")
+      expect(described_class.resource_type_general_values).to include("Service")
+      expect(described_class.resource_type_general_values).to include("Software")
+      expect(described_class.resource_type_general_values).to include("Sound")
+      expect(described_class.resource_type_general_values).to include("Text")
+      expect(described_class.resource_type_general_values).to include("Workflow")
+      expect(described_class.resource_type_general_values).to include("Other")
     end
 
     it "filters for options configured for the Open Access Repository (OAR)" do
-      expect(described_class.resource_type_general_options).to be_a(Hash)
-      expect(described_class.resource_type_general_options.values).not_to include("Book")
-      expect(described_class.resource_type_general_options.values).not_to include("BookChapter")
-      expect(described_class.resource_type_general_options.values).not_to include("ConferencePaper")
-      expect(described_class.resource_type_general_options.values).not_to include("ConferenceProceeding")
-      expect(described_class.resource_type_general_options.values).not_to include("Dissertation")
-      expect(described_class.resource_type_general_options.values).not_to include("Journal")
-      expect(described_class.resource_type_general_options.values).not_to include("JournalArticle")
-      expect(described_class.resource_type_general_options.values).not_to include("OutputManagementPlan")
-      expect(described_class.resource_type_general_options.values).not_to include("PeerReview")
-      expect(described_class.resource_type_general_options.values).not_to include("Preprint")
-      expect(described_class.resource_type_general_options.values).not_to include("Report")
-      expect(described_class.resource_type_general_options.values).not_to include("StudyRegistration")
+      expect(described_class.resource_type_general_values).not_to include("Book")
+      expect(described_class.resource_type_general_values).not_to include("BookChapter")
+      expect(described_class.resource_type_general_values).not_to include("ConferencePaper")
+      expect(described_class.resource_type_general_values).not_to include("ConferenceProceeding")
+      expect(described_class.resource_type_general_values).not_to include("Dissertation")
+      expect(described_class.resource_type_general_values).not_to include("Journal")
+      expect(described_class.resource_type_general_values).not_to include("JournalArticle")
+      expect(described_class.resource_type_general_values).not_to include("OutputManagementPlan")
+      expect(described_class.resource_type_general_values).not_to include("PeerReview")
+      expect(described_class.resource_type_general_values).not_to include("Preprint")
+      expect(described_class.resource_type_general_values).not_to include("Report")
+      expect(described_class.resource_type_general_values).not_to include("StudyRegistration")
     end
   end
 

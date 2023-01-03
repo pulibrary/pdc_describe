@@ -45,8 +45,8 @@
   Resource Type General:<span class="required-field">*</span><span class="text-muted field-hint">(please see <%= link_to("the DataCite schema documentation", "https://schema.datacite.org/meta/kernel-4.4/", target: "_blank", rel: "nofollow") %> )</span><br>
   <input type="hidden" name="resource_type_general" value="<%=@workresource_type_general %>"/> <!-- put the value in the form as disabled will not send the data back -->
   <select id="resource_type_general" name="resource_type_general" <%= is_collection_admin ? '' : 'disabled' %> >
-    <% Work.resource_type_general_options.each_pair do |key, value| %>
-      <option value="<%= key %>" <%= @work.resource_type_general == key.to_sym ? "selected" : "" %>><%= value %></option>
+    <% Work.resource_type_general_values.each do |value| %>
+      <option value="<%= value %>" <%= @work.resource_type_general == value ? "selected" : "" %>><%= value %></option>
     <% end %>
   </select>
 </div>

@@ -51,7 +51,7 @@ RSpec.describe "Curator Controlled metadata tab", type: :system do
       click_on "Save Work"
       expect(draft_work.reload.ark).to eq "ark:/88435/dsp01hx11xj13h"
       expect(draft_work.resource.collection_tags).to eq(["ABC", "123"])
-      expect(draft_work.resource.resource_type_general).to eq(:MODEL)
+      expect(draft_work.resource.resource_type_general).to eq("Model")
       expect(draft_work.resource.version_number).to eq("5")
     end
   end

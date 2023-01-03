@@ -73,14 +73,12 @@ module PDCMetadata
         resource
       end
 
-      def resource_type_general_options
-        pairs = Datacite::Mapping::ResourceTypeGeneral.map { |value| [value.key, value.value] }
-        built = Hash[pairs]
-        built.with_indifferent_access
+      def resource_type_general_values
+        Datacite::Mapping::ResourceTypeGeneral.map(&:value)
       end
 
       def default_resource_type_general
-        :DATASET
+        "Dataset"
       end
 
       private
@@ -102,7 +100,7 @@ module PDCMetadata
           resource.version_number = hash["version_number"]
           resource.collection_tags = hash["collection_tags"] || []
           resource.resource_type = hash["resource_type"]
-          resource.resource_type_general = hash["resource_type_general"]&.to_sym
+          resource.resource_type_general = hash["resource_type_general"]
         end
 
         def set_additional_metadata(resource, hash)
