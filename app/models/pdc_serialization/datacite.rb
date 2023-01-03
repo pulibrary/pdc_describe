@@ -159,7 +159,8 @@ module PDCSerialization
             if title.main?
               ::Datacite::Mapping::Title.new(value: title.title)
             else
-              ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType.find_by_value(title.title_type))
+              title_type = ::Datacite::Mapping::TitleType.find_by_value(title.title_type)
+              ::Datacite::Mapping::Title.new(value: title.title, type: title_type) if title_type
             end
           end.compact
         end
