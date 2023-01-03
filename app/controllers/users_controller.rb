@@ -15,9 +15,9 @@ class UsersController < ApplicationController
     @search_terms = params["q"].presence
     @can_edit = can_edit?
     @my_dashboard = current_user.id == @user.id
-    @unfinished_works = Work.unfinished_works(@user, @search_terms)
-    @completed_works = Work.completed_works(@user, @search_terms)
-    @withdrawn_works = Work.withdrawn_works(@user, @search_terms)
+    @unfinished_works = WorkList.unfinished_works(@user, @search_terms)
+    @completed_works = WorkList.completed_works(@user, @search_terms)
+    @withdrawn_works = WorkList.withdrawn_works(@user, @search_terms)
     @works_found = @unfinished_works.length + @completed_works.length + @withdrawn_works.length
   end
 
