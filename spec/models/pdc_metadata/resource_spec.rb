@@ -134,7 +134,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
           { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => 1, "identifier" => nil }
         ],
         "resource_type" => "Dataset",
-        "resource_type_general" => "DATASET",
+        "resource_type_general" => "Dataset",
         "publisher" => "Princeton University",
         "publication_year" => "2020",
         "collection_tags" => ["ABC", "123"],

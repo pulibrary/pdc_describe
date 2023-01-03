@@ -24,7 +24,7 @@ describe FormToResourceService do
         creator_count: "1",
         new_creator_count: "1",
         resource_type: "Dataset",
-        resource_type_general: "AUDIOVISUAL",
+        resource_type_general: "Audiovisual",
         related_identifier_1: "",
         related_identifier_type_1: "",
         relation_type_1: "",
@@ -50,7 +50,7 @@ describe FormToResourceService do
 
     it "handles resource_type_general" do
       resource
-      expect(resource.resource_type_general).to eq(:AUDIOVISUAL)
+      expect(resource.resource_type_general).to eq("Audiovisual")
     end
 
     it "does not include blank related objects" do

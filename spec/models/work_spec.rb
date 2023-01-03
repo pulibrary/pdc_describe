@@ -923,7 +923,7 @@ RSpec.describe Work, type: :model do
           }
         ],
         "resource_type": "digitized video",
-        "resource_type_general": "AUDIOVISUAL",
+        "resource_type_general": "Audiovisual",
         "publisher": "Princeton University",
         "publication_year": 2022,
         "ark": "new-ark",
