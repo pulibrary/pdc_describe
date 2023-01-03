@@ -78,7 +78,7 @@ RSpec.describe WorksController do
         "family_name_1" => "Smith",
         "creator_count" => "1",
         "resource_type" => "Dataset",
-        "resource_type_general" => "DATASET"
+        "resource_type_general" => "Dataset"
       }
       sign_in user
       post :update, params: params
