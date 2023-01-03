@@ -102,13 +102,13 @@ module PDCSerialization
     end
 
     class << self
-      def datacite_resource_type(resource_type)
+      def datacite_resource_type(value)
         resource_type = ::Datacite::Mapping::ResourceTypeGeneral.find_by_value(value)
         ::Datacite::Mapping::ResourceType.new(resource_type_general: resource_type)
       end
 
-      def datacite_contributor_type(type)
-        ::Datacite::Mapping::ContributorType.find_by_value(type)
+      def datacite_contributor_type(value)
+        ::Datacite::Mapping::ContributorType.find_by_value(value)
       end
 
       private
