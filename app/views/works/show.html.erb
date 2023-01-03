@@ -102,127 +102,150 @@
 
 <h1><%= @work.title %></h1>
 
-<% @work.resource.other_titles.each do |title| %>
-  <p><b><%= title.title_type %></b>: <%= title.title %></p>
-<% end %>
+<dl>
 
-<p>
-<% @work.resource.creators.each_with_index do |creator, ix| %>
-  <%= person_orcid_link(creator.value, creator.orcid, ix < (@work.resource.creators.count-1) ) %>
-<% end %>
-</p>
-
-<div>
-  <% if @can_curate %>
-    <p>Curator: <select id="curator_select">
-      <option value="no-one">(no one)</option>
-      <% @collection.administrators.each do |user| %>
-        <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.display_name_safe %></option>
-      <% end %>
-    </select></p>
-  <% else %>
-    <% if @work.curator_user_id.nil? %>
-      <p>Curator: none</p>
-    <% else %>
-      <p>Curator: <%= User.find(@work.curator_user_id).display_name_safe %></p>
-    <% end %>
+  <% @work.resource.other_titles.each do |title| %>
+    <dt><%= title.title_type %></dt>
+    <dd><%= title.title %></dd>
   <% end %>
 
+  <dt>Creators</dt>
+  <dd>
+    <% @work.resource.creators.each_with_index do |creator, ix| %>
+      <%= person_orcid_link(creator.value, creator.orcid, ix < (@work.resource.creators.count-1) ) %>
+    <% end %>
+  </dd>
+
+  <dt>Curator</dt>
+  <dd>
+    <% if @can_curate %>
+      <select id="curator_select">
+        <option value="no-one">(no one)</option>
+        <% @collection.administrators.each do |user| %>
+          <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.display_name_safe %></option>
+        <% end %>
+      </select>
+    <% else %>
+      <% if @work.curator_user_id.nil? %>
+        none
+      <% else %>
+        <%= User.find(@work.curator_user_id).display_name_safe %>
+      <% end %>
+    <% end %>
+  </dd>
+
   <% if @work.resource.doi %>
-    <p>DOI:
+    <dt>DOI</dt>
+    <dd>
       <span><%= link_to(@work.resource.doi, doi_url(@work.resource.doi), target: '_blank', rel: 'noopener noreferrer') %></span>
       <button id="copy-doi" class="btn btn-sm" data-url="<%= doi_url(@work.resource.doi) %>" title="Copy DOI URL to the clipboard">
         <i id="copy-doi-icon" class="bi bi-clipboard" title="Copy DOI URL to the clipboard"></i>
         <span id="copy-doi-label" class="copy-doi-label-normal">COPY</span>
       </button>
-    </p>
+    </dd>
   <% end %>
 
-  <p>Creator: <%= @work.created_by_user.uid %></p>
+  <dt>Creator</dt>
+  <dd><%= @work.created_by_user.uid %></dd>
 
-  <p>Description:<br/>
-    <span style="white-space: pre-wrap;"><%= @work.resource.description %></span>
-  </p>
+  <dt>Description</dt>
+  <dd style="white-space: pre-wrap;"><%= @work.resource.description %></dd>
 
   <% if @work.resource.keywords.count > 0 %>
-    <p>Keywords:
+    <dt>Keywords</dt>
+    <dd>
       <% @work.resource.keywords.each do |keyword| %>
         <span class="badge bg-dark"><%= keyword %></span>
       <% end %>
-    </p>
+    </dd>
   <% end %>
 
   <% if @work.resource.rights.present? %>
-    <p>Rights: <%= @work.resource.rights.name %> (<%= link_to(@work.resource.rights.identifier, @work.resource.rights.uri, {target: "_blank"}) %>)</p>
+    <dt>Rights</dt>
+    <dd><%= @work.resource.rights.name %> (<%= link_to(@work.resource.rights.identifier, @work.resource.rights.uri, {target: "_blank"}) %>)</dd>
   <% end %>
 
-  <p>Publisher: <%= @work.resource.publisher %></p>
-  <p>Publication Year: <%= @work.resource.publication_year %></p>
+  <dt>Publisher</dt>
+  <dd><%= @work.resource.publisher %></dd>
+
+  <dt>Publication Year</dt>
+  <dd><%= @work.resource.publication_year %></dd>
 
   <% if @work.resource.version_number %>
-    <p>Version: <%= @work.resource.version_number %></p>
+    <dt>Version</dt>
+    <dd><%= @work.resource.version_number %></dd>
   <% end %>
 
   <% if @work.resource_type %>
-    <p>Resource Type: <%= @work.resource_type %></p>
-    <% if @work.resource_type_general %>
-      <div class="container-fluid">
-        <p>
-          <small>General Type: <%= @work.resource_type_general %></small>
-        </p>
-      </div>
-    <% end %>
+    <dt>Resource Type</dt>
+    <dd><%= @work.resource_type %></dd>
+  <% end %>
+    
+  <% if @work.resource_type_general %>
+    <dt>General Type</dt>
+    <dd><%= @work.resource_type_general %></dd>
   <% end %>
 
   <% if @work.resource.ark %>
-    <p>ARK: <%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></p>
+    <dt>ARK</dt>
+    <dd><%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></dd>
   <% end %>
 
   <% if @work.resource.contributors.count > 0 %>
-    <p>Contributors:
+    <dt>Contributors</dt>
+    <dd>
       <% @work.resource.contributors.each_with_index do |contributor, ix| %>
         <%= contributor_link(contributor, ix < (@work.resource.contributors.count-1) ) %>
       <% end %>
-    </p>
+    </dd>
   <% end %>
 
   <% if @work.resource.related_objects.count > 0 %>
-    <p>Related Objects:
+    <dt>Related Objects</dt>
+    <dd>
       <% @work.resource.related_objects.each do |related_object| %>
         <span class="related_object"><%= related_object.relation_type %>  <%= link_to(related_object.related_identifier, related_object.related_identifier) %></span>
       <% end %>
-    </p>
+    </dd>
   <% end %>
 
-  <p>Collection: <%= @collection.title %></p>
+  <dt>Collection</dt>
+  <dd><%= @collection.title %></dd>
 
   <% if @work.resource.funders.count > 0 %>
-    <p>Funders:
-      <% @work.resource.funders.each do |funder| %>
-        <div>
-          <%= funder.funder_name %>,
-          <%= funder.award_number %>,
-          <%= funder.award_uri %>
-        </div>
-      <% end %>
-    </p>
+    <dt>Funders</dt>
+    <% @work.resource.funders.each do |funder| %>
+      <dd>
+        <%= funder.funder_name %>,
+        <%= funder.award_number %>,
+        <%= funder.award_uri %>
+      </dd>
+    <% end %>
   <% end %> 
 
-  <% if @work.pre_curation_uploads.present? %>
-    <p>Location: Amazon S3 Curation Storage</p>
-    <p>Location notes: <%= @work.location_notes %></p>
-  <% elsif @work.files_location_cluster? %>
-    <p>Location: PUL Research Cluster</p>
-    <p>Location notes: <%= @work.location_notes %></p>
-  <% elsif @work.files_location_other? %>
-    <p>Location: Other</p>
-    <p>Location notes: <%= @work.location_notes %></p>
+  <dt>Location</dt>
+  <dd>
+    <% if @work.pre_curation_uploads.present? %>
+      Amazon S3 Curation Storage
+    <% elsif @work.files_location_cluster? %>
+      PUL Research Cluster
+    <% elsif @work.files_location_other? %>
+      Other
+    <% else %>
+      Unspecified
+    <% end %>
+  </dd>
+
+  <% if @work.location_notes.present? %>
+    <dt>Location notes</dt>
+    <dd><%= @work.location_notes %></dd>
   <% end %>
 
   <% if @work.submission_notes.present? %>
-    <p>Notes: <%= @work.submission_notes %></p>
+    <dt>Notes</dt>
+    <dd><%= @work.submission_notes %></dd>
   <% end %>
-</div>
+</dl>
 
 <% if @work.approved? %>
   <% if @work.post_curation_s3_resources.present? %>
