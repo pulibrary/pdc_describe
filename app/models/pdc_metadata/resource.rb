@@ -2,7 +2,7 @@
 module PDCMetadata
   # Represents a PUL Datacite resource
   # https://support.datacite.org/docs/datacite-metadata-schema-v44-properties-overview
-  
+
   def self.fuzzy_match(obj, value)
     obj.key.to_s == value or obj.value.casecmp(value).zero?
   end
