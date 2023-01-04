@@ -39,4 +39,37 @@ RSpec.describe S3File, type: :model do
       expect(CGI.unescape(url_file)).to eq(filename.split("/").last)
     end
   end
+
+  describe "#to_blob" do
+    let(:file) do
+      S3File.new(
+        filename: "abc123/111/SCoData_combined_v1_2020-07_README.txt",
+        last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
+        size: 12_739,
+        checksum: "abc567"
+      )
+    end
+
+    it "persists S3 Bucket resources as ActiveStorage::Blob" do
+      # call the s3 reload and make sure no more files get added to the model
+      blob = nil
+      expect { blob = file.to_blob }.to change { ActiveStorage::Blob.count }.by(1)
+
+      expect(blob.key).to eq("abc123/111/SCoData_combined_v1_2020-07_README.txt")
+    end
+
+    context "a blob already exists for one of the files" do
+      before do
+        persisted = ActiveStorage::Blob.create_before_direct_upload!(
+          filename: file.filename, content_type: "", byte_size: file.size, checksum: ""
+        )
+        persisted.key = file.filename
+        persisted.save
+      end
+
+      it "finds the blob" do
+        expect { file.to_blob }.to change { ActiveStorage::Blob.count }.by(0)
+      end
+    end
+  end
 end
