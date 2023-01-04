@@ -58,8 +58,10 @@ $(() => {
     $(`#${orcidId}`).focus();
   }
 
-  function makeSelectHtml(selectId, currentKey, kvList) {
-    const options = kvList.map(
+  function makeSelectHtml(selectId, currentKey, kvList, blocklist = []) {
+    const options = kvList.filter(
+      ({ key, value }) => !blocklist.includes(value),
+    ).map(
       ({ key, value }) => `<option value="${key}" ${currentKey == key ? 'selected' : ''}>${value}</option>`,
     );
     return `<select id="${selectId}" name="${selectId}"><option value="" ${currentKey == '' ? 'selected' : ''}></option>${options}</select>`;
@@ -107,7 +109,32 @@ $(() => {
     const givenNameId = `contributor_given_name_${num}`;
     const familyNameId = `contributor_family_name_${num}`;
     const sequenceId = `contributor_sequence_${num}`;
-    const roleHtml = makeSelectHtml(roleId, role, pdc.datacite.ContributorType);
+    const roleHtml = makeSelectHtml(roleId, role, pdc.datacite.ContributorType, [
+      /* Individual roles have been commented out, leaving just the roles for organizations: */
+
+      // 'ContactPerson',
+      // 'DataCollector',
+      // 'DataCurator',
+      // 'DataManager',
+      'Distributor',
+      // 'Editor',
+      'Funder',
+      'HostingInstitution',
+      // 'Producer',
+      // 'ProjectLeader',
+      // 'ProjectManager',
+      // 'ProjectMember',
+      'RegistrationAgency',
+      'RegistrationAuthority',
+      // 'RelatedPerson',
+      // 'Researcher',
+      'ResearchGroup',
+      // 'RightsHolder',
+      // 'Sponsor',
+      // 'Supervisor',
+      // 'WorkPackageLeader',
+      // 'Other',
+    ]);
 
     const rowHtml = `<tr id="${rowId}" class="contributors-table-row">
       <td>
