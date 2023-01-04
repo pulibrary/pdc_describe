@@ -108,7 +108,7 @@ module PDCMetadata
           # TODO: Older records have a different format.
           # When we migrate these, then this can be removed.
           resource_type_general = hash["resource_type_general"]
-          unless Datacite::Mapping::ResourceTypeGeneral.find_by_value(resource_type_general)
+          unless resource_type_general.blank? or Datacite::Mapping::ResourceTypeGeneral.find_by_value(resource_type_general)
             resource_type_general = ::Datacite::Mapping::ResourceTypeGeneral.find do |obj|
               ::PDCMetadata.fuzzy_match(obj, resource_type_general)
             end.value

@@ -14,12 +14,12 @@ module PDCMetadata
 
       # TODO: Older records have a different format.
       # When we migrate these, then this can be removed.
-      unless valid_related_identifier_type?
+      unless related_identifier_type.blank? or valid_related_identifier_type?
         @related_identifier_type = ::Datacite::Mapping::RelatedIdentifierType.find do |obj|
           ::PDCMetadata.fuzzy_match(obj, related_identifier_type)
         end.value
       end
-      unless valid_relation_type?
+      unless relation_type.blank? or valid_relation_type?
         @relation_type = ::Datacite::Mapping::RelationType.find do |obj|
           ::PDCMetadata.fuzzy_match(obj, relation_type)
         end.value
