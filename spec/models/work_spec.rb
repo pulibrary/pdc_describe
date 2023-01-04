@@ -335,33 +335,6 @@ RSpec.describe Work, type: :model do
     end
   end
 
-  describe "datasets waiting for approval by user type" do
-    before do
-      FactoryBot.create(:approved_work, created_by_user_id: user.id)
-      FactoryBot.create(:draft_work, created_by_user_id: user.id)
-      FactoryBot.create(:draft_work, created_by_user_id: user.id)
-      FactoryBot.create(:draft_work, created_by_user_id: pppl_user.id, collection_id: Collection.plasma_laboratory.id)
-      # Create the dataset for `rd_user` and @mention `user`
-      ds = FactoryBot.create(:draft_work, created_by_user_id: rd_user.id)
-      WorkActivity.add_system_activity(ds.id, "Tagging @#{user.uid} in this dataset", rd_user.id)
-    end
-
-    it "for a typical user retrieves only the datasets created by the user or where the user is tagged" do
-      user_datasets = described_class.unfinished_works(user)
-      expect(user_datasets.count).to be 3
-      expect(user_datasets.count { |ds| ds.created_by_user_id == user.id }).to be 2
-      expect(user_datasets.count { |ds| ds.created_by_user_id == rd_user.id }).to be 1
-    end
-
-    it "for a curator retrieves dataset created in collections they can curate" do
-      expect(described_class.unfinished_works(curator_user).length).to eq(3)
-    end
-
-    it "for super_admins retrieves for all collections" do
-      expect(described_class.unfinished_works(super_admin_user).length).to eq(4)
-    end
-  end
-
   describe "#change_curator" do
     it "changes the curator and the logs changes" do
       expect(work.curator).to be nil

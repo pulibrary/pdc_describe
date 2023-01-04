@@ -157,12 +157,9 @@ module PDCSerialization
           titles.map do |title|
             if title.main?
               ::Datacite::Mapping::Title.new(value: title.title)
-            elsif title.title_type == "Subtitle"
-              ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::SUBTITLE)
-            elsif title.title_type == "AlternativeTitle"
-              ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::ALTERNATIVE_TITLE)
-            elsif title.title_type == "TranslatedTitle"
-              ::Datacite::Mapping::Title.new(value: title.title, type: ::Datacite::Mapping::TitleType::TRANSLATED_TITLE)
+            else
+              title_type = ::Datacite::Mapping::TitleType.find_by_value(title.title_type)
+              ::Datacite::Mapping::Title.new(value: title.title, type: title_type) if title_type
             end
           end.compact
         end
