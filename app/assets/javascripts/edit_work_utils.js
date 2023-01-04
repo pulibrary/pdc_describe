@@ -110,7 +110,7 @@ $(() => {
     const familyNameId = `contributor_family_name_${num}`;
     const sequenceId = `contributor_sequence_${num}`;
     const roleHtml = makeSelectHtml(roleId, role, pdc.datacite.ContributorType, [
-      /* Individual roles have been commented out, leaving just the roles for organizations: */
+      /* Individual roles have been commented out, leaving just the roles of organizations. */
 
       // 'ContactPerson',
       // 'DataCollector',
