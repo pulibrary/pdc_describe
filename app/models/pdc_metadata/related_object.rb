@@ -6,7 +6,7 @@ module PDCMetadata
   # let(:relation_type) { "IsCitedBy" }
 
   def self.fuzzy_match(obj, value)
-    obj.key.to_s == value or obj.value.upcase == value.upcase
+    obj.key.to_s == value or obj.value.casecmp(value).zero?
   end
 
   class RelatedObject
@@ -19,12 +19,12 @@ module PDCMetadata
 
       # TODO: Older records have a different format.
       # If we migrate these, then this can be removed.
-      if not valid_related_identifier_type?
+      unless valid_related_identifier_type?
         @related_identifier_type = ::Datacite::Mapping::RelatedIdentifierType.find do |obj|
           ::PDCMetadata.fuzzy_match(obj, related_identifier_type)
         end.value
       end
-      if not valid_relation_type?
+      unless valid_relation_type?
         @relation_type = ::Datacite::Mapping::RelationType.find do |obj|
           ::PDCMetadata.fuzzy_match(obj, relation_type)
         end.value
