@@ -431,10 +431,11 @@ RSpec.describe Work, type: :model do
       curator_user.email_messages_enabled = true
       curator_user.enable_messages_from(collection: collection)
       expect { draft_work }
-        .to change { WorkActivity.where(activity_type: "SYSTEM").count }.by(2)
+        .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
+        .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
         .and have_enqueued_job(ActionMailer::MailDeliveryJob).once # this would be twice if the user could enable messages
-      expect(WorkActivity.where(activity_type: "SYSTEM").first.message).to eq("marked as Draft")
-      user_notification = WorkActivity.where(activity_type: "SYSTEM").last.message
+      expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Draft")
+      user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
       expect(user_notification).to include("@#{curator_user.uid}")
       expect(user_notification).to include("@#{user.uid}")
       expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(draft_work))
@@ -495,7 +496,7 @@ RSpec.describe Work, type: :model do
 
   describe "#complete_submission" do
     let(:awaiting_approval_work) do
-      work = FactoryBot.create :draft_work
+      work = FactoryBot.create :draft_work, collection: collection
       work.complete_submission!(user)
       work
     end
@@ -545,10 +546,10 @@ RSpec.describe Work, type: :model do
       curator.email_messages_enabled = true
       curator.enable_messages_from(collection: collection)
       expect { awaiting_approval_work }
-        .to change { WorkActivity.where(activity_type: "SYSTEM").count }.by(2)
-        .and have_enqueued_job(ActionMailer::MailDeliveryJob).once # this would be twice if the user could enable messages
-      expect(WorkActivity.where(activity_type: "SYSTEM").first.message).to eq("marked as Awaiting Approval")
-      curator_notification = WorkActivity.where(activity_type: "SYSTEM").last.message
+        .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
+        .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
+      expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).last.message).to eq("marked as Awaiting Approval")
+      curator_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
       expect(curator_notification).to include("@#{curator.uid}")
       expect(curator_notification). to include(Rails.application.routes.url_helpers.work_url(awaiting_approval_work))
     end
@@ -617,10 +618,11 @@ RSpec.describe Work, type: :model do
       curator_user.email_messages_enabled = true
       curator_user.enable_messages_from(collection: collection)
       expect { approved_work }
-        .to change { WorkActivity.where(activity_type: "SYSTEM").count }.by(2)
+        .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
+        .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
         .and have_enqueued_job(ActionMailer::MailDeliveryJob).once # this would be twice if the user could enable messages
-      expect(WorkActivity.where(activity_type: "SYSTEM").first.message).to eq("marked as Approved")
-      user_notification = WorkActivity.where(activity_type: "SYSTEM").last.message
+      expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Approved")
+      user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
       expect(user_notification).to include("@#{curator_user.uid}")
       expect(user_notification).to include("@#{approved_work.created_by_user.uid}")
       expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(approved_work))

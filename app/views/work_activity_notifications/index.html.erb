@@ -1,0 +1,15 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Notifications</h1>
+
+<h2>Unread Notifications</h2>
+<ul>
+  <%= render partial: "work_activity", collection: @work_activity_notifications, as: :work_activity_notification %>
+</ul>
+
+<h2>Read Notifications</h2>
+<ul>
+  <%= render partial: "work_activity", collection: @read_work_activity_notifications, as: :work_activity_notification %>
+</ul>
+<br>
+

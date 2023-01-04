@@ -15,4 +15,9 @@ class WorkActivityNotification < ApplicationRecord
       end
     end
   end
+
+  def mark_as_read!
+    self.read_at = Time.now.utc
+    save!
+  end
 end

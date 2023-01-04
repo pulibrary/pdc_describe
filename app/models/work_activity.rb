@@ -7,6 +7,7 @@ class WorkActivity < ApplicationRecord
   CHANGES = "CHANGES"
   MESSAGE = "COMMENT" # TODO: Migrate existing records to "MESSAGE"; then close #825.
   FILE_CHANGES = "FILE-CHANGES"
+  NOTIFICATION = "NOTIFICATION"
   SYSTEM = "SYSTEM"
   USER_REFERENCE = /@[\w]*/.freeze # e.g. @xy123
 

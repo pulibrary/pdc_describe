@@ -341,10 +341,7 @@ class Work < ApplicationRecord
   def mark_new_notifications_as_read(user_id)
     activities.each do |activity|
       unread_notifications = WorkActivityNotification.where(user_id: user_id, work_activity_id: activity.id, read_at: nil)
-      unread_notifications.each do |notification|
-        notification.read_at = Time.now.utc
-        notification.save
-      end
+      unread_notifications.each(&:mark_as_read!)
     end
   end
 
@@ -501,8 +498,9 @@ class Work < ApplicationRecord
       attachment_key
     end
 
-    def track_state_change(user, state = aasm.to_state)
-      uw = UserWork.new(user_id: user.id, work_id: id, state: state)
+    def track_state_change(user)
+      to_state = aasm.to_state
+      uw = UserWork.new(user_id: user.id, work_id: id, state: to_state)
       uw.save!
       WorkActivity.add_system_activity(id, "marked as #{state.to_s.titleize}", user.id)
       WorkStateTransitionNotification.new(self, user.id).send

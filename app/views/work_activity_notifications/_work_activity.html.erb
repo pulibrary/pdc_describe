@@ -1,0 +1,6 @@
+<% work_activity = work_activity_notification.work_activity %>
+<% work = work_activity_notification.work_activity.work %>
+<li>
+  <%= work_activity.to_html.html_safe %> 
+  <%= link_to "view #{work.title}", work_path(work) %>
+</li>
