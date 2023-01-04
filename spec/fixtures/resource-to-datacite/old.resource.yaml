@@ -1,0 +1,64 @@
+# This uses Datacite enumeration keys (ALL_CAPS)
+# rather than values (MixedCase). The target Datacite
+# XML has been symlinked to make sure we produce
+# the same output in either case.
+{
+  "doi": "https://doi.org/10.34770/pe9w-x904",
+  "identifier_type": "DOI",
+  "titles": [{ "title": "This is the title" }],
+  "description": "The quick brown fox jumped over the lazy dog.",
+  "creators": [
+    {
+      "value": "Adams, Ansel",
+      "name_type": "Personal",
+      "given_name": "Ansel",
+      "family_name": "Adams",
+      "identifier": {"scheme": "not-ORCID", "value": "this will be dropped"},
+      "sequence": "1"
+    }
+  ],
+  "resource_type": "Dataset",
+  "resource_type_general": "DATASET",
+  "publisher": "Princeton University",
+  "publication_year": "2019",
+  "ark": "ark:/88435/dsp01h415pd457",
+  "doi": "10.34770/r2dz-ys12",
+  "rights": {
+    "identifier": "CC BY",
+    "uri": "https://creativecommons.org/licenses/by/4.0/",
+    "name": "Creative Commons Attribution 4.0 International"
+  },
+  "version_number": "1",
+  "related_objects": [
+    {
+      "related_identifier": "https://www.biorxiv.org/content/10.1101/545517v1",
+      "related_identifier_type": "ARXIV",
+      "relation_type": "ISCITEDBY"
+    },
+    {
+      "related_identifier": "https://doi.org/10.7554/eLife.52482",
+      "related_identifier_type": "DOI",
+      "relation_type": "ISCITEDBY"
+    }
+  ],
+  "keywords": ["cat", "dog", "mouse"],
+  "contributors": [
+    {
+      "value": "Simpson, Lisa",
+      "name_type": "Personal",
+      "given_name": "Lisa",
+      "family_name": "Simpson",
+      "identifier": {"scheme": "ORCID", "value": "fake-orcid"},
+      "affiliations": ["cartoon characters"],
+      "sequence": 1,
+      "type": "Other"
+    },
+  ],
+  "funders": [
+    {
+      "funder_name": "Scrooge McDuck",
+      "award_number": "1234",
+      "award_uri": "http://example.com/ducks"
+    }
+  ]
+}

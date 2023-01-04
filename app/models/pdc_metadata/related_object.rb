@@ -4,6 +4,11 @@ module PDCMetadata
   # let(:related_identifier) { "https://www.biorxiv.org/content/10.1101/545517v1" }
   # let(:related_identifier_type) { "arXiv" }
   # let(:relation_type) { "IsCitedBy" }
+
+  def self.fuzzy_match(obj, value)
+    obj.key.to_s == value or obj.value.upcase == value.upcase
+  end
+
   class RelatedObject
     attr_accessor :related_identifier, :related_identifier_type, :relation_type, :errors
 
@@ -11,6 +16,20 @@ module PDCMetadata
       @related_identifier = related_identifier
       @related_identifier_type = related_identifier_type
       @relation_type = relation_type
+
+      # TODO: Older records have a different format.
+      # If we migrate these, then this can be removed.
+      if not valid_related_identifier_type?
+        @related_identifier_type = ::Datacite::Mapping::RelatedIdentifierType.find do |obj|
+          ::PDCMetadata.fuzzy_match(obj, related_identifier_type)
+        end.value
+      end
+      if not valid_relation_type?
+        @relation_type = ::Datacite::Mapping::RelationType.find do |obj|
+          ::PDCMetadata.fuzzy_match(obj, relation_type)
+        end.value
+      end
+
       @errors = []
     end
 
