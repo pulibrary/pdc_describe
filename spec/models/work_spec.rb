@@ -357,7 +357,7 @@ RSpec.describe Work, type: :model do
   end
 
   describe "#add_comment" do
-    it "adds a comment" do
+    it "adds a comment/message" do
       work.add_comment("hello world", user.id)
       activity = work.activities.find { |a| a.message.include?("hello world") }
       expect(activity.created_by_user.id).to eq user.id

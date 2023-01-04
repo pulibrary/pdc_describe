@@ -1014,17 +1014,17 @@ RSpec.describe WorksController do
       expect(response.body).to eq '{"errors":["Cannot save dataset"]}'
     end
 
-    it "posts a comment" do
+    it "posts a comment/message" do
       sign_in user
       post :add_comment, params: { id: work.id, "new-comment" => "hello world" }
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/works/#{work.id}"
     end
 
-    context "when posting a comment containing HTML" do
+    context "when posting a comment/message containing HTML" do
       render_views
 
-      it "posts a comment with sanitized HTML" do
+      it "posts a comment/message with sanitized HTML" do
         sign_in user
         post :add_comment, params: { id: work.id, "new-comment" => "<div>hello world</div>" }
         expect(response.status).to be 302

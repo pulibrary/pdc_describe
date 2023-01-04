@@ -1,7 +1,7 @@
 <div>
-  <h2>Comments</h2>
+  <h2>Messages</h2>
   <% if @comments.size == 0 %>
-    No comments
+    No messages
   <% end %>
   <% @comments.each do |activity| %>
     <%= render partial: 'work_activity', locals: {
