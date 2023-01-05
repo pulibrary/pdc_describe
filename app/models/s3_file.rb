@@ -15,4 +15,18 @@ class S3File
     encoded_filename = filename.split("/").map { |name| CGI.escape(name) }.join("/")
     File.join(Rails.configuration.globus["post_curation_base_url"], encoded_filename)
   end
+
+  def to_blob
+    existing_blob = ActiveStorage::Blob.find_by(key: filename)
+
+    if existing_blob.present?
+      Rails.logger.warn("There is a blob existing for #{filename}, which we are not expecting!  It will be reattached #{existing_blob.inspect}")
+      return existing_blob
+    end
+
+    params = { filename: filename, content_type: "", byte_size: size, checksum: checksum }
+    blob = ActiveStorage::Blob.create_before_direct_upload!(**params)
+    blob.key = filename
+    blob
+  end
 end
