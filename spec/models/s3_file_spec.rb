@@ -68,7 +68,7 @@ RSpec.describe S3File, type: :model do
       end
 
       it "finds the blob" do
-        expect { file.to_blob }.to change { ActiveStorage::Blob.count }.by(0)
+        expect { file.to_blob }.not_to change { ActiveStorage::Blob.count }
       end
     end
   end
