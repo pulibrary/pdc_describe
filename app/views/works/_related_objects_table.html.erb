@@ -4,14 +4,22 @@
 </details>
 
 <div class="related-objects">
-  <table id="related-objects-table">
-    <tbody id="related-objects-table-body">
+  <table>
+    <thead>
       <tr class="header-row">
         <th>Related Identifier (Example: URI for a related publication or resource)</th>
         <th>Related Identifier Type</th>
         <th>Relation Type</th>
       </tr>
-    </tbody>
+    </thead>
+    <tbody id="related-objects-table"></tbody>
+    <tfoot>
+      <tr>
+        <td colspan="3">
+          <%= link_to "Add Another Related Object", "#", id: "btn-add-related-object", class: "btn btn-secondary" %>
+        </td>
+      </tr>
+    </tfoot>
   </table>
 </div>
 
@@ -25,8 +33,3 @@
     ></span>
   <% end %>
 <% end %>
-
-<!-- Let the user add new related objects -->
-<div>
-  <%= link_to "Add Another Related Object", "#", id: "btn-add-related-object", class: "btn btn-secondary" %>
-</div>

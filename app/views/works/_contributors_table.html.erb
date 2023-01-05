@@ -9,8 +9,8 @@
   of rendering creators already on the record *and* creators added
   on the fly.
 -->
-<table id="contributors-table">
-  <tbody id="contributors-table-sortable">
+<table>
+  <thead>
     <tr class="header-row">
       <th>ORCID</th>
       <th>Given name</th>
@@ -19,7 +19,15 @@
       <th>&nbsp;</th> <!-- move icon-->
       <th>&nbsp;</th> <!-- delete icon-->
     </tr>
-  </tbody>
+  </thead>
+  <tbody id="contributors-table" class="sortable"></tbody>
+  <tfoot>
+    <tr>
+      <td colspan="3">
+        <%= link_to "Add Another Contributor", "#", id: "btn-add-contributor", class: "btn btn-secondary" %>
+      </td>
+    </tr>
+  </tfoot>
 </table>
 
 <% @work.resource.contributors.each_with_index do |contributor, i| %>
@@ -32,9 +40,3 @@
     data-sequence="<%= contributor.sequence || 0 %>">
   </span>
 <% end %>
-
-<!-- Let the user add new contributors -->
-<div>
-  <%= link_to "Add Another Contributor", "#", id: "btn-add-contributor", class: "btn btn-secondary" %>
-</div>
-

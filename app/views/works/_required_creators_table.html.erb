@@ -14,7 +14,7 @@
   on the fly.
 -->
 <table id="creators-table">
-  <tbody id="creators-table-sortable">
+  <thead>
     <tr class="header-row">
       <th>ORCID</th>
       <th>Given name</th>
@@ -22,7 +22,16 @@
       <th>&nbsp;</th> <!-- move icon-->
       <th>&nbsp;</th> <!-- delete icon-->
     </tr>
-  </tbody>
+  </thead>
+  <tbody class="sortable"></tbody>
+  <tfoot>
+    <tr>
+      <td colspan="3">
+        <%= link_to "Add Another Creator", "#", id: "btn-add-creator", class: "btn btn-secondary" %>
+        <%= link_to "Add me as a Creator", "#", id: "btn-add-me-creator", class: "btn btn-secondary" %>
+      </td>
+    </tr>
+  </tfoot>
 </table>
 
 <% if @work %>
@@ -36,10 +45,3 @@
     ></span>
   <% end %>
 <% end %>
-
-<!-- Let the user add new creators -->
-<div>
-  <%= link_to "Add Another Creator", "#", id: "btn-add-creator", class: "btn btn-secondary" %>
-  <%= link_to "Add me as a Creator", "#", id: "btn-add-me-creator", class: "btn btn-secondary" %>
-</div>
-

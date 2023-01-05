@@ -27,9 +27,12 @@
     <div class="field">
       <!-- todo: this should go into a helper -->
       <select id="title_type_<%= i + 1 %>" name="title_type_<%= i + 1 %>">
-        <option value="AlternativeTitle" <%= title.title_type == "AlternativeTitle" ? "selected" : "" %>>Alternative Title</option>
-        <option value="Subtitle" <%= title.title_type == "Subtitle" ? "selected" : "" %> >Subtitle</option>
-        <option value="TranslatedTitle" <%= title.title_type == "TranslatedTitle" ? "selected" : "" %>>Translated Title</option>
+        <% ::Datacite::Mapping::TitleType.map(&:value).each do |title_type| %>
+          <option
+            value="<%= title_type %>"
+            <%= title.title_type == title_type ? "selected" : "" %>
+          ><%= title_type %></option>
+        <% end %>
         <option value="Other" <%= title.title_type == "Other" ? "selected" : "" %>>Other Title</option>
       </select>
       <br>
