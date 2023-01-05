@@ -3,21 +3,25 @@
   <% if @comments.size == 0 %>
     No comments
   <% end %>
-  <% @comments.each do |activity| %>
-    <%= render partial: 'work_activity', locals: {
-      activity: activity,
-      event_type: activity.event_type
-    } %>
-  <% end %>
+  <ul class="beads">
+    <% @comments.each do |activity| %>
+      <%= render partial: 'work_activity', locals: {
+        activity: activity,
+        event_type: activity.event_type
+      } %>
+    <% end %>
+  </ul>
 
   <h2>Change History</h2>
   <% if @changes.size == 0 %>
     No activity
   <% end %>
-  <% @changes.each do |activity| %>
-    <%= render partial: 'work_activity', locals: {
-      activity: activity,
-      event_type: activity.event_type
-    } %>
-  <% end %>
+  <ul class="beads">
+    <% @changes.each do |activity| %>
+      <%= render partial: 'work_activity', locals: {
+        activity: activity,
+        event_type: activity.event_type
+      } %>
+    <% end %>
+  </ul>
 </div>

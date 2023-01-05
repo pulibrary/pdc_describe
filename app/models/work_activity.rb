@@ -114,11 +114,11 @@ class WorkActivity < ApplicationRecord
 
     def event_html(children:)
       <<-HTML
-<div class="activity-history-#{event_type}-title">
+<span class="activity-history-#{event_type}-title">
   #{event_timestamp_html}
   #{created_by_user_html}
   #{comment_timestamp_html}
-</div>
+</span>
 <span class="comment-html">#{children}</span>
     HTML
     end
