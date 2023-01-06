@@ -102,7 +102,7 @@ class Work < ApplicationRecord
       # Work.find_by!('metadata @> ?', "{\"ark\":\"#{ark}\"}")
     end
 
-    delegate :resource_type_general_options, to: PDCMetadata::Resource
+    delegate :resource_type_general_values, to: PDCMetadata::Resource
 
     # Determines whether or not a test DOI should be referenced
     # (this avoids requests to the DOI API endpoint for non-production deployments)
@@ -457,20 +457,6 @@ class Work < ApplicationRecord
 
   private
 
-    def s3_file_to_blob(s3_file)
-      existing_blob = ActiveStorage::Blob.find_by(key: s3_file.filename)
-
-      if existing_blob.present?
-        Rails.logger.warn("There is a blob existing for #{s3_file.filename}, which we are not expecting!  It will be reattached #{existing_blob.inspect}")
-        return existing_blob
-      end
-
-      params = { filename: s3_file.filename, content_type: "", byte_size: s3_file.size, checksum: s3_file.checksum }
-      blob = ActiveStorage::Blob.create_before_direct_upload!(**params)
-      blob.key = s3_file.filename
-      blob
-    end
-
     def publish(user)
       publish_doi(user)
       update_ark_information
@@ -647,7 +633,7 @@ class Work < ApplicationRecord
     def add_pre_curation_s3_object(s3_file)
       return if s3_object_persisted?(s3_file)
 
-      persisted = s3_file_to_blob(s3_file)
+      persisted = s3_file.to_blob
       pre_curation_uploads.attach(persisted)
     end
 
