@@ -168,9 +168,9 @@
     <dd><%= @work.resource_type %></dd>
   <% end %>
     
-  <% if @work.resource_type_general.present? %>
+  <% if @work.resource_type_general %>
     <dt>General Type</dt>
-    <dd><%= Work.resource_type_general_options[@work.resource_type_general] %></dd>
+    <dd><%= @work.resource_type_general %></dd>
   <% end %>
 
   <% if @work.resource.ark %>
@@ -227,11 +227,6 @@
     <dt>Location notes</dt>
     <dd><%= @work.location_notes %></dd>
   <% end %>
-
-  <% if @work.submission_notes.present? %>
-    <dt>Notes</dt>
-    <dd><%= @work.submission_notes %></dd>
-  <% end %>
 </dl>
 
 <% if @work.approved? %>
@@ -251,17 +246,6 @@
 <% end %>
 
 <%= render 'work_activity_history' %>
-
-<div id="new-comment-section">
-  <%= form_with url: add_comment_work_path(@work) do |f| %>
-    <textarea id="new-comment" name="new-comment" class="new-comment" placeholder="leave a comment" rows="5" cols="100"></textarea>
-    <br/>
-    <%= f.submit("Comment", class: "btn btn-secondary") %>
-    <span class="new-comment-help">
-      Simple Markdown is accepted, e.g. *italics*, **bold**, # Header 1, ## Header 2, ```code```. Use @netid to refer to others.
-    </span>
-  <% end %>
-</div>
 
 <%= javascript_include_tag 'show_work_utils' %>
 
@@ -291,7 +275,7 @@
 
     // triggeredAutocomplete (https://github.com/Hawkers/triggeredAutocomplete) is a plug-in
     // that sits on top of jQuery UI autocomplete and provides the @mention functionaly to
-    // reference other users via their netid in a comments.
+    // reference other users via their netid in a message/comment.
     //
     // Notice that https://github.com/Hawkers/triggeredAutocomplete also supports passing an
     // array of objects with structure {value: x, label: y} to display a more user friendly

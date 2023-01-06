@@ -123,7 +123,7 @@ class WorkActivity < ApplicationRecord
     end
 
     def event_html(children:)
-      title_html + "<span class='comment-html'>#{children}</span>"
+      title_html + "<span class='comment-html'>#{children.chomp}</span>"
     end
 
     # Returns the message formatted to display _file_ changes that were logged as an activity
