@@ -151,7 +151,7 @@ class WorkActivity < ApplicationRecord
         change = changes[field]
         mapped = change.map { |value| change_value_html(value) }
         values = mapped.join
-        html += "<details><summary class='show-changes'>#{field}</summary>#{values}</details>"
+        html += "<details class='comment-html'><summary class='show-changes'>#{field}</summary>#{values}</details>"
       end
 
       html
