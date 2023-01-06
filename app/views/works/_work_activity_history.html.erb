@@ -1,13 +1,22 @@
 <div>
   <h2>Messages</h2>
-  <% if @comments.size == 0 %>
+  <% if @comments.size == 0 && !@work.submission_notes.present? %>
     No messages
   <% end %>
+
   <% @comments.each do |activity| %>
     <%= render partial: 'work_activity', locals: {
       activity: activity,
       event_type: activity.event_type
     } %>
+  <% end %>
+  <% if @work.submission_notes.present? %>
+    <div class="activity-history-item activity-history-comment-item">
+      <div class="activity-history-comment-title">
+        Submission message
+      </div>
+      <%= @work.submission_notes %>
+    </div>
   <% end %>
 
   <div id="new-comment-section">

@@ -240,11 +240,6 @@
     <dt>Location notes</dt>
     <dd><%= @work.location_notes %></dd>
   <% end %>
-
-  <% if @work.submission_notes.present? %>
-    <dt>Notes</dt>
-    <dd><%= @work.submission_notes %></dd>
-  <% end %>
 </dl>
 
 <% if @work.approved? %>
