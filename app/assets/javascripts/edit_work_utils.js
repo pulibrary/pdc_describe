@@ -66,39 +66,6 @@ $(() => {
   }
 
   // ************************************************ //
-  // Related Objects
-  // related_identifier:, related_identifier_type:, relation_type
-  function addRelatedObjectHtml(num, related_identifier, related_identifier_type, relation_type) {
-    const rowId = `related_object_row_${num}`;
-    const relatedIdentifierId = `related_identifier_${num}`;
-    const relatedIdentifierTypeId = `related_identifier_type_${num}`;
-    const relationTypeId = `relation_type_${num}`;
-    const relatedIdentifierTypeHtml = makeSelectHtml(
-      relatedIdentifierTypeId,
-      related_identifier_type,
-      pdc.datacite.RelatedIdentifierType,
-    );
-    const relationTypeHtml = makeSelectHtml(
-      relationTypeId,
-      relation_type,
-      pdc.datacite.RelationType,
-    );
-
-    const rowHtml = `<tr id="${rowId}" class="related-objects-table-row">
-      <td>
-        <input type="text" id="${relatedIdentifierId}" name="${relatedIdentifierId}" value="${related_identifier}" data-num="${num}" placeholder="The URL web address for a related publication or other resource" />
-      </td>
-      <td>
-        ${relatedIdentifierTypeHtml}
-      </td>
-      <td>
-        ${relationTypeHtml}
-      </td>
-    </tr>`;
-    $('#related-objects-table').append(rowHtml);
-  }
-
-  // ************************************************ //
 
   function addContributorHtml(num, orcid, givenName, familyName, role, sequence) {
     const rowId = `contributor_row_${num}`;
@@ -311,12 +278,6 @@ $(() => {
     return false;
   });
 
-  $('#btn-add-related-object').on('click', (el) => {
-    const num = incrementCounter('#related_object_count');
-    addRelatedObjectHtml(num, '', '', '');
-    return false;
-  });
-
   $('#btn-add-me-creator').on('click', (el) => {
     const num = incrementCounter('#creator_count');
     const orcid = $('#user_orcid').val();
@@ -411,22 +372,6 @@ $(() => {
         creator.familyName,
         creator.sequence,
       );
-    }
-  }
-
-  // Load any existing related objects into the edit form.
-  // If there are any related objects they should appear in hidden <span> tags.
-  if ($('.related-object-data').length == 0) {
-    // Add an empty related object for the user to fill it out
-    const num = incrementCounter('#related_object_count');
-    addRelatedObjectHtml(num, '', '', '');
-  } else {
-    // Add existing related objects for editing
-    for (const related_object of $('.related-object-data')) {
-      const {
-        num, relatedIdentifier, relatedIdentifierType, relationType,
-      } = related_object.dataset;
-      addRelatedObjectHtml(num, relatedIdentifier, relatedIdentifierType, relationType);
     }
   }
 

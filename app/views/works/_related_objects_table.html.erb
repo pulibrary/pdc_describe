@@ -12,7 +12,37 @@
         <th>Relation Type</th>
       </tr>
     </thead>
-    <tbody id="related-objects-table"></tbody>
+    <tbody id="related-objects-table">
+      <% (@work.resource.related_objects + [nil]).each do |related_object| %>
+        <tr>
+          <td>
+            <input name="related_object[][related_identifier]" value="<%= related_object&.related_identifier %>" />
+          </td>
+          <td>
+            <select name="related_object[][related_identifier_type]">
+              <option value="" ></option>
+              <% ::Datacite::Mapping::RelatedIdentifierType.map(&:value).each do |type| %>
+                <option
+                  value="<%= type %>"
+                  <%= related_object&.related_identifier_type == type ? "selected" : "" %>
+                ><%= type %></option>
+              <% end %>
+            </select>
+          </td>
+          <td>
+            <select name="related_object[][relation_type]">
+              <option value="" ></option>
+              <% ::Datacite::Mapping::RelationType.map(&:value).each do |type| %>
+                <option
+                  value="<%= type %>"
+                  <%= related_object&.relation_type == type ? "selected" : "" %>
+                ><%= type %></option>
+              <% end %>
+            </select>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
     <tfoot>
       <tr>
         <td colspan="3">
@@ -22,14 +52,3 @@
     </tfoot>
   </table>
 </div>
-
-<% if @work %>
-  <% @work.resource.related_objects.each_with_index do |related_object, i| %>
-  <span class="hidden related-object-data"
-    data-num="<%= i + 1 %>"
-    data-related-identifier="<%= related_object.related_identifier %>"
-    data-related-identifier-type="<%= related_object.related_identifier_type %>"
-    data-relation-type="<%= related_object.relation_type %>"
-    ></span>
-  <% end %>
-<% end %>
