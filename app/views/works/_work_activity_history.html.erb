@@ -1,7 +1,7 @@
 <div>
-  <h2>Comments</h2>
+  <h2>Messages</h2>
   <% if @comments.size == 0 %>
-    No comments
+    No messages
   <% end %>
   <% @comments.each do |activity| %>
     <%= render partial: 'work_activity', locals: {
@@ -10,6 +10,19 @@
     } %>
   <% end %>
 
+  <div id="new-comment-section">
+    <%= form_with url: add_comment_work_path(@work) do |f| %>
+      <textarea id="new-comment" name="new-comment" class="new-comment" placeholder="leave a message" rows="5" cols="100"></textarea>
+      <br/>
+      <%= f.submit("Message", class: "btn btn-secondary") %>
+      <span class="new-comment-help">
+        Simple Markdown is accepted, e.g. *italics*, **bold**, # Header 1, ## Header 2, ```code```. Use @netid to refer to others.
+      </span>
+    <% end %>
+  </div>
+</div>
+
+<div>
   <h2>Change History</h2>
   <% if @changes.size == 0 %>
     No activity
