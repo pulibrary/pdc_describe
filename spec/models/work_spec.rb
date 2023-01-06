@@ -92,8 +92,8 @@ RSpec.describe Work, type: :model do
     subject(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
     it "has related objects" do
       expect(work.resource.related_objects.first.related_identifier).to eq "https://www.biorxiv.org/content/10.1101/545517v1"
-      expect(work.resource.related_objects.first.related_identifier_type).to eq "ARXIV"
-      expect(work.resource.related_objects.first.relation_type).to eq "IS_CITED_BY"
+      expect(work.resource.related_objects.first.related_identifier_type).to eq "arXiv"
+      expect(work.resource.related_objects.first.relation_type).to eq "IsCitedBy"
     end
   end
 
@@ -896,7 +896,7 @@ RSpec.describe Work, type: :model do
           }
         ],
         "resource_type": "digitized video",
-        "resource_type_general": "AUDIOVISUAL",
+        "resource_type_general": "Audiovisual",
         "publisher": "Princeton University",
         "publication_year": 2022,
         "ark": "new-ark",

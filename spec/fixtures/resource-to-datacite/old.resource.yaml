@@ -1,3 +1,7 @@
+# This uses Datacite enumeration keys (ALL_CAPS)
+# rather than values (MixedCase). The target Datacite
+# XML has been symlinked to make sure we produce
+# the same output in either case.
 {
   "doi": "https://doi.org/10.34770/pe9w-x904",
   "identifier_type": "DOI",
@@ -14,7 +18,7 @@
     }
   ],
   "resource_type": "Dataset",
-  "resource_type_general": "Dataset",
+  "resource_type_general": "DATASET",
   "publisher": "Princeton University",
   "publication_year": "2019",
   "ark": "ark:/88435/dsp01h415pd457",
@@ -28,13 +32,13 @@
   "related_objects": [
     {
       "related_identifier": "https://www.biorxiv.org/content/10.1101/545517v1",
-      "related_identifier_type": "arXiv",
-      "relation_type": "IsCitedBy"
+      "related_identifier_type": "ARXIV",
+      "relation_type": "ISCITEDBY"
     },
     {
       "related_identifier": "https://doi.org/10.7554/eLife.52482",
       "related_identifier_type": "DOI",
-      "relation_type": "IsCitedBy"
+      "relation_type": "ISCITEDBY"
     }
   ],
   "keywords": ["cat", "dog", "mouse"],

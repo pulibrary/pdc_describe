@@ -181,9 +181,9 @@
     <dd><%= @work.resource_type %></dd>
   <% end %>
     
-  <% if @work.resource_type_general.present? %>
+  <% if @work.resource_type_general %>
     <dt>General Type</dt>
-    <dd><%= Work.resource_type_general_options[@work.resource_type_general] %></dd>
+    <dd><%= @work.resource_type_general %></dd>
   <% end %>
 
   <% if @work.resource.ark %>
