@@ -112,15 +112,18 @@ class WorkActivity < ApplicationRecord
       "at #{event_timestamp}" if comment_event_type?
     end
 
-    def event_html(children:)
+    def title_html()
       <<-HTML
 <span class="activity-history-title">
   #{event_timestamp_html}
   #{created_by_user_html}
   #{comment_timestamp_html}
 </span>
-<span class="comment-html">#{children}</span>
-    HTML
+      HTML
+    end
+
+    def event_html(children:)
+      title_html + "<span class='comment-html'>#{children}</span>"
     end
 
     # Returns the message formatted to display _file_ changes that were logged as an activity
@@ -141,19 +144,17 @@ class WorkActivity < ApplicationRecord
 
     # Returns the message formatted to display _metadata_ changes that were logged as an activity
     def metadata_changes_html
-      text = ""
+      html = title_html
       changes = JSON.parse(message)
 
       changes.keys.each do |field|
         change = changes[field]
         mapped = change.map { |value| change_value_html(value) }
         values = mapped.join
-
-        children = "<details><summary class='show-changes'>#{field}</summary>#{values}</details>"
-        text += event_html(children: children)
+        html += "<details><summary class='show-changes'>#{field}</summary>#{values}</details>"
       end
 
-      text
+      html
     end
 
     # rubocop:disable Metrics/MethodLength
