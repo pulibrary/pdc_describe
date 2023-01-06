@@ -119,7 +119,7 @@ class WorkActivity < ApplicationRecord
   #{created_by_user_html}
   #{comment_timestamp_html}
 </div>
-<span class="comment-html">#{children}</span>
+<span class="comment-html">#{children.chomp}</span>
     HTML
     end
 
