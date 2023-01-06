@@ -222,3 +222,14 @@ ul.beads {
       font-size: 150%;
   }
 }
+
+ul.no-beads {
+  padding-left: 0;
+  li {
+    list-style: none;
+    border: 1px solid #dddcdc;
+    border-radius: .25rem;
+    margin-bottom: 5px;
+    padding: 5px;
+  }
+}
