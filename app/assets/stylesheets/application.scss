@@ -163,6 +163,7 @@ details {
   }
 
   summary.show-changes {
+    font-weight: normal;
     &::after {
       content: 'Show Changes';
     }
