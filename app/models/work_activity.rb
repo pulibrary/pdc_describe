@@ -112,7 +112,7 @@ class WorkActivity < ApplicationRecord
       "at #{event_timestamp}" if comment_event_type?
     end
 
-    def title_html()
+    def title_html
       <<-HTML
 <span class="activity-history-title">
   #{event_timestamp_html}
