@@ -11,6 +11,20 @@ module PDCMetadata
       @related_identifier = related_identifier
       @related_identifier_type = related_identifier_type
       @relation_type = relation_type
+
+      # TODO: Older records have a different format.
+      # When we migrate these, then this can be removed.
+      unless related_identifier_type.blank? || valid_related_identifier_type?
+        @related_identifier_type = ::Datacite::Mapping::RelatedIdentifierType.find do |obj|
+          ::PDCMetadata.fuzzy_match(obj, related_identifier_type)
+        end.value
+      end
+      unless relation_type.blank? || valid_relation_type?
+        @relation_type = ::Datacite::Mapping::RelationType.find do |obj|
+          ::PDCMetadata.fuzzy_match(obj, relation_type)
+        end.value
+      end
+
       @errors = []
     end
 
@@ -38,38 +52,22 @@ module PDCMetadata
       RelatedObject.new(related_identifier: related_identifier, related_identifier_type: related_identifier_type, relation_type: relation_type)
     end
 
-    ##
-    # Generate a list of valid options for the related_identifier_type field
-    def self.related_identifier_type_options
-      pairs = Datacite::Mapping::RelatedIdentifierType.to_a.map { |value| [value.key, value.value] }
-      built = Hash[pairs]
-      built.with_indifferent_access
-    end
-
-    ##
-    # Generate a list of valid options for the relation_type field
-    def self.relation_type_options
-      pairs = Datacite::Mapping::RelationType.to_a.map { |value| [value.key, value.value] }
-      built = Hash[pairs]
-      built.with_indifferent_access
-    end
-
     private
 
       def valid_related_identifier_type?
-        @valid_related_identifier_type ||= valid_type_values.include?(related_identifier_type&.upcase)
+        @valid_related_identifier_type ||= valid_type_values.include?(related_identifier_type)
       end
 
       def valid_relation_type?
-        @valid_relation_type ||= valid_relationship_types.include?(relation_type&.upcase)
+        @valid_relation_type ||= valid_relationship_types.include?(relation_type)
       end
 
       def valid_type_values
-        @valid_type_values ||= Datacite::Mapping::RelatedIdentifierType.to_a.map(&:value).map(&:upcase)
+        @valid_type_values ||= Datacite::Mapping::RelatedIdentifierType.map(&:value)
       end
 
       def valid_relationship_types
-        @valid_relationship_types ||= Datacite::Mapping::RelationType.to_a.map(&:value).map(&:upcase)
+        @valid_relationship_types ||= Datacite::Mapping::RelationType.map(&:value)
       end
   end
 end

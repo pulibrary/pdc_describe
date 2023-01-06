@@ -58,11 +58,11 @@ $(() => {
     $(`#${orcidId}`).focus();
   }
 
-  function makeSelectHtml(selectId, currentKey, kvList) {
-    const options = kvList.map(
-      ({ key, value }) => `<option value="${key}" ${currentKey == key ? 'selected' : ''}>${value}</option>`,
+  function makeSelectHtml(selectId, currentValue, allValues) {
+    const options = allValues.map(
+      (value) => `<option value="${value}" ${currentValue == value ? 'selected' : ''}>${value}</option>`,
     );
-    return `<select id="${selectId}" name="${selectId}"><option value="" ${currentKey == '' ? 'selected' : ''}></option>${options}</select>`;
+    return `<select id="${selectId}" name="${selectId}"><option value="" ${currentValue == '' ? 'selected' : ''}></option>${options}</select>`;
   }
 
   // ************************************************ //
