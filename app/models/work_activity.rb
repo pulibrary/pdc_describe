@@ -91,7 +91,6 @@ class WorkActivity < ApplicationRecord
       message_html
     end
   end
-  alias message_html to_html
 
   private
 
