@@ -143,7 +143,7 @@ class User < ApplicationRecord
   end
 
   # Returns a string with the UID (netid) for all the users.
-  # We use this string to power the JavaScript @mention functionality when adding comments to works.
+  # We use this string to power the JavaScript @mention functionality when adding messages to works.
   def self.all_uids_string
     User.all.map { |user| '"' + user.uid + '"' }.join(", ")
   end
