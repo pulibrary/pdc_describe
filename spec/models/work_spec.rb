@@ -522,7 +522,7 @@ RSpec.describe Work, type: :model do
     it "notifies the curators it is ready for review" do
       curator = FactoryBot.create(:research_data_moderator)
       expect { awaiting_approval_work }.to change { WorkActivity.where(activity_type: "SYSTEM").count }.by(2)
-      expect(WorkActivity.where(activity_type: "SYSTEM").last.message).to eq("marked as awaiting_approval")
+      expect(WorkActivity.where(activity_type: "SYSTEM").last.message).to eq("marked as Awaiting Approval")
       curator_notification = WorkActivity.where(activity_type: "SYSTEM").first.message
       expect(curator_notification).to include("@#{curator.uid}")
       expect(curator_notification). to include(Rails.application.routes.url_helpers.work_url(awaiting_approval_work))

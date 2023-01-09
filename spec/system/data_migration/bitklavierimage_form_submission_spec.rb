@@ -61,7 +61,7 @@ This dataset is too large to download directly from this item page. You can acce
       fill_in "ark", with: ark
       find("#collection_id").find(:xpath, "option[1]").select_option
       click_on "Create"
-      expect(page).to have_content "marked as draft"
+      expect(page).to have_content "marked as Draft"
       bitklavierimage_work = Work.last
       expect(bitklavierimage_work.title).to eq title
 

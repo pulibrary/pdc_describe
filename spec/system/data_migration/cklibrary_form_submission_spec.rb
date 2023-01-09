@@ -48,7 +48,7 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"
-      expect(page).to have_content "marked as draft"
+      expect(page).to have_content "marked as Draft"
       cklibrary_work = Work.last
       expect(cklibrary_work.title).to eq title
 
@@ -56,6 +56,8 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(cklibrary_work)
       expect(datacite.valid?).to eq true
+
+      export_spec_data("cklibrary.json", cklibrary_work.to_json)
     end
   end
 end
