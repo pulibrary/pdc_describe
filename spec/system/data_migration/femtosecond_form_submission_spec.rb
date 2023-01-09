@@ -92,7 +92,7 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"
-      expect(page).to have_content "marked as draft"
+      expect(page).to have_content "marked as Draft"
       femtosecond_work = Work.last
       expect(femtosecond_work.title).to eq title
 
@@ -100,6 +100,8 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(femtosecond_work)
       expect(datacite.valid?).to eq true
+
+      export_spec_data("femtosecond.json", femtosecond_work.to_json)
     end
   end
 end

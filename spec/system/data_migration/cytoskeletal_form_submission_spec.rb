@@ -92,7 +92,7 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"
-      expect(page).to have_content "marked as draft"
+      expect(page).to have_content "marked as Draft"
       cytoskeletal_work = Work.last
       expect(cytoskeletal_work.title).to eq title
       expect(cytoskeletal_work.resource.related_objects.first.related_identifier).to eq related_identifier
@@ -105,6 +105,8 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(cytoskeletal_work)
       expect(datacite.valid?).to eq true
+
+      export_spec_data("cytoskeletal.json", cytoskeletal_work.to_json)
     end
   end
 end

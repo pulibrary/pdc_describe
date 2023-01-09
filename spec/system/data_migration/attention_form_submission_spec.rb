@@ -49,7 +49,7 @@ This dataset is too large to download directly from this item page. You can acce
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"
-      expect(page).to have_content "marked as draft"
+      expect(page).to have_content "marked as Draft"
       attention_work = Work.last
       expect(attention_work.title).to eq title
 

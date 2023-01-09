@@ -49,7 +49,7 @@ The attached readme.txt file explains the data attributes"
       fill_in "ark", with: ark
       find("#collection_id").find(:xpath, "option[1]").select_option
       click_on "Create"
-      expect(page).to have_content "marked as draft"
+      expect(page).to have_content "marked as Draft"
       flume_work = Work.last
       expect(flume_work.title).to eq title
 
@@ -57,6 +57,8 @@ The attached readme.txt file explains the data attributes"
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(flume_work)
       expect(datacite.valid?).to eq true
+
+      export_spec_data("flume.json", flume_work.to_json)
     end
   end
 end

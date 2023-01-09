@@ -50,7 +50,7 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"
-      expect(page).to have_content "marked as draft"
+      expect(page).to have_content "marked as Draft"
       bitklavier_work = Work.last
       expect(bitklavier_work.title).to eq title
 
@@ -58,6 +58,8 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(bitklavier_work)
       expect(datacite.valid?).to eq true
+
+      export_spec_data("bitKlavier-binaural.json", bitklavier_work.to_json)
     end
   end
 end

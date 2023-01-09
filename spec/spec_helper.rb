@@ -114,3 +114,11 @@ RSpec.configure do |config|
   #   # as the one that triggered the failure.
   #   Kernel.srand config.seed
 end
+
+# Exports to a file the data from a spec if ENV variable is set.
+def export_spec_data(file_name, data)
+  return unless ENV["DATA_MIGRATION"] == "true"
+  export_path = "./tmp/data_migration"
+  Dir.mkdir export_path unless File.exist?(export_path)
+  File.write("#{export_path}/#{file_name}", data)
+end
