@@ -91,15 +91,22 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
 
       expect(page).to have_content "awaiting_approval"
 
+      visit(user_path(user))
+      # This is the blue badge on the work that should show up for a submitter
+      #  when a work is started and marked completed by a submitter
+      within("#unfinished_datasets span.badge.rounded-pill.bg-primary") do
+        expect(page).to have_content "2"
+      end
+
       # Now sign is as the collection curator and see the notification on your dashboard
       sign_out user
       sign_in curator
       visit(user_path(curator))
       expect(page).to have_content curator.display_name
       # This is the blue badge on the work that should show up for a curator
-      #  when a work is marked completed by a submitter
+      #  when a work is startend and marked completed by a submitter
       within("#unfinished_datasets span.badge.rounded-pill.bg-primary") do
-        expect(page).to have_content "1"
+        expect(page).to have_content "2"
       end
     end
   end
