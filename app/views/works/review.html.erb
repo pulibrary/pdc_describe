@@ -59,7 +59,7 @@
   <%= form_tag(action: "validate", id: @work) do %>
     <textarea id="submission_notes" name="submission_notes" cols="80", rows="10"
       placeholder="(optional) Type here to leave a message for the curators"><%= @work.submission_notes %></textarea>
-    <% if ["cm7575", "fake-data-entry-uid"].include? current_user.uid %>
+    <% if ["data-entry-uid-for-rspec"].include? current_user.uid %>
       <textarea id="provenance_notes" name="provenance_notes" cols="80", rows="10"
         placeholder="Notes for the provenance log">Initially created in DataSpace.</textarea>
     <% end %>

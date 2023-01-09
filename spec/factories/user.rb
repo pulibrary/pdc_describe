@@ -25,6 +25,7 @@ FactoryBot.define do
     ##
     # A user who has submit rights on the Research Data Collection
     factory :princeton_submitter do
+      uid { "data-entry-uid-for-rspec" }
       default_collection_id { Collection.default_for_department("12345").id }
     end
 
