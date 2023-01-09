@@ -56,7 +56,7 @@ A full description of the structure of the dataset and how to reproduce the figu
       fill_in "ark", with: ark
       find("#collection_id").find(:xpath, "option[1]").select_option
       click_on "Create"
-      expect(page).to have_content "marked as draft"
+      expect(page).to have_content "marked as Draft"
       baldwin_work = Work.last
       expect(baldwin_work.title).to eq title
 
