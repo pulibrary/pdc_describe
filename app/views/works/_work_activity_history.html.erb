@@ -3,21 +3,24 @@
   <% if @comments.size == 0 && !@work.submission_notes.present? %>
     No messages
   <% end %>
-
-  <% @comments.each do |activity| %>
-    <%= render partial: 'work_activity', locals: {
-      activity: activity,
-      event_type: activity.event_type
-    } %>
-  <% end %>
-  <% if @work.submission_notes.present? %>
-    <div class="activity-history-item activity-history-comment-item">
-      <div class="activity-history-comment-title">
-        Submission message
-      </div>
-      <%= @work.submission_notes %>
-    </div>
-  <% end %>
+  <ul class="no-beads">
+    <% @comments.each do |activity| %>
+      <%= render partial: 'work_activity', locals: {
+        activity: activity,
+        event_type: activity.event_type
+      } %>
+    <% end %>
+    <% if @work.submission_notes.present? %>
+      <li class="activity-history-item">
+        <span class="activity-history-title">
+          Submission message
+        </span>
+        <div>
+          <%= @work.submission_notes %>
+        </div>
+      </li>
+    <% end %>
+  </ul>
 
   <div id="new-comment-section">
     <%= form_with url: add_comment_work_path(@work) do |f| %>
@@ -36,10 +39,12 @@
   <% if @changes.size == 0 %>
     No activity
   <% end %>
-  <% @changes.each do |activity| %>
-    <%= render partial: 'work_activity', locals: {
-      activity: activity,
-      event_type: activity.event_type
-    } %>
-  <% end %>
+  <ul class="beads">
+    <% @changes.each do |activity| %>
+      <%= render partial: 'work_activity', locals: {
+        activity: activity,
+        event_type: activity.event_type
+      } %>
+    <% end %>
+  </ul>
 </div>

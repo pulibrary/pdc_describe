@@ -88,7 +88,7 @@ $(() => {
 
     const rowHtml = `<tr id="${rowId}" class="related-objects-table-row">
       <td>
-        <input type="text" id="${relatedIdentifierId}" name="${relatedIdentifierId}" value="${related_identifier}" data-num="${num}" placeholder="The URL web address for a related publication or other resource" />
+        <input type="text" id="${relatedIdentifierId}" name="${relatedIdentifierId}" value="${related_identifier}" data-num="${num}"/>
       </td>
       <td>
         ${relatedIdentifierTypeHtml}
