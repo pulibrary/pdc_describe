@@ -163,6 +163,7 @@ details {
   }
 
   summary.show-changes {
+    font-weight: normal;
     &::after {
       content: 'Show Changes';
     }
@@ -205,5 +206,30 @@ dl {
 
   dd {
     grid-column-start: 2;
+  }
+}
+
+ul.beads {
+  padding-left: 1em;
+  margin-left: 1em;
+  border-left: 2px solid;
+  li {
+    list-style: none;
+  }
+  li::before {
+      content: "⦁";
+      margin-left: -1em;
+      font-size: 150%;
+  }
+}
+
+ul.no-beads {
+  padding-left: 0;
+  li {
+    list-style: none;
+    border: 1px solid #dddcdc;
+    border-radius: .25rem;
+    margin-bottom: 5px;
+    padding: 5px;
   }
 }
