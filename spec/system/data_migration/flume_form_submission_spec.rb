@@ -49,9 +49,11 @@ The attached readme.txt file explains the data attributes"
       fill_in "ark", with: ark
       find("#collection_id").find(:xpath, "option[1]").select_option
       click_on "Create"
-      byebug
+      
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
+      click_on "Complete"
+      expect(page).to have_content "awaiting_approval"
       flume_work = Work.last
       expect(flume_work.title).to eq title
       # Ensure the datacite record produced validates against our local copy of the datacite schema.

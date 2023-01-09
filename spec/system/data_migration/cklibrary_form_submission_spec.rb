@@ -50,6 +50,8 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       click_on "Create"
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
+      click_on "Complete"
+      expect(page).to have_content "awaiting_approval"
       cklibrary_work = Work.last
       expect(cklibrary_work.title).to eq title
 

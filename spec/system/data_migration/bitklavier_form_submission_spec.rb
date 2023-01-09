@@ -52,6 +52,8 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       click_on "Create"
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
+      click_on "Complete"
+      expect(page).to have_content "awaiting_approval"
       bitklavier_work = Work.last
       expect(bitklavier_work.title).to eq title
 
