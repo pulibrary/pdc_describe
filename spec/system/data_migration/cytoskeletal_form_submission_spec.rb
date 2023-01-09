@@ -92,7 +92,7 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"
-      expect(page).to have_content "marked as draft"
+      expect(page).to have_content "marked as Draft"
       cytoskeletal_work = Work.last
       expect(cytoskeletal_work.title).to eq title
       expect(cytoskeletal_work.resource.related_objects.first.related_identifier).to eq related_identifier
