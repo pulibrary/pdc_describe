@@ -58,11 +58,11 @@ $(() => {
     $(`#${orcidId}`).focus();
   }
 
-  function makeSelectHtml(selectId, currentKey, allValues, blocklist = []) {
+  function makeSelectHtml(selectId, currentValue, allValues, blocklist = []) {
     const options = allValues.filter(
       (value) => !blocklist.includes(value),
     ).map(
-      (value) => `<option value="${value}" ${currentKey == value ? 'selected' : ''}>${value}</option>`,
+      (value) => `<option value="${value}" ${currentValue == value ? 'selected' : ''}>${value}</option>`,
     );
     return `<select id="${selectId}" name="${selectId}"><option value="" ${currentValue == '' ? 'selected' : ''}></option>${options}</select>`;
   }
