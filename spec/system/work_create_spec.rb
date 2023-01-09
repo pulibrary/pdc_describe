@@ -84,6 +84,12 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Additional Metadata"
       select "DOI", from: "related_identifier_type_1"
       select "Cites", from: "relation_type_1"
+      fill_in "contributor_given_name_1", with: "Alan"
+      fill_in "contributor_family_name_1", with: "Turing"
+      select "Editor", from: "contributor_role_1"
+      roles = find_field("contributor_role_1").find_all("option").map(&:text)
+      expect(roles).to include("ContactPerson") # Individual roles included
+      expect(roles).not_to include("HostingInstitution") # Organizational roles excluded
       click_on "Save Work"
       click_on "Continue"
       click_on "Continue"
