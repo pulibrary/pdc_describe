@@ -72,7 +72,7 @@ class WorkActivity < ApplicationRecord
   end
 
   def provenance_notes_type?
-    activity_type = PROVENANCE_NOTES
+    activity_type == PROVENANCE_NOTES
   end
 
   def log_event_type?
