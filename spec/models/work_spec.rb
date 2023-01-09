@@ -381,8 +381,8 @@ RSpec.describe Work, type: :model do
       message = "taggging @#{curator_user.uid} and @#{user_other.uid}"
       work.add_message(message, user.id)
       activity = work.activities.find { |a| a.message.include?(message) }
-      expect(activity.message_html.include?("#{curator_user.uid}</a>")).to be true
-      expect(activity.message_html.include?("#{user_other.uid}</a>")).to be true
+      expect(activity.to_html.include?("#{curator_user.uid}</a>")).to be true
+      expect(activity.to_html.include?("#{user_other.uid}</a>")).to be true
     end
   end
 
