@@ -188,6 +188,9 @@ class WorksController < ApplicationController
     @uploads = @work.uploads
     @wizard_mode = true
     @work.complete_submission!(current_user)
+
+    # Do not add provenance notes until validated:
+    @work.add_provenance_notes(params["provenance_notes"], current_user.id)
     redirect_to user_url(current_user)
   end
 

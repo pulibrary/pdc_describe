@@ -8,6 +8,7 @@ class WorkActivity < ApplicationRecord
   COMMENT = "COMMENT"
   FILE_CHANGES = "FILE-CHANGES"
   SYSTEM = "SYSTEM"
+  PROVENANCE_NOTES = "PROVENANCE-NOTES"
   USER_REFERENCE = /@[\w]*/.freeze # e.g. @xy123
 
   include Rails.application.routes.url_helpers
@@ -70,8 +71,12 @@ class WorkActivity < ApplicationRecord
     activity_type == SYSTEM
   end
 
+  def provenance_notes_type?
+    activity_type = PROVENANCE_NOTES
+  end
+
   def log_event_type?
-    system_event_type? || file_changes_event_type? || changes_event_type?
+    system_event_type? || file_changes_event_type? || changes_event_type? || provenance_notes_type?
   end
 
   def event_type

@@ -302,6 +302,10 @@ class Work < ApplicationRecord
     persisted.uid
   end
 
+  def add_provenance_notes(provenance_notes, current_user_id)
+    WorkActivity.add_system_activity(id, provenance_notes, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES)
+  end
+
   def add_comment(comment, current_user_id)
     WorkActivity.add_system_activity(id, comment, current_user_id, activity_type: WorkActivity::COMMENT)
   end
