@@ -2,6 +2,16 @@
 
 FactoryBot.define do
   factory :work do
+    factory :none_work do
+      transient do
+        doi { "10.34770/123-abc" }
+      end
+      collection { Collection.research_data }
+      state { "none" }
+      created_by_user_id { FactoryBot.create(:user).id }
+      resource { FactoryBot.build :resource, doi: doi }
+    end
+
     factory :draft_work do
       transient do
         doi { "10.34770/123-abc" }

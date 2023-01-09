@@ -32,7 +32,7 @@ class Work < ApplicationRecord
     end
 
     event :complete_submission do
-      transitions from: :draft, to: :awaiting_approval, guard: :valid_to_submit, after: :notify_collection_curators
+      transitions from: :draft, to: :awaiting_approval, guard: :valid_to_submit
     end
 
     event :request_changes do
@@ -302,8 +302,8 @@ class Work < ApplicationRecord
     persisted.uid
   end
 
-  def add_comment(comment, current_user_id)
-    WorkActivity.add_system_activity(id, comment, current_user_id, activity_type: WorkActivity::COMMENT)
+  def add_message(message, current_user_id)
+    WorkActivity.add_system_activity(id, message, current_user_id, activity_type: WorkActivity::MESSAGE)
   end
 
   def log_changes(resource_compare, current_user_id)
@@ -324,8 +324,8 @@ class Work < ApplicationRecord
     activities.select(&:log_event_type?)
   end
 
-  def comments
-    activities.select(&:comment_event_type?)
+  def messages
+    activities.select(&:message_event_type?)
   end
 
   def new_notification_count_for_user(user_id)
@@ -505,6 +505,7 @@ class Work < ApplicationRecord
       uw = UserWork.new(user_id: user.id, work_id: id, state: state)
       uw.save!
       WorkActivity.add_system_activity(id, "marked as #{state.to_s.titleize}", user.id)
+      WorkStateTransitionNotification.new(self, user.id).send
     end
 
     def data_cite_connection
@@ -660,12 +661,6 @@ class Work < ApplicationRecord
       # ...and delete them from the pre-curation bucket.
       transferred_files.each(&:purge)
       delete_pre_curation_s3_dir
-    end
-
-    def notify_collection_curators(current_user)
-      curators = collection.administrators.map { |admin| "@#{admin.uid}" }.join(", ")
-      notification = "#{curators} The [work](#{work_url(self)}) is ready for review."
-      WorkActivity.add_system_activity(id, notification, current_user.id)
     end
 end
 # rubocop:enable Metrics/ClassLength
