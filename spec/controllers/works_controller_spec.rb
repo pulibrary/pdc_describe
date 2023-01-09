@@ -78,7 +78,7 @@ RSpec.describe WorksController do
         "family_name_1" => "Smith",
         "creator_count" => "1",
         "resource_type" => "Dataset",
-        "resource_type_general" => "DATASET"
+        "resource_type_general" => "Dataset"
       }
       sign_in user
       post :update, params: params
@@ -87,7 +87,7 @@ RSpec.describe WorksController do
 
       work.reload
       expect(work.resource_type).to eq("Dataset")
-      expect(work.resource_type_general).to eq(:DATASET)
+      expect(work.resource_type_general).to eq("Dataset")
       expect(ActiveStorage::PurgeJob).not_to have_received(:new)
     end
 
@@ -136,7 +136,7 @@ RSpec.describe WorksController do
         "sequence_2" => "2",
         "creator_count" => "2",
         "resource_type" => "Dataset",
-        "resource_type_general" => "DATASET"
+        "resource_type_general" => "Dataset"
       }
       sign_in user
       post :update, params: params
@@ -174,7 +174,7 @@ RSpec.describe WorksController do
         "sequence_2" => "1",
         "creator_count" => "2",
         "resource_type" => "Dataset",
-        "resource_type_general" => "DATASET"
+        "resource_type_general" => "Dataset"
       }
 
       post :update, params: params_reordered
@@ -1014,17 +1014,17 @@ RSpec.describe WorksController do
       expect(response.body).to eq '{"errors":["Cannot save dataset"]}'
     end
 
-    it "posts a comment" do
+    it "posts a comment/message" do
       sign_in user
       post :add_comment, params: { id: work.id, "new-comment" => "hello world" }
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/works/#{work.id}"
     end
 
-    context "when posting a comment containing HTML" do
+    context "when posting a comment/message containing HTML" do
       render_views
 
-      it "posts a comment with sanitized HTML" do
+      it "posts a comment/message with sanitized HTML" do
         sign_in user
         post :add_comment, params: { id: work.id, "new-comment" => "<div>hello world</div>" }
         expect(response.status).to be 302
@@ -1085,7 +1085,7 @@ RSpec.describe WorksController do
                                .merge(ark: "new-ark")
                                .merge(collection_tags: "new-collection-tags")
                                .merge(resource_type: "digitized video")
-                               .merge(resource_type_general: Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL.key)
+                               .merge(resource_type_general: Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL.value)
             patch :update, params: new_params
           end
 
@@ -1103,7 +1103,7 @@ RSpec.describe WorksController do
                                .merge(ark: "new-ark")
                                .merge(collection_tags: "new-colletion-tag1, new-collection-tag2")
                                .merge(resource_type: "digitized video")
-                               .merge(resource_type_general: Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL.key)
+                               .merge(resource_type_general: Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL.value)
 
             patch :update, params: new_params
           end
@@ -1113,7 +1113,7 @@ RSpec.describe WorksController do
             expect(work.ark).to eq("new-ark")
             expect(work.resource.collection_tags).to eq(["new-colletion-tag1", "new-collection-tag2"])
             expect(work.resource_type).to eq("digitized video")
-            expect(work.resource_type_general.to_sym).to eq(::Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL.key)
+            expect(work.resource_type_general).to eq(::Datacite::Mapping::ResourceTypeGeneral::AUDIOVISUAL.value)
           end
         end
 
@@ -1298,7 +1298,7 @@ RSpec.describe WorksController do
         "family_name_1" => "Smith",
         "creator_count" => "1",
         "resource_type" => "Dataset",
-        "resource_type_general" => "DATASET"
+        "resource_type_general" => "Dataset"
       }
       sign_in user
       expect { post :create, params: params }.to change { Work.count }.by 1
@@ -1321,7 +1321,7 @@ RSpec.describe WorksController do
           "family_name_1" => "Smith",
           "creator_count" => "1",
           "resource_type" => "Dataset",
-          "resource_type_general" => "DATASET"
+          "resource_type_general" => "Dataset"
         }
         sign_in user
         expect { post :create, params: params }.to change { Work.count }.by 1

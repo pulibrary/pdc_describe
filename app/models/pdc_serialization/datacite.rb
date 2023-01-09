@@ -102,14 +102,13 @@ module PDCSerialization
     end
 
     class << self
-      def datacite_resource_type(resource_type)
-        resource_types = ::Datacite::Mapping::ResourceTypeGeneral.to_a.index_by(&:value)
-        ::Datacite::Mapping::ResourceType.new(resource_type_general: resource_types[resource_type])
+      def datacite_resource_type(value)
+        resource_type = ::Datacite::Mapping::ResourceTypeGeneral.find_by_value(value)
+        ::Datacite::Mapping::ResourceType.new(resource_type_general: resource_type)
       end
 
-      def datacite_contributor_type(type)
-        contributor_types = ::Datacite::Mapping::ContributorType.to_a.index_by(&:value)
-        contributor_types[type]
+      def datacite_contributor_type(value)
+        ::Datacite::Mapping::ContributorType.find_by_value(value)
       end
 
       private
@@ -192,9 +191,9 @@ module PDCSerialization
           related_objects = []
           resource.related_objects.each do |ro|
             related_objects << ::Datacite::Mapping::RelatedIdentifier.new(
-              relation_type: ::Datacite::Mapping::RelationType.find_by_key(ro.relation_type.to_sym),
+              relation_type: ::Datacite::Mapping::RelationType.find_by_value(ro.relation_type),
               value: ro.related_identifier,
-              identifier_type: ::Datacite::Mapping::RelatedIdentifierType.find_by_key(ro.related_identifier_type.to_sym)
+              identifier_type: ::Datacite::Mapping::RelatedIdentifierType.find_by_value(ro.related_identifier_type)
             )
           end
           related_objects

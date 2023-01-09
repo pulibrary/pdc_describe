@@ -12,8 +12,8 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.34770/r2dz-ys12" }
   let(:related_identifier) { "https://www.biorxiv.org/content/10.1101/545517v1" }
-  let(:related_identifier_type) { "ARXIV" }
-  let(:relation_type) { "IS_CITED_BY" }
+  let(:related_identifier_type) { "arXiv" }
+  let(:relation_type) { "IsCitedBy" }
 
   before do
     page.driver.browser.manage.window.resize_to(2000, 2000)

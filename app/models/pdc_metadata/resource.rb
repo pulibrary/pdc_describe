@@ -2,7 +2,11 @@
 module PDCMetadata
   # Represents a PUL Datacite resource
   # https://support.datacite.org/docs/datacite-metadata-schema-v44-properties-overview
-  #
+
+  def self.fuzzy_match(obj, value)
+    obj.key.to_s == value or obj.value.casecmp(value).zero?
+  end
+
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
       :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :contributors, :related_objects,
@@ -73,14 +77,12 @@ module PDCMetadata
         resource
       end
 
-      def resource_type_general_options
-        pairs = Datacite::Mapping::ResourceTypeGeneral.to_a.map { |value| [value.key, value.value] }
-        built = Hash[pairs]
-        built.with_indifferent_access
+      def resource_type_general_values
+        Datacite::Mapping::ResourceTypeGeneral.map(&:value)
       end
 
       def default_resource_type_general
-        :DATASET
+        "Dataset"
       end
 
       private
@@ -102,7 +104,16 @@ module PDCMetadata
           resource.version_number = hash["version_number"]
           resource.collection_tags = hash["collection_tags"] || []
           resource.resource_type = hash["resource_type"]
-          resource.resource_type_general = hash["resource_type_general"]&.to_sym
+
+          # TODO: Older records have a different format.
+          # When we migrate these, then this can be removed.
+          resource_type_general = hash["resource_type_general"]
+          unless resource_type_general.blank? || Datacite::Mapping::ResourceTypeGeneral.find_by_value(resource_type_general)
+            resource_type_general = ::Datacite::Mapping::ResourceTypeGeneral.find do |obj|
+              ::PDCMetadata.fuzzy_match(obj, resource_type_general)
+            end.value
+          end
+          resource.resource_type_general = resource_type_general
         end
 
         def set_additional_metadata(resource, hash)
