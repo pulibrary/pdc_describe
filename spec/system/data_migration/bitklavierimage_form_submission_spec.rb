@@ -32,7 +32,7 @@ This dataset is too large to download directly from this item page. You can acce
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[2]").select_option
+      find("#rights_identifier").find(:xpath, "option[4]").select_option
       fill_in "given_name_1", with: "Matthew"
       fill_in "family_name_1", with: "Wang"
       click_on "Add Another Creator"

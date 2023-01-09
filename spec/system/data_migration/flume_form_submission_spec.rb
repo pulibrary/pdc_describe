@@ -28,7 +28,7 @@ The attached readme.txt file explains the data attributes"
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[2]").select_option
+      find("#rights_identifier").find(:xpath, "option[4]").select_option
       fill_in "given_name_1", with: "Khaled"
       fill_in "family_name_1", with: "Ghannam"
       click_on "Add Another Creator"
@@ -57,7 +57,6 @@ The attached readme.txt file explains the data attributes"
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(flume_work)
       expect(datacite.valid?).to eq true
-
       export_spec_data("flume.json", flume_work.to_json)
     end
   end

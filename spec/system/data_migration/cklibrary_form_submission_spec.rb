@@ -29,7 +29,7 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       click_on "btn-add-title"
       fill_in "new_title_1", with: alternative_title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[2]").select_option
+      find("#rights_identifier").find(:xpath, "option[4]").select_option
       fill_in "given_name_1", with: "Robert"
       fill_in "family_name_1", with: "Leach"
       click_on "Add Another Creator"
@@ -56,7 +56,6 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(cklibrary_work)
       expect(datacite.valid?).to eq true
-
       export_spec_data("cklibrary.json", cklibrary_work.to_json)
     end
   end

@@ -27,7 +27,7 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[2]").select_option
+      find("#rights_identifier").find(:xpath, "option[4]").select_option
       fill_in "given_name_1", with: "Daniel"
       fill_in "family_name_1", with: "Trueman"
       click_on "Add Another Creator"
@@ -58,7 +58,6 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(bitklavier_work)
       expect(datacite.valid?).to eq true
-
       export_spec_data("bitKlavier-binaural.json", bitklavier_work.to_json)
     end
   end

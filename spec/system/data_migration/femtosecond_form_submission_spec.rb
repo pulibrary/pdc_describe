@@ -26,7 +26,7 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[2]").select_option
+      find("#rights_identifier").find(:xpath, "option[4]").select_option
       fill_in "given_name_1", with: "Donghoon"
       fill_in "family_name_1", with: "Kim"
       click_on "Add Another Creator"
@@ -91,6 +91,7 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       find("#collection_id").find(:xpath, "option[1]").select_option
       fill_in "doi", with: doi
       fill_in "ark", with: ark
+      byebug
       click_on "Create"
       expect(page).to have_content "marked as Draft"
       femtosecond_work = Work.last
@@ -100,7 +101,6 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(femtosecond_work)
       expect(datacite.valid?).to eq true
-
       export_spec_data("femtosecond.json", femtosecond_work.to_json)
     end
   end
