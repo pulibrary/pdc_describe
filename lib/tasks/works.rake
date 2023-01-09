@@ -24,7 +24,7 @@ namespace :works do
   desc "Delete works from a user"
   task :delete_user_works, [:user_netid] => :environment do |_, args|
     if args[:user_netid].blank?
-      puts "Useage: bundle exec rake works:delete_user_works\\[<netid>\\]"
+      puts "Usage: bundle exec rake works:delete_user_works\\[<netid>\\]"
       exit 1
     end
     userid = args[:user_netid]
@@ -45,7 +45,7 @@ namespace :works do
   desc "Delete all works except the passed excluded list"
   task :delete_works_not_including, [:excluded_works] => :environment do |_, args|
     if args[:excluded_works].blank?
-      puts "Useage: bundle exec rake works:delete_works_not_including\\[<workid>+<workid>\\]"
+      puts "Usage: bundle exec rake works:delete_works_not_including\\[<workid>+<workid>\\]"
       exit 1
     end
     works_str = args[:excluded_works]
@@ -56,6 +56,29 @@ namespace :works do
       service = S3QueryService.new(work, false)
       work.post_curation_uploads.each { |upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key }) }
       work.destroy
+    end
+  end
+
+  # See https://github.com/pulibrary/pdc_describe/blob/main/docs/test_data_in_production.md for
+  # more information.
+  desc "Imports works from JSON data"
+  task :import_works, [:path] => :environment do |_, args|
+    if args[:path].blank?
+      puts "Usage: bundle exec rake works:import_works\\[path_to_json_files]"
+      exit 1
+    end
+    path = File.join(args[:path], "*.json")
+    approver = User.first
+    puts "Importing files from: #{path}"
+    Dir.glob(path).each do |file_name|
+      hash = JSON.parse(File.read(file_name))
+      resource = PDCMetadata::Resource.new_from_json(hash)
+      work = Work.new(resource: resource)
+      work.collection = Collection.research_data
+      work.created_by_user_id = approver.id
+      work.state = "approved"
+      work.save
+      puts "\t#{file_name}"
     end
   end
 end
