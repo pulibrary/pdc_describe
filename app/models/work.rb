@@ -303,17 +303,17 @@ class Work < ApplicationRecord
   end
 
   def add_comment(comment, current_user_id)
-    WorkActivity.add_system_activity(id, comment, current_user_id, activity_type: "COMMENT")
+    WorkActivity.add_system_activity(id, comment, current_user_id, activity_type: WorkActivity::COMMENT)
   end
 
   def log_changes(resource_compare, current_user_id)
     return if resource_compare.identical?
-    WorkActivity.add_system_activity(id, resource_compare.differences.to_json, current_user_id, activity_type: "CHANGES")
+    WorkActivity.add_system_activity(id, resource_compare.differences.to_json, current_user_id, activity_type: WorkActivity::CHANGES)
   end
 
   def log_file_changes(changes, current_user_id)
     return if changes.count == 0
-    WorkActivity.add_system_activity(id, changes.to_json, current_user_id, activity_type: "FILE-CHANGES")
+    WorkActivity.add_system_activity(id, changes.to_json, current_user_id, activity_type: WorkActivity::FILE_CHANGES)
   end
 
   def activities
@@ -504,7 +504,7 @@ class Work < ApplicationRecord
     def track_state_change(user, state = aasm.to_state)
       uw = UserWork.new(user_id: user.id, work_id: id, state: state)
       uw.save!
-      WorkActivity.add_system_activity(id, "marked as #{state}", user.id)
+      WorkActivity.add_system_activity(id, "marked as #{state.to_s.titleize}", user.id)
     end
 
     def data_cite_connection
