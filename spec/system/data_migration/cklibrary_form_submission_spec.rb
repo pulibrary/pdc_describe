@@ -56,6 +56,8 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(cklibrary_work)
       expect(datacite.valid?).to eq true
+
+      export_spec_data("cklibrary.json", cklibrary_work.to_json)
     end
   end
 end
