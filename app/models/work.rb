@@ -115,7 +115,7 @@ class Work < ApplicationRecord
   include Rails.application.routes.url_helpers
 
   before_save do |work|
-    # Ensure that the metadata JSON is persisted properly
+    # Ensure that the metadata JSONB postgres field is persisted properly
     work.metadata = JSON.parse(work.resource.to_json)
     work.save_pre_curation_uploads
   end
@@ -236,11 +236,12 @@ class Work < ApplicationRecord
 
   def resource=(resource)
     @resource = resource
+    # Ensure that the metadata JSONB postgres field is persisted properly
     self.metadata = JSON.parse(resource.to_json)
   end
 
   def resource
-    @resource ||= PDCMetadata::Resource.new_from_json(metadata)
+    @resource ||= PDCMetadata::Resource.new_from_jsonb(metadata)
   end
 
   def url
@@ -452,7 +453,7 @@ class Work < ApplicationRecord
     #   Protected will still keep others from setting the metatdata, but allows ActiveRecord the access it needs
     def metadata=(metadata)
       super
-      @resource = PDCMetadata::Resource.new_from_json(metadata)
+      @resource = PDCMetadata::Resource.new_from_jsonb(metadata)
     end
 
   private
@@ -572,7 +573,7 @@ class Work < ApplicationRecord
     end
 
     def doi_attribute_resource
-      PDCMetadata::Resource.new_from_json(metadata)
+      PDCMetadata::Resource.new_from_jsonb(metadata)
     end
 
     def doi_attribute_xml

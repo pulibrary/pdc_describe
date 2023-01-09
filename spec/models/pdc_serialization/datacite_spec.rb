@@ -47,7 +47,7 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
   context "create a datacite record through a form submission" do
     let(:doi) { "https://doi.org/10.34770/pe9w-x904" }
     let(:work_resource) do
-      json = {
+      jsonb_hash = {
         "doi" => doi,
         "identifier_type" => "DOI",
         "titles" => [{ "title" => "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events" }],
@@ -59,7 +59,7 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
         "publisher" => "Princeton University",
         "publication_year" => "2020"
       }
-      PDCMetadata::Resource.new_from_json(json)
+      PDCMetadata::Resource.new_from_jsonb(jsonb_hash)
     end
     let(:datacite) { described_class.new_from_work_resource(work_resource) }
     let(:mapping) { datacite.mapping }
@@ -192,7 +192,7 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
           ]
         end
         let(:work_resource) do
-          json = {
+          jsonb_hash = {
             "doi" => doi,
             "identifier_type" => "DOI",
             "titles" => resource_titles,
@@ -204,7 +204,7 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
             "publisher" => "Princeton University",
             "publication_year" => "2020"
           }
-          PDCMetadata::Resource.new_from_json(json)
+          PDCMetadata::Resource.new_from_jsonb(jsonb_hash)
         end
 
         it "has titles" do
@@ -252,7 +252,7 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
     fixtures_dir = "spec/fixtures/resource-to-datacite"
     Dir.glob("#{fixtures_dir}/*.resource.yaml").each do |resource_path|
       it "handles #{resource_path}" do
-        resource = PDCMetadata::Resource.new_from_json(YAML.load_file(resource_path))
+        resource = PDCMetadata::Resource.new_from_jsonb(YAML.load_file(resource_path))
         datacite_xml = resource.to_xml
 
         datacite_path = resource_path.gsub(".resource.yaml", ".datacite.xml")

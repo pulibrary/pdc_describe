@@ -634,7 +634,7 @@ RSpec.describe Work, type: :model do
 
     context "after the DOI has been published" do
       let(:payload_xml) do
-        r = PDCMetadata::Resource.new_from_json(approved_work.metadata)
+        r = PDCMetadata::Resource.new_from_jsonb(approved_work.metadata)
         unencoded = r.to_xml
         Base64.encode64(unencoded)
       end
@@ -963,7 +963,7 @@ RSpec.describe Work, type: :model do
     end
     it "can change the entire resource" do
       parsed_json = JSON.parse(resource_json)
-      work.resource = PDCMetadata::Resource.new_from_json(parsed_json)
+      work.resource = PDCMetadata::Resource.new_from_jsonb(parsed_json)
       expect(work.resource.to_json).to eq(parsed_json.to_json)
     end
   end
