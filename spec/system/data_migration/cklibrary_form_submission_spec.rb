@@ -29,7 +29,7 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       click_on "btn-add-title"
       fill_in "new_title_1", with: alternative_title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[4]").select_option
+      find("#rights_identifier").find(:xpath, "option[3]").select_option
       fill_in "given_name_1", with: "Robert"
       fill_in "family_name_1", with: "Leach"
       click_on "Add Another Creator"
@@ -49,6 +49,7 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       fill_in "ark", with: ark
       click_on "Create"
       expect(page).to have_content "marked as Draft"
+      expect(page).to have_content "Creative Commons Attribution 4.0 International"
       cklibrary_work = Work.last
       expect(cklibrary_work.title).to eq title
 

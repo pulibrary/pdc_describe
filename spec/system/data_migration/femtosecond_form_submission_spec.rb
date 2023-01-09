@@ -26,7 +26,7 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[4]").select_option
+      find("#rights_identifier").find(:xpath, "option[3]").select_option
       fill_in "given_name_1", with: "Donghoon"
       fill_in "family_name_1", with: "Kim"
       click_on "Add Another Creator"
@@ -91,9 +91,9 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       find("#collection_id").find(:xpath, "option[1]").select_option
       fill_in "doi", with: doi
       fill_in "ark", with: ark
-      byebug
       click_on "Create"
       expect(page).to have_content "marked as Draft"
+      expect(page).to have_content "Creative Commons Attribution 4.0 International"
       femtosecond_work = Work.last
       expect(femtosecond_work.title).to eq title
 

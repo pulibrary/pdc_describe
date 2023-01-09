@@ -28,7 +28,7 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[4]").select_option
+      find("#rights_identifier").find(:xpath, "option[3]").select_option
       fill_in "given_name_1", with: "Jenny A"
       fill_in "family_name_1", with: "Taylor"
       click_on "Add Another Creator"
@@ -93,6 +93,7 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       fill_in "ark", with: ark
       click_on "Create"
       expect(page).to have_content "marked as Draft"
+      expect(page).to have_content "Creative Commons Attribution 4.0 International"
       cytoskeletal_work = Work.last
       expect(cytoskeletal_work.title).to eq title
       expect(cytoskeletal_work.resource.related_objects.first.related_identifier).to eq related_identifier

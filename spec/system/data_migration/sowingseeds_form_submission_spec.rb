@@ -55,14 +55,17 @@ Download the README.txt for a detailed description of this dataset's content."
       fill_in "family_name_7", with: "Ramsay"
       click_on "Create"
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[4]").select_option
+      find("#rights_identifier").find(:xpath, "option[3]").select_option
       click_on "btn-submit"
       click_on "Continue"
       page.attach_file("patch[pre_curation_uploads][]", [file1, file2], make_visible: true)
       click_on "Continue"
-      click_on "Complete"
+      click_on "Grant License and Complete"
+      click_on "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It"
+
       # the work has been submitted and is awaiting_approval
       expect(page).to have_content "awaiting_approval"
+      expect(page).to have_content "Creative Commons Attribution 4.0 International"
       sowingseeds_work = Work.last
       expect(sowingseeds_work.title).to eq title
 

@@ -27,7 +27,7 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[4]").select_option
+      find("#rights_identifier").find(:xpath, "option[3]").select_option
       fill_in "given_name_1", with: "Daniel"
       fill_in "family_name_1", with: "Trueman"
       click_on "Add Another Creator"
@@ -51,6 +51,7 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       fill_in "ark", with: ark
       click_on "Create"
       expect(page).to have_content "marked as Draft"
+      expect(page).to have_content "Creative Commons Attribution 4.0 International"
       bitklavier_work = Work.last
       expect(bitklavier_work.title).to eq title
 

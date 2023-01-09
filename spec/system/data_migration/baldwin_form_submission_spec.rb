@@ -27,7 +27,7 @@ A full description of the structure of the dataset and how to reproduce the figu
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[4]").select_option
+      find("#rights_identifier").find(:xpath, "option[3]").select_option
       fill_in "given_name_1", with: "Jane W"
       fill_in "family_name_1", with: "Baldwin"
       click_on "Add Another Creator"
@@ -57,6 +57,7 @@ A full description of the structure of the dataset and how to reproduce the figu
       find("#collection_id").find(:xpath, "option[1]").select_option
       click_on "Create"
       expect(page).to have_content "marked as Draft"
+      expect(page).to have_content "Creative Commons Attribution 4.0 International"
       baldwin_work = Work.last
       expect(baldwin_work.title).to eq title
 
