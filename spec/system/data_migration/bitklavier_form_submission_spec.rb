@@ -30,18 +30,24 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       find("#rights_identifier").find(:xpath, "option[2]").select_option
       fill_in "given_name_1", with: "Daniel"
       fill_in "family_name_1", with: "Trueman"
-      click_on "Add Another Creator"
-      fill_in "given_name_2", with: "Matthew"
-      fill_in "family_name_2", with: "Wang"
-      click_on "Add Another Creator"
-      fill_in "given_name_3", with: "Andrés"
-      fill_in "family_name_3", with: "Villalta"
-      click_on "Add Another Creator"
-      fill_in "given_name_4", with: "Katie"
-      fill_in "family_name_4", with: "Chou"
-      click_on "Add Another Creator"
-      fill_in "given_name_5", with: "Christien"
-      fill_in "family_name_5", with: "Ayres"
+
+      click_on "v-pills-additional-tab"
+      fill_in "contributor_given_name_1", with: "Matthew"
+      fill_in "contributor_family_name_1", with: "Wang"
+      find("#contributor_role_1").find(:xpath, "option[2]").select_option
+      click_on "Add Another Contributor"
+      fill_in "contributor_given_name_2", with: "Andrés"
+      fill_in "contributor_family_name_2", with: "Villalta"
+      find("#contributor_role_2").find(:xpath, "option[2]").select_option
+      click_on "Add Another Contributor"
+      fill_in "contributor_given_name_3", with: "Katie"
+      fill_in "contributor_family_name_3", with: "Chou"
+      find("#contributor_role_3").find(:xpath, "option[2]").select_option
+      click_on "Add Another Contributor"
+      fill_in "contributor_given_name_4", with: "Christien"
+      fill_in "contributor_family_name_4", with: "Ayres"
+      find("#contributor_role_4").find(:xpath, "option[2]").select_option
+
       click_on "v-pills-curator-controlled-tab"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2021
