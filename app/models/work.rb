@@ -306,8 +306,8 @@ class Work < ApplicationRecord
     WorkActivity.add_system_activity(id, provenance_notes, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES)
   end
 
-  def add_comment(comment, current_user_id)
-    WorkActivity.add_system_activity(id, comment, current_user_id, activity_type: WorkActivity::COMMENT)
+  def add_message(message, current_user_id)
+    WorkActivity.add_system_activity(id, message, current_user_id, activity_type: WorkActivity::MESSAGE)
   end
 
   def log_changes(resource_compare, current_user_id)
@@ -328,8 +328,8 @@ class Work < ApplicationRecord
     activities.select(&:log_event_type?)
   end
 
-  def comments
-    activities.select(&:comment_event_type?)
+  def messages
+    activities.select(&:message_event_type?)
   end
 
   def new_notification_count_for_user(user_id)

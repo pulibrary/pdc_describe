@@ -27,7 +27,7 @@ A full description of the structure of the dataset and how to reproduce the figu
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[2]").select_option
+      find("#rights_identifier").find(:xpath, "option[3]").select_option
       fill_in "given_name_1", with: "Jane W"
       fill_in "family_name_1", with: "Baldwin"
       click_on "Add Another Creator"
@@ -57,6 +57,9 @@ A full description of the structure of the dataset and how to reproduce the figu
       find("#collection_id").find(:xpath, "option[1]").select_option
       click_on "Create"
       expect(page).to have_content "marked as Draft"
+      expect(page).to have_content "Creative Commons Attribution 4.0 International"
+      click_on "Complete"
+      expect(page).to have_content "awaiting_approval"
       baldwin_work = Work.last
       expect(baldwin_work.title).to eq title
 
@@ -64,7 +67,6 @@ A full description of the structure of the dataset and how to reproduce the figu
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(baldwin_work)
       expect(datacite.valid?).to eq true
-
       export_spec_data("baldwin.json", baldwin_work.to_json)
     end
   end

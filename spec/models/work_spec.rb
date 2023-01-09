@@ -356,20 +356,20 @@ RSpec.describe Work, type: :model do
     end
   end
 
-  describe "#add_comment" do
-    it "adds a comment/message" do
-      work.add_comment("hello world", user.id)
+  describe "#add_message" do
+    it "adds a message" do
+      work.add_message("hello world", user.id)
       activity = work.activities.find { |a| a.message.include?("hello world") }
       expect(activity.created_by_user.id).to eq user.id
-      expect(activity.activity_type).to eq "COMMENT"
+      expect(activity.activity_type).to eq WorkActivity::MESSAGE
     end
 
     it "logs notifications" do
       expect(work.new_notification_count_for_user(user.id)).to eq 0
       expect(work.new_notification_count_for_user(curator_user.id)).to eq 0
 
-      work.add_comment("taggging @#{curator_user.uid}", user.id)
-      work2.add_comment("taggging @#{curator_user.uid}", user.id)
+      work.add_message("taggging @#{curator_user.uid}", user.id)
+      work2.add_message("taggging @#{curator_user.uid}", user.id)
       expect(work.new_notification_count_for_user(user.id)).to eq 0
       expect(work.new_notification_count_for_user(curator_user.id)).to eq 1
 
@@ -379,10 +379,10 @@ RSpec.describe Work, type: :model do
 
     it "parses tagged users correctly" do
       message = "taggging @#{curator_user.uid} and @#{user_other.uid}"
-      work.add_comment(message, user.id)
+      work.add_message(message, user.id)
       activity = work.activities.find { |a| a.message.include?(message) }
-      expect(activity.message_html.include?("#{curator_user.uid}</a>")).to be true
-      expect(activity.message_html.include?("#{user_other.uid}</a>")).to be true
+      expect(activity.to_html.include?("#{curator_user.uid}</a>")).to be true
+      expect(activity.to_html.include?("#{user_other.uid}</a>")).to be true
     end
   end
 

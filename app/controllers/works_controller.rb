@@ -67,7 +67,7 @@ class WorksController < ApplicationController
     # check if anything was added in S3 since we last viewed this object
     @work.attach_s3_resources
     @changes = @work.changes
-    @comments = @work.comments
+    @messages = @work.messages
 
     respond_to do |format|
       format.html do
@@ -225,13 +225,13 @@ class WorksController < ApplicationController
     render json: { errors: ["Cannot save dataset"] }, status: :bad_request
   end
 
-  def add_comment
+  def add_message
     work = Work.find(params[:id])
-    if params["new-comment"].present?
-      new_comment_param = params["new-comment"]
-      sanitized_new_comment = html_escape(new_comment_param)
+    if params["new-message"].present?
+      new_message_param = params["new-message"]
+      sanitized_new_message = html_escape(new_message_param)
 
-      work.add_comment(sanitized_new_comment, current_user.id)
+      work.add_message(sanitized_new_message, current_user.id)
     end
     redirect_to work_path(id: params[:id])
   end

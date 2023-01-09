@@ -27,7 +27,7 @@ This dataset is too large to download directly from this item page. You can acce
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[2]").select_option
+      find("#rights_identifier").find(:xpath, "option[3]").select_option
       fill_in "given_name_1", with: "Andrew"
       fill_in "family_name_1", with: "Wilterson"
       click_on "Add Another Creator"
@@ -50,6 +50,9 @@ This dataset is too large to download directly from this item page. You can acce
       fill_in "ark", with: ark
       click_on "Create"
       expect(page).to have_content "marked as Draft"
+      expect(page).to have_content "Creative Commons Attribution 4.0 International"
+      click_on "Complete"
+      expect(page).to have_content "awaiting_approval"
       attention_work = Work.last
       expect(attention_work.title).to eq title
 

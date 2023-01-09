@@ -5,7 +5,7 @@ require_relative "../lib/diff_tools"
 # rubocop:disable Metrics/ClassLength
 class WorkActivity < ApplicationRecord
   CHANGES = "CHANGES"
-  COMMENT = "COMMENT"
+  MESSAGE = "COMMENT" # TODO: Migrate existing records to "MESSAGE"; then close #825.
   FILE_CHANGES = "FILE-CHANGES"
   SYSTEM = "SYSTEM"
   PROVENANCE_NOTES = "PROVENANCE-NOTES"
@@ -55,8 +55,8 @@ class WorkActivity < ApplicationRecord
     "Unknown user outside the system"
   end
 
-  def comment_event_type?
-    activity_type == COMMENT
+  def message_event_type?
+    activity_type == MESSAGE
   end
 
   def changes_event_type?
@@ -80,8 +80,8 @@ class WorkActivity < ApplicationRecord
   end
 
   def event_type
-    if comment_event_type?
-      "comment"
+    if message_event_type?
+      "message"
     else
       "log"
     end
@@ -93,10 +93,9 @@ class WorkActivity < ApplicationRecord
     elsif file_changes_event_type?
       file_changes_html
     else
-      comment_html
+      message_html
     end
   end
-  alias message_html to_html
 
   private
 
@@ -113,8 +112,8 @@ class WorkActivity < ApplicationRecord
     end
 
     # This is working
-    def comment_timestamp_html
-      "at #{event_timestamp}" if comment_event_type?
+    def message_timestamp_html
+      "at #{event_timestamp}" if message_event_type?
     end
 
     def title_html
@@ -122,13 +121,13 @@ class WorkActivity < ApplicationRecord
 <span class="activity-history-title">
   #{event_timestamp_html}
   #{created_by_user_html}
-  #{comment_timestamp_html}
+  #{message_timestamp_html}
 </span>
       HTML
     end
 
     def event_html(children:)
-      title_html + "<span class='comment-html'>#{children.chomp}</span>"
+      title_html + "<span class='message-html'>#{children.chomp}</span>"
     end
 
     # Returns the message formatted to display _file_ changes that were logged as an activity
@@ -156,14 +155,14 @@ class WorkActivity < ApplicationRecord
         change = changes[field]
         mapped = change.map { |value| change_value_html(value) }
         values = mapped.join
-        html += "<details class='comment-html'><summary class='show-changes'>#{field}</summary>#{values}</details>"
+        html += "<details class='message-html'><summary class='show-changes'>#{field}</summary>#{values}</details>"
       end
 
       html
     end
 
     # rubocop:disable Metrics/MethodLength
-    def comment_html
+    def message_html
       # convert user references to user links
       text = message.gsub(USER_REFERENCE) do |at_uid|
         uid = at_uid[1..-1]
@@ -178,7 +177,7 @@ class WorkActivity < ApplicationRecord
                       end
         end
 
-        "<a class='comment-user-link' title='#{user_info}' href='#{users_path}/#{uid}'>#{at_uid}</a>"
+        "<a class='message-user-link' title='#{user_info}' href='#{users_path}/#{uid}'>#{at_uid}</a>"
       end
 
       # allow ``` for code blocks (Kramdown only supports ~~~)

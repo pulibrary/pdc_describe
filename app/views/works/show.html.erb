@@ -3,11 +3,11 @@
     display: inline;
   }
 
-  .new-comment {
+  .new-message {
     margin-bottom: 5px;
   }
 
-  .new-comment-help {
+  .new-message-help {
     color: #aca9a9;
     font-size: 12px;
   }
@@ -16,11 +16,11 @@
     font-weight: bold;
   }
 
-  .comment-html > p {
+  .message-html > p {
     margin-bottom: 0px;
   }
 
-  .comment-html h1, .comment-html h2, .comment-html h3, .comment-html h4, .comment-html h5, .comment-html h6 {
+  .message-html h1, .message-html h2, .message-html h3, .message-html h4, .message-html h5, .message-html h6 {
     font-weight: bold;
     font-size: 100%;
     display: table;
@@ -28,39 +28,39 @@
     padding: 1px;
   }
 
-  .comment-html h1 {
+  .message-html h1 {
     padding-bottom: 2px;
     border-bottom: 4px solid gray;
   }
 
-  .comment-html h2 {
+  .message-html h2 {
     padding-bottom: 1.5px;
     border-bottom: 2px solid gray;
   }
 
-  .comment-html h3 {
+  .message-html h3 {
     border-bottom: 1px solid gray;
   }
 
-  .comment-html h4 {
+  .message-html h4 {
     border: 1px solid gray;
     padding: 1px 4px;
   }
 
-  .comment-html h5 {
+  .message-html h5 {
     font-weight: normal;
     border: 1px solid gray;
     padding: 1px 4px;
   }
 
-  .comment-html h6 {
+  .message-html h6 {
     font-weight: normal;
     font-size: small;
     border: 1px solid gray;
     padding: 1px 4px;
   }
 
-  .comment-user-link {
+  .message-user-link {
     color: rgb(36, 41, 47);
     background-color: rgb(255, 248, 197);
     text-decoration-color: rgb(36, 41, 47);
@@ -275,13 +275,13 @@
 
     // triggeredAutocomplete (https://github.com/Hawkers/triggeredAutocomplete) is a plug-in
     // that sits on top of jQuery UI autocomplete and provides the @mention functionaly to
-    // reference other users via their netid in a message/comment.
+    // reference other users via their netid in a message.
     //
     // Notice that https://github.com/Hawkers/triggeredAutocomplete also supports passing an
     // array of objects with structure {value: x, label: y} to display a more user friendly
     // label rather than the netid, but this approach carries another set of complications
     // (e.g. how to handle spaces, how to edit)
-    $('#new-comment').triggeredAutocomplete({
+    $('#new-message').triggeredAutocomplete({
       hidden: '#hidden_inputbox',
       source: userList,
       trigger: "@"
