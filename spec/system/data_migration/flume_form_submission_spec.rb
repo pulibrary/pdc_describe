@@ -28,7 +28,7 @@ The attached readme.txt file explains the data attributes"
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[2]").select_option
+      find("#rights_identifier").find(:xpath, "option[3]").select_option
       fill_in "given_name_1", with: "Khaled"
       fill_in "family_name_1", with: "Ghannam"
       click_on "Add Another Creator"
@@ -49,15 +49,17 @@ The attached readme.txt file explains the data attributes"
       fill_in "ark", with: ark
       find("#collection_id").find(:xpath, "option[1]").select_option
       click_on "Create"
+
       expect(page).to have_content "marked as Draft"
+      expect(page).to have_content "Creative Commons Attribution 4.0 International"
+      click_on "Complete"
+      expect(page).to have_content "awaiting_approval"
       flume_work = Work.last
       expect(flume_work.title).to eq title
-
       # Ensure the datacite record produced validates against our local copy of the datacite schema.
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(flume_work)
       expect(datacite.valid?).to eq true
-
       export_spec_data("flume.json", flume_work.to_json)
     end
   end
