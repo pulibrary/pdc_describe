@@ -5,7 +5,7 @@ require_relative "../lib/diff_tools"
 # rubocop:disable Metrics/ClassLength
 class WorkActivity < ApplicationRecord
   CHANGES = "CHANGES"
-  MESSAGE = "COMMENT" # TODO: Migrate existing records to "MESSAGE"
+  MESSAGE = "COMMENT" # TODO: Migrate existing records to "MESSAGE"; then close #825.
   FILE_CHANGES = "FILE-CHANGES"
   SYSTEM = "SYSTEM"
   USER_REFERENCE = /@[\w]*/.freeze # e.g. @xy123
