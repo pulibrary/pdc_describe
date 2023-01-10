@@ -22,7 +22,7 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
     fill_in "family_name_1", with: "Smith"
     click_on "Create New"
     fill_in "description", with: "test description"
-    find("#rights_identifier").find(:xpath, "option[2]").select_option
+    select "GNU General Public License", from: "rights_identifier"
     click_on "Save Work"
     click_on "Continue"
     click_on "Continue"
@@ -42,7 +42,7 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
     fill_in "description", with: "test description"
     fill_in "given_name_1", with: "Sally"
     fill_in "family_name_1", with: "Smith"
-    find("#rights_identifier").find(:xpath, "option[2]").select_option
+    select "GNU General Public License", from: "rights_identifier"
     click_on "Create"
     click_on "Complete"
 

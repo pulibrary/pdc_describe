@@ -69,7 +69,7 @@ RSpec.describe "Creating and updating works", type: :system do
     user = work.created_by_user
     sign_in user
     visit edit_work_path(work)
-    find("#rights_identifier").find(:xpath, "option[2]").select_option
+    select "GNU General Public License", from: "rights_identifier"
     click_on "Save Work"
     expect(work.reload.resource.rights.identifier).to eq "GPLv3"
   end

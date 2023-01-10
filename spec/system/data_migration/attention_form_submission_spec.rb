@@ -27,7 +27,7 @@ This dataset is too large to download directly from this item page. You can acce
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[3]").select_option
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
       fill_in "given_name_1", with: "Andrew"
       fill_in "family_name_1", with: "Wilterson"
       click_on "Add Another Creator"
@@ -45,7 +45,7 @@ This dataset is too large to download directly from this item page. You can acce
       click_on "v-pills-curator-controlled-tab"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2020
-      find("#collection_id").find(:xpath, "option[1]").select_option
+      select "Research Data", from: "collection_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"

@@ -28,7 +28,7 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[3]").select_option
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
       fill_in "given_name_1", with: "Jenny A"
       fill_in "family_name_1", with: "Taylor"
       click_on "Add Another Creator"
@@ -73,19 +73,19 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       click_on "v-pills-curator-controlled-tab"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2019
-      find("#collection_id").find(:xpath, "option[1]").select_option
+      select "Research Data", from: "collection_id"
 
       # Select Additional Metadata Tab
       click_on "v-pills-additional-tab"
 
       # Related Objects
       fill_in "related_identifier_1", with: related_identifier
-      find("#related_identifier_type_1").find(:xpath, "option[@value='#{related_identifier_type}']").select_option
-      find("#relation_type_1").find(:xpath, "option[@value='#{relation_type}']").select_option
+      select related_identifier_type, from: "related_identifier_type_1"
+      select relation_type, from: "relation_type_1"
       click_on "Add Another Related Object"
       fill_in "related_identifier_2", with: "https://doi.org/10.7554/eLife.52482"
-      find("#related_identifier_type_2").find(:xpath, "option[@value='DOI']").select_option
-      find("#relation_type_2").find(:xpath, "option[@value='#{relation_type}']").select_option
+      select "DOI", from: "related_identifier_type_2"
+      select relation_type, from: "relation_type_2"
 
       # Select Curator Controlled Tab
       click_on "v-pills-curator-controlled-tab"

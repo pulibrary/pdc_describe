@@ -29,7 +29,7 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       click_on "btn-add-title"
       fill_in "new_title_1", with: alternative_title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[3]").select_option
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
       fill_in "given_name_1", with: "Robert"
       fill_in "family_name_1", with: "Leach"
       click_on "Add Another Creator"
@@ -43,7 +43,7 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       click_on "v-pills-curator-controlled-tab"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2019
-      find("#collection_id").find(:xpath, "option[1]").select_option
+      select "Research Data", from: "collection_id"
       click_on "v-pills-curator-controlled-tab"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
