@@ -69,7 +69,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       work = Work.last
       expect(work.resource.related_objects.count).to eq(0)
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[2]").select_option
+      select "GNU General Public License", from: "rights_identifier"
       click_on "Curator Controlled"
       fill_in "publication_year", with: issue_date
       expect(find("#related_object_count", visible: false).value).to eq("1")

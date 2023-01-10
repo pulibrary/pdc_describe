@@ -55,7 +55,7 @@ Download the README.txt for a detailed description of this dataset's content."
       fill_in "family_name_7", with: "Ramsay"
       click_on "Create"
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[3]").select_option
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
       click_on "btn-submit"
       click_on "Continue"
       page.attach_file("patch[pre_curation_uploads][]", [file1, file2], make_visible: true)

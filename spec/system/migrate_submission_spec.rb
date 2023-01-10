@@ -50,7 +50,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "given_name_1", with: "Samantha"
       fill_in "family_name_1", with: "Abrams"
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[2]").select_option
+      select "GNU General Public License", from: "rights_identifier"
       click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
@@ -78,7 +78,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "given_name_1", with: "Samantha"
       fill_in "family_name_1", with: "Abrams"
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[2]").select_option
+      select "GNU General Public License", from: "rights_identifier"
       click_on "Curator Controlled"
       fill_in "doi", with: "abc123"
       click_on "Create"
