@@ -29,7 +29,8 @@ module PDCMetadata
       @version_number = "1"
       @related_objects = []
       @keywords = []
-      @contributors = []
+      @individual_contributors = []
+      @organizational_contributors = []
       @funders = []
     end
     # rubocop:enable Metrics/MethodLength
@@ -70,7 +71,8 @@ module PDCMetadata
         set_additional_metadata(resource, hash)
         set_titles(resource, hash)
         set_creators(resource, hash)
-        set_contributors(resource, hash)
+        set_individual_contributors(resource, hash)
+        set_organization_contributors(resource, hash)
         set_related_objects(resource, hash)
         set_funders(resource, hash)
 
@@ -150,13 +152,22 @@ module PDCMetadata
           resource.creators.sort_by!(&:sequence)
         end
 
-        def set_contributors(resource, hash)
-          contributors = hash["contributors"] || []
+        def set_individual_contributors(resource, hash)
+          individual_contributors = hash["contributors"] || []
 
-          contributors.each do |contributor|
-            resource.contributors << Creator.contributor_from_hash(contributor)
+          individual_contributors.each do |contributor|
+            resource.individual_contributors << Creator.contributor_from_hash(contributor)
           end
-          resource.contributors.sort_by!(&:sequence)
+          resource.individual_contributors.sort_by!(&:sequence)
+        end
+
+        def set_organizational_contributors(resource, hash)
+          organizational_contributors = hash["organizational_contributors"] || []
+
+          organizational_contributors.each do |contributor|
+            resource.organizational_contributors << Creator.contributor_from_hash(contributor)
+          end
+          # TODO: resource.organizational_contributors.sort_by!(&:sequence)
         end
 
         def set_funders(resource, hash)

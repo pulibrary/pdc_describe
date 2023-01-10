@@ -1,0 +1,33 @@
+<div class="section-title">
+  <b>Additional Organizational Contributors</b>
+</div>
+
+<table>
+  <thead>
+    <tr class="header-row">
+      <th>ROR</th>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% (@work.resource.organizational_contributors + [nil]).each do |contributor| %>
+      <tr>
+        <td>
+          <input name="organizational_contributors[][ror]" value="<%= contributor&.ror %>" />
+        </td>
+        <td>
+          <input name="organizational_contributors[][name]" value="<%= contributor&.name %>" />
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td>
+        <button class="btn btn-secondary btn-add-row">
+          Add Another Contributor
+        </button>
+      </td>
+    </tr>
+  </tfoot>
+</table>
