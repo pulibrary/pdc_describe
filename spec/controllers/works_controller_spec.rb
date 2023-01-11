@@ -1021,6 +1021,13 @@ RSpec.describe WorksController do
       expect(response.location).to eq "http://test.host/works/#{work.id}"
     end
 
+    it "posts a message" do
+      sign_in user
+      post :add_provenance_note, params: { id: work.id, "new-provenance-note" => "hello world", "new-provenance-date" => "2000-01-01" }
+      expect(response.status).to be 302
+      expect(response.location).to eq "http://test.host/works/#{work.id}"
+    end
+
     context "when posting a message containing HTML" do
       render_views
 
