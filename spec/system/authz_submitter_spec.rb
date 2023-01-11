@@ -30,7 +30,7 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
       fill_in "family_name_1", with: FFaker::Name.last_name
       click_on "Create New"
       fill_in "description", with: FFaker::Lorem.paragraph
-      find("#rights_identifier").find(:xpath, "option[2]").select_option
+      select "GNU General Public License", from: "rights_identifier"
       click_on "Curator Controlled"
       expect(page).to have_content "Research Data"
       click_on "Save Work"
