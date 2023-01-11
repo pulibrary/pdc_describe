@@ -8,6 +8,7 @@ class WorkActivity < ApplicationRecord
   MESSAGE = "COMMENT" # TODO: Migrate existing records to "MESSAGE"; then close #825.
   FILE_CHANGES = "FILE-CHANGES"
   SYSTEM = "SYSTEM"
+  PROVENANCE_NOTES = "PROVENANCE-NOTES"
   USER_REFERENCE = /@[\w]*/.freeze # e.g. @xy123
 
   include Rails.application.routes.url_helpers
@@ -20,7 +21,8 @@ class WorkActivity < ApplicationRecord
       work_id: work_id,
       activity_type: activity_type,
       message: message,
-      created_by_user_id: user_id
+      created_by_user_id: user_id,
+      created_at: "2012-02-27 00:00:00"
     )
     activity.save!
     activity.notify_users
@@ -70,8 +72,12 @@ class WorkActivity < ApplicationRecord
     activity_type == SYSTEM
   end
 
+  def provenance_notes_type?
+    activity_type == PROVENANCE_NOTES
+  end
+
   def log_event_type?
-    system_event_type? || file_changes_event_type? || changes_event_type?
+    system_event_type? || file_changes_event_type? || changes_event_type? || provenance_notes_type?
   end
 
   def event_type
