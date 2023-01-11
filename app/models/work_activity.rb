@@ -16,13 +16,13 @@ class WorkActivity < ApplicationRecord
   belongs_to :work
   has_many :work_activity_notifications, dependent: :destroy
 
-  def self.add_system_activity(work_id, message, user_id, activity_type: "SYSTEM")
+  def self.add_system_activity(work_id, message, user_id, activity_type: "SYSTEM", date: nil)
     activity = WorkActivity.new(
       work_id: work_id,
       activity_type: activity_type,
       message: message,
       created_by_user_id: user_id,
-      created_at: "2012-02-27 00:00:00"
+      created_at: date # If nil, will be set by activerecord at save.
     )
     activity.save!
     activity.notify_users
