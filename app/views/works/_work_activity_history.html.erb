@@ -47,4 +47,24 @@
       } %>
     <% end %>
   </ul>
+
+  <%= form_with url: add_provenance_note_path(@work) do |f| %>
+    <div class="field">
+      <details>
+        <summary>Date</summary>
+        The date in the change history your note should be given.
+      </details>
+      <input id="new-provenance-date" name="new-provenance-date" ></textarea>
+    </div>
+    
+    <div class="field">
+      <details>
+        <summary>Note</summary>
+        The note to add to the change history.
+      </details>
+      <input id="new-provenance-note" name="new-provenance-note" ></textarea>
+    </div>
+
+    <%= f.submit("Add Provenance Note", class: "btn btn-secondary") %>
+  <% end %>
 </div>
