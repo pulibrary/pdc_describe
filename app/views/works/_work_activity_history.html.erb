@@ -40,7 +40,7 @@
     No activity
   <% end %>
   <ul class="beads">
-    <% @changes.each do |activity| %>
+    <% @changes.sort_by(&:created_at).reverse.each do |activity| %>
       <%= render partial: 'work_activity', locals: {
         activity: activity,
         event_type: activity.event_type
@@ -52,7 +52,8 @@
     <div class="field">
       <details>
         <summary>Date</summary>
-        The date in the change history your note should be given.
+        The date in the change history your note should be given. Format as "YYY-MM-DD".
+        Leave blank to use the current date and time.
       </details>
       <input id="new-provenance-date" name="new-provenance-date" ></textarea>
     </div>
@@ -60,7 +61,7 @@
     <div class="field">
       <details>
         <summary>Note</summary>
-        The note to add to the change history.
+        The note to add to the change history. Markdown can be used.
       </details>
       <input id="new-provenance-note" name="new-provenance-note" ></textarea>
     </div>
