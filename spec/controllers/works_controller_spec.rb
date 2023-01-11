@@ -1021,15 +1021,18 @@ RSpec.describe WorksController do
       expect(response.location).to eq "http://test.host/works/#{work.id}"
     end
 
-    it "posts a message" do
-      sign_in user
-      post :add_provenance_note, params: { id: work.id, "new-provenance-note" => "hello world", "new-provenance-date" => "2000-01-01" }
-      expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/works/#{work.id}"
-    end
-
     context "when posting a message containing HTML" do
       render_views
+
+      it "adds to change history with a date and markdown" do
+        sign_in user
+        post :add_provenance_note, params: { id: work.id, "new-provenance-note" => "<span>hello</span> _world_", "new-provenance-date" => "2000-01-01" }
+        expect(response.status).to be 302
+        expect(response.location).to eq "http://test.host/works/#{work.id}"
+        get :show, params: { id: work.id }
+        expect(response.body).to include("&lt;span&gt;hello&lt;/span&gt; <em>world</em>")
+        expect(response.body).to include("January 01, 2000")
+      end
 
       it "posts a message with sanitized HTML" do
         sign_in user
