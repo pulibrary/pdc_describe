@@ -57,6 +57,10 @@ module PDCMetadata
       xml_declaration + "\n" + xml_body + "\n"
     end
 
+    def to_json
+      raise(StandardError, "Use work.to_json instead of resource.to_json")
+    end
+
     class << self
       # Creates a PDCMetadata::Resource from a JSONB postgres field
       #  This jsonb_hash can be created by running JSON.parse(pdc_metadata_resource.to_json)
