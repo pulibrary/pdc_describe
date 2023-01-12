@@ -116,7 +116,7 @@ class Work < ApplicationRecord
 
   before_save do |work|
     # Ensure that the metadata JSONB postgres field is persisted properly
-    work.metadata = JSON.parse(work.to_json)
+    work.metadata = JSON.parse(work.resource.to_json)
     work.save_pre_curation_uploads
   end
 
@@ -448,12 +448,14 @@ class Work < ApplicationRecord
     log_file_changes(changes, nil)
   end
 
-  def to_json
+  def as_json
     # to_json returns a string of serialized JSON.
-    # as_json returns the corresponding hash which we can modify.
-    resource_hash = resource.as_json
-    resource_hash["files"] = pre_curation_uploads.map { |upload| upload.filename.to_s }
-    JSON.dump(resource_hash)
+    # as_json returns the corresponding hash.
+    files = pre_curation_uploads.map {|upload| upload.as_json }
+    {
+      "resource" => resource.as_json,
+      "files" => files
+    }
   end
 
   delegate :ark, :doi, :resource_type, :resource_type=, :resource_type_general, :resource_type_general=,
