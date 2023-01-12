@@ -809,6 +809,8 @@ RSpec.describe Work, type: :model do
 
         work.complete_submission!(user)
         work.reload
+
+        allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
       end
 
       it "persists S3 Bucket resources as ActiveStorage Attachments" do
@@ -830,9 +832,9 @@ RSpec.describe Work, type: :model do
 
         # Make sure files show up in JSON for discovery:
         expect(work.as_json["files"]).to eq([
-          {:created_at=>"2023-01-12 15:51:29.789695000 -0500",
+          {:created_at=>"2021-12-31 19:00:00.000000000 -0500",
            :filename=>"10.34770-123-abc-1-SCoData_combined_v1_2020-07_README.txt"},
-          {:created_at=>"2023-01-12 15:51:29.839943000 -0500",
+          {:created_at=>"2021-12-31 19:00:00.000000000 -0500",
            :filename=>"10.34770-123-abc-1-SCoData_combined_v1_2020-07_datapackage.json"}])
       end
 
