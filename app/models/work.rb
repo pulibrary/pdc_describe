@@ -453,9 +453,16 @@ class Work < ApplicationRecord
       raise(StandardError, "Received options #{options}, but not supported")
       # Included in signature for compatibility with Rails.
     end
+
+    files = (pre_curation_uploads + post_curation_uploads).map do |upload|
+      {
+        "filename": upload.filename.to_s,
+        "created_at": upload.created_at
+      }
+    end.sort_by { |file| file["filename"] }
+
     # to_json returns a string of serialized JSON.
     # as_json returns the corresponding hash.
-    files = (pre_curation_uploads + post_curation_uploads).map { |upload| { "filename": upload.filename.to_s, "created_at": upload.created_at } }
     {
       "resource" => resource.as_json,
       "files" => files
