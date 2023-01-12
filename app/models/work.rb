@@ -449,8 +449,11 @@ class Work < ApplicationRecord
   end
 
   def to_json
-    # In progress: we want to pull this up, and add data
-    resource.to_json
+    # to_json returns a string of serialized JSON.
+    # as_json returns the corresponding hash which we can modify.
+    resource_hash = resource.as_json
+    resource_hash["files"] = pre_curation_uploads.map { |upload| upload.filename.to_s }
+    JSON.dump(resource_hash)
   end
 
   delegate :ark, :doi, :resource_type, :resource_type=, :resource_type_general, :resource_type_general=,
