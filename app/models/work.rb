@@ -307,6 +307,10 @@ class Work < ApplicationRecord
     WorkActivity.add_system_activity(id, message, current_user_id, activity_type: WorkActivity::MESSAGE)
   end
 
+  def add_provenance_note(date, note, current_user_id)
+    WorkActivity.add_system_activity(id, note, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES, date: date)
+  end
+
   def log_changes(resource_compare, current_user_id)
     return if resource_compare.identical?
     WorkActivity.add_system_activity(id, resource_compare.differences.to_json, current_user_id, activity_type: WorkActivity::CHANGES)

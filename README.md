@@ -88,3 +88,7 @@ An early stages Entity-Relationship Diagram (ERD) is available in [this Google D
 
 ### Sample Data
 Sample data available here: https://docs.google.com/document/d/18ZkBldqWxIIR1UA6qMY87RnGFTKU9HG3EJzodzzFf2A/edit
+
+## Notes on migration process from DataSpace
+
+Datasets are re-described in order to migrate its metadata from modified Dublin Core to modified DataCite, and to migrate location from Princeton's legacy DataSpace repository to the DataCite compliant Princeton Data Commons suite of applications.
