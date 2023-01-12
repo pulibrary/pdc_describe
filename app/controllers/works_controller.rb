@@ -233,6 +233,17 @@ class WorksController < ApplicationController
     redirect_to work_path(id: params[:id])
   end
 
+  def add_provenance_note
+    work = Work.find(params[:id])
+    if params["new-provenance-note"].present?
+      new_date = params["new-provenance-date"]
+      new_note = html_escape(params["new-provenance-note"])
+
+      work.add_provenance_note(new_date, new_note, current_user.id)
+    end
+    redirect_to work_path(id: params[:id])
+  end
+
   # Outputs the Datacite XML representation of the work
   def datacite
     work = Work.find(params[:id])
