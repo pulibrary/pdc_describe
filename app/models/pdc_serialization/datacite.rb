@@ -12,8 +12,8 @@ module PDCSerialization
   # You can also pass a PDCMetadata::Resource which is useful to test with a more
   # complex dataset without saving the work to the database:
   #
-  #   json = {...}.to_json
-  #   resource = PDCMetadata::Resource.new_from_json(json)
+  #   jsonb_hash = JSON.parse({...}.to_json)
+  #   resource = PDCMetadata::Resource.new_from_jsonb(jsonb_hash)
   #   datacite_xml = PDCSerialization::Datacite.new_from_work_resource(resource).to_xml
   #
   # For information
