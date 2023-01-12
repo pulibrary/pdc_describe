@@ -116,7 +116,7 @@ class Work < ApplicationRecord
 
   before_save do |work|
     # Ensure that the metadata JSONB postgres field is persisted properly
-    work.metadata = JSON.parse(work.resource.to_json)
+    work.metadata = JSON.parse(work.to_json)
     work.save_pre_curation_uploads
   end
 
