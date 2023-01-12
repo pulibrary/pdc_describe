@@ -958,13 +958,14 @@ RSpec.describe Work, type: :model do
             "award_number": "nsf-123",
             "award_uri": "http://nsg.gov/award/123"
           }
-        ]
+        ],
+        "files": []
       }'
     end
     it "can change the entire resource" do
       parsed_json = JSON.parse(resource_json)
       work.resource = PDCMetadata::Resource.new_from_jsonb(parsed_json)
-      expect(work.resource.to_json).to eq(parsed_json.to_json)
+      expect(work.to_json).to eq(parsed_json.to_json)
     end
   end
 
