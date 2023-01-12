@@ -448,8 +448,13 @@ class Work < ApplicationRecord
     log_file_changes(changes, nil)
   end
 
+  def to_json
+    # In progress: we want to pull this up, and add data
+    resource.to_json
+  end
+
   delegate :ark, :doi, :resource_type, :resource_type=, :resource_type_general, :resource_type_general=,
-           :to_xml, :to_json, to: :resource
+           :to_xml, to: :resource
 
   protected
 
