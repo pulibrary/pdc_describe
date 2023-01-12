@@ -3,9 +3,8 @@ class S3File
   attr_accessor :filename, :last_modified, :size, :checksum
   alias key filename
 
-  def initialize(filename:, created_at: nil, last_modified:, size:, checksum:, query_service: nil)
+  def initialize(filename:, last_modified:, size:, checksum:, query_service: nil)
     @filename = filename
-    @created_at = created_at
     @last_modified = last_modified
     @size = size
     @checksum = checksum.delete('"')
