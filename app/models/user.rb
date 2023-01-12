@@ -209,6 +209,10 @@ class User < ApplicationRecord
                            end
   end
 
+  def submitter_or_admin_collections
+    submitter_collections | admin_collections
+  end
+
   def pending_notifications_count
     WorkActivityNotification.where(user_id: id, read_at: nil).count
   end
@@ -216,6 +220,7 @@ class User < ApplicationRecord
   def assign_default_role
     @just_created = true
     add_role(:submitter, default_collection) unless has_role?(:submitter, default_collection)
+    enable_messages_from(collection: default_collection)
   end
 
   # Returns true if the user has notification e-mails enabled
@@ -227,14 +232,14 @@ class User < ApplicationRecord
   # Permit this user to receive notification messages for members of a given Collection
   # @param collection [Collection]
   def enable_messages_from(collection:)
-    raise(ArgumentError, "User #{uid} is not an administrator for the collection #{collection.title}") unless can_admin?(collection)
+    raise(ArgumentError, "User #{uid} is not an administrator or depositor for the collection #{collection.title}") unless can_admin?(collection) || can_submit?(collection)
     collection_messaging_options << CollectionOption.new(option_type: CollectionOption::EMAIL_MESSAGES, user: self, collection: collection)
   end
 
   # Disable this user from receiving notification messages for members of a given Collection
   # @param collection [Collection]
   def disable_messages_from(collection:)
-    raise(ArgumentError, "User #{uid} is not an administrator for the collection #{collection.title}") unless can_admin?(collection)
+    raise(ArgumentError, "User #{uid} is not an administrator or depositor for the collection #{collection.title}") unless can_admin?(collection) || can_submit?(collection)
     collections_with_messaging.destroy(collection)
   end
 
