@@ -832,10 +832,11 @@ RSpec.describe Work, type: :model do
 
         # Make sure files show up in JSON for discovery:
         expect(work.as_json["files"]).to eq([
-          {:created_at=>"2021-12-31 19:00:00.000000000 -0500",
-           :filename=>"10.34770-123-abc-1-SCoData_combined_v1_2020-07_README.txt"},
-          {:created_at=>"2021-12-31 19:00:00.000000000 -0500",
-           :filename=>"10.34770-123-abc-1-SCoData_combined_v1_2020-07_datapackage.json"}])
+                                              { created_at: "2021-12-31 19:00:00.000000000 -0500",
+                                                filename: "10.34770-123-abc-1-SCoData_combined_v1_2020-07_README.txt" },
+                                              { created_at: "2021-12-31 19:00:00.000000000 -0500",
+                                                filename: "10.34770-123-abc-1-SCoData_combined_v1_2020-07_datapackage.json" }
+                                            ])
       end
 
       context "a blob already exists for one of the files" do

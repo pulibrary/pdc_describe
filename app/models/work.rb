@@ -455,7 +455,7 @@ class Work < ApplicationRecord
     end
     # to_json returns a string of serialized JSON.
     # as_json returns the corresponding hash.
-    files = pre_curation_uploads.map { |upload| { "filename": upload.filename.to_s, "created_at": upload.created_at } }
+    files = (pre_curation_uploads + post_curation_uploads).map { |upload| { "filename": upload.filename.to_s, "created_at": upload.created_at } }
     {
       "resource" => resource.as_json,
       "files" => files
