@@ -27,7 +27,47 @@ RSpec.describe Work, type: :model do
   end
 
   before do
+    allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+  end
+
+  context "fixed time" do
+    before do
+      allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
+    end
+    it "captures everything needed for PDC Describe in JSON" do
+      work = Work.new(collection: collection, resource: FactoryBot.build(:tokamak_work))
+      expect(JSON.parse(work.to_json)).to eq(
+        {
+          "resource" => {
+            "titles" => [],
+            "description" => nil,
+            "collection_tags" => [],
+            "creators" => [],
+            "resource_type" => nil,
+            "resource_type_general" => nil,
+            "publisher" => nil,
+            "publication_year" => nil,
+            "ark" => nil,
+            "doi" => nil,
+            "rights" => nil,
+            "version_number" => nil,
+            "related_objects" => [],
+            "keywords" => [],
+            "contributors" => [],
+            "funders" => []
+          },
+          "files" => [],
+          "collection" => {
+            "title" => "Research Data",
+            "description" => nil,
+            "code" => "RD",
+            "created_at" => "2021-12-31T19:00:00.000-05:00",
+            "updated_at" => "2021-12-31T19:00:00.000-05:00"
+          }
+        }
+      )
+    end
   end
 
   it "checks the format of the ORCID of the creators" do

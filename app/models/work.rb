@@ -466,7 +466,8 @@ class Work < ApplicationRecord
     # as_json returns the corresponding hash.
     {
       "resource" => resource.as_json,
-      "files" => files
+      "files" => files,
+      "collection" => collection.as_json.except("id")
     }
   end
 
