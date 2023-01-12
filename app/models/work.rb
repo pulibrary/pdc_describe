@@ -456,10 +456,11 @@ class Work < ApplicationRecord
 
     files = (pre_curation_uploads + post_curation_uploads).map do |upload|
       {
-        "filename": upload.filename.to_s,
+        "base": upload.filename.base,
+        "extension": upload.filename.extension,
         "created_at": upload.created_at
       }
-    end.sort_by { |file| file["filename"] }
+    end
 
     # to_json returns a string of serialized JSON.
     # as_json returns the corresponding hash.
