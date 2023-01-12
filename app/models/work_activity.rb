@@ -4,11 +4,16 @@ require_relative "../lib/diff_tools"
 
 # rubocop:disable Metrics/ClassLength
 class WorkActivity < ApplicationRecord
-  CHANGES = "CHANGES"
   MESSAGE = "COMMENT" # TODO: Migrate existing records to "MESSAGE"; then close #825.
+  NOTIFICATION = "NOTIFICATION"
+  MESSAGE_ACTIVITY_TYPES = [MESSAGE, NOTIFICATION].freeze
+
+  CHANGES = "CHANGES"
   FILE_CHANGES = "FILE-CHANGES"
-  SYSTEM = "SYSTEM"
   PROVENANCE_NOTES = "PROVENANCE-NOTES"
+  SYSTEM = "SYSTEM"
+  CHANGE_LOG_ACTIVITY_TYPES = [CHANGES, FILE_CHANGES, PROVENANCE_NOTES, SYSTEM].freeze
+
   USER_REFERENCE = /@[\w]*/.freeze # e.g. @xy123
 
   include Rails.application.routes.url_helpers
@@ -16,7 +21,7 @@ class WorkActivity < ApplicationRecord
   belongs_to :work
   has_many :work_activity_notifications, dependent: :destroy
 
-  def self.add_system_activity(work_id, message, user_id, activity_type: "SYSTEM", date: nil)
+  def self.add_system_activity(work_id, message, user_id, activity_type: SYSTEM, date: nil)
     activity = WorkActivity.new(
       work_id: work_id,
       activity_type: activity_type,
@@ -27,6 +32,22 @@ class WorkActivity < ApplicationRecord
     activity.save!
     activity.notify_users
     activity
+  end
+
+  def self.activities_for_work(work_id, types = [])
+    context = where(work_id: work_id).order(updated_at: :desc)
+    if types.count > 0
+      context = context.where(activity_type: types)
+    end
+    context
+  end
+
+  def self.messages_for_work(work_id)
+    activities_for_work(work_id, MESSAGE_ACTIVITY_TYPES)
+  end
+
+  def self.changes_for_work(work_id)
+    activities_for_work(work_id, CHANGE_LOG_ACTIVITY_TYPES)
   end
 
   # Log notifications for each of the users references on the activity
@@ -57,7 +78,7 @@ class WorkActivity < ApplicationRecord
   end
 
   def message_event_type?
-    activity_type == MESSAGE
+    MESSAGE_ACTIVITY_TYPES.include? activity_type
   end
 
   def changes_event_type?
@@ -77,7 +98,7 @@ class WorkActivity < ApplicationRecord
   end
 
   def log_event_type?
-    system_event_type? || file_changes_event_type? || changes_event_type? || provenance_notes_type?
+    CHANGE_LOG_ACTIVITY_TYPES.include? activity_type
   end
 
   def event_type
