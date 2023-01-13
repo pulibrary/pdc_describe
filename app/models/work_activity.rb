@@ -110,10 +110,11 @@ class WorkActivity < ApplicationRecord
       MetadataChanges
     elsif file_changes_event_type?
       FileChanges
+    elsif log_event_type?
+      OtherLogEvent
     else
       Message
     end).new(self).to_html
-
   end
 
   private
@@ -124,32 +125,6 @@ class WorkActivity < ApplicationRecord
       end
 
       UNKNOWN_USER = "Unknown user outside the system"
-
-      def created_at_time
-        @work_activity.created_at.time
-      end
-
-      def event_timestamp
-        created_at_time.strftime("%B %d, %Y %H:%M")
-      end
-
-      def event_timestamp_html
-        "#{event_timestamp} by " if @work_activity.system_event_type? || @work_activity.log_event_type?
-      end
-
-      def message_timestamp_html
-        "at #{event_timestamp}" if @work_activity.message_event_type?
-      end
-
-      def title_html
-        <<-HTML
-  <span class="activity-history-title">
-    #{event_timestamp_html}
-    #{created_by_user_html}
-    #{message_timestamp_html}
-  </span>
-        HTML
-      end
 
       def event_html(children:)
         title_html + "<span class='message-html'>#{children.chomp}</span>"
@@ -162,18 +137,11 @@ class WorkActivity < ApplicationRecord
       end
 
       def created_at_html
-        return unless created_at
-
-        created_at_time = created_at.time
-        created_at_time.strftime("%B %d, %Y %H:%M")
+        @work_activity.created_at.time.strftime("%B %d, %Y %H:%M")
       end
 
-      def change_value_html(value)
-        if value["action"] == "changed"
-          DiffTools::SimpleDiff.new(value["from"], value["to"]).to_html
-        else
-          "old change"
-        end
+      def title_html
+        "<span class='activity-history-title'>#{created_at_html} by #{created_by_user_html}</span>"
       end
     end
 
@@ -191,6 +159,14 @@ class WorkActivity < ApplicationRecord
         end
 
         html
+      end
+
+      def change_value_html(value)
+        if value["action"] == "changed"
+          DiffTools::SimpleDiff.new(value["from"], value["to"]).to_html
+        else
+          "old change"
+        end
       end
     end
 
@@ -212,7 +188,7 @@ class WorkActivity < ApplicationRecord
       end
     end
 
-    class Message < Renderer
+    class BaseMessage < Renderer
       # rubocop:disable Metrics/MethodLength
       def to_html
         # convert user references to user links
@@ -240,6 +216,16 @@ class WorkActivity < ApplicationRecord
         event_html(children: children)
       end
       # rubocop:enable Metrics/MethodLength
+    end
+
+    class OtherLogEvent < BaseMessage
+    end
+
+    class Message < BaseMessage
+      # Override the default:
+      def title_html
+        "<span class='activity-history-title'>#{created_by_user_html} at #{created_at_html}</span>"
+      end
     end
 end
 # rubocop:enable Metrics/ClassLength
