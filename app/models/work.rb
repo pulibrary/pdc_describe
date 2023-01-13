@@ -440,8 +440,31 @@ class Work < ApplicationRecord
     log_file_changes(changes, nil)
   end
 
+  def as_json(options = nil)
+    if options&.present?
+      raise(StandardError, "Received options #{options}, but not supported")
+      # Included in signature for compatibility with Rails.
+    end
+
+    files = (pre_curation_uploads + post_curation_uploads).map do |upload|
+      {
+        "base": upload.filename.base,
+        "extension": upload.filename.extension,
+        "created_at": upload.created_at
+      }
+    end
+
+    # to_json returns a string of serialized JSON.
+    # as_json returns the corresponding hash.
+    {
+      "resource" => resource.as_json,
+      "files" => files,
+      "collection" => collection.as_json.except("id")
+    }
+  end
+
   delegate :ark, :doi, :resource_type, :resource_type=, :resource_type_general, :resource_type_general=,
-           :to_xml, :to_json, to: :resource
+           :to_xml, to: :resource
 
   protected
 
