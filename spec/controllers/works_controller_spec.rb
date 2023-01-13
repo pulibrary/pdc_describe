@@ -30,11 +30,15 @@ RSpec.describe WorksController do
       expect(response.content_type).to eq "application/rss+xml; charset=utf-8"
     end
 
-    it "renders the resource json" do
+    it "renders the work json" do
       sign_in user
       stub_s3
       get :show, params: { id: work.id, format: "json" }
       expect(response.content_type).to eq "application/json; charset=utf-8"
+      work_json = JSON.parse(response.body)
+      expect(work_json["resource"]).to_not be nil
+      expect(work_json["files"]).to_not be nil
+      expect(work_json["collection"]).to_not be nil
     end
 
     it "renders the new submission wizard' step 0" do
