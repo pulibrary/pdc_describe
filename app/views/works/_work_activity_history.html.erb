@@ -40,7 +40,7 @@
     No activity
   <% end %>
   <ul class="beads">
-    <% @changes.sort_by(&:created_at).reverse.each do |activity| %>
+    <% @changes.sort_by(&:created_at).each do |activity| %>
       <%= render partial: 'work_activity', locals: {
         activity: activity,
         event_type: activity.event_type
