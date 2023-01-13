@@ -899,7 +899,7 @@ RSpec.describe WorksController do
           expect(response.status).to be 302
           expect(response.location).to eq "http://test.host/works/#{work.id}"
           expect(work.reload).to be_approved
-          error = work.work_activity.find { |activity| activity.activity_type == "DATACITE_ERROR" }
+          error = work.work_activity.find { |activity| activity.activity_type == WorkActivity::DATACITE_ERROR }
           expect(error.message).to include("Error publishing DOI")
         end
       end

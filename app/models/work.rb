@@ -580,7 +580,7 @@ class Work < ApplicationRecord
         if result.failure?
           resolved_user = curator_or_current_uid(user)
           message = "@#{resolved_user} Error publishing DOI. #{result.failure.status} / #{result.failure.reason_phrase}"
-          WorkActivity.add_work_activity(id, message, user.id, activity_type: WorkActivity::SYSTEM)
+          WorkActivity.add_work_activity(id, message, user.id, activity_type: WorkActivity::DATACITE_ERROR)
         end
       elsif ark.blank? # we can not update the url anywhere
         Honeybadger.notify("Publishing for a DOI we do not own and no ARK is present: #{doi}")
