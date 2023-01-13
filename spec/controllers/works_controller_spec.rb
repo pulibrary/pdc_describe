@@ -785,7 +785,7 @@ RSpec.describe WorksController do
 
       context "when the work has changes and messages" do
         before do
-          WorkActivity.add_system_activity(work.id, "Hello System", user.id)
+          WorkActivity.add_work_activity(work.id, "Hello System", user.id)
           work.add_message("Hello World", user.id)
         end
 

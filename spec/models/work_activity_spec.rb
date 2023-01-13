@@ -6,7 +6,7 @@ describe WorkActivity, type: :model do
   let(:work) { FactoryBot.create(:draft_work) }
   let(:message) { "test message for @#{user.uid}" }
   let(:work_activity) do
-    described_class.add_system_activity(work.id, message, user.id)
+    described_class.add_work_activity(work.id, message, user.id)
   end
 
   describe "#notify_users" do
@@ -47,12 +47,12 @@ describe WorkActivity, type: :model do
   end
 
   context "many work Activities have been sent" do
-    let(:notification) { described_class.add_system_activity(work.id, message, user.id, activity_type: WorkActivity::NOTIFICATION) }
+    let(:notification) { described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::NOTIFICATION) }
     before do
       work_activity
       notification
       work2 = FactoryBot.create(:draft_work)
-      described_class.add_system_activity(work2.id, message, user.id, activity_type: WorkActivity::NOTIFICATION)
+      described_class.add_work_activity(work2.id, message, user.id, activity_type: WorkActivity::NOTIFICATION)
     end
 
     describe "#activities_for_work" do
@@ -69,15 +69,15 @@ describe WorkActivity, type: :model do
 
     describe "#messages_for_work" do
       it "finds all the messages for the work" do
-        activity_message = described_class.add_system_activity(work.id, message, user.id, activity_type: WorkActivity::MESSAGE)
+        activity_message = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::MESSAGE)
         expect(described_class.messages_for_work(work.id)).to eq([activity_message, notification])
       end
     end
 
     describe "#changes_for_work" do
       it "finds all the changes for the work" do
-        change_file = described_class.add_system_activity(work.id, message, user.id, activity_type: WorkActivity::FILE_CHANGES)
-        changes = described_class.add_system_activity(work.id, message, user.id, activity_type: WorkActivity::CHANGES)
+        change_file = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::FILE_CHANGES)
+        changes = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::CHANGES)
         expect(described_class.changes_for_work(work.id)).to eq([changes, change_file, work_activity])
       end
     end
