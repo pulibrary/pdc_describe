@@ -104,6 +104,13 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
         expect(page).to have_content "2"
       end
 
+      visit(work_path(Work.last))
+
+      within("ul.work-messages") do
+        expect(page).to have_content("#{title} has been created")
+        expect(page).to have_content("#{title} is ready for review")
+      end
+
       # Now sign is as the collection curator and see the notification on your dashboard
       sign_out user
       sign_in curator

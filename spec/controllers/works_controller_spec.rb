@@ -777,9 +777,24 @@ RSpec.describe WorksController do
       let(:data) { [] }
 
       it "renders the workshow page" do
-        stub_s3
         get :show, params: { id: work.id }
         expect(response).to render_template("show")
+        expect(assigns[:changes]).to eq([])
+        expect(assigns[:messages]).to eq([])
+      end
+
+      context "when the work has changes and messages" do
+        before do
+          WorkActivity.add_system_activity(work.id, "Hello System", user.id)
+          work.add_message("Hello World", user.id)
+        end
+
+        it "renders the workshow page" do
+          get :show, params: { id: work.id }
+          expect(response).to render_template("show")
+          expect(assigns[:changes].map(&:message)).to eq(["Hello System"])
+          expect(assigns[:messages].map(&:message)).to eq(["Hello World"])
+        end
       end
     end
 
