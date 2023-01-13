@@ -126,8 +126,8 @@ class WorkActivity < ApplicationRecord
 
       UNKNOWN_USER = "Unknown user outside the system"
 
-      def event_html(children:)
-        title_html + "<span class='message-html'>#{children.chomp}</span>"
+      def to_html()
+        title_html + "<span class='message-html'>#{body_html.chomp}</span>"
       end
 
       def created_by_user_html
@@ -147,18 +147,15 @@ class WorkActivity < ApplicationRecord
 
     class MetadataChanges < Renderer
       # Returns the message formatted to display _metadata_ changes that were logged as an activity
-      def to_html
-        html = title_html
+      def body_html
         changes = JSON.parse(@work_activity.message)
 
-        changes.keys.each do |field|
+        changes.keys.map do |field|
           change = changes[field]
           mapped = change.map { |value| change_value_html(value) }
           values = mapped.join
-          html += "<details class='message-html'><summary class='show-changes'>#{field}</summary>#{values}</details>"
-        end
-
-        html
+          "<details class='message-html'><summary class='show-changes'>#{field}</summary>#{values}</details>"
+        end.join
       end
 
       def change_value_html(value)
@@ -172,7 +169,7 @@ class WorkActivity < ApplicationRecord
 
     class FileChanges < Renderer
       # Returns the message formatted to display _file_ changes that were logged as an activity
-      def to_html
+      def body_html
         changes = JSON.parse(@work_activity.message)
         changes_html = changes.map do |change|
           icon = if change["action"] == "deleted"
@@ -183,14 +180,13 @@ class WorkActivity < ApplicationRecord
           "<tr><td>#{icon}</td><td>#{change['action']}</td> <td>#{change['filename']}</td>"
         end
 
-        children = "<p><b>Files updated:</b></p><table>#{changes_html.join}</table>"
-        event_html(children: children)
+        "<p><b>Files updated:</b></p><table>#{changes_html.join}</table>"
       end
     end
 
     class BaseMessage < Renderer
       # rubocop:disable Metrics/MethodLength
-      def to_html
+      def body_html
         # convert user references to user links
         text = @work_activity.message.gsub(USER_REFERENCE) do |at_uid|
           uid = at_uid[1..-1]
@@ -210,10 +206,7 @@ class WorkActivity < ApplicationRecord
 
         # allow ``` for code blocks (Kramdown only supports ~~~)
         text = text.gsub("```", "~~~")
-        parsed_document = Kramdown::Document.new(text)
-        children = parsed_document.to_html
-
-        event_html(children: children)
+        Kramdown::Document.new(text).to_html
       end
       # rubocop:enable Metrics/MethodLength
     end
