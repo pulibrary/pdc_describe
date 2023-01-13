@@ -107,118 +107,116 @@ class WorkActivity < ApplicationRecord
 
   def to_html
     (if changes_event_type?
-      MetadataChanges
-    elsif file_changes_event_type?
-      FileChanges
-    elsif log_event_type?
-      OtherLogEvent
-    else
-      Message
-    end).new(self).to_html
+       MetadataChanges
+     elsif file_changes_event_type?
+       FileChanges
+     elsif log_event_type?
+       OtherLogEvent
+     else
+       Message
+     end).new(self).to_html
   end
 
-  private
-
-    class Renderer
-      def initialize(work_activity)
-        @work_activity = work_activity
-      end
-
-      UNKNOWN_USER = "Unknown user outside the system"
-
-      def to_html()
-        title_html + "<span class='message-html'>#{body_html.chomp}</span>"
-      end
-
-      def created_by_user_html
-        return UNKNOWN_USER unless @work_activity.created_by_user
-
-        @work_activity.created_by_user.display_name_safe
-      end
-
-      def created_at_html
-        @work_activity.created_at.time.strftime("%B %d, %Y %H:%M")
-      end
-
-      def title_html
-        "<span class='activity-history-title'>#{created_at_html} by #{created_by_user_html}</span>"
-      end
+  class Renderer
+    def initialize(work_activity)
+      @work_activity = work_activity
     end
 
-    class MetadataChanges < Renderer
-      # Returns the message formatted to display _metadata_ changes that were logged as an activity
-      def body_html
-        changes = JSON.parse(@work_activity.message)
+    UNKNOWN_USER = "Unknown user outside the system"
 
-        changes.keys.map do |field|
-          change = changes[field]
-          mapped = change.map { |value| change_value_html(value) }
-          values = mapped.join
-          "<details class='message-html'><summary class='show-changes'>#{field}</summary>#{values}</details>"
-        end.join
-      end
-
-      def change_value_html(value)
-        if value["action"] == "changed"
-          DiffTools::SimpleDiff.new(value["from"], value["to"]).to_html
-        else
-          "old change"
-        end
-      end
+    def to_html
+      title_html + "<span class='message-html'>#{body_html.chomp}</span>"
     end
 
-    class FileChanges < Renderer
-      # Returns the message formatted to display _file_ changes that were logged as an activity
-      def body_html
-        changes = JSON.parse(@work_activity.message)
-        changes_html = changes.map do |change|
-          icon = if change["action"] == "deleted"
-                  '<i class="bi bi-file-earmark-minus-fill file-deleted-icon"></i>'
-                else
-                  '<i class="bi bi-file-earmark-plus-fill file-added-icon"></i>'
-                end
-          "<tr><td>#{icon}</td><td>#{change['action']}</td> <td>#{change['filename']}</td>"
-        end
+    def created_by_user_html
+      return UNKNOWN_USER unless @work_activity.created_by_user
 
-        "<p><b>Files updated:</b></p><table>#{changes_html.join}</table>"
-      end
+      @work_activity.created_by_user.display_name_safe
     end
 
-    class BaseMessage < Renderer
-      # rubocop:disable Metrics/MethodLength
-      def body_html
-        # convert user references to user links
-        text = @work_activity.message.gsub(USER_REFERENCE) do |at_uid|
-          uid = at_uid[1..-1]
-          user_info = UNKNOWN_USER
+    def created_at_html
+      @work_activity.created_at.time.strftime("%B %d, %Y %H:%M")
+    end
 
-          if uid
-            user = User.find_by(uid: uid)
-            user_info = if user
-                          user.display_name_safe
-                        else
-                          uid
-                        end
-          end
+    def title_html
+      "<span class='activity-history-title'>#{created_at_html} by #{created_by_user_html}</span>"
+    end
+  end
 
-          "<a class='message-user-link' title='#{user_info}' href='#{@work_activity.users_path}/#{uid}'>#{at_uid}</a>"
+  class MetadataChanges < Renderer
+    # Returns the message formatted to display _metadata_ changes that were logged as an activity
+    def body_html
+      changes = JSON.parse(@work_activity.message)
+
+      changes.keys.map do |field|
+        change = changes[field]
+        mapped = change.map { |value| change_value_html(value) }
+        values = mapped.join
+        "<details class='message-html'><summary class='show-changes'>#{field}</summary>#{values}</details>"
+      end.join
+    end
+
+    def change_value_html(value)
+      if value["action"] == "changed"
+        DiffTools::SimpleDiff.new(value["from"], value["to"]).to_html
+      else
+        "old change"
+      end
+    end
+  end
+
+  class FileChanges < Renderer
+    # Returns the message formatted to display _file_ changes that were logged as an activity
+    def body_html
+      changes = JSON.parse(@work_activity.message)
+      changes_html = changes.map do |change|
+        icon = if change["action"] == "deleted"
+                 '<i class="bi bi-file-earmark-minus-fill file-deleted-icon"></i>'
+               else
+                 '<i class="bi bi-file-earmark-plus-fill file-added-icon"></i>'
+               end
+        "<tr><td>#{icon}</td><td>#{change['action']}</td> <td>#{change['filename']}</td>"
+      end
+
+      "<p><b>Files updated:</b></p><table>#{changes_html.join}</table>"
+    end
+  end
+
+  class BaseMessage < Renderer
+    # rubocop:disable Metrics/MethodLength
+    def body_html
+      # convert user references to user links
+      text = @work_activity.message.gsub(USER_REFERENCE) do |at_uid|
+        uid = at_uid[1..-1]
+        user_info = UNKNOWN_USER
+
+        if uid
+          user = User.find_by(uid: uid)
+          user_info = if user
+                        user.display_name_safe
+                      else
+                        uid
+                      end
         end
 
-        # allow ``` for code blocks (Kramdown only supports ~~~)
-        text = text.gsub("```", "~~~")
-        Kramdown::Document.new(text).to_html
+        "<a class='message-user-link' title='#{user_info}' href='#{@work_activity.users_path}/#{uid}'>#{at_uid}</a>"
       end
-      # rubocop:enable Metrics/MethodLength
-    end
 
-    class OtherLogEvent < BaseMessage
+      # allow ``` for code blocks (Kramdown only supports ~~~)
+      text = text.gsub("```", "~~~")
+      Kramdown::Document.new(text).to_html
     end
+    # rubocop:enable Metrics/MethodLength
+  end
 
-    class Message < BaseMessage
-      # Override the default:
-      def title_html
-        "<span class='activity-history-title'>#{created_by_user_html} at #{created_at_html}</span>"
-      end
+  class OtherLogEvent < BaseMessage
+  end
+
+  class Message < BaseMessage
+    # Override the default:
+    def title_html
+      "<span class='activity-history-title'>#{created_by_user_html} at #{created_at_html}</span>"
     end
+  end
 end
 # rubocop:enable Metrics/ClassLength
