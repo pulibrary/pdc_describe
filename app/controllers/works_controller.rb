@@ -78,7 +78,7 @@ class WorksController < ApplicationController
         @can_curate = current_user.can_admin?(@collection)
         @work.mark_new_notifications_as_read(current_user.id)
       end
-      format.json { render json: @work.resource }
+      format.json { render json: @work.to_json }
     end
   end
 
