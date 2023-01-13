@@ -6,7 +6,7 @@ describe WorkActivity, type: :model do
   let(:work) { FactoryBot.create(:draft_work) }
   let(:message) { "test message for @#{user.uid}" }
   let(:work_activity) do
-    described_class.add_work_activity(work.id, message, user.id)
+    described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::SYSTEM)
   end
 
   describe "#notify_users" do

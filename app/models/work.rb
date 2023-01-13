@@ -276,7 +276,7 @@ class Work < ApplicationRecord
     save!
 
     # ...and log the activity
-    WorkActivity.add_work_activity(id, "Unassigned existing curator", current_user.id)
+    WorkActivity.add_work_activity(id, "Unassigned existing curator", current_user.id, activity_type: WorkActivity::SYSTEM)
   end
 
   def update_curator(curator_user_id, current_user)
@@ -291,7 +291,7 @@ class Work < ApplicationRecord
               else
                 "Set curator to @#{new_curator.uid}"
               end
-    WorkActivity.add_work_activity(id, message, current_user.id)
+    WorkActivity.add_work_activity(id, message, current_user.id, activity_type: WorkActivity::SYSTEM)
   end
 
   def curator_or_current_uid(user)
@@ -524,7 +524,7 @@ class Work < ApplicationRecord
     def track_state_change(user, state = aasm.to_state)
       uw = UserWork.new(user_id: user.id, work_id: id, state: state)
       uw.save!
-      WorkActivity.add_work_activity(id, "marked as #{state.to_s.titleize}", user.id)
+      WorkActivity.add_work_activity(id, "marked as #{state.to_s.titleize}", user.id, activity_type: WorkActivity::SYSTEM)
       WorkStateTransitionNotification.new(self, user.id).send
     end
 
@@ -580,7 +580,7 @@ class Work < ApplicationRecord
         if result.failure?
           resolved_user = curator_or_current_uid(user)
           message = "@#{resolved_user} Error publishing DOI. #{result.failure.status} / #{result.failure.reason_phrase}"
-          WorkActivity.add_work_activity(id, message, user.id, activity_type: "DATACITE_ERROR")
+          WorkActivity.add_work_activity(id, message, user.id, activity_type: WorkActivity::SYSTEM)
         end
       elsif ark.blank? # we can not update the url anywhere
         Honeybadger.notify("Publishing for a DOI we do not own and no ARK is present: #{doi}")

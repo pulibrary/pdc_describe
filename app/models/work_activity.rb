@@ -21,7 +21,7 @@ class WorkActivity < ApplicationRecord
   belongs_to :work
   has_many :work_activity_notifications, dependent: :destroy
 
-  def self.add_work_activity(work_id, message, user_id, activity_type: SYSTEM, date: nil)
+  def self.add_work_activity(work_id, message, user_id, activity_type: nil, date: nil)
     activity = WorkActivity.new(
       work_id: work_id,
       activity_type: activity_type,
