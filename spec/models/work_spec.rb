@@ -27,7 +27,6 @@ RSpec.describe Work, type: :model do
   end
 
   before do
-    allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
 
