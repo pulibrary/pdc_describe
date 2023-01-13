@@ -141,10 +141,8 @@ class WorkActivity < ApplicationRecord
       changes = JSON.parse(@work_activity.message)
 
       changes.keys.map do |field|
-        change = changes[field]
-        mapped = change.map { |value| change_value_html(value) }
-        values = mapped.join
-        "<details class='message-html'><summary class='show-changes'>#{field}</summary>#{values}</details>"
+        mapped = changes[field].map { |value| change_value_html(value) }
+        "<details class='message-html'><summary class='show-changes'>#{field}</summary>#{mapped.join}</details>"
       end.join
     end
 
