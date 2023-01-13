@@ -66,8 +66,8 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     # check if anything was added in S3 since we last viewed this object
     @work.attach_s3_resources
-    @changes = @work.changes
-    @messages = @work.messages
+    @changes =  WorkActivity.changes_for_work(@work.id)
+    @messages = WorkActivity.messages_for_work(@work.id)
 
     respond_to do |format|
       format.html do

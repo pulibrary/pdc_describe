@@ -322,15 +322,7 @@ class Work < ApplicationRecord
   end
 
   def activities
-    WorkActivity.where(work_id: id).sort_by(&:updated_at).reverse
-  end
-
-  def changes
-    activities.select(&:log_event_type?)
-  end
-
-  def messages
-    activities.select(&:message_event_type?)
+    WorkActivity.activities_for_work(id)
   end
 
   def new_notification_count_for_user(user_id)
