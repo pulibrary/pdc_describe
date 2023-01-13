@@ -97,14 +97,6 @@ class WorkActivity < ApplicationRecord
     CHANGE_LOG_ACTIVITY_TYPES.include? activity_type
   end
 
-  def event_type
-    if message_event_type?
-      "message"
-    else
-      "log"
-    end
-  end
-
   def to_html
     (if changes_event_type?
        MetadataChanges
