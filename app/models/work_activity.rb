@@ -12,7 +12,8 @@ class WorkActivity < ApplicationRecord
   FILE_CHANGES = "FILE-CHANGES"
   PROVENANCE_NOTES = "PROVENANCE-NOTES"
   SYSTEM = "SYSTEM"
-  CHANGE_LOG_ACTIVITY_TYPES = [CHANGES, FILE_CHANGES, PROVENANCE_NOTES, SYSTEM].freeze
+  DATACITE_ERROR = "DATACITE-ERROR"
+  CHANGE_LOG_ACTIVITY_TYPES = [CHANGES, FILE_CHANGES, PROVENANCE_NOTES, SYSTEM, DATACITE_ERROR].freeze
 
   USER_REFERENCE = /@[\w]*/.freeze # e.g. @xy123
 
@@ -21,7 +22,7 @@ class WorkActivity < ApplicationRecord
   belongs_to :work
   has_many :work_activity_notifications, dependent: :destroy
 
-  def self.add_system_activity(work_id, message, user_id, activity_type: SYSTEM, date: nil)
+  def self.add_work_activity(work_id, message, user_id, activity_type:, date: nil)
     activity = WorkActivity.new(
       work_id: work_id,
       activity_type: activity_type,

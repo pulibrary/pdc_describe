@@ -675,7 +675,7 @@ RSpec.describe Work, type: :model do
 
     it "publishes the doi" do
       stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
-      expect { approved_work }.to change { WorkActivity.where(activity_type: "DATACITE_ERROR").count }.by(0)
+      expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(0)
       expect(a_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")).to have_been_made
     end
 
@@ -713,7 +713,7 @@ RSpec.describe Work, type: :model do
 
     it "notes a issue when an error occurs" do
       stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new(status: "bad", reason_phrase: "a problem"))))
-      expect { approved_work }.to change { WorkActivity.where(activity_type: "DATACITE_ERROR").count }.by(1)
+      expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(1)
     end
 
     it "transitions from approved to withdrawn" do
