@@ -81,38 +81,19 @@ class WorkActivity < ApplicationRecord
     MESSAGE_ACTIVITY_TYPES.include? activity_type
   end
 
-  def changes_event_type?
-    activity_type == CHANGES
-  end
-
-  def file_changes_event_type?
-    activity_type == FILE_CHANGES
-  end
-
-  def system_event_type?
-    activity_type == SYSTEM
-  end
-
-  def provenance_notes_type?
-    activity_type == PROVENANCE_NOTES
-  end
-
   def log_event_type?
     CHANGE_LOG_ACTIVITY_TYPES.include? activity_type
   end
 
   def event_type
-    if message_event_type?
-      "message"
-    else
-      "log"
-    end
+    return "message" if message_event_type?
+    return "log" if log_event_type?
   end
 
   def to_html
-    if changes_event_type?
+    if activity_type == CHANGES
       metadata_changes_html
-    elsif file_changes_event_type?
+    elsif activity_type == FILE_CHANGES
       file_changes_html
     else
       message_html
@@ -130,7 +111,7 @@ class WorkActivity < ApplicationRecord
     end
 
     def event_timestamp_html
-      "#{event_timestamp} by " if system_event_type? || log_event_type?
+      "#{event_timestamp} by " if log_event_type?
     end
 
     # This is working
