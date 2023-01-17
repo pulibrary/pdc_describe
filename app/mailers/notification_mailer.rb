@@ -8,6 +8,7 @@ class NotificationMailer < ApplicationMailer
 
     @subject = "[pdc-describe] New Notification"
     @message = @work_activity.message
+    @message_html = @work_activity.to_html
     @url = work_url(@work_activity.work)
 
     mail(to: @user.email, subject: @subject)
