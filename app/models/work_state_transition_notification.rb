@@ -22,7 +22,7 @@ class WorkStateTransitionNotification
   def send
     return if notification.nil?
 
-    WorkActivity.add_system_activity(id, notification, current_user_id, activity_type: WorkActivity::NOTIFICATION)
+    WorkActivity.add_work_activity(id, notification, current_user_id, activity_type: WorkActivity::NOTIFICATION)
   end
 
     private

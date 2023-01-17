@@ -30,11 +30,15 @@ RSpec.describe WorksController do
       expect(response.content_type).to eq "application/rss+xml; charset=utf-8"
     end
 
-    it "renders the resource json" do
+    it "renders the work json" do
       sign_in user
       stub_s3
       get :show, params: { id: work.id, format: "json" }
       expect(response.content_type).to eq "application/json; charset=utf-8"
+      work_json = JSON.parse(response.body)
+      expect(work_json["resource"]).to_not be nil
+      expect(work_json["files"]).to_not be nil
+      expect(work_json["collection"]).to_not be nil
     end
 
     it "renders the new submission wizard' step 0" do
@@ -785,7 +789,7 @@ RSpec.describe WorksController do
 
       context "when the work has changes and messages" do
         before do
-          WorkActivity.add_system_activity(work.id, "Hello System", user.id)
+          WorkActivity.add_work_activity(work.id, "Hello System", user.id, activity_type: WorkActivity::SYSTEM)
           work.add_message("Hello World", user.id)
         end
 
@@ -899,7 +903,7 @@ RSpec.describe WorksController do
           expect(response.status).to be 302
           expect(response.location).to eq "http://test.host/works/#{work.id}"
           expect(work.reload).to be_approved
-          error = work.work_activity.find { |activity| activity.activity_type == "DATACITE_ERROR" }
+          error = work.work_activity.find { |activity| activity.activity_type == WorkActivity::DATACITE_ERROR }
           expect(error.message).to include("Error publishing DOI")
         end
       end
@@ -1051,6 +1055,10 @@ RSpec.describe WorksController do
 
       it "posts a message with sanitized HTML" do
         sign_in user
+        # The ERB only shows the form to a subset of users,
+        # but the endpoint has no such restriction: Anyone can POST.
+        # In some contexts, a hole like this would be a security problem,
+        # but this is low-stakes.
         post :add_message, params: { id: work.id, "new-message" => "<div>hello world</div>" }
         expect(response.status).to be 302
         expect(response.location).to eq "http://test.host/works/#{work.id}"

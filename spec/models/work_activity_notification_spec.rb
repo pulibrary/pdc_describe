@@ -16,23 +16,19 @@ describe WorkActivityNotification, type: :model do
       allow(NotificationMailer).to receive(:with).and_return(notification_mailer)
     end
 
-    it "does not enqueue an e-mail message to be delivered for the notification" do
+    it "enqueues an e-mail message to be delivered for the notification" do
       described_class.create(user: user, work_activity: work_activity)
-      expect(message_delivery).not_to have_received(:deliver_later)
+      expect(message_delivery).to have_received(:deliver_later)
     end
 
-    context "when e-mail notifications are enabled for the Collection" do
-      let(:user) { FactoryBot.create :user }
+    context "when e-mail notifications are disabled for the Collection" do
       before do
-        user.add_role(:collection_admin, collection)
-        user.enable_messages_from(collection: collection)
-        user.save!
-        user.reload
+        user.disable_messages_from(collection: collection)
       end
 
-      it "enqueues an e-mail message to be delivered for the notification" do
+      it "does not enqueue an e-mail message to be delivered for the notification" do
         described_class.create(user: user, work_activity: work_activity)
-        expect(message_delivery).to have_received(:deliver_later)
+        expect(message_delivery).not_to have_received(:deliver_later)
       end
     end
 
