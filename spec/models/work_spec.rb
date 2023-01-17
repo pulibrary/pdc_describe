@@ -30,6 +30,45 @@ RSpec.describe Work, type: :model do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
 
+  context "fixed time" do
+    before do
+      allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
+    end
+    it "captures everything needed for PDC Describe in JSON" do
+      work = Work.new(collection: collection, resource: FactoryBot.build(:tokamak_work))
+      expect(JSON.parse(work.to_json)).to eq(
+        {
+          "resource" => {
+            "titles" => [],
+            "description" => nil,
+            "collection_tags" => [],
+            "creators" => [],
+            "resource_type" => nil,
+            "resource_type_general" => nil,
+            "publisher" => nil,
+            "publication_year" => nil,
+            "ark" => nil,
+            "doi" => nil,
+            "rights" => nil,
+            "version_number" => nil,
+            "related_objects" => [],
+            "keywords" => [],
+            "contributors" => [],
+            "funders" => []
+          },
+          "files" => [],
+          "collection" => {
+            "title" => "Research Data",
+            "description" => nil,
+            "code" => "RD",
+            "created_at" => "2021-12-31T19:00:00.000-05:00",
+            "updated_at" => "2021-12-31T19:00:00.000-05:00"
+          }
+        }
+      )
+    end
+  end
+
   it "checks the format of the ORCID of the creators" do
     # Add a new creator with an incomplete ORCID
     work.resource.creators << PDCMetadata::Creator.new_person("Williams", "Serena", "1234-12")
@@ -340,17 +379,20 @@ RSpec.describe Work, type: :model do
       expect(work.curator).to be nil
 
       work.change_curator(curator_user.id, user)
-      activity = work.activities.find { |a| a.message.include?("Set curator to @#{curator_user.uid}") }
+      activity = WorkActivity.changes_for_work(work.id).first
+      expect(activity.message).to eq("Set curator to @#{curator_user.uid}")
       expect(work.curator.id).to be curator_user.id
       expect(activity.created_by_user.id).to eq user.id
 
       work.change_curator(user.id, user)
-      activity = work.activities.find { |a| a.message.include?("Self-assigned as curator") }
+      activity = WorkActivity.changes_for_work(work.id).first
+      expect(activity.message).to eq("Self-assigned as curator")
       expect(work.curator.id).to be user.id
       expect(activity.created_by_user.id).to eq user.id
 
       work.clear_curator(user)
-      activity = work.activities.find { |a| a.message.include?("Unassigned existing curator") }
+      activity = WorkActivity.changes_for_work(work.id).first
+      expect(activity.message).to eq("Unassigned existing curator")
       expect(work.curator).to be nil
       expect(activity.created_by_user.id).to eq user.id
     end
@@ -359,7 +401,8 @@ RSpec.describe Work, type: :model do
   describe "#add_message" do
     it "adds a message" do
       work.add_message("hello world", user.id)
-      activity = work.activities.find { |a| a.message.include?("hello world") }
+      activity = WorkActivity.messages_for_work(work.id).first
+      expect(activity.message).to eq("hello world")
       expect(activity.created_by_user.id).to eq user.id
       expect(activity.activity_type).to eq WorkActivity::MESSAGE
     end
@@ -380,7 +423,8 @@ RSpec.describe Work, type: :model do
     it "parses tagged users correctly" do
       message = "taggging @#{curator_user.uid} and @#{user_other.uid}"
       work.add_message(message, user.id)
-      activity = work.activities.find { |a| a.message.include?(message) }
+      activity = WorkActivity.messages_for_work(work.id).first
+      expect(activity.message).to eq(message)
       expect(activity.to_html.include?("#{curator_user.uid}</a>")).to be true
       expect(activity.to_html.include?("#{user_other.uid}</a>")).to be true
     end
@@ -431,10 +475,11 @@ RSpec.describe Work, type: :model do
       curator_user.email_messages_enabled = true
       curator_user.enable_messages_from(collection: collection)
       expect { draft_work }
-        .to change { WorkActivity.where(activity_type: "SYSTEM").count }.by(2)
+        .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
+        .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
         .and have_enqueued_job(ActionMailer::MailDeliveryJob).once # this would be twice if the user could enable messages
-      expect(WorkActivity.where(activity_type: "SYSTEM").first.message).to eq("marked as Draft")
-      user_notification = WorkActivity.where(activity_type: "SYSTEM").last.message
+      expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Draft")
+      user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
       expect(user_notification).to include("@#{curator_user.uid}")
       expect(user_notification).to include("@#{user.uid}")
       expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(draft_work))
@@ -545,10 +590,11 @@ RSpec.describe Work, type: :model do
       curator.email_messages_enabled = true
       curator.enable_messages_from(collection: collection)
       expect { awaiting_approval_work }
-        .to change { WorkActivity.where(activity_type: "SYSTEM").count }.by(2)
+        .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
+        .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
         .and have_enqueued_job(ActionMailer::MailDeliveryJob).once # this would be twice if the user could enable messages
-      expect(WorkActivity.where(activity_type: "SYSTEM").first.message).to eq("marked as Awaiting Approval")
-      curator_notification = WorkActivity.where(activity_type: "SYSTEM").last.message
+      expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Awaiting Approval")
+      curator_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
       expect(curator_notification).to include("@#{curator.uid}")
       expect(curator_notification). to include(Rails.application.routes.url_helpers.work_url(awaiting_approval_work))
     end
@@ -617,10 +663,11 @@ RSpec.describe Work, type: :model do
       curator_user.email_messages_enabled = true
       curator_user.enable_messages_from(collection: collection)
       expect { approved_work }
-        .to change { WorkActivity.where(activity_type: "SYSTEM").count }.by(2)
+        .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
+        .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
         .and have_enqueued_job(ActionMailer::MailDeliveryJob).once # this would be twice if the user could enable messages
-      expect(WorkActivity.where(activity_type: "SYSTEM").first.message).to eq("marked as Approved")
-      user_notification = WorkActivity.where(activity_type: "SYSTEM").last.message
+      expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Approved")
+      user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
       expect(user_notification).to include("@#{curator_user.uid}")
       expect(user_notification).to include("@#{approved_work.created_by_user.uid}")
       expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(approved_work))
@@ -809,6 +856,8 @@ RSpec.describe Work, type: :model do
 
         work.complete_submission!(user)
         work.reload
+
+        allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
       end
 
       it "persists S3 Bucket resources as ActiveStorage Attachments" do
@@ -821,12 +870,22 @@ RSpec.describe Work, type: :model do
         expect(work.pre_curation_uploads.first.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt")
         expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
         expect(work.pre_curation_uploads.last.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
-        expect(work.activities.count { |a| a.activity_type == "FILE-CHANGES" }).to eq(1)
+        expect(WorkActivity.activities_for_work(work.id, ["FILE-CHANGES"]).count).to eq(1)
 
         # call the s3 reload and make sure no more files get added to the model
         work.attach_s3_resources
         expect(work.pre_curation_uploads.length).to eq(2)
-        expect(work.activities.count { |a| a.activity_type == "FILE-CHANGES" }).to eq(1)
+        expect(WorkActivity.activities_for_work(work.id, ["FILE-CHANGES"]).count).to eq(1)
+
+        # Make sure files show up in JSON for discovery:
+        expect(work.as_json["files"]).to eq([
+                                              { created_at: "2021-12-31 19:00:00.000000000 -0500",
+                                                base: "SCoData_combined_v1_2020-07_README",
+                                                extension: "txt" },
+                                              { created_at: "2021-12-31 19:00:00.000000000 -0500",
+                                                base: "SCoData_combined_v1_2020-07_datapackage",
+                                                extension: "json" }
+                                            ])
       end
 
       context "a blob already exists for one of the files" do

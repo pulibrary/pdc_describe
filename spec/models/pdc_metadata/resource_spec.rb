@@ -99,7 +99,8 @@ RSpec.describe PDCMetadata::Resource, type: :model do
 
   it "creates the expected json" do
     work = FactoryBot.create(:shakespeare_and_company_work)
-    expect(work.metadata).to eq(JSON.parse(work.to_json))
+    expect(work.metadata).to eq(work.resource.as_json)
+    expect(work.metadata).to eq(work.as_json["resource"])
   end
 
   it "allows for collection tags" do

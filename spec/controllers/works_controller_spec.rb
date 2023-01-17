@@ -30,11 +30,15 @@ RSpec.describe WorksController do
       expect(response.content_type).to eq "application/rss+xml; charset=utf-8"
     end
 
-    it "renders the resource json" do
+    it "renders the work json" do
       sign_in user
       stub_s3
       get :show, params: { id: work.id, format: "json" }
       expect(response.content_type).to eq "application/json; charset=utf-8"
+      work_json = JSON.parse(response.body)
+      expect(work_json["resource"]).to_not be nil
+      expect(work_json["files"]).to_not be nil
+      expect(work_json["collection"]).to_not be nil
     end
 
     it "renders the new submission wizard' step 0" do
@@ -777,9 +781,24 @@ RSpec.describe WorksController do
       let(:data) { [] }
 
       it "renders the workshow page" do
-        stub_s3
         get :show, params: { id: work.id }
         expect(response).to render_template("show")
+        expect(assigns[:changes]).to eq([])
+        expect(assigns[:messages]).to eq([])
+      end
+
+      context "when the work has changes and messages" do
+        before do
+          WorkActivity.add_system_activity(work.id, "Hello System", user.id)
+          work.add_message("Hello World", user.id)
+        end
+
+        it "renders the workshow page" do
+          get :show, params: { id: work.id }
+          expect(response).to render_template("show")
+          expect(assigns[:changes].map(&:message)).to eq(["Hello System"])
+          expect(assigns[:messages].map(&:message)).to eq(["Hello World"])
+        end
       end
     end
 

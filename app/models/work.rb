@@ -322,15 +322,7 @@ class Work < ApplicationRecord
   end
 
   def activities
-    WorkActivity.where(work_id: id).sort_by(&:updated_at).reverse
-  end
-
-  def changes
-    activities.select(&:log_event_type?)
-  end
-
-  def messages
-    activities.select(&:message_event_type?)
+    WorkActivity.activities_for_work(id)
   end
 
   def new_notification_count_for_user(user_id)
@@ -448,8 +440,31 @@ class Work < ApplicationRecord
     log_file_changes(changes, nil)
   end
 
+  def as_json(options = nil)
+    if options&.present?
+      raise(StandardError, "Received options #{options}, but not supported")
+      # Included in signature for compatibility with Rails.
+    end
+
+    files = (pre_curation_uploads + post_curation_uploads).map do |upload|
+      {
+        "base": upload.filename.base,
+        "extension": upload.filename.extension,
+        "created_at": upload.created_at
+      }
+    end
+
+    # to_json returns a string of serialized JSON.
+    # as_json returns the corresponding hash.
+    {
+      "resource" => resource.as_json,
+      "files" => files,
+      "collection" => collection.as_json.except("id")
+    }
+  end
+
   delegate :ark, :doi, :resource_type, :resource_type=, :resource_type_general, :resource_type_general=,
-           :to_xml, :to_json, to: :resource
+           :to_xml, to: :resource
 
   protected
 
