@@ -4,7 +4,7 @@
   <ul>
     <li>
       <a href="https://ror.org/" target="_blank">ROR</a> is a "global, community-led registry of open persistent identifiers for research organizations".
-      Provide the full ROR URL and the other fields will be filled automatically.
+      Provide the full ROR URL and the Name will be filled automatically.
       <!--
         "The canonical form of a ROR identifier value (a "ROR ID", the id element in a ROR record) is the entire URL." 
         https://ror.readme.io/docs/ror-identifier-pattern
@@ -30,7 +30,7 @@
     <% (@work.resource.funders + [nil]).each do |funder| %>
       <tr>
         <td>
-          <input name="funders[][ror]" value="<%= funder&.ror %>" placeholder="https://ror.org/........" pattern="https://ror.org/0[a-z|0-9]{6}[0-9]{2}" />
+          <input name="funders[][ror]" value="<%= funder&.ror %>" placeholder="https://ror.org/........" pattern="https://ror.org/0[a-z|0-9]{6}[0-9]{2}" class="ror-input" />
         </td>
         <td>
           <input name="funders[][funder_name]" value="<%= funder&.funder_name %>" />
