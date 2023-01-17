@@ -51,6 +51,99 @@ RSpec.describe "/works", type: :request do
           expect { get work_url(work) }.to raise_error(Work::InvalidCollectionError, "The Work test-id does not belong to any Collection")
         end
       end
+
+      context "when the work has been approved" do
+        let(:work) { FactoryBot.create(:approved_work) }
+        let(:collection) { work.collection }
+
+        context "when appending a second title" do
+          let(:params) do
+            {
+              id: work.id,
+              title_main: work.title,
+              collection_id: collection.id,
+              new_title_1: "the subtitle",
+              new_title_type_1: "Subtitle",
+              existing_title_count: "1",
+              new_title_count: "1",
+              given_name_1: "Toni",
+              family_name_1: "Morrison",
+              sequence_1: "1",
+              given_name_2: "Sonia",
+              family_name_2: "Sotomayor",
+              sequence_2: "1",
+              orcid_2: "1234-1234-1234-1234",
+              creator_count: "1",
+              new_creator_count: "1",
+              rights_identifier: "CC BY",
+              description: "a new description"
+            }
+          end
+
+          before do
+            patch work_url(work), params: params
+          end
+
+          context "when authenticated as a super admin user" do
+            let(:user) { FactoryBot.create(:super_admin_user) }
+
+            it "updates the title" do
+              expect(response.status).to eq(302)
+              work.reload
+
+              expect(work.metadata).to be_a(Hash)
+              expect(work.metadata).to include("titles")
+              titles = work.metadata["titles"]
+              expect(titles.length).to eq(2)
+
+              subtitle = titles.last
+              expect(subtitle).to be_a(Hash)
+              expect(subtitle).to include("title" => "the subtitle")
+              expect(subtitle).to include("title_type" => "Subtitle")
+            end
+          end
+
+          context "when authenticated as the submitter of the Work" do
+            let(:user) { work.created_by_user }
+
+            it "updates the title" do
+              expect(response.status).to eq(302)
+              work.reload
+
+              expect(work.metadata).to be_a(Hash)
+              expect(work.metadata).to include("titles")
+              titles = work.metadata["titles"]
+              expect(titles.length).to eq(2)
+
+              subtitle = titles.last
+              expect(subtitle).to be_a(Hash)
+              expect(subtitle).to include("title" => "the subtitle")
+              expect(subtitle).to include("title_type" => "Subtitle")
+            end
+          end
+
+          context "when authenticated as the curator for the Work" do
+            let(:user) do
+              FactoryBot.create :user, collections_to_admin: [collection]
+            end
+
+            it "updates the title" do
+              expect(response.status).to eq(302)
+              work.reload
+
+              expect(work.metadata).to be_a(Hash)
+              expect(work.metadata).to include("titles")
+              titles = work.metadata["titles"]
+              expect(titles.length).to eq(2)
+
+              subtitle = titles.last
+              expect(subtitle).to be_a(Hash)
+              expect(subtitle).to include("title" => "the subtitle")
+              expect(subtitle).to include("title_type" => "Subtitle")
+            end
+          end
+        end
+      end
     end
   end
 end

@@ -1200,12 +1200,12 @@ RSpec.describe WorksController do
 
       context "the submitter" do
         let(:user) { work.created_by_user }
+        let(:new_params) { params.merge(doi: "new-doi").merge(collection_tags: "new-colletion-tag1, new-collection-tag2") }
 
-        it "redirects the home page on edit with informational message" do
+        it "redirects to the work page with the updated work" do
           sign_in user
           patch :update, params: new_params
-          expect(response).to redirect_to(root_path)
-          expect(controller.flash[:notice]).to eq("This work has been approved.  Edits are no longer available.")
+          expect(response).to redirect_to(work_path(work))
         end
       end
       context "another user" do
