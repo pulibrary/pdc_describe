@@ -35,6 +35,7 @@
   <fundingReferences>
     <fundingReference>
       <funderName>Scrooge McDuck</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/012345678</funderIdentifier>
       <awardNumber awardURI='http://example.com/ducks'>1234</awardNumber>
     </fundingReference>
   </fundingReferences>
