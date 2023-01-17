@@ -1013,6 +1013,7 @@ RSpec.describe Work, type: :model do
         "contributors": [],
         "funders":[
           {
+            "ror": "https://ror.org/012345678",
             "funder_name": "National Science Foundation",
             "award_number": "nsf-123",
             "award_uri": "http://nsg.gov/award/123"

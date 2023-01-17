@@ -215,7 +215,7 @@ module PDCSerialization
           resource.funders.map do |funder|
             award = ::Datacite::Mapping::AwardNumber.new(uri: funder.award_uri, value: funder.award_number)
             if funder.ror.present?
-              funder_identifier = ::Datacite::Mapping::FunderIdentifier.new(funder_identifier_type: "ROR", value: funder.ror)
+              funder_identifier = ::Datacite::Mapping::FunderIdentifier.new(type: "ROR", value: funder.ror)
               ::Datacite::Mapping::FundingReference.new(name: funder.funder_name, award_number: award, funder_identifier: funder_identifier)
             else
               ::Datacite::Mapping::FundingReference.new(name: funder.funder_name, award_number: award)

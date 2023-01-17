@@ -52,7 +52,7 @@
   ],
   "funders": [
     {
-      "ror": "https://ror.org/012345678"
+      "ror": "https://ror.org/012345678",
       "funder_name": "Scrooge McDuck",
       "award_number": "1234",
       "award_uri": "http://example.com/ducks"
