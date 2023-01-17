@@ -63,7 +63,7 @@ XML
 
     # Fetching the JSON for an approved work doesn't require authentication
     visit "/works/#{work1.id}.json"
-    expect(JSON.parse(page.body)["titles"][0]["title"]).to eq work1.title
+    expect(JSON.parse(page.body)["resource"]["titles"][0]["title"]).to eq work1.title
 
     # Fetching the JSON for a work that is not yet approved doesn't work
     visit "/works/#{work3.id}.json"
