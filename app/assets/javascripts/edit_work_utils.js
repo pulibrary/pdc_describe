@@ -505,7 +505,12 @@ $(() => {
   $(document).on('change', '.ror-input', (el) => {
     const $target = $(el.target);
     const ror = $target.val().trim();
-    console.log(`TODO: Hit ROR API for ${ror}`);
+    fetch(`https://api.ror.org/organizations/${ror}`).then()
+      .then((response) => response.json())
+      .then((responseJson) => {
+        const { name } = responseJson;
+        $target.closest('tr').find('.ror-output').val(name);
+      });
   });
 
   // Allows the creators and contributors to be reordered via drag and drop.
