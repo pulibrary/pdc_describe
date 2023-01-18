@@ -13,7 +13,7 @@ This dataset is too large to download directly from this item page. You can acce
   let(:collection) { "Research Data" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.34770/9425-b553" }
-  let(:file_upload) { Pathname.new(fixture_path).join("dataspace_migration", "attention", "Attention_Awareness_Dorsal_Attention_readme.txt").to_s }
+  let(:file_upload) { Pathname.new(fixture_path).join("dataspace_migration", "attention", "Attention_Awareness_Dorsal_Attention_README.txt").to_s }
 
   before do
     page.driver.browser.manage.window.resize_to(2000, 2000)
@@ -47,6 +47,7 @@ This dataset is too large to download directly from this item page. You can acce
       click_on "Additional Metadata"
 
       ## Funder Information
+      # An example of a funder who does not have an ROR
       page.find(:xpath, "//table[@id='funding']//tr[1]//input[@name='funders[][funder_name]']").set "Princeton Neuroscience Institute Innovation Fund"
       page.find(:xpath, "//table[@id='funding']//tr[1]//input[@name='funders[][award_number]']").set "PRINU-24400-G0002-10005089-101"
 
