@@ -88,25 +88,28 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       fill_in "keywords", with: keywords
 
       ## Funder Information
-      page.find(:xpath, "//table[@id='funding']//tr[1]//input[@name='funders[][funder_name]']").set "United States Department of Energy"
+      # https://ror.org/01bj3aw27 == ROR for United States Department of Energy
+      page.find(:xpath, "//table[@id='funding']//tr[1]//input[@name='funders[][ror]']").set "https://ror.org/01bj3aw27"
       page.find(:xpath, "//table[@id='funding']//tr[1]//input[@name='funders[][award_number]']").set "DE-SC0018925"
       click_on "Add Another Funder"
-      page.find(:xpath, "//table[@id='funding']//tr[2]//input[@name='funders[][funder_name]']").set "United States Department of Energy"
+      page.find(:xpath, "//table[@id='funding']//tr[2]//input[@name='funders[][ror]']").set "https://ror.org/01bj3aw27"
       page.find(:xpath, "//table[@id='funding']//tr[2]//input[@name='funders[][award_number]']").set "DE-AC02-76SF00515"
       click_on "Add Another Funder"
-      page.find(:xpath, "//table[@id='funding']//tr[3]//input[@name='funders[][funder_name]']").set "National Science Foundation"
+      # https://ror.org/021nxhr62 == ROR for National Science Foundation
+      page.find(:xpath, "//table[@id='funding']//tr[3]//input[@name='funders[][ror]']").set "https://ror.org/021nxhr62"
       page.find(:xpath, "//table[@id='funding']//tr[3]//input[@name='funders[][award_number]']").set "EAR-1644614"
       click_on "Add Another Funder"
-      page.find(:xpath, "//table[@id='funding']//tr[4]//input[@name='funders[][funder_name]']").set "National Science Foundation"
+      page.find(:xpath, "//table[@id='funding']//tr[4]//input[@name='funders[][ror]']").set "https://ror.org/021nxhr62"
       page.find(:xpath, "//table[@id='funding']//tr[4]//input[@name='funders[][award_number]']").set "EAR-1446969"
       click_on "Add Another Funder"
-      page.find(:xpath, "//table[@id='funding']//tr[5]//input[@name='funders[][funder_name]']").set "National Science Foundation"
+      page.find(:xpath, "//table[@id='funding']//tr[5]//input[@name='funders[][ror]']").set "https://ror.org/021nxhr62"
       page.find(:xpath, "//table[@id='funding']//tr[5]//input[@name='funders[][award_number]']").set "EAR-1725349"
       click_on "Add Another Funder"
-      page.find(:xpath, "//table[@id='funding']//tr[6]//input[@name='funders[][funder_name]']").set "Deutsche Forschungsgemeinschaft"
+      # https://ror.org/018mejw64 == ROR for Deutsche Forschungsgemeinschaft a.k.a. DFG, German Research Foundation
+      page.find(:xpath, "//table[@id='funding']//tr[6]//input[@name='funders[][ror]']").set "https://ror.org/018mejw64"
       page.find(:xpath, "//table[@id='funding']//tr[6]//input[@name='funders[][award_number]']").set "AP 262/2-1"
       click_on "Add Another Funder"
-      page.find(:xpath, "//table[@id='funding']//tr[7]//input[@name='funders[][funder_name]']").set "Deutsche Forschungsgemeinschaft"
+      page.find(:xpath, "//table[@id='funding']//tr[7]//input[@name='funders[][ror]']").set "https://ror.org/018mejw64"
       page.find(:xpath, "//table[@id='funding']//tr[7]//input[@name='funders[][award_number]']").set "FOR2440"
 
       click_on "Curator Controlled"
