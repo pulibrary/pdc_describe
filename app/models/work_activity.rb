@@ -98,7 +98,7 @@ class WorkActivity < ApplicationRecord
   end
 
   def to_html
-    (if changes_event_type?
+    klass = if changes_event_type?
        MetadataChanges
      elsif file_changes_event_type?
        FileChanges
@@ -106,7 +106,9 @@ class WorkActivity < ApplicationRecord
        OtherLogEvent
      else
        Message
-     end).new(self).to_html
+     end
+     renderer = klass.new(self)
+     renderer.to_html
   end
 
   class Renderer
