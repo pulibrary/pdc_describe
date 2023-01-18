@@ -126,13 +126,13 @@ class FormToResourceService
       def add_funders(params, resource)
         # (New pattern: Use rails param name conventions rather than numbering fields.)
         resource.funders = (params[:funders] || []).filter_map do |funder|
-          new_funder(funder[:funder_name], funder[:award_number], funder[:award_uri])
+          new_funder(funder[:ror], funder[:funder_name], funder[:award_number], funder[:award_uri])
         end
       end
 
-      def new_funder(funder_name, award_number, award_uri)
+      def new_funder(ror, funder_name, award_number, award_uri)
         return if funder_name.blank? && award_number.blank? && award_uri.blank?
-        PDCMetadata::Funder.new(funder_name, award_number, award_uri)
+        PDCMetadata::Funder.new(ror, funder_name, award_number, award_uri)
       end
   end
 end
