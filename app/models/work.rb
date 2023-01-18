@@ -447,9 +447,11 @@ class Work < ApplicationRecord
 
     # Pre-curation files are not accessible externally,
     # so we are not interested in listing them in JSON.
+    # (The items in pre_curation_uploads also have different properties.)
     files = post_curation_uploads.map do |upload|
       {
         "filename": upload.filename,
+        "size": upload.size
       }
     end
 
