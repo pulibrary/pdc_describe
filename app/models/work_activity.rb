@@ -12,7 +12,8 @@ class WorkActivity < ApplicationRecord
   FILE_CHANGES = "FILE-CHANGES"
   PROVENANCE_NOTES = "PROVENANCE-NOTES"
   SYSTEM = "SYSTEM"
-  CHANGE_LOG_ACTIVITY_TYPES = [CHANGES, FILE_CHANGES, PROVENANCE_NOTES, SYSTEM].freeze
+  DATACITE_ERROR = "DATACITE-ERROR"
+  CHANGE_LOG_ACTIVITY_TYPES = [CHANGES, FILE_CHANGES, PROVENANCE_NOTES, SYSTEM, DATACITE_ERROR].freeze
 
   USER_REFERENCE = /@[\w]*/.freeze # e.g. @xy123
 
@@ -21,7 +22,7 @@ class WorkActivity < ApplicationRecord
   belongs_to :work
   has_many :work_activity_notifications, dependent: :destroy
 
-  def self.add_system_activity(work_id, message, user_id, activity_type: SYSTEM, date: nil)
+  def self.add_work_activity(work_id, message, user_id, activity_type:, date: nil)
     activity = WorkActivity.new(
       work_id: work_id,
       activity_type: activity_type,
@@ -77,32 +78,16 @@ class WorkActivity < ApplicationRecord
     MESSAGE_ACTIVITY_TYPES.include? activity_type
   end
 
-  def changes_event_type?
-    activity_type == CHANGES
-  end
-
-  def file_changes_event_type?
-    activity_type == FILE_CHANGES
-  end
-
-  def system_event_type?
-    activity_type == SYSTEM
-  end
-
-  def provenance_notes_type?
-    activity_type == PROVENANCE_NOTES
-  end
-
   def log_event_type?
     CHANGE_LOG_ACTIVITY_TYPES.include? activity_type
   end
 
   def to_html
-    klass = if changes_event_type?
+    klass = if activity_type == CHANGES
        MetadataChanges
-     elsif file_changes_event_type?
+     elsif activity_type == FILE_CHANGES
        FileChanges
-     elsif log_event_type?
+     elsif CHANGE_LOG_ACTIVITY_TYPES.include?(activity_type)
        OtherLogEvent
      else
        Message

@@ -9,20 +9,18 @@
         </div>
       </fieldset>
 
-      <% if @user.moderator? %>
-        <section class="card container">
-          <h2>Collections</h2>
-          <fieldset>
-            <% @user.admin_collections.each do |admin_collection| %>
-              <legend><%= admin_collection.title %></legend>
-              <div class="form-check">
-                <%= check_box_tag("user[collections_with_messaging][#{admin_collection.id}]", "1", user.messages_enabled_from?(collection: admin_collection), { class: ["form-check-input"] }) %>
-                <%= label_tag("user[collections_with_messaging][#{admin_collection.id}]", t("users.form.email_messages_enabled"), class: ["form-check-label"]) %>
-              </div>
-            <% end %>
-          </fieldset>
-        </section>
-      <% end %>
+      <section class="card container collections"> 
+        <h2>Collections</h2>
+        <fieldset>
+          <% @user.submitter_or_admin_collections.each do |collection| %>
+            <legend><%= collection.title %></legend>
+            <div class="form-check">
+              <%= form.check_box("[collections_with_messaging][#{collection.id}]", { id: "collection_messaging_#{collection.id}", checked: user.messages_enabled_from?(collection: collection), class: ["form-check-input"] }) %>
+              <%= form.label("[collections_with_messaging][#{collection.id}]", t("users.form.email_messages_enabled"), class: ["form-check-label"]) %>
+            </div>
+          <% end %>
+        </fieldset>
+      </section>
 
       <button type="submit" class="btn btn-primary"><%= t("users.form.email_messages_submit") %></button>
     <% end %>
