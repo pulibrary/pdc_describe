@@ -48,7 +48,7 @@
     <% end %>
   </ul>
 
-  <% if ["cm7575"].include? current_user.uid %>
+  <% if can_add_provenance_note %>
     <%= form_with url: add_provenance_note_path(@work) do |f| %>
       <div class="field">
         <details>
