@@ -84,16 +84,16 @@ class WorkActivity < ApplicationRecord
 
   def to_html
     klass = if activity_type == CHANGES
-       MetadataChanges
-     elsif activity_type == FILE_CHANGES
-       FileChanges
-     elsif CHANGE_LOG_ACTIVITY_TYPES.include?(activity_type)
-       OtherLogEvent
-     else
-       Message
-     end
-     renderer = klass.new(self)
-     renderer.to_html
+              MetadataChanges
+            elsif activity_type == FILE_CHANGES
+              FileChanges
+            elsif CHANGE_LOG_ACTIVITY_TYPES.include?(activity_type)
+              OtherLogEvent
+            else
+              Message
+            end
+    renderer = klass.new(self)
+    renderer.to_html
   end
 
   class Renderer
