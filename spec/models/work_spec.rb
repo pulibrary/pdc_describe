@@ -860,15 +860,8 @@ RSpec.describe Work, type: :model do
         expect(work.pre_curation_uploads.length).to eq(2)
         expect(WorkActivity.activities_for_work(work.id, ["FILE-CHANGES"]).count).to eq(1)
 
-        # Make sure files show up in JSON for discovery:
-        expect(work.as_json["files"]).to eq([
-                                              { created_at: "2021-12-31 19:00:00.000000000 -0500",
-                                                base: "SCoData_combined_v1_2020-07_README",
-                                                extension: "txt" },
-                                              { created_at: "2021-12-31 19:00:00.000000000 -0500",
-                                                base: "SCoData_combined_v1_2020-07_datapackage",
-                                                extension: "json" }
-                                            ])
+        # Make sure pre-curation files do not show up in JSON:
+        expect(work.as_json["files"]).to eq([])
       end
 
       context "a blob already exists for one of the files" do
