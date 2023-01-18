@@ -468,17 +468,12 @@ RSpec.describe Work, type: :model do
     end
 
     it "Notifies Curators and Depositor" do
-      # enable emails
-      user.email_messages_enabled = true
-      # Can not enable message for a depositor, but we will not send them without the messages being enabled
-      # user.enable_messages_from(collection: collection)
-      curator_user.email_messages_enabled = true
-      curator_user.enable_messages_from(collection: collection)
+      curator_user
       expect { draft_work }
         .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
         .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
-        .and have_enqueued_job(ActionMailer::MailDeliveryJob).once # this would be twice if the user could enable messages
-      expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Draft")
+        .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
+      expect(WorkActivity.where(activity_type: "SYSTEM").first.message).to eq("marked as Draft")
       user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
       expect(user_notification).to include("@#{curator_user.uid}")
       expect(user_notification).to include("@#{user.uid}")
@@ -583,16 +578,10 @@ RSpec.describe Work, type: :model do
 
     it "notifies the curator and depositor it is ready for review" do
       curator = FactoryBot.create(:research_data_moderator)
-      # enable emails
-      user.email_messages_enabled = true
-      # Can not enable message for a depositor, but we will not send them without the messages being enabled
-      # user.enable_messages_from(collection: collection)
-      curator.email_messages_enabled = true
-      curator.enable_messages_from(collection: collection)
       expect { awaiting_approval_work }
         .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
         .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
-        .and have_enqueued_job(ActionMailer::MailDeliveryJob).once # this would be twice if the user could enable messages
+        .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
       expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Awaiting Approval")
       curator_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
       expect(curator_notification).to include("@#{curator.uid}")
@@ -656,16 +645,10 @@ RSpec.describe Work, type: :model do
 
     it "Notifies Curators and Depositor" do
       stub_datacite_doi
-      # enable emails
-      user.email_messages_enabled = true
-      # Can not enable message for a depositor, but we will not send them without the messages being enabled
-      # user.enable_messages_from(collection: collection)
-      curator_user.email_messages_enabled = true
-      curator_user.enable_messages_from(collection: collection)
       expect { approved_work }
         .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
         .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
-        .and have_enqueued_job(ActionMailer::MailDeliveryJob).once # this would be twice if the user could enable messages
+        .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
       expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Approved")
       user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
       expect(user_notification).to include("@#{curator_user.uid}")
@@ -675,7 +658,7 @@ RSpec.describe Work, type: :model do
 
     it "publishes the doi" do
       stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
-      expect { approved_work }.to change { WorkActivity.where(activity_type: "DATACITE_ERROR").count }.by(0)
+      expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(0)
       expect(a_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")).to have_been_made
     end
 
@@ -713,7 +696,7 @@ RSpec.describe Work, type: :model do
 
     it "notes a issue when an error occurs" do
       stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new(status: "bad", reason_phrase: "a problem"))))
-      expect { approved_work }.to change { WorkActivity.where(activity_type: "DATACITE_ERROR").count }.by(1)
+      expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(1)
     end
 
     it "transitions from approved to withdrawn" do

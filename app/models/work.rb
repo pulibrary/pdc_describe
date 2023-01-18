@@ -177,7 +177,6 @@ class Work < ApplicationRecord
   def valid_to_submit
     valid_to_draft
     validate_metadata
-    validate_uploads
     errors.count == 0
   end
 
@@ -276,7 +275,7 @@ class Work < ApplicationRecord
     save!
 
     # ...and log the activity
-    WorkActivity.add_system_activity(id, "Unassigned existing curator", current_user.id)
+    WorkActivity.add_work_activity(id, "Unassigned existing curator", current_user.id, activity_type: WorkActivity::SYSTEM)
   end
 
   def update_curator(curator_user_id, current_user)
@@ -291,7 +290,7 @@ class Work < ApplicationRecord
               else
                 "Set curator to @#{new_curator.uid}"
               end
-    WorkActivity.add_system_activity(id, message, current_user.id)
+    WorkActivity.add_work_activity(id, message, current_user.id, activity_type: WorkActivity::SYSTEM)
   end
 
   def curator_or_current_uid(user)
@@ -304,21 +303,21 @@ class Work < ApplicationRecord
   end
 
   def add_message(message, current_user_id)
-    WorkActivity.add_system_activity(id, message, current_user_id, activity_type: WorkActivity::MESSAGE)
+    WorkActivity.add_work_activity(id, message, current_user_id, activity_type: WorkActivity::MESSAGE)
   end
 
   def add_provenance_note(date, note, current_user_id)
-    WorkActivity.add_system_activity(id, note, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES, date: date)
+    WorkActivity.add_work_activity(id, note, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES, date: date)
   end
 
   def log_changes(resource_compare, current_user_id)
     return if resource_compare.identical?
-    WorkActivity.add_system_activity(id, resource_compare.differences.to_json, current_user_id, activity_type: WorkActivity::CHANGES)
+    WorkActivity.add_work_activity(id, resource_compare.differences.to_json, current_user_id, activity_type: WorkActivity::CHANGES)
   end
 
   def log_file_changes(changes, current_user_id)
     return if changes.count == 0
-    WorkActivity.add_system_activity(id, changes.to_json, current_user_id, activity_type: WorkActivity::FILE_CHANGES)
+    WorkActivity.add_work_activity(id, changes.to_json, current_user_id, activity_type: WorkActivity::FILE_CHANGES)
   end
 
   def activities
@@ -524,7 +523,7 @@ class Work < ApplicationRecord
     def track_state_change(user, state = aasm.to_state)
       uw = UserWork.new(user_id: user.id, work_id: id, state: state)
       uw.save!
-      WorkActivity.add_system_activity(id, "marked as #{state.to_s.titleize}", user.id)
+      WorkActivity.add_work_activity(id, "marked as #{state.to_s.titleize}", user.id, activity_type: WorkActivity::SYSTEM)
       WorkStateTransitionNotification.new(self, user.id).send
     end
 
@@ -580,7 +579,7 @@ class Work < ApplicationRecord
         if result.failure?
           resolved_user = curator_or_current_uid(user)
           message = "@#{resolved_user} Error publishing DOI. #{result.failure.status} / #{result.failure.reason_phrase}"
-          WorkActivity.add_system_activity(id, message, user.id, activity_type: "DATACITE_ERROR")
+          WorkActivity.add_work_activity(id, message, user.id, activity_type: WorkActivity::DATACITE_ERROR)
         end
       elsif ark.blank? # we can not update the url anywhere
         Honeybadger.notify("Publishing for a DOI we do not own and no ARK is present: #{doi}")
