@@ -177,7 +177,6 @@ class Work < ApplicationRecord
   def valid_to_submit
     valid_to_draft
     validate_metadata
-    validate_uploads
     errors.count == 0
   end
 
