@@ -144,6 +144,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
         "rights" => { "identifier" => "CC BY", "name" => "Creative Commons Attribution 4.0 International", "uri" => "https://creativecommons.org/licenses/by/4.0/" },
         "version_number" => 1,
         "funders" => [{
+          "ror" => nil,
           "funder_name" => nil,
           "award_number" => nil,
           "award_uri" => nil
