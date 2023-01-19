@@ -379,19 +379,19 @@ RSpec.describe Work, type: :model do
       expect(work.curator).to be nil
 
       work.change_curator(curator_user.id, user)
-      activity = WorkActivity.changes_for_work(work.id).sort_by(&:created_at).last
+      activity = WorkActivity.changes_for_work(work.id).last
       expect(activity.message).to eq("Set curator to @#{curator_user.uid}")
       expect(work.curator.id).to be curator_user.id
       expect(activity.created_by_user.id).to eq user.id
 
       work.change_curator(user.id, user)
-      activity = WorkActivity.changes_for_work(work.id).sort_by(&:created_at).last
+      activity = WorkActivity.changes_for_work(work.id).last
       expect(activity.message).to eq("Self-assigned as curator")
       expect(work.curator.id).to be user.id
       expect(activity.created_by_user.id).to eq user.id
 
       work.clear_curator(user)
-      activity = WorkActivity.changes_for_work(work.id).sort_by(&:created_at).last
+      activity = WorkActivity.changes_for_work(work.id).last
       expect(activity.message).to eq("Unassigned existing curator")
       expect(work.curator).to be nil
       expect(activity.created_by_user.id).to eq user.id
