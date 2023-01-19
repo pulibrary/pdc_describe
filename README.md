@@ -73,6 +73,10 @@ We use DataCite to mint DOIs and in production you must to define the `DATACITE_
 RDSS uses the same [release and deployment process](https://github.com/pulibrary/rdss-handbook/blob/main/release_process.md) for all projects.
 
 ## Mail
+
+### Mail on Development
+Mailcatcher is a gem that can also be installed locally.  See the [mailcatcher documentation](https://mailcatcher.me/) for how to run it on your machine.
+
 ### Mail on Staging
 To See mail that has been sent on the staging server you must ssh tunnel into the server.  Since there are two staging servers, the mail could have been sent on either machine. You may have to check both and will need two terminals.
 
