@@ -321,7 +321,7 @@ class Work < ApplicationRecord
   end
 
   def activities
-    WorkActivity.activities_for_work(id)
+    WorkActivity.activities_for_work(id, types: WorkActivity::MESSAGE_ACTIVITY_TYPES + WorkActivity::CHANGE_LOG_ACTIVITY_TYPES)
   end
 
   def new_notification_count_for_user(user_id)
