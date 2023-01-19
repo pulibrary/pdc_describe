@@ -83,9 +83,36 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       click_on "Add Another Creator"
       fill_in "given_name_19", with: "Thomas S"
       fill_in "family_name_19", with: "Duffy"
-      click_on "v-pills-additional-tab"
+
+      click_on "Additional Metadata"
       fill_in "keywords", with: keywords
-      click_on "v-pills-curator-controlled-tab"
+
+      ## Funder Information
+      # https://ror.org/01bj3aw27 == ROR for United States Department of Energy
+      page.find(:xpath, "//table[@id='funding']//tr[1]//input[@name='funders[][ror]']").set "https://ror.org/01bj3aw27"
+      page.find(:xpath, "//table[@id='funding']//tr[1]//input[@name='funders[][award_number]']").set "DE-SC0018925"
+      click_on "Add Another Funder"
+      page.find(:xpath, "//table[@id='funding']//tr[2]//input[@name='funders[][ror]']").set "https://ror.org/01bj3aw27"
+      page.find(:xpath, "//table[@id='funding']//tr[2]//input[@name='funders[][award_number]']").set "DE-AC02-76SF00515"
+      click_on "Add Another Funder"
+      # https://ror.org/021nxhr62 == ROR for National Science Foundation
+      page.find(:xpath, "//table[@id='funding']//tr[3]//input[@name='funders[][ror]']").set "https://ror.org/021nxhr62"
+      page.find(:xpath, "//table[@id='funding']//tr[3]//input[@name='funders[][award_number]']").set "EAR-1644614"
+      click_on "Add Another Funder"
+      page.find(:xpath, "//table[@id='funding']//tr[4]//input[@name='funders[][ror]']").set "https://ror.org/021nxhr62"
+      page.find(:xpath, "//table[@id='funding']//tr[4]//input[@name='funders[][award_number]']").set "EAR-1446969"
+      click_on "Add Another Funder"
+      page.find(:xpath, "//table[@id='funding']//tr[5]//input[@name='funders[][ror]']").set "https://ror.org/021nxhr62"
+      page.find(:xpath, "//table[@id='funding']//tr[5]//input[@name='funders[][award_number]']").set "EAR-1725349"
+      click_on "Add Another Funder"
+      # https://ror.org/018mejw64 == ROR for Deutsche Forschungsgemeinschaft a.k.a. DFG, German Research Foundation
+      page.find(:xpath, "//table[@id='funding']//tr[6]//input[@name='funders[][ror]']").set "https://ror.org/018mejw64"
+      page.find(:xpath, "//table[@id='funding']//tr[6]//input[@name='funders[][award_number]']").set "AP 262/2-1"
+      click_on "Add Another Funder"
+      page.find(:xpath, "//table[@id='funding']//tr[7]//input[@name='funders[][ror]']").set "https://ror.org/018mejw64"
+      page.find(:xpath, "//table[@id='funding']//tr[7]//input[@name='funders[][award_number]']").set "FOR2440"
+
+      click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2020
       select "Research Data", from: "collection_id"
@@ -98,6 +125,10 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       expect(page).to have_content "awaiting_approval"
       femtosecond_work = Work.last
       expect(femtosecond_work.title).to eq title
+
+      # Check that RORs were persisted as funder names
+      funders = femtosecond_work.resource.funders.map(&:funder_name).uniq
+      expect(funders).to contain_exactly("United States Department of Energy", "National Science Foundation", "Deutsche Forschungsgemeinschaft")
 
       # Ensure the datacite record produced validates against our local copy of the datacite schema.
       # This will allow us to evolve our local datacite standards and test our records against them.
