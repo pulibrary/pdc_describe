@@ -30,5 +30,27 @@ describe NotificationMailer, type: :mailer do
       expect(message.body.encoded).to include(work_activity.message)
       expect(message.body.encoded).to include("To view the notification, please browse to http://www.example.com/works/#{work.id}.")
     end
+
+    context "when the mesage has markdown" do
+      let(:work_activity) { FactoryBot.create(:work_activity, work: work, message: "I like to send [links](https://www.google.com)") }
+      it "generates the e-mail message" do
+        expect(message_delivery).to be_a(ActionMailer::Parameterized::MessageDelivery)
+        expect(message_delivery.message).to be_a(Mail::Message)
+        message = message_delivery.message
+        expect(message.to).to eq([user.email])
+        expect(message.from).to eq(["noreply@example.com"])
+        expect(message.subject).to eq("[pdc-describe] New Notification")
+        text_part = message.text_part
+        html_part = message.html_part
+        expect(text_part.content_type).to eq("text/plain; charset=UTF-8")
+        expect(html_part.content_type).to eq("text/html; charset=UTF-8")
+        expect(html_part.encoded).to include("Hello #{user.display_name},")
+        expect(html_part.encoded).to include("To view the notification, please browse to http://www.example.com/works/#{work.id}.")
+        expect(html_part.encoded).to include("I like to send &lt;a href=&quot;https://www.google.com&quot;&gt;links&lt;/a&gt;")
+        expect(text_part.encoded).to include(work_activity.message)
+        expect(text_part.encoded).to include("Hello #{user.display_name},")
+        expect(text_part.encoded).to include("To view the notification, please browse to http://www.example.com/works/#{work.id}.")
+      end
+    end
   end
 end
