@@ -5,24 +5,24 @@ describe "Change History, AKA Provenance" do
   let(:user) { FactoryBot.create :user }
   let(:work) { FactoryBot.create :draft_work }
   let(:partial) { "works/work_activity_provenance" }
-  let(:older) {
+  let(:older) do
     WorkActivity.new(
       work_id: 0,
       activity_type: WorkActivity::SYSTEM,
-      message: 'older',
+      message: "older",
       created_by_user_id: user.id,
-      created_at: '2021-01-01'
+      created_at: "2021-01-01"
     )
-  }
-  let(:newer) {
+  end
+  let(:newer) do
     WorkActivity.new(
       work_id: 0,
       activity_type: WorkActivity::SYSTEM,
-      message: 'newer',
+      message: "newer",
       created_by_user_id: user.id,
-      created_at: '2022-01-01'
+      created_at: "2022-01-01"
     )
-  }
+  end
 
   it "handles no activity" do
     assign(:changes, [])
@@ -40,31 +40,31 @@ describe "Change History, AKA Provenance" do
     assign(:changes, [newer, older])
     render(partial: partial, locals: { can_add_provenance_note: false })
     expect(rendered).to match(/older.*newer/m)
-  end 
+  end
 end
 
 describe "Messages" do
   let(:user) { FactoryBot.create :user }
   let(:work) { FactoryBot.create :draft_work }
   let(:partial) { "works/work_activity_messages" }
-  let(:older) {
+  let(:older) do
     WorkActivity.new(
       work_id: 0,
       activity_type: WorkActivity::MESSAGE,
-      message: 'older',
+      message: "older",
       created_by_user_id: user.id,
-      created_at: '2021-01-01'
+      created_at: "2021-01-01"
     )
-  }
-  let(:newer) {
+  end
+  let(:newer) do
     WorkActivity.new(
       work_id: 0,
       activity_type: WorkActivity::MESSAGE,
-      message: 'newer',
+      message: "newer",
       created_by_user_id: user.id,
-      created_at: '2022-01-01'
+      created_at: "2022-01-01"
     )
-  }
+  end
 
   it "handles no messages" do
     assign(:work, work)
@@ -85,5 +85,5 @@ describe "Messages" do
     assign(:messages, [older, newer])
     render(partial: partial)
     expect(rendered).to match(/newer.*older/m)
-  end  
+  end
 end
