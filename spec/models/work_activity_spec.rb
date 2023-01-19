@@ -57,9 +57,9 @@ describe WorkActivity, type: :model do
 
     describe "#activities_for_work" do
       it "finds all the activities for the work and type" do
-        expect(described_class.activities_for_work(work, types: [WorkActivity::SYSTEM])).to eq([work_activity])
-        expect(described_class.activities_for_work(work, types: [WorkActivity::NOTIFICATION])).to eq([notification])
-        expect(described_class.activities_for_work(work, types: [WorkActivity::SYSTEM, WorkActivity::NOTIFICATION])).to eq([work_activity, notification])
+        expect(described_class.activities_for_work(work, [WorkActivity::SYSTEM])).to eq([work_activity])
+        expect(described_class.activities_for_work(work, [WorkActivity::NOTIFICATION])).to eq([notification])
+        expect(described_class.activities_for_work(work, [WorkActivity::SYSTEM, WorkActivity::NOTIFICATION])).to eq([work_activity, notification])
       end
     end
 

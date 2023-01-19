@@ -853,12 +853,12 @@ RSpec.describe Work, type: :model do
         expect(work.pre_curation_uploads.first.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt")
         expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
         expect(work.pre_curation_uploads.last.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
-        expect(WorkActivity.activities_for_work(work.id, types: [WorkActivity::FILE_CHANGES]).count).to eq(1)
+        expect(WorkActivity.activities_for_work(work.id, [WorkActivity::FILE_CHANGES]).count).to eq(1)
 
         # call the s3 reload and make sure no more files get added to the model
         work.attach_s3_resources
         expect(work.pre_curation_uploads.length).to eq(2)
-        expect(WorkActivity.activities_for_work(work.id, types: [WorkActivity::FILE_CHANGES]).count).to eq(1)
+        expect(WorkActivity.activities_for_work(work.id, [WorkActivity::FILE_CHANGES]).count).to eq(1)
 
         # Make sure files show up in JSON for discovery:
         expect(work.as_json["files"]).to eq([
