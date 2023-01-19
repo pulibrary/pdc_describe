@@ -5,7 +5,9 @@
   <% end %>
   <ul class="beads">
     <% @changes.sort_by(&:created_at).reverse.each do |activity| %>
-      <%= render partial: 'work_activity', locals: {activity: activity} %>
+      <li class="activity-history-item">
+        <%= activity.to_html.html_safe %>
+      </li>
     <% end %>
   </ul>
 
