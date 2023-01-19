@@ -13,6 +13,7 @@ This dataset is too large to download directly from this item page. You can acce
   let(:collection) { "Research Data" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.34770/9425-b553" }
+  let(:file_upload) { Pathname.new(fixture_path).join("dataspace_migration", "attention", "Attention_Awareness_Dorsal_Attention_README.txt").to_s }
 
   before do
     page.driver.browser.manage.window.resize_to(2000, 2000)
@@ -42,12 +43,21 @@ This dataset is too large to download directly from this item page. You can acce
       click_on "Add Another Creator"
       fill_in "given_name_5", with: "Michael"
       fill_in "family_name_5", with: "Graziano"
-      click_on "v-pills-curator-controlled-tab"
+
+      click_on "Additional Metadata"
+
+      ## Funder Information
+      # An example of a funder who does not have an ROR
+      page.find(:xpath, "//table[@id='funding']//tr[1]//input[@name='funders[][funder_name]']").set "Princeton Neuroscience Institute Innovation Fund"
+      page.find(:xpath, "//table[@id='funding']//tr[1]//input[@name='funders[][award_number]']").set "PRINU-24400-G0002-10005089-101"
+
+      click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2020
       select "Research Data", from: "collection_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
+      page.attach_file("work[pre_curation_uploads][]", [file_upload], make_visible: true)
       click_on "Create"
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
