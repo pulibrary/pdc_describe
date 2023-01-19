@@ -35,20 +35,16 @@ class WorkActivity < ApplicationRecord
     activity
   end
 
-  def self.activities_for_work(work_id, types = [])
-    context = where(work_id: work_id).order(updated_at: :desc)
-    if types.count > 0
-      context = context.where(activity_type: types)
-    end
-    context
+  def self.activities_for_work(work_id, types:)
+    where(work_id: work_id, activity_type: types)
   end
 
   def self.messages_for_work(work_id)
-    activities_for_work(work_id, MESSAGE_ACTIVITY_TYPES)
+    activities_for_work(work_id, types: MESSAGE_ACTIVITY_TYPES)
   end
 
   def self.changes_for_work(work_id)
-    activities_for_work(work_id, CHANGE_LOG_ACTIVITY_TYPES)
+    activities_for_work(work_id, types: CHANGE_LOG_ACTIVITY_TYPES)
   end
 
   # Log notifications for each of the users references on the activity
