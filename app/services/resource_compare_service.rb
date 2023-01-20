@@ -36,8 +36,9 @@ class ResourceCompareService
         before_value = @before.send(method_sym)
         if before_value.is_a?(Array)
           after_value = @after.send(method_sym)
-          compare_arrays(before_value, after_value)
-        elsif before_value.respond_to?(:compare_value)
+          next if before_value.empty? && after_value.empty?
+          compare_arrays(method_sym, before_value, after_value)
+        elsif before_value.respond_to?(:compare_value) or after_value.respond_to?(:compare_value)
           compare_objects(method_sym)
         else
           compare_values(method_sym)
@@ -45,8 +46,7 @@ class ResourceCompareService
       end
     end
 
-    def compare_arrays(before_array, after_array)
-      return if before_array.empty? && after_array.empty?
+    def compare_arrays(method_sym, before_array, after_array)
       inside_value = (before_array + after_array).first
       if inside_value.respond_to?(:compare_value)
         compare_object_arrays(method_sym)
@@ -60,7 +60,9 @@ class ResourceCompareService
     end
 
     def compare_objects(method_sym)
-      compare(method_sym, &:compare_value)
+      # We encounter nil values in tests,
+      # but I'm not sure if they are possible in production.
+      compare(method_sym) { |value| value.nil? ? "" : value.compare_value }
     end
 
     def compare_value_arrays(method_sym)
