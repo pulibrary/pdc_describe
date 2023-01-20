@@ -57,7 +57,7 @@ class ResourceCompareService
     end
 
     def compare_values(method_sym)
-      compare(method_sym) { |value| value }
+      compare(method_sym, &:to_s)
     end
 
     def compare_objects(method_sym)
