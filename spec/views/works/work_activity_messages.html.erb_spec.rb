@@ -21,6 +21,14 @@ describe "Messages" do
     expect(rendered).to include("No messages")
   end
 
+  it "handles notification" do
+    assign(:work, work)
+    assign(:messages, [WorkActivity.add_work_activity(work.id, "notification!", user.id,
+      activity_type: WorkActivity::NOTIFICATION, created_at: "2022-01-01")])
+    render(partial: partial)
+    expect(rendered).to include("notification!")
+  end
+
   it "shows newest message first, when array is in the same order" do
     assign(:work, work)
     assign(:messages, [newer, older])

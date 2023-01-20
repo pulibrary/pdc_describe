@@ -35,17 +35,17 @@ describe "Change History, AKA Provenance" do
   end
 
   it "handles prov note" do
-    assign(:changes, [WorkActivity.add_work_activity(work.id, "note", user.id,
+    assign(:changes, [WorkActivity.add_work_activity(work.id, "note!", user.id,
       activity_type: WorkActivity::PROVENANCE_NOTES)])
     render(partial: partial, locals: { can_add_provenance_note: false })
-    expect(rendered).to include("note")
+    expect(rendered).to include("note!")
   end
 
   it "handles error" do
-    assign(:changes, [WorkActivity.add_work_activity(work.id, "error", user.id,
+    assign(:changes, [WorkActivity.add_work_activity(work.id, "error!", user.id,
       activity_type: WorkActivity::DATACITE_ERROR)])
     render(partial: partial, locals: { can_add_provenance_note: false })
-    expect(rendered).to include("error")
+    expect(rendered).to include("error!")
   end
 
   it "shows oldest change first, when array is in the same order" do
