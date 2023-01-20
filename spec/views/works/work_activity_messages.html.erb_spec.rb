@@ -27,6 +27,7 @@ describe "Messages" do
       activity_type: WorkActivity::NOTIFICATION, created_at: "2022-01-01")])
     render(partial: partial)
     expect(rendered).to include("notification!")
+    expect(rendered).to include("(@#{user.uid})")
   end
 
   it "shows newest message first, when array is in the same order" do
