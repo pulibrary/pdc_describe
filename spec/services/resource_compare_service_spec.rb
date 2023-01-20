@@ -57,7 +57,7 @@ describe ResourceCompareService do
   end
 
   class MockResource < OpenStruct
-    # We want to confirm that the compare service still works with unexpected, new, attributes.
+    # We want to confirm that the compare service still works with new unexpected attributes.
     # This lets us treat a hash as if it were a resource.
     def as_json
       to_h
@@ -74,5 +74,17 @@ describe ResourceCompareService do
     compare = described_class.new(MockResource.new({fake_year: 2000}), MockResource.new({fake_year: "2001"}))
     differences = compare.differences[:fake_year]
     expect(differences).to eq [{:action=>:changed, :from=>"2000", :to=>"2001"}]
+  end
+
+  it "does flag nil->string as change" do
+    compare = described_class.new(MockResource.new({fake_year: "2000"}), MockResource.new({fake_year: nil}))
+    differences = compare.differences[:fake_year]
+    expect(differences).to eq [{:action=>:changed, :from=>"2000", :to=>""}]
+  end
+
+  it "does flag string->nil as change" do
+    compare = described_class.new(MockResource.new({fake_year: nil}), MockResource.new({fake_year: "2000"}))
+    differences = compare.differences[:fake_year]
+    expect(differences).to eq [{:action=>:changed, :from=>"", :to=>"2000"}]
   end
 end
