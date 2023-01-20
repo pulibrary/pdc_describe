@@ -258,6 +258,11 @@ RSpec.describe Work, type: :model do
         expect(work.post_curation_uploads.first.key).to eq(first_attachment_key)
         expect(work.post_curation_uploads.last).to be_an(S3File)
         expect(work.post_curation_uploads.last.key).to eq(last_attachment_key)
+        expected_files = [
+          { filename: "10.34770/123-abc/1/us_covid_2019.csv", size: nil },
+          { filename: "10.34770/123-abc/1/us_covid_2019_2.csv", size: nil }
+        ]
+        expect(work.as_json["files"]).to eq(expected_files)
       end
     end
   end
