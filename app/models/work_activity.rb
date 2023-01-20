@@ -194,6 +194,12 @@ class WorkActivity < ApplicationRecord
 
   class Message < BaseMessage
     # Override the default:
+    def created_by_user_html
+      return UNKNOWN_USER unless @work_activity.created_by_user
+
+      user = @work_activity.created_by_user
+      "#{user.display_name_safe} (@#{user.uid})"
+    end
     def title_html
       "<span class='activity-history-title'>#{created_by_user_html} at #{created_updated_html}</span>"
     end
