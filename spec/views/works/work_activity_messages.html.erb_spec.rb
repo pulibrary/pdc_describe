@@ -21,10 +21,36 @@ describe "Messages" do
     expect(rendered).to include("No messages")
   end
 
+  it "handles unknown user" do
+    assign(:work, work)
+    assign(:messages, [WorkActivity.add_work_activity(work.id, "message!", nil,
+      activity_type: WorkActivity::MESSAGE)])
+    render(partial: partial)
+    expect(rendered).to include("Unknown user outside the system")
+  end
+
+  it "handles submission notes" do
+    work.submission_notes = "submission note!"
+    assign(:work, work)
+    assign(:messages, [WorkActivity.add_work_activity(work.id, "message!", user.id,
+      activity_type: WorkActivity::MESSAGE)])
+    render(partial: partial)
+    expect(rendered).to include("submission note!")
+  end
+
+  it "handles message" do
+    assign(:work, work)
+    assign(:messages, [WorkActivity.add_work_activity(work.id, "message!", user.id,
+      activity_type: WorkActivity::MESSAGE)])
+    render(partial: partial)
+    expect(rendered).to include("message!")
+    expect(rendered).to include("(@#{user.uid})")
+  end
+
   it "handles notification" do
     assign(:work, work)
     assign(:messages, [WorkActivity.add_work_activity(work.id, "notification!", user.id,
-      activity_type: WorkActivity::NOTIFICATION, created_at: "2022-01-01")])
+      activity_type: WorkActivity::NOTIFICATION)])
     render(partial: partial)
     expect(rendered).to include("notification!")
     expect(rendered).to include("(@#{user.uid})")
