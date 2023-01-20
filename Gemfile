@@ -67,6 +67,7 @@ group :development do
   gem "capistrano-passenger", require: false
   gem "capistrano-rails", "~> 1.4", require: false
   gem "foreman"
+  gem "mailcatcher"
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
   gem "web-console", ">= 4.1.0"
   # Display performance information such as SQL time and flame graphs for each request in your browser.
