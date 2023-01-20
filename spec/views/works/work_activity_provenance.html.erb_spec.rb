@@ -6,22 +6,12 @@ describe "Change History, AKA Provenance" do
   let(:work) { FactoryBot.create :draft_work }
   let(:partial) { "works/work_activity_provenance" }
   let(:older) do
-    WorkActivity.new(
-      work_id: 0,
-      activity_type: WorkActivity::SYSTEM,
-      message: "older",
-      created_by_user_id: user.id,
-      created_at: "2021-01-01"
-    )
+    WorkActivity.add_work_activity(work.id, "older", user.id,
+      activity_type: WorkActivity::SYSTEM, created_at: "2021-01-01")
   end
   let(:newer) do
-    WorkActivity.new(
-      work_id: 0,
-      activity_type: WorkActivity::SYSTEM,
-      message: "newer",
-      created_by_user_id: user.id,
-      created_at: "2022-01-01"
-    )
+    WorkActivity.add_work_activity(work.id, "newer", user.id,
+      activity_type: WorkActivity::SYSTEM, created_at: "2022-01-01")
   end
 
   it "handles no activity" do
@@ -36,7 +26,7 @@ describe "Change History, AKA Provenance" do
     expect(rendered).to match(/older.*newer/m)
   end
 
-  it "shows oldest change first, when array is in the reverse order" do
+  it "still shows oldest change first, when array is in the reverse order" do
     assign(:changes, [newer, older])
     render(partial: partial, locals: { can_add_provenance_note: false })
     expect(rendered).to match(/older.*newer/m)

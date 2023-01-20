@@ -22,13 +22,13 @@ class WorkActivity < ApplicationRecord
   belongs_to :work
   has_many :work_activity_notifications, dependent: :destroy
 
-  def self.add_work_activity(work_id, message, user_id, activity_type:, date: nil)
+  def self.add_work_activity(work_id, message, user_id, activity_type:, created_at: nil)
     activity = WorkActivity.new(
       work_id: work_id,
       activity_type: activity_type,
       message: message,
       created_by_user_id: user_id,
-      created_at: date # If nil, will be set by activerecord at save.
+      created_at: created_at # If nil, will be set by activerecord at save.
     )
     activity.save!
     activity.notify_users
@@ -98,6 +98,7 @@ class WorkActivity < ApplicationRecord
     end
 
     UNKNOWN_USER = "Unknown user outside the system"
+    DATE_TIME_FORMAT = "%B %d, %Y %H:%M"
 
     def to_html
       title_html + "<span class='message-html'>#{body_html.chomp}</span>"
@@ -110,11 +111,25 @@ class WorkActivity < ApplicationRecord
     end
 
     def created_at_html
-      @work_activity.created_at.time.strftime("%B %d, %Y %H:%M")
+      @work_activity.created_at.time.strftime(DATE_TIME_FORMAT)
+    end
+
+    def updated_at_html
+      @work_activity.updated_at.time.strftime(DATE_TIME_FORMAT)
+    end
+
+    def created_updated_html
+      created = created_at_html
+      updated = updated_at_html
+      if created == updated
+        created
+      else
+        "#{created} (postdated event created #{updated})"
+      end
     end
 
     def title_html
-      "<span class='activity-history-title'>#{created_at_html} by #{created_by_user_html}</span>"
+      "<span class='activity-history-title'>#{created_updated_html} by #{created_by_user_html}</span>"
     end
   end
 

@@ -6,22 +6,12 @@ describe "Messages" do
   let(:work) { FactoryBot.create :draft_work }
   let(:partial) { "works/work_activity_messages" }
   let(:older) do
-    WorkActivity.new(
-      work_id: 0,
-      activity_type: WorkActivity::MESSAGE,
-      message: "older",
-      created_by_user_id: user.id,
-      created_at: "2021-01-01"
-    )
+    WorkActivity.add_work_activity(work.id, "older", user.id,
+      activity_type: WorkActivity::MESSAGE, created_at: "2021-01-01")
   end
   let(:newer) do
-    WorkActivity.new(
-      work_id: 0,
-      activity_type: WorkActivity::MESSAGE,
-      message: "newer",
-      created_by_user_id: user.id,
-      created_at: "2022-01-01"
-    )
+    WorkActivity.add_work_activity(work.id, "newer", user.id,
+      activity_type: WorkActivity::MESSAGE, created_at: "2022-01-01")
   end
 
   it "handles no messages" do
@@ -38,7 +28,7 @@ describe "Messages" do
     expect(rendered).to match(/newer.*older/m)
   end
 
-  it "shows newest message first, when array is in the reverse order" do
+  it "still shows newest message first, when array is in the reverse order" do
     assign(:work, work)
     assign(:messages, [older, newer])
     render(partial: partial)

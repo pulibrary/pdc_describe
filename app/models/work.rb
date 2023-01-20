@@ -307,7 +307,7 @@ class Work < ApplicationRecord
   end
 
   def add_provenance_note(date, note, current_user_id)
-    WorkActivity.add_work_activity(id, note, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES, date: date)
+    WorkActivity.add_work_activity(id, note, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES, created_at: date)
   end
 
   def log_changes(resource_compare, current_user_id)
