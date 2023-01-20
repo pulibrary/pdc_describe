@@ -190,14 +190,14 @@ RSpec.describe Work, type: :model do
             query_service: pre_curated_query_service,
             filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
             last_modified: nil,
-            size: nil,
+            size: 1024,
             checksum: ""
           ),
           S3File.new(
             query_service: pre_curated_query_service,
             filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv",
             last_modified: nil,
-            size: nil,
+            size: 2048,
             checksum: ""
           )
         ]
@@ -259,10 +259,12 @@ RSpec.describe Work, type: :model do
         expect(work.post_curation_uploads.last).to be_an(S3File)
         expect(work.post_curation_uploads.last.key).to eq(last_attachment_key)
         expected_files = [
-          { filename: "10.34770/123-abc/1/us_covid_2019.csv", size: nil },
-          { filename: "10.34770/123-abc/1/us_covid_2019_2.csv", size: nil }
+          { filename: "10.34770/123-abc/1/us_covid_2019.csv", size: 1024 },
+          { filename: "10.34770/123-abc/1/us_covid_2019_2.csv", size: 2048 }
         ]
-        expect(work.as_json["files"]).to eq(expected_files)
+        expect(work.as_json["files"][0].keys).to eq([:filename, :size])
+        expect(work.as_json["files"][0][:filename]).to match(/10\.34770\/123-abc\/\d+\/us_covid_2019\.csv/)
+        expect(work.as_json["files"][0][:size]).to eq(1024)
       end
     end
   end
