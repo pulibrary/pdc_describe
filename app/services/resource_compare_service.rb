@@ -34,7 +34,7 @@ class ResourceCompareService
     def compare_resources
       @before.as_json.keys.map(&:to_sym).each do |method_sym|
         before_value = @before.send(method_sym)
-        if before_value.kind_of?(Array)
+        if before_value.is_a?(Array)
           after_value = @after.send(method_sym)
           next if before_value.empty? && after_value.empty?
           inside_value = (before_value + after_value).first
@@ -43,12 +43,10 @@ class ResourceCompareService
           else
             compare_value_arrays(method_sym)
           end
+        elsif before_value.respond_to?(:compare_value)
+          compare_objects(method_sym)
         else
-          if before_value.respond_to?(:compare_value)
-            compare_objects(method_sym)
-          else
-            compare_values(method_sym)
-          end
+          compare_values(method_sym)
         end
       end
     end
@@ -58,7 +56,7 @@ class ResourceCompareService
     end
 
     def compare_objects(method_sym)
-      compare(method_sym) { |value| value.compare_value }
+      compare(method_sym, &:compare_value)
     end
 
     def compare_value_arrays(method_sym)
