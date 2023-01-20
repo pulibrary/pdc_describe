@@ -32,23 +32,28 @@ class ResourceCompareService
   private
 
     def compare_resources
-      [:titles, :creators, :contributors, :related_objects, :funders].each do |field|
-        compare_objects(field)
-      end
-      [:description, :publisher, :publication_year,
-       :resource_type, :resource_type_general,
-       :doi, :ark, :version_number].each do |field|
-        compare_simple_values(field)
-      end
-      compare_rights
-      [:keywords, :collection_tags].each do |field|
-        compare_arrays(field)
+      @before.as_json.keys.map(&:to_sym).each do |method_sym|
+        before_value = @before.send(method_sym)
+        if before_value.kind_of?(Array)
+          after_value = @after.send(method_sym)
+          next if before_value.empty? && after_value.empty?
+          inside_value = (before_value + after_value).first
+          if inside_value.respond_to?(:compare_value)
+            compare_object_arrays(method_sym)
+          else
+            compare_value_arrays(method_sym)
+          end
+        else
+          if before_value.respond_to?(:compare_value)
+            compare_objects(method_sym)
+          else
+            compare_values(method_sym)
+          end
+        end
       end
     end
 
-    ##
-    # Compares simple single value between the two resources.
-    def compare_simple_values(method_sym)
+    def compare_values(method_sym)
       before_value = @before.send(method_sym)
       after_value = @after.send(method_sym)
       if before_value != after_value
@@ -56,18 +61,15 @@ class ResourceCompareService
       end
     end
 
-    def compare_rights
-      before_value = @before.rights&.name
-      after_value = @after.rights&.name
+    def compare_objects(method_sym)
+      before_value = @before.send(method_sym).compare_value
+      after_value = @after.send(method_sym).compare_value
       if before_value != after_value
-        @differences[:rights] = [{ action: :changed, from: before_value, to: after_value }]
+        @differences[method_sym] = [{ action: :changed, from: before_value, to: after_value }]
       end
     end
 
-    ##
-    # Compares two arrays of simple string values.
-    # Returns an array with the changes (values removed, values added)
-    def compare_arrays(method_sym)
+    def compare_value_arrays(method_sym)
       before_value = @before.send(method_sym).join("\n")
       after_value = @after.send(method_sym).join("\n")
       if before_value != after_value
@@ -75,7 +77,7 @@ class ResourceCompareService
       end
     end
 
-    def compare_objects(method_sym)
+    def compare_object_arrays(method_sym)
       before_value = @before.send(method_sym).map(&:compare_value).join("\n")
       after_value = @after.send(method_sym).map(&:compare_value).join("\n")
       if before_value != after_value
