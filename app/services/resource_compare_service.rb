@@ -36,18 +36,22 @@ class ResourceCompareService
         before_value = @before.send(method_sym)
         if before_value.is_a?(Array)
           after_value = @after.send(method_sym)
-          next if before_value.empty? && after_value.empty?
-          inside_value = (before_value + after_value).first
-          if inside_value.respond_to?(:compare_value)
-            compare_object_arrays(method_sym)
-          else
-            compare_value_arrays(method_sym)
-          end
+          compare_arrays(before_value, after_value)
         elsif before_value.respond_to?(:compare_value)
           compare_objects(method_sym)
         else
           compare_values(method_sym)
         end
+      end
+    end
+
+    def compare_arrays(before_array, after_array)
+      return if before_array.empty? && after_array.empty?
+      inside_value = (before_array + after_array).first
+      if inside_value.respond_to?(:compare_value)
+        compare_object_arrays(method_sym)
+      else
+        compare_value_arrays(method_sym)
       end
     end
 
