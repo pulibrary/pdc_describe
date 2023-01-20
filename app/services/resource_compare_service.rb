@@ -54,32 +54,24 @@ class ResourceCompareService
     end
 
     def compare_values(method_sym)
-      before_value = @before.send(method_sym)
-      after_value = @after.send(method_sym)
-      if before_value != after_value
-        @differences[method_sym] = [{ action: :changed, from: before_value, to: after_value }]
-      end
+      compare(method_sym) { |value| value }
     end
 
     def compare_objects(method_sym)
-      before_value = @before.send(method_sym).compare_value
-      after_value = @after.send(method_sym).compare_value
-      if before_value != after_value
-        @differences[method_sym] = [{ action: :changed, from: before_value, to: after_value }]
-      end
+      compare(method_sym) { |value| value.compare_value }
     end
 
     def compare_value_arrays(method_sym)
-      before_value = @before.send(method_sym).join("\n")
-      after_value = @after.send(method_sym).join("\n")
-      if before_value != after_value
-        @differences[method_sym] = [{ action: :changed, from: before_value, to: after_value }]
-      end
+      compare(method_sym) { |values| values.join("\n") }
     end
 
     def compare_object_arrays(method_sym)
-      before_value = @before.send(method_sym).map(&:compare_value).join("\n")
-      after_value = @after.send(method_sym).map(&:compare_value).join("\n")
+      compare(method_sym) { |values| values.map(&:compare_value).join("\n") }
+    end
+
+    def compare(method_sym)
+      before_value = yield(@before.send(method_sym))
+      after_value = yield(@after.send(method_sym))
       if before_value != after_value
         @differences[method_sym] = [{ action: :changed, from: before_value, to: after_value }]
       end
