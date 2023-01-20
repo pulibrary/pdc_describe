@@ -34,11 +34,12 @@ class ResourceCompareService
     def compare_resources
       @before.as_json.keys.map(&:to_sym).each do |method_sym|
         before_value = @before.send(method_sym)
+        after_value = @after.send(method_sym)
         if before_value.is_a?(Array)
-          after_value = @after.send(method_sym)
           next if before_value.empty? && after_value.empty?
           compare_arrays(method_sym, before_value, after_value)
         elsif before_value.respond_to?(:compare_value) || after_value.respond_to?(:compare_value)
+          # If either value is nil, we still want to get the compare_value for the other.
           compare_objects(method_sym)
         else
           compare_values(method_sym)
@@ -60,8 +61,6 @@ class ResourceCompareService
     end
 
     def compare_objects(method_sym)
-      # We encounter nil values in tests,
-      # but I'm not sure if they are possible in production.
       compare(method_sym) { |value| value.nil? ? "" : value.compare_value }
     end
 
