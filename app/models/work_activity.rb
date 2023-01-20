@@ -116,7 +116,7 @@ class WorkActivity < ApplicationRecord
       if created == updated
         created
       else
-        "#{created} (postdated event created #{updated})"
+        "#{created} (backdated event created #{updated})"
       end
     end
 
@@ -200,6 +200,7 @@ class WorkActivity < ApplicationRecord
       user = @work_activity.created_by_user
       "#{user.display_name_safe} (@#{user.uid})"
     end
+
     def title_html
       "<span class='activity-history-title'>#{created_by_user_html} at #{created_updated_html}</span>"
     end

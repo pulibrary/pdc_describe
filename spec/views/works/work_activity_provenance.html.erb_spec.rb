@@ -21,7 +21,7 @@ describe "Change History, AKA Provenance" do
   end
 
   it "handles metadata changes" do
-    assign(:changes, [WorkActivity.add_work_activity(work.id, JSON.dump({a_field: [{action:"changed", from:"old", to:"new"}]}), user.id,
+    assign(:changes, [WorkActivity.add_work_activity(work.id, JSON.dump({ a_field: [{ action: "changed", from: "old", to: "new" }] }), user.id,
       activity_type: WorkActivity::CHANGES)])
     render(partial: partial, locals: { can_add_provenance_note: false })
     expect(rendered).to include("<del>old</del><ins>new</ins>")
@@ -46,6 +46,12 @@ describe "Change History, AKA Provenance" do
       activity_type: WorkActivity::DATACITE_ERROR)])
     render(partial: partial, locals: { can_add_provenance_note: false })
     expect(rendered).to include("error!")
+  end
+
+  it "handles backdated prov note" do
+    assign(:changes, [older])
+    render(partial: partial, locals: { can_add_provenance_note: false })
+    expect(rendered).to include("January 01, 2021 00:00 (backdated event created")
   end
 
   it "shows oldest change first, when array is in the same order" do
