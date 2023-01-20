@@ -110,17 +110,9 @@ class WorkActivity < ApplicationRecord
       @work_activity.created_by_user.display_name_safe
     end
 
-    def created_at_html
-      @work_activity.created_at.time.strftime(DATE_TIME_FORMAT)
-    end
-
-    def updated_at_html
-      @work_activity.updated_at.time.strftime(DATE_TIME_FORMAT)
-    end
-
     def created_updated_html
-      created = created_at_html
-      updated = updated_at_html
+      created = @work_activity.created_at.time.strftime(DATE_TIME_FORMAT)
+      updated = @work_activity.updated_at.time.strftime(DATE_TIME_FORMAT)
       if created == updated
         created
       else
@@ -203,7 +195,7 @@ class WorkActivity < ApplicationRecord
   class Message < BaseMessage
     # Override the default:
     def title_html
-      "<span class='activity-history-title'>#{created_by_user_html} at #{created_at_html}</span>"
+      "<span class='activity-history-title'>#{created_by_user_html} at #{created_updated_html}</span>"
     end
   end
 end
