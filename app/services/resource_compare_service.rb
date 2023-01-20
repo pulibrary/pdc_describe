@@ -38,7 +38,7 @@ class ResourceCompareService
           after_value = @after.send(method_sym)
           next if before_value.empty? && after_value.empty?
           compare_arrays(method_sym, before_value, after_value)
-        elsif before_value.respond_to?(:compare_value) or after_value.respond_to?(:compare_value)
+        elsif before_value.respond_to?(:compare_value) || after_value.respond_to?(:compare_value)
           compare_objects(method_sym)
         else
           compare_values(method_sym)
