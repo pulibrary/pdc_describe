@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require "rails_helper"
+require "ostruct"
 
 describe ResourceCompareService do
   it "detects identical objects" do
@@ -53,5 +54,25 @@ describe ResourceCompareService do
     expect(differences).to eq [{ action: :changed,
                                  from: "Kotin, Joshua | 1 | \nSmith, Robert | 2 | ",
                                  to: "Smith, Robert | 2 | " }]
+  end
+
+  class MockResource < OpenStruct
+    # We want to confirm that the compare service still works with unexpected, new, attributes.
+    # This lets us treat a hash as if it were a resource.
+    def as_json
+      to_h
+    end
+  end
+
+  it "does not flag integer->string as change" do
+    compare = described_class.new(MockResource.new({fake_year: 2000}), MockResource.new({fake_year: "2000"}))
+    differences = compare.differences[:fake_year]
+    expect(differences).to eq nil
+  end
+
+  it "does flag integer->string+1 as change" do
+    compare = described_class.new(MockResource.new({fake_year: 2000}), MockResource.new({fake_year: "2001"}))
+    differences = compare.differences[:fake_year]
+    expect(differences).to eq [{:action=>:changed, :from=>"2000", :to=>"2001"}]
   end
 end
