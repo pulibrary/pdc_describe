@@ -71,20 +71,19 @@ describe ResourceCompareService do
       creators: []
     }
     expected_diff = {
-      doi: [{:action=>:changed, :from=>"10.34770/pe9w-x904", :to=>""}],
-      ark: [{:action=>:changed, :from=>"ark:/88435/dsp01zc77st047", :to=>""}],
-      description: [{:action=>:changed,
-       :from=>
-       "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
-       :to=>"new description"}],
-      publication_year: [{:action=>:changed, :from=>"2020", :to=>""}],
-      version_number: [{:action=>:changed, :from=>"1", :to=>""}],
-      publisher: [{:action=>:changed, :from=>"Princeton University", :to=>""}],
-      resource_type: [{:action=>:changed, :from=>"Dataset", :to=>""}],
-      rights: [{:action=>:changed, :from=>"Creative Commons Attribution 4.0 International", :to=>""}],
-      titles: [{:action=>:changed, :from=>"Shakespeare and Company Project Dataset: Lending Library Members, Books, Events ()", :to=>"new title ()"}],
-      collection_tags: [{:action=>:changed, :from=>"", :to=>"fake"}],
-      creators: [{:action=>:changed, :from=>"Kotin, Joshua | 1 | ", :to=>""}]
+      doi: [{ action: :changed, from: "10.34770/pe9w-x904", to: "" }],
+      ark: [{ action: :changed, from: "ark:/88435/dsp01zc77st047", to: "" }],
+      description: [{ action: :changed,
+                      from: "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
+                      to: "new description" }],
+      publication_year: [{ action: :changed, from: "2020", to: "" }],
+      version_number: [{ action: :changed, from: "1", to: "" }],
+      publisher: [{ action: :changed, from: "Princeton University", to: "" }],
+      resource_type: [{ action: :changed, from: "Dataset", to: "" }],
+      rights: [{ action: :changed, from: "Creative Commons Attribution 4.0 International", to: "" }],
+      titles: [{ action: :changed, from: "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events ()", to: "new title ()" }],
+      collection_tags: [{ action: :changed, from: "", to: "fake" }],
+      creators: [{ action: :changed, from: "Kotin, Joshua | 1 | ", to: "" }]
     }
     resource1 = FactoryBot.create(:shakespeare_and_company_work).resource
     keys = resource1.as_json.keys.sort
