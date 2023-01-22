@@ -56,64 +56,66 @@ describe ResourceCompareService do
                                  to: "Smith, Robert | 2 | " }]
   end
 
-  class MockResource < OpenStruct
-    # We want to confirm that the compare service still works with new unexpected attributes.
-    # This lets us treat a hash as if it were a resource.
-    def as_json
-      to_h
-    end
-  end
-
-  class MockComparable < OpenStruct
-    def compare_value
-      to_h.to_yaml.sub("---\n", "")
-    end
-  end
-
-  describe "value comparison" do
-    it "does not flag integer->string as change" do
-      compare = described_class.new(MockResource.new({ fake_year: 2000 }), MockResource.new({ fake_year: "2000" }))
-      differences = compare.differences[:fake_year]
-      expect(differences).to eq nil
+  describe "generic comparisons" do
+    class MockResource < OpenStruct
+      # We want to confirm that the compare service still works with new unexpected attributes.
+      # This lets us treat a hash as if it were a resource.
+      def as_json
+        to_h
+      end
     end
 
-    it "does flag integer->string+1 as change" do
-      compare = described_class.new(MockResource.new({ fake_year: 2000 }), MockResource.new({ fake_year: "2001" }))
-      differences = compare.differences[:fake_year]
-      expect(differences).to eq [{ action: :changed, from: "2000", to: "2001" }]
+    class MockComparable < OpenStruct
+      def compare_value
+        to_h.to_yaml.sub("---\n", "")
+      end
     end
 
-    it "does flag nil->string as change" do
-      compare = described_class.new(MockResource.new({ fake_year: "2000" }), MockResource.new({ fake_year: nil }))
-      differences = compare.differences[:fake_year]
-      expect(differences).to eq [{ action: :changed, from: "2000", to: "" }]
+    describe "value comparison" do
+      it "does not flag integer->string as change" do
+        compare = described_class.new(MockResource.new({ fake_year: 2000 }), MockResource.new({ fake_year: "2000" }))
+        differences = compare.differences[:fake_year]
+        expect(differences).to eq nil
+      end
+
+      it "does flag integer->string+1 as change" do
+        compare = described_class.new(MockResource.new({ fake_year: 2000 }), MockResource.new({ fake_year: "2001" }))
+        differences = compare.differences[:fake_year]
+        expect(differences).to eq [{ action: :changed, from: "2000", to: "2001" }]
+      end
+
+      it "does flag nil->string as change" do
+        compare = described_class.new(MockResource.new({ fake_year: "2000" }), MockResource.new({ fake_year: nil }))
+        differences = compare.differences[:fake_year]
+        expect(differences).to eq [{ action: :changed, from: "2000", to: "" }]
+      end
+
+      it "does flag string->nil as change" do
+        compare = described_class.new(MockResource.new({ fake_year: nil }), MockResource.new({ fake_year: "2000" }))
+        differences = compare.differences[:fake_year]
+        expect(differences).to eq([{ action: :changed, from: "", to: "2000" }])
+      end
     end
 
-    it "does flag string->nil as change" do
-      compare = described_class.new(MockResource.new({ fake_year: nil }), MockResource.new({ fake_year: "2000" }))
-      differences = compare.differences[:fake_year]
-      expect(differences).to eq([{ action: :changed, from: "", to: "2000" }])
+    describe "value array comparison" do
+      it "flags change" do
+        compare = described_class.new(MockResource.new({ fake_array: ["old"] }), MockResource.new({ fake_array: ["new"] }))
+        expect(compare.differences).to eq({ fake_array: [{ action: :changed, from: "old", to: "new" }] })
+      end
     end
-  end
 
-  describe "value array comparison" do
-    it "flags change" do
-      compare = described_class.new(MockResource.new({ fake_array: ["old"] }), MockResource.new({ fake_array: ["new"] }))
-      expect(compare.differences).to eq({ fake_array: [{ action: :changed, from: "old", to: "new" }] })
+    describe "object comparison" do
+      it "flags change" do
+        compare = described_class.new(MockResource.new({ fake_object: MockComparable.new({ field: "old" }) }), MockResource.new({ fake_object: MockComparable.new({ field: "new" }) }))
+        expect(compare.differences).to eq({ fake_object: [{ action: :changed, from: ":field: old\n", to: ":field: new\n" }] })
+      end
     end
-  end
 
-  describe "object comparison" do
-    it "flags change" do
-      compare = described_class.new(MockResource.new({ fake_object: MockComparable.new({ field: "old" }) }), MockResource.new({ fake_object: MockComparable.new({ field: "new" }) }))
-      expect(compare.differences).to eq({ fake_object: [{ action: :changed, from: ":field: old\n", to: ":field: new\n" }] })
-    end
-  end
-
-  describe "object array comparison" do
-    it "flags change" do
-      compare = described_class.new(MockResource.new({ fake_object_array: [MockComparable.new({ field: "old" })] }), MockResource.new({ fake_object_array: [MockComparable.new({ field: "new" })] }))
-      expect(compare.differences).to eq({ fake_object_array: [{ action: :changed, from: ":field: old\n", to: ":field: new\n" }] })
+    describe "object array comparison" do
+      it "flags change" do
+        compare = described_class.new(MockResource.new({ fake_object_array: [MockComparable.new({ field: "old" })] }), MockResource.new({ fake_object_array: [MockComparable.new({ field: "new" })] }))
+        expect(compare.differences).to eq({ fake_object_array: [{ action: :changed, from: ":field: old\n", to: ":field: new\n" }] })
+      end
     end
   end
 end
