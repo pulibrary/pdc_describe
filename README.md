@@ -51,6 +51,8 @@ To stop database services:
 2. Enter the rails console: `bundle exec rails console`
 3. Elevate your privs: `User.new_super_admin("your NetID here")`
 
+Separate from admin, users may also be [given permission](docs/how_to_add_postdated_provenance.md) to add post-dated notes in the provenance / change log.
+
 ### Development with AWS resources
 Tests should never depend on outside resources, and it's best minimize dependencies during development, too, but it can be useful. To give your local instance access to the staging S3 create `~/s3-envvars.sh`:
 ```
