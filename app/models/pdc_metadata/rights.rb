@@ -9,6 +9,10 @@ module PDCMetadata
       @name = name
     end
 
+    def compare_value
+      @name
+    end
+
     def self.all
       @all ||= [
         Rights.new(identifier: "MIT", uri: "https://mit-license.org/", name: "MIT License"),
