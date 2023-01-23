@@ -87,19 +87,11 @@ class Work < ApplicationRecord
 
   class << self
     def find_by_doi(doi)
-      # This does a string compare to allow for partial matches
-      # I'm not entirely sure why we are allowing partial matches in a find by
-      Work.find_by!("metadata->>'doi' like ? ", "%#{doi}")
-      # I think we should be doing the following instead, which matches exactly
-      # Work.find_by!('metadata @> ?', "{\"doi\":\"#{doi}\"}")
+      Work.find_by!('metadata @> ?', JSON.dump(doi: doi))
     end
 
     def find_by_ark(ark)
-      # This does a string compare to allow for partial matches
-      # I'm not entirely sure why we are allowing partial matches in a find by
-      Work.find_by!("metadata->>'ark' like ? ", "%#{ark}")
-      # I think we should be doing the following instead, which matches exactly
-      # Work.find_by!('metadata @> ?', "{\"ark\":\"#{ark}\"}")
+      Work.find_by!('metadata @> ?', JSON.dump(ark: doi))
     end
 
     delegate :resource_type_general_values, to: PDCMetadata::Resource
