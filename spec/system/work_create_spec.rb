@@ -91,6 +91,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       expect(roles).to include("ContactPerson") # Individual roles included
       expect(roles).not_to include("HostingInstitution") # Organizational roles excluded
       click_on "Save Work"
+      expect(page).to have_content("under 100MB")
+      expect(page).to have_content("more than 100MB")
       click_on "Continue"
       click_on "Continue"
       click_on "Complete"
