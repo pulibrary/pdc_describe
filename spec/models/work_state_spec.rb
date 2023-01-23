@@ -14,9 +14,14 @@ RSpec.describe "Work state transions", type: :model do
 
       it "Creates a work activity notification for the curator & the user after #{method_sym}" do
         curator_user # make sure the curator exists
-        allow(work).to receive(:publish) # Only relevant for approve.
+        if method_sym == :approve!
+          allow(work).to receive(:publish)
+          user = curator_user
+        else
+          user = work.created_by_user
+        end
         expect do
-          work.send(method_sym, method_sym == :approve! ? curator_user : work.created_by_user)
+          work.send(method_sym, user)
         end.to change { WorkActivity.count }.by(2)
           .and change { WorkActivityNotification.count }.by(2)
       end
