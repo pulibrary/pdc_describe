@@ -129,13 +129,13 @@ describe ResourceCompareService do
         expect(differences).to eq [{ action: :changed, from: "2000", to: "2001" }]
       end
 
-      it "does flag nil->string as change" do
+      it "does flag string->nil as change" do
         compare = described_class.new(MockResource.new({ fake_year: "2000" }), MockResource.new({ fake_year: nil }))
         differences = compare.differences[:fake_year]
         expect(differences).to eq [{ action: :changed, from: "2000", to: "" }]
       end
 
-      it "does flag string->nil as change" do
+      it "does flag nil->string as change" do
         compare = described_class.new(MockResource.new({ fake_year: nil }), MockResource.new({ fake_year: "2000" }))
         differences = compare.differences[:fake_year]
         expect(differences).to eq([{ action: :changed, from: "", to: "2000" }])

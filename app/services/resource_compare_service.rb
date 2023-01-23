@@ -32,6 +32,8 @@ class ResourceCompareService
   private
 
     def compare_resources
+      # loop through an objects json structure and compare the values from the before and after objects
+      #  Note: This assumes the before and after objects have the same json structure
       @before.as_json.keys.map(&:to_sym).each do |method_sym|
         before_value = @before.send(method_sym)
         after_value = @after.send(method_sym)
