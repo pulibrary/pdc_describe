@@ -12,7 +12,7 @@ RSpec.describe "Work state transions", type: :model do
     context "a #{fixture}" do
       let(:work) { FactoryBot.create(fixture) }
 
-      it "Creates a work activity notification for the curator & the user after #{method_sym}" do
+      it "Creates work activity notifications for the curator & the creator after #{method_sym}" do
         curator_user # make sure the curator exists
         if method_sym == :approve!
           allow(work).to receive(:publish)
@@ -24,6 +24,20 @@ RSpec.describe "Work state transions", type: :model do
           work.send(method_sym, user)
         end.to change { WorkActivity.count }.by(2)
           .and change { WorkActivityNotification.count }.by(2)
+      end
+
+      it "Creates a single work activity notification for the curator = creator after #{method_sym}" do
+        work.created_by_user.add_role(:collection_admin, work.collection)
+        if method_sym == :approve!
+          allow(work).to receive(:publish)
+          user = curator_user
+        else
+          user = work.created_by_user
+        end
+        expect do
+          work.send(method_sym, user)
+        end.to change { WorkActivity.count }.by(2)
+          .and change { WorkActivityNotification.count }.by(1)
       end
     end
   end  
