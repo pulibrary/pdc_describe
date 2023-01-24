@@ -802,50 +802,70 @@ RSpec.describe WorksController do
       end
     end
 
-    describe "#resolve_doi" do
-      before do
-        sign_in user
-        stub_s3 data: data
-      end
+    describe "ID redirection" do
+      describe "#resolve_doi" do
+        before do
+          sign_in user
+          stub_s3 data: data
+        end
 
-      let(:data) { [] }
-      let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
+        let(:data) { [] }
+        let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
 
-      it "redirects to the Work show view" do
-        stub_s3
-        get :resolve_doi, params: { doi: work.doi }
-        expect(response).to redirect_to(work_path(work))
-      end
-
-      context "when passing only a segment of the DOI" do
         it "redirects to the Work show view" do
           stub_s3
-          get :resolve_doi, params: { doi: work.doi[-9..] }
+          get :resolve_doi, params: { doi: work.doi }
           expect(response).to redirect_to(work_path(work))
         end
+
+        context "when passing only a segment of the DOI" do
+          it "redirects to the Work show view if missing prefix" do
+            stub_s3
+            prefix = "10.34770/"
+            expect(work.doi).to start_with(prefix)
+            get :resolve_doi, params: { doi: work.doi.gsub(prefix, "") }
+            expect(response).to redirect_to(work_path(work))
+          end
+
+          it "does not redirect to the Work show view if not exact (missing slash)" do
+            stub_s3
+            expect { 
+              get :resolve_doi, params: { doi: work.doi.gsub("10.34770", "") }
+            }.to raise_error(ActiveRecord::RecordNotFound)
+          end
+        end
       end
-    end
 
-    describe "#resolve_ark" do
-      before do
-        sign_in user
-        stub_s3 data: data
-      end
+      describe "#resolve_ark" do
+        before do
+          sign_in user
+          stub_s3 data: data
+        end
 
-      let(:data) { [] }
-      let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
+        let(:data) { [] }
+        let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
 
-      it "redirects to the Work show view" do
-        stub_s3
-        get :resolve_ark, params: { ark: work.ark }
-        expect(response).to redirect_to(work_path(work))
-      end
-
-      context "when passing only a segment of the ARK" do
         it "redirects to the Work show view" do
           stub_s3
-          get :resolve_ark, params: { ark: work.ark[-9..] }
+          get :resolve_ark, params: { ark: work.ark }
           expect(response).to redirect_to(work_path(work))
+        end
+
+        context "when passing only a segment of the ARK" do
+          it "redirects to the Work show view if missing prefix" do
+            stub_s3
+            prefix = "ark:/"
+            expect(work.ark).to start_with(prefix)
+            get :resolve_ark, params: { ark: work.ark.gsub(prefix, "") }
+            expect(response).to redirect_to(work_path(work))
+          end
+
+          it "does not redirect to the Work show view if not exact (missing slash)" do
+            stub_s3
+            expect { 
+              get :resolve_ark, params: { ark: work.ark.gsub("ark:", "") }
+            }.to raise_error(ActiveRecord::RecordNotFound)
+          end
         end
       end
     end
