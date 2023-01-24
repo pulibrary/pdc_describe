@@ -56,21 +56,17 @@ describe WorkActivity, type: :model do
     end
 
     describe "#activities_for_work" do
-      it "finds all the activities for the work" do
-        expect(described_class.activities_for_work(work)).to eq([notification, work_activity])
-      end
-
       it "finds all the activities for the work and type" do
         expect(described_class.activities_for_work(work, [WorkActivity::SYSTEM])).to eq([work_activity])
         expect(described_class.activities_for_work(work, [WorkActivity::NOTIFICATION])).to eq([notification])
-        expect(described_class.activities_for_work(work, [WorkActivity::SYSTEM, WorkActivity::NOTIFICATION])).to eq([notification, work_activity])
+        expect(described_class.activities_for_work(work, [WorkActivity::SYSTEM, WorkActivity::NOTIFICATION])).to eq([work_activity, notification])
       end
     end
 
     describe "#messages_for_work" do
       it "finds all the messages for the work" do
         activity_message = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::MESSAGE)
-        expect(described_class.messages_for_work(work.id)).to eq([activity_message, notification])
+        expect(described_class.messages_for_work(work.id)).to eq([notification, activity_message])
       end
     end
 
@@ -78,7 +74,7 @@ describe WorkActivity, type: :model do
       it "finds all the changes for the work" do
         change_file = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::FILE_CHANGES)
         changes = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::CHANGES)
-        expect(described_class.changes_for_work(work.id)).to eq([changes, change_file, work_activity])
+        expect(described_class.changes_for_work(work.id)).to eq([work_activity, change_file, changes])
       end
     end
   end

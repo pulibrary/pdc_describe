@@ -246,7 +246,7 @@
 <% end %>
 
 <%= render 'work_activity_messages' %>
-<%= render 'work_activity_provenance' %>
+<%= render(partial: 'work_activity_provenance', locals: {can_add_provenance_note: Rails.configuration.provenance_message_writers.include?(current_user.uid)}) %>
 
 <%= javascript_include_tag 'show_work_utils' %>
 

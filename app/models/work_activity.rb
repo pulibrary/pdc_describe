@@ -22,25 +22,21 @@ class WorkActivity < ApplicationRecord
   belongs_to :work
   has_many :work_activity_notifications, dependent: :destroy
 
-  def self.add_work_activity(work_id, message, user_id, activity_type:, date: nil)
+  def self.add_work_activity(work_id, message, user_id, activity_type:, created_at: nil)
     activity = WorkActivity.new(
       work_id: work_id,
       activity_type: activity_type,
       message: message,
       created_by_user_id: user_id,
-      created_at: date # If nil, will be set by activerecord at save.
+      created_at: created_at # If nil, will be set by activerecord at save.
     )
     activity.save!
     activity.notify_users
     activity
   end
 
-  def self.activities_for_work(work_id, types = [])
-    context = where(work_id: work_id).order(updated_at: :desc)
-    if types.count > 0
-      context = context.where(activity_type: types)
-    end
-    context
+  def self.activities_for_work(work_id, activity_types)
+    where(work_id: work_id, activity_type: activity_types)
   end
 
   def self.messages_for_work(work_id)
@@ -102,6 +98,7 @@ class WorkActivity < ApplicationRecord
     end
 
     UNKNOWN_USER = "Unknown user outside the system"
+    DATE_TIME_FORMAT = "%B %d, %Y %H:%M"
 
     def to_html
       title_html + "<span class='message-html'>#{body_html.chomp}</span>"
@@ -113,12 +110,18 @@ class WorkActivity < ApplicationRecord
       @work_activity.created_by_user.display_name_safe
     end
 
-    def created_at_html
-      @work_activity.created_at.time.strftime("%B %d, %Y %H:%M")
+    def created_updated_html
+      created = @work_activity.created_at.time.strftime(DATE_TIME_FORMAT)
+      updated = @work_activity.updated_at.time.strftime(DATE_TIME_FORMAT)
+      if created == updated
+        created
+      else
+        "#{created} (backdated event created #{updated})"
+      end
     end
 
     def title_html
-      "<span class='activity-history-title'>#{created_at_html} by #{created_by_user_html}</span>"
+      "<span class='activity-history-title'>#{created_updated_html} by #{created_by_user_html}</span>"
     end
   end
 
@@ -191,8 +194,15 @@ class WorkActivity < ApplicationRecord
 
   class Message < BaseMessage
     # Override the default:
+    def created_by_user_html
+      return UNKNOWN_USER unless @work_activity.created_by_user
+
+      user = @work_activity.created_by_user
+      "#{user.display_name_safe} (@#{user.uid})"
+    end
+
     def title_html
-      "<span class='activity-history-title'>#{created_by_user_html} at #{created_at_html}</span>"
+      "<span class='activity-history-title'>#{created_by_user_html} at #{created_updated_html}</span>"
     end
   end
 end

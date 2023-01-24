@@ -32,52 +32,51 @@ class ResourceCompareService
   private
 
     def compare_resources
-      [:titles, :creators, :contributors, :related_objects].each do |field|
-        compare_objects(field)
-      end
-      [:description, :publisher, :publication_year,
-       :resource_type, :resource_type_general,
-       :doi, :ark, :version_number].each do |field|
-        compare_simple_values(field)
-      end
-      compare_rights
-      [:keywords, :collection_tags].each do |field|
-        compare_arrays(field)
-      end
-    end
-
-    ##
-    # Compares simple single value between the two resources.
-    def compare_simple_values(method_sym)
-      before_value = @before.send(method_sym)
-      after_value = @after.send(method_sym)
-      if before_value != after_value
-        @differences[method_sym] = [{ action: :changed, from: before_value, to: after_value }]
+      # Loop through an object's json keys and compare the values from the before and after objects.
+      # Note: This assumes the before and after objects have the same json keys.
+      @before.as_json.keys.map(&:to_sym).each do |method_sym|
+        before_value = @before.send(method_sym)
+        after_value = @after.send(method_sym)
+        next if before_value.to_json == after_value.to_json
+        if before_value.is_a?(Array)
+          compare_arrays(method_sym, before_value, after_value)
+        elsif before_value.respond_to?(:compare_value) || after_value.respond_to?(:compare_value)
+          # If either value is nil, we still want to get the compare_value for the other.
+          compare_objects(method_sym)
+        else
+          compare_values(method_sym)
+        end
       end
     end
 
-    def compare_rights
-      before_value = @before.rights&.name
-      after_value = @after.rights&.name
-      if before_value != after_value
-        @differences[:rights] = [{ action: :changed, from: before_value, to: after_value }]
+    def compare_arrays(method_sym, before_array, after_array)
+      inside_value = (before_array + after_array).first
+      if inside_value.respond_to?(:compare_value)
+        compare_object_arrays(method_sym)
+      else
+        compare_value_arrays(method_sym)
       end
     end
 
-    ##
-    # Compares two arrays of simple string values.
-    # Returns an array with the changes (values removed, values added)
-    def compare_arrays(method_sym)
-      before_value = @before.send(method_sym).join("\n")
-      after_value = @after.send(method_sym).join("\n")
-      if before_value != after_value
-        @differences[method_sym] = [{ action: :changed, from: before_value, to: after_value }]
-      end
+    def compare_values(method_sym)
+      compare(method_sym, &:to_s)
     end
 
     def compare_objects(method_sym)
-      before_value = @before.send(method_sym).map(&:compare_value).join("\n")
-      after_value = @after.send(method_sym).map(&:compare_value).join("\n")
+      compare(method_sym) { |value| value.nil? ? "" : value.compare_value }
+    end
+
+    def compare_value_arrays(method_sym)
+      compare(method_sym) { |values| values.join("\n") }
+    end
+
+    def compare_object_arrays(method_sym)
+      compare(method_sym) { |values| values.map(&:compare_value).join("\n") }
+    end
+
+    def compare(method_sym)
+      before_value = yield(@before.send(method_sym))
+      after_value = yield(@after.send(method_sym))
       if before_value != after_value
         @differences[method_sym] = [{ action: :changed, from: before_value, to: after_value }]
       end

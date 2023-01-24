@@ -87,19 +87,15 @@ class Work < ApplicationRecord
 
   class << self
     def find_by_doi(doi)
-      # This does a string compare to allow for partial matches
-      # I'm not entirely sure why we are allowing partial matches in a find by
-      Work.find_by!("metadata->>'doi' like ? ", "%#{doi}")
-      # I think we should be doing the following instead, which matches exactly
-      # Work.find_by!('metadata @> ?', "{\"doi\":\"#{doi}\"}")
+      prefix = "10.34770/"
+      doi = "#{prefix}#{doi}" unless doi.start_with?(prefix)
+      Work.find_by!("metadata @> ?", JSON.dump(doi: doi))
     end
 
     def find_by_ark(ark)
-      # This does a string compare to allow for partial matches
-      # I'm not entirely sure why we are allowing partial matches in a find by
-      Work.find_by!("metadata->>'ark' like ? ", "%#{ark}")
-      # I think we should be doing the following instead, which matches exactly
-      # Work.find_by!('metadata @> ?', "{\"ark\":\"#{ark}\"}")
+      prefix = "ark:/"
+      ark = "#{prefix}#{ark}" unless ark.start_with?(prefix)
+      Work.find_by!("metadata @> ?", JSON.dump(ark: ark))
     end
 
     delegate :resource_type_general_values, to: PDCMetadata::Resource
@@ -307,7 +303,7 @@ class Work < ApplicationRecord
   end
 
   def add_provenance_note(date, note, current_user_id)
-    WorkActivity.add_work_activity(id, note, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES, date: date)
+    WorkActivity.add_work_activity(id, note, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES, created_at: date)
   end
 
   def log_changes(resource_compare, current_user_id)
@@ -321,7 +317,7 @@ class Work < ApplicationRecord
   end
 
   def activities
-    WorkActivity.activities_for_work(id)
+    WorkActivity.activities_for_work(id, WorkActivity::MESSAGE_ACTIVITY_TYPES + WorkActivity::CHANGE_LOG_ACTIVITY_TYPES)
   end
 
   def new_notification_count_for_user(user_id)
