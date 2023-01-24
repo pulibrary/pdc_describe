@@ -87,13 +87,13 @@
     <% end %>
     <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-secondary" %>
   </div>
-  <div class="col-4">
-    <button class="btn btn-secondary">Messages</button>
+  <div class="col-4" id="expand-messages">
+    <button class="btn btn-secondary" id="toggle-messages">Hide Messages</button>
   </div>
 </div>
 
 <div class="row">
-  <div class="col-8">
+  <div class="col-8" id="left-of-messages">
     <h1><%= @work.title %></h1>
 
     <dl>
@@ -253,7 +253,7 @@
     <% end %>
     <%= render(partial: 'work_activity_provenance', locals: {can_add_provenance_note: Rails.configuration.provenance_message_writers.include?(current_user.uid)}) %>
   </div>
-  <div class="col-4">
+  <div class="col-4" id="messages">
     <%= render 'work_activity_messages' %>
   </div>
 </div>
@@ -262,6 +262,21 @@
 
 <script>
   $(function() {
+    $("#toggle-messages").on("click", (event) => {
+      const $target = $(event.target)
+      const isHidden = !($target.data('is-hidden'));
+      $target.data('is-hidden', isHidden);
+      if (isHidden) {
+        $("#messages").hide();
+        $("#left-of-messages").removeClass("col-8").addClass("col-12");
+        $target.text("Show Messages");
+      } else {
+        $("#messages").show();
+        $("#left-of-messages").removeClass("col-12").addClass("col-8");
+        $target.text("Hide Messages");
+      }
+    });
+
     // Issues HTTP POST to update the curator assigned to the work.
     $("#curator_select").on("change", function(event) {
       var newCuratorId = event.currentTarget.value;
