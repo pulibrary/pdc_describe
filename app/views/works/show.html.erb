@@ -178,11 +178,11 @@
     <dd><%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></dd>
   <% end %>
 
-  <% if @work.resource.contributors.count > 0 %>
+  <% if @work.resource.individual_contributors.count > 0 %>
     <dt>Contributors</dt>
     <dd>
-      <% @work.resource.contributors.each_with_index do |contributor, ix| %>
-        <%= contributor_link(contributor, ix < (@work.resource.contributors.count-1) ) %>
+      <% @work.resource.individual_contributors.each_with_index do |contributor, ix| %>
+        <%= contributor_link(contributor, ix < (@work.resource.individual_contributors.count-1) ) %>
       <% end %>
     </dd>
   <% end %>

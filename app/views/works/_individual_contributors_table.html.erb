@@ -30,7 +30,7 @@
   </tfoot>
 </table>
 
-<% @work.resource.contributors.each_with_index do |contributor, i| %>
+<% @work.resource.individual_contributors.each_with_index do |contributor, i| %>
   <span class="hidden contributor-data"
     data-num="<%= i + 1 %>"
     data-orcid="<%= contributor.orcid %>"

@@ -9,8 +9,8 @@ module PDCMetadata
 
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
-      :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :contributors, :related_objects,
-      :funders
+      :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :related_objects,
+      :funders, :organizational_contributors
 
     # rubocop:disable Metrics/MethodLength
     def initialize(doi: nil, title: nil, resource_type: nil, resource_type_general: nil, creators: [], description: nil)
@@ -29,11 +29,15 @@ module PDCMetadata
       @version_number = "1"
       @related_objects = []
       @keywords = []
-      @individual_contributors = []
+      @contributors = []
       @organizational_contributors = []
       @funders = []
     end
     # rubocop:enable Metrics/MethodLength
+
+    def individual_contributors
+      @contributors
+    end
 
     def identifier
       @doi
@@ -72,7 +76,7 @@ module PDCMetadata
         set_titles(resource, jsonb_hash)
         set_creators(resource, jsonb_hash)
         set_individual_contributors(resource, jsonb_hash)
-        set_organization_contributors(resource, jsonb_hash)
+        set_organizational_contributors(resource, jsonb_hash)
         set_related_objects(resource, jsonb_hash)
         set_funders(resource, jsonb_hash)
 

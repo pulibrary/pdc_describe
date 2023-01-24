@@ -215,8 +215,8 @@ RSpec.describe "Creating and updating works", type: :system do
       expect(contributor_text_after).to eq("Simon Gallup  Robert Smith")
       click_on "Save Work"
       draft_work.reload
-      expect(draft_work.resource.contributors.last.given_name).to eq("Robert")
-      expect(draft_work.resource.contributors.last.family_name).to eq("Smith")
+      expect(draft_work.resource.individual_contributors.last.given_name).to eq("Robert")
+      expect(draft_work.resource.individual_contributors.last.family_name).to eq("Smith")
     end
   end
 
