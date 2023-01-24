@@ -303,7 +303,7 @@ class Work < ApplicationRecord
   end
 
   def add_provenance_note(date, note, current_user_id)
-    WorkActivity.add_work_activity(id, note, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES, date: date)
+    WorkActivity.add_work_activity(id, note, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES, created_at: date)
   end
 
   def log_changes(resource_compare, current_user_id)
@@ -317,7 +317,7 @@ class Work < ApplicationRecord
   end
 
   def activities
-    WorkActivity.activities_for_work(id)
+    WorkActivity.activities_for_work(id, WorkActivity::MESSAGE_ACTIVITY_TYPES + WorkActivity::CHANGE_LOG_ACTIVITY_TYPES)
   end
 
   def new_notification_count_for_user(user_id)
