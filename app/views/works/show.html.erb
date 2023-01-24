@@ -246,7 +246,7 @@
 <% end %>
 
 <%= render 'work_activity_messages' %>
-<%= render 'work_activity_provenance' %>
+<%= render(partial: 'work_activity_provenance', locals: {can_add_provenance_note: ["cm7575"].include?(current_user.uid)}) %>
 
 <%= javascript_include_tag 'show_work_utils' %>
 
