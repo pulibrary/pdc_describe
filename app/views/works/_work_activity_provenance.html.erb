@@ -1,0 +1,38 @@
+<div>
+  <h2>Change History</h2>
+  <% if @changes.size == 0 %>
+    No activity
+  <% end %>
+  <ul class="beads">
+    <% @changes.sort_by(&:created_at).each do |activity| %>
+      <li class="activity-history-item">
+        <%= activity.to_html.html_safe %>
+      </li>
+    <% end %>
+  </ul>
+
+  <% if can_add_provenance_note %>
+    <%= form_with url: add_provenance_note_path(@work) do |f| %>
+      <div class="field">
+        <details>
+          <summary>Date</summary>
+          The date in the change history your note should be given. Format as "YYY-MM-DD".
+          Leave blank to use the current date and time.
+        </details>
+        <input id="new-provenance-date" name="new-provenance-date"
+          placeholder="YYYY-MM-DD"
+          pattern="\d{4}-\d{2}-\d{2}">
+      </div>
+      
+      <div class="field">
+        <details>
+          <summary>Note</summary>
+          The note to add to the change history. Markdown can be used.
+        </details>
+        <input id="new-provenance-note" name="new-provenance-note">
+      </div>
+
+      <%= f.submit("Add Provenance Note", class: "btn btn-secondary") %>
+    <% end %>
+  <% end %>
+</div>

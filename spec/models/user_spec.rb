@@ -39,6 +39,7 @@ RSpec.describe User, type: :model do
       user = described_class.from_cas(access_token)
       expect(user).to be_a described_class
       expect(user.default_collection.id).to eq Collection.default.id
+      expect(user.messages_enabled_from?(collection: user.default_collection)).to be_truthy
     end
 
     it "sets the proper default collection for a PPPL user" do
@@ -46,6 +47,7 @@ RSpec.describe User, type: :model do
       pppl_user = described_class.from_cas(access_token_pppl)
       expect(pppl_user).to be_a described_class
       expect(pppl_user.default_collection.id).to eq pppl_collection.id
+      expect(pppl_user.messages_enabled_from?(collection: pppl_user.default_collection)).to be_truthy
     end
 
     it "sets the CAS info on new" do
@@ -246,16 +248,9 @@ RSpec.describe User, type: :model do
     context "when the user is a super admin" do
       let(:user) { described_class.new_super_admin("test-admin") }
 
-      it "disables email messages for notifications from a Collection" do
+      it "disables and enables email messages for notifications from a Collection" do
         initial_state = user.messages_enabled_from?(collection: collection)
-        expect(initial_state).to be false
-
-        user.enable_messages_from(collection: collection)
-        user.save!
-        user.reload
-
-        enabled_state = user.messages_enabled_from?(collection: collection)
-        expect(enabled_state).to be true
+        expect(initial_state).to be true
 
         user.disable_messages_from(collection: collection)
         user.save!
@@ -263,6 +258,13 @@ RSpec.describe User, type: :model do
 
         disabled_state = user.messages_enabled_from?(collection: collection)
         expect(disabled_state).to be false
+
+        user.enable_messages_from(collection: collection)
+        user.save!
+        user.reload
+
+        enabled_state = user.messages_enabled_from?(collection: collection)
+        expect(enabled_state).to be true
       end
     end
 
@@ -272,16 +274,9 @@ RSpec.describe User, type: :model do
         user.save!
       end
 
-      it "disables email messages for notifications from a Collection" do
+      it "disables and enables email messages for notifications from a Collection" do
         initial_state = user.messages_enabled_from?(collection: collection)
-        expect(initial_state).to be false
-
-        user.enable_messages_from(collection: collection)
-        user.save!
-        user.reload
-
-        enabled_state = user.messages_enabled_from?(collection: collection)
-        expect(enabled_state).to be true
+        expect(initial_state).to be true
 
         user.disable_messages_from(collection: collection)
         user.save!
@@ -289,14 +284,69 @@ RSpec.describe User, type: :model do
 
         disabled_state = user.messages_enabled_from?(collection: collection)
         expect(disabled_state).to be false
+
+        user.enable_messages_from(collection: collection)
+        user.save!
+        user.reload
+
+        enabled_state = user.messages_enabled_from?(collection: collection)
+        expect(enabled_state).to be true
+      end
+    end
+
+    context "The user can deposit into the collection" do
+      before do
+        user.add_role :submitter, collection
+      end
+
+      it "disables and enables email messages for notifications from a Collection" do
+        initial_state = user.messages_enabled_from?(collection: collection)
+        expect(initial_state).to be true
+
+        user.disable_messages_from(collection: collection)
+        user.save!
+        user.reload
+
+        disabled_state = user.messages_enabled_from?(collection: collection)
+        expect(disabled_state).to be false
+
+        user.enable_messages_from(collection: collection)
+        user.save!
+        user.reload
+
+        enabled_state = user.messages_enabled_from?(collection: collection)
+        expect(enabled_state).to be true
       end
     end
 
     it "raises an ArgumentError" do
       state = user.messages_enabled_from?(collection: collection)
+      expect(state).to be true
+
+      state = user.messages_enabled_from?(collection: pppl_collection)
       expect(state).to be false
 
-      expect { user.disable_messages_from(collection: collection) }.to raise_error(ArgumentError, "User #{user.uid} is not an administrator for the collection #{collection.title}")
+      expect do
+        user.disable_messages_from(collection: pppl_collection)
+      end .to raise_error(ArgumentError, "User #{user.uid} is not an administrator or depositor for the collection #{pppl_collection.title}")
+      expect do
+        user.enable_messages_from(collection: pppl_collection)
+      end .to raise_error(ArgumentError, "User #{user.uid} is not an administrator or depositor for the collection #{pppl_collection.title}")
+    end
+  end
+
+  describe "#submitter_or_admin_collections" do
+    it "returns both admin and submitter collections" do
+      user = FactoryBot.create(:user)
+      collection1 = FactoryBot.create(:collection)
+      collection2 = FactoryBot.create(:collection)
+      collection3 = FactoryBot.create(:collection)
+      user.add_role(:submitter, collection1)
+      user.add_role(:collection_admin, collection2)
+      user.add_role(:collection_admin, collection3)
+      user.add_role(:submitter, collection3)
+      # should contain the rd_collection by default
+      expect(user.submitter_or_admin_collections).to contain_exactly(collection1, collection2, collection3, rd_collection)
     end
   end
 end

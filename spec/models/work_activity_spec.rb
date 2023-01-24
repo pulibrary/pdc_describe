@@ -6,7 +6,7 @@ describe WorkActivity, type: :model do
   let(:work) { FactoryBot.create(:draft_work) }
   let(:message) { "test message for @#{user.uid}" }
   let(:work_activity) do
-    described_class.add_system_activity(work.id, message, user.id)
+    described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::SYSTEM)
   end
 
   describe "#notify_users" do
@@ -43,6 +43,39 @@ describe WorkActivity, type: :model do
       expect(WorkActivityNotification.where(work_activity_id: work_activity.id)).not_to be_empty
       work_activity.destroy
       expect(WorkActivityNotification.where(work_activity_id: work_activity.id)).to be_empty
+    end
+  end
+
+  context "many work Activities have been sent" do
+    let(:notification) { described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::NOTIFICATION) }
+    before do
+      work_activity
+      notification
+      work2 = FactoryBot.create(:draft_work)
+      described_class.add_work_activity(work2.id, message, user.id, activity_type: WorkActivity::NOTIFICATION)
+    end
+
+    describe "#activities_for_work" do
+      it "finds all the activities for the work and type" do
+        expect(described_class.activities_for_work(work, [WorkActivity::SYSTEM])).to eq([work_activity])
+        expect(described_class.activities_for_work(work, [WorkActivity::NOTIFICATION])).to eq([notification])
+        expect(described_class.activities_for_work(work, [WorkActivity::SYSTEM, WorkActivity::NOTIFICATION])).to eq([work_activity, notification])
+      end
+    end
+
+    describe "#messages_for_work" do
+      it "finds all the messages for the work" do
+        activity_message = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::MESSAGE)
+        expect(described_class.messages_for_work(work.id)).to eq([notification, activity_message])
+      end
+    end
+
+    describe "#changes_for_work" do
+      it "finds all the changes for the work" do
+        change_file = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::FILE_CHANGES)
+        changes = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::CHANGES)
+        expect(described_class.changes_for_work(work.id)).to eq([work_activity, change_file, changes])
+      end
     end
   end
 end

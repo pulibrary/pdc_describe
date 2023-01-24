@@ -3,12 +3,11 @@
   <% if @messages.size == 0 && !@work.submission_notes.present? %>
     No messages
   <% end %>
-  <ul class="no-beads">
-    <% @messages.each do |activity| %>
-      <%= render partial: 'work_activity', locals: {
-        activity: activity,
-        event_type: activity.event_type
-      } %>
+  <ul class="no-beads work-messages">
+    <% @messages.sort_by(&:created_at).reverse.each do |activity| %>
+      <li class="activity-history-item">
+        <%= activity.to_html.html_safe %>
+      </li>
     <% end %>
     <% if @work.submission_notes.present? %>
       <li class="activity-history-item">
@@ -32,19 +31,4 @@
       </span>
     <% end %>
   </div>
-</div>
-
-<div>
-  <h2>Change History</h2>
-  <% if @changes.size == 0 %>
-    No activity
-  <% end %>
-  <ul class="beads">
-    <% @changes.each do |activity| %>
-      <%= render partial: 'work_activity', locals: {
-        activity: activity,
-        event_type: activity.event_type
-      } %>
-    <% end %>
-  </ul>
 </div>

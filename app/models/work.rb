@@ -87,19 +87,15 @@ class Work < ApplicationRecord
 
   class << self
     def find_by_doi(doi)
-      # This does a string compare to allow for partial matches
-      # I'm not entirely sure why we are allowing partial matches in a find by
-      Work.find_by!("metadata->>'doi' like ? ", "%#{doi}")
-      # I think we should be doing the following instead, which matches exactly
-      # Work.find_by!('metadata @> ?', "{\"doi\":\"#{doi}\"}")
+      prefix = "10.34770/"
+      doi = "#{prefix}#{doi}" unless doi.start_with?(prefix)
+      Work.find_by!("metadata @> ?", JSON.dump(doi: doi))
     end
 
     def find_by_ark(ark)
-      # This does a string compare to allow for partial matches
-      # I'm not entirely sure why we are allowing partial matches in a find by
-      Work.find_by!("metadata->>'ark' like ? ", "%#{ark}")
-      # I think we should be doing the following instead, which matches exactly
-      # Work.find_by!('metadata @> ?', "{\"ark\":\"#{ark}\"}")
+      prefix = "ark:/"
+      ark = "#{prefix}#{ark}" unless ark.start_with?(prefix)
+      Work.find_by!("metadata @> ?", JSON.dump(ark: ark))
     end
 
     delegate :resource_type_general_values, to: PDCMetadata::Resource
@@ -115,7 +111,7 @@ class Work < ApplicationRecord
   include Rails.application.routes.url_helpers
 
   before_save do |work|
-    # Ensure that the metadata JSON is persisted properly
+    # Ensure that the metadata JSONB postgres field is persisted properly
     work.metadata = JSON.parse(work.resource.to_json)
     work.save_pre_curation_uploads
   end
@@ -177,7 +173,6 @@ class Work < ApplicationRecord
   def valid_to_submit
     valid_to_draft
     validate_metadata
-    validate_uploads
     errors.count == 0
   end
 
@@ -236,11 +231,12 @@ class Work < ApplicationRecord
 
   def resource=(resource)
     @resource = resource
+    # Ensure that the metadata JSONB postgres field is persisted properly
     self.metadata = JSON.parse(resource.to_json)
   end
 
   def resource
-    @resource ||= PDCMetadata::Resource.new_from_json(metadata)
+    @resource ||= PDCMetadata::Resource.new_from_jsonb(metadata)
   end
 
   def url
@@ -275,7 +271,7 @@ class Work < ApplicationRecord
     save!
 
     # ...and log the activity
-    WorkActivity.add_system_activity(id, "Unassigned existing curator", current_user.id)
+    WorkActivity.add_work_activity(id, "Unassigned existing curator", current_user.id, activity_type: WorkActivity::SYSTEM)
   end
 
   def update_curator(curator_user_id, current_user)
@@ -290,7 +286,7 @@ class Work < ApplicationRecord
               else
                 "Set curator to @#{new_curator.uid}"
               end
-    WorkActivity.add_system_activity(id, message, current_user.id)
+    WorkActivity.add_work_activity(id, message, current_user.id, activity_type: WorkActivity::SYSTEM)
   end
 
   def curator_or_current_uid(user)
@@ -303,29 +299,25 @@ class Work < ApplicationRecord
   end
 
   def add_message(message, current_user_id)
-    WorkActivity.add_system_activity(id, message, current_user_id, activity_type: WorkActivity::MESSAGE)
+    WorkActivity.add_work_activity(id, message, current_user_id, activity_type: WorkActivity::MESSAGE)
+  end
+
+  def add_provenance_note(date, note, current_user_id)
+    WorkActivity.add_work_activity(id, note, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES, created_at: date)
   end
 
   def log_changes(resource_compare, current_user_id)
     return if resource_compare.identical?
-    WorkActivity.add_system_activity(id, resource_compare.differences.to_json, current_user_id, activity_type: WorkActivity::CHANGES)
+    WorkActivity.add_work_activity(id, resource_compare.differences.to_json, current_user_id, activity_type: WorkActivity::CHANGES)
   end
 
   def log_file_changes(changes, current_user_id)
     return if changes.count == 0
-    WorkActivity.add_system_activity(id, changes.to_json, current_user_id, activity_type: WorkActivity::FILE_CHANGES)
+    WorkActivity.add_work_activity(id, changes.to_json, current_user_id, activity_type: WorkActivity::FILE_CHANGES)
   end
 
   def activities
-    WorkActivity.where(work_id: id).sort_by(&:updated_at).reverse
-  end
-
-  def changes
-    activities.select(&:log_event_type?)
-  end
-
-  def messages
-    activities.select(&:message_event_type?)
+    WorkActivity.activities_for_work(id, WorkActivity::MESSAGE_ACTIVITY_TYPES + WorkActivity::CHANGE_LOG_ACTIVITY_TYPES)
   end
 
   def new_notification_count_for_user(user_id)
@@ -443,8 +435,33 @@ class Work < ApplicationRecord
     log_file_changes(changes, nil)
   end
 
+  def as_json(options = nil)
+    if options&.present?
+      raise(StandardError, "Received options #{options}, but not supported")
+      # Included in signature for compatibility with Rails.
+    end
+
+    # Pre-curation files are not accessible externally,
+    # so we are not interested in listing them in JSON.
+    # (The items in pre_curation_uploads also have different properties.)
+    files = post_curation_uploads.map do |upload|
+      {
+        "filename": upload.filename,
+        "size": upload.size
+      }
+    end
+
+    # to_json returns a string of serialized JSON.
+    # as_json returns the corresponding hash.
+    {
+      "resource" => resource.as_json,
+      "files" => files,
+      "collection" => collection.as_json.except("id")
+    }
+  end
+
   delegate :ark, :doi, :resource_type, :resource_type=, :resource_type_general, :resource_type_general=,
-           :to_xml, :to_json, to: :resource
+           :to_xml, to: :resource
 
   protected
 
@@ -452,7 +469,7 @@ class Work < ApplicationRecord
     #   Protected will still keep others from setting the metatdata, but allows ActiveRecord the access it needs
     def metadata=(metadata)
       super
-      @resource = PDCMetadata::Resource.new_from_json(metadata)
+      @resource = PDCMetadata::Resource.new_from_jsonb(metadata)
     end
 
   private
@@ -504,7 +521,7 @@ class Work < ApplicationRecord
     def track_state_change(user, state = aasm.to_state)
       uw = UserWork.new(user_id: user.id, work_id: id, state: state)
       uw.save!
-      WorkActivity.add_system_activity(id, "marked as #{state.to_s.titleize}", user.id)
+      WorkActivity.add_work_activity(id, "marked as #{state.to_s.titleize}", user.id, activity_type: WorkActivity::SYSTEM)
       WorkStateTransitionNotification.new(self, user.id).send
     end
 
@@ -560,7 +577,7 @@ class Work < ApplicationRecord
         if result.failure?
           resolved_user = curator_or_current_uid(user)
           message = "@#{resolved_user} Error publishing DOI. #{result.failure.status} / #{result.failure.reason_phrase}"
-          WorkActivity.add_system_activity(id, message, user.id, activity_type: "DATACITE_ERROR")
+          WorkActivity.add_work_activity(id, message, user.id, activity_type: WorkActivity::DATACITE_ERROR)
         end
       elsif ark.blank? # we can not update the url anywhere
         Honeybadger.notify("Publishing for a DOI we do not own and no ARK is present: #{doi}")
@@ -572,7 +589,7 @@ class Work < ApplicationRecord
     end
 
     def doi_attribute_resource
-      PDCMetadata::Resource.new_from_json(metadata)
+      PDCMetadata::Resource.new_from_jsonb(metadata)
     end
 
     def doi_attribute_xml

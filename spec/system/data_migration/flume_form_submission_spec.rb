@@ -28,7 +28,7 @@ The attached readme.txt file explains the data attributes"
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[3]").select_option
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
       fill_in "given_name_1", with: "Khaled"
       fill_in "family_name_1", with: "Ghannam"
       click_on "Add Another Creator"
@@ -47,7 +47,7 @@ The attached readme.txt file explains the data attributes"
       fill_in "publication_year", with: 2020
       fill_in "doi", with: doi
       fill_in "ark", with: ark
-      find("#collection_id").find(:xpath, "option[1]").select_option
+      select "Research Data", from: "collection_id"
       click_on "Create"
 
       expect(page).to have_content "marked as Draft"

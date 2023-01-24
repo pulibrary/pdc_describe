@@ -66,8 +66,8 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     # check if anything was added in S3 since we last viewed this object
     @work.attach_s3_resources
-    @changes = @work.changes
-    @messages = @work.messages
+    @changes =  WorkActivity.changes_for_work(@work.id)
+    @messages = WorkActivity.messages_for_work(@work.id)
 
     respond_to do |format|
       format.html do
@@ -78,7 +78,7 @@ class WorksController < ApplicationController
         @can_curate = current_user.can_admin?(@collection)
         @work.mark_new_notifications_as_read(current_user.id)
       end
-      format.json { render json: @work.resource }
+      format.json { render json: @work.to_json }
     end
   end
 
@@ -229,6 +229,17 @@ class WorksController < ApplicationController
       sanitized_new_message = html_escape(new_message_param)
 
       work.add_message(sanitized_new_message, current_user.id)
+    end
+    redirect_to work_path(id: params[:id])
+  end
+
+  def add_provenance_note
+    work = Work.find(params[:id])
+    if params["new-provenance-note"].present?
+      new_date = params["new-provenance-date"]
+      new_note = html_escape(params["new-provenance-note"])
+
+      work.add_provenance_note(new_date, new_note, current_user.id)
     end
     redirect_to work_path(id: params[:id])
   end

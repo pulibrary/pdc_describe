@@ -5,7 +5,7 @@ commands:
       - run: gem install bundler -v '2.3.11'
       - run: cp Gemfile.lock Gemfile.lock.bak
       - restore_cache:
-          keys: &gem_key rails_template-cimg-{{ checksum "Gemfile.lock.bak" }}
+          key: &gem_key rails_template-cimg-{{ checksum "Gemfile.lock.bak" }}
       - run: bundle install --path ./vendor/bundle
       - save_cache:
           key: *gem_key

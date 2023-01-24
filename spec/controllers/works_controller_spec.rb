@@ -30,11 +30,15 @@ RSpec.describe WorksController do
       expect(response.content_type).to eq "application/rss+xml; charset=utf-8"
     end
 
-    it "renders the resource json" do
+    it "renders the work json" do
       sign_in user
       stub_s3
       get :show, params: { id: work.id, format: "json" }
       expect(response.content_type).to eq "application/json; charset=utf-8"
+      work_json = JSON.parse(response.body)
+      expect(work_json["resource"]).to_not be nil
+      expect(work_json["files"]).to_not be nil
+      expect(work_json["collection"]).to_not be nil
     end
 
     it "renders the new submission wizard' step 0" do
@@ -777,56 +781,91 @@ RSpec.describe WorksController do
       let(:data) { [] }
 
       it "renders the workshow page" do
-        stub_s3
         get :show, params: { id: work.id }
         expect(response).to render_template("show")
-      end
-    end
-
-    describe "#resolve_doi" do
-      before do
-        sign_in user
-        stub_s3 data: data
+        expect(assigns[:changes]).to eq([])
+        expect(assigns[:messages]).to eq([])
       end
 
-      let(:data) { [] }
-      let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
+      context "when the work has changes and messages" do
+        before do
+          WorkActivity.add_work_activity(work.id, "Hello System", user.id, activity_type: WorkActivity::SYSTEM)
+          work.add_message("Hello World", user.id)
+        end
 
-      it "redirects to the Work show view" do
-        stub_s3
-        get :resolve_doi, params: { doi: work.doi }
-        expect(response).to redirect_to(work_path(work))
-      end
-
-      context "when passing only a segment of the DOI" do
-        it "redirects to the Work show view" do
-          stub_s3
-          get :resolve_doi, params: { doi: work.doi[-9..] }
-          expect(response).to redirect_to(work_path(work))
+        it "renders the workshow page" do
+          get :show, params: { id: work.id }
+          expect(response).to render_template("show")
+          expect(assigns[:changes].map(&:message)).to eq(["Hello System"])
+          expect(assigns[:messages].map(&:message)).to eq(["Hello World"])
         end
       end
     end
 
-    describe "#resolve_ark" do
-      before do
-        sign_in user
-        stub_s3 data: data
-      end
+    describe "ID redirection" do
+      describe "#resolve_doi" do
+        before do
+          sign_in user
+          stub_s3 data: data
+        end
 
-      let(:data) { [] }
-      let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
+        let(:data) { [] }
+        let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
 
-      it "redirects to the Work show view" do
-        stub_s3
-        get :resolve_ark, params: { ark: work.ark }
-        expect(response).to redirect_to(work_path(work))
-      end
-
-      context "when passing only a segment of the ARK" do
         it "redirects to the Work show view" do
           stub_s3
-          get :resolve_ark, params: { ark: work.ark[-9..] }
+          get :resolve_doi, params: { doi: work.doi }
           expect(response).to redirect_to(work_path(work))
+        end
+
+        context "when passing only a segment of the DOI" do
+          it "redirects to the Work show view if missing prefix" do
+            stub_s3
+            prefix = "10.34770/"
+            expect(work.doi).to start_with(prefix)
+            get :resolve_doi, params: { doi: work.doi.gsub(prefix, "") }
+            expect(response).to redirect_to(work_path(work))
+          end
+
+          it "does not redirect to the Work show view if not exact (missing slash)" do
+            stub_s3
+            expect do
+              get :resolve_doi, params: { doi: work.doi.gsub("10.34770", "") }
+            end.to raise_error(ActiveRecord::RecordNotFound)
+          end
+        end
+      end
+
+      describe "#resolve_ark" do
+        before do
+          sign_in user
+          stub_s3 data: data
+        end
+
+        let(:data) { [] }
+        let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
+
+        it "redirects to the Work show view" do
+          stub_s3
+          get :resolve_ark, params: { ark: work.ark }
+          expect(response).to redirect_to(work_path(work))
+        end
+
+        context "when passing only a segment of the ARK" do
+          it "redirects to the Work show view if missing prefix" do
+            stub_s3
+            prefix = "ark:/"
+            expect(work.ark).to start_with(prefix)
+            get :resolve_ark, params: { ark: work.ark.gsub(prefix, "") }
+            expect(response).to redirect_to(work_path(work))
+          end
+
+          it "does not redirect to the Work show view if not exact (missing slash)" do
+            stub_s3
+            expect do
+              get :resolve_ark, params: { ark: work.ark.gsub("ark:", "") }
+            end.to raise_error(ActiveRecord::RecordNotFound)
+          end
         end
       end
     end
@@ -884,7 +923,7 @@ RSpec.describe WorksController do
           expect(response.status).to be 302
           expect(response.location).to eq "http://test.host/works/#{work.id}"
           expect(work.reload).to be_approved
-          error = work.work_activity.find { |activity| activity.activity_type == "DATACITE_ERROR" }
+          error = work.work_activity.find { |activity| activity.activity_type == WorkActivity::DATACITE_ERROR }
           expect(error.message).to include("Error publishing DOI")
         end
       end
@@ -1024,8 +1063,22 @@ RSpec.describe WorksController do
     context "when posting a message containing HTML" do
       render_views
 
+      it "adds to change history with a date and markdown" do
+        sign_in user
+        post :add_provenance_note, params: { id: work.id, "new-provenance-note" => "<span>hello</span> _world_", "new-provenance-date" => "2000-01-01" }
+        expect(response.status).to be 302
+        expect(response.location).to eq "http://test.host/works/#{work.id}"
+        get :show, params: { id: work.id }
+        expect(response.body).to include("&lt;span&gt;hello&lt;/span&gt; <em>world</em>")
+        expect(response.body).to include("January 01, 2000")
+      end
+
       it "posts a message with sanitized HTML" do
         sign_in user
+        # The ERB only shows the form to a subset of users,
+        # but the endpoint has no such restriction: Anyone can POST.
+        # In some contexts, a hole like this would be a security problem,
+        # but this is low-stakes.
         post :add_message, params: { id: work.id, "new-message" => "<div>hello world</div>" }
         expect(response.status).to be 302
         expect(response.location).to eq "http://test.host/works/#{work.id}"

@@ -47,7 +47,7 @@ RSpec.describe "DOI", type: :model do
 
   let(:xml_attributes) do
     work = FactoryBot.create(:shakespeare_and_company_work)
-    PDCMetadata::Resource.new_from_json(work.metadata).to_xml
+    PDCMetadata::Resource.new_from_jsonb(work.metadata).to_xml
   end
 
   let(:minimum_xml_publish_attributes) do

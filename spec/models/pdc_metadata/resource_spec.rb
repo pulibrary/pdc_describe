@@ -99,7 +99,8 @@ RSpec.describe PDCMetadata::Resource, type: :model do
 
   it "creates the expected json" do
     work = FactoryBot.create(:shakespeare_and_company_work)
-    expect(work.metadata).to eq(JSON.parse(work.to_json))
+    expect(work.metadata).to eq(work.resource.as_json)
+    expect(work.metadata).to eq(work.as_json["resource"])
   end
 
   it "allows for collection tags" do
@@ -118,8 +119,8 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     expect(ds.to_json).to include("green")
   end
 
-  describe "##new_from_json" do
-    let(:json) do
+  describe "##new_from_jsonb" do
+    let(:jsonb) do
       {
         "doi" => doi,
         "ark" => "88435/dsp01zc77st047",
@@ -143,6 +144,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
         "rights" => { "identifier" => "CC BY", "name" => "Creative Commons Attribution 4.0 International", "uri" => "https://creativecommons.org/licenses/by/4.0/" },
         "version_number" => 1,
         "funders" => [{
+          "ror" => nil,
           "funder_name" => nil,
           "award_number" => nil,
           "award_uri" => nil
@@ -150,12 +152,12 @@ RSpec.describe PDCMetadata::Resource, type: :model do
       }
     end
     it "parses the json" do
-      resource = described_class.new_from_json(json)
+      resource = described_class.new_from_jsonb(jsonb)
       expect(resource.doi).to eq(doi)
       expect(resource.collection_tags).to eq(["ABC", "123"])
       expect(resource.keywords).to eq(["red", "yellow", "green"])
       expect(resource.description).to eq("All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.")
-      expect(JSON.parse(resource.to_json)).to eq(json)
+      expect(JSON.parse(resource.to_json)).to eq(jsonb)
     end
   end
 end

@@ -27,7 +27,7 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[3]").select_option
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
       fill_in "given_name_1", with: "Daniel"
       fill_in "family_name_1", with: "Trueman"
       click_on "v-pills-additional-tab"
@@ -49,7 +49,7 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       click_on "v-pills-curator-controlled-tab"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2021
-      find("#collection_id").find(:xpath, "option[1]").select_option
+      select "Research Data", from: "collection_id"
       click_on "v-pills-curator-controlled-tab"
       fill_in "doi", with: doi
       fill_in "ark", with: ark

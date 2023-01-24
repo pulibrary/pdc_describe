@@ -14,7 +14,8 @@ File Naming Convention: C4 = middle C. Main note names: [note name][octave]v[vel
 This dataset is too large to download directly from this item page. You can access and download the data via Globus (See https://www.youtube.com/watch?v=uf2c7Y1fiFs for instructions on how to use Globus)."
   end
   let(:ark) { "ark:/88435/dsp015999n653h" }
-  let(:collection) { "bitklavier" }
+  let(:collection_tags) { ["bitklavier"] }
+  let(:collection) { "Research Data" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.34770/r75s-9j74" }
   let(:keywords) { "bitKlavier, sample library, piano" }
@@ -32,7 +33,7 @@ This dataset is too large to download directly from this item page. You can acce
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[3]").select_option
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
       fill_in "given_name_1", with: "Matthew"
       fill_in "family_name_1", with: "Wang"
       click_on "Add Another Creator"
@@ -59,7 +60,8 @@ This dataset is too large to download directly from this item page. You can acce
       fill_in "publication_year", with: 2021
       fill_in "doi", with: doi
       fill_in "ark", with: ark
-      find("#collection_id").find(:xpath, "option[1]").select_option
+      select collection, from: "collection_id"
+      fill_in "collection_tags", with: collection_tags.join(", ")
       click_on "Create"
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
@@ -67,6 +69,8 @@ This dataset is too large to download directly from this item page. You can acce
       expect(page).to have_content "awaiting_approval"
       bitklavierimage_work = Work.last
       expect(bitklavierimage_work.title).to eq title
+      expect(bitklavierimage_work.resource.collection_tags).to eq collection_tags
+      expect(bitklavierimage_work.collection).to eq Collection.research_data
 
       # Ensure the datacite record produced validates against our local copy of the datacite schema.
       # This will allow us to evolve our local datacite standards and test our records against them.

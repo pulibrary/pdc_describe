@@ -72,7 +72,7 @@ namespace :works do
     puts "Importing files from: #{path}"
     Dir.glob(path).each do |file_name|
       hash = JSON.parse(File.read(file_name))
-      resource = PDCMetadata::Resource.new_from_json(hash)
+      resource = PDCMetadata::Resource.new_from_jsonb(hash)
       work = Work.new(resource: resource)
       work.collection = Collection.research_data
       work.created_by_user_id = approver.id

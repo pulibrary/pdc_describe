@@ -59,22 +59,22 @@ module PDCMetadata
     end
 
     class << self
-      # Creates a PDCMetadata::Resource from a JSON string
-      # TODO: When folks are back in the office, there is an agenda item to discuss
-      # what "json" means to everyone. There may be some renaming after that.
-      def new_from_json(hash)
+      # Creates a PDCMetadata::Resource from a JSONB postgres field
+      #  This jsonb_hash can be created by running JSON.parse(pdc_metadata_resource.to_json)
+      #   or by loading it from the work.metadata jsonb field
+      def new_from_jsonb(jsonb_hash)
         resource = PDCMetadata::Resource.new
-        return resource if hash.blank?
+        return resource if jsonb_hash.blank?
 
-        set_basics(resource, hash)
-        set_curator_controlled_metadata(resource, hash)
-        set_additional_metadata(resource, hash)
-        set_titles(resource, hash)
-        set_creators(resource, hash)
-        set_individual_contributors(resource, hash)
-        set_organization_contributors(resource, hash)
-        set_related_objects(resource, hash)
-        set_funders(resource, hash)
+        set_basics(resource, jsonb_hash)
+        set_curator_controlled_metadata(resource, jsonb_hash)
+        set_additional_metadata(resource, jsonb_hash)
+        set_titles(resource, jsonb_hash)
+        set_creators(resource, jsonb_hash)
+        set_individual_contributors(resource, jsonb_hash)
+        set_organization_contributors(resource, jsonb_hash)
+        set_related_objects(resource, jsonb_hash)
+        set_funders(resource, jsonb_hash)
 
         resource
       end

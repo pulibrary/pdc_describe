@@ -51,6 +51,8 @@ To stop database services:
 2. Enter the rails console: `bundle exec rails console`
 3. Elevate your privs: `User.new_super_admin("your NetID here")`
 
+Separate from admin, users may also be [given permission](docs/how_to_add_postdated_provenance.md) to add post-dated notes in the provenance / change log.
+
 ### Development with AWS resources
 Tests should never depend on outside resources, and it's best minimize dependencies during development, too, but it can be useful. To give your local instance access to the staging S3 create `~/s3-envvars.sh`:
 ```
@@ -72,7 +74,12 @@ We use DataCite to mint DOIs and in production you must to define the `DATACITE_
 
 RDSS uses the same [release and deployment process](https://github.com/pulibrary/rdss-handbook/blob/main/release_process.md) for all projects.
 
-## Mail on Staging
+## Mail
+
+### Mail on Development
+Mailcatcher is a gem that can also be installed locally.  See the [mailcatcher documentation](https://mailcatcher.me/) for how to run it on your machine.
+
+### Mail on Staging
 To See mail that has been sent on the staging server you must ssh tunnel into the server.  Since there are two staging servers, the mail could have been sent on either machine. You may have to check both and will need two terminals.
 
 * terminal 1
@@ -82,9 +89,15 @@ To See mail that has been sent on the staging server you must ssh tunnel into th
 
 Once the tunnel is open you can see the mail that has been sent on [staging1 here](http://localhost:1082/) and on [staging 2 here](http://localhost:1083/)
 
+### Mail on Production
+Emails on production are sent via [Pony Express](https://github.com/pulibrary/pul-it-handbook/blob/f54dfdc7ada1ff993a721f6edb4aa1707bb3a3a5/services/smtp-mail-server.md).
 
 ## Design
 An early stages Entity-Relationship Diagram (ERD) is available in [this Google Doc](https://docs.google.com/drawings/d/1q2sfj8rrcNVgqQPK5uT_t79A9SYqncinh3HbnCSGMyQ/edit).
 
 ### Sample Data
 Sample data available here: https://docs.google.com/document/d/18ZkBldqWxIIR1UA6qMY87RnGFTKU9HG3EJzodzzFf2A/edit
+
+## Notes on migration process from DataSpace
+
+Datasets are re-described in order to migrate its metadata from modified Dublin Core to modified DataCite, and to migrate location from Princeton's legacy DataSpace repository to the DataCite compliant Princeton Data Commons suite of applications.

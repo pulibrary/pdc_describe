@@ -30,6 +30,45 @@ RSpec.describe Work, type: :model do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
 
+  context "fixed time" do
+    before do
+      allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
+    end
+    it "captures everything needed for PDC Describe in JSON" do
+      work = Work.new(collection: collection, resource: FactoryBot.build(:tokamak_work))
+      expect(JSON.parse(work.to_json)).to eq(
+        {
+          "resource" => {
+            "titles" => [],
+            "description" => nil,
+            "collection_tags" => [],
+            "creators" => [],
+            "resource_type" => nil,
+            "resource_type_general" => nil,
+            "publisher" => nil,
+            "publication_year" => nil,
+            "ark" => nil,
+            "doi" => nil,
+            "rights" => nil,
+            "version_number" => nil,
+            "related_objects" => [],
+            "keywords" => [],
+            "contributors" => [],
+            "funders" => []
+          },
+          "files" => [],
+          "collection" => {
+            "title" => "Research Data",
+            "description" => nil,
+            "code" => "RD",
+            "created_at" => "2021-12-31T19:00:00.000-05:00",
+            "updated_at" => "2021-12-31T19:00:00.000-05:00"
+          }
+        }
+      )
+    end
+  end
+
   it "checks the format of the ORCID of the creators" do
     # Add a new creator with an incomplete ORCID
     work.resource.creators << PDCMetadata::Creator.new_person("Williams", "Serena", "1234-12")
@@ -151,14 +190,14 @@ RSpec.describe Work, type: :model do
             query_service: pre_curated_query_service,
             filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
             last_modified: nil,
-            size: nil,
+            size: 1024,
             checksum: ""
           ),
           S3File.new(
             query_service: pre_curated_query_service,
             filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv",
             last_modified: nil,
-            size: nil,
+            size: 2048,
             checksum: ""
           )
         ]
@@ -219,6 +258,10 @@ RSpec.describe Work, type: :model do
         expect(work.post_curation_uploads.first.key).to eq(first_attachment_key)
         expect(work.post_curation_uploads.last).to be_an(S3File)
         expect(work.post_curation_uploads.last.key).to eq(last_attachment_key)
+
+        expect(work.as_json["files"][0].keys).to eq([:filename, :size])
+        expect(work.as_json["files"][0][:filename]).to match(/10\.34770\/123-abc\/\d+\/us_covid_2019\.csv/)
+        expect(work.as_json["files"][0][:size]).to eq(1024)
       end
     end
   end
@@ -340,17 +383,20 @@ RSpec.describe Work, type: :model do
       expect(work.curator).to be nil
 
       work.change_curator(curator_user.id, user)
-      activity = work.activities.find { |a| a.message.include?("Set curator to @#{curator_user.uid}") }
+      activity = WorkActivity.changes_for_work(work.id).last
+      expect(activity.message).to eq("Set curator to @#{curator_user.uid}")
       expect(work.curator.id).to be curator_user.id
       expect(activity.created_by_user.id).to eq user.id
 
       work.change_curator(user.id, user)
-      activity = work.activities.find { |a| a.message.include?("Self-assigned as curator") }
+      activity = WorkActivity.changes_for_work(work.id).last
+      expect(activity.message).to eq("Self-assigned as curator")
       expect(work.curator.id).to be user.id
       expect(activity.created_by_user.id).to eq user.id
 
       work.clear_curator(user)
-      activity = work.activities.find { |a| a.message.include?("Unassigned existing curator") }
+      activity = WorkActivity.changes_for_work(work.id).last
+      expect(activity.message).to eq("Unassigned existing curator")
       expect(work.curator).to be nil
       expect(activity.created_by_user.id).to eq user.id
     end
@@ -359,7 +405,8 @@ RSpec.describe Work, type: :model do
   describe "#add_message" do
     it "adds a message" do
       work.add_message("hello world", user.id)
-      activity = work.activities.find { |a| a.message.include?("hello world") }
+      activity = WorkActivity.messages_for_work(work.id).first
+      expect(activity.message).to eq("hello world")
       expect(activity.created_by_user.id).to eq user.id
       expect(activity.activity_type).to eq WorkActivity::MESSAGE
     end
@@ -380,7 +427,8 @@ RSpec.describe Work, type: :model do
     it "parses tagged users correctly" do
       message = "taggging @#{curator_user.uid} and @#{user_other.uid}"
       work.add_message(message, user.id)
-      activity = work.activities.find { |a| a.message.include?(message) }
+      activity = WorkActivity.messages_for_work(work.id).first
+      expect(activity.message).to eq(message)
       expect(activity.to_html.include?("#{curator_user.uid}</a>")).to be true
       expect(activity.to_html.include?("#{user_other.uid}</a>")).to be true
     end
@@ -424,17 +472,13 @@ RSpec.describe Work, type: :model do
     end
 
     it "Notifies Curators and Depositor" do
-      # enable emails
-      user.email_messages_enabled = true
-      # Can not enable message for a depositor, but we will not send them without the messages being enabled
-      # user.enable_messages_from(collection: collection)
-      curator_user.email_messages_enabled = true
-      curator_user.enable_messages_from(collection: collection)
+      curator_user
       expect { draft_work }
-        .to change { WorkActivity.where(activity_type: "SYSTEM").count }.by(2)
-        .and have_enqueued_job(ActionMailer::MailDeliveryJob).once # this would be twice if the user could enable messages
+        .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
+        .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
+        .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
       expect(WorkActivity.where(activity_type: "SYSTEM").first.message).to eq("marked as Draft")
-      user_notification = WorkActivity.where(activity_type: "SYSTEM").last.message
+      user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
       expect(user_notification).to include("@#{curator_user.uid}")
       expect(user_notification).to include("@#{user.uid}")
       expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(draft_work))
@@ -538,17 +582,12 @@ RSpec.describe Work, type: :model do
 
     it "notifies the curator and depositor it is ready for review" do
       curator = FactoryBot.create(:research_data_moderator)
-      # enable emails
-      user.email_messages_enabled = true
-      # Can not enable message for a depositor, but we will not send them without the messages being enabled
-      # user.enable_messages_from(collection: collection)
-      curator.email_messages_enabled = true
-      curator.enable_messages_from(collection: collection)
       expect { awaiting_approval_work }
-        .to change { WorkActivity.where(activity_type: "SYSTEM").count }.by(2)
-        .and have_enqueued_job(ActionMailer::MailDeliveryJob).once # this would be twice if the user could enable messages
-      expect(WorkActivity.where(activity_type: "SYSTEM").first.message).to eq("marked as Awaiting Approval")
-      curator_notification = WorkActivity.where(activity_type: "SYSTEM").last.message
+        .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
+        .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
+        .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
+      expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Awaiting Approval")
+      curator_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
       expect(curator_notification).to include("@#{curator.uid}")
       expect(curator_notification). to include(Rails.application.routes.url_helpers.work_url(awaiting_approval_work))
     end
@@ -610,17 +649,12 @@ RSpec.describe Work, type: :model do
 
     it "Notifies Curators and Depositor" do
       stub_datacite_doi
-      # enable emails
-      user.email_messages_enabled = true
-      # Can not enable message for a depositor, but we will not send them without the messages being enabled
-      # user.enable_messages_from(collection: collection)
-      curator_user.email_messages_enabled = true
-      curator_user.enable_messages_from(collection: collection)
       expect { approved_work }
-        .to change { WorkActivity.where(activity_type: "SYSTEM").count }.by(2)
-        .and have_enqueued_job(ActionMailer::MailDeliveryJob).once # this would be twice if the user could enable messages
-      expect(WorkActivity.where(activity_type: "SYSTEM").first.message).to eq("marked as Approved")
-      user_notification = WorkActivity.where(activity_type: "SYSTEM").last.message
+        .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
+        .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
+        .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
+      expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Approved")
+      user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
       expect(user_notification).to include("@#{curator_user.uid}")
       expect(user_notification).to include("@#{approved_work.created_by_user.uid}")
       expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(approved_work))
@@ -628,13 +662,13 @@ RSpec.describe Work, type: :model do
 
     it "publishes the doi" do
       stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
-      expect { approved_work }.to change { WorkActivity.where(activity_type: "DATACITE_ERROR").count }.by(0)
+      expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(0)
       expect(a_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")).to have_been_made
     end
 
     context "after the DOI has been published" do
       let(:payload_xml) do
-        r = PDCMetadata::Resource.new_from_json(approved_work.metadata)
+        r = PDCMetadata::Resource.new_from_jsonb(approved_work.metadata)
         unencoded = r.to_xml
         Base64.encode64(unencoded)
       end
@@ -666,7 +700,7 @@ RSpec.describe Work, type: :model do
 
     it "notes a issue when an error occurs" do
       stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new(status: "bad", reason_phrase: "a problem"))))
-      expect { approved_work }.to change { WorkActivity.where(activity_type: "DATACITE_ERROR").count }.by(1)
+      expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(1)
     end
 
     it "transitions from approved to withdrawn" do
@@ -809,6 +843,8 @@ RSpec.describe Work, type: :model do
 
         work.complete_submission!(user)
         work.reload
+
+        allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
       end
 
       it "persists S3 Bucket resources as ActiveStorage Attachments" do
@@ -821,12 +857,15 @@ RSpec.describe Work, type: :model do
         expect(work.pre_curation_uploads.first.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt")
         expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
         expect(work.pre_curation_uploads.last.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
-        expect(work.activities.count { |a| a.activity_type == "FILE-CHANGES" }).to eq(1)
+        expect(WorkActivity.activities_for_work(work.id, [WorkActivity::FILE_CHANGES]).count).to eq(1)
 
         # call the s3 reload and make sure no more files get added to the model
         work.attach_s3_resources
         expect(work.pre_curation_uploads.length).to eq(2)
-        expect(work.activities.count { |a| a.activity_type == "FILE-CHANGES" }).to eq(1)
+        expect(WorkActivity.activities_for_work(work.id, [WorkActivity::FILE_CHANGES]).count).to eq(1)
+
+        # Make sure pre-curation files do not show up in JSON:
+        expect(work.as_json["files"]).to eq([])
       end
 
       context "a blob already exists for one of the files" do
@@ -954,6 +993,7 @@ RSpec.describe Work, type: :model do
         "contributors": [],
         "funders":[
           {
+            "ror": "https://ror.org/012345678",
             "funder_name": "National Science Foundation",
             "award_number": "nsf-123",
             "award_uri": "http://nsg.gov/award/123"
@@ -963,7 +1003,7 @@ RSpec.describe Work, type: :model do
     end
     it "can change the entire resource" do
       parsed_json = JSON.parse(resource_json)
-      work.resource = PDCMetadata::Resource.new_from_json(parsed_json)
+      work.resource = PDCMetadata::Resource.new_from_jsonb(parsed_json)
       expect(work.resource.to_json).to eq(parsed_json.to_json)
     end
   end

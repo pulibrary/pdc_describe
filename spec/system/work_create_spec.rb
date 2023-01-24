@@ -69,7 +69,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       work = Work.last
       expect(work.resource.related_objects.count).to eq(0)
       fill_in "description", with: description
-      find("#rights_identifier").find(:xpath, "option[2]").select_option
+      select "GNU General Public License", from: "rights_identifier"
       click_on "Curator Controlled"
       fill_in "publication_year", with: issue_date
       expect(find("#related_object_count", visible: false).value).to eq("1")
@@ -91,6 +91,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       expect(roles).to include("ContactPerson") # Individual roles included
       expect(roles).not_to include("HostingInstitution") # Organizational roles excluded
       click_on "Save Work"
+      expect(page).to have_content("under 100MB")
+      expect(page).to have_content("more than 100MB")
       click_on "Continue"
       click_on "Continue"
       click_on "Complete"
@@ -102,6 +104,13 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       #  when a work is started and marked completed by a submitter
       within("#unfinished_datasets span.badge.rounded-pill.bg-primary") do
         expect(page).to have_content "2"
+      end
+
+      visit(work_path(Work.last))
+
+      within("ul.work-messages") do
+        expect(page).to have_content("#{title} has been created")
+        expect(page).to have_content("#{title} is ready for review")
       end
 
       # Now sign is as the collection curator and see the notification on your dashboard
