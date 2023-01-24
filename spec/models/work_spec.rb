@@ -383,19 +383,19 @@ RSpec.describe Work, type: :model do
       expect(work.curator).to be nil
 
       work.change_curator(curator_user.id, user)
-      activity = WorkActivity.changes_for_work(work.id).first
+      activity = WorkActivity.changes_for_work(work.id).last
       expect(activity.message).to eq("Set curator to @#{curator_user.uid}")
       expect(work.curator.id).to be curator_user.id
       expect(activity.created_by_user.id).to eq user.id
 
       work.change_curator(user.id, user)
-      activity = WorkActivity.changes_for_work(work.id).first
+      activity = WorkActivity.changes_for_work(work.id).last
       expect(activity.message).to eq("Self-assigned as curator")
       expect(work.curator.id).to be user.id
       expect(activity.created_by_user.id).to eq user.id
 
       work.clear_curator(user)
-      activity = WorkActivity.changes_for_work(work.id).first
+      activity = WorkActivity.changes_for_work(work.id).last
       expect(activity.message).to eq("Unassigned existing curator")
       expect(work.curator).to be nil
       expect(activity.created_by_user.id).to eq user.id
@@ -857,12 +857,12 @@ RSpec.describe Work, type: :model do
         expect(work.pre_curation_uploads.first.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt")
         expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
         expect(work.pre_curation_uploads.last.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
-        expect(WorkActivity.activities_for_work(work.id, ["FILE-CHANGES"]).count).to eq(1)
+        expect(WorkActivity.activities_for_work(work.id, [WorkActivity::FILE_CHANGES]).count).to eq(1)
 
         # call the s3 reload and make sure no more files get added to the model
         work.attach_s3_resources
         expect(work.pre_curation_uploads.length).to eq(2)
-        expect(WorkActivity.activities_for_work(work.id, ["FILE-CHANGES"]).count).to eq(1)
+        expect(WorkActivity.activities_for_work(work.id, [WorkActivity::FILE_CHANGES]).count).to eq(1)
 
         # Make sure pre-curation files do not show up in JSON:
         expect(work.as_json["files"]).to eq([])
