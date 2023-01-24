@@ -829,9 +829,9 @@ RSpec.describe WorksController do
 
           it "does not redirect to the Work show view if not exact (missing slash)" do
             stub_s3
-            expect { 
+            expect do
               get :resolve_doi, params: { doi: work.doi.gsub("10.34770", "") }
-            }.to raise_error(ActiveRecord::RecordNotFound)
+            end.to raise_error(ActiveRecord::RecordNotFound)
           end
         end
       end
@@ -862,9 +862,9 @@ RSpec.describe WorksController do
 
           it "does not redirect to the Work show view if not exact (missing slash)" do
             stub_s3
-            expect { 
+            expect do
               get :resolve_ark, params: { ark: work.ark.gsub("ark:", "") }
-            }.to raise_error(ActiveRecord::RecordNotFound)
+            end.to raise_error(ActiveRecord::RecordNotFound)
           end
         end
       end

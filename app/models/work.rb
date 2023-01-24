@@ -89,13 +89,13 @@ class Work < ApplicationRecord
     def find_by_doi(doi)
       prefix = "10.34770/"
       doi = "#{prefix}#{doi}" unless doi.start_with?(prefix)
-      Work.find_by!('metadata @> ?', JSON.dump(doi: doi))
+      Work.find_by!("metadata @> ?", JSON.dump(doi: doi))
     end
 
     def find_by_ark(ark)
       prefix = "ark:/"
       ark = "#{prefix}#{ark}" unless ark.start_with?(prefix)
-      Work.find_by!('metadata @> ?', JSON.dump(ark: ark))
+      Work.find_by!("metadata @> ?", JSON.dump(ark: ark))
     end
 
     delegate :resource_type_general_values, to: PDCMetadata::Resource
