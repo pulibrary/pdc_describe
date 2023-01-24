@@ -13,7 +13,7 @@ class WorkStateTransitionNotification
     @collection_administrators = work.collection.administrators.to_a
     @work_url = Rails.application.routes.url_helpers.work_url(work)
     @work_title = work.title
-    @users = @collection_administrators + [@depositor]
+    @users = @collection_administrators | [@depositor] # Depositor may also be an admin, but should only be listed once.
     @notification = notification_for_transition
     @id = work.id
     @current_user_id = current_user_id
