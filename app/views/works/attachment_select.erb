@@ -7,11 +7,11 @@
 
   <%= form_tag(action: "attachment_selected", id: @work) do %>
     <input type="radio" id="attachment_type" name="attachment_type" value="file_upload" class="wizard-radio-button"
-      <%= @work.files_location_upload? ? "checked" : "" %>>under 100GB and I want to upload the files directly.</input><br/>
+      <%= @work.files_location_upload? ? "checked" : "" %>>under 100MB and I want to upload the files directly.</input><br/>
     <input type="radio" id="attachment_type" name="attachment_type" value="file_cluster" class="wizard-radio-button"
       <%= @work.files_location_cluster? ? "checked" : "" %>>located on a Princeton research Cluster.</input><br/>
     <input type="radio" id="attachment_type" name="attachment_type" value="file_other" class="wizard-radio-button"
-      <%= @work.files_location_other? ? "checked" : "" %>>more than 100GB and located somewhere else.</input><br/>
+      <%= @work.files_location_other? ? "checked" : "" %>>more than 100MB and located somewhere else.</input><br/>
 
     <div class="actions">
       <%= link_to "Go Back", edit_work_path(@work, wizard: true), class: "btn btn-secondary" %>

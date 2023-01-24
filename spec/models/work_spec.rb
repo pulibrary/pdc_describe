@@ -190,14 +190,14 @@ RSpec.describe Work, type: :model do
             query_service: pre_curated_query_service,
             filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
             last_modified: nil,
-            size: nil,
+            size: 1024,
             checksum: ""
           ),
           S3File.new(
             query_service: pre_curated_query_service,
             filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv",
             last_modified: nil,
-            size: nil,
+            size: 2048,
             checksum: ""
           )
         ]
@@ -258,6 +258,10 @@ RSpec.describe Work, type: :model do
         expect(work.post_curation_uploads.first.key).to eq(first_attachment_key)
         expect(work.post_curation_uploads.last).to be_an(S3File)
         expect(work.post_curation_uploads.last.key).to eq(last_attachment_key)
+
+        expect(work.as_json["files"][0].keys).to eq([:filename, :size])
+        expect(work.as_json["files"][0][:filename]).to match(/10\.34770\/123-abc\/\d+\/us_covid_2019\.csv/)
+        expect(work.as_json["files"][0][:size]).to eq(1024)
       end
     end
   end
@@ -860,15 +864,8 @@ RSpec.describe Work, type: :model do
         expect(work.pre_curation_uploads.length).to eq(2)
         expect(WorkActivity.activities_for_work(work.id, [WorkActivity::FILE_CHANGES]).count).to eq(1)
 
-        # Make sure files show up in JSON for discovery:
-        expect(work.as_json["files"]).to eq([
-                                              { created_at: "2021-12-31 19:00:00.000000000 -0500",
-                                                base: "SCoData_combined_v1_2020-07_README",
-                                                extension: "txt" },
-                                              { created_at: "2021-12-31 19:00:00.000000000 -0500",
-                                                base: "SCoData_combined_v1_2020-07_datapackage",
-                                                extension: "json" }
-                                            ])
+        # Make sure pre-curation files do not show up in JSON:
+        expect(work.as_json["files"]).to eq([])
       end
 
       context "a blob already exists for one of the files" do

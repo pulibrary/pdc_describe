@@ -445,11 +445,13 @@ class Work < ApplicationRecord
       # Included in signature for compatibility with Rails.
     end
 
-    files = (pre_curation_uploads + post_curation_uploads).map do |upload|
+    # Pre-curation files are not accessible externally,
+    # so we are not interested in listing them in JSON.
+    # (The items in pre_curation_uploads also have different properties.)
+    files = post_curation_uploads.map do |upload|
       {
-        "base": upload.filename.base,
-        "extension": upload.filename.extension,
-        "created_at": upload.created_at
+        "filename": upload.filename,
+        "size": upload.size
       }
     end
 
