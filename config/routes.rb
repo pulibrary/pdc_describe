@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   end
 
   get "about", to: "welcome#about", as: :welcome_about
+  get "license", to: "welcome#license", as: :welcome_license
 
   post "works/new-submission", to: "works#new_submission", as: :work_new_submission
   get "works/:id/attachment-select", to: "works#attachment_select", as: :work_attachment_select

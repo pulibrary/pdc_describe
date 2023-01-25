@@ -95,6 +95,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       expect(page).to have_content("more than 100MB")
       click_on "Continue"
       click_on "Continue"
+      expect(page).to have_content("Please take a moment to read the terms of this license")
       click_on "Complete"
 
       expect(page).to have_content "awaiting_approval"

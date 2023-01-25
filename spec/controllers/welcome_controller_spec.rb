@@ -6,4 +6,9 @@ RSpec.describe WelcomeController do
     get :about
     expect(response).to render_template("about")
   end
+
+  it "renders the license page" do
+    get :license
+    expect(response).to render_template("license")
+  end
 end
