@@ -106,7 +106,7 @@ class FormToResourceService
       # Contributors:
 
       def add_contributors(params, resource)
-        resource.contributors = (1..params["contributor_count"].to_i).filter_map do |i|
+        resource.individual_contributors = (1..params["contributor_count"].to_i).filter_map do |i|
           given_name = params["contributor_given_name_#{i}"]
           family_name = params["contributor_family_name_#{i}"]
           orcid = params["contributor_orcid_#{i}"]

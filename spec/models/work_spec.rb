@@ -43,6 +43,7 @@ RSpec.describe Work, type: :model do
             "description" => nil,
             "collection_tags" => [],
             "creators" => [],
+            "organizational_contributors" => [],
             "resource_type" => nil,
             "resource_type_general" => nil,
             "publisher" => nil,

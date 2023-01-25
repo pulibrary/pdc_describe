@@ -39,6 +39,10 @@ module PDCMetadata
       @contributors
     end
 
+    def individual_contributors=(value)
+      @contributors = value
+    end
+
     def identifier
       @doi
     end

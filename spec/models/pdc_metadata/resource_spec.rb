@@ -20,7 +20,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     ds.creators = [creator1, creator2]
     ds.ark = "ark:/88435/dsp01hx11xj13h"
     ds.rights = PDCMetadata::Rights.find("CC BY")
-    ds.contributors = [contributor1, contributor2]
+    ds.individual_contributors = [contributor1, contributor2]
     ds.publication_year = 2022
     ds
   end
@@ -65,7 +65,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     expect(ds.main_title).to eq "hello world"
     expect(ds.resource_type).to eq "Dataset"
     expect(ds.creators.count).to be 2
-    expect(ds.contributors.count).to be 2
+    expect(ds.individual_contributors.count).to be 2
   end
 
   describe "#identifier_type" do
