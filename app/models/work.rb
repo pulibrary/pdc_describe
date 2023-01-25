@@ -447,7 +447,8 @@ class Work < ApplicationRecord
     files = post_curation_uploads.map do |upload|
       {
         "filename": upload.filename,
-        "size": upload.size
+        "size": upload.size,
+        "url": upload.globus_url
       }
     end
 

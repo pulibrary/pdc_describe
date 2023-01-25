@@ -1,57 +1,7 @@
 <div class="wizard-area">
   <h1>New Submission (<%= @work.title %>)</h1>
   <%= render "wizard_progress", wizard_step: 3 %>
-  <p>
-    In order for Princeton University's Princeton Data Commons to reproduce, translate, and distribute
-    your submission for worldwide public access your agreement to the following terms is necessary.
-    Please take a moment to read the terms of this license.
-  </p>
-
-  <blockquote style="border: 1px solid; padding: 1em;">
-    <p>
-      By clicking through this license, you (the author(s) or creator(s) or copyright owner(s)) grant to Princeton University the non-exclusive right to reproduce, translate (as defined below), and/or distribute your submission (including the abstract) worldwide in electronic format.
-    </p>
-    <p>
-      You represent that the submission is your original work, and/or that you have
-      the right to grant the rights contained in this license.  You represent that
-      your submission does not, to the best of your knowledge, infringe upon anyone's copyright.
-    </p>
-    <p>
-      Because Princeton University owns the copyright in any work that any member of
-      the University staff (not faculty) creates in the course of his or her assigned duties at the University ("University Work Product"), University Work Products may not be deposited in Princeton Data Commons without first securing the consent of the University supervisor who is responsible for the creation and dissemination the University Work Product.  Such consent must include acknowledgement by the supervisor that the University Work Product can, and will, be made available to the general public.
-    </p>
-    <p>
-      You also represent, to the best of your knowledge, that public distribution of
-      your submission will not violate the personal privacy rights of any group or
-      individual.  You agree that Princeton University may translate the submission to any medium or format for the purpose of preservation.
-    </p>
-    <p>
-      You also agree that Princeton University may keep more than one copy of this
-      submission for purposes of security, back-up, and preservation.
-    </p>
-    <p>
-      If the submission contains material for which you do not hold copyright, you
-      represent that you have obtained the unrestricted permission of the copyright
-      owner to grant Princeton University the rights required by this license, and
-      that such third-party owned material is clearly identified and acknowledged
-      within the text or content of the submission.
-    </p>
-    <p>
-      If the submission is based upon work that has been sponsored or supported by an agency or organization other than Princeton University, you represent that you have fulfilled any right of review or other obligations required by such
-      contract or agreement.
-    </p>
-    <p>
-      Princeton University will not make any alteration, other than as allowed by this license, to your submission.
-    </p>
-    <p>
-      Princeton University reserves the right to make unavailable any content which it deems to be in violation of this agreement, or of applicable local, state or federal law.  Princeton also reserves the right to make content unavailable for limited periods of time so as to perform maintenance on the repository or its contents.
-    </p>
-    <p>
-      Princeton will endeavor to maintain this repository and make its contents
-      available indefinitely.  However, the University reserves the right to terminate this repository and its services should circumstances warrant.  In such a case, Princeton's sole responsibility will be to make a best-faith effort to transfer the content to another repository and/or return the content to its original owner.
-    </p>
-  </blockquote>
-
+  <%= render "license_text" %>
   <p>Data curators will review the submission for accuracy and completeness to make
     it more discoverable and reusable. Recommendations will be available in the "unfinished submissions"
     section of this form within 2-5 business days.</p>
