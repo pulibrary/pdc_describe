@@ -193,7 +193,7 @@ RSpec.describe "Creating and updating works", type: :system do
       click_on "Additional Metadata"
       fill_in "contributor_given_name_1", with: "Robert"
       fill_in "contributor_family_name_1", with: "Smith"
-      click_on "Add Another Contributor"
+      click_on "Add Another Individual Contributor"
       fill_in "contributor_given_name_2", with: "Simon"
       fill_in "contributor_family_name_2", with: "Gallup"
       contributor_text = page.find("#contributors-table").find_all("tr").map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip

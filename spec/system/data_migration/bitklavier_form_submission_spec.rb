@@ -34,15 +34,15 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       fill_in "contributor_given_name_1", with: "Matthew"
       fill_in "contributor_family_name_1", with: "Wang"
       find("#contributor_role_1").find(:xpath, "option[2]").select_option
-      click_on "Add Another Contributor"
+      click_on "Add Another Individual Contributor"
       fill_in "contributor_given_name_2", with: "Andrés"
       fill_in "contributor_family_name_2", with: "Villalta"
       find("#contributor_role_2").find(:xpath, "option[2]").select_option
-      click_on "Add Another Contributor"
+      click_on "Add Another Individual Contributor"
       fill_in "contributor_given_name_3", with: "Katie"
       fill_in "contributor_family_name_3", with: "Chou"
       find("#contributor_role_3").find(:xpath, "option[2]").select_option
-      click_on "Add Another Contributor"
+      click_on "Add Another Individual Contributor"
       fill_in "contributor_given_name_4", with: "Christien"
       fill_in "contributor_family_name_4", with: "Ayres"
       find("#contributor_role_4").find(:xpath, "option[2]").select_option
