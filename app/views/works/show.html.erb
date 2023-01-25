@@ -93,7 +93,7 @@
 </div>
 
 <div class="row">
-  <div class="col-8" id="left-of-messages">
+  <div class="col-8" data-class="col-12" id="left-of-messages">
     <h1><%= @work.title %></h1>
 
     <dl>
@@ -263,21 +263,17 @@
 <script>
   $(function() {
     $("#toggle-messages").on("click", (event) => {
-      const $target = $(event.target)
+      $("#messages").toggle();
 
-      const oldText = $target.text();
-      $target.text($target.data("text"));
-      $target.data("text", oldText);
+      const $toggleMessages = $("#toggle-messages");
+      const oldText = $toggleMessages.text();
+      $toggleMessages.text($toggleMessages.data("text"));
+      $toggleMessages.data("text", oldText);
 
-      const isHidden = !($target.data('is-hidden'));
-      $target.data('is-hidden', isHidden);
-      if (isHidden) {
-        $("#messages").hide();
-        $("#left-of-messages").removeClass("col-8").addClass("col-12");
-      } else {
-        $("#messages").show();
-        $("#left-of-messages").removeClass("col-12").addClass("col-8");
-      }
+      const $leftOfMessages = $("#left-of-messages");
+      const oldClass = $leftOfMessages.attr("class");
+      $leftOfMessages.attr("class", $leftOfMessages.data("class"));
+      $leftOfMessages.data("class", oldClass);
     });
 
     // Issues HTTP POST to update the curator assigned to the work.
