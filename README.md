@@ -67,6 +67,8 @@ Then source this file before starting rails:
 $ . ~/s3-envvars.sh; bundle exec rails s -p 3000
 ```
 
+By default `storage.yml` is also configured to use local storage instead of connecting to AWS. Make sure you update your local copy as indicated inside the file if you want to use AWS.
+
 ## DataCite integration
 We use DataCite to mint DOIs and in production you must to define the `DATACITE_*` environment values indicated [here](https://github.com/pulibrary/princeton_ansible/blob/main/group_vars/pdc_describe/production.yml) for the system to run. During development if you do not set these values the system will use a hard-coded DOI.
 
