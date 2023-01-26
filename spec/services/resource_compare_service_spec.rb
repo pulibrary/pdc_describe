@@ -85,7 +85,7 @@ describe ResourceCompareService do
       titles: [{ action: :changed, from: "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events ()", to: "new title ()" }],
       collection_tags: [{ action: :changed, from: "", to: "fake" }],
       creators: [{ action: :changed, from: "Kotin, Joshua | 1 | ", to: "" }],
-      domains:[{ action: :changed, from: "", to: "Humanities" }]
+      domains: [{ action: :changed, from: "", to: "Humanities" }]
     }
     resource1 = FactoryBot.create(:shakespeare_and_company_work).resource
     keys = resource1.as_json.keys.sort

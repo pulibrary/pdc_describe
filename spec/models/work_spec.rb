@@ -55,7 +55,7 @@ RSpec.describe Work, type: :model do
             "keywords" => [],
             "contributors" => [],
             "funders" => [],
-            "domains"=>[]
+            "domains" => []
           },
           "files" => [],
           "collection" => {
