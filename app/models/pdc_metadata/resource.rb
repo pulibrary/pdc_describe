@@ -35,6 +35,11 @@ module PDCMetadata
     end
     # rubocop:enable Metrics/MethodLength
 
+    def accessors
+      setters = methods.map(&:to_s).filter { |s| s.match?(/\w=$/) }
+      setters.map { |s| s.gsub("=","").to_sym }
+    end
+
     def individual_contributors
       @contributors
     end

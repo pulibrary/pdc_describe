@@ -34,8 +34,7 @@ class ResourceCompareService
     def compare_resources
       # Loop through an object's setters and compare the values from the before and after objects.
       # Note: This assumes the before and after objects have the same methods.
-      setters = @before.methods.map(&:to_s).filter { |s| s.match?(/\w=$/) }
-      setters.map { |s| s.delete("=").to_sym }.each do |method_sym|
+      @before.accessors.each do |method_sym|
         before_value = @before.send(method_sym)
         after_value = @after.send(method_sym)
         next if before_value.to_json == after_value.to_json
