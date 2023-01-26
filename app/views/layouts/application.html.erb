@@ -22,6 +22,13 @@
     <!-- Provides https://jqueryui.com/sortable/ and /autocomplete/-->
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
 
+    <!-- Reference bootstrap-select for the modern looking multi-select dropdown list
+      Notice that we are using a beta version of this component since that's the one
+      supported with Bootstrap 5 (https://stackoverflow.com/a/67949799/446681).
+    -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/css/bootstrap-select.min.css" integrity="sha512-mR/b5Y7FRsKqrYZou7uysnOdCIJib/7r5QeJMFvLNHNhtye3xJp1TdJVPLtetkukFn227nKpXD9OjUc09lx97Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/js/bootstrap-select.min.js" integrity="sha512-FHZVRMUW9FsXobt+ONiix6Z0tIkxvQfxtCSirkKc5Sb4TKHmqq1dZa8DphF0XqKb3ldLu/wgMa8mT6uXiLlRlw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css"/>
     <script type="text/javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
     <%= favicon_link_tag asset_path('favicon.png') %>
@@ -50,9 +57,9 @@
       datacite: <%= raw(
         ['ContributorType', 'RelationType', 'RelatedIdentifierType'].map { |name|
           [
-            name, 
+            name,
             Datacite::Mapping.const_get(name).to_a.map(&:value)
-          ] 
+          ]
         }.to_h.to_json
       ) %>,
     };

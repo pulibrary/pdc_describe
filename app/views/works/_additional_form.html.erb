@@ -8,9 +8,10 @@
   value="<%= @work.resource.keywords.join(', ') %>"
 />
 
-
 <%= render(partial: 'works/funder_table') %>
 
 <%= render(partial: 'works/related_objects_table') %>
 
 <%= render(partial: 'works/contributors_table') %>
+
+<%= render(partial: 'works/domains') %>

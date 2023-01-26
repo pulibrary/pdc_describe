@@ -154,6 +154,15 @@
         </dd>
       <% end %>
 
+      <% if @work.resource.domains.count > 0 %>
+        <dt>Domains</dt>
+        <dd>
+          <% @work.resource.domains.each do |domain| %>
+            <span class="badge bg-dark"><%= domain %></span>
+          <% end %>
+        </dd>
+      <% end %>
+
       <% if @work.resource.rights.present? %>
         <dt>Rights</dt>
         <dd><%= @work.resource.rights.name %> (<%= link_to(@work.resource.rights.identifier, @work.resource.rights.uri, {target: "_blank"}) %>)</dd>
@@ -174,7 +183,7 @@
         <dt>Resource Type</dt>
         <dd><%= @work.resource_type %></dd>
       <% end %>
-        
+
       <% if @work.resource_type_general %>
         <dt>General Type</dt>
         <dd><%= @work.resource_type_general %></dd>
@@ -215,7 +224,7 @@
             <%= funder.award_uri %>
           </dd>
         <% end %>
-      <% end %> 
+      <% end %>
 
       <dt>Location</dt>
       <dd>

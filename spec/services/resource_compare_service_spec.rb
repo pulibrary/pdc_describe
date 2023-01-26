@@ -58,7 +58,7 @@ describe ResourceCompareService do
 
   describe "checking every field" do
     new_values = {
-      # These could be filled in with represenatative values, but since this
+      # These could be filled in with representative values, but since this
       # really just checking the coverage of the ResouceCompareService,
       # that isn't critical.
       related_objects: [],
@@ -68,7 +68,8 @@ describe ResourceCompareService do
       funders: [],
       keywords: [],
       contributors: [],
-      creators: []
+      creators: [],
+      domains: ["Humanities"]
     }
     expected_diff = {
       doi: [{ action: :changed, from: "10.34770/pe9w-x904", to: "" }],
@@ -83,7 +84,8 @@ describe ResourceCompareService do
       rights: [{ action: :changed, from: "Creative Commons Attribution 4.0 International", to: "" }],
       titles: [{ action: :changed, from: "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events ()", to: "new title ()" }],
       collection_tags: [{ action: :changed, from: "", to: "fake" }],
-      creators: [{ action: :changed, from: "Kotin, Joshua | 1 | ", to: "" }]
+      creators: [{ action: :changed, from: "Kotin, Joshua | 1 | ", to: "" }],
+      domains:[{ action: :changed, from: "", to: "Humanities" }]
     }
     resource1 = FactoryBot.create(:shakespeare_and_company_work).resource
     keys = resource1.as_json.keys.sort
