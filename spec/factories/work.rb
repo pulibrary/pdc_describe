@@ -103,6 +103,7 @@ FactoryBot.define do
         json_from_spec = File.read(Rails.root.join("spec", "fixtures", "cytoskeletal_metadata.json"))
         PDCMetadata::Resource.new_from_jsonb(JSON.parse(json_from_spec))
       end
+      state { "draft" }
       created_by_user_id { FactoryBot.create(:user).id }
     end
 
