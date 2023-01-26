@@ -70,188 +70,212 @@
   }
 </style>
 
-<div>
-  <% if @work.draft?  || @work.awaiting_approval? || current_user.has_role?(:collection_admin, @collection) %>
-    <%= link_to("Edit", edit_work_path(@work, wizard: @work.draft?), class: "btn btn-primary") %>
-  <% end %>
-  <% if @work.awaiting_approval? && current_user.has_role?(:collection_admin, @collection) %>
-    <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post) %>
-  <% elsif @work.approved? %>
-    <%= button_to("Withdraw Dataset", withdraw_work_path(@work), class: "btn btn-secondary", method: :post) %>
-  <% elsif @work.withdrawn? %>
-    <%= button_to("Resubmit for approval", resubmit_work_path(@work), class: "btn btn-secondary", method: :post) %>
-  <% end %>
-  <% if @work.draft? && @work.created_by_user_id == current_user.id %>
-    <%= button_to("Complete", work_validate_path(@work), class: "btn btn-secondary", method: :post) %>
-  <% end %>
-  <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-secondary" %>
+<div class="row">
+  <div class="col-8">
+    <% if @work.draft?  || @work.awaiting_approval? || current_user.has_role?(:collection_admin, @collection) %>
+      <%= link_to("Edit", edit_work_path(@work, wizard: @work.draft?), class: "btn btn-primary") %>
+    <% end %>
+    <% if @work.awaiting_approval? && current_user.has_role?(:collection_admin, @collection) %>
+      <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post) %>
+    <% elsif @work.approved? %>
+      <%= button_to("Withdraw Dataset", withdraw_work_path(@work), class: "btn btn-secondary", method: :post) %>
+    <% elsif @work.withdrawn? %>
+      <%= button_to("Resubmit for approval", resubmit_work_path(@work), class: "btn btn-secondary", method: :post) %>
+    <% end %>
+    <% if @work.draft? && @work.created_by_user_id == current_user.id %>
+      <%= button_to("Complete", work_validate_path(@work), class: "btn btn-secondary", method: :post) %>
+    <% end %>
+    <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-secondary" %>
+  </div>
+  <div class="col-4" id="expand-messages">
+    <button class="btn btn-secondary" id="toggle-messages" data-text="Show Messages">Hide Messages</button>
+  </div>
 </div>
 
-<h1><%= @work.title %></h1>
+<div class="row">
+  <div class="col-8" data-class="col-12" id="left-of-messages">
+    <h1><%= @work.title %></h1>
 
-<dl>
+    <dl>
 
-  <% @work.resource.other_titles.each do |title| %>
-    <dt><%= title.title_type %></dt>
-    <dd><%= title.title %></dd>
-  <% end %>
-
-  <dt>Creators</dt>
-  <dd>
-    <% @work.resource.creators.each_with_index do |creator, ix| %>
-      <%= person_orcid_link(creator.value, creator.orcid, ix < (@work.resource.creators.count-1) ) %>
-    <% end %>
-  </dd>
-
-  <dt>Curator</dt>
-  <dd>
-    <% if @can_curate %>
-      <select id="curator_select">
-        <option value="no-one">(no one)</option>
-        <% @collection.administrators.each do |user| %>
-          <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.display_name_safe %></option>
-        <% end %>
-      </select>
-    <% else %>
-      <% if @work.curator_user_id.nil? %>
-        none
-      <% else %>
-        <%= User.find(@work.curator_user_id).display_name_safe %>
+      <% @work.resource.other_titles.each do |title| %>
+        <dt><%= title.title_type %></dt>
+        <dd><%= title.title %></dd>
       <% end %>
-    <% end %>
-  </dd>
 
-  <% if @work.resource.doi %>
-    <dt>DOI</dt>
-    <dd>
-      <span><%= link_to(@work.resource.doi, doi_url(@work.resource.doi), target: '_blank', rel: 'noopener noreferrer') %></span>
-      <button id="copy-doi" class="btn btn-sm" data-url="<%= doi_url(@work.resource.doi) %>" title="Copy DOI URL to the clipboard">
-        <i id="copy-doi-icon" class="bi bi-clipboard" title="Copy DOI URL to the clipboard"></i>
-        <span id="copy-doi-label" class="copy-doi-label-normal">COPY</span>
-      </button>
-    </dd>
-  <% end %>
-
-  <dt>Creator</dt>
-  <dd><%= @work.created_by_user.uid %></dd>
-
-  <dt>Description</dt>
-  <dd style="white-space: pre-wrap;"><%= @work.resource.description %></dd>
-
-  <% if @work.resource.keywords.count > 0 %>
-    <dt>Keywords</dt>
-    <dd>
-      <% @work.resource.keywords.each do |keyword| %>
-        <span class="badge bg-dark"><%= keyword %></span>
-      <% end %>
-    </dd>
-  <% end %>
-
-  <% if @work.resource.rights.present? %>
-    <dt>Rights</dt>
-    <dd><%= @work.resource.rights.name %> (<%= link_to(@work.resource.rights.identifier, @work.resource.rights.uri, {target: "_blank"}) %>)</dd>
-  <% end %>
-
-  <dt>Publisher</dt>
-  <dd><%= @work.resource.publisher %></dd>
-
-  <dt>Publication Year</dt>
-  <dd><%= @work.resource.publication_year %></dd>
-
-  <% if @work.resource.version_number %>
-    <dt>Version</dt>
-    <dd><%= @work.resource.version_number %></dd>
-  <% end %>
-
-  <% if @work.resource_type %>
-    <dt>Resource Type</dt>
-    <dd><%= @work.resource_type %></dd>
-  <% end %>
-    
-  <% if @work.resource_type_general %>
-    <dt>General Type</dt>
-    <dd><%= @work.resource_type_general %></dd>
-  <% end %>
-
-  <% if @work.resource.ark %>
-    <dt>ARK</dt>
-    <dd><%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></dd>
-  <% end %>
-
-  <% if @work.resource.individual_contributors.count > 0 %>
-    <dt>Contributors</dt>
-    <dd>
-      <% @work.resource.individual_contributors.each_with_index do |contributor, ix| %>
-        <%= contributor_link(contributor, ix < (@work.resource.individual_contributors.count-1) ) %>
-      <% end %>
-    </dd>
-  <% end %>
-
-  <% if @work.resource.related_objects.count > 0 %>
-    <dt>Related Objects</dt>
-    <dd>
-      <% @work.resource.related_objects.each do |related_object| %>
-        <span class="related_object"><%= related_object.relation_type %>  <%= link_to(related_object.related_identifier, related_object.related_identifier) %></span>
-      <% end %>
-    </dd>
-  <% end %>
-
-  <dt>Collection</dt>
-  <dd><%= @collection.title %></dd>
-
-  <% if @work.resource.funders.count > 0 %>
-    <dt>Funders</dt>
-    <% @work.resource.funders.each do |funder| %>
+      <dt>Creators</dt>
       <dd>
-        <%= funder.funder_name %>,
-        <%= funder.award_number %>,
-        <%= funder.award_uri %>
+        <% @work.resource.creators.each_with_index do |creator, ix| %>
+          <%= person_orcid_link(creator.value, creator.orcid, ix < (@work.resource.creators.count-1) ) %>
+        <% end %>
       </dd>
-    <% end %>
-  <% end %> 
 
-  <dt>Location</dt>
-  <dd>
-    <% if @work.pre_curation_uploads.present? %>
-      Amazon S3 Curation Storage
-    <% elsif @work.files_location_cluster? %>
-      PUL Research Cluster
-    <% elsif @work.files_location_other? %>
-      Other
+      <dt>Curator</dt>
+      <dd>
+        <% if @can_curate %>
+          <select id="curator_select">
+            <option value="no-one">(no one)</option>
+            <% @collection.administrators.each do |user| %>
+              <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.display_name_safe %></option>
+            <% end %>
+          </select>
+        <% else %>
+          <% if @work.curator_user_id.nil? %>
+            none
+          <% else %>
+            <%= User.find(@work.curator_user_id).display_name_safe %>
+          <% end %>
+        <% end %>
+      </dd>
+
+      <% if @work.resource.doi %>
+        <dt>DOI</dt>
+        <dd>
+          <span><%= link_to(@work.resource.doi, doi_url(@work.resource.doi), target: '_blank', rel: 'noopener noreferrer') %></span>
+          <button id="copy-doi" class="btn btn-sm" data-url="<%= doi_url(@work.resource.doi) %>" title="Copy DOI URL to the clipboard">
+            <i id="copy-doi-icon" class="bi bi-clipboard" title="Copy DOI URL to the clipboard"></i>
+            <span id="copy-doi-label" class="copy-doi-label-normal">COPY</span>
+          </button>
+        </dd>
+      <% end %>
+
+      <dt>Creator</dt>
+      <dd><%= @work.created_by_user.uid %></dd>
+
+      <dt>Description</dt>
+      <dd style="white-space: pre-wrap;"><%= @work.resource.description %></dd>
+
+      <% if @work.resource.keywords.count > 0 %>
+        <dt>Keywords</dt>
+        <dd>
+          <% @work.resource.keywords.each do |keyword| %>
+            <span class="badge bg-dark"><%= keyword %></span>
+          <% end %>
+        </dd>
+      <% end %>
+
+      <% if @work.resource.rights.present? %>
+        <dt>Rights</dt>
+        <dd><%= @work.resource.rights.name %> (<%= link_to(@work.resource.rights.identifier, @work.resource.rights.uri, {target: "_blank"}) %>)</dd>
+      <% end %>
+
+      <dt>Publisher</dt>
+      <dd><%= @work.resource.publisher %></dd>
+
+      <dt>Publication Year</dt>
+      <dd><%= @work.resource.publication_year %></dd>
+
+      <% if @work.resource.version_number %>
+        <dt>Version</dt>
+        <dd><%= @work.resource.version_number %></dd>
+      <% end %>
+
+      <% if @work.resource_type %>
+        <dt>Resource Type</dt>
+        <dd><%= @work.resource_type %></dd>
+      <% end %>
+        
+      <% if @work.resource_type_general %>
+        <dt>General Type</dt>
+        <dd><%= @work.resource_type_general %></dd>
+      <% end %>
+
+      <% if @work.resource.ark %>
+        <dt>ARK</dt>
+        <dd><%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></dd>
+      <% end %>
+
+      <% if @work.resource.individual_contributors.count > 0 %>
+        <dt>Individual Contributors</dt>
+        <dd>
+          <% @work.resource.individual_contributors.each_with_index do |contributor, ix| %>
+            <%= contributor_link(contributor, ix < (@work.resource.individual_contributors.count-1) ) %>
+          <% end %>
+        </dd>
+      <% end %>
+
+      <% if @work.resource.related_objects.count > 0 %>
+        <dt>Related Objects</dt>
+        <dd>
+          <% @work.resource.related_objects.each do |related_object| %>
+            <span class="related_object"><%= related_object.relation_type %>  <%= link_to(related_object.related_identifier, related_object.related_identifier) %></span>
+          <% end %>
+        </dd>
+      <% end %>
+
+      <dt>Collection</dt>
+      <dd><%= @collection.title %></dd>
+
+      <% if @work.resource.funders.count > 0 %>
+        <dt>Funders</dt>
+        <% @work.resource.funders.each do |funder| %>
+          <dd>
+            <%= funder.funder_name %>,
+            <%= funder.award_number %>,
+            <%= funder.award_uri %>
+          </dd>
+        <% end %>
+      <% end %> 
+
+      <dt>Location</dt>
+      <dd>
+        <% if @work.pre_curation_uploads.present? %>
+          Amazon S3 Curation Storage
+        <% elsif @work.files_location_cluster? %>
+          PUL Research Cluster
+        <% elsif @work.files_location_other? %>
+          Other
+        <% else %>
+          Unspecified
+        <% end %>
+      </dd>
+
+      <% if @work.location_notes.present? %>
+        <dt>Location notes</dt>
+        <dd><%= @work.location_notes %></dd>
+      <% end %>
+    </dl>
+
+    <% if @work.approved? %>
+      <% if @work.post_curation_s3_resources.present? %>
+        <section class="uploads">
+          <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
+          <%= render(partial: 'works/uploads/post_curation_s3_resources') %>
+        </section>
+      <% end %>
     <% else %>
-      Unspecified
+      <% if @work.pre_curation_uploads.present? %>
+        <section class="uploads">
+          <h2 class="h2"><%= t('works.uploads.pre_curation.heading') %></h2>
+          <%= render(partial: 'works/uploads/pre_curation_s3_resources') %>
+        </section>
+      <% end %>
     <% end %>
-  </dd>
-
-  <% if @work.location_notes.present? %>
-    <dt>Location notes</dt>
-    <dd><%= @work.location_notes %></dd>
-  <% end %>
-</dl>
-
-<% if @work.approved? %>
-  <% if @work.post_curation_s3_resources.present? %>
-    <section class="uploads">
-      <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
-      <%= render(partial: 'works/uploads/post_curation_s3_resources') %>
-    </section>
-  <% end %>
-<% else %>
-  <% if @work.pre_curation_uploads.present? %>
-    <section class="uploads">
-      <h2 class="h2"><%= t('works.uploads.pre_curation.heading') %></h2>
-      <%= render(partial: 'works/uploads/pre_curation_s3_resources') %>
-    </section>
-  <% end %>
-<% end %>
-
-<%= render 'work_activity_messages' %>
-<%= render(partial: 'work_activity_provenance', locals: {can_add_provenance_note: Rails.configuration.provenance_message_writers.include?(current_user.uid)}) %>
+    <%= render(partial: 'work_activity_provenance', locals: {can_add_provenance_note: Rails.configuration.provenance_message_writers.include?(current_user.uid)}) %>
+  </div>
+  <div class="col-4" id="messages">
+    <%= render 'work_activity_messages' %>
+  </div>
+</div>
 
 <%= javascript_include_tag 'show_work_utils' %>
 
 <script>
   $(function() {
+    $("#toggle-messages").on("click", (event) => {
+      $("#messages").toggle();
+
+      const $toggleMessages = $("#toggle-messages");
+      const oldText = $toggleMessages.text();
+      $toggleMessages.text($toggleMessages.data("text"));
+      $toggleMessages.data("text", oldText);
+
+      const $leftOfMessages = $("#left-of-messages");
+      const oldClass = $leftOfMessages.attr("class");
+      $leftOfMessages.attr("class", $leftOfMessages.data("class"));
+      $leftOfMessages.data("class", oldClass);
+    });
+
     // Issues HTTP POST to update the curator assigned to the work.
     $("#curator_select").on("change", function(event) {
       var newCuratorId = event.currentTarget.value;

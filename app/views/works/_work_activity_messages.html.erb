@@ -1,5 +1,4 @@
 <div>
-  <h2>Messages</h2>
   <% if @messages.size == 0 && !@work.submission_notes.present? %>
     No messages
   <% end %>
@@ -23,7 +22,7 @@
 
   <div id="new-message-section">
     <%= form_with url: add_message_work_path(@work) do |f| %>
-      <textarea id="new-message" name="new-message" class="new-message" placeholder="leave a message" rows="5" cols="100"></textarea>
+      <textarea id="new-message" name="new-message" class="new-message" placeholder="leave a message" rows="5" cols="30"></textarea>
       <br/>
       <%= f.submit("Message", class: "btn btn-secondary") %>
       <span class="new-message-help">
