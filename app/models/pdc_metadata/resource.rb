@@ -37,7 +37,7 @@ module PDCMetadata
 
     def accessors
       setters = methods.map(&:to_s).filter { |s| s.match?(/\w=$/) }
-      setters.map { |s| s.gsub("=","").to_sym }
+      setters.map { |s| s.delete("=").to_sym }
     end
 
     def individual_contributors

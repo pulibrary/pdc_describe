@@ -108,10 +108,11 @@ describe ResourceCompareService do
       def as_json
         to_h
       end
+
       def accessors
         # TODO: Make this a mixin and use it both here and in resource.
         setters = methods.map(&:to_s).filter { |s| s.match?(/\w=$/) }
-        setters.map { |s| s.gsub("=","").to_sym }
+        setters.map { |s| s.delete("=").to_sym }
       end
     end
 
