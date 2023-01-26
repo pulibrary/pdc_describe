@@ -10,8 +10,8 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     PDCMetadata::Creator.new_person("Jane", "Smith")
   end
 
-  let(:contributor1) { PDCMetadata::Creator.new_contributor("Robert", "Smith", "", "ProjectLeader", 1) }
-  let(:contributor2) { PDCMetadata::Creator.new_contributor("Simon", "Gallup", "", "Other", 2) }
+  let(:contributor1) { PDCMetadata::Creator.new_individual_contributor("Robert", "Smith", "", "ProjectLeader", 1) }
+  let(:contributor2) { PDCMetadata::Creator.new_individual_contributor("Simon", "Gallup", "", "Other", 2) }
   let(:doi) { "10.5072/example-full" }
 
   let(:ds) do
@@ -131,7 +131,9 @@ RSpec.describe PDCMetadata::Resource, type: :model do
             "type" => "ProjectLeader" },
           { "value" => "Gallup, Simon", "name_type" => "Personal", "given_name" => "Simon", "family_name" => "Gallup", "affiliations" => [], "sequence" => 2, "identifier" => nil, "type" => "Other" }
         ],
-        "organizational_contributors" => [],
+        "organizational_contributors" => [
+          { "value" => "Santa's Elves", "name_type" => "Organizational"}
+        ],
         "creators" => [
           { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => 1, "identifier" => nil }
         ],

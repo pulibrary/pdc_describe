@@ -17,13 +17,19 @@ module PDCMetadata
         PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
       end
 
-      def contributor_from_hash(contributor)
+      def individual_contributor_from_hash(contributor)
         given_name = contributor["given_name"]
         family_name = contributor["family_name"]
         orcid = contributor.dig("identifier", "scheme") == "ORCID" ? contributor.dig("identifier", "value") : nil
         sequence = (contributor["sequence"] || "").to_i
         type = contributor["type"]
-        PDCMetadata::Creator.new_contributor(given_name, family_name, orcid, type, sequence)
+        PDCMetadata::Creator.new_individual_contributor(given_name, family_name, orcid, type, sequence)
+      end
+
+      def organizational_contributor_from_hash(contributor)
+        orcid = contributor.dig("identifier", "scheme") == "ROR" ? contributor.dig("identifier", "value") : nil
+        type = contributor["type"]
+        PDCMetadata::Creator.new_organizational_contributor()
       end
     end
 
@@ -47,6 +53,14 @@ module PDCMetadata
       identifier&.orcid
     end
 
+    def ror_url
+      identifier&.ror_url
+    end
+
+    def ror
+      identifier&.ror
+    end
+
     def compare_value
       "#{value} | #{sequence} | #{type}"
     end
@@ -60,8 +74,22 @@ module PDCMetadata
       creator
     end
 
-    def self.new_contributor(given_name, family_name, orcid_id, type, sequence)
+    def self.new_individual_contributor(given_name, family_name, orcid_id, type, sequence)
+      # TODO: If type is always "Personal", it shouldn't be required as a parameter.
       contributor = new_person(given_name, family_name, orcid_id, sequence)
+      contributor.type = type
+      contributor
+    end
+
+    def self.new_organization(name, ror = nil)
+      creator = Creator.new(value: name, name_type: "Organizational")
+      if ror.present?
+        creator.identifier = NameIdentifier.new_ror(ror.strip)
+      end
+    end
+
+    def self.new_organizational_contributor(name, ror)
+      contributor = new_organization(name, ror)
       contributor.type = type
       contributor
     end

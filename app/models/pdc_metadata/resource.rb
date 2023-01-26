@@ -164,7 +164,7 @@ module PDCMetadata
           individual_contributors = hash["contributors"] || []
 
           individual_contributors.each do |contributor|
-            resource.individual_contributors << Creator.contributor_from_hash(contributor)
+            resource.individual_contributors << Creator.individual_contributor_from_hash(contributor)
           end
           resource.individual_contributors.sort_by!(&:sequence)
         end
@@ -173,7 +173,7 @@ module PDCMetadata
           organizational_contributors = hash["organizational_contributors"] || []
 
           organizational_contributors.each do |contributor|
-            resource.organizational_contributors << Creator.contributor_from_hash(contributor)
+            resource.organizational_contributors << Creator.individual_contributor_from_hash(contributor)
           end
           # TODO: resource.organizational_contributors.sort_by!(&:sequence)
         end

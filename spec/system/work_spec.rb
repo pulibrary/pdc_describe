@@ -92,8 +92,8 @@ RSpec.describe "Creating and updating works", type: :system do
   it "Renders contributors", js: true do
     resource = FactoryBot.build(:resource)
     resource.individual_contributors = []
-    resource.individual_contributors << PDCMetadata::Creator.new_contributor("Robert", "Smith", "1234-1234-1234-1234", "ProjectLeader", 1)
-    resource.individual_contributors << PDCMetadata::Creator.new_contributor("Simon", "Gallup", nil, "Other", 2)
+    resource.individual_contributors << PDCMetadata::Creator.new_individual_contributor("Robert", "Smith", "1234-1234-1234-1234", "ProjectLeader", 1)
+    resource.individual_contributors << PDCMetadata::Creator.new_individual_contributor("Simon", "Gallup", nil, "Other", 2)
     work = FactoryBot.create(:draft_work, resource: resource)
 
     sign_in user

@@ -112,13 +112,13 @@ class FormToResourceService
           orcid = params["contributor_orcid_#{i}"]
           type = params["contributor_role_#{i}"]
           sequence = params["contributor_sequence_#{i}"]
-          new_contributor(given_name, family_name, orcid, type, sequence)
+          new_individual_contributor(given_name, family_name, orcid, type, sequence)
         end
       end
 
-      def new_contributor(given_name, family_name, orcid, type, sequence)
+      def new_individual_contributor(given_name, family_name, orcid, type, sequence)
         return if family_name.blank? && given_name.blank? && orcid.blank?
-        PDCMetadata::Creator.new_contributor(given_name, family_name, orcid, type, sequence)
+        PDCMetadata::Creator.new_individual_contributor(given_name, family_name, orcid, type, sequence)
       end
 
       # Funders:
