@@ -1,35 +1,37 @@
 <!-- Related Objects section -->
-<details><summary>Related Objects</summary>
-  If this item is backing any particular publication or is otherwise cited directly in published works, please provide the persistent identifier(s) for the referencing publication(s) (e.g., a complete DOI link).
-</details>
+<div class="field">
+  <details><summary>Related Objects</summary>
+    If this item is backing any particular publication or is otherwise cited directly in published works, please provide the persistent identifier(s) for the referencing publication(s) (e.g., a complete DOI link).
+  </details>
 
-<div class="related-objects">
-  <table>
-    <thead>
-      <tr class="header-row">
-        <th>Related Identifier</th>
-        <th>Related Identifier Type</th>
-        <th>Relation Type</th>
-      </tr>
-    </thead>
-    <tbody id="related-objects-table"></tbody>
-    <tfoot>
-      <tr>
-        <td colspan="3">
-          <%= link_to "Add Another Related Object", "#", id: "btn-add-related-object", class: "btn btn-secondary" %>
-        </td>
-      </tr>
-    </tfoot>
-  </table>
-</div>
+  <div class="related-objects">
+    <table>
+      <thead>
+        <tr class="header-row">
+          <th>Related Identifier</th>
+          <th>Related Identifier Type</th>
+          <th>Relation Type</th>
+        </tr>
+      </thead>
+      <tbody id="related-objects-table"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3">
+            <%= link_to "Add Another Related Object", "#", id: "btn-add-related-object", class: "btn btn-secondary" %>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
 
-<% if @work %>
-  <% @work.resource.related_objects.each_with_index do |related_object, i| %>
-  <span class="hidden related-object-data"
-    data-num="<%= i + 1 %>"
-    data-related-identifier="<%= related_object.related_identifier %>"
-    data-related-identifier-type="<%= related_object.related_identifier_type %>"
-    data-relation-type="<%= related_object.relation_type %>"
-    ></span>
+  <% if @work %>
+    <% @work.resource.related_objects.each_with_index do |related_object, i| %>
+    <span class="hidden related-object-data"
+      data-num="<%= i + 1 %>"
+      data-related-identifier="<%= related_object.related_identifier %>"
+      data-related-identifier-type="<%= related_object.related_identifier_type %>"
+      data-relation-type="<%= related_object.relation_type %>"
+      ></span>
+    <% end %>
   <% end %>
-<% end %>
+</div>
