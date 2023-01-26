@@ -48,9 +48,8 @@ module PDCMetadata
 
     private
 
-    def url
-      "#{scheme_uri}/#{value}"
-    end
-
+      def url
+        "#{scheme_uri}/#{value}"
+      end
   end
 end

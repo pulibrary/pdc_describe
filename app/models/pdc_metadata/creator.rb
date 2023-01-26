@@ -27,9 +27,10 @@ module PDCMetadata
       end
 
       def organizational_contributor_from_hash(contributor)
-        orcid = contributor.dig("identifier", "scheme") == "ROR" ? contributor.dig("identifier", "value") : nil
+        name = contributor["name"]
+        ror = contributor.dig("identifier", "scheme") == "ROR" ? contributor.dig("identifier", "value") : nil
         type = contributor["type"]
-        PDCMetadata::Creator.new_organizational_contributor()
+        PDCMetadata::Creator.new_organizational_contributor(name, ror, type)
       end
     end
 
@@ -86,9 +87,11 @@ module PDCMetadata
       if ror.present?
         creator.identifier = NameIdentifier.new_ror(ror.strip)
       end
+      creator
     end
 
-    def self.new_organizational_contributor(name, ror)
+    def self.new_organizational_contributor(name, ror, type)
+      # TODO: If type is always "Organizational", it shouldn't be required as a parameter.
       contributor = new_organization(name, ror)
       contributor.type = type
       contributor

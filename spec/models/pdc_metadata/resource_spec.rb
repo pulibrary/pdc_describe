@@ -132,7 +132,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
           { "value" => "Gallup, Simon", "name_type" => "Personal", "given_name" => "Simon", "family_name" => "Gallup", "affiliations" => [], "sequence" => 2, "identifier" => nil, "type" => "Other" }
         ],
         "organizational_contributors" => [
-          { "value" => "Santa's Elves", "name_type" => "Organizational"}
+          { "value" => "Santa's Elves", "name_type" => "Organizational" }
         ],
         "creators" => [
           { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => 1, "identifier" => nil }

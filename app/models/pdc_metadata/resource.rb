@@ -173,9 +173,8 @@ module PDCMetadata
           organizational_contributors = hash["organizational_contributors"] || []
 
           organizational_contributors.each do |contributor|
-            resource.organizational_contributors << Creator.individual_contributor_from_hash(contributor)
+            resource.organizational_contributors << Creator.organizational_contributor_from_hash(contributor)
           end
-          # TODO: resource.organizational_contributors.sort_by!(&:sequence)
         end
 
         def set_funders(resource, hash)
