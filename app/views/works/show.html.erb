@@ -189,7 +189,16 @@
         <dt>Individual Contributors</dt>
         <dd>
           <% @work.resource.individual_contributors.each_with_index do |contributor, ix| %>
-            <%= contributor_link(contributor, ix < (@work.resource.individual_contributors.count-1) ) %>
+            <%= individual_contributor_link(contributor, ix < (@work.resource.individual_contributors.count-1) ) %>
+          <% end %>
+        </dd>
+      <% end %>
+
+      <% if @work.resource.organizational_contributors.count > 0 %>
+        <dt>Organizational Contributors</dt>
+        <dd>
+          <% @work.resource.organizational_contributors.each_with_index do |contributor, ix| %>
+            <%= organizational_contributor_link(contributor, ix < (@work.resource.organizational_contributors.count-1) ) %>
           <% end %>
         </dd>
       <% end %>
