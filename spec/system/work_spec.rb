@@ -98,7 +98,7 @@ RSpec.describe "Creating and updating works", type: :system do
 
     sign_in user
     visit work_path(work)
-    expect(page.html.include?("Smith, Robert (Project Leader)")).to be true
+    expect(page.html.match?(/Smith, Robert\s+\(Project Leader\)/)).to be true
     expect(page.html.include?("Gallup, Simon")).to be true
   end
 
