@@ -105,7 +105,7 @@
 
       <dt>Creators</dt>
       <dd>
-        <%= safe_join(@work.resource.creators.map { |contributor| orcid_link(contributor) }, "; ") %>
+        <%= safe_join(@work.resource.creators.map { |person| render("orcid_link", person: person) }, "; ") %>
       </dd>
 
       <dt>Curator</dt>
@@ -195,7 +195,7 @@
       <% if @work.resource.contributors.count > 0 %>
         <dt>Contributors</dt>
         <dd>
-          <%= safe_join(@work.resource.contributors.map { |contributor| orcid_link(contributor) }, "; ") %>
+          <%= safe_join(@work.resource.contributors.map { |person| render("orcid_link", person: person) }, "; ") %>
         </dd>
       <% end %>
 
