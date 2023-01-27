@@ -114,7 +114,7 @@ class WorksController < ApplicationController
     if current_user.blank? || !@work.editable_by?(current_user)
       Rails.logger.warn("Unauthorized attempt to update work #{@work.id} by user #{current_user.uid}")
       redirect_to root_path
-    elsif @work.approved? && @work.submitted_by?(current_user)
+    elsif !@work.editable_in_current_state?(current_user)
       redirect_to root_path, notice: I18n.t("works.approved.uneditable")
     else
       update_work

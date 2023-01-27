@@ -1216,7 +1216,7 @@ RSpec.describe WorksController do
 
     context "the work is approved" do
       let(:work) { FactoryBot.create :approved_work }
-      let(:new_params) { params.merge(doi: "new-doi").merge(ark: "new-ark").merge(collection_tags: "new-colletion-tag1, new-collection-tag2") }
+      let(:new_params) { params.merge(doi: "new-doi").merge(ark: "ark:/99999/new-ark").merge(collection_tags: "new-colletion-tag1, new-collection-tag2") }
 
       context "the submitter" do
         let(:user) { work.created_by_user }
@@ -1243,7 +1243,19 @@ RSpec.describe WorksController do
           sign_in user
           patch :update, params: new_params
           expect(work.reload.doi).to eq("new-doi")
-          expect(work.ark).to eq("new-ark")
+          expect(work.ark).to eq("ark:/99999/new-ark")
+          expect(work.resource.collection_tags).to eq(["new-colletion-tag1", "new-collection-tag2"])
+        end
+      end
+
+      context "the submitter is the curator" do
+        let(:work) { FactoryBot.create(:approved_work, created_by_user_id: curator.id) }
+
+        it "renders the edit page on edit" do
+          sign_in curator
+          patch :update, params: new_params
+          expect(work.reload.doi).to eq("new-doi")
+          expect(work.ark).to eq("ark:/99999/new-ark")
           expect(work.resource.collection_tags).to eq(["new-colletion-tag1", "new-collection-tag2"])
         end
       end
@@ -1254,7 +1266,7 @@ RSpec.describe WorksController do
           sign_in user
           patch :update, params: new_params
           expect(work.reload.doi).to eq("new-doi")
-          expect(work.ark).to eq("new-ark")
+          expect(work.ark).to eq("ark:/99999/new-ark")
           expect(work.resource.collection_tags).to eq(["new-colletion-tag1", "new-collection-tag2"])
         end
       end

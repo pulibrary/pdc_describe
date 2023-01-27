@@ -77,6 +77,14 @@ class Work < ApplicationRecord
     submitted_by?(user) || administered_by?(user)
   end
 
+  def editable_in_current_state?(user)
+    # anyone with edit privleges can edit a work while it is in draft or awaiting approval
+    return editable_by?(user) if draft? || awaiting_approval?
+
+    # Only admisitrators can edit a work in other states
+    administered_by?(user)
+  end
+
   def submitted_by?(user)
     created_by_user_id == user.id
   end
