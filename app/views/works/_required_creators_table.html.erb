@@ -1,47 +1,52 @@
 <!-- Creators section -->
-<div class="section-title">
-  <b>Creator(s)<span class="required-field" title="At least one creator must be indicated">*</span></b>
-  <span id="creators-required-message" class="hidden">
-    <i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide at least one creator
-  </span>
-  <p>Enter the full names of all persons primarily responsible for creating this item.</p>
-</div>
+<div class="field">
+  <details>
+    <summary>
+      Creator(s)<span class="required-field">*</span>
+      <span id="creators-required-message" class="hidden">
+        <i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide at least one creator
+      </span>
+    </summary>
+    Enter the full names of all persons primarily responsible for creating this item.
+    At least one creator must be provided.
+  </details>
 
-<!--
-  Render the list of creators a hidden SPANs that are then added below
-  the HTML TABLE via JavaScript. This is so that we have a single way
-  of rendering creators already on the record *and* creators added
-  on the fly.
--->
-<table id="creators-table">
-  <thead>
-    <tr class="header-row">
-      <th>ORCID</th>
-      <th>Given name</th>
-      <th>Family name</th>
-      <th>&nbsp;</th> <!-- move icon-->
-      <th>&nbsp;</th> <!-- delete icon-->
-    </tr>
-  </thead>
-  <tbody class="sortable"></tbody>
-  <tfoot>
-    <tr>
-      <td colspan="3">
-        <%= link_to "Add Another Creator", "#", id: "btn-add-creator", class: "btn btn-secondary" %>
-        <%= link_to "Add me as a Creator", "#", id: "btn-add-me-creator", class: "btn btn-secondary" %>
-      </td>
-    </tr>
-  </tfoot>
-</table>
+  <!--
+    Render the list of creators a hidden SPANs that are then added below
+    the HTML TABLE via JavaScript. This is so that we have a single way
+    of rendering creators already on the record *and* creators added
+    on the fly.
+  -->
+  <table id="creators-table">
+    <thead>
+      <tr class="header-row">
+        <th>ORCID</th>
+        <th>Given name</th>
+        <th>Family name</th>
+        <th>&nbsp;</th> <!-- move icon-->
+        <th>&nbsp;</th> <!-- delete icon-->
+      </tr>
+    </thead>
+    <tbody class="sortable"></tbody>
+    <tfoot>
+      <tr>
+        <td colspan="3">
+          <%= link_to "Add Another Creator", "#", id: "btn-add-creator", class: "btn btn-secondary" %>
+          <%= link_to "Add me as a Creator", "#", id: "btn-add-me-creator", class: "btn btn-secondary" %>
+        </td>
+      </tr>
+    </tfoot>
+  </table>
 
-<% if @work %>
-  <% @work.resource.creators.each_with_index do |creator, i| %>
-  <span class="hidden creator-data"
-    data-num="<%= i + 1 %>"
-    data-orcid="<%= creator.orcid %>"
-    data-given-name="<%= creator.given_name %>"
-    data-family-name="<%= creator.family_name %>"
-    data-sequence="<%= creator.sequence %>"
-    ></span>
+  <% if @work %>
+    <% @work.resource.creators.each_with_index do |creator, i| %>
+    <span class="hidden creator-data"
+      data-num="<%= i + 1 %>"
+      data-orcid="<%= creator.orcid %>"
+      data-given-name="<%= creator.given_name %>"
+      data-family-name="<%= creator.family_name %>"
+      data-sequence="<%= creator.sequence %>"
+      ></span>
+    <% end %>
   <% end %>
-<% end %>
+</div>
