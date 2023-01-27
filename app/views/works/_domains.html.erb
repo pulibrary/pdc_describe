@@ -1,0 +1,18 @@
+<div class="section-title">
+  <details>
+    <summary>Domains</summary>
+    Select one or more domains that apply to this dataset.
+  </details>
+
+  <!-- https://getbootstrap.com/docs/5.0/forms/select/ -->
+  <select id="domains" name="domains[]" class="form-select" multiple >
+    <% Domain.all.each do |domain| %>
+      <% if @work.resource.domains.include?(domain) %>
+        <option selected><%= domain %></option>
+      <% else %>
+        <option><%= domain %></option>
+      <% end %>
+    <% end %>
+  </select>
+</div>
+
