@@ -9,11 +9,10 @@ module ApplicationHelper
 
   # rubocop:disable Rails/OutputSafety
   # rubocop:disable Metrics/MethodLength
-  def orcid_link(contributor, add_separator)
+  def orcid_link(contributor)
     return if contributor.value.blank?
 
     icon_html = ""
-    separator = add_separator ? ";" : ""
     display_name = if contributor.type.present?
                      "#{contributor.value} (#{contributor.type.titleize})"
                    else
@@ -21,9 +20,9 @@ module ApplicationHelper
                    end
     if contributor.orcid.present?
       icon_html = '<img alt="ORCID logo" src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height="16" />'
-      name_html = '<a href="https://orcid.org/' + contributor.orcid + '" target="_blank">' + display_name + "</a>" + separator
+      name_html = '<a href="https://orcid.org/' + contributor.orcid + '" target="_blank">' + display_name + "</a>"
     else
-      name_html = display_name + separator
+      name_html = display_name
     end
 
     html = <<-HTML
