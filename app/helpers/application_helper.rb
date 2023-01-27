@@ -9,7 +9,7 @@ module ApplicationHelper
 
   # rubocop:disable Rails/OutputSafety
   # rubocop:disable Metrics/MethodLength
-  def contributor_link(contributor, add_separator)
+  def orcid_link(contributor, add_separator)
     return if contributor.value.blank?
 
     icon_html = ""
