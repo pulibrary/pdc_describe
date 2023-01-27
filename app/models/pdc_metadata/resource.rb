@@ -10,7 +10,7 @@ module PDCMetadata
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
       :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :contributors, :related_objects,
-      :funders
+      :funders, :domains
 
     # rubocop:disable Metrics/MethodLength
     def initialize(doi: nil, title: nil, resource_type: nil, resource_type_general: nil, creators: [], description: nil)
@@ -31,6 +31,7 @@ module PDCMetadata
       @keywords = []
       @contributors = []
       @funders = []
+      @domains = []
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -96,6 +97,7 @@ module PDCMetadata
           resource.publisher = hash["publisher"]
           resource.publication_year = hash["publication_year"]
           resource.rights = rights(hash["rights"])
+          resource.domains = hash["domains"] || []
         end
 
         def set_curator_controlled_metadata(resource, hash)

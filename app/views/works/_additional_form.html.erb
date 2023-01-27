@@ -1,16 +1,19 @@
-<details>
-  <summary>Keywords</summary>
-  Please enter as many keywords as are appropriate to define the subject matter of this item and help other researchers find it.
-  Separate keywords with commas.
-</details>
+<div class="field">
+  <details>
+    <summary>Keywords</summary>
+    Please enter as many keywords as are appropriate to define the subject matter of this item and help other researchers find it.
+    Separate keywords with commas.
+  </details>
 
-<input type="text" id="keywords" name="keywords" class="input-text-long"
-  value="<%= @work.resource.keywords.join(', ') %>"
-/>
-
+  <input type="text" id="keywords" name="keywords" class="input-text-long"
+    value="<%= @work.resource.keywords.join(', ') %>"
+  />
+</div>
 
 <%= render(partial: 'works/funder_table') %>
 
 <%= render(partial: 'works/related_objects_table') %>
 
 <%= render(partial: 'works/contributors_table') %>
+
+<%= render(partial: 'works/domains') %>
