@@ -106,7 +106,7 @@
       <dt>Creators</dt>
       <dd>
         <% @work.resource.creators.each_with_index do |creator, ix| %>
-          <%= person_orcid_link(creator.value, creator.orcid, ix < (@work.resource.creators.count-1) ) %>
+          <%= contributor_link(creator, ix < (@work.resource.creators.count-1) ) %>
         <% end %>
       </dd>
 
