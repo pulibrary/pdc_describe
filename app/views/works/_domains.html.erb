@@ -4,8 +4,8 @@
     Select one or more domains that apply to this dataset.
   </details>
 
-  <!-- https://developer.snapappointments.com/bootstrap-select/options/ -->
-  <select id="domains" name="domains[]" class="selectpicker" size="3" multiple data-none-selected-text="No domains selected" data-width="600px">
+  <!-- https://getbootstrap.com/docs/5.0/forms/select/ -->
+  <select id="domains" name="domains[]" class="form-select" multiple >
     <% Domain.all.each do |domain| %>
       <% if @work.resource.domains.include?(domain) %>
         <option selected><%= domain %></option>
@@ -16,9 +16,3 @@
   </select>
 </div>
 
-<script>
-  $(function() {
-    /* Enable the domain multi-select dropdown */
-    $("#domains").selectpicker();
-  });
-</script>
