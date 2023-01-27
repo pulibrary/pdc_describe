@@ -145,10 +145,15 @@ RSpec.describe "Creating and updating works", type: :system do
       expect(page.html.include?("/works/#{draft_work.id}/edit?wizard=true")).to be true
     end
 
-    it "does not use the wizard if the work once the work is not in draft" do
-      sign_in user
-      visit work_path(awaiting_approval_work)
-      expect(page.html.include?("/works/#{awaiting_approval_work.id}/edit")).to be true
+    context "work is awaiting approval" do
+      let(:awaiting_approval_work) { FactoryBot.create(:awaiting_approval_work) }
+      let(:user) { awaiting_approval_work.created_by_user }
+
+      it "does not use the wizard if the work once the work is not in draft" do
+        sign_in user
+        visit work_path(awaiting_approval_work)
+        expect(page.html.include?("/works/#{awaiting_approval_work.id}/edit")).to be true
+      end
     end
 
     it "allows users to modify the order of the creators", js: true do
