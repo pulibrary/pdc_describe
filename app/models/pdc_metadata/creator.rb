@@ -76,7 +76,6 @@ module PDCMetadata
     end
 
     def self.new_individual_contributor(given_name, family_name, orcid_id, type, sequence)
-      # TODO: If type is always "Personal", it shouldn't be required as a parameter.
       contributor = new_person(given_name, family_name, orcid_id, sequence)
       contributor.type = type
       contributor
@@ -91,7 +90,6 @@ module PDCMetadata
     end
 
     def self.new_organizational_contributor(name, ror, type)
-      # TODO: If type is always "Organizational", it shouldn't be required as a parameter.
       contributor = new_organization(name, ror)
       contributor.type = type
       contributor
