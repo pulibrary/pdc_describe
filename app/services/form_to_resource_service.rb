@@ -10,12 +10,12 @@ class FormToResourceService
     def convert(params, work)
       resource = reset_resource_to_work(work)
 
-      resource.description = params["description"]
-      resource.publisher = params["publisher"] if params["publisher"].present?
-      resource.publication_year = params["publication_year"] if params["publication_year"].present?
-      resource.rights = PDCMetadata::Rights.find(params["rights_identifier"])
-      resource.keywords = (params["keywords"] || "").split(",").map(&:strip)
-      resource.domains = params["domains"] || []
+      resource.description = params.delete("description")
+      resource.publisher = params.delete("publisher")
+      resource.publication_year = params.delete("publication_year")
+      resource.rights = PDCMetadata::Rights.find(params.delete("rights_identifier"))
+      resource.keywords = (params.delete("keywords") || "").split(",").map(&:strip)
+      resource.domains = params.delete("domains") || []
 
       add_curator_controlled(params, resource)
       add_titles(params, resource)
@@ -26,6 +26,10 @@ class FormToResourceService
       # Process funders
       # (New pattern: method modifies resource in place.)
       add_funders(params, resource)
+
+      expected_params = ["work", "collection_id", "commit", "user_orcid", "user_given_name", "user_family_name", "controller", "action"]
+      unexpected_params = params.keys - expected_params
+      raise(StandardError, "Unexpected params: #{unexpected_params}") unless unexpected_params.empty?
 
       resource
     end
@@ -42,26 +46,26 @@ class FormToResourceService
       end
 
       def add_curator_controlled(params, resource)
-        resource.doi = params["doi"] if params["doi"].present?
-        resource.ark = params["ark"] if params["ark"].present?
-        resource.version_number = params["version_number"] if params["version_number"].present?
-        resource.collection_tags = params["collection_tags"].split(",").map(&:strip) if params["collection_tags"]
-        resource.resource_type = params["resource_type"] if params["resource_type"]
-        resource.resource_type_general = params["resource_type_general"] if params["resource_type_general"]
+        resource.doi = params.delete("doi")
+        resource.ark = params.delete("ark")
+        resource.version_number = params.delete("version_number")
+        resource.collection_tags = (params.delete("collection_tags") || "").split(",").map(&:strip)
+        resource.resource_type = params.delete("resource_type")
+        resource.resource_type_general = params.delete("resource_type_general")
       end
 
       # Titles:
 
       def add_titles(params, resource)
-        resource.titles << PDCMetadata::Title.new(title: params["title_main"])
-        resource.titles.concat((1..params["existing_title_count"].to_i).filter_map do |i|
-          title = params["title_#{i}"]
-          title_type = params["title_type_#{i}"]
+        resource.titles << PDCMetadata::Title.new(title: params.delete("title_main"))
+        resource.titles.concat((1..params.delete("existing_title_count").to_i).filter_map do |i|
+          title = params.delete("title_#{i}")
+          title_type = params.delete("title_type_#{i}")
           new_title(title, title_type)
         end)
-        resource.titles.concat((1..params["new_title_count"].to_i).filter_map do |i|
-          title = params["new_title_#{i}"]
-          title_type = params["new_title_type_#{i}"]
+        resource.titles.concat((1..params.delete("new_title_count").to_i).filter_map do |i|
+          title = params.delete("new_title_#{i}")
+          title_type = params.delete("new_title_type_#{i}")
           new_title(title, title_type)
         end)
       end
@@ -74,10 +78,10 @@ class FormToResourceService
       # Related Objects:
 
       def add_related_objects(params, resource)
-        resource.related_objects = (1..params["related_object_count"].to_i).filter_map do |i|
-          related_identifier = params["related_identifier_#{i}"]
-          related_identifier_type = params["related_identifier_type_#{i}"]
-          relation_type = params["relation_type_#{i}"]
+        resource.related_objects = (1..params.delete("related_object_count").to_i).filter_map do |i|
+          related_identifier = params.delete("related_identifier_#{i}")
+          related_identifier_type = params.delete("related_identifier_type_#{i}")
+          relation_type = params.delete("relation_type_#{i}")
           new_related_object(related_identifier, related_identifier_type, relation_type)
         end
       end
@@ -90,11 +94,11 @@ class FormToResourceService
       # Creators:
 
       def add_creators(params, resource)
-        resource.creators = (1..params["creator_count"].to_i).filter_map do |i|
-          given_name = params["given_name_#{i}"]
-          family_name = params["family_name_#{i}"]
-          orcid = params["orcid_#{i}"]
-          sequence = params["sequence_#{i}"]
+        resource.creators = (1..params.delete("creator_count").to_i).filter_map do |i|
+          given_name = params.delete("given_name_#{i}")
+          family_name = params.delete("family_name_#{i}")
+          orcid = params.delete("orcid_#{i}")
+          sequence = params.delete("sequence_#{i}")
           new_creator(given_name, family_name, orcid, sequence)
         end
       end
@@ -107,12 +111,12 @@ class FormToResourceService
       # Contributors:
 
       def add_contributors(params, resource)
-        resource.contributors = (1..params["contributor_count"].to_i).filter_map do |i|
-          given_name = params["contributor_given_name_#{i}"]
-          family_name = params["contributor_family_name_#{i}"]
-          orcid = params["contributor_orcid_#{i}"]
-          type = params["contributor_role_#{i}"]
-          sequence = params["contributor_sequence_#{i}"]
+        resource.contributors = (1..params.delete("contributor_count").to_i).filter_map do |i|
+          given_name = params.delete("contributor_given_name_#{i}")
+          family_name = params.delete("contributor_family_name_#{i}")
+          orcid = params.delete("contributor_orcid_#{i}")
+          type = params.delete("contributor_role_#{i}")
+          sequence = params.delete("contributor_sequence_#{i}")
           new_contributor(given_name, family_name, orcid, type, sequence)
         end
       end
@@ -126,7 +130,7 @@ class FormToResourceService
 
       def add_funders(params, resource)
         # (New pattern: Use rails param name conventions rather than numbering fields.)
-        resource.funders = (params[:funders] || []).filter_map do |funder|
+        resource.funders = (params.delete(:funders) || []).filter_map do |funder|
           new_funder(funder[:ror], funder[:funder_name], funder[:award_number], funder[:award_uri])
         end
       end
