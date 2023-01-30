@@ -1,43 +1,56 @@
-<div class="section-title">
-  <b>Additional Organizational Contributors</b>
-</div>
+<!-- Individual Contributors section -->
+<div class="field">
+  <details>
+    <summary>Additional Organizational Contributors</summary>
+    <ul>
+      <li>
+        <a href="https://ror.org/" target="_blank">ROR</a> is a "global, community-led registry of open persistent identifiers for research organizations".
+        Provide the full ROR URL and the Name will be filled automatically.
+        <!--
+          "The canonical form of a ROR identifier value (a "ROR ID", the id element in a ROR record) is the entire URL." 
+          https://ror.readme.io/docs/ror-identifier-pattern
+        -->
+      </li>
+    </ul>
+  </details>
 
-<table>
-  <thead>
-    <tr class="header-row">
-      <th>ROR</th>
-      <th>Name</th>
-      <th>Role</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% (@work.resource.organizational_contributors + [nil]).each do |contributor| %>
+  <table>
+    <thead>
+      <tr class="header-row">
+        <th>ROR</th>
+        <th>Name</th>
+        <th>Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% (@work.resource.organizational_contributors + [nil]).each do |contributor| %>
+        <tr>
+          <td>
+            <input name="organizational_contributors[][ror]" value="<%= contributor&.ror %>" placeholder="https://ror.org/........" pattern="https://ror.org/0[a-z|0-9]{6}[0-9]{2}" class="ror-input" />
+          </td>
+          <td>
+            <input name="organizational_contributors[][name]" value="<%= contributor&.name %>" />
+          </td>
+          <td>
+            <select name="organizational_contributors[][type]">
+              <% ::Datacite::Mapping::ContributorType.map(&:value).each do |contributor_type| %>
+                <option value="<%= contributor_type %>"
+                  <%= contributor&.type == contributor_type ? "selected" : "" %>
+                ><%= contributor_type %></option>
+              <% end %>
+            </select>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+    <tfoot>
       <tr>
         <td>
-          <input name="organizational_contributors[][ror]" value="<%= contributor&.ror %>" placeholder="https://ror.org/........" pattern="https://ror.org/0[a-z|0-9]{6}[0-9]{2}" class="ror-input" />
-        </td>
-        <td>
-          <input name="organizational_contributors[][name]" value="<%= contributor&.name %>" />
-        </td>
-        <td>
-          <select name="organizational_contributors[][type]">
-            <% ::Datacite::Mapping::ContributorType.map(&:value).each do |contributor_type| %>
-              <option value="<%= contributor_type %>"
-                <%= contributor&.type == contributor_type ? "selected" : "" %>
-              ><%= contributor_type %></option>
-            <% end %>
-          </select>
+          <button class="btn btn-secondary btn-add-row">
+            Add Another Organizational Contributor
+          </button>
         </td>
       </tr>
-    <% end %>
-  </tbody>
-  <tfoot>
-    <tr>
-      <td>
-        <button class="btn btn-secondary btn-add-row">
-          Add Another Organizational Contributor
-        </button>
-      </td>
-    </tr>
-  </tfoot>
-</table>
+    </tfoot>
+  </table>
+</div>
