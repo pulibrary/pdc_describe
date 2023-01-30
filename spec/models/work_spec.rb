@@ -55,7 +55,8 @@ RSpec.describe Work, type: :model do
             "related_objects" => [],
             "keywords" => [],
             "contributors" => [],
-            "funders" => []
+            "funders" => [],
+            "domains" => []
           },
           "files" => [],
           "collection" => {
@@ -1001,7 +1002,8 @@ RSpec.describe Work, type: :model do
             "award_number": "nsf-123",
             "award_uri": "http://nsg.gov/award/123"
           }
-        ]
+        ],
+        "domains":[]
       }'
     end
     it "can change the entire resource" do

@@ -72,7 +72,7 @@
 
 <div class="row">
   <div class="col-8">
-    <% if @work.draft?  || @work.awaiting_approval? || current_user.has_role?(:collection_admin, @collection) %>
+    <% if @work.editable_in_current_state?(current_user)  %>
       <%= link_to("Edit", edit_work_path(@work, wizard: @work.draft?), class: "btn btn-primary") %>
     <% end %>
     <% if @work.awaiting_approval? && current_user.has_role?(:collection_admin, @collection) %>
@@ -105,9 +105,7 @@
 
       <dt>Creators</dt>
       <dd>
-        <% @work.resource.creators.each_with_index do |creator, ix| %>
-          <%= person_orcid_link(creator.value, creator.orcid, ix < (@work.resource.creators.count-1) ) %>
-        <% end %>
+        <%= safe_join(@work.resource.creators.map { |person| render("orcid_link", person: person) }, "; ") %>
       </dd>
 
       <dt>Curator</dt>
@@ -154,6 +152,15 @@
         </dd>
       <% end %>
 
+      <% if @work.resource.domains.count > 0 %>
+        <dt>Domains</dt>
+        <dd>
+          <% @work.resource.domains.each do |domain| %>
+            <span class="badge bg-dark"><%= domain %></span>
+          <% end %>
+        </dd>
+      <% end %>
+
       <% if @work.resource.rights.present? %>
         <dt>Rights</dt>
         <dd><%= @work.resource.rights.name %> (<%= link_to(@work.resource.rights.identifier, @work.resource.rights.uri, {target: "_blank"}) %>)</dd>
@@ -174,7 +181,7 @@
         <dt>Resource Type</dt>
         <dd><%= @work.resource_type %></dd>
       <% end %>
-        
+
       <% if @work.resource_type_general %>
         <dt>General Type</dt>
         <dd><%= @work.resource_type_general %></dd>
@@ -188,18 +195,14 @@
       <% if @work.resource.individual_contributors.count > 0 %>
         <dt>Individual Contributors</dt>
         <dd>
-          <% @work.resource.individual_contributors.each_with_index do |contributor, ix| %>
-            <%= individual_contributor_link(contributor, ix < (@work.resource.individual_contributors.count-1) ) %>
-          <% end %>
+          <%= safe_join(@work.resource.individual_contributors.map { |person| render("orcid_link", person: person) }, "; ") %>
         </dd>
       <% end %>
 
       <% if @work.resource.organizational_contributors.count > 0 %>
         <dt>Organizational Contributors</dt>
         <dd>
-          <% @work.resource.organizational_contributors.each_with_index do |contributor, ix| %>
-            <%= organizational_contributor_link(contributor, ix < (@work.resource.organizational_contributors.count-1) ) %>
-          <% end %>
+          <%= safe_join(@work.resource.organizational_contributors.map { |org| render("ror_link", organization: org) }, "; ") %>
         </dd>
       <% end %>
 
@@ -224,7 +227,7 @@
             <%= funder.award_uri %>
           </dd>
         <% end %>
-      <% end %> 
+      <% end %>
 
       <dt>Location</dt>
       <dd>

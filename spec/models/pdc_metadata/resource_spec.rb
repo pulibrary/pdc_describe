@@ -119,6 +119,14 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     expect(ds.to_json).to include("green")
   end
 
+  it "allows for domains" do
+    ds.domains << "Humanities"
+    ds.domains << "Social Sciences"
+    expect(ds.domains).to eq(["Humanities", "Social Sciences"])
+    expect(ds.to_json).to include("Humanities")
+    expect(ds.to_json).to include("Social Sciences")
+  end
+
   describe "##new_from_jsonb" do
     let(:jsonb) do
       {
@@ -151,7 +159,8 @@ RSpec.describe PDCMetadata::Resource, type: :model do
           "funder_name" => nil,
           "award_number" => nil,
           "award_uri" => nil
-        }]
+        }],
+        "domains" => ["Humanities"]
       }
     end
     it "parses the json" do
@@ -160,6 +169,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
       expect(resource.collection_tags).to eq(["ABC", "123"])
       expect(resource.keywords).to eq(["red", "yellow", "green"])
       expect(resource.description).to eq("All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.")
+      expect(resource.domains).to eq(["Humanities"])
       expect(JSON.parse(resource.to_json)).to eq(jsonb)
     end
   end

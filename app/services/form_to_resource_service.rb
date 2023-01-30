@@ -15,6 +15,7 @@ class FormToResourceService
       resource.publication_year = params["publication_year"] if params["publication_year"].present?
       resource.rights = PDCMetadata::Rights.find(params["rights_identifier"])
       resource.keywords = (params["keywords"] || "").split(",").map(&:strip)
+      resource.domains = params["domains"] || []
 
       add_curator_controlled(params, resource)
       add_titles(params, resource)
