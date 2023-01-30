@@ -105,9 +105,7 @@
 
       <dt>Creators</dt>
       <dd>
-        <% @work.resource.creators.each_with_index do |creator, ix| %>
-          <%= person_orcid_link(creator.value, creator.orcid, ix < (@work.resource.creators.count-1) ) %>
-        <% end %>
+        <%= safe_join(@work.resource.creators.map { |person| render("orcid_link", person: person) }, "; ") %>
       </dd>
 
       <dt>Curator</dt>
@@ -197,9 +195,7 @@
       <% if @work.resource.contributors.count > 0 %>
         <dt>Contributors</dt>
         <dd>
-          <% @work.resource.contributors.each_with_index do |contributor, ix| %>
-            <%= contributor_link(contributor, ix < (@work.resource.contributors.count-1) ) %>
-          <% end %>
+          <%= safe_join(@work.resource.contributors.map { |person| render("orcid_link", person: person) }, "; ") %>
         </dd>
       <% end %>
 
