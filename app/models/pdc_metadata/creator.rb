@@ -27,7 +27,7 @@ module PDCMetadata
       end
 
       def organizational_contributor_from_hash(contributor)
-        name = contributor["name"]
+        name = contributor["value"]
         ror = contributor.dig("identifier", "scheme") == "ROR" ? contributor.dig("identifier", "value") : nil
         type = contributor["type"]
         PDCMetadata::Creator.new_organizational_contributor(name, ror, type)
