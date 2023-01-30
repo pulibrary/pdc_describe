@@ -34,9 +34,11 @@
           <td>
             <select name="organizational_contributors[][type]">
               <% ::Datacite::Mapping::ContributorType.map(&:value).each do |contributor_type| %>
-                <option value="<%= contributor_type %>"
-                  <%= contributor&.type == contributor_type ? "selected" : "" %>
-                ><%= contributor_type %></option>
+                <% if not ["ContactPerson", "RelatedPerson"].include?(contributor_type) %>
+                  <option value="<%= contributor_type %>"
+                    <%= contributor&.type == contributor_type ? "selected" : "" %>
+                  ><%= contributor_type %></option>
+                <% end %>
               <% end %>
             </select>
           </td>
