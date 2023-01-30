@@ -9,14 +9,6 @@ module PDCMetadata
     attr_accessor :value, :name_type, :given_name, :family_name, :identifier, :affiliations, :sequence, :type
 
     class << self
-      def from_hash(creator)
-        given_name = creator["given_name"]
-        family_name = creator["family_name"]
-        orcid = creator.dig("identifier", "scheme") == "ORCID" ? creator.dig("identifier", "value") : nil
-        sequence = (creator["sequence"] || "").to_i
-        PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
-      end
-
       def individual_contributor_from_hash(contributor)
         given_name = contributor["given_name"]
         family_name = contributor["family_name"]
