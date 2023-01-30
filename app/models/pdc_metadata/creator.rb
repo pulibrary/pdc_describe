@@ -19,10 +19,10 @@ module PDCMetadata
       end
 
       def organizational_contributor_from_hash(contributor)
-        name = contributor["value"]
+        value = contributor["value"]
         ror = contributor.dig("identifier", "scheme") == "ROR" ? contributor.dig("identifier", "value") : nil
         type = contributor["type"]
-        PDCMetadata::Creator.new_organizational_contributor(name, ror, type)
+        PDCMetadata::Creator.new_organizational_contributor(value, ror, type)
       end
     end
 
@@ -73,16 +73,16 @@ module PDCMetadata
       contributor
     end
 
-    def self.new_organization(name, ror = nil)
-      creator = Creator.new(value: name, name_type: "Organizational")
+    def self.new_organization(value, ror = nil)
+      creator = Creator.new(value: value, name_type: "Organizational")
       if ror.present?
         creator.identifier = NameIdentifier.new_ror(ror.strip)
       end
       creator
     end
 
-    def self.new_organizational_contributor(name, ror, type)
-      contributor = new_organization(name, ror)
+    def self.new_organizational_contributor(value, ror, type)
+      contributor = new_organization(value, ror)
       contributor.type = type
       contributor
     end
