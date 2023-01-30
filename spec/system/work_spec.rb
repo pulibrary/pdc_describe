@@ -89,7 +89,7 @@ RSpec.describe "Creating and updating works", type: :system do
     expect(value_for("General Type")).to eq "Dataset"
   end
 
-  it "Renders contributors", js: true do
+  it "Renders individual contributors", js: true do
     resource = FactoryBot.build(:resource)
     resource.individual_contributors = []
     resource.individual_contributors << PDCMetadata::Creator.new_individual_contributor("Robert", "Smith", "1234-1234-1234-1234", "ProjectLeader", 1)
@@ -100,6 +100,17 @@ RSpec.describe "Creating and updating works", type: :system do
     visit work_path(work)
     expect(page.html.match?(/Smith, Robert\s+\(Project Leader\)/)).to be true
     expect(page.html.include?("Gallup, Simon")).to be true
+  end
+
+  it "Renders organizational contributors", js: true do
+    resource = FactoryBot.build(:resource)
+    resource.organizational_contributors = []
+    resource.organizational_contributors << PDCMetadata::Creator.new_organizational_contributor("Fellowship of The Ring", "https://ror.org/012345678", "Other")
+    work = FactoryBot.create(:draft_work, resource: resource)
+
+    sign_in user
+    visit work_path(work)
+    expect(page.html.match?(/Fellowship of The Ring\s+\(Other\)/)).to be true
   end
 
   context "datacite record" do
