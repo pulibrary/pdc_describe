@@ -165,6 +165,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
   end
 
   context "ORCID information" do
+    # This test depends on an outside API functioning reliably.
     let(:work) { FactoryBot.create(:draft_work) }
     let(:user) { work.created_by_user }
 
@@ -176,7 +177,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       expect(page.find("#family_name_1").value).to eq "Valdez"
     end
 
-    it "fetches information for contributors" do
+    it "fetches information for individual contributors" do
       sign_in user
       visit edit_work_path(work)
       click_on "Additional Metadata"
@@ -185,6 +186,30 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       expect(page.find("#contributor_family_name_1").value).to eq "Loya"
     end
   end
+
+  # TODO: This test passes if I had a breakpoint, but not if I run it straight through.
+  #       Not sure if it's an API problem, or if I'm mis-using Capybara.
+  # context "ROR information" do
+  #   # This test depends on an outside API functioning reliably.
+  #   let(:work) { FactoryBot.create(:draft_work) }
+  #   let(:user) { work.created_by_user }
+
+  #   it "fetches information for funders" do
+  #     sign_in user
+  #     visit edit_work_path(work)
+  #     click_on "Additional Metadata"
+  #     fill_in "funders[][ror]", with: "https://ror.org/00hx57361"
+  #     expect(page.find_field("funders[][funder_name]", wait: 10).value).to eq "Princeton University"
+  #   end
+
+  #   it "fetches information for organizational contributors" do
+  #     sign_in user
+  #     visit edit_work_path(work)
+  #     click_on "Additional Metadata"
+  #     fill_in "organizational_contributors[][ror]", with: "https://ror.org/00hx57361"
+  #     expect(page.find_field("organizational_contributors[][value]", wait: 10).value).to eq "Princeton University"
+  #   end
+  # end
 
   context "as a user without curator privileges" do
     let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
