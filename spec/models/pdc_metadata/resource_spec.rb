@@ -141,7 +141,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
         ],
         "organizational_contributors" => [
           # TODO: Should the structure here only include the relevant fields?
-          {"affiliations"=>[], "family_name"=>nil, "given_name"=>nil, "identifier"=>nil, "name_type"=>"Organizational", "sequence"=>0, "type"=>nil, "value"=>"Santa's Elves"}
+          { "affiliations" => [], "family_name" => nil, "given_name" => nil, "identifier" => nil, "name_type" => "Organizational", "sequence" => 0, "type" => nil, "value" => "Santa's Elves" }
         ],
         "creators" => [
           { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => 1, "identifier" => nil }
