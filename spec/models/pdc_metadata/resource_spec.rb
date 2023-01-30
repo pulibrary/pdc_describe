@@ -140,7 +140,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
           { "value" => "Gallup, Simon", "name_type" => "Personal", "given_name" => "Simon", "family_name" => "Gallup", "affiliations" => [], "sequence" => 2, "identifier" => nil, "type" => "Other" }
         ],
         "organizational_contributors" => [
-          { "affiliations" => [], "family_name" => nil, "given_name" => nil, "identifier" => "https://ror.org/00hx57361", "name_type" => "Organizational", "sequence" => 0, "type" => nil, "value" => "Princeton University" }
+          { "affiliations" => [], "family_name" => nil, "given_name" => nil, "identifier" => { "scheme" => "ROR", "scheme_uri" => "https://ror.org", "value" => "https://ror.org/00hx57361" }, "name_type" => "Organizational", "sequence" => 0, "type" => nil, "value" => "Princeton University" }
         ],
         "creators" => [
           { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => 1, "identifier" => nil }

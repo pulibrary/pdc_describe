@@ -47,6 +47,5 @@ module PDCMetadata
     def self.new_ror(value)
       NameIdentifier.new(value: value, scheme: ROR, scheme_uri: "https://ror.org")
     end
-
   end
 end
