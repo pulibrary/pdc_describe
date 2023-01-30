@@ -125,16 +125,16 @@ class FormToResourceService
       def add_organizational_contributors(params, resource)
         # (New pattern: Use rails param name conventions rather than numbering fields.)
         resource.organizational_contributors = (params[:organizational_contributors] || []).filter_map do |contributor|
-          name = contributor["name"]
+          value = contributor["value"]
           ror = contributor["ror"]
           type = contributor["type"]
-          new_organizational_contributor(name, ror, type)
+          new_organizational_contributor(value, ror, type)
         end
       end
 
-      def new_organizational_contributor(name, ror, type)
-        return if name.blank? && ror.blank? && type.blank?
-        PDCMetadata::Creator.new_organizational_contributor(name, ror, type)
+      def new_organizational_contributor(value, ror, type)
+        return if value.blank? && ror.blank?
+        PDCMetadata::Creator.new_organizational_contributor(value, ror, type)
       end
 
       # Funders:
