@@ -31,7 +31,7 @@ Download the README.txt for a detailed description of this dataset's content."
     it "produces and saves a valid datacite record" do
       sign_in user
       # we need to use the wizard because this work does not have a doi and it needs one to be registered
-      visit "/works/new?wizard=true"
+      visit "/works/new"
       fill_in "title_main", with: title
       fill_in "given_name_1", with: "Samantha"
       fill_in "family_name_1", with: "Abrams"
@@ -53,12 +53,18 @@ Download the README.txt for a detailed description of this dataset's content."
       click_on "Add Another Creator"
       fill_in "given_name_7", with: "Stefanie"
       fill_in "family_name_7", with: "Ramsay"
-      click_on "Create"
       fill_in "description", with: description
       select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
+      page.attach_file("work[pre_curation_uploads][]", [file1, file2], make_visible: true)
+      click_on "Additional Metadata"
+      click_on "Curator Controlled"
+      fill_in "ark", with: ark
+      byebug
+      click_on "Create"
+      click_on "Complete"
+      byebug
       click_on "btn-submit"
       click_on "Continue"
-      page.attach_file("patch[pre_curation_uploads][]", [file1, file2], make_visible: true)
       click_on "Continue"
       click_on "Grant License and Complete"
       click_on "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It"
