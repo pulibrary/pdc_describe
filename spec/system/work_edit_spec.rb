@@ -187,7 +187,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
     end
   end
 
-  # TODO: This test passes if I had a breakpoint, but not if I run it straight through.
+  # TODO: This test passes if I add a breakpoint, but not if I run it straight through.
   #       Not sure if it's an API problem, or if I'm mis-using Capybara.
   # context "ROR information" do
   #   # This test depends on an outside API functioning reliably.
