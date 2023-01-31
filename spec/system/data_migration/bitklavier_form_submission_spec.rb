@@ -12,7 +12,7 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
   let(:ark) { "ark:/88435/dsp015999n653h" }
   let(:collection) { "Research Data" }
   let(:publisher) { "Princeton University" }
-  let(:doi) { "10.34770/r75s-9j74" }
+  let(:doi) { "10.34770/zztk-f783" }
 
   before do
     page.driver.browser.manage.window.resize_to(2000, 2000)
