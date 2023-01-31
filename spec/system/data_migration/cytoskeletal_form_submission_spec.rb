@@ -70,13 +70,13 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       click_on "Add Another Creator"
       fill_in "given_name_14", with: "Nina R"
       fill_in "family_name_14", with: "Salama"
-      click_on "v-pills-curator-controlled-tab"
+      click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2019
       select "Research Data", from: "collection_id"
 
       # Select Additional Metadata Tab
-      click_on "v-pills-additional-tab"
+      click_on "Additional Metadata"
 
       # Related Objects
       fill_in "related_identifier_1", with: related_identifier
@@ -88,7 +88,7 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       select relation_type, from: "relation_type_2"
 
       # Select Curator Controlled Tab
-      click_on "v-pills-curator-controlled-tab"
+      click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"

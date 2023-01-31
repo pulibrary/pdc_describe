@@ -38,13 +38,13 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       click_on "Add Another Creator"
       fill_in "given_name_3", with: "Christina"
       fill_in "family_name_3", with: "Karas"
-      click_on "v-pills-additional-tab"
+      click_on "Additional Metadata"
       fill_in "keywords", with: keywords
-      click_on "v-pills-curator-controlled-tab"
+      click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2019
       select "Research Data", from: "collection_id"
-      click_on "v-pills-curator-controlled-tab"
+      click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"

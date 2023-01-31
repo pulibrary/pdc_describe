@@ -51,11 +51,11 @@ This dataset is too large to download directly from this item page. You can acce
       click_on "Add Another Creator"
       fill_in "given_name_6", with: "Daniel"
       fill_in "family_name_6", with: "Trueman"
-      click_on "v-pills-additional-tab"
+      click_on "Additional Metadata"
       fill_in "keywords", with: keywords
       # Select Additional Metadata Tab
-      click_on "v-pills-additional-tab"
-      click_on "v-pills-curator-controlled-tab"
+      click_on "Additional Metadata"
+      click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2021
       fill_in "doi", with: doi
