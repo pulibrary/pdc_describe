@@ -1,7 +1,7 @@
-<!-- Contributors section -->
+<!-- Individual Contributors section -->
 <div class="field">
   <details>
-    <summary>Additional Contributors</summary>
+    <summary>Additional Individual Contributors</summary>
     Enter additional individual contributors here.
   </details>
 
@@ -26,13 +26,13 @@
     <tfoot>
       <tr>
         <td colspan="3">
-          <%= link_to "Add Another Contributor", "#", id: "btn-add-contributor", class: "btn btn-secondary" %>
+          <%= link_to "Add Another Individual Contributor", "#", id: "btn-add-contributor", class: "btn btn-secondary" %>
         </td>
       </tr>
     </tfoot>
   </table>
 
-  <% @work.resource.contributors.each_with_index do |contributor, i| %>
+  <% @work.resource.individual_contributors.each_with_index do |contributor, i| %>
     <span class="hidden contributor-data"
       data-num="<%= i + 1 %>"
       data-orcid="<%= contributor.orcid %>"

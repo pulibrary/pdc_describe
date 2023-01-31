@@ -1,0 +1,17 @@
+<% display_name = capture do %>
+  <%= organization.value %>
+  <% if organization.type.present? %>
+    (<%= organization.type.titleize %>)
+  <% end %>
+<% end.strip %>
+
+<span class="author-name">
+  <% if organization.ror.present? %>
+    <!-- Logo from https://ror.readme.io/docs/ror-id-display-guidelines-and-logos -->
+    <img alt="ROR logo" src="https://raw.githubusercontent.com/ror-community/ror-logos/main/ror-icon-rgb.svg" width="16" height="16" />
+    <!-- Canonical ROR is a URL, so do not include protocol or hostname. -->
+    <a href="<%= organization.ror %>" target="_blank"><%= display_name %></a>
+  <% else %>
+    <%= display_name -%>
+  <% end %>
+</span>

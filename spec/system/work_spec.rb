@@ -89,17 +89,28 @@ RSpec.describe "Creating and updating works", type: :system do
     expect(value_for("General Type")).to eq "Dataset"
   end
 
-  it "Renders contributors", js: true do
+  it "Renders individual contributors", js: true do
     resource = FactoryBot.build(:resource)
-    resource.contributors = []
-    resource.contributors << PDCMetadata::Creator.new_contributor("Robert", "Smith", "1234-1234-1234-1234", "ProjectLeader", 1)
-    resource.contributors << PDCMetadata::Creator.new_contributor("Simon", "Gallup", nil, "Other", 2)
+    resource.individual_contributors = []
+    resource.individual_contributors << PDCMetadata::Creator.new_individual_contributor("Robert", "Smith", "1234-1234-1234-1234", "ProjectLeader", 1)
+    resource.individual_contributors << PDCMetadata::Creator.new_individual_contributor("Simon", "Gallup", nil, "Other", 2)
     work = FactoryBot.create(:draft_work, resource: resource)
 
     sign_in user
     visit work_path(work)
     expect(page.html.match?(/Smith, Robert\s+\(Project Leader\)/)).to be true
     expect(page.html.include?("Gallup, Simon")).to be true
+  end
+
+  it "Renders organizational contributors", js: true do
+    resource = FactoryBot.build(:resource)
+    resource.organizational_contributors = []
+    resource.organizational_contributors << PDCMetadata::Creator.new_organizational_contributor("Fellowship of The Ring", "https://ror.org/012345678", "Other")
+    work = FactoryBot.create(:draft_work, resource: resource)
+
+    sign_in user
+    visit work_path(work)
+    expect(page.html.match?(/Fellowship of The Ring\s+\(Other\)/)).to be true
   end
 
   context "datacite record" do
@@ -198,7 +209,7 @@ RSpec.describe "Creating and updating works", type: :system do
       click_on "Additional Metadata"
       fill_in "contributor_given_name_1", with: "Robert"
       fill_in "contributor_family_name_1", with: "Smith"
-      click_on "Add Another Contributor"
+      click_on "Add Another Individual Contributor"
       fill_in "contributor_given_name_2", with: "Simon"
       fill_in "contributor_family_name_2", with: "Gallup"
       contributor_text = page.find("#contributors-table").find_all("tr").map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
@@ -220,8 +231,8 @@ RSpec.describe "Creating and updating works", type: :system do
       expect(contributor_text_after).to eq("Simon Gallup  Robert Smith")
       click_on "Save Work"
       draft_work.reload
-      expect(draft_work.resource.contributors.last.given_name).to eq("Robert")
-      expect(draft_work.resource.contributors.last.family_name).to eq("Smith")
+      expect(draft_work.resource.individual_contributors.last.given_name).to eq("Robert")
+      expect(draft_work.resource.individual_contributors.last.family_name).to eq("Smith")
     end
   end
 

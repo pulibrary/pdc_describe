@@ -40,9 +40,9 @@ The attached readme.txt file explains the data attributes"
       click_on "Add Another Creator"
       fill_in "given_name_4", with: "Elie"
       fill_in "family_name_4", with: "Bou-Zeid"
-      click_on "v-pills-additional-tab"
+      click_on "Additional Metadata"
       fill_in "keywords", with: keywords
-      click_on "v-pills-curator-controlled-tab"
+      click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2020
       fill_in "doi", with: doi

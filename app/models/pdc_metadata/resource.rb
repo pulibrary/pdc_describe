@@ -9,8 +9,8 @@ module PDCMetadata
 
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
-      :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :contributors, :related_objects,
-      :funders, :domains
+      :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :related_objects,
+      :funders, :organizational_contributors, :domains
 
     # rubocop:disable Metrics/MethodLength
     def initialize(doi: nil, title: nil, resource_type: nil, resource_type_general: nil, creators: [], description: nil)
@@ -30,10 +30,24 @@ module PDCMetadata
       @related_objects = []
       @keywords = []
       @contributors = []
+      @organizational_contributors = []
       @funders = []
       @domains = []
     end
     # rubocop:enable Metrics/MethodLength
+
+    def accessors
+      setters = methods.map(&:to_s).filter { |s| s.match?(/\w=$/) }
+      setters.map { |s| s.delete("=").to_sym }
+    end
+
+    def individual_contributors
+      @contributors
+    end
+
+    def individual_contributors=(value)
+      @contributors = value
+    end
 
     def identifier
       @doi
@@ -71,7 +85,8 @@ module PDCMetadata
         set_additional_metadata(resource, jsonb_hash)
         set_titles(resource, jsonb_hash)
         set_creators(resource, jsonb_hash)
-        set_contributors(resource, jsonb_hash)
+        set_individual_contributors(resource, jsonb_hash)
+        set_organizational_contributors(resource, jsonb_hash)
         set_related_objects(resource, jsonb_hash)
         set_funders(resource, jsonb_hash)
 
@@ -152,13 +167,21 @@ module PDCMetadata
           resource.creators.sort_by!(&:sequence)
         end
 
-        def set_contributors(resource, hash)
-          contributors = hash["contributors"] || []
+        def set_individual_contributors(resource, hash)
+          individual_contributors = hash["contributors"] || []
 
-          contributors.each do |contributor|
-            resource.contributors << Creator.contributor_from_hash(contributor)
+          individual_contributors.each do |contributor|
+            resource.individual_contributors << Creator.individual_contributor_from_hash(contributor)
           end
-          resource.contributors.sort_by!(&:sequence)
+          resource.individual_contributors.sort_by!(&:sequence)
+        end
+
+        def set_organizational_contributors(resource, hash)
+          organizational_contributors = hash["organizational_contributors"] || []
+
+          organizational_contributors.each do |contributor|
+            resource.organizational_contributors << Creator.organizational_contributor_from_hash(contributor)
+          end
         end
 
         def set_funders(resource, hash)
