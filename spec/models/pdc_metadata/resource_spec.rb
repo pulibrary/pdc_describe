@@ -10,8 +10,8 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     PDCMetadata::Creator.new_person("Jane", "Smith")
   end
 
-  let(:contributor1) { PDCMetadata::Creator.new_contributor("Robert", "Smith", "", "ProjectLeader", 1) }
-  let(:contributor2) { PDCMetadata::Creator.new_contributor("Simon", "Gallup", "", "Other", 2) }
+  let(:contributor1) { PDCMetadata::Creator.new_individual_contributor("Robert", "Smith", "", "ProjectLeader", 1) }
+  let(:contributor2) { PDCMetadata::Creator.new_individual_contributor("Simon", "Gallup", "", "Other", 2) }
   let(:doi) { "10.5072/example-full" }
 
   let(:ds) do
@@ -20,7 +20,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     ds.creators = [creator1, creator2]
     ds.ark = "ark:/88435/dsp01hx11xj13h"
     ds.rights = PDCMetadata::Rights.find("CC BY")
-    ds.contributors = [contributor1, contributor2]
+    ds.individual_contributors = [contributor1, contributor2]
     ds.publication_year = 2022
     ds
   end
@@ -65,7 +65,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     expect(ds.main_title).to eq "hello world"
     expect(ds.resource_type).to eq "Dataset"
     expect(ds.creators.count).to be 2
-    expect(ds.contributors.count).to be 2
+    expect(ds.individual_contributors.count).to be 2
   end
 
   describe "#identifier_type" do
@@ -138,6 +138,9 @@ RSpec.describe PDCMetadata::Resource, type: :model do
           { "value" => "Smith, Robert", "name_type" => "Personal", "given_name" => "Robert", "family_name" => "Smith", "affiliations" => [], "sequence" => 1, "identifier" => nil,
             "type" => "ProjectLeader" },
           { "value" => "Gallup, Simon", "name_type" => "Personal", "given_name" => "Simon", "family_name" => "Gallup", "affiliations" => [], "sequence" => 2, "identifier" => nil, "type" => "Other" }
+        ],
+        "organizational_contributors" => [
+          { "affiliations" => [], "family_name" => nil, "given_name" => nil, "identifier" => { "scheme" => "ROR", "scheme_uri" => "https://ror.org", "value" => "https://ror.org/00hx57361" }, "name_type" => "Organizational", "sequence" => 0, "type" => nil, "value" => "Princeton University" }
         ],
         "creators" => [
           { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => 1, "identifier" => nil }

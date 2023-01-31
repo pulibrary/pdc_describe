@@ -192,10 +192,17 @@
         <dd><%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></dd>
       <% end %>
 
-      <% if @work.resource.contributors.count > 0 %>
-        <dt>Contributors</dt>
+      <% if @work.resource.individual_contributors.count > 0 %>
+        <dt>Individual Contributors</dt>
         <dd>
-          <%= safe_join(@work.resource.contributors.map { |person| render("orcid_link", person: person) }, "; ") %>
+          <%= safe_join(@work.resource.individual_contributors.map { |person| render("orcid_link", person: person) }, "; ") %>
+        </dd>
+      <% end %>
+
+      <% if @work.resource.organizational_contributors.count > 0 %>
+        <dt>Organizational Contributors</dt>
+        <dd>
+          <%= safe_join(@work.resource.organizational_contributors.map { |org| render("ror_link", organization: org) }, "; ") %>
         </dd>
       <% end %>
 

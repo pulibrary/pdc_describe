@@ -67,7 +67,8 @@ describe ResourceCompareService do
       collection_tags: ["fake"],
       funders: [],
       keywords: [],
-      contributors: [],
+      individual_contributors: [],
+      organizational_contributors: [],
       creators: [],
       domains: ["Humanities"]
     }
@@ -88,17 +89,16 @@ describe ResourceCompareService do
       domains: [{ action: :changed, from: "", to: "Humanities" }]
     }
     resource1 = FactoryBot.create(:shakespeare_and_company_work).resource
-    keys = resource1.as_json.keys.sort
-    keys.each do |key|
-      # If a new key is added to the resource, but the ResourceCompareService misses it,
+    accessors = resource1.accessors
+    accessors.each do |accessor|
+      # If a new accessor is added to the resource, but the ResourceCompareService misses it,
       # we'll still test it here, and there should be a failure.
-      it "correctly compares #{key}" do
-        key_sym = key.to_sym
-        setter = "#{key}=".to_sym
+      it "correctly compares #{accessor}" do
+        setter = "#{accessor}=".to_sym
         resource2 = FactoryBot.create(:shakespeare_and_company_work).resource
-        resource2.send(setter, new_values[key_sym])
+        resource2.send(setter, new_values[accessor])
         compare = described_class.new(resource1, resource2)
-        expect(compare.differences[key_sym]).to eq expected_diff[key_sym]
+        expect(compare.differences[accessor]).to eq expected_diff[accessor]
       end
     end
   end
@@ -109,6 +109,12 @@ describe ResourceCompareService do
       # This lets us treat a hash as if it were a resource.
       def as_json
         to_h
+      end
+
+      def accessors
+        # TODO: Make this a mixin and use it both here and in resource.
+        setters = methods.map(&:to_s).filter { |s| s.match?(/\w=$/) }
+        setters.map { |s| s.delete("=").to_sym }
       end
     end
 

@@ -83,11 +83,13 @@ module PDCSerialization
 
     ##
     # Creates a PDCSerialization::Datacite object from a PDCMetadata::Resource
+    # rubocop:disable Metrics/MethodLength
     def self.new_from_work_resource(resource)
       mapping = ::Datacite::Mapping::Resource.new(
         identifier: ::Datacite::Mapping::Identifier.new(value: resource.doi),
         creators: creators_from_work_resource(resource.creators),
-        contributors: contributors_from_work_resource(resource.contributors),
+        contributors: individual_contributors_from_work_resource(resource.individual_contributors) +
+          organizational_contributors_from_work_resource(resource.organizational_contributors),
         descriptions: descriptions_from_work_resource(resource.description),
         titles: titles_from_work_resource(resource.titles),
         publisher: ::Datacite::Mapping::Publisher.new(value: resource.publisher),
@@ -100,6 +102,7 @@ module PDCSerialization
       )
       Datacite.new(mapping)
     end
+    # rubocop:enable Metrics/MethodLength
 
     class << self
       def datacite_resource_type(value)
@@ -125,8 +128,19 @@ module PDCSerialization
           end
         end
 
-        def contributors_from_work_resource(contributors)
+        def individual_contributors_from_work_resource(contributors)
           contributors.sort_by(&:sequence).map do |contributor|
+            ::Datacite::Mapping::Contributor.new(
+              name: contributor.value,
+              identifier: name_identifier_from_identifier(contributor.identifier),
+              affiliations: nil,
+              type: datacite_contributor_type(contributor.type)
+            )
+          end
+        end
+
+        def organizational_contributors_from_work_resource(contributors)
+          contributors.map do |contributor|
             ::Datacite::Mapping::Contributor.new(
               name: contributor.value,
               identifier: name_identifier_from_identifier(contributor.identifier),

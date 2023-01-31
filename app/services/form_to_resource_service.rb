@@ -21,10 +21,8 @@ class FormToResourceService
       add_titles(params, resource)
       add_related_objects(params, resource)
       add_creators(params, resource)
-      add_contributors(params, resource)
-
-      # Process funders
-      # (New pattern: method modifies resource in place.)
+      add_individual_contributors(params, resource)
+      add_organizational_contributors(params, resource)
       add_funders(params, resource)
 
       resource
@@ -104,28 +102,44 @@ class FormToResourceService
         PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
       end
 
-      # Contributors:
+      # Individual Contributors:
 
-      def add_contributors(params, resource)
-        resource.contributors = (1..params["contributor_count"].to_i).filter_map do |i|
+      def add_individual_contributors(params, resource)
+        resource.individual_contributors = (1..params["contributor_count"].to_i).filter_map do |i|
           given_name = params["contributor_given_name_#{i}"]
           family_name = params["contributor_family_name_#{i}"]
           orcid = params["contributor_orcid_#{i}"]
           type = params["contributor_role_#{i}"]
           sequence = params["contributor_sequence_#{i}"]
-          new_contributor(given_name, family_name, orcid, type, sequence)
+          new_individual_contributor(given_name, family_name, orcid, type, sequence)
         end
       end
 
-      def new_contributor(given_name, family_name, orcid, type, sequence)
+      def new_individual_contributor(given_name, family_name, orcid, type, sequence)
         return if family_name.blank? && given_name.blank? && orcid.blank?
-        PDCMetadata::Creator.new_contributor(given_name, family_name, orcid, type, sequence)
+        PDCMetadata::Creator.new_individual_contributor(given_name, family_name, orcid, type, sequence)
+      end
+
+      # Organizational Contributors:
+
+      def add_organizational_contributors(params, resource)
+        # (New pattern: Use rails param name conventions rather than numbering fields.)
+        resource.organizational_contributors = (params[:organizational_contributors] || []).filter_map do |contributor|
+          value = contributor["value"]
+          ror = contributor["ror"]
+          type = contributor["type"]
+          new_organizational_contributor(value, ror, type)
+        end
+      end
+
+      def new_organizational_contributor(value, ror, type)
+        return if value.blank? && ror.blank?
+        PDCMetadata::Creator.new_organizational_contributor(value, ror, type)
       end
 
       # Funders:
 
       def add_funders(params, resource)
-        # (New pattern: Use rails param name conventions rather than numbering fields.)
         resource.funders = (params[:funders] || []).filter_map do |funder|
           new_funder(funder[:ror], funder[:funder_name], funder[:award_number], funder[:award_uri])
         end

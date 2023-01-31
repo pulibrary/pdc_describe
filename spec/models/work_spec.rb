@@ -43,6 +43,7 @@ RSpec.describe Work, type: :model do
             "description" => nil,
             "collection_tags" => [],
             "creators" => [],
+            "organizational_contributors" => [],
             "resource_type" => nil,
             "resource_type_general" => nil,
             "publisher" => nil,
@@ -993,6 +994,7 @@ RSpec.describe Work, type: :model do
         "related_objects": [],
         "keywords": [],
         "contributors": [],
+        "organizational_contributors": [],
         "funders":[
           {
             "ror": "https://ror.org/012345678",
@@ -1007,7 +1009,8 @@ RSpec.describe Work, type: :model do
     it "can change the entire resource" do
       parsed_json = JSON.parse(resource_json)
       work.resource = PDCMetadata::Resource.new_from_jsonb(parsed_json)
-      expect(work.resource.to_json).to eq(parsed_json.to_json)
+      # Wrap with JSON.parse on both sides just so the diff is readable.
+      expect(JSON.parse(work.resource.to_json)).to eq(JSON.parse(parsed_json.to_json))
     end
   end
 

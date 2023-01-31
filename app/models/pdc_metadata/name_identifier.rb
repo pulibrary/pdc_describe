@@ -15,19 +15,37 @@ module PDCMetadata
       @scheme_uri = scheme_uri
     end
 
+    ORCID = "ORCID"
+    ROR = "ROR"
+
     def orcid_url
-      return nil unless scheme == "ORCID"
+      return nil unless scheme == ORCID
       "#{scheme_uri}/#{value}"
     end
 
     def orcid
-      return nil unless scheme == "ORCID"
+      return nil unless scheme == ORCID
       value
     end
 
-    # Convenience method since this is the most common (only?) identifier that we are currently supporting
+    def ror_url
+      return nil unless scheme == ROR
+      # Canonical ROR is URL...
+      # TODO: Is this even used?
+      value
+    end
+
+    def ror
+      return nil unless scheme == ROR
+      value
+    end
+
     def self.new_orcid(value)
-      NameIdentifier.new(value: value, scheme: "ORCID", scheme_uri: "https://orcid.org")
+      NameIdentifier.new(value: value, scheme: ORCID, scheme_uri: "https://orcid.org")
+    end
+
+    def self.new_ror(value)
+      NameIdentifier.new(value: value, scheme: ROR, scheme_uri: "https://ror.org")
     end
   end
 end
