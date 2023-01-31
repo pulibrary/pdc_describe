@@ -48,8 +48,8 @@ A full description of the structure of the dataset and how to reproduce the figu
       click_on "Add Another Creator"
       fill_in "given_name_7", with: "Karen"
       fill_in "family_name_7", with: "Paffendorf"
-      click_on "v-pills-additional-tab"
-      click_on "v-pills-curator-controlled-tab"
+      click_on "Additional Metadata"
+      click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2019
       fill_in "doi", with: doi
