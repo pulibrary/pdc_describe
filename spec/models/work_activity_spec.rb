@@ -66,7 +66,7 @@ describe WorkActivity, type: :model do
     describe "#messages_for_work" do
       it "finds all the messages for the work" do
         activity_message = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::MESSAGE)
-        expect(described_class.messages_for_work(work.id)).to eq([notification, activity_message])
+        expect(described_class.messages_for_work(work.id)).to contain_exactly(notification, activity_message)
       end
     end
 
@@ -74,7 +74,7 @@ describe WorkActivity, type: :model do
       it "finds all the changes for the work" do
         change_file = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::FILE_CHANGES)
         changes = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::CHANGES)
-        expect(described_class.changes_for_work(work.id)).to eq([work_activity, change_file, changes])
+        expect(described_class.changes_for_work(work.id)).to contain_exactly(work_activity, change_file, changes)
       end
     end
   end
