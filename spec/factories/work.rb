@@ -15,11 +15,12 @@ FactoryBot.define do
     factory :draft_work do
       transient do
         doi { "10.34770/123-abc" }
+        ark { nil }
       end
       collection { Collection.research_data }
       state { "draft" }
       created_by_user_id { FactoryBot.create(:user).id }
-      resource { FactoryBot.build :resource, doi: doi }
+      resource { FactoryBot.build :resource, doi: doi, ark: ark }
     end
 
     factory :awaiting_approval_work do

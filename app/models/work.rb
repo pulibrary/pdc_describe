@@ -541,7 +541,10 @@ class Work < ApplicationRecord
     end
 
     def validate_ark
-      if ark.present?
+      return if ark.blank?
+      first_save = id.blank?
+      changed_value = metadata["ark"] != ark
+      if first_save || changed_value
         errors.add(:base, "Invalid ARK provided for the Work: #{ark}") unless Ark.valid?(ark)
       end
     end
