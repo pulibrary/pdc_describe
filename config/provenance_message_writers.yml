@@ -1,9 +1,13 @@
 # These users are given a little form below the change log that lets them add back-dated free-text messages.
 development:
   - cm7575 # Chuck McCallum
+  - hh4079
 
-staging: []
+staging:
+  - hh4079
 
-test: []
+test:
+  - hh4079
 
-production: []
+production:
+  - hh4079
