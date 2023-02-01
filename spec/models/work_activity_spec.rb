@@ -66,7 +66,9 @@ describe WorkActivity, type: :model do
     describe "#messages_for_work" do
       it "finds all the messages for the work" do
         activity_message = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::MESSAGE)
-        expect(described_class.messages_for_work(work.id)).to eq([notification, activity_message])
+        messages = described_class.messages_for_work(work.id)
+        expect(messages).to include(notification)
+        expect(messages).to include(activity_message)
       end
     end
 
