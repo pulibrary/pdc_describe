@@ -13,7 +13,7 @@ Download the README.txt for a detailed description of this dataset's content."
   let(:ark) { "ark:/88435/dsp01d791sj97j" }
   let(:collection) { "Research Data" }
   let(:publisher) { "Princeton University" }
-  let(:doi) { "10.34770/r75s-9j74" }
+  let(:doi) { }
   let(:file1) { Pathname.new(fixture_path).join("dataspace_migration", "sowingseeds", "readmearchiveitusability.rtf").to_s }
   let(:file2) { Pathname.new(fixture_path).join("dataspace_migration", "sowingseeds", "Archive-It-UsabilityTestDataAnalysis-2017.xlsx").to_s }
   let(:bucket_url) do
