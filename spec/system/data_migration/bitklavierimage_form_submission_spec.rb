@@ -71,6 +71,7 @@ This dataset is too large to download directly from this item page. You can acce
       expect(bitklavierimage_work.title).to eq title
       expect(bitklavierimage_work.resource.collection_tags).to eq collection_tags
       expect(bitklavierimage_work.collection).to eq Collection.research_data
+      expect(bitklavierimage_work.ark).to eq ark
 
       # Ensure the datacite record produced validates against our local copy of the datacite schema.
       # This will allow us to evolve our local datacite standards and test our records against them.

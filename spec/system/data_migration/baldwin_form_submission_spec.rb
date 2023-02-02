@@ -62,6 +62,7 @@ A full description of the structure of the dataset and how to reproduce the figu
       expect(page).to have_content "awaiting_approval"
       baldwin_work = Work.last
       expect(baldwin_work.title).to eq title
+      expect(baldwin_work.ark).to eq ark
 
       # Ensure the datacite record produced validates against our local copy of the datacite schema.
       # This will allow us to evolve our local datacite standards and test our records against them.
