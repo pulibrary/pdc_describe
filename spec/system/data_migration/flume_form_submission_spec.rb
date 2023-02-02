@@ -56,6 +56,7 @@ The attached readme.txt file explains the data attributes"
       expect(page).to have_content "awaiting_approval"
       flume_work = Work.last
       expect(flume_work.title).to eq title
+      expect(flume_work.ark).to eq ark
       # Ensure the datacite record produced validates against our local copy of the datacite schema.
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(flume_work)

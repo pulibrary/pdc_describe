@@ -125,6 +125,7 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       expect(page).to have_content "awaiting_approval"
       femtosecond_work = Work.last
       expect(femtosecond_work.title).to eq title
+      expect(femtosecond_work.ark).to eq ark
 
       # TODO: Reenable test -- Right now it's failing sporadically.
       #       Not sure if it's a problem with the API, or the xpath, or something else.
