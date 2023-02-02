@@ -12,12 +12,12 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
   let(:ark) { "ark:/88435/dsp015999n653h" }
   let(:collection) { "Research Data" }
   let(:publisher) { "Princeton University" }
-  let(:doi) { "10.34770/r75s-9j74" }
+  let(:doi) { "10.34770/zztk-f783" }
 
   before do
     page.driver.browser.manage.window.resize_to(2000, 2000)
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
-    stub_request(:get, "https://handle.stage.datacite.org/10.34770/r75s-9j74")
+    stub_request(:get, "https://handle.stage.datacite.org/10.34770/zztk-f783")
       .to_return(status: 200, body: "", headers: {})
     stub_s3
   end
@@ -60,6 +60,7 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       expect(page).to have_content "awaiting_approval"
       bitklavier_work = Work.last
       expect(bitklavier_work.title).to eq title
+      expect(bitklavier_work.ark).to eq ark
 
       # Ensure the datacite record produced validates against our local copy of the datacite schema.
       # This will allow us to evolve our local datacite standards and test our records against them.

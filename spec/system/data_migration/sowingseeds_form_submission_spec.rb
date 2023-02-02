@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_ezid_api: true, js: true do
-  let(:user) { FactoryBot.create(:princeton_submitter) }
+  let(:user) { FactoryBot.create(:research_data_moderator) }
   let(:title) { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
   let(:description) do
     "In 2017, seven members of the Archive-It Mid-Atlantic Users Group (AITMA) conducted a study of 14 subjects representative of their stakeholder populations to assess the usability of Archive-It, a web archiving subscription service of the Internet Archive. While Archive-It is the most widely-used tool for web archiving, little is known about how users interact with the service.This study intended to teach us what users expect from web archives, which exist as another form of archival material. End-user subjects executed four search tasks using the public Archive-It interface and the Wayback Machine to access archived information on websites from the facilitators’ own harvested collections and provide feedback about their experiences. The tasks were designed to have straightforward pass or fail outcomes,
@@ -10,10 +10,10 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
 
 Download the README.txt for a detailed description of this dataset's content."
   end
-  let(:ark) { "88435/dsp01d791sj97j" }
+  let(:ark) { "ark:/88435/dsp01d791sj97j" }
   let(:collection) { "Research Data" }
   let(:publisher) { "Princeton University" }
-  let(:doi) { "10.34770/r75s-9j74" }
+  let(:doi) {}
   let(:file1) { Pathname.new(fixture_path).join("dataspace_migration", "sowingseeds", "readmearchiveitusability.rtf").to_s }
   let(:file2) { Pathname.new(fixture_path).join("dataspace_migration", "sowingseeds", "Archive-It-UsabilityTestDataAnalysis-2017.xlsx").to_s }
   let(:bucket_url) do
@@ -31,7 +31,7 @@ Download the README.txt for a detailed description of this dataset's content."
     it "produces and saves a valid datacite record" do
       sign_in user
       # we need to use the wizard because this work does not have a doi and it needs one to be registered
-      visit "/works/new?wizard=true"
+      visit "/works/new"
       fill_in "title_main", with: title
       fill_in "given_name_1", with: "Samantha"
       fill_in "family_name_1", with: "Abrams"
@@ -53,14 +53,14 @@ Download the README.txt for a detailed description of this dataset's content."
       click_on "Add Another Creator"
       fill_in "given_name_7", with: "Stefanie"
       fill_in "family_name_7", with: "Ramsay"
-      click_on "Create"
       fill_in "description", with: description
       select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
-      click_on "btn-submit"
-      click_on "Continue"
-      page.attach_file("patch[pre_curation_uploads][]", [file1, file2], make_visible: true)
-      click_on "Continue"
-      click_on "Grant License and Complete"
+      page.attach_file("work[pre_curation_uploads][]", [file1, file2], make_visible: true)
+      click_on "Additional Metadata"
+      click_on "Curator Controlled"
+      fill_in "ark", with: ark
+      click_on "Create"
+      click_on "Complete"
       click_on "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It"
 
       # the work has been submitted and is awaiting_approval
@@ -68,6 +68,7 @@ Download the README.txt for a detailed description of this dataset's content."
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
       sowingseeds_work = Work.last
       expect(sowingseeds_work.title).to eq title
+      expect(sowingseeds_work.ark).to eq ark
 
       # Ensure the datacite record produced validates against our local copy of the datacite schema.
       # This will allow us to evolve our local datacite standards and test our records against them.

@@ -98,6 +98,7 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       expect(page).to have_content "awaiting_approval"
       cytoskeletal_work = Work.last
       expect(cytoskeletal_work.title).to eq title
+      expect(cytoskeletal_work.ark).to eq ark
       expect(cytoskeletal_work.resource.related_objects.first.related_identifier).to eq related_identifier
       expect(cytoskeletal_work.resource.related_objects.first.related_identifier_type).to eq related_identifier_type
       expect(cytoskeletal_work.resource.related_objects.first.relation_type).to eq relation_type
