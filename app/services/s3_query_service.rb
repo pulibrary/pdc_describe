@@ -137,16 +137,18 @@ class S3QueryService
   # Retrieve the S3 resources uploaded to the S3 Bucket
   # @return [Array<S3File>]
   def client_s3_files
-    objects = []
     Rails.logger.debug("Bucket: #{bucket_name}")
     Rails.logger.debug("Prefix: #{prefix}")
     resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
-    response_objects = resp.to_h[:contents]
-    Rails.logger.debug("Objects: #{response_objects}")
-    response_objects&.each do |object|
-      next if object[:size] == 0 # ignore directories whose size is zero
-      s3_file = S3File.new(query_service: self, filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
-      objects << s3_file
+    resp_hash = resp.to_h
+    objects = parse_objects(resp_hash)
+
+    while resp_hash[:is_truncated]
+      token = resp_hash[:next_continuation_token]
+      resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix, continuation_token: token })
+      resp_hash = resp.to_h
+      more_objects = parse_objects(resp_hash)
+      objects += more_objects
     end
 
     objects
@@ -204,5 +206,17 @@ class S3QueryService
       else
         []
       end
+    end
+
+    def parse_objects(resp_hash)
+      objects = []
+      response_objects = resp_hash[:contents]
+      Rails.logger.debug("Objects: #{response_objects}")
+      response_objects&.each do |object|
+        next if object[:size] == 0 # ignore directories whose size is zero
+        s3_file = S3File.new(query_service: self, filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
+        objects << s3_file
+      end
+      objects
     end
 end

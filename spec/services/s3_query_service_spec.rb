@@ -12,6 +12,7 @@ RSpec.describe S3QueryService, mock_s3_query_service: false do
   let(:s3_size2) { 12_739 }
   let(:s3_hash) do
     {
+      is_truncated: false,
       contents: [
         {
           etag: "\"008eec11c39e7038409739c0160a793a\"",
@@ -65,6 +66,25 @@ RSpec.describe S3QueryService, mock_s3_query_service: false do
     expect(data_profile[:objects].first.filename).to match(/README/)
     expect(data_profile[:objects].first.last_modified).to eq Time.parse("2022-04-21T18:29:40.000Z")
     expect(data_profile[:objects].first.size).to eq 10_759
+  end
+
+  it "takes a DOI and returns information about that DOI in S3 with pagination" do
+    fake_aws_client = double(Aws::S3::Client)
+    subject.stub(:client).and_return(fake_aws_client)
+    fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
+    fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
+    s3_hash_truncated = s3_hash.clone
+    s3_hash_truncated[:is_truncated] = true
+    fake_s3_resp.stub(:to_h).and_return(s3_hash_truncated, s3_hash)
+
+    data_profile = subject.data_profile
+    expect(data_profile[:objects]).to be_instance_of(Array)
+    expect(data_profile[:ok]).to eq true
+    expect(data_profile[:objects].count).to eq 4
+    expect(data_profile[:objects].first.filename).to match(/README/)
+    expect(data_profile[:objects][1].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
+    expect(data_profile[:objects][2].filename).to match(/README/)
+    expect(data_profile[:objects][3].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
   end
 
   it "handles connecting to a bad bucket" do
