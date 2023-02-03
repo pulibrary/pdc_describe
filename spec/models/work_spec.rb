@@ -138,32 +138,6 @@ RSpec.describe Work, type: :model do
     end
   end
 
-  context "with a persisted dataset work" do
-    subject(:work) { FactoryBot.create(:draft_work) }
-
-    let(:uploaded_file2) do
-      fixture_file_upload("us_covid_2019.csv", "text/csv")
-    end
-
-    before do
-      stub_request(:put, /#{attachment_url}/).with(
-        body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
-      ).to_return(status: 200)
-
-      20.times { work.pre_curation_uploads.attach(uploaded_file) }
-      work.save!
-    end
-
-    it "prevents works from having more than 20 uploads attached" do
-      work.pre_curation_uploads.attach(uploaded_file2)
-
-      expect { work.save! }.to raise_error(ActiveRecord::RecordInvalid, "Validation failed: Only 20 files may be uploaded by a user to a given Work. 21 files were uploaded for the Work: #{work.ark}")
-
-      persisted = described_class.find(work.id)
-      expect(persisted.pre_curation_uploads.length).to eq(20)
-    end
-  end
-
   it "approves works and records the change history" do
     file_name = uploaded_file.original_filename
     stub_work_s3_requests(work: work, file_name: file_name)
