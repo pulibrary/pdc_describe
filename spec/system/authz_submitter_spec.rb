@@ -53,6 +53,8 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
       visit edit_work_path(work)
       expect(page).not_to have_content "Save Work"
       expect(current_path).to eq root_path
+      expect(page).to have_content "This work has been approved. Edits are no longer available"
+      # TODO: This error isn't actually appropriate: Fix it.
     end
 
     it "should not be able to edit a collection to add curators and submitters" do
