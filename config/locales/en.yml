@@ -60,5 +60,6 @@ en:
         heading: "Uncurated Files"
       post_curation_uploads:
         heading: "Curated Files"
-    approved:
-      uneditable: "This work has been approved.  Edits are no longer available."
+    uneditable:
+      approved: "This work has been approved.  Edits are no longer available."
+      privs: "You do not have permission to edit this work."
