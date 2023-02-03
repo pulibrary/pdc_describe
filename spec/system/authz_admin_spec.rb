@@ -75,7 +75,9 @@ RSpec.describe "Authz for curators", type: :system, js: true do
         # And so, research_data_moderator can NOT edit the work
         login_as research_data_moderator
         visit edit_work_path(work)
+        expect(current_path).to eq root_path
         expect(page).not_to have_content("Editing Dataset")
+        expect(page).to have_content("You do not have permission to edit this work")
       end
 
       context "with submitter rights" do
