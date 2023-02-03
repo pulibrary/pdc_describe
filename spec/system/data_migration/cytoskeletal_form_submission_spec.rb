@@ -109,6 +109,7 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(cytoskeletal_work)
       expect(datacite.valid?).to eq true
+      expect(datacite.to_xml).to be_equivalent_to(File.read("spec/system/data_migration/cytoskeletal.xml"))
       export_spec_data("cytoskeletal.json", cytoskeletal_work.to_json)
     end
   end

@@ -77,6 +77,7 @@ This dataset is too large to download directly from this item page. You can acce
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(bitklavierimage_work)
       expect(datacite.valid?).to eq true
+      expect(datacite.to_xml).to be_equivalent_to(File.read("spec/system/data_migration/bitklavierimage.xml"))
     end
   end
 end
