@@ -68,6 +68,7 @@ A full description of the structure of the dataset and how to reproduce the figu
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(baldwin_work)
       expect(datacite.valid?).to eq true
+      expect(datacite.to_xml).to be_equivalent_to(File.read("spec/system/data_migration/baldwin.xml"))
       export_spec_data("baldwin.json", baldwin_work.to_json)
     end
   end

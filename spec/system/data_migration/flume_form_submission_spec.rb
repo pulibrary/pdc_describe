@@ -61,6 +61,7 @@ The attached readme.txt file explains the data attributes"
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(flume_work)
       expect(datacite.valid?).to eq true
+      expect(datacite.to_xml).to be_equivalent_to(File.read("spec/system/data_migration/flume.xml"))
       export_spec_data("flume.json", flume_work.to_json)
     end
   end
