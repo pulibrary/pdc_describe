@@ -169,12 +169,12 @@ $(() => {
 
   function deletePerson(rowToDelete, type) {
     const rowExists = $(rowToDelete).length > 0;
-    const rowData = $(`${rowToDelete} input:not(.hidden)`);
+    const $rowData = $(`${rowToDelete} input:not(.hidden)`);
     let i; let
       token;
     let rowText = '';
-    for (i = 0; i < rowData.length; i++) {
-      token = $(rowData[i]).val();
+    for (i = 0; i < $rowData.length; i++) {
+      token = $($rowData[i]).val();
       if (token.trim().length > 0) {
         rowText += `${token} `;
       }
@@ -239,14 +239,14 @@ $(() => {
     const creatorSpans = $(selector);
     const creators = [];
     for (i = 0; i < creatorSpans.length; i++) {
-      el = $(creatorSpans[i]);
+      $el = $(creatorSpans[i]);
       creator = {
-        num: el.data('num'),
-        orcid: el.data('orcid'),
-        givenName: el.data('given-name'),
-        familyName: el.data('family-name'),
-        sequence: el.data('sequence'),
-        role: el.data('role'),
+        num: $el.data('num'),
+        orcid: $el.data('orcid'),
+        givenName: $el.data('given-name'),
+        familyName: $el.data('family-name'),
+        sequence: $el.data('sequence'),
+        role: $el.data('role'),
       };
       creators.push(creator);
     }
@@ -259,9 +259,9 @@ $(() => {
     let selector; let textboxes; let i; let textboxId; let
       value;
     selector = `#${rowId} > td > input`;
-    textboxes = $(selector);
-    for (i = 0; i < textboxes.length; i++) {
-      textboxId = textboxes[i].id;
+    $textboxes = $(selector);
+    for (i = 0; i < $textboxes.length; i++) {
+      textboxId = $textboxes[i].id;
       if (textboxId.startsWith('orcid_') || textboxId.startsWith('given_name_') || textboxId.startsWith('family_name_')) {
         value = $(`#${textboxId}`).val().trim();
         if (value != '') {
@@ -275,10 +275,10 @@ $(() => {
   // Returns the ID of the first row that has an empty creator (if any)
   function findEmptyCreator() {
     let i;
-    const rows = $('.creators-table-row');
-    for (i = 0; i < rows.length; i++) {
-      if (isEmptyRow(rows[i].id)) {
-        return rows[i].id;
+    const $rows = $('.creators-table-row');
+    for (i = 0; i < $rows.length; i++) {
+      if (isEmptyRow($rows[i].id)) {
+        return $rows[i].id;
       }
     }
     return null;
@@ -287,9 +287,9 @@ $(() => {
   // Returns true if there is at least one creator with information
   function hasCreators() {
     let i;
-    const rows = $('.creators-table-row');
+    const $rows = $('.creators-table-row');
     for (i = 0; i < rows.length; i++) {
-      if (!isEmptyRow(rows[i].id)) {
+      if (!isEmptyRow($rows[i].id)) {
         return true;
       }
     }

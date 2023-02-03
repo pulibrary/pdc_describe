@@ -86,32 +86,32 @@ $(() => {
   if ($('#data-loaded').text() != 'true') {
     // Displays the initial list of submitters.
     $('.submitter-data').each((ix, el) => {
-      var elList = $('#submitter-list');
+      var $elList = $('#submitter-list');
       var uid = $(el).data('uid');
       var collectionId = $(el).data('collectionId');
       var canDelete = $(el).data('canDelete');
       var isYou = $(el).data('you') == true;
       var is_super_admin = false;
-      addUserHtml(elList, uid, collectionId, 'submit', canDelete, isYou, is_super_admin);
+      addUserHtml($elList, uid, collectionId, 'submit', canDelete, isYou, is_super_admin);
     });
 
     // Displays the initial list of curators.
     $('.curator-data').each((ix, el) => {
-      var elList = $('#curator-list');
+      var $elList = $('#curator-list');
       var uid = $(el).data('uid');
       var collectionId = $(el).data('collectionId');
       var canDelete = $(el).data('canDelete');
       var isYou = $(el).data('you') == true;
-      addUserHtml(elList, uid, collectionId, 'admin', canDelete, isYou, false);
+      addUserHtml($elList, uid, collectionId, 'admin', canDelete, isYou, false);
     });
 
     // Displays the list of system administrators.
     $('.sysadmin-data').each((ix, el) => {
-      var elList = $('#sysadmin-list');
+      var $elList = $('#sysadmin-list');
       var uid = $(el).data('uid');
       var collectionId = $(el).data('collectionId');
       var isYou = $(el).data('you') == true;
-      addUserHtml(elList, uid, collectionId, 'admin', false, isYou, true);
+      addUserHtml($elList, uid, collectionId, 'admin', false, isYou, true);
     });
 
     // Track that we have displayed this information. This prevents re-display when

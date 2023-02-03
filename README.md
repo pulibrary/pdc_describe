@@ -103,3 +103,15 @@ Sample data available here: https://docs.google.com/document/d/18ZkBldqWxIIR1UA6
 ## Notes on migration process from DataSpace
 
 Datasets are re-described in order to migrate its metadata from modified Dublin Core to modified DataCite, and to migrate location from Princeton's legacy DataSpace repository to the DataCite compliant Princeton Data Commons suite of applications.
+
+## Coding style
+
+### Ruby
+We run Rubocop in CI, in particular the defaults provided by [Bixby](https://github.com/samvera/bixby).
+We've increased some of the limits, so if you run into a warning about method length, for example,
+consider refactoring your code for readability instead of just adding an ignore. 
+
+### Javascript
+We run ESLint in CI, in particular the defaults provided by AirBNB. We are moving towards ESM bundled by
+[Vite](https://vitejs.dev/). To keep things simple, we're just using jQuery, and will not be using React or Vue.
+Variables containing jQuery objects should be prefixed with `$`.
