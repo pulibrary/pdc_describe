@@ -6,12 +6,13 @@
   <h1><%= t('works.form.file_upload.heading', work_title: @work.title) %></h1>
   <%= render "wizard_progress", wizard_step: 2 %>
   <%= form_with(model: @work, scope: :patch, url: work_file_uploaded_path(id: @work.id)) do |f| %>
+    <div id="file-error" class="error_box"></div>
     <%= f.file_field(:pre_curation_uploads, multiple: true) %>
 
     <p><%= t('works.form.file_upload.actions') %></p>
     <div class="actions">
       <%= link_to t('works.form.file_upload.go_back'), work_attachment_select_url(@work, wizard: true), class: "btn btn-secondary" %>
-      <%= f.submit(t('works.form.file_upload.continue'), class: "btn btn-primary wizard-next-button") %>
+      <%= f.submit(t('works.form.file_upload.continue'), class: "btn btn-primary wizard-next-button", id: 'file-upload') %>
     </div>
   <% end %>
 </div>

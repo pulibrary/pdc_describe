@@ -48,6 +48,7 @@
           </table>
         <!-- End of file download table -->
         <div class="container-fluid deposit-uploads">
+          <div id="file-error" class="error_box"></div>
           <%= form.label("Replace all Uploads", for: :pre_curation_uploads) %>
           <%= form.file_field(:pre_curation_uploads, id: "pre_curation_uploads", multiple: true) %>
         </div>

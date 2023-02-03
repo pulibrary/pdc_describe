@@ -2,8 +2,6 @@
 
 # rubocop:disable Metrics/ClassLength
 class Work < ApplicationRecord
-  MAX_UPLOADS = 20
-
   # Errors for cases where there is no valid Collection
   class InvalidCollectionError < ::ArgumentError; end
 
@@ -174,7 +172,6 @@ class Work < ApplicationRecord
     errors.add(:base, "Must provide a title") if resource.main_title.blank?
     validate_ark
     validate_creators
-    validate_uploads
     errors.count == 0
   end
 
@@ -615,13 +612,6 @@ class Work < ApplicationRecord
         "xml" => doi_attribute_xml,
         "url" => doi_attribute_url
       }
-    end
-
-    def validate_uploads
-      # The number of pre-curation uploads should be validated, as these are mutated directly
-      if pre_curation_uploads.length > MAX_UPLOADS
-        errors.add(:base, "Only #{MAX_UPLOADS} files may be uploaded by a user to a given Work. #{pre_curation_uploads.length} files were uploaded for the Work: #{ark}")
-      end
     end
 
     # This needs to be called #before_save
