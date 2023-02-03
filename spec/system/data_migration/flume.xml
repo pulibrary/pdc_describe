@@ -1,0 +1,60 @@
+<resource xsi:schemaLocation='http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://datacite.org/schema/kernel-4'>
+  <identifier identifierType='DOI'>10.34770/7hyr-rf67</identifier>
+  <creators>
+    <creator>
+      <creatorName>Ghannam, Khaled</creatorName>
+      <givenName>Khaled</givenName>
+      <familyName>Ghannam</familyName>
+    </creator>
+    <creator>
+      <creatorName>Poggi, Davide</creatorName>
+      <givenName>Davide</givenName>
+      <familyName>Poggi</familyName>
+    </creator>
+    <creator>
+      <creatorName>Katul, Gabriel</creatorName>
+      <givenName>Gabriel</givenName>
+      <familyName>Katul</familyName>
+    </creator>
+    <creator>
+      <creatorName>Bou-Zeid, Elie</creatorName>
+      <givenName>Elie</givenName>
+      <familyName>Bou-Zeid</familyName>
+    </creator>
+  </creators>
+  <titles>
+    <title>
+      Data from a flume experiment of passive scalar diffusion within vegetation
+      canopies using laser-induced fluorescence
+    </title>
+  </titles>
+  <publisher>Princeton University</publisher>
+  <resourceType resourceTypeGeneral='Dataset'/>
+  <publicationYear>2020</publicationYear>
+  <relatedIdentifiers>
+    <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp01qj72pb044</relatedIdentifier>
+  </relatedIdentifiers>
+  <version>1</version>
+  <rightsList>
+    <rights rightsURI='https://creativecommons.org/licenses/by/4.0/' rightsIdentifier='CC BY'>Creative Commons Attribution 4.0 International</rights>
+  </rightsList>
+  <descriptions>
+    <description descriptionType='Other'>
+      This dataset is a sequence of laser-induced fluorescence images of a dye
+      injected in a channel flow with canopy-like stainless steel rods
+      simulating a vegetation canopy stand. The data is acquired close to the
+      channel bottom at z/h=0.2, where z is the height referenced to the channel
+      bed and h is the canopy height. The dataset provides spatial distribution
+      of scalar concentration in a plane parallel to the channel bed. The data
+      has been used (but the data itself has not been published or available to
+      the public) in previous work. The references are: Ghannam, K., Poggi, D.,
+      Porporato, A., &amp; Katul, G. (2015). The spatio-temporal statistical
+      structure and ergodic behaviour of scalar turbulence within a rod canopy.
+      Boundary-Layer Meteorology,157(3), 447–460. Ghannam, K, Poggi, D.,
+      Bou-Zeid, E., Katul, G. (2020). Inverse cascade evidenced by information
+      entropy of passive scalars in submerged canopy flows. Geophysical Research
+      Letters (accepted). The attached readme.txt file explains the data
+      attributes
+    </description>
+  </descriptions>
+</resource>
