@@ -1,8 +1,4 @@
 <div class="wizard-area">
-  <% if flash[:notice] %>
-    <div class="alert alert-warning" role="alert" ><%= flash[:notice] %></div>
-  <% end %>
-
   <h1><%= t('works.form.file_upload.heading', work_title: @work.title) %></h1>
   <%= render "wizard_progress", wizard_step: 2 %>
   <%= form_with(model: @work, scope: :patch, url: work_file_uploaded_path(id: @work.id)) do |f| %>
