@@ -1,4 +1,4 @@
-import MaximumFileUpload from './maximum_file_upload.es6'
+import MaximumFileUpload from './maximum_file_upload.js'
 
 export default class PdcUiLoader {
   run() {

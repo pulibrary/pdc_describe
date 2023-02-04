@@ -12,7 +12,7 @@ import ActiveStorage from '@rails/activestorage';
 // Provides @mention functionality in textboxes (adds to jQuery UI autocomplete)
 import './vendor/jquery-ui-triggeredAutocomplete';
 
-import PdcUiLoader from './pdc/pdc_ui_loader.es6';
+import PdcUiLoader from './pdc/pdc_ui_loader';
 
 console.log('Vite ⚡️ Rails');
 
