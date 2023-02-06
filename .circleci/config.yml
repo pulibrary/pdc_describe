@@ -64,7 +64,7 @@ jobs:
       - install_dependencies
       - run:
           name: Run eslint
-          command: yarn run eslint app/assets app/javascript    
+          command: yarn run eslint app/assets app/javascript --ext .js,.jsx,es6   
 
   test:
     working_directory: *root
