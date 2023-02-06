@@ -332,6 +332,20 @@ $(() => {
     return false;
   });
 
+  // This is generic and can be used to remove rows from any table.
+  $('.btn-del-row').on('click', (event) => {
+    const $target = $(event.target);
+    const rowCount = $(event.target).closest('tbody').find('tr').length;
+    const $tr = $target.closest('tr');
+    if (rowCount > 1) {
+      $tr.remove();
+    } else {
+      // We use the row as a template, so we just blank it, if only one remains.
+      $tr.find('input').val('');
+    }
+    return false;
+  });
+
   $('#btn-add-creator').on('click', (el) => {
     const num = incrementCounter('#creator_count');
     addCreatorHtml(num, '', '', '');

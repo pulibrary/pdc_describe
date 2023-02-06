@@ -25,6 +25,7 @@
         <th>Funder Name</th>
         <th>Award Number</th>
         <th>Award URI</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -41,6 +42,9 @@
           </td>
           <td>
             <input name="funders[][award_uri]" value="<%= funder&.award_uri %>" />
+          </td>
+          <td>
+            <i class="bi bi-trash btn-del-row"></i>
           </td>
         </tr>
       <% end %>
