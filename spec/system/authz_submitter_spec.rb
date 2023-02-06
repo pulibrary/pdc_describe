@@ -51,8 +51,9 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
       # But other users cannot edit this work. If they try, they are redirected.
       sign_in submitter2
       visit edit_work_path(work)
-      expect(page).not_to have_content "Save Work"
       expect(current_path).to eq root_path
+      expect(page).not_to have_content "Save Work"
+      expect(page).to have_content "You do not have permission to edit this work"
     end
 
     it "should not be able to edit a collection to add curators and submitters" do
