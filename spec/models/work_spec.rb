@@ -1027,4 +1027,18 @@ RSpec.describe Work, type: :model do
                                                                                     .and change { WorkActivity.count }.by(-2)
     end
   end
+
+  describe "pre_curation_uploads_count" do
+    let(:s3_query_service_double) { instance_double(S3QueryService, file_count: 3) }
+
+    it "gets the count of the files on Amazon" do
+      allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
+
+      expect(work.pre_curation_uploads_count).to eq(3)
+
+      # only loads the data once
+      expect(work.pre_curation_uploads_count).to eq(3)
+      expect(S3QueryService).to have_received(:new).once
+    end
+  end
 end

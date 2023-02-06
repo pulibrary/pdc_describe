@@ -7,6 +7,7 @@ def stub_s3(data: [])
 
   fake_s3_query = double(S3QueryService, data_profile: { objects: data, ok: true }, client: @s3_client)
   allow(fake_s3_query).to receive(:bucket_name).and_return("example-bucket")
+  allow(fake_s3_query).to receive(:file_count).and_return(data.length)
   allow(S3QueryService).to receive(:new).and_return(fake_s3_query)
 
   fake_s3_query

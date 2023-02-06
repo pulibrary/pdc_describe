@@ -18,14 +18,6 @@ class S3QueryService
     configuration.post_curation
   end
 
-  def self.url_protocol
-    "https"
-  end
-
-  def self.s3_host
-    "s3.amazonaws.com"
-  end
-
   ##
   # @param [Work] model
   # @param [Boolean] pre_curation
@@ -136,22 +128,20 @@ class S3QueryService
 
   # Retrieve the S3 resources uploaded to the S3 Bucket
   # @return [Array<S3File>]
-  def client_s3_files
-    Rails.logger.debug("Bucket: #{bucket_name}")
-    Rails.logger.debug("Prefix: #{prefix}")
-    resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
-    resp_hash = resp.to_h
-    objects = parse_objects(resp_hash)
-
-    while resp_hash[:is_truncated]
-      token = resp_hash[:next_continuation_token]
-      resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix, continuation_token: token })
+  def client_s3_files(reload: false)
+    @client_s3_files = nil if reload # force a reload
+    @client_s3_files ||= begin
+      Rails.logger.debug("Bucket: #{bucket_name}")
+      Rails.logger.debug("Prefix: #{prefix}")
+      resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
       resp_hash = resp.to_h
-      more_objects = parse_objects(resp_hash)
-      objects += more_objects
+      objects = parse_objects(resp_hash)
+      parse_continuation(resp_hash, objects)
     end
+  end
 
-    objects
+  def file_count
+    client_s3_files.count
   end
 
   # Retrieve the S3 resources from the S3 Bucket without those attached to the Work model
@@ -208,14 +198,26 @@ class S3QueryService
       end
     end
 
-    def parse_objects(resp_hash)
+    def parse_objects(resp)
       objects = []
+      resp_hash = resp.to_h
       response_objects = resp_hash[:contents]
       Rails.logger.debug("Objects: #{response_objects}")
       response_objects&.each do |object|
         next if object[:size] == 0 # ignore directories whose size is zero
         s3_file = S3File.new(query_service: self, filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
         objects << s3_file
+      end
+      objects
+    end
+
+    def parse_continuation(resp_hash, objects)
+      while resp_hash[:is_truncated]
+        token = resp_hash[:next_continuation_token]
+        resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix, continuation_token: token })
+        resp_hash = resp.to_h
+        more_objects = parse_objects(resp_hash)
+        objects += more_objects
       end
       objects
     end
