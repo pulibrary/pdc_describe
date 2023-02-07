@@ -20,7 +20,7 @@ rules:
   no-restricted-globals: off
   no-restricted-syntax: off
   no-undef: off
-  no-underscore-dangle: off
+  no-underscore-dangle: [ "error", { "allow": ["_rails_loaded"] } ]
   no-unused-vars: off
   no-var: off
   prefer-const: off
