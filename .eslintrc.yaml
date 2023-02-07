@@ -10,12 +10,12 @@ ignorePatterns:
   'app/javascript/entrypoints/vendor/**'
 globals:
   $: readonly
-  pdc: readonly # TODO: Used to pass datacite enums from Ruby to JS. When we move form construction to Ruby, should not be needed.
+  pdc: readonly     # TODO: Used to pass datacite enums from Ruby to JS. When we move form construction to Ruby, should not be needed.
   isOrcid: readonly # TODO: Clean this up by using ESM import/export.
 rules:
-  import/prefer-default-export: off
-  no-alert: off
-  no-console: off
-  no-restricted-syntax: off
-  no-var: off
-  vars-on-top: off
+  import/prefer-default-export: off # TODO: Fix orcid.js
+  no-alert: off             # OK: A lot easier than coding up new UI.
+  no-console: off           # TODO: Probably just warnings and errors.
+  no-restricted-syntax: off # Probably OK? Research more.
+  no-var: off               # TODO
+  vars-on-top: off          # TODO: Moot once vars are cleaned up. 
