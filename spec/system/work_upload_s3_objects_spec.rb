@@ -36,6 +36,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
       # Account for files in S3 added outside of ActiveStorage
       allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
       allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
+      allow(s3_query_service_double).to receive(:file_count).and_return(s3_data.count)
       # Account for files uploaded to S3 via ActiveStorage
       stub_request(:put, /#{bucket_url}/).to_return(status: 200)
     end
