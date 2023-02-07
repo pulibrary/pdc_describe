@@ -464,7 +464,7 @@ $(() => {
   } else {
     // Adds the existing contributors making sure we honor the ordering.
     const contributors = peopleSorted('.contributor-data');
-    for (i = 0; i < contributors.length; i += 1) {
+    for (let i = 0; i < contributors.length; i += 1) {
       const contributor = contributors[i];
       addContributorHtml(
         contributor.num,

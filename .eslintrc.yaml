@@ -8,6 +8,10 @@ parserOptions:
   sourceType: module
 ignorePatterns:
   'app/javascript/entrypoints/vendor/**'
+globals:
+  $: readonly
+  pdc: readonly # TODO: Used to pass datacite enums from Ruby to JS. When we move form construction to Ruby, should not be needed.
+  isOrcid: readonly # TODO: Clean this up by using ESM import/export.
 rules:
   block-scoped-var: off
   import/prefer-default-export: off
@@ -16,7 +20,6 @@ rules:
   no-param-reassign: off
   no-restricted-globals: off
   no-restricted-syntax: off
-  no-undef: off
   no-var: off
   prefer-const: off
   vars-on-top: off
