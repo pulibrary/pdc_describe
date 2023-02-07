@@ -35,6 +35,7 @@ console.log('Visit the guide for more information: ', 'https://vite-ruby.netlify
 // Import all channels.
 const channels = import.meta.globEager('../channels/*.js');
 
+/* eslint no-underscore-dangle: [ "error", { "allow": ["_rails_loaded"] } ] */
 if (typeof (window._rails_loaded) === 'undefined' || window._rails_loaded == null || !window._rails_loaded) {
   Rails.start();
 }
