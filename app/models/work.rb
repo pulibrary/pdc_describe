@@ -466,6 +466,10 @@ class Work < ApplicationRecord
     }
   end
 
+  def pre_curation_uploads_count
+    s3_query_service.file_count
+  end
+
   delegate :ark, :doi, :resource_type, :resource_type=, :resource_type_general, :resource_type_general=,
            :to_xml, to: :resource
 
@@ -634,7 +638,7 @@ class Work < ApplicationRecord
     # S3QueryService object associated with this Work
     # @return [S3QueryService]
     def s3_query_service
-      @s3_query_service = S3QueryService.new(self, !approved?)
+      @s3_query_service ||= S3QueryService.new(self, !approved?)
     end
 
     # Request S3 Bucket Objects associated with this Work
