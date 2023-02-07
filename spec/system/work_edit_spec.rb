@@ -147,7 +147,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       # To just confirm that edits work, this is more direct.
       visit edit_work_path(work)
       click_on "Additional Metadata"
-      find(:xpath, "(//i[@class='bi bi-trash btn-del-row'])[1]").click()
+      find(:xpath, "(//i[@class='bi bi-trash btn-del-row'])[1]").click
       click_on "Save Work"
       expect(page).not_to have_content("National Science Foundation")
       expect(page).to have_content("National Sigh, Hence Foundation")
