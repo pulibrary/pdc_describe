@@ -493,11 +493,12 @@ $(() => {
 
   // Drop the "http..."" portion of the URL if the user enters the full URL of a DataSpace ARK
   // http://arks.princeton.edu/ark:/88435/dsp01hx11xj13h => ark:/88435/dsp01hx11xj13h
-  $('#ark').on('input', (el) => {
+  $('#ark').on('input', (event) => {
     const prefix = 'http://arks.princeton.edu/';
-    const ark = el.currentTarget.value.trim();
+    const target = event.currentTarget;
+    const ark = target.value.trim();
     if (ark.startsWith(prefix)) {
-      el.currentTarget.value = ark.replace(prefix, '');
+      target.value = ark.replace(prefix, '');
     }
   });
 

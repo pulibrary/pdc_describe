@@ -17,7 +17,6 @@ rules:
   import/prefer-default-export: off
   no-alert: off
   no-console: off
-  no-param-reassign: off
   no-restricted-globals: off
   no-restricted-syntax: off
   no-var: off
