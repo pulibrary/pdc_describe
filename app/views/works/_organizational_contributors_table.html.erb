@@ -20,7 +20,6 @@
         <th>ROR</th>
         <th>Name</th>
         <th>Role</th>
-        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -43,12 +42,7 @@
               <% end %>
             </select>
           </td>
-          <td>
-            <i class="bi bi-arrow-down-up" title="Click and drag to reorder"></i>
-          </td>
-          <td>
-            <i class="bi bi-trash btn-del-row"></i>
-          </td>
+          <%= render(partial: 'works/row_controls') %>
         </tr>
       <% end %>
     </tbody>
