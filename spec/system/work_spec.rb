@@ -200,6 +200,40 @@ RSpec.describe "Creating and updating works", type: :system do
       expect(draft_work.resource.creators.last.given_name).to eq(creator.given_name)
       expect(draft_work.resource.creators.last.family_name).to eq(creator.family_name)
     end
+
+    it "allows users to modify the order of the contributors", js: true do
+      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
+      page.driver.browser.manage.window.resize_to(2000, 2000)
+      sign_in user
+      visit edit_work_path(draft_work)
+      click_on "Additional Metadata"
+      fill_in "contributor_given_name_1", with: "Robert"
+      fill_in "contributor_family_name_1", with: "Smith"
+      click_on "Add Another Individual Contributor"
+      fill_in "contributor_given_name_2", with: "Simon"
+      fill_in "contributor_family_name_2", with: "Gallup"
+      contributor_text = page.find("#contributors-table").find_all("tr").map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
+      expect(contributor_text).to eq("Robert Smith  Simon Gallup")
+
+      # drag the first contributor to the second contributor
+      source = page.all(".bi-arrow-down-up")[1].native
+      target = page.all(".bi-arrow-down-up")[2].native
+      builder = page.driver.browser.action
+      builder.drag_and_drop(source, target).perform
+      contributor_text_after = page.find("#contributors-table").find_all("tr").map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
+      # This is really strange, but my local machine likes to drag from bottom to top and CircleCI likes to drag
+      #  from top to bottom.  So I am adding in trying the other direction when the first direction fails.
+      # This will make the test pass more consistantly for everyone (I hope)
+      if contributor_text_after != "Simon Gallup  Robert Smith"
+        builder.drag_and_drop(target, source).perform
+        contributor_text_after = page.find("#contributors-table").find_all("tr").map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
+      end
+      expect(contributor_text_after).to eq("Simon Gallup  Robert Smith")
+      click_on "Save Work"
+      draft_work.reload
+      expect(draft_work.resource.individual_contributors.last.given_name).to eq("Robert")
+      expect(draft_work.resource.individual_contributors.last.family_name).to eq("Smith")
+    end
   end
 
   context "when editing an existing draft Work with uploaded files" do
