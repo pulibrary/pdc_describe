@@ -505,7 +505,7 @@ $(() => {
   $(document).on('change', '.ror-input', (el) => {
     const $target = $(el.target);
     const ror = $target.val().trim();
-    fetch(`https://api.ror.org/organizations/${ror}`).then()
+    fetch(`${pdc.ror_url}/${ror}`).then()
       .then((response) => response.json())
       .then((responseJson) => {
         const { name } = responseJson;
