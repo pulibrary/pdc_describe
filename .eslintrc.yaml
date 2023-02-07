@@ -18,5 +18,4 @@ rules:
   no-console: off
   no-restricted-syntax: off
   no-var: off
-  prefer-const: off
   vars-on-top: off

@@ -256,12 +256,10 @@ $(() => {
 
   // Returns true if the "user entered" textboxes for the row are empty.
   function isEmptyRow(rowId) {
-    let selector; let textboxes; let i; let textboxId; let
-      value;
-    selector = `#${rowId} > td > input`;
-    textboxes = $(selector);
-    for (i = 0; i < textboxes.length; i += 1) {
-      textboxId = textboxes[i].id;
+    let i; let textboxId; let value;
+    const $textboxes = $(`#${rowId} > td > input`);
+    for (i = 0; i < $textboxes.length; i += 1) {
+      textboxId = $textboxes[i].id;
       if (textboxId.startsWith('orcid_') || textboxId.startsWith('given_name_') || textboxId.startsWith('family_name_')) {
         value = $(`#${textboxId}`).val().trim();
         if (value !== '') {
