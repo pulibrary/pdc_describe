@@ -64,8 +64,6 @@ class WorksController < ApplicationController
   # When requested as .json, return the internal json resource
   def show
     @work = Work.find(params[:id])
-    # check if anything was added in S3 since we last viewed this object
-    @work.attach_s3_resources
     @changes =  WorkActivity.changes_for_work(@work.id)
     @messages = WorkActivity.messages_for_work(@work.id)
 
