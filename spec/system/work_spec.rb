@@ -216,6 +216,7 @@ RSpec.describe "Creating and updating works", type: :system do
       expect(contributor_text).to eq("Robert Smith  Simon Gallup")
 
       # drag the first contributor to the second contributor
+      # Rows in other tables also match this, so index may need to change.
       source = page.all(".bi-arrow-down-up")[1].native
       target = page.all(".bi-arrow-down-up")[2].native
       builder = page.driver.browser.action
