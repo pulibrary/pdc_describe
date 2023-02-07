@@ -17,7 +17,6 @@ rules:
   no-restricted-globals: off
   no-restricted-syntax: off
   no-undef: off
-  no-unused-vars: off
   no-var: off
   prefer-const: off
   vars-on-top: off

@@ -68,7 +68,7 @@ $(() => {
   }
 
   // Adds a submitter to the collection
-  $('#btn-add-submitter').on('click', (x) => {
+  $('#btn-add-submitter').on('click', () => {
     var url = pdc.addSubmitterUrl;
     addUserToCollection(url, '#submitter-uid-to-add', '#add-submitter-message', '#submitter-list', 'submit');
     $('#submitter-uid-to-add').focus();
@@ -76,7 +76,7 @@ $(() => {
   });
 
   // Adds an administrator to the collection
-  $('#btn-add-admin').on('click', (x) => {
+  $('#btn-add-admin').on('click', () => {
     var url = pdc.addAdminUrl;
     addUserToCollection(url, '#admin-uid-to-add', '#add-admin-message', '#curator-list', 'admin');
     $('#admin-uid-to-add').focus();

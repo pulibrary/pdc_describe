@@ -209,7 +209,7 @@ $(() => {
     }
   }
 
-  function addTitlePlaceholder(_el) {
+  function addTitlePlaceholder() {
     const newTitleCount = incrementCounter('#new_title_count');
     const containerId = `new_title_container_${newTitleCount}`;
     const titleId = `new_title_${newTitleCount}`;
@@ -332,19 +332,19 @@ $(() => {
     return false;
   });
 
-  $('#btn-add-creator').on('click', (el) => {
+  $('#btn-add-creator').on('click', () => {
     const num = incrementCounter('#creator_count');
     addCreatorHtml(num, '', '', '');
     return false;
   });
 
-  $('#btn-add-related-object').on('click', (el) => {
+  $('#btn-add-related-object').on('click', () => {
     const num = incrementCounter('#related_object_count');
     addRelatedObjectHtml(num, '', '', '');
     return false;
   });
 
-  $('#btn-add-me-creator').on('click', (el) => {
+  $('#btn-add-me-creator').on('click', () => {
     const num = incrementCounter('#creator_count');
     const orcid = $('#user_orcid').val();
     const givenName = $('#user_given_name').val();
@@ -358,23 +358,23 @@ $(() => {
     return false;
   });
 
-  $('#btn-add-contributor').on('click', (el) => {
+  $('#btn-add-contributor').on('click', () => {
     const num = incrementCounter('#contributor_count');
     addContributorHtml(num, '', '', '', 'Other');
     return false;
   });
 
-  $('#btn-add-title').on('click', (el) => {
-    addTitlePlaceholder(el);
+  $('#btn-add-title').on('click', (event) => {
+    addTitlePlaceholder(event);
     return false;
   });
 
-  $('#btn-submit').on('click', (el) => {
+  $('#btn-submit').on('click', () => {
     updateCreatorsSequence();
   });
 
   // Client side validations before allowing user to create the dataset.
-  $('#btn-create-new').on('click', (el) => {
+  $('#btn-create-new').on('click', () => {
     const title = $('#title_main').val() || '';
     let status = true;
 
