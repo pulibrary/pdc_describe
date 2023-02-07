@@ -14,7 +14,6 @@ rules:
   no-alert: off
   no-console: off
   no-param-reassign: off
-  no-plusplus: off
   no-restricted-globals: off
   no-restricted-syntax: off
   no-undef: off
