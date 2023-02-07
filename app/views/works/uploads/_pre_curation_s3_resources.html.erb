@@ -3,6 +3,8 @@
     <div class="card">
       <div class="files card-body">
         <!-- Only render file download table if there are files in S3 -->
+        <h3><%= "#{@work.pre_curation_uploads.count} #{'File'.pluralize(@work.pre_curation_uploads.count)}" %>  processed by the system </h3>
+        <h3><%= "#{@work.pre_curation_uploads_count} #{'File'.pluralize(@work.pre_curation_uploads_count)}"%> in precuration storage  </h3>
         <table id="files-table" class="table">
           <thead>
             <tr>
