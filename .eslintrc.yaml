@@ -12,12 +12,10 @@ globals:
   $: readonly
   pdc: readonly # TODO: Used to pass datacite enums from Ruby to JS. When we move form construction to Ruby, should not be needed.
   isOrcid: readonly # TODO: Clean this up by using ESM import/export.
-  confirm: readonly # Used sparingly, window.confirm() is a good alternative to coding up the UI for a modal.
 rules:
   import/prefer-default-export: off
   no-alert: off
   no-console: off
-  no-restricted-globals: off
   no-restricted-syntax: off
   no-var: off
   prefer-const: off

@@ -130,7 +130,7 @@ $(() => {
     var url = pdc.deleteUserFromCollectionUrl;
     var uid = $(el.target).data('uid');
     var message = `Revoke access to user ${uid}`;
-    if (confirm(message)) {
+    if (window.confirm(message)) {
       deleteUserFromCollection(el, url, uid);
     }
     return false;

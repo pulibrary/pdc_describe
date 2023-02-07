@@ -184,7 +184,7 @@ $(() => {
       if (emptyRow) {
         // delete it without asking
         $(rowToDelete).remove();
-      } else if (confirm(`Remove ${type} ${rowText}`)) {
+      } else if (window.confirm(`Remove ${type} ${rowText}`)) {
         $(rowToDelete).remove();
       }
     }
