@@ -28,7 +28,7 @@
         <th></th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="sortable">
       <% (@work.resource.funders + [nil]).each do |funder| %>
         <tr>
           <td>
@@ -42,6 +42,9 @@
           </td>
           <td>
             <input name="funders[][award_uri]" value="<%= funder&.award_uri %>" />
+          </td>
+          <td>
+            <i class="bi bi-arrow-down-up" title="Click and drag to reorder"></i>
           </td>
           <td>
             <i class="bi bi-trash btn-del-row"></i>

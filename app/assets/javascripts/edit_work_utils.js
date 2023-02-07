@@ -333,9 +333,9 @@ $(() => {
   });
 
   // This is generic and can be used to remove rows from any table.
-  $('.btn-del-row').on('click', (event) => {
+  $(document).on('click', '.btn-del-row', (event) => {
     const $target = $(event.target);
-    const rowCount = $(event.target).closest('tbody').find('tr').length;
+    const rowCount = $target.closest('tbody').find('tr').length;
     const $tr = $target.closest('tr');
     if (rowCount > 1) {
       $tr.remove();
@@ -536,7 +536,7 @@ $(() => {
   //  .delete-creator - prevents reording on the delete icon
   //
   $('.sortable').sortable({
-    cancel: 'input, select, option, .delete-contributor, .delete-creator',
+    cancel: 'input, select, option, .delete-contributor, .delete-creator, .btn-del-row',
   });
 
   // Give the initial focus to the title.
