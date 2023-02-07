@@ -22,13 +22,13 @@ $(() => {
     var base_user_url = pdc.userPath;
     var show_user_url = base_user_url.replace('user-placeholder', uid);
     var html = `<li class="li-user-${uid}"> <a href="${show_user_url}">${uid}</a>`;
-    if (isYou == true) {
+    if (isYou) {
       html += ' (you)';
     }
-    if (is_super_admin == true) {
+    if (is_super_admin) {
       html += ' <i title="This is a system administrator, access cannot be changed." class="bi bi-person-workspace"></i>';
     }
-    if (canDelete == true) {
+    if (canDelete) {
       html += `
         <span>
         <a class="delete-user-from-collection" data-collection-id="${collectionId}" data-uid="${uid}"
@@ -44,7 +44,7 @@ $(() => {
   function addUserToCollection(url, elTxt, elError, elList, role) {
     var { collectionId } = pdc;
     var uid = $(elTxt).val().trim();
-    if (uid == '') {
+    if (uid === '') {
       $(elError).text('Enter netid of user to add');
       return;
     }
@@ -83,14 +83,14 @@ $(() => {
     return false;
   });
 
-  if ($('#data-loaded').text() != 'true') {
+  if ($('#data-loaded').text() !== 'true') {
     // Displays the initial list of submitters.
     $('.submitter-data').each((ix, el) => {
       var elList = $('#submitter-list');
       var uid = $(el).data('uid');
       var collectionId = $(el).data('collectionId');
       var canDelete = $(el).data('canDelete');
-      var isYou = $(el).data('you') == true;
+      var isYou = $(el).data('you');
       var is_super_admin = false;
       addUserHtml(elList, uid, collectionId, 'submit', canDelete, isYou, is_super_admin);
     });
@@ -101,7 +101,7 @@ $(() => {
       var uid = $(el).data('uid');
       var collectionId = $(el).data('collectionId');
       var canDelete = $(el).data('canDelete');
-      var isYou = $(el).data('you') == true;
+      var isYou = $(el).data('you');
       addUserHtml(elList, uid, collectionId, 'admin', canDelete, isYou, false);
     });
 
@@ -110,7 +110,7 @@ $(() => {
       var elList = $('#sysadmin-list');
       var uid = $(el).data('uid');
       var collectionId = $(el).data('collectionId');
-      var isYou = $(el).data('you') == true;
+      var isYou = $(el).data('you');
       addUserHtml(elList, uid, collectionId, 'admin', false, isYou, true);
     });
 

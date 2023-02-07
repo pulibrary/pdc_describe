@@ -62,9 +62,9 @@ $(() => {
     const options = allValues.filter(
       (value) => !blocklist.includes(value),
     ).map(
-      (value) => `<option value="${value}" ${currentValue == value ? 'selected' : ''}>${value}</option>`,
+      (value) => `<option value="${value}" ${currentValue === value ? 'selected' : ''}>${value}</option>`,
     );
-    return `<select id="${selectId}" name="${selectId}"><option value="" ${currentValue == '' ? 'selected' : ''}></option>${options}</select>`;
+    return `<select id="${selectId}" name="${selectId}"><option value="" ${currentValue === '' ? 'selected' : ''}></option>${options}</select>`;
   }
 
   // ************************************************ //
@@ -179,7 +179,7 @@ $(() => {
         rowText += `${token} `;
       }
     }
-    const emptyRow = (rowText.trim().length == 0);
+    const emptyRow = (rowText.trim().length === 0);
     if (rowExists) {
       if (emptyRow) {
         // delete it without asking
@@ -264,7 +264,7 @@ $(() => {
       textboxId = textboxes[i].id;
       if (textboxId.startsWith('orcid_') || textboxId.startsWith('given_name_') || textboxId.startsWith('family_name_')) {
         value = $(`#${textboxId}`).val().trim();
-        if (value != '') {
+        if (value !== '') {
           return false;
         }
       }
@@ -387,7 +387,7 @@ $(() => {
       status = false;
     }
 
-    if (title.trim() == '') {
+    if (title.trim() === '') {
       $('#title_main').focus();
       $('#title-required-message').removeClass('hidden');
       status = false;
@@ -422,7 +422,7 @@ $(() => {
     return false;
   });
 
-  if ($('.creator-data').length == 0) {
+  if ($('.creator-data').length === 0) {
     // Add an empty creator for the use to fill it out
     const num = incrementCounter('#creator_count');
     addCreatorHtml(num, '', '', '', 1);
@@ -443,7 +443,7 @@ $(() => {
 
   // Load any existing related objects into the edit form.
   // If there are any related objects they should appear in hidden <span> tags.
-  if ($('.related-object-data').length == 0) {
+  if ($('.related-object-data').length === 0) {
     // Add an empty related object for the user to fill it out
     const num = incrementCounter('#related_object_count');
     addRelatedObjectHtml(num, '', '', '');
@@ -457,7 +457,7 @@ $(() => {
     }
   }
 
-  if ($('.contributor-data').length == 0) {
+  if ($('.contributor-data').length === 0) {
     // Add an empty contributor for the use to fill it out
     const num = incrementCounter('#contributor_count');
     addContributorHtml(num, '', '', '', 'Other', 1);
