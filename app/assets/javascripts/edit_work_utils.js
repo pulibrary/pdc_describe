@@ -70,25 +70,25 @@ $(() => {
   // ************************************************ //
   // Related Objects
   // related_identifier:, related_identifier_type:, relation_type
-  function addRelatedObjectHtml(num, related_identifier, related_identifier_type, relation_type) {
+  function addRelatedObjectHtml(num, relatedIdentifier, relatedIdentifierType, relationType) {
     const rowId = `related_object_row_${num}`;
     const relatedIdentifierId = `related_identifier_${num}`;
     const relatedIdentifierTypeId = `related_identifier_type_${num}`;
     const relationTypeId = `relation_type_${num}`;
     const relatedIdentifierTypeHtml = makeSelectHtml(
       relatedIdentifierTypeId,
-      related_identifier_type,
+      relatedIdentifierType,
       pdc.datacite.RelatedIdentifierType,
     );
     const relationTypeHtml = makeSelectHtml(
       relationTypeId,
-      relation_type,
+      relationType,
       pdc.datacite.RelationType,
     );
 
     const rowHtml = `<tr id="${rowId}" class="related-objects-table-row">
       <td>
-        <input type="text" id="${relatedIdentifierId}" name="${relatedIdentifierId}" value="${related_identifier}" data-num="${num}"/>
+        <input type="text" id="${relatedIdentifierId}" name="${relatedIdentifierId}" value="${relatedIdentifier}" data-num="${num}"/>
       </td>
       <td>
         ${relatedIdentifierTypeHtml}
@@ -449,10 +449,10 @@ $(() => {
     addRelatedObjectHtml(num, '', '', '');
   } else {
     // Add existing related objects for editing
-    for (const related_object of $('.related-object-data')) {
+    for (const relatedObject of $('.related-object-data')) {
       const {
         num, relatedIdentifier, relatedIdentifierType, relationType,
-      } = related_object.dataset;
+      } = relatedObject.dataset;
       addRelatedObjectHtml(num, relatedIdentifier, relatedIdentifierType, relationType);
     }
   }

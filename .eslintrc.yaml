@@ -10,7 +10,6 @@ ignorePatterns:
   'app/javascript/entrypoints/vendor/**'
 rules:
   block-scoped-var: off
-  camelcase: off
   import/prefer-default-export: off
   no-alert: off
   no-console: off

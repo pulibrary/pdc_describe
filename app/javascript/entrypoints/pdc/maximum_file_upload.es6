@@ -1,8 +1,8 @@
 export default class MaximumFileUpload {
-  constructor(upload_id, save_id, error_id = 'file-error') {
-    this.upload_element = $(`#${upload_id}`);
-    this.save_element = document.getElementById(save_id);
-    this.error_element = document.getElementById(error_id);
+  constructor(uploadId, saveId, errorId = 'file-error') {
+    this.upload_element = $(`#${uploadId}`);
+    this.save_element = document.getElementById(saveId);
+    this.error_element = document.getElementById(errorId);
   }
 
   attach_validation() {
