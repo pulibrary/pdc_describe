@@ -17,5 +17,3 @@ rules:
   no-alert: off             # OK: A lot easier than coding up new UI.
   no-console: off           # TODO: Probably just warnings and errors.
   no-restricted-syntax: off # Probably OK? Research more.
-  no-var: off               # TODO
-  vars-on-top: off          # TODO: Moot once vars are cleaned up. 

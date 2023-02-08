@@ -8,7 +8,7 @@ export default class CopytoClipboard {
   }
 
   copy_doi() {
-    var doi = $('#copy-doi').data('url');
+    const doi = $('#copy-doi').data('url');
     this.copyToClipboard(doi, '#copy-doi-icon', '#copy-doi-label', 'copy-doi-label-normal', 'copy-doi-label-copied');
     return false;
   }

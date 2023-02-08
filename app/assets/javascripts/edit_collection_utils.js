@@ -19,9 +19,9 @@ $(() => {
   // for the collection.
   // `elList` is the reference to the <ul> HTML element that hosts the list.
   function addUserHtml(elList, uid, collectionId, role, canDelete, isYou, isSuperAdmin) {
-    var baseUserUrl = pdc.userPath;
-    var showUserUrl = baseUserUrl.replace('user-placeholder', uid);
-    var html = `<li class="li-user-${uid}"> <a href="${showUserUrl}">${uid}</a>`;
+    const baseUserUrl = pdc.userPath;
+    const showUserUrl = baseUserUrl.replace('user-placeholder', uid);
+    let html = `<li class="li-user-${uid}"> <a href="${showUserUrl}">${uid}</a>`;
     if (isYou) {
       html += ' (you)';
     }
@@ -42,8 +42,8 @@ $(() => {
 
   // Issues the HTTP POST to add a user to a collection and updates the UI
   function addUserToCollection(url, elTxt, elError, elList, role) {
-    var { collectionId } = pdc;
-    var uid = $(elTxt).val().trim();
+    const { collectionId } = pdc;
+    const uid = $(elTxt).val().trim();
     if (uid === '') {
       $(elError).text('Enter netid of user to add');
       return;
@@ -56,9 +56,9 @@ $(() => {
       success() {
         $(elTxt).val('');
         $(elError).text('');
-        var canDelete = true;
-        var isYou = false;
-        var isSuperAdmin = false;
+        const canDelete = true;
+        const isYou = false;
+        const isSuperAdmin = false;
         addUserHtml(elList, uid, collectionId, role, canDelete, isYou, isSuperAdmin);
       },
       error(x) {
@@ -69,7 +69,7 @@ $(() => {
 
   // Adds a submitter to the collection
   $('#btn-add-submitter').on('click', () => {
-    var url = pdc.addSubmitterUrl;
+    const url = pdc.addSubmitterUrl;
     addUserToCollection(url, '#submitter-uid-to-add', '#add-submitter-message', '#submitter-list', 'submit');
     $('#submitter-uid-to-add').focus();
     return false;
@@ -77,7 +77,7 @@ $(() => {
 
   // Adds an administrator to the collection
   $('#btn-add-admin').on('click', () => {
-    var url = pdc.addAdminUrl;
+    const url = pdc.addAdminUrl;
     addUserToCollection(url, '#admin-uid-to-add', '#add-admin-message', '#curator-list', 'admin');
     $('#admin-uid-to-add').focus();
     return false;
@@ -86,31 +86,31 @@ $(() => {
   if ($('#data-loaded').text() !== 'true') {
     // Displays the initial list of submitters.
     $('.submitter-data').each((ix, el) => {
-      var elList = $('#submitter-list');
-      var uid = $(el).data('uid');
-      var collectionId = $(el).data('collectionId');
-      var canDelete = $(el).data('canDelete');
-      var isYou = $(el).data('you');
-      var isSuperAdmin = false;
+      const elList = $('#submitter-list');
+      const uid = $(el).data('uid');
+      const collectionId = $(el).data('collectionId');
+      const canDelete = $(el).data('canDelete');
+      const isYou = $(el).data('you');
+      const isSuperAdmin = false;
       addUserHtml(elList, uid, collectionId, 'submit', canDelete, isYou, isSuperAdmin);
     });
 
     // Displays the initial list of curators.
     $('.curator-data').each((ix, el) => {
-      var elList = $('#curator-list');
-      var uid = $(el).data('uid');
-      var collectionId = $(el).data('collectionId');
-      var canDelete = $(el).data('canDelete');
-      var isYou = $(el).data('you');
+      const elList = $('#curator-list');
+      const uid = $(el).data('uid');
+      const collectionId = $(el).data('collectionId');
+      const canDelete = $(el).data('canDelete');
+      const isYou = $(el).data('you');
       addUserHtml(elList, uid, collectionId, 'admin', canDelete, isYou, false);
     });
 
     // Displays the list of system administrators.
     $('.sysadmin-data').each((ix, el) => {
-      var elList = $('#sysadmin-list');
-      var uid = $(el).data('uid');
-      var collectionId = $(el).data('collectionId');
-      var isYou = $(el).data('you');
+      const elList = $('#sysadmin-list');
+      const uid = $(el).data('uid');
+      const collectionId = $(el).data('collectionId');
+      const isYou = $(el).data('you');
       addUserHtml(elList, uid, collectionId, 'admin', false, isYou, true);
     });
 
@@ -127,9 +127,9 @@ $(() => {
   // is the case when a user adds a new submitter or admin to the collection.
   // Reference: https://stackoverflow.com/a/17086311/446681
   $(document).on('click', '.delete-user-from-collection', (el) => {
-    var url = pdc.deleteUserFromCollectionUrl;
-    var uid = $(el.target).data('uid');
-    var message = `Revoke access to user ${uid}`;
+    const url = pdc.deleteUserFromCollectionUrl;
+    const uid = $(el.target).data('uid');
+    const message = `Revoke access to user ${uid}`;
     if (window.confirm(message)) {
       deleteUserFromCollection(el, url, uid);
     }
