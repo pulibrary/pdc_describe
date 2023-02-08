@@ -35,7 +35,7 @@ export default class CopytoClipboard {
   errorCopyToClipboard(iconEl, errorMsg) {
     $(iconEl).removeClass('bi-clipboard');
     $(iconEl).addClass('bi-clipboard-minus');
-    console.log(errorMsg);
+    console.error(errorMsg);
   }
 
   // Copies a value to the clipboard and notifies the user

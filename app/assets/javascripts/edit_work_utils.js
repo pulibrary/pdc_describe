@@ -316,7 +316,7 @@ $(() => {
           $(familyNameId).val(familyName);
         })
         .fail((XMLHttpRequest, textStatus, errorThrown) => {
-          console.log(`Error fetching ORCID for ${errorThrown}`);
+          console.error(`Error fetching ORCID for ${errorThrown}`);
         });
     }
   }

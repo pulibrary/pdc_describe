@@ -6,7 +6,6 @@ export default class MaximumFileUpload {
   }
 
   attach_validation() {
-    console.log('attaching validation');
     this.upload_element.on('change', this.validate.bind(this));
   }
 
