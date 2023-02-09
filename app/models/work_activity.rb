@@ -89,7 +89,9 @@ class WorkActivity < ApplicationRecord
               Message
             end
     renderer = klass.new(self)
+    # rubocop:disable Rails/OutputSafety
     renderer.to_html.html_safe
+    # rubocop:enable Rails/OutputSafety
   end
 
   class Renderer
