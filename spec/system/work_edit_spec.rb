@@ -6,7 +6,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
-    page.driver.browser.manage.window.resize_to(2000, 2000)
   end
 
   let(:contents1) do
@@ -71,8 +70,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
 
     it "allows users to delete one of the uploads" do
       allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
-      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       expect(page).to have_content "Filename"
       expect(page).to have_content "Created At"
       expect(page).to have_content "Replace Upload"
@@ -88,8 +85,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
 
     it "allows users to replace one of the uploads" do
       allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
-      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       expect(page).to have_content "Filename"
       expect(page).to have_content "Created At"
       expect(page).to have_content "Replace Upload"
