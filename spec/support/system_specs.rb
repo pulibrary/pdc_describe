@@ -11,8 +11,14 @@ RSpec.configure do |config|
     else
       driven_by(:selenium_chrome_headless)
     end
+
+    # Make the screen larger so the save button is alway on screen. This avoids random `Element is not clickable` errors
+    Capybara.page.driver.browser.manage.window.resize_to(2000, 2000)
   end
   config.before(:each, type: :system, js: true, in_browser: true) do
     driven_by(:selenium_chrome)
+
+    # Make the screen larger so the save button is alway on screen. This avoids random `Element is not clickable` errors
+    Capybara.page.driver.browser.manage.window.resize_to(2000, 2000)
   end
 end
