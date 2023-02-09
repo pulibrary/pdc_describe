@@ -22,7 +22,7 @@
         <th>Role</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="sortable">
       <% (@work.resource.organizational_contributors + [nil]).each do |contributor| %>
         <tr>
           <td>
@@ -42,6 +42,7 @@
               <% end %>
             </select>
           </td>
+          <%= render(partial: 'works/row_controls') %>
         </tr>
       <% end %>
     </tbody>

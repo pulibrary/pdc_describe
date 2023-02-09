@@ -168,8 +168,6 @@ RSpec.describe "Creating and updating works", type: :system do
     end
 
     it "allows users to modify the order of the creators", js: true do
-      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       creator = draft_work.resource.creators.first
       sign_in user
       visit edit_work_path(draft_work)
@@ -202,8 +200,6 @@ RSpec.describe "Creating and updating works", type: :system do
     end
 
     it "allows users to modify the order of the contributors", js: true do
-      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       sign_in user
       visit edit_work_path(draft_work)
       click_on "Additional Metadata"
@@ -216,8 +212,9 @@ RSpec.describe "Creating and updating works", type: :system do
       expect(contributor_text).to eq("Robert Smith  Simon Gallup")
 
       # drag the first contributor to the second contributor
-      source = page.all(".bi-arrow-down-up")[0].native
-      target = page.all(".bi-arrow-down-up")[1].native
+      # Rows in other tables also match this, so index may need to change.
+      source = page.all(".bi-arrow-down-up")[1].native
+      target = page.all(".bi-arrow-down-up")[2].native
       builder = page.driver.browser.action
       builder.drag_and_drop(source, target).perform
       contributor_text_after = page.find("#contributors-table").find_all("tr").map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
@@ -268,8 +265,6 @@ RSpec.describe "Creating and updating works", type: :system do
     end
 
     it "shows the uploads before and after errors", js: true do
-      # Make the screen larger so the save button is alway on screen.   This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       expect(page).to have_content "us_covid_2019.csv"
       fill_in "title_main", with: ""
       click_on "Save Work"
@@ -278,8 +273,6 @@ RSpec.describe "Creating and updating works", type: :system do
     end
 
     it "shows the uploads before and after a valid metadata save", js: true do
-      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       expect(page).to have_content "us_covid_2019.csv"
       fill_in "title_main", with: "updated title"
       click_on "Save Work"

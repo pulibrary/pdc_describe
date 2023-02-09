@@ -8,7 +8,6 @@ RSpec.describe "Commenting on works sends emails or not", type: :system, js: tru
   let(:message) { "@#{user2.uid} Look at this work!" }
 
   before do
-    page.driver.browser.manage.window.resize_to(2000, 2000)
     sign_in user
     visit work_path(work)
   end

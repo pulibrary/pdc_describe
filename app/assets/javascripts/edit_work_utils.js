@@ -332,6 +332,20 @@ $(() => {
     return false;
   });
 
+  // This is generic and can be used to remove rows from any table.
+  $(document).on('click', '.btn-del-row', (event) => {
+    const $target = $(event.target);
+    const rowCount = $target.closest('tbody').find('tr').length;
+    const $tr = $target.closest('tr');
+    if (rowCount > 1) {
+      $tr.remove();
+    } else {
+      // We use the row as a template, so we just blank it, if only one remains.
+      $tr.find('input').val('');
+    }
+    return false;
+  });
+
   $('#btn-add-creator').on('click', (el) => {
     const num = incrementCounter('#creator_count');
     addCreatorHtml(num, '', '', '');
@@ -522,7 +536,7 @@ $(() => {
   //  .delete-creator - prevents reording on the delete icon
   //
   $('.sortable').sortable({
-    cancel: 'input, select, option, .delete-contributor, .delete-creator',
+    cancel: 'input, select, option, .delete-contributor, .delete-creator, .btn-del-row',
   });
 
   // Give the initial focus to the title.

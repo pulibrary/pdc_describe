@@ -40,8 +40,6 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
     end
 
     it "produces and saves a valid datacite record" do
-      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       sign_in user
       visit user_path(user)
       click_on(user.uid)
@@ -69,8 +67,6 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
     end
 
     it "returns the user to the new page so they can recover from an error" do
-      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       sign_in user
       visit user_path(user)
       click_on(user.uid)

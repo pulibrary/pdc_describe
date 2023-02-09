@@ -15,7 +15,6 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
   let(:doi) { "10.34770/zztk-f783" }
 
   before do
-    page.driver.browser.manage.window.resize_to(2000, 2000)
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_request(:get, "https://handle.stage.datacite.org/10.34770/zztk-f783")
       .to_return(status: 200, body: "", headers: {})

@@ -6,7 +6,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
-    page.driver.browser.manage.window.resize_to(2000, 2000)
   end
 
   let(:contents1) do
@@ -71,8 +70,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
 
     it "allows users to delete one of the uploads" do
       allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
-      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       expect(page).to have_content "Filename"
       expect(page).to have_content "Created At"
       expect(page).to have_content "Replace Upload"
@@ -88,8 +85,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
 
     it "allows users to replace one of the uploads" do
       allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
-      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       expect(page).to have_content "Filename"
       expect(page).to have_content "Created At"
       expect(page).to have_content "Replace Upload"
@@ -142,6 +137,33 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       expect(page).to have_content("nsf-123")
       expect(page).to have_content("http://nsg.gov/award/123")
       expect(page).to have_content("National Sigh, Hence Foundation")
+
+      # Test row deletion
+      # (Clicking on "Edit" sends us to the multi-page wizard;
+      # To just confirm that edits work, this is more direct.)
+      visit edit_work_path(work)
+      click_on "Additional Metadata"
+      find(:xpath, "(//i[@class='bi bi-trash btn-del-row'])[1]").click
+      click_on "Save Work"
+      expect(page).not_to have_content("National Science Foundation")
+      expect(page).to have_content("National Sigh, Hence Foundation")
+
+      # Test row reordering
+      visit edit_work_path(work)
+      click_on "Additional Metadata"
+      # There should be a blank line we can immediately enter data into.
+      find("tr:last-child input[name='funders[][funder_name]']").set "DOE"
+      # For the second, we add a row.
+      click_on "Add Another Funder"
+      find("tr:last-child input[name='funders[][funder_name]']").set "NIH"
+
+      # Funders at the top of the page, so this is sufficiently precise.
+      source = page.all(".bi-arrow-down-up")[2].native
+      target = page.all(".bi-arrow-down-up")[0].native
+      builder = page.driver.browser.action
+      builder.drag_and_drop(source, target).perform
+      click_on "Save Work"
+      expect(page.html.match?(/NIH.*DOE/m)).to be true # Opposite the original order of entry
     end
   end
 

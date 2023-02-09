@@ -14,7 +14,6 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
   let(:keywords) { "shock compression, forsterite, phase transition, amorphization" }
 
   before do
-    page.driver.browser.manage.window.resize_to(2000, 2000)
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_request(:get, "https://handle.stage.datacite.org/10.34770/gg40-tc15")
       .to_return(status: 200, body: "", headers: {})

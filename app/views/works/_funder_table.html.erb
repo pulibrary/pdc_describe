@@ -27,7 +27,7 @@
         <th>Award URI</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="sortable">
       <% (@work.resource.funders + [nil]).each do |funder| %>
         <tr>
           <td>
@@ -42,6 +42,7 @@
           <td>
             <input name="funders[][award_uri]" value="<%= funder&.award_uri %>" />
           </td>
+          <%= render(partial: 'works/row_controls') %>
         </tr>
       <% end %>
     </tbody>
