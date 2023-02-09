@@ -21,7 +21,6 @@ Download the README.txt for a detailed description of this dataset's content."
   end
 
   before do
-    page.driver.browser.manage.window.resize_to(2000, 2000)
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_request(:get, "https://handle.stage.datacite.org/10.34770/r75s-9j74")
       .to_return(status: 200, body: "", headers: {})

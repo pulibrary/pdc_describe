@@ -15,7 +15,6 @@ A full description of the structure of the dataset and how to reproduce the figu
   let(:doi) { "10.34770/xajd-5n64" }
 
   before do
-    page.driver.browser.manage.window.resize_to(2000, 2000)
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_request(:get, "https://handle.stage.datacite.org/10.34770/xajd-5n64")
       .to_return(status: 200, body: "", headers: {})
