@@ -12,8 +12,8 @@ export default class CopytoClipboard {
     // value, iconEl, labelEl, normalClass, copiedClass
     this.copyToClipboard({
       value: doi,
-      iconEl: '#copy-doi-icon',
-      labelEl: '#copy-doi-label',
+      $icon: $('#copy-doi-icon'),
+      $label: $('#copy-doi-label'),
       normalClass: 'copy-doi-label-normal',
       copiedClass: 'copy-doi-label-copied',
     });
@@ -21,27 +21,31 @@ export default class CopytoClipboard {
   }
 
   // Sets the elements to the proper CSS classes once a value has been copied to the clipboard.
-  setCopiedToClipboard(iconEl, labelEl, normalClass, copiedClass) {
-    $(iconEl).removeClass('bi-clipboard');
-    $(iconEl).addClass('bi-clipboard-check');
-    $(labelEl).text('COPIED');
-    $(labelEl).removeClass(normalClass);
-    $(labelEl).addClass(copiedClass);
+  setCopiedToClipboard({
+    $icon, $label, normalClass, copiedClass,
+  }) {
+    $icon.removeClass('bi-clipboard');
+    $icon.addClass('bi-clipboard-check');
+    $label.text('COPIED');
+    $label.removeClass(normalClass);
+    $label.addClass(copiedClass);
   }
 
   // Resets the elements to the proper CSS classes (e.g. displays as if the copy has not happened)
-  resetCopyToClipboard(iconEl, labelEl, normalClass, copiedClass) {
-    $(labelEl).text('COPY');
-    $(labelEl).removeClass(copiedClass);
-    $(labelEl).addClass(normalClass);
-    $(iconEl).addClass('bi-clipboard');
-    $(iconEl).removeClass('bi-clipboard-check');
+  resetCopyToClipboard({
+    $icon, $label, normalClass, copiedClass,
+  }) {
+    $label.text('COPY');
+    $label.removeClass(copiedClass);
+    $label.addClass(normalClass);
+    $icon.addClass('bi-clipboard');
+    $icon.removeClass('bi-clipboard-check');
   }
 
   // Sets icon and label to indicate that an error happened when copying a value to the clipboard
-  errorCopyToClipboard(iconEl, errorMsg) {
-    $(iconEl).removeClass('bi-clipboard');
-    $(iconEl).addClass('bi-clipboard-minus');
+  errorCopyToClipboard($icon, errorMsg) {
+    $icon.removeClass('bi-clipboard');
+    $icon.addClass('bi-clipboard-minus');
     console.log(errorMsg);
   }
 
@@ -53,16 +57,22 @@ export default class CopytoClipboard {
   // copiedClass - CSS to style the label with after a value has been copied to the clipboard
   // iconEl and labelEl could be any jQuery valid selector (e.g. ".some-id" or a reference
   //  to an element)
-  copyToClipboard({value, iconEl, labelEl, normalClass, copiedClass}) {
+  copyToClipboard({
+    value, $icon, $label, normalClass, copiedClass,
+  }) {
     // Copy value to the clipboard....
     navigator.clipboard.writeText(value).then(() => {
       // ...and notify the user
-      this.setCopiedToClipboard(iconEl, labelEl, normalClass, copiedClass);
+      this.setCopiedToClipboard({
+        $icon, $label, normalClass, copiedClass,
+      });
       setTimeout(() => {
-        this.resetCopyToClipboard(iconEl, labelEl, normalClass, copiedClass);
+        this.resetCopyToClipboard({
+          $icon, $label, normalClass, copiedClass,
+        });
       }, 20000);
     }, () => {
-      this.errorCopyToClipboard(iconEl, 'Copy to clipboard failed');
+      this.errorCopyToClipboard($icon, 'Copy to clipboard failed');
     });
     // Clear focus from the button.
     document.activeElement.blur();
