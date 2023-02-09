@@ -9,7 +9,14 @@ export default class CopytoClipboard {
 
   copy_doi() {
     var doi = $('#copy-doi').data('url');
-    this.copyToClipboard(doi, '#copy-doi-icon', '#copy-doi-label', 'copy-doi-label-normal', 'copy-doi-label-copied');
+    // value, iconEl, labelEl, normalClass, copiedClass
+    this.copyToClipboard({
+      value: doi,
+      iconEl: '#copy-doi-icon',
+      labelEl: '#copy-doi-label',
+      normalClass: 'copy-doi-label-normal',
+      copiedClass: 'copy-doi-label-copied',
+    });
     return false;
   }
 
@@ -46,7 +53,7 @@ export default class CopytoClipboard {
   // copiedClass - CSS to style the label with after a value has been copied to the clipboard
   // iconEl and labelEl could be any jQuery valid selector (e.g. ".some-id" or a reference
   //  to an element)
-  copyToClipboard(value, iconEl, labelEl, normalClass, copiedClass) {
+  copyToClipboard({value, iconEl, labelEl, normalClass, copiedClass}) {
     // Copy value to the clipboard....
     navigator.clipboard.writeText(value).then(() => {
       // ...and notify the user
