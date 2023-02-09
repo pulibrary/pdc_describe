@@ -306,7 +306,7 @@
     // For now we add all the users as a plain Javascript array.
     // If the user list gets to be too long we might want to fetch this data incrementally
     // as the user types the @mention, but for now this is OK.
-    var userList = [ <%= User.all_uids_string.html_safe %> ];
+    var userList = <%= User.all.map(&:uid).to_json %>;
 
     // triggeredAutocomplete (https://github.com/Hawkers/triggeredAutocomplete) is a plug-in
     // that sits on top of jQuery UI autocomplete and provides the @mention functionaly to

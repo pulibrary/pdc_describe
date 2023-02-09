@@ -142,12 +142,6 @@ class User < ApplicationRecord
     end
   end
 
-  # Returns a string with the UID (netid) for all the users.
-  # We use this string to power the JavaScript @mention functionality when adding messages to works.
-  def self.all_uids_string
-    User.all.map { |user| '"' + user.uid + '"' }.join(", ")
-  end
-
   ##
   # Is this user a super_admin? super_admins automatically get admin status in every
   # collection, and they can make new collections.
