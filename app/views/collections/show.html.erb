@@ -18,7 +18,7 @@
 
 <p>
   Users that are allowed to approve submissions to this collection:
-  <%= @collection.administrators.map { |user| link_to(user.display_name_safe, user_path(user.uid)) }.to_sentence.html_safe %>
+  <%= @collection.administrators.map { |user| link_to(user.display_name_safe, user_path(user.uid)) }.safe_join(", ") %>
 </p>
 
 <% if @can_edit %>

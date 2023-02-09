@@ -39,7 +39,7 @@
   <p>Moderator for:
     <%= @user.admin_collections.map do |collection|
       link_to(collection.title, collection_path(collection))
-    end.to_sentence.html_safe %></p>
+    end.safe_join(", ") %></p>
 <% end %>
 
 <% if @my_dashboard %>
