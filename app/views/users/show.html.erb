@@ -36,10 +36,10 @@
 <% if @user.super_admin? %>
   <!-- not sure we want to display the collections here, it's pointless -->
 <% elsif @user.moderator? %>
-  <p>Moderator for:
-    <%= @user.admin_collections.map do |collection|
-      link_to(collection.title, collection_path(collection))
-    end.safe_join(", ") %></p>
+  <p>
+    Moderator for:
+    <%= safe_join(@user.admin_collections.map { |collection| link_to(collection.title, collection_path(collection)}, ", ") %>
+  </p>
 <% end %>
 
 <% if @my_dashboard %>
