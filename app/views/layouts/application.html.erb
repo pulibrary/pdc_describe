@@ -53,15 +53,15 @@
   <script>
     pdc = {
       ...pdc,
-      orcid_url: '<%= raw(ORCID_URL) %>',
-      datacite: <%= raw(
-        ['ContributorType', 'RelationType', 'RelatedIdentifierType'].map { |name|
+      ...<%= {
+        orcid_url: ORCID_URL,
+        datacite: ['ContributorType', 'RelationType', 'RelatedIdentifierType'].map { |name|
           [
             name,
             Datacite::Mapping.const_get(name).to_a.map(&:value)
           ]
-        }.to_h.to_json
-      ) %>,
+        }
+      }.to_json %>
     };
   </script>
   <%= vite_javascript_tag 'orcid', 'data-turbolinks-track': 'reload' %>
