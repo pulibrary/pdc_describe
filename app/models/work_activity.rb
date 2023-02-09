@@ -89,7 +89,7 @@ class WorkActivity < ApplicationRecord
               Message
             end
     renderer = klass.new(self)
-    renderer.to_html
+    renderer.to_html.html_safe
   end
 
   class Renderer

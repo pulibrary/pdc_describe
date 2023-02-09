@@ -5,7 +5,7 @@
   <ul class="no-beads work-messages">
     <% @messages.sort_by(&:created_at).reverse.each do |activity| %>
       <li class="activity-history-item">
-        <%= activity.to_html.html_safe %>
+        <%= activity.to_html %>
       </li>
     <% end %>
     <% if @work.submission_notes.present? %>
