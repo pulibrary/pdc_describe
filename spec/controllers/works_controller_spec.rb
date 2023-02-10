@@ -202,8 +202,19 @@ RSpec.describe WorksController do
         "https://example-bucket.s3.amazonaws.com/"
       end
 
+      let(:file1) do
+        S3File.new(
+          filename: "anyfile.txt",
+          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+          size: 10_759,
+          checksum: "abc123"
+        )
+      end
+      let(:fake_s3_service) { stub_s3 }
+
       before do
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+        allow(fake_s3_service).to receive(:client_s3_files).and_return([], [file1])
       end
 
       it "handles the update page" do
@@ -232,8 +243,8 @@ RSpec.describe WorksController do
 
         saved_work = Work.find(work.id)
 
-        expect(saved_work.pre_curation_uploads).not_to be_empty
-        expect(ActiveStorage::PurgeJob).not_to have_received(:new)
+        expect(saved_work.pre_curation_uploads_fast).not_to be_empty
+        expect(fake_s3_service).not_to have_received(:delete_s3_object)
       end
     end
 
@@ -257,8 +268,28 @@ RSpec.describe WorksController do
         "https://example-bucket.s3.amazonaws.com/"
       end
 
+      let(:fake_s3_service) { stub_s3 }
+      let(:file1) do
+        S3File.new(
+          filename: uploaded_file1.path,
+          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+          size: 10_759,
+          checksum: "abc123"
+        )
+      end
+      let(:file2) do
+        S3File.new(
+          filename: uploaded_file2.path,
+          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+          size: 10_759,
+          checksum: "abc123"
+        )
+      end
+
       before do
+        # This is utilized for active record to send the file to S3
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+        allow(fake_s3_service).to receive(:client_s3_files).and_return([], [file1, file2])
       end
 
       it "handles the update page" do
@@ -287,8 +318,8 @@ RSpec.describe WorksController do
 
         saved_work = Work.find(work.id)
 
-        expect(saved_work.pre_curation_uploads).not_to be_empty
-        expect(ActiveStorage::PurgeJob).not_to have_received(:new)
+        expect(saved_work.pre_curation_uploads_fast).not_to be_empty
+        expect(fake_s3_service).not_to have_received(:delete_s3_object)
       end
     end
 
@@ -331,8 +362,8 @@ RSpec.describe WorksController do
 
       let(:uploaded_files) do
         {
-          work.pre_curation_uploads[0].key => uploaded_file1,
-          work.pre_curation_uploads[2].key => uploaded_file2
+          work.pre_curation_uploads_fast[0].key => uploaded_file1,
+          work.pre_curation_uploads_fast[2].key => uploaded_file2
         }
       end
 
@@ -340,13 +371,53 @@ RSpec.describe WorksController do
         "https://example-bucket.s3.amazonaws.com/"
       end
 
-      before do
-        stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
-        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+      let(:fake_s3_service) { stub_s3 }
+      let(:file1) do
+        S3File.new(
+          filename: temp_file1.path,
+          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+          size: 10_759,
+          checksum: "abc123"
+        )
+      end
+      let(:file2) do
+        S3File.new(
+          filename: temp_file2.path,
+          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+          size: 10_759,
+          checksum: "abc123"
+        )
+      end
+      let(:file3) do
+        S3File.new(
+          filename: temp_file3.path,
+          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+          size: 10_759,
+          checksum: "abc123"
+        )
+      end
 
-        work.pre_curation_uploads.attach(uploaded_temp_file1)
-        work.pre_curation_uploads.attach(uploaded_temp_file2)
-        work.pre_curation_uploads.attach(uploaded_temp_file3)
+      let(:replaced_file1) do
+        S3File.new(
+          filename: uploaded_file1.path,
+          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+          size: 10_759,
+          checksum: "abc123"
+        )
+      end
+      let(:replaced_file3) do
+        S3File.new(
+          filename: uploaded_file2.path,
+          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+          size: 10_759,
+          checksum: "abc123"
+        )
+      end
+
+      before do
+        # This is utilized for active record to send the file to S3
+        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+        allow(fake_s3_service).to receive(:client_s3_files).and_return([file1, file2, file3], [replaced_file1, file2, replaced_file3])
 
         params = {
           "title_main" => "test dataset updated",
@@ -374,14 +445,14 @@ RSpec.describe WorksController do
       it "handles the update page" do
         saved_work = Work.find(work.id)
 
-        expect(saved_work.pre_curation_uploads).not_to be_empty
-        expect(saved_work.pre_curation_uploads.length).to eq(3)
+        expect(saved_work.pre_curation_uploads_fast).not_to be_empty
+        expect(saved_work.pre_curation_uploads_fast.length).to eq(3)
 
         # Remeber! Order is alpabetical
-        expect(saved_work.pre_curation_uploads[0].blob.filename.to_s).to eq(File.basename(temp_file2.path))
-        expect(saved_work.pre_curation_uploads[1].filename.to_s).to eq("us_covid_2019.csv")
-        expect(saved_work.pre_curation_uploads[2].filename.to_s).to eq("us_covid_2020.csv")
-        expect(ActiveStorage::PurgeJob).not_to have_received(:new)
+        expect(saved_work.pre_curation_uploads_fast[0].filename.to_s).to include(File.basename(temp_file2.path))
+        expect(saved_work.pre_curation_uploads_fast[1].filename.to_s).to include("us_covid_2019")
+        expect(saved_work.pre_curation_uploads_fast[2].filename.to_s).to include("us_covid_2020")
+        expect(fake_s3_service).to have_received(:delete_s3_object).twice
       end
     end
 
@@ -458,7 +529,18 @@ RSpec.describe WorksController do
       end
 
       context "when the Work has not been curated" do
+        let(:file1) do
+          S3File.new(
+            filename: "SCoData_combined_v1_2020-07_README.txt",
+            last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+            size: 10_759,
+            checksum: "abc123"
+          )
+        end
+
+        let(:fake_s3_service) { stub_s3 }
         before do
+          allow(fake_s3_service).to receive(:client_s3_files).and_return([file1, file1, file1], [file1])
           work.pre_curation_uploads.attach(uploaded_file1)
           work.pre_curation_uploads.attach(uploaded_file1)
           work.pre_curation_uploads.attach(uploaded_file1)
@@ -466,6 +548,7 @@ RSpec.describe WorksController do
 
         it "handles the update page" do
           expect(work.pre_curation_uploads.length).to eq(3)
+          expect(work.pre_curation_uploads_fast.length).to eq(3)
 
           sign_in user
           post :update, params: params
@@ -473,7 +556,7 @@ RSpec.describe WorksController do
           saved_work = Work.find(work.id)
 
           expect(saved_work.pre_curation_uploads).not_to be_empty
-          expect(saved_work.pre_curation_uploads.length).to eq(1)
+          expect(saved_work.pre_curation_uploads_fast.length).to eq(1)
 
           expect(saved_work.pre_curation_uploads[0].blob.filename.to_s).to eq("us_covid_2019.csv")
           expect(ActiveStorage::PurgeJob).not_to have_received(:new)
@@ -556,7 +639,7 @@ RSpec.describe WorksController do
       end
     end
 
-    context "when file uploads are resent for an existing Work with uploads" do
+    context "when file uploads are present for an existing Work with uploads" do
       let(:uploaded_file1) do
         fixture_file_upload("us_covid_2019.csv", "text/csv")
       end
@@ -570,6 +653,23 @@ RSpec.describe WorksController do
           uploaded_file2,
           uploaded_file1
         ]
+      end
+
+      let(:file1) do
+        S3File.new(
+          filename: uploaded_file1.path,
+          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+          size: 10_759,
+          checksum: "abc123"
+        )
+      end
+      let(:file2) do
+        S3File.new(
+          filename: uploaded_file2.path,
+          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+          size: 10_759,
+          checksum: "abc123"
+        )
       end
 
       let(:bucket_url) do
@@ -597,8 +697,10 @@ RSpec.describe WorksController do
           "pre_curation_uploads" => uploaded_files
         }
       end
+      let(:fake_s3_service) { stub_s3(data: [file1, file2]) }
 
       before do
+        fake_s3_service
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
         stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
 
@@ -617,16 +719,14 @@ RSpec.describe WorksController do
 
         saved_work = Work.find(work.id)
 
-        expect(saved_work.pre_curation_uploads).not_to be_empty
-        expect(work.pre_curation_uploads.first).to be_an(ActiveStorage::Attachment)
+        expect(saved_work.pre_curation_uploads_fast).not_to be_empty
 
         # order is alphabetical, we can not change it by sending the files in a different order
-        expect(saved_work.pre_curation_uploads.first.filename).to eq(uploaded_files.first.original_filename)
-        expect(saved_work.pre_curation_uploads.last.filename).to eq(uploaded_files.last.original_filename)
+        expect(saved_work.pre_curation_uploads_fast.first.filename).to include(uploaded_files.last.original_filename.gsub(".csv", ""))
+        expect(saved_work.pre_curation_uploads_fast.last.filename).to include(uploaded_files.first.original_filename.gsub(".csv", ""))
 
         # original copies of the files get deleted
-        expect(a_request(:delete, /#{bucket_url}/)).to have_been_made.twice
-        expect(ActiveStorage::PurgeJob).not_to have_received(:new)
+        expect(fake_s3_service).to have_received(:delete_s3_object).twice
       end
     end
 
@@ -871,6 +971,10 @@ RSpec.describe WorksController do
     end
 
     describe "#validate" do
+      before do
+        stub_s3
+      end
+
       it "saves the submission notes and renders the user dashboard" do
         sign_in user
         post :validate, params: { id: work.id, submission_notes: "I need this processed ASAP" }
@@ -1064,7 +1168,9 @@ RSpec.describe WorksController do
       render_views
 
       it "adds to change history with a date and markdown" do
+        stub_s3
         sign_in user
+        stub_s3
         post :add_provenance_note, params: { id: work.id, "new-provenance-note" => "<span>hello</span> _world_", "new-provenance-date" => "2000-01-01" }
         expect(response.status).to be 302
         expect(response.location).to eq "http://test.host/works/#{work.id}"
@@ -1112,6 +1218,9 @@ RSpec.describe WorksController do
         rights_identifier: "CC BY",
         description: "a new description"
       }
+    end
+    before do
+      stub_s3
     end
 
     context "when authenticated" do
@@ -1285,6 +1394,7 @@ RSpec.describe WorksController do
 
     context "when the request parameters are invalid" do
       it "responds with 400 status code and the validation errors" do
+        stub_s3
         sign_in user
         allow(errors).to receive(:map).and_return(["test error"])
         allow(errors).to receive(:count).and_return(1)
@@ -1304,6 +1414,7 @@ RSpec.describe WorksController do
 
   describe "#edit" do
     it "renders the edit page on edit" do
+      stub_s3
       sign_in user
       get :edit, params: { id: work.id }
       expect(response).to render_template("edit")

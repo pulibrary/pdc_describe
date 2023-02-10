@@ -3,7 +3,6 @@
     <div class="card">
       <div class="files card-body">
         <!-- Only render file download table if there are files in S3 -->
-        <h3><%= "#{@work.pre_curation_uploads.count} #{'File'.pluralize(@work.pre_curation_uploads.count)}" %>  processed by the system </h3>
         <h3><%= "#{@work.pre_curation_uploads_count} #{'File'.pluralize(@work.pre_curation_uploads_count)}"%> in precuration storage  </h3>
         <table id="files-table" class="table">
           <thead>
@@ -19,12 +18,12 @@
                 <td><span></span></td>
               </tr>
               <% else %>
-                <% @work.pre_curation_uploads.sort_by(&:filename).each_with_index do |file, ix| %>
+                <% @work.pre_curation_uploads_fast.sort_by(&:filename).each_with_index do |file, ix| %>
                 <tr class="files">
                   <td>
                     <span>
                       <i class="bi bi-file-arrow-down"></i>
-                      <a href="<%= rails_blob_path(file, disposition: "attachment") %>" class="documents-file-link" target="_blank" title="<%= file.filename %>"><%= pre_curation_uploads_file_name(file: file) %></a>
+                      <a href="<%= file.url %>" class="documents-file-link" target="_blank" title="<%= file.filename %>"><%= pre_curation_uploads_file_name(file: file) %></a>
                     </span>
                   </td>
                   <td>
