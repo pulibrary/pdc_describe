@@ -28,6 +28,7 @@ Download the README.txt for a detailed description of this dataset's content."
   end
   context "migrate record from dataspace" do
     it "produces and saves a valid datacite record" do
+      stub_s3
       sign_in user
       # we need to use the wizard because this work does not have a doi and it needs one to be registered
       visit "/works/new"

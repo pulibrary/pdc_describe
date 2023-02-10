@@ -201,7 +201,7 @@ class Work < ApplicationRecord
         key: upload.key,
         filename: upload.filename.to_s,
         created_at: upload.created_at,
-        url: rails_blob_path(upload, disposition: "attachment")
+        url: upload.url
       }
     end
   end
@@ -352,7 +352,12 @@ class Work < ApplicationRecord
   def uploads
     return post_curation_uploads if approved?
 
-    pre_curation_uploads
+    pre_curation_uploads_fast
+  end
+
+  # Fetches the data from S3 directly bypassing ActiveStorage
+  def pre_curation_uploads_fast
+    s3_query_service.client_s3_files.sort_by(&:filename)
   end
 
   # This ensures that new ActiveStorage::Attachment objects can be modified before they are persisted
@@ -472,6 +477,12 @@ class Work < ApplicationRecord
 
   delegate :ark, :doi, :resource_type, :resource_type=, :resource_type_general, :resource_type_general=,
            :to_xml, to: :resource
+
+  # S3QueryService object associated with this Work
+  # @return [S3QueryService]
+  def s3_query_service
+    @s3_query_service ||= S3QueryService.new(self, !approved?)
+  end
 
   protected
 
@@ -633,12 +644,6 @@ class Work < ApplicationRecord
 
         attachment.save
       end
-    end
-
-    # S3QueryService object associated with this Work
-    # @return [S3QueryService]
-    def s3_query_service
-      @s3_query_service ||= S3QueryService.new(self, !approved?)
     end
 
     # Request S3 Bucket Objects associated with this Work

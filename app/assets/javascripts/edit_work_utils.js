@@ -19,7 +19,7 @@ an export that we can call as-needed.
 $(() => {
   function incrementCounter(elementId) {
     let counter = parseInt($(elementId)[0].value, 10);
-    counter++;
+    counter += 1;
     $(elementId)[0].value = counter;
     return counter;
   }
@@ -62,33 +62,33 @@ $(() => {
     const options = allValues.filter(
       (value) => !blocklist.includes(value),
     ).map(
-      (value) => `<option value="${value}" ${currentValue == value ? 'selected' : ''}>${value}</option>`,
+      (value) => `<option value="${value}" ${currentValue === value ? 'selected' : ''}>${value}</option>`,
     );
-    return `<select id="${selectId}" name="${selectId}"><option value="" ${currentValue == '' ? 'selected' : ''}></option>${options}</select>`;
+    return `<select id="${selectId}" name="${selectId}"><option value="" ${currentValue === '' ? 'selected' : ''}></option>${options}</select>`;
   }
 
   // ************************************************ //
   // Related Objects
   // related_identifier:, related_identifier_type:, relation_type
-  function addRelatedObjectHtml(num, related_identifier, related_identifier_type, relation_type) {
+  function addRelatedObjectHtml(num, relatedIdentifier, relatedIdentifierType, relationType) {
     const rowId = `related_object_row_${num}`;
     const relatedIdentifierId = `related_identifier_${num}`;
     const relatedIdentifierTypeId = `related_identifier_type_${num}`;
     const relationTypeId = `relation_type_${num}`;
     const relatedIdentifierTypeHtml = makeSelectHtml(
       relatedIdentifierTypeId,
-      related_identifier_type,
+      relatedIdentifierType,
       pdc.datacite.RelatedIdentifierType,
     );
     const relationTypeHtml = makeSelectHtml(
       relationTypeId,
-      relation_type,
+      relationType,
       pdc.datacite.RelationType,
     );
 
     const rowHtml = `<tr id="${rowId}" class="related-objects-table-row">
       <td>
-        <input type="text" id="${relatedIdentifierId}" name="${relatedIdentifierId}" value="${related_identifier}" data-num="${num}"/>
+        <input type="text" id="${relatedIdentifierId}" name="${relatedIdentifierId}" value="${relatedIdentifier}" data-num="${num}"/>
       </td>
       <td>
         ${relatedIdentifierTypeHtml}
@@ -173,18 +173,18 @@ $(() => {
     let i; let
       token;
     let rowText = '';
-    for (i = 0; i < rowData.length; i++) {
+    for (i = 0; i < rowData.length; i += 1) {
       token = $(rowData[i]).val();
       if (token.trim().length > 0) {
         rowText += `${token} `;
       }
     }
-    const emptyRow = (rowText.trim().length == 0);
+    const emptyRow = (rowText.trim().length === 0);
     if (rowExists) {
       if (emptyRow) {
         // delete it without asking
         $(rowToDelete).remove();
-      } else if (confirm(`Remove ${type} ${rowText}`)) {
+      } else if (window.confirm(`Remove ${type} ${rowText}`)) {
         $(rowToDelete).remove();
       }
     }
@@ -204,12 +204,12 @@ $(() => {
   function updateCreatorsSequence() {
     let i;
     const sequences = $('.creators-table-row > td > input.sequence');
-    for (i = 0; i < sequences.length; i++) {
+    for (i = 0; i < sequences.length; i += 1) {
       sequences[i].value = i + 1;
     }
   }
 
-  function addTitlePlaceholder(_el) {
+  function addTitlePlaceholder() {
     const newTitleCount = incrementCounter('#new_title_count');
     const containerId = `new_title_container_${newTitleCount}`;
     const titleId = `new_title_${newTitleCount}`;
@@ -238,7 +238,7 @@ $(() => {
       creator;
     const creatorSpans = $(selector);
     const creators = [];
-    for (i = 0; i < creatorSpans.length; i++) {
+    for (i = 0; i < creatorSpans.length; i += 1) {
       el = $(creatorSpans[i]);
       creator = {
         num: el.data('num'),
@@ -256,15 +256,13 @@ $(() => {
 
   // Returns true if the "user entered" textboxes for the row are empty.
   function isEmptyRow(rowId) {
-    let selector; let textboxes; let i; let textboxId; let
-      value;
-    selector = `#${rowId} > td > input`;
-    textboxes = $(selector);
-    for (i = 0; i < textboxes.length; i++) {
-      textboxId = textboxes[i].id;
+    let i; let textboxId; let value;
+    const $textboxes = $(`#${rowId} > td > input`);
+    for (i = 0; i < $textboxes.length; i += 1) {
+      textboxId = $textboxes[i].id;
       if (textboxId.startsWith('orcid_') || textboxId.startsWith('given_name_') || textboxId.startsWith('family_name_')) {
         value = $(`#${textboxId}`).val().trim();
-        if (value != '') {
+        if (value !== '') {
           return false;
         }
       }
@@ -276,7 +274,7 @@ $(() => {
   function findEmptyCreator() {
     let i;
     const rows = $('.creators-table-row');
-    for (i = 0; i < rows.length; i++) {
+    for (i = 0; i < rows.length; i += 1) {
       if (isEmptyRow(rows[i].id)) {
         return rows[i].id;
       }
@@ -288,7 +286,7 @@ $(() => {
   function hasCreators() {
     let i;
     const rows = $('.creators-table-row');
-    for (i = 0; i < rows.length; i++) {
+    for (i = 0; i < rows.length; i += 1) {
       if (!isEmptyRow(rows[i].id)) {
         return true;
       }
@@ -318,7 +316,7 @@ $(() => {
           $(familyNameId).val(familyName);
         })
         .fail((XMLHttpRequest, textStatus, errorThrown) => {
-          console.log(`Error fetching ORCID for ${errorThrown}`);
+          console.error(`Error fetching ORCID for ${errorThrown}`);
         });
     }
   }
@@ -346,19 +344,19 @@ $(() => {
     return false;
   });
 
-  $('#btn-add-creator').on('click', (el) => {
+  $('#btn-add-creator').on('click', () => {
     const num = incrementCounter('#creator_count');
     addCreatorHtml(num, '', '', '');
     return false;
   });
 
-  $('#btn-add-related-object').on('click', (el) => {
+  $('#btn-add-related-object').on('click', () => {
     const num = incrementCounter('#related_object_count');
     addRelatedObjectHtml(num, '', '', '');
     return false;
   });
 
-  $('#btn-add-me-creator').on('click', (el) => {
+  $('#btn-add-me-creator').on('click', () => {
     const num = incrementCounter('#creator_count');
     const orcid = $('#user_orcid').val();
     const givenName = $('#user_given_name').val();
@@ -372,23 +370,23 @@ $(() => {
     return false;
   });
 
-  $('#btn-add-contributor').on('click', (el) => {
+  $('#btn-add-contributor').on('click', () => {
     const num = incrementCounter('#contributor_count');
     addContributorHtml(num, '', '', '', 'Other');
     return false;
   });
 
-  $('#btn-add-title').on('click', (el) => {
-    addTitlePlaceholder(el);
+  $('#btn-add-title').on('click', (event) => {
+    addTitlePlaceholder(event);
     return false;
   });
 
-  $('#btn-submit').on('click', (el) => {
+  $('#btn-submit').on('click', () => {
     updateCreatorsSequence();
   });
 
   // Client side validations before allowing user to create the dataset.
-  $('#btn-create-new').on('click', (el) => {
+  $('#btn-create-new').on('click', () => {
     const title = $('#title_main').val() || '';
     let status = true;
 
@@ -401,7 +399,7 @@ $(() => {
       status = false;
     }
 
-    if (title.trim() == '') {
+    if (title.trim() === '') {
       $('#title_main').focus();
       $('#title-required-message').removeClass('hidden');
       status = false;
@@ -436,14 +434,14 @@ $(() => {
     return false;
   });
 
-  if ($('.creator-data').length == 0) {
+  if ($('.creator-data').length === 0) {
     // Add an empty creator for the use to fill it out
     const num = incrementCounter('#creator_count');
     addCreatorHtml(num, '', '', '', 1);
   } else {
     // Adds the existing creators making sure we honor the ordering.
     const creators = peopleSorted('.creator-data');
-    for (let i = 0; i < creators.length; i++) {
+    for (let i = 0; i < creators.length; i += 1) {
       const creator = creators[i];
       addCreatorHtml(
         creator.num,
@@ -457,28 +455,28 @@ $(() => {
 
   // Load any existing related objects into the edit form.
   // If there are any related objects they should appear in hidden <span> tags.
-  if ($('.related-object-data').length == 0) {
+  if ($('.related-object-data').length === 0) {
     // Add an empty related object for the user to fill it out
     const num = incrementCounter('#related_object_count');
     addRelatedObjectHtml(num, '', '', '');
   } else {
     // Add existing related objects for editing
-    for (const related_object of $('.related-object-data')) {
+    for (const relatedObject of $('.related-object-data')) {
       const {
         num, relatedIdentifier, relatedIdentifierType, relationType,
-      } = related_object.dataset;
+      } = relatedObject.dataset;
       addRelatedObjectHtml(num, relatedIdentifier, relatedIdentifierType, relationType);
     }
   }
 
-  if ($('.contributor-data').length == 0) {
+  if ($('.contributor-data').length === 0) {
     // Add an empty contributor for the use to fill it out
     const num = incrementCounter('#contributor_count');
     addContributorHtml(num, '', '', '', 'Other', 1);
   } else {
     // Adds the existing contributors making sure we honor the ordering.
     const contributors = peopleSorted('.contributor-data');
-    for (i = 0; i < contributors.length; i++) {
+    for (let i = 0; i < contributors.length; i += 1) {
       const contributor = contributors[i];
       addContributorHtml(
         contributor.num,
@@ -507,11 +505,12 @@ $(() => {
 
   // Drop the "http..."" portion of the URL if the user enters the full URL of a DataSpace ARK
   // http://arks.princeton.edu/ark:/88435/dsp01hx11xj13h => ark:/88435/dsp01hx11xj13h
-  $('#ark').on('input', (el) => {
+  $('#ark').on('input', (event) => {
     const prefix = 'http://arks.princeton.edu/';
-    const ark = el.currentTarget.value.trim();
+    const target = event.currentTarget;
+    const ark = target.value.trim();
     if (ark.startsWith(prefix)) {
-      el.currentTarget.value = ark.replace(prefix, '');
+      target.value = ark.replace(prefix, '');
     }
   });
 

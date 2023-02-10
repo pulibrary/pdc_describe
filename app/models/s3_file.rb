@@ -2,6 +2,7 @@
 class S3File
   attr_accessor :filename, :last_modified, :size, :checksum
   alias key filename
+  alias id filename
 
   def initialize(filename:, last_modified:, size:, checksum:, query_service: nil)
     @filename = filename
@@ -9,6 +10,18 @@ class S3File
     @size = size
     @checksum = checksum.delete('"')
     @query_service = query_service
+  end
+
+  def created_at
+    last_modified
+  end
+
+  def byte_size
+    size
+  end
+
+  def url
+    @query_service.file_url(key)
   end
 
   def globus_url

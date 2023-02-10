@@ -243,6 +243,30 @@ RSpec.describe S3QueryService, mock_s3_query_service: false do
     end
   end
 
+  describe "#delete_s3_object" do
+    let(:response_headers) do
+      {
+        'Accept-Ranges': "bytes",
+        'Content-Length': 71,
+        'Content-Type': "text/plain",
+        'ETag': "6805f2cfc46c0f04559748bb039d69ae",
+        'Last-Modified': Time.parse("Thu, 15 Dec 2016 01:19:41 GMT")
+      }
+    end
+
+    subject(:s3_query_service) { described_class.new(work) }
+    let(:s3_file) { S3File.new(filename: "test_key", last_modified: Time.zone.now, size: 12_739, checksum: "abc567") }
+
+    before do
+      stub_request(:delete, "https://example-bucket.s3.amazonaws.com/test_key").to_return(status: 200)
+    end
+
+    it "retrieves the S3 Object from the HTTP API" do
+      s3_query_service.delete_s3_object(s3_file.key)
+      assert_requested(:delete, "https://example-bucket.s3.amazonaws.com/test_key")
+    end
+  end
+
   describe "#find_s3_file" do
     subject(:s3_query_service) { described_class.new(work) }
     let(:filename) { "test.txt" }
