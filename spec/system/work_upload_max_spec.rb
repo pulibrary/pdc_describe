@@ -4,7 +4,9 @@ require "rails_helper"
 RSpec.describe "File selection", type: :system do
   let(:work) { FactoryBot.create :draft_work }
   let(:user) { work.created_by_user }
-
+  before do
+    stub_s3
+  end
   it "errors when more than 20 files are attached in the wizard", js: true do
     sign_in user
     visit work_file_upload_path(work)

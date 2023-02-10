@@ -10,9 +10,11 @@ amazon: &amazon
   bucket: <%= S3QueryService.pre_curation_config.fetch(:bucket) %>
 
 development: &development
-  <<: *local
-# Or uncomment this line to develop against AWS:
-#   <<: *amazon
+# AWS is the default as the will not really work without AWS
+#  You can go back to local if needed for some reason, just be aware the uploaded
+#  files will not display in the edit or the show pages
+#  <<: *local
+   <<: *amazon
 
 
 amazon_pre_curation:

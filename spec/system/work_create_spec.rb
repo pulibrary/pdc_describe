@@ -34,6 +34,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
   let(:collection) { "Research Data" }
 
   before do
+    stub_s3
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
   context "happy path" do
