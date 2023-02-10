@@ -16,6 +16,7 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
     end
 
     it "should be able to edit someone else's work" do
+      stub_s3
       sign_in submitter2
       visit user_path(submitter2)
       expect(page).to have_content submitter2.display_name
