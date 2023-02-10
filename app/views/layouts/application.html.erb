@@ -54,6 +54,7 @@
     pdc = {
       ...pdc,
       orcid_url: '<%= raw(ORCID_URL) %>',
+      ror_url: '<%= raw(ROR_URL) %>',
       datacite: <%= raw(
         ['ContributorType', 'RelationType', 'RelatedIdentifierType'].map { |name|
           [
