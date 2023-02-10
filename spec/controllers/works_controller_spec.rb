@@ -202,14 +202,7 @@ RSpec.describe WorksController do
         "https://example-bucket.s3.amazonaws.com/"
       end
 
-      let(:file1) do
-        S3File.new(
-          filename: "anyfile.txt",
-          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-          size: 10_759,
-          checksum: "abc123"
-        )
-      end
+      let(:file1) { FactoryBot.build :s3_file, filename: "anyfile.txt", last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
       let(:fake_s3_service) { stub_s3 }
 
       before do
@@ -269,22 +262,8 @@ RSpec.describe WorksController do
       end
 
       let(:fake_s3_service) { stub_s3 }
-      let(:file1) do
-        S3File.new(
-          filename: uploaded_file1.path,
-          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-          size: 10_759,
-          checksum: "abc123"
-        )
-      end
-      let(:file2) do
-        S3File.new(
-          filename: uploaded_file2.path,
-          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-          size: 10_759,
-          checksum: "abc123"
-        )
-      end
+      let(:file1) { FactoryBot.build :s3_file, filename: uploaded_file1.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
+      let(:file2) { FactoryBot.build :s3_file, filename: uploaded_file2.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
 
       before do
         # This is utilized for active record to send the file to S3
@@ -372,47 +351,11 @@ RSpec.describe WorksController do
       end
 
       let(:fake_s3_service) { stub_s3 }
-      let(:file1) do
-        S3File.new(
-          filename: temp_file1.path,
-          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-          size: 10_759,
-          checksum: "abc123"
-        )
-      end
-      let(:file2) do
-        S3File.new(
-          filename: temp_file2.path,
-          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-          size: 10_759,
-          checksum: "abc123"
-        )
-      end
-      let(:file3) do
-        S3File.new(
-          filename: temp_file3.path,
-          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-          size: 10_759,
-          checksum: "abc123"
-        )
-      end
-
-      let(:replaced_file1) do
-        S3File.new(
-          filename: uploaded_file1.path,
-          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-          size: 10_759,
-          checksum: "abc123"
-        )
-      end
-      let(:replaced_file3) do
-        S3File.new(
-          filename: uploaded_file2.path,
-          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-          size: 10_759,
-          checksum: "abc123"
-        )
-      end
+      let(:file1) { FactoryBot.build :s3_file, filename: temp_file1.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
+      let(:file2) { FactoryBot.build :s3_file, filename: temp_file2.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
+      let(:file3) { FactoryBot.build :s3_file, filename: temp_file3.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
+      let(:replaced_file1) { FactoryBot.build :s3_file, filename: uploaded_file1.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
+      let(:replaced_file3) { FactoryBot.build :s3_file, filename: uploaded_file2.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
 
       before do
         # This is utilized for active record to send the file to S3
