@@ -162,20 +162,8 @@ RSpec.describe Work, type: :model do
     let(:post_curation_data_profile) do
       {
         objects: [
-          S3File.new(
-            query_service: pre_curated_query_service,
-            filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
-            last_modified: nil,
-            size: 1024,
-            checksum: ""
-          ),
-          S3File.new(
-            query_service: pre_curated_query_service,
-            filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv",
-            last_modified: nil,
-            size: 2048,
-            checksum: ""
-          )
+          FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", query_service: pre_curated_query_service, size: 1024),
+          FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv", query_service: pre_curated_query_service),
         ]
       }
     end
