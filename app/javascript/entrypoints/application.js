@@ -1,3 +1,6 @@
+/* eslint no-underscore-dangle: [ "error", { "allow": ["_rails_loaded"] } ] */
+/* eslint no-console: "off" */
+
 // To see this message, add the following to the `<head>` section in your
 // views/layouts/application.html.erb
 //
@@ -11,6 +14,8 @@ import Turbolinks from 'turbolinks';
 import ActiveStorage from '@rails/activestorage';
 // Provides @mention functionality in textboxes (adds to jQuery UI autocomplete)
 import './vendor/jquery-ui-triggeredAutocomplete';
+
+import PdcUiLoader from './pdc/pdc_ui_loader.es6';
 
 console.log('Vite ⚡️ Rails');
 
@@ -31,10 +36,13 @@ console.log('Visit the guide for more information: ', 'https://vite-ruby.netlify
 // ActiveStorage.start()
 //
 // Import all channels.
-const channels = import.meta.globEager('../channels/*.js');
+import.meta.globEager('../channels/*.js');
 
 if (typeof (window._rails_loaded) === 'undefined' || window._rails_loaded == null || !window._rails_loaded) {
   Rails.start();
 }
 Turbolinks.start();
 ActiveStorage.start();
+
+const loader = new PdcUiLoader();
+loader.run();

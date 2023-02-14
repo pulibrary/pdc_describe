@@ -8,8 +8,6 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_s3
-    # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
-    page.driver.browser.manage.window.resize_to(2000, 2000)
   end
 
   it "Mints a DOI, but does not mint an ark at any point in the wizard proccess" do

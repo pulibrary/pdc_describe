@@ -36,6 +36,13 @@
   <body>
     <%= render partial: 'shared/header' %>
     <div class="container">
+      <% if flash[:notice] %>
+        <div class="row">
+          <div class="col">
+            <div class="alert alert-warning" role="alert" ><%= flash[:notice] %></div>
+          </div>
+        </div>
+      <% end %>
       <div class="row">
         <%= yield %>
       </div>
@@ -47,6 +54,7 @@
     pdc = {
       ...pdc,
       orcid_url: '<%= raw(ORCID_URL) %>',
+      ror_url: '<%= raw(ROR_URL) %>',
       datacite: <%= raw(
         ['ContributorType', 'RelationType', 'RelatedIdentifierType'].map { |name|
           [

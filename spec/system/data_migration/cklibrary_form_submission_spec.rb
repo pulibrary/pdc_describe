@@ -15,7 +15,6 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
   let(:keywords) { "de novo genes, synthetic biology, Next-generation sequencing, DNA library" }
 
   before do
-    page.driver.browser.manage.window.resize_to(2000, 2000)
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_request(:get, "https://handle.stage.datacite.org/10.34770/gg40-tc15")
       .to_return(status: 200, body: "", headers: {})
@@ -60,6 +59,9 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(cklibrary_work)
       expect(datacite.valid?).to eq true
+      expect(datacite.to_xml).to be_equivalent_to(File.read("spec/system/data_migration/cklibrary.xml"))
+      # Ensure the DOI is blank so a new one will be minted when this is imported
+      cklibrary_work.resource.doi = nil
       export_spec_data("cklibrary.json", cklibrary_work.to_json)
     end
   end

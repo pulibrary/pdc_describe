@@ -16,7 +16,6 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
   let(:relation_type) { "IsCitedBy" }
 
   before do
-    page.driver.browser.manage.window.resize_to(2000, 2000)
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_request(:get, "https://handle.stage.datacite.org/10.34770/r2dz-ys12")
       .to_return(status: 200, body: "", headers: {})
@@ -109,6 +108,7 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(cytoskeletal_work)
       expect(datacite.valid?).to eq true
+      expect(datacite.to_xml).to be_equivalent_to(File.read("spec/system/data_migration/cytoskeletal.xml"))
       export_spec_data("cytoskeletal.json", cytoskeletal_work.to_json)
     end
   end

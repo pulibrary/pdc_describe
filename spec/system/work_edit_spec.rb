@@ -5,32 +5,42 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
   let(:user) { FactoryBot.create(:princeton_submitter) }
 
   before do
+    stub_s3
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
-    page.driver.browser.manage.window.resize_to(2000, 2000)
   end
 
   let(:contents1) do
-    {
-      etag: "\"008eec11c39e7038409739c0160a793a\"",
-      key: "#{work.doi}/#{work.id}/us_covid_2019.csv",
+    S3File.new(
+      filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
       last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
       size: 92,
-      storage_class: "STANDARD"
-    }
+      checksum: "abc123",
+      query_service: work.s3_query_service
+    )
   end
 
   let(:contents2) do
-    {
-      etag: "\"7bd3d4339c034ebc663b990657714688\"",
-      key: "#{work.doi}/#{work.id}/us_covid_2020.csv",
+    S3File.new(
+      filename: "#{work.doi}/#{work.id}/us_covid_2020.csv",
       last_modified: Time.parse("2022-04-21T19:29:40.000Z"),
       size: 114,
-      storage_class: "STANDARD"
-    }
+      checksum: "abc567",
+      query_service: work.s3_query_service
+    )
   end
 
-  let(:s3_hash) { { contents: [contents1, contents2] } }
-  let(:s3_hash_after_delete) { { contents: [contents2] } }
+  let(:contents3) do
+    S3File.new(
+      filename: "#{work.doi}/#{work.id}/orcid.csv",
+      last_modified: Time.parse("2022-04-21T19:29:40.000Z"),
+      size: 114,
+      checksum: "abc567",
+      query_service: work.s3_query_service
+    )
+  end
+
+  let(:s3_hash) { [contents1, contents2] }
+  let(:s3_hash_after_delete) { [contents2] }
 
   context "when editing an existing draft Work with uploaded files" do
     let(:work) { FactoryBot.create(:draft_work) }
@@ -49,14 +59,19 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       "https://example-bucket.s3.amazonaws.com/"
     end
     let(:delete_url) { "#{bucket_url}#{work.doi}/#{work.id}/us_covid_2019.csv" }
+    let(:fake_s3_service) { stub_s3 }
     before do
-      fake_aws_client = double(Aws::S3::Client)
-      fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
-      fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
-      fake_s3_resp.stub(:to_h).and_return(s3_hash, s3_hash_after_delete)
-      s3 = S3QueryService.new(work)
-      allow(s3).to receive(:client).and_return(fake_aws_client)
-      allow(S3QueryService).to receive(:new).and_return(s3)
+      allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_hash)
+      allow(fake_s3_service).to receive(:file_url).with(contents1.key).and_return("https://example-bucket.s3.amazonaws.com/#{contents1.key}")
+      allow(fake_s3_service).to receive(:file_url).with(contents2.key).and_return("https://example-bucket.s3.amazonaws.com/#{contents2.key}")
+      allow(fake_s3_service).to receive(:file_url).with(contents3.key).and_return("https://example-bucket.s3.amazonaws.com/#{contents2.key}")
+      # fake_aws_client = double(Aws::S3::Client)
+      # fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
+      # fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
+      # fake_s3_resp.stub(:to_h).and_return(s3_hash, s3_hash_after_delete)
+      # s3 = S3QueryService.new(work)
+      # allow(s3).to receive(:client).and_return(fake_aws_client)
+      # allow(S3QueryService).to receive(:new).and_return(s3)
 
       stub_request(:put, /#{bucket_url}/).to_return(status: 200)
       stub_request(:delete, /#{delete_url}/).to_return(status: 200)
@@ -65,31 +80,30 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       work.save
 
       sign_in user
-      visit work_path(work)
       visit edit_work_path(work)
     end
 
     it "allows users to delete one of the uploads" do
       allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
-      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       expect(page).to have_content "Filename"
       expect(page).to have_content "Created At"
       expect(page).to have_content "Replace Upload"
       expect(page).to have_content "Delete Upload"
       expect(page).to have_content("us_covid_2019.csv")
       expect(page).to have_content("us_covid_2020.csv")
-      check("work-uploads-#{work.pre_curation_uploads[0].id}-delete")
+      check("work-uploads-#{work.pre_curation_uploads_fast[0].id}-delete")
+      allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_hash_after_delete)
       click_on "Save Work"
-      expect(page).to have_content("us_covid_2020.csv")
-      expect(a_request(:delete, delete_url)).to have_been_made
-      expect(ActiveStorage::PurgeJob).not_to have_received(:new)
+      within(".files.card-body") do
+        expect(page).to have_content("us_covid_2020.csv")
+        expect(page).not_to have_content("us_covid_2019.csv")
+      end
+      expect(page).to have_content(/deleted.*us_covid_2019.csv/)
+      expect(fake_s3_service).to have_received(:delete_s3_object)
     end
 
     it "allows users to replace one of the uploads" do
       allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
-      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       expect(page).to have_content "Filename"
       expect(page).to have_content "Created At"
       expect(page).to have_content "Replace Upload"
@@ -98,15 +112,16 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
         expect(page).to have_content("us_covid_2019.csv")
         expect(page).to have_content("us_covid_2020.csv")
       end
-      attach_file("work-deposit-uploads-#{work.pre_curation_uploads.first.id}", Rails.root.join("spec", "fixtures", "files", "orcid.csv"))
+      attach_file("work-deposit-uploads-#{work.pre_curation_uploads_fast.first.id}", Rails.root.join("spec", "fixtures", "files", "orcid.csv"))
+      allow(fake_s3_service).to receive(:client_s3_files).and_return([contents2, contents3])
       click_on "Save Work"
       within(".files.card-body") do
         expect(page).to have_content("orcid.csv")
         expect(page).to have_content("us_covid_2020.csv")
         expect(page).not_to have_content("us_covid_2019.csv")
       end
-      expect(a_request(:delete, delete_url)).to have_been_made
-      expect(ActiveStorage::PurgeJob).not_to have_received(:new)
+      expect(fake_s3_service).to have_received(:delete_s3_object)
+      expect(page).to have_content(/deleted.*us_covid_2019.csv/)
     end
   end
 
@@ -142,6 +157,33 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       expect(page).to have_content("nsf-123")
       expect(page).to have_content("http://nsg.gov/award/123")
       expect(page).to have_content("National Sigh, Hence Foundation")
+
+      # Test row deletion
+      # (Clicking on "Edit" sends us to the multi-page wizard;
+      # To just confirm that edits work, this is more direct.)
+      visit edit_work_path(work)
+      click_on "Additional Metadata"
+      find(:xpath, "(//i[@class='bi bi-trash btn-del-row'])[1]").click
+      click_on "Save Work"
+      expect(page).not_to have_content("National Science Foundation")
+      expect(page).to have_content("National Sigh, Hence Foundation")
+
+      # Test row reordering
+      visit edit_work_path(work)
+      click_on "Additional Metadata"
+      # There should be a blank line we can immediately enter data into.
+      find("tr:last-child input[name='funders[][funder_name]']").set "DOE"
+      # For the second, we add a row.
+      click_on "Add Another Funder"
+      find("tr:last-child input[name='funders[][funder_name]']").set "NIH"
+
+      # Funders at the top of the page, so this is sufficiently precise.
+      source = page.all(".bi-arrow-down-up")[2].native
+      target = page.all(".bi-arrow-down-up")[0].native
+      builder = page.driver.browser.action
+      builder.drag_and_drop(source, target).perform
+      click_on "Save Work"
+      expect(page.html.match?(/NIH.*DOE/m)).to be true # Opposite the original order of entry
     end
   end
 

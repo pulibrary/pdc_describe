@@ -16,7 +16,8 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
         filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt",
         last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
         size: 10_759,
-        checksum: "abc123"
+        checksum: "abc123",
+        query_service: s3_query_service_double
       )
     end
     let(:file2) do
@@ -24,7 +25,8 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
         filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json",
         last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
         size: 12_739,
-        checksum: "abc567"
+        checksum: "abc567",
+        query_service: s3_query_service_double
       )
     end
     let(:s3_data) { [file1, file2] }
@@ -34,14 +36,12 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
     end
 
     it "shows data from S3 on the Show and Edit pages" do
-      # Account for files in S3 added outside of ActiveStorage
       allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
       allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
-      # Account for files uploaded to S3 via ActiveStorage
-      stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+      allow(s3_query_service_double).to receive(:file_count).and_return(s3_data.count)
+      allow(s3_query_service_double).to receive(:client_s3_files).and_return(s3_data)
+      allow(s3_query_service_double).to receive(:file_url).and_return("https://something-something")
 
-      file = fixture_file_upload("us_covid_2019.csv", "text/csv")
-      work.pre_curation_uploads.attach(file)
       work.save
       work.reload
       work.state = "awaiting_approval"
@@ -49,15 +49,12 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
 
       visit work_path(work)
       expect(page).to have_content work.title
-      expect(page).to have_content "us_covid_2019.csv"
-
-      expect(page).to have_content ActiveStorage::Filename.new(file1.filename).to_s
-      expect(page).to have_content ActiveStorage::Filename.new(file2.filename).to_s
+      expect(page).to have_content file1.filename
+      expect(page).to have_content file2.filename
 
       click_on "Edit"
-      expect(page).to have_content "us_covid_2019.csv"
-      expect(page).to have_content ActiveStorage::Filename.new(file1.filename).to_s
-      expect(page).to have_content ActiveStorage::Filename.new(file2.filename).to_s
+      expect(page).to have_content file1.filename
+      expect(page).to have_content file2.filename
     end
 
     context "when item is approved" do

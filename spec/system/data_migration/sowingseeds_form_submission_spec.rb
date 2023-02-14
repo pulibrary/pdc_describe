@@ -21,7 +21,6 @@ Download the README.txt for a detailed description of this dataset's content."
   end
 
   before do
-    page.driver.browser.manage.window.resize_to(2000, 2000)
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_request(:get, "https://handle.stage.datacite.org/10.34770/r75s-9j74")
       .to_return(status: 200, body: "", headers: {})
@@ -29,6 +28,7 @@ Download the README.txt for a detailed description of this dataset's content."
   end
   context "migrate record from dataspace" do
     it "produces and saves a valid datacite record" do
+      stub_s3
       sign_in user
       # we need to use the wizard because this work does not have a doi and it needs one to be registered
       visit "/works/new"
@@ -74,6 +74,9 @@ Download the README.txt for a detailed description of this dataset's content."
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(sowingseeds_work)
       expect(datacite.valid?).to eq true
+      expect(datacite.to_xml).to be_equivalent_to(File.read("spec/system/data_migration/sowingseeds.xml"))
+      # Ensure the DOI is blank so a new one will be minted when this is imported
+      sowingseeds_work.resource.doi = nil
       export_spec_data("sowingseeds.json", sowingseeds_work.to_json)
     end
   end

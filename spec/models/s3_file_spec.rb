@@ -9,13 +9,6 @@ RSpec.describe S3File, type: :model do
   let(:checksum) { "abc123" }
   let(:query_service) { instance_double(S3QueryService, class: S3QueryService, bucket_name: bucket_name) }
   let(:bucket_name) { "test-bucket" }
-  let(:url_protocol) { "https" }
-  let(:s3_host) { "s3.amazon.com" }
-
-  before do
-    allow(S3QueryService).to receive(:url_protocol).and_return(url_protocol)
-    allow(S3QueryService).to receive(:s3_host).and_return(s3_host)
-  end
 
   it "can take S3 file data at creation time" do
     expect(s3_file.filename).to eq filename

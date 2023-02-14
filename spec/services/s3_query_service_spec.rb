@@ -95,18 +95,6 @@ RSpec.describe S3QueryService, mock_s3_query_service: false do
     expect(data_profile[:ok]).to eq false
   end
 
-  describe ".url_protocol" do
-    it "accesses the protocol for the S3 Bucket URL" do
-      expect(described_class.url_protocol).to eq("https")
-    end
-  end
-
-  describe ".s3_host" do
-    it "accesses the host for the S3 Bucket URL" do
-      expect(described_class.s3_host).to eq("s3.amazonaws.com")
-    end
-  end
-
   describe "#client" do
     before do
       allow(Aws::S3::Client).to receive(:new)
@@ -198,6 +186,12 @@ RSpec.describe S3QueryService, mock_s3_query_service: false do
         expect(children.last.size).to eq(s3_size2)
       end
     end
+
+    describe "#file_count" do
+      it "returns only the files" do
+        expect(subject.file_count).to eq(2)
+      end
+    end
   end
 
   context "post curated" do
@@ -246,6 +240,30 @@ RSpec.describe S3QueryService, mock_s3_query_service: false do
       expect(s3_object).not_to be nil
       bytestream = s3_object[:body]
       expect(bytestream.read).to eq("test_content")
+    end
+  end
+
+  describe "#delete_s3_object" do
+    let(:response_headers) do
+      {
+        'Accept-Ranges': "bytes",
+        'Content-Length': 71,
+        'Content-Type': "text/plain",
+        'ETag': "6805f2cfc46c0f04559748bb039d69ae",
+        'Last-Modified': Time.parse("Thu, 15 Dec 2016 01:19:41 GMT")
+      }
+    end
+
+    subject(:s3_query_service) { described_class.new(work) }
+    let(:s3_file) { S3File.new(filename: "test_key", last_modified: Time.zone.now, size: 12_739, checksum: "abc567") }
+
+    before do
+      stub_request(:delete, "https://example-bucket.s3.amazonaws.com/test_key").to_return(status: 200)
+    end
+
+    it "retrieves the S3 Object from the HTTP API" do
+      s3_query_service.delete_s3_object(s3_file.key)
+      assert_requested(:delete, "https://example-bucket.s3.amazonaws.com/test_key")
     end
   end
 

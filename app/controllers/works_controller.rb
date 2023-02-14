@@ -64,8 +64,6 @@ class WorksController < ApplicationController
   # When requested as .json, return the internal json resource
   def show
     @work = Work.find(params[:id])
-    # check if anything was added in S3 since we last viewed this object
-    @work.attach_s3_resources
     @changes =  WorkActivity.changes_for_work(@work.id)
     @messages = WorkActivity.messages_for_work(@work.id)
 
@@ -97,25 +95,27 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     if current_user && @work.editable_by?(current_user)
       if @work.approved? && !@work.administered_by?(current_user)
-        redirect_to root_path, notice: I18n.t("works.approved.uneditable")
+        Honeybadger.notify("Can not edit work: #{@work.id} is approved but #{current_user} is not admin")
+        redirect_to root_path, notice: I18n.t("works.uneditable.approved")
       else
         @uploads = @work.uploads
         @wizard_mode = wizard_mode?
         render "edit"
       end
     else
-      Rails.logger.warn("Unauthorized attempt to edit work #{@work.id} by user #{current_user.uid}")
-      redirect_to root_path
+      Honeybadger.notify("Can not edit work: #{@work.id} is not editable by #{current_user}")
+      redirect_to root_path, notice: I18n.t("works.uneditable.privs")
     end
   end
 
   def update
     @work = Work.find(params[:id])
     if current_user.blank? || !@work.editable_by?(current_user)
-      Rails.logger.warn("Unauthorized attempt to update work #{@work.id} by user #{current_user.uid}")
-      redirect_to root_path
+      Honeybadger.notify("Can not update work: #{@work.id} is not editable by #{current_user}")
+      redirect_to root_path, notice: I18n.t("works.uneditable.privs")
     elsif !@work.editable_in_current_state?(current_user)
-      redirect_to root_path, notice: I18n.t("works.approved.uneditable")
+      Honeybadger.notify("Can not update work: #{@work.id} is not editable in current state by #{current_user}")
+      redirect_to root_path, notice: I18n.t("works.uneditable.approved")
     else
       update_work
     end
@@ -288,7 +288,7 @@ class WorksController < ApplicationController
       if @work.errors.count > 0
         message = @work.errors.to_a.join(", ")
       end
-      logger.warn("Invalid #{@work.current_transition}: #{error.message} errors: #{message}")
+      Honeybadger.notify("Invalid #{@work.current_transition}: #{error.message} errors: #{message}")
       @errors = ["Cannot #{@work.current_transition}: #{message}"]
       render error_action, status: :unprocessable_entity
     end

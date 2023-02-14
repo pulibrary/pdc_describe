@@ -14,7 +14,6 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
   let(:keywords) { "shock compression, forsterite, phase transition, amorphization" }
 
   before do
-    page.driver.browser.manage.window.resize_to(2000, 2000)
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_request(:get, "https://handle.stage.datacite.org/10.34770/gg40-tc15")
       .to_return(status: 200, body: "", headers: {})
@@ -111,7 +110,6 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       click_on "Add Another Funder"
       page.find(:xpath, "//table[@id='funding']//tr[7]//input[@name='funders[][ror]']").set "https://ror.org/018mejw64"
       page.find(:xpath, "//table[@id='funding']//tr[7]//input[@name='funders[][award_number]']").set "FOR2440"
-
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2020
@@ -127,18 +125,16 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       expect(femtosecond_work.title).to eq title
       expect(femtosecond_work.ark).to eq ark
 
-      # TODO: Reenable test -- Right now it's failing sporadically.
-      #       Not sure if it's a problem with the API, or the xpath, or something else.
-
-      # # Check that RORs were persisted as funder names
-      # funders = femtosecond_work.resource.funders.map(&:funder_name).uniq
-      # expect(funders).to contain_exactly("United States Department of Energy", "National Science Foundation", "Deutsche Forschungsgemeinschaft")
+      # Check that RORs were persisted as funder names
+      funders = femtosecond_work.resource.funders.map(&:funder_name).uniq
+      expect(funders).to contain_exactly("United States Department of Energy", "National Science Foundation", "Deutsche Forschungsgemeinschaft")
 
       # # Ensure the datacite record produced validates against our local copy of the datacite schema.
       # # This will allow us to evolve our local datacite standards and test our records against them.
-      # datacite = PDCSerialization::Datacite.new_from_work(femtosecond_work)
-      # expect(datacite.valid?).to eq true
-      # export_spec_data("femtosecond.json", femtosecond_work.to_json)
+      datacite = PDCSerialization::Datacite.new_from_work(femtosecond_work)
+      expect(datacite.valid?).to eq true
+      # expect(datacite.to_xml).to be_equivalent_to(File.read("spec/system/data_migration/femtosecond.xml"))
+      export_spec_data("femtosecond.json", femtosecond_work.to_json)
     end
   end
 end

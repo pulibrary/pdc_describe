@@ -2,8 +2,6 @@
 
 # rubocop:disable Metrics/ClassLength
 class Work < ApplicationRecord
-  MAX_UPLOADS = 20
-
   # Errors for cases where there is no valid Collection
   class InvalidCollectionError < ::ArgumentError; end
 
@@ -174,7 +172,6 @@ class Work < ApplicationRecord
     errors.add(:base, "Must provide a title") if resource.main_title.blank?
     validate_ark
     validate_creators
-    validate_uploads
     errors.count == 0
   end
 
@@ -204,7 +201,7 @@ class Work < ApplicationRecord
         key: upload.key,
         filename: upload.filename.to_s,
         created_at: upload.created_at,
-        url: rails_blob_path(upload, disposition: "attachment")
+        url: upload.url
       }
     end
   end
@@ -355,7 +352,12 @@ class Work < ApplicationRecord
   def uploads
     return post_curation_uploads if approved?
 
-    pre_curation_uploads
+    pre_curation_uploads_fast
+  end
+
+  # Fetches the data from S3 directly bypassing ActiveStorage
+  def pre_curation_uploads_fast
+    s3_query_service.client_s3_files.sort_by(&:filename)
   end
 
   # This ensures that new ActiveStorage::Attachment objects can be modified before they are persisted
@@ -469,8 +471,18 @@ class Work < ApplicationRecord
     }
   end
 
+  def pre_curation_uploads_count
+    s3_query_service.file_count
+  end
+
   delegate :ark, :doi, :resource_type, :resource_type=, :resource_type_general, :resource_type_general=,
            :to_xml, to: :resource
+
+  # S3QueryService object associated with this Work
+  # @return [S3QueryService]
+  def s3_query_service
+    @s3_query_service ||= S3QueryService.new(self, !approved?)
+  end
 
   protected
 
@@ -617,13 +629,6 @@ class Work < ApplicationRecord
       }
     end
 
-    def validate_uploads
-      # The number of pre-curation uploads should be validated, as these are mutated directly
-      if pre_curation_uploads.length > MAX_UPLOADS
-        errors.add(:base, "Only #{MAX_UPLOADS} files may be uploaded by a user to a given Work. #{pre_curation_uploads.length} files were uploaded for the Work: #{ark}")
-      end
-    end
-
     # This needs to be called #before_save
     # This ensures that new ActiveStorage::Attachment objects are persisted with custom keys (which are generated from the file name and DOI)
     # @param new_attachments [Array<ActiveStorage::Attachment>]
@@ -639,12 +644,6 @@ class Work < ApplicationRecord
 
         attachment.save
       end
-    end
-
-    # S3QueryService object associated with this Work
-    # @return [S3QueryService]
-    def s3_query_service
-      @s3_query_service = S3QueryService.new(self, !approved?)
     end
 
     # Request S3 Bucket Objects associated with this Work

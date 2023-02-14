@@ -168,8 +168,6 @@ RSpec.describe "Creating and updating works", type: :system do
     end
 
     it "allows users to modify the order of the creators", js: true do
-      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       creator = draft_work.resource.creators.first
       sign_in user
       visit edit_work_path(draft_work)
@@ -202,8 +200,6 @@ RSpec.describe "Creating and updating works", type: :system do
     end
 
     it "allows users to modify the order of the contributors", js: true do
-      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       sign_in user
       visit edit_work_path(draft_work)
       click_on "Additional Metadata"
@@ -216,8 +212,9 @@ RSpec.describe "Creating and updating works", type: :system do
       expect(contributor_text).to eq("Robert Smith  Simon Gallup")
 
       # drag the first contributor to the second contributor
-      source = page.all(".bi-arrow-down-up")[0].native
-      target = page.all(".bi-arrow-down-up")[1].native
+      # Rows in other tables also match this, so index may need to change.
+      source = page.all(".bi-arrow-down-up")[1].native
+      target = page.all(".bi-arrow-down-up")[2].native
       builder = page.driver.browser.action
       builder.drag_and_drop(source, target).perform
       contributor_text_after = page.find("#contributors-table").find_all("tr").map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
@@ -240,12 +237,30 @@ RSpec.describe "Creating and updating works", type: :system do
     let(:work) { FactoryBot.create(:draft_work) }
     let(:user) { work.created_by_user }
 
-    let(:uploaded_file1) do
-      fixture_file_upload("us_covid_2019.csv", "text/csv")
+    let(:s3_query_service_double) { instance_double(S3QueryService) }
+
+    let(:file1) do
+      S3File.new(
+        filename: "#{work.doi}/#{work.id}/us_covid_2020.csv",
+        last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+        size: 10_759,
+        checksum: "abc123",
+        query_service: s3_query_service_double
+      )
     end
-    let(:uploaded_file2) do
-      fixture_file_upload("us_covid_2019.csv", "text/csv")
+
+    let(:file2) do
+      S3File.new(
+        filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
+        last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
+        size: 12_739,
+        checksum: "abc567",
+        query_service: s3_query_service_double
+      )
     end
+
+    let(:s3_data) { [file1, file2] }
+
     let(:bucket_url) do
       "https://example-bucket.s3.amazonaws.com/"
     end
@@ -259,17 +274,20 @@ RSpec.describe "Creating and updating works", type: :system do
     end
 
     before do
-      stub_request(:put, /#{bucket_url}/).to_return(status: 200)
-      work.pre_curation_uploads.attach(uploaded_file1)
-      work.pre_curation_uploads.attach(uploaded_file2)
-
       sign_in user
+
+      allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
+      allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
+      allow(s3_query_service_double).to receive(:file_count).and_return(s3_data.count)
+      allow(s3_query_service_double).to receive(:client_s3_files).and_return(s3_data)
+      allow(s3_query_service_double).to receive(:file_url).and_return("https://something-something")
+
+      work.save
+      work.reload
       visit edit_work_path(work)
     end
 
     it "shows the uploads before and after errors", js: true do
-      # Make the screen larger so the save button is alway on screen.   This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       expect(page).to have_content "us_covid_2019.csv"
       fill_in "title_main", with: ""
       click_on "Save Work"
@@ -278,8 +296,6 @@ RSpec.describe "Creating and updating works", type: :system do
     end
 
     it "shows the uploads before and after a valid metadata save", js: true do
-      # Make the screen larger so the save button is alway on screen.  This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
       expect(page).to have_content "us_covid_2019.csv"
       fill_in "title_main", with: "updated title"
       click_on "Save Work"

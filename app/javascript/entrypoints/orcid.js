@@ -5,5 +5,3 @@ function isOrcid(value) {
 }
 
 window.isOrcid = isOrcid;
-
-export { isOrcid };
