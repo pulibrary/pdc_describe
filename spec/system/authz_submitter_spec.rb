@@ -15,8 +15,6 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
       Collection.create_defaults
       stub_s3
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
-      # Make the screen larger so the save button is alway on screen. This avoids random `Element is not clickable` errors
-      page.driver.browser.manage.window.resize_to(2000, 2000)
     end
 
     it "should not be able to edit someone else's work" do
@@ -51,8 +49,9 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
       # But other users cannot edit this work. If they try, they are redirected.
       sign_in submitter2
       visit edit_work_path(work)
-      expect(page).not_to have_content "Save Work"
       expect(current_path).to eq root_path
+      expect(page).not_to have_content "Save Work"
+      expect(page).to have_content "You do not have permission to edit this work"
     end
 
     it "should not be able to edit a collection to add curators and submitters" do

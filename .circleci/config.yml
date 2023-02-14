@@ -64,7 +64,9 @@ jobs:
       - install_dependencies
       - run:
           name: Run eslint
-          command: yarn run eslint app/assets app/javascript    
+          # Quote directory globs so not they are expanded by shell,
+          # and every file will be checked, regardless of extension.
+          command: yarn run eslint 'app/assets/javascripts/**' 'app/javascript/**'
 
   test:
     working_directory: *root

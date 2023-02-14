@@ -16,7 +16,6 @@ This dataset is too large to download directly from this item page. You can acce
   let(:file_upload) { Pathname.new(fixture_path).join("dataspace_migration", "attention", "Attention_Awareness_Dorsal_Attention_README.txt").to_s }
 
   before do
-    page.driver.browser.manage.window.resize_to(2000, 2000)
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_request(:get, "https://handle.stage.datacite.org/10.34770/9425-b553")
       .to_return(status: 200, body: "", headers: {})
@@ -71,6 +70,7 @@ This dataset is too large to download directly from this item page. You can acce
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(attention_work)
       expect(datacite.valid?).to eq true
+      expect(datacite.to_xml).to be_equivalent_to(File.read("spec/system/data_migration/attention.xml"))
     end
   end
 end

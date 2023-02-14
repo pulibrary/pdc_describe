@@ -231,7 +231,7 @@
 
       <dt>Location</dt>
       <dd>
-        <% if @work.pre_curation_uploads.present? %>
+        <% if @work.pre_curation_uploads_fast.present? %>
           Amazon S3 Curation Storage
         <% elsif @work.files_location_cluster? %>
           PUL Research Cluster
@@ -256,7 +256,7 @@
         </section>
       <% end %>
     <% else %>
-      <% if @work.pre_curation_uploads.present? %>
+      <% if @work.pre_curation_uploads_fast.present? %>
         <section class="uploads">
           <h2 class="h2"><%= t('works.uploads.pre_curation.heading') %></h2>
           <%= render(partial: 'works/uploads/pre_curation_s3_resources') %>
@@ -269,8 +269,6 @@
     <%= render 'work_activity_messages' %>
   </div>
 </div>
-
-<%= javascript_include_tag 'show_work_utils' %>
 
 <script>
   $(function() {

@@ -15,7 +15,6 @@ This dataset is too large to download directly from this item page. You can acce
   let(:doi) { "10.34770/zztk-f783" }
 
   before do
-    page.driver.browser.manage.window.resize_to(2000, 2000)
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_request(:get, "https://handle.stage.datacite.org/10.34770/zztk-f783")
       .to_return(status: 200, body: "", headers: {})
@@ -66,6 +65,7 @@ This dataset is too large to download directly from this item page. You can acce
       # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(bitklavier_work)
       expect(datacite.valid?).to eq true
+      expect(datacite.to_xml).to be_equivalent_to(File.read("spec/system/data_migration/bitklavier.xml"))
       export_spec_data("bitKlavier-binaural.json", bitklavier_work.to_json)
     end
   end

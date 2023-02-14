@@ -3,6 +3,7 @@
 require "aws-sdk-s3"
 
 # A service to query an S3 bucket for information about a given data set
+# rubocop:disable Metrics/ClassLength
 class S3QueryService
   attr_reader :model
 
@@ -16,14 +17,6 @@ class S3QueryService
 
   def self.post_curation_config
     configuration.post_curation
-  end
-
-  def self.url_protocol
-    "https"
-  end
-
-  def self.s3_host
-    "s3.amazonaws.com"
   end
 
   ##
@@ -72,6 +65,17 @@ class S3QueryService
   # Construct an S3 address for this data set
   def s3_address
     "s3://#{bucket_name}/#{prefix}"
+  end
+
+  ##
+  # Public signed URL to fetch this file from the S3 (valid for a limited time)
+  def file_url(key)
+    signer = Aws::S3::Presigner.new(client: client)
+    signer.presigned_url(:get_object, bucket: bucket_name, key: key)
+  end
+
+  def delete_file(key)
+    client.delete_object({ bucket: bucket_name, key: key })
   end
 
   # There is probably a better way to fetch the current ActiveStorage configuration but we have
@@ -136,29 +140,26 @@ class S3QueryService
 
   # Retrieve the S3 resources uploaded to the S3 Bucket
   # @return [Array<S3File>]
-  def client_s3_files
-    Rails.logger.debug("Bucket: #{bucket_name}")
-    Rails.logger.debug("Prefix: #{prefix}")
-    resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
-    resp_hash = resp.to_h
-    objects = parse_objects(resp_hash)
-
-    while resp_hash[:is_truncated]
-      token = resp_hash[:next_continuation_token]
-      resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix, continuation_token: token })
+  def client_s3_files(reload: false)
+    @client_s3_files = nil if reload # force a reload
+    @client_s3_files ||= begin
+      Rails.logger.debug("Bucket: #{bucket_name}")
+      Rails.logger.debug("Prefix: #{prefix}")
+      resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
       resp_hash = resp.to_h
-      more_objects = parse_objects(resp_hash)
-      objects += more_objects
+      objects = parse_objects(resp_hash)
+      objects += parse_continuation(resp_hash)
+      objects
     end
-
-    objects
   end
 
-  # Retrieve the S3 resources from the S3 Bucket without those attached to the Work model
-  # @return [Array<S3File>]
+  def file_count
+    client_s3_files.count
+  end
+
+  # TODO: delete this (or client_s3_files)
   def s3_files
-    model_s3_file_keys = model_s3_files.map(&:filename)
-    client_s3_files.reject { |client_s3_file| model_s3_file_keys.include?(client_s3_file.filename) }
+    client_s3_files
   end
 
   ##
@@ -198,18 +199,24 @@ class S3QueryService
     files
   end
 
+  def delete_s3_object(s3_file_key)
+    resp = client.delete_object({ bucket: bucket_name, key: s3_file_key })
+    resp.to_h
+  end
+
   private
 
     def model_uploads
       if pre_curation?
-        model.pre_curation_uploads
+        client_s3_files
       else
         []
       end
     end
 
-    def parse_objects(resp_hash)
+    def parse_objects(resp)
       objects = []
+      resp_hash = resp.to_h
       response_objects = resp_hash[:contents]
       Rails.logger.debug("Objects: #{response_objects}")
       response_objects&.each do |object|
@@ -219,4 +226,16 @@ class S3QueryService
       end
       objects
     end
+
+    def parse_continuation(resp_hash)
+      objects = []
+      while resp_hash[:is_truncated]
+        token = resp_hash[:next_continuation_token]
+        resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix, continuation_token: token })
+        resp_hash = resp.to_h
+        objects += parse_objects(resp_hash)
+      end
+      objects
+    end
 end
+# rubocop:enable Metrics/ClassLength
