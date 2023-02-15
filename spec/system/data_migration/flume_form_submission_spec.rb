@@ -51,7 +51,6 @@ The attached readme.txt file explains the data attributes"
 
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
-      byebug
       click_on "Complete"
       expect(page).to have_content "awaiting_approval"
       flume_work = Work.last

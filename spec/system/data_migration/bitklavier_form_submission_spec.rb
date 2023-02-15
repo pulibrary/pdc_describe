@@ -5,7 +5,7 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
   let(:user) { FactoryBot.create(:research_data_moderator) }
   let(:title) { "bitKlavier Grand Sample Library—Binaural Mic Image" }
   let(:description) do
-    "The bitKlavier Grand consists of sample collections of a new Steinway D grand piano from nine different stereo mic images, with: 16 velocity layers, at every minor 3rd (starting at A0); Hammer release samples; Release resonance samples; Pedal samples. Release packages at 96k/24bit, 88.2k/24bit, 48k/24bit, 44.1k/16bit are available for various applications. Binaural: Neumann KU100 This is the binaural head placed in the same location as a seated pianist. It accurately captures what the player would hear while playing the instrument. File Naming Convention: C4 = middle C. Main note names: [note name][octave]v[velocity].wav -- e.g., “D#5v13.wav”. Release resonance notes: harm[note name][octave]v[velocity].wav -- e.g., “harmC2v2.wav”. Hammer samples: rel[1-88].wav (one per key) -- e.g., “rel23.wav”. Pedal samples: pedal[D/U][velocity].wav -- e.g., “pedalU2.wav” => pedal release (U = up), velocity = 2 (quicker release than velocity = 1). 
+    "The bitKlavier Grand consists of sample collections of a new Steinway D grand piano from nine different stereo mic images, with: 16 velocity layers, at every minor 3rd (starting at A0); Hammer release samples; Release resonance samples; Pedal samples. Release packages at 96k/24bit, 88.2k/24bit, 48k/24bit, 44.1k/16bit are available for various applications. Binaural: Neumann KU100 This is the binaural head placed in the same location as a seated pianist. It accurately captures what the player would hear while playing the instrument. File Naming Convention: C4 = middle C. Main note names: [note name][octave]v[velocity].wav -- e.g., “D#5v13.wav”. Release resonance notes: harm[note name][octave]v[velocity].wav -- e.g., “harmC2v2.wav”. Hammer samples: rel[1-88].wav (one per key) -- e.g., “rel23.wav”. Pedal samples: pedal[D/U][velocity].wav -- e.g., “pedalU2.wav” => pedal release (U = up), velocity = 2 (quicker release than velocity = 1).
 This dataset is too large to download directly from this item page. You can access and download the data via Globus (See https://www.youtube.com/watch?v=uf2c7Y1fiFs for instructions on how to use Globus)."
   end
   let(:ark) { "ark:/88435/dsp015999n653h" }
@@ -54,7 +54,6 @@ This dataset is too large to download directly from this item page. You can acce
       click_on "Create"
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
-      byebug
       click_on "Complete"
       expect(page).to have_content "awaiting_approval"
       bitklavier_work = Work.last

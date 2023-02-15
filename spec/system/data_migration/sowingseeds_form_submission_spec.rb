@@ -60,7 +60,6 @@ Download the README.txt for a detailed description of this dataset's content."
       click_on "Curator Controlled"
       fill_in "ark", with: ark
       click_on "Create"
-      byebug
       click_on "Complete"
       click_on "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It"
 
