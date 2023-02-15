@@ -57,6 +57,7 @@ A full description of the structure of the dataset and how to reproduce the figu
       click_on "Create"
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
+      byebug
       click_on "Complete"
       expect(page).to have_content "awaiting_approval"
       baldwin_work = Work.last

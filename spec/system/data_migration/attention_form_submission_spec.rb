@@ -60,6 +60,7 @@ This dataset is too large to download directly from this item page. You can acce
       click_on "Create"
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
+      byebug
       click_on "Complete"
       expect(page).to have_content "awaiting_approval"
       attention_work = Work.last

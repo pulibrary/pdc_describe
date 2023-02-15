@@ -119,6 +119,7 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       click_on "Create"
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
+      byebug
       click_on "Complete"
       expect(page).to have_content "awaiting_approval"
       femtosecond_work = Work.last
