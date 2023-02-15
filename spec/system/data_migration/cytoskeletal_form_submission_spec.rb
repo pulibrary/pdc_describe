@@ -93,7 +93,6 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       click_on "Create"
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
-      byebug
       click_on "Complete"
       expect(page).to have_content "awaiting_approval"
       cytoskeletal_work = Work.last
