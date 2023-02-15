@@ -1,3 +1,6 @@
+/* eslint no-underscore-dangle: [ "error", { "allow": ["_rails_loaded"] } ] */
+/* eslint no-console: "off" */
+
 // To see this message, add the following to the `<head>` section in your
 // views/layouts/application.html.erb
 //
@@ -33,7 +36,7 @@ console.log('Visit the guide for more information: ', 'https://vite-ruby.netlify
 // ActiveStorage.start()
 //
 // Import all channels.
-const channels = import.meta.globEager('../channels/*.js');
+import.meta.globEager('../channels/*.js');
 
 if (typeof (window._rails_loaded) === 'undefined' || window._rails_loaded == null || !window._rails_loaded) {
   Rails.start();

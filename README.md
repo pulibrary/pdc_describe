@@ -1,4 +1,7 @@
+**Please note:** While this is open-source software, we would disourage anyone from trying to just check it out and run it. Princeton specifics, from styling to authentication and authorization, are hard coded, and we have not invested any time in the kind of configurabily that would be needed for use at another institution. Instead it should be taken as an example of breaking a monolithic project into separate components, and developing iteratively in response to local user feedback. 
+
 # pdc_describe
+
 Cataloging application for PDC content and more
 
 [![CircleCI](https://circleci.com/gh/pulibrary/pdc_describe/tree/main.svg?style=svg)](https://circleci.com/gh/pulibrary/pdc_describe/tree/main)

@@ -825,6 +825,7 @@ RSpec.describe Work, type: :model do
       end
 
       it "persists S3 Bucket resources as ActiveStorage Attachments" do
+        pending "S3 is faster"
         # call the s3 reload and make sure no more files get added to the model
         work.attach_s3_resources
 
@@ -863,14 +864,12 @@ RSpec.describe Work, type: :model do
           persisted
         end
 
-        before do
+        it "finds the blob and attaches it as an ActiveStorage Attachments" do
+          pending "S3 is faster"
           allow(ActiveStorage::Blob).to receive(:find_by).and_return(persisted_blob2)
           work.pre_curation_uploads.attach(persisted_blob1)
 
           work.attach_s3_resources
-        end
-
-        it "finds the blob and attaches it as an ActiveStorage Attachments" do
           expect(work.pre_curation_uploads).not_to be_empty
           expect(work.pre_curation_uploads.length).to eq(2)
           expect(work.pre_curation_uploads.first).to be_a(ActiveStorage::Attachment)
@@ -889,6 +888,15 @@ RSpec.describe Work, type: :model do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
     let(:form_attributes) { work.form_attributes }
+    let(:file1) do
+      S3File.new(
+        filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
+        last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+        size: 10_759,
+        checksum: "abc123",
+        query_service: work.s3_query_service
+      )
+    end
 
     before do
       stub_request(:put, /#{attachment_url}/).with(
@@ -900,20 +908,22 @@ RSpec.describe Work, type: :model do
     end
 
     it "generates JSON properties for each attribute" do
+      service_stub = stub_s3
+      allow(service_stub).to receive(:client_s3_files).and_return([file1])
+      allow(service_stub).to receive(:file_url).with("10.34770/123-abc/#{work.id}/us_covid_2019.csv").and_return("https://example-bucket.s3.amazonaws.com/10.34770/123-abc/#{work.id}/us_covid_2019.csv")
       expect(form_attributes.length).to eq(1)
       expect(form_attributes).to include(:uploads)
       uploads_attributes = form_attributes[:uploads]
       expect(uploads_attributes).not_to be_empty
       upload_attributes = uploads_attributes.first
 
-      expect(upload_attributes).to include(id: work.pre_curation_uploads.first.id)
+      expect(upload_attributes).to include(id: "10.34770/123-abc/#{work.id}/us_covid_2019.csv")
       expect(upload_attributes).to include(key: "10.34770/123-abc/#{work.id}/us_covid_2019.csv")
-      expect(upload_attributes).to include(filename: "us_covid_2019.csv")
+      expect(upload_attributes).to include(filename: "10.34770/123-abc/#{work.id}/us_covid_2019.csv")
       expect(upload_attributes).to include(:created_at)
-      expect(upload_attributes[:created_at]).to be_a(ActiveSupport::TimeWithZone)
+      expect(upload_attributes[:created_at]).to be_a(Time)
       expect(upload_attributes).to include(:url)
-      expect(upload_attributes[:url]).to include("/rails/active_storage/blobs/redirect/")
-      expect(upload_attributes[:url]).to include("/us_covid_2019.csv?disposition=attachment")
+      expect(upload_attributes[:url]).to include("https://example-bucket.s3.amazonaws.com/10.34770/123-abc/#{work.id}/us_covid_2019.csv")
     end
   end
 

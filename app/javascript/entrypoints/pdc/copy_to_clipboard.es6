@@ -9,7 +9,6 @@ export default class CopytoClipboard {
 
   copy_doi() {
     var doi = $('#copy-doi').data('url');
-    // value, iconEl, labelEl, normalClass, copiedClass
     this.copyToClipboard({
       value: doi,
       $icon: $('#copy-doi-icon'),
