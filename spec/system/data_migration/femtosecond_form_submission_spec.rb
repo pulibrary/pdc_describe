@@ -133,7 +133,7 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       # # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(femtosecond_work)
       expect(datacite.valid?).to eq true
-      # expect(datacite.to_xml).to be_equivalent_to(File.read("spec/system/data_migration/femtosecond.xml"))
+      expect(datacite.to_xml).to be_equivalent_to(File.read("spec/system/data_migration/femtosecond.xml"))
       export_spec_data("femtosecond.json", femtosecond_work.to_json)
     end
   end
