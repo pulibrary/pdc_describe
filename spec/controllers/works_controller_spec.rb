@@ -845,6 +845,43 @@ RSpec.describe WorksController do
       end
     end
 
+    describe "#file_list" do
+      before do
+        sign_in user
+      end
+
+      let(:file1) do
+        S3File.new(
+          filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt",
+          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+          size: 10_759,
+          checksum: "abc123",
+          query_service: nil
+        )
+      end
+
+      let(:file2) do
+        S3File.new(
+          filename: "#{work.doi}/#{work.id}/something.jpg",
+          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+          size: 10_759,
+          checksum: "abc123",
+          query_service: nil
+        )
+      end
+
+      let(:data) { [file1, file2] }
+      let(:fake_s3_service) { stub_s3(data: data) }
+
+      it "returns file list in JSON" do
+        allow(fake_s3_service).to receive(:client_s3_files).and_return(data)
+
+        get :file_list, params: { id: work.id }
+        file_list = JSON.parse(response.body)
+        expect(file_list.map { |f| f["filename"] }.sort).to eq(["10.34770/123-abc/#{work.id}/SCoData_combined_v1_2020-07_README.txt", "10.34770/123-abc/#{work.id}/something.jpg"])
+      end
+    end
+
     describe "ID redirection" do
       describe "#resolve_doi" do
         before do
