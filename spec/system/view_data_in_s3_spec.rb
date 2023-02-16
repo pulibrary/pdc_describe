@@ -67,7 +67,10 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
       work.save
 
       visit work_path(work)
+      # DataTables is active
       expect(page).to have_content "Showing 1 to 2 of 2 entries"
+      # and file are rendered as links pointing to the download endpoint
+      expect(page.body.include?("download?filename=10.34770/pe9w-x904/1/SCoData_combined_v1_2020-07_datapackage.json"))
     end
 
     context "when item is approved" do
