@@ -143,12 +143,12 @@ class S3QueryService
   def client_s3_files(reload: false)
     @client_s3_files = nil if reload # force a reload
     @client_s3_files ||= begin
-      start = Time.now
+      start = Time.zone.now
       resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
       resp_hash = resp.to_h
       objects = parse_objects(resp_hash)
       objects += parse_continuation(resp_hash)
-      elapsed = Time.now - start
+      elapsed = Time.zone.now - start
       Rails.logger.info("Loading S3 objects. Bucket: #{bucket_name}. Prefix: #{prefix}. Elapsed: #{elapsed} seconds")
       objects
     end
