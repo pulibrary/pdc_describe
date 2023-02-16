@@ -1,1 +1,180 @@
-<todo />
+<resource xsi:schemaLocation='http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://datacite.org/schema/kernel-4'>
+  <identifier identifierType='DOI'>10.34770/gg40-tc15</identifier>
+  <creators>
+    <creator>
+      <creatorName>Kim, Donghoon</creatorName>
+      <givenName>Donghoon</givenName>
+      <familyName>Kim</familyName>
+    </creator>
+    <creator>
+      <creatorName>Tracy, Sally J</creatorName>
+      <givenName>Sally J</givenName>
+      <familyName>Tracy</familyName>
+    </creator>
+    <creator>
+      <creatorName>Smith, Raymond F</creatorName>
+      <givenName>Raymond F</givenName>
+      <familyName>Smith</familyName>
+    </creator>
+    <creator>
+      <creatorName>Gleason, Arianna E</creatorName>
+      <givenName>Arianna E</givenName>
+      <familyName>Gleason</familyName>
+    </creator>
+    <creator>
+      <creatorName>Bolme, Cindy A</creatorName>
+      <givenName>Cindy A</givenName>
+      <familyName>Bolme</familyName>
+    </creator>
+    <creator>
+      <creatorName>Prakapenka, Vitali B</creatorName>
+      <givenName>Vitali B</givenName>
+      <familyName>Prakapenka</familyName>
+    </creator>
+    <creator>
+      <creatorName>Appel, Karen</creatorName>
+      <givenName>Karen</givenName>
+      <familyName>Appel</familyName>
+    </creator>
+    <creator>
+      <creatorName>Speziable, Sergio</creatorName>
+      <givenName>Sergio</givenName>
+      <familyName>Speziable</familyName>
+    </creator>
+    <creator>
+      <creatorName>Wicks, June K</creatorName>
+      <givenName>June K</givenName>
+      <familyName>Wicks</familyName>
+    </creator>
+    <creator>
+      <creatorName>Berryman, Eleanor J</creatorName>
+      <givenName>Eleanor J</givenName>
+      <familyName>Berryman</familyName>
+    </creator>
+    <creator>
+      <creatorName>Han, Sirus K</creatorName>
+      <givenName>Sirus K</givenName>
+      <familyName>Han</familyName>
+    </creator>
+    <creator>
+      <creatorName>Schoelmerich, Markus O</creatorName>
+      <givenName>Markus O</givenName>
+      <familyName>Schoelmerich</familyName>
+    </creator>
+    <creator>
+      <creatorName>Lee, Hae Ja</creatorName>
+      <givenName>Hae Ja</givenName>
+      <familyName>Lee</familyName>
+    </creator>
+    <creator>
+      <creatorName>Nagler, Bob</creatorName>
+      <givenName>Bob</givenName>
+      <familyName>Nagler</familyName>
+    </creator>
+    <creator>
+      <creatorName>Cunningham, Eric F</creatorName>
+      <givenName>Eric F</givenName>
+      <familyName>Cunningham</familyName>
+    </creator>
+    <creator>
+      <creatorName>Akin, Minta C</creatorName>
+      <givenName>Minta C</givenName>
+      <familyName>Akin</familyName>
+    </creator>
+    <creator>
+      <creatorName>Asimow, Paul D</creatorName>
+      <givenName>Paul D</givenName>
+      <familyName>Asimow</familyName>
+    </creator>
+    <creator>
+      <creatorName>Eggert, Jon H</creatorName>
+      <givenName>Jon H</givenName>
+      <familyName>Eggert</familyName>
+    </creator>
+    <creator>
+      <creatorName>Duffy, Thomas S</creatorName>
+      <givenName>Thomas S</givenName>
+      <familyName>Duffy</familyName>
+    </creator>
+  </creators>
+  <titles>
+    <title>Femtosecond X-ray Diffraction of Laser-shocked Forsterite (Mg2SiO4) to 122 GPa</title>
+  </titles>
+  <publisher>Princeton University</publisher>
+  <resourceType resourceTypeGeneral='Dataset'/>
+  <publicationYear>2020</publicationYear>
+  <fundingReferences>
+    <fundingReference>
+      <funderName>United States Department of Energy</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01bj3aw27</funderIdentifier>
+      <awardNumber awardURI=''>DE-SC0018925</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>United States Department of Energy</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01bj3aw27</funderIdentifier>
+      <awardNumber awardURI=''>DE-AC02-76SF00515</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>National Science Foundation</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/021nxhr62</funderIdentifier>
+      <awardNumber awardURI=''>EAR-1644614</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>National Science Foundation</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/021nxhr62</funderIdentifier>
+      <awardNumber awardURI=''>EAR-1446969</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>National Science Foundation</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/021nxhr62</funderIdentifier>
+      <awardNumber awardURI=''>EAR-1725349</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>Deutsche Forschungsgemeinschaft</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/018mejw64</funderIdentifier>
+      <awardNumber awardURI=''>AP 262/2-1</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>Deutsche Forschungsgemeinschaft</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/018mejw64</funderIdentifier>
+      <awardNumber awardURI=''>FOR2440</awardNumber>
+    </fundingReference>
+  </fundingReferences>
+  <relatedIdentifiers>
+    <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp01rj4307478</relatedIdentifier>
+  </relatedIdentifiers>
+  <version>1</version>
+  <rightsList>
+    <rights rightsURI='https://creativecommons.org/licenses/by/4.0/' rightsIdentifier='CC BY'>Creative Commons Attribution 4.0 International</rights>
+  </rightsList>
+  <descriptions>
+    <description descriptionType='Other'>
+      The behavior of forsterite, Mg2SiO4, under dynamic compression is of
+      fundamental importance for understanding its phase transformations and
+      high-pressure behavior. Here, we have carried out an in situ X-ray
+      diffraction study of laser-shocked poly- and single-crystal forsterite
+      (a-, b-, and c- orientations) from 19 to 122 GPa using the Matter in
+      Extreme Conditions end-station of the Linac Coherent Light Source. Under
+      laser-based shock loading, forsterite does not transform to the
+      high-pressure equilibrium assemblage of MgSiO3 bridgmanite and MgO
+      periclase, as was suggested previously. Instead, we observe forsterite and
+      forsterite III, a metastable polymorph of Mg2SiO4, coexisting in a
+      mixed-phase region from 33 to 75 GPa for both polycrystalline and
+      single-crystal samples. Densities inferred from X-ray diffraction data are
+      consistent with earlier gas-gun shock data. At higher stress, the behavior
+      observed is sample-dependent. Polycrystalline samples undergo
+      amorphization above 79 GPa. For [010]- and [001]-oriented crystals, a
+      mixture of crystalline and amorphous material is observed to 108 GPa,
+      whereas the [100]-oriented crystal adopts an unknown crystal structure at
+      122 GPa. The Q values of the first two sharp diffraction peaks of
+      amorphous Mg2SiO4 show a similar trend with compression as those observed
+      for MgSiO3 glass in both recent static and laser-compression experiments.
+      Upon release to ambient pressure, all samples retain or revert to
+      forsterite with evidence for amorphous material also present in some
+      cases. This study demonstrates the utility of femtosecond free-electron
+      laser X-ray sources for probing the time evolution of high-pressure
+      silicates through the nanosecond-scale events of shock compression and
+      release.
+    </description>
+  </descriptions>
+</resource>
