@@ -165,7 +165,10 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
       click_on "Additional Metadata"
       find(:xpath, "(//i[@class='bi bi-trash btn-del-row'])[1]").click
       click_on "Save Work"
-      expect(page).not_to have_content("National Science Foundation")
+      work.reload
+      funders = work.resource.funders.map(&:funder_name)
+      # Can't check for absence of "National Science Foundation" on the page bc it exists in the changelog
+      expect(funders).to contain_exactly("National Sigh, Hence Foundation")
       expect(page).to have_content("National Sigh, Hence Foundation")
 
       # Test row reordering
