@@ -35,6 +35,7 @@ Rails.application.routes.draw do
   put "works/:id/assign-curator/:uid", to: "works#assign_curator", as: :work_assign_curator
   get "works/:id/datacite", to: "works#datacite", as: :datacite_work
   get "works/:id/datacite/validate", to: "works#datacite_validate", as: :datacite_validate_work
+  get "works/:id/download", controller: "work_downloader", action: "download"
   resources :works
   match "/doi/*doi", via: :get, to: "works#resolve_doi", as: :resolve_doi, format: false
   match "/ark/*ark", via: :get, to: "works#resolve_ark", as: :resolve_ark, format: false

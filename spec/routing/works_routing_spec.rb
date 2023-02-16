@@ -19,6 +19,10 @@ RSpec.describe WorksController, type: :routing do
       expect(patch: "/works/1").to route_to("works#update", id: "1")
     end
 
+    it "routes to #download" do
+      expect(get: "/works/1/download?file=abc123").to route_to("work_downloader#download", id: "1", file: "abc123")
+    end
+
     context "when the Work has an ARK" do
       let(:ark) { "ark:/88435/dsp01zc77st047" }
 
