@@ -47,7 +47,7 @@
       columnDefs: [
         {
           render: function (data, type, row) {
-            return `<a href="<%= @work.id %>/download/${data}">${data}</a>`;
+            return `<a href="<%= @work.id %>/download?filename=${data}">${data}</a>`;
           },
           targets: 0,
         }
