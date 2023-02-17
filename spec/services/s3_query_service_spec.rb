@@ -255,7 +255,7 @@ RSpec.describe S3QueryService, mock_s3_query_service: false do
     end
 
     subject(:s3_query_service) { described_class.new(work) }
-    let(:s3_file) { S3File.new(filename: "test_key", last_modified: Time.zone.now, size: 12_739, checksum: "abc567") }
+    let(:s3_file) { FactoryBot.build :s3_file, filename: "test_key" }
 
     before do
       stub_request(:delete, "https://example-bucket.s3.amazonaws.com/test_key").to_return(status: 200)

@@ -25,31 +25,25 @@ RSpec.describe WorkUploadsEditService do
 
   let(:s3_query_service_double) { instance_double(S3QueryService) }
   let(:s3_file1) do
-    S3File.new(
-      filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
-      last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-      size: 10_759,
-      checksum: "abc123",
-      query_service: s3_query_service_double
-    )
+    FactoryBot.build(:s3_file, work: work,
+                               filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
+                               last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+                               size: 10_759,
+                               checksum: "abc123")
   end
   let(:s3_file2) do
-    S3File.new(
-      filename: "#{work.doi}/#{work.id}/us_covid_2020.csv",
-      last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
-      size: 12_739,
-      checksum: "abc567",
-      query_service: s3_query_service_double
-    )
+    FactoryBot.build(:s3_file, work: work,
+                               filename: "#{work.doi}/#{work.id}/us_covid_2020.csv",
+                               last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
+                               size: 12_739,
+                               checksum: "abc567")
   end
   let(:s3_file3) do
-    S3File.new(
-      filename: "#{work.doi}/#{work.id}/orcid.csv",
-      last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
-      size: 12_739,
-      checksum: "abc567",
-      query_service: s3_query_service_double
-    )
+    FactoryBot.build(:s3_file, work: work,
+                               filename: "#{work.doi}/#{work.id}/orcid.csv",
+                               last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
+                               size: 12_739,
+                               checksum: "abc567")
   end
   let(:s3_data) { [s3_file1, s3_file2] }
 
@@ -100,13 +94,11 @@ RSpec.describe WorkUploadsEditService do
   context "When upload replacements are in the params" do
     let(:attachment_url) { "#{bucket_url}#{work.doi}/#{work.id}/us_covid_2020.csv" }
     let(:s3_file4) do
-      S3File.new(
-        filename: "#{work.doi}/#{work.id}/datacite_basic.xml",
-        last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
-        size: 12_739,
-        checksum: "abc567",
-        query_service: s3_query_service_double
-      )
+      FactoryBot.build(:s3_file, work: work,
+                                 filename: "#{work.doi}/#{work.id}/datacite_basic.xml",
+                                 last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
+                                 size: 12_739,
+                                 checksum: "abc567")
     end
 
     let(:params) { { "work_id" => "", "replaced_uploads" => { work.pre_curation_uploads_fast.last.key => uploaded_file4 } }.with_indifferent_access }

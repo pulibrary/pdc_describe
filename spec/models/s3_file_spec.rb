@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe S3File, type: :model do
-  subject(:s3_file) { described_class.new(filename: filename, last_modified: last_modified, size: size, checksum: checksum, query_service: query_service) }
+  subject(:s3_file) { described_class.new(filename: filename, last_modified: last_modified, size: size, checksum: checksum, work: FactoryBot.create(:draft_work)) }
   let(:filename) { "10-34770/pe9w-x904/filename [with spaces] wéî®∂ chars.txt" }
   let(:last_modified) { Time.parse("2022-04-21T18:29:40.000Z") }
   let(:size) { 10_759 }
@@ -39,7 +39,8 @@ RSpec.describe S3File, type: :model do
         filename: "abc123/111/SCoData_combined_v1_2020-07_README.txt",
         last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
         size: 12_739,
-        checksum: "abc567"
+        checksum: "abc567",
+        work: FactoryBot.create(:draft_work)
       )
     end
 

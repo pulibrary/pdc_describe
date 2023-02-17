@@ -239,25 +239,9 @@ RSpec.describe "Creating and updating works", type: :system do
 
     let(:s3_query_service_double) { instance_double(S3QueryService) }
 
-    let(:file1) do
-      S3File.new(
-        filename: "#{work.doi}/#{work.id}/us_covid_2020.csv",
-        last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-        size: 10_759,
-        checksum: "abc123",
-        query_service: s3_query_service_double
-      )
-    end
+    let(:file1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2020.csv", work: work }
 
-    let(:file2) do
-      S3File.new(
-        filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
-        last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
-        size: 12_739,
-        checksum: "abc567",
-        query_service: s3_query_service_double
-      )
-    end
+    let(:file2) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work: work }
 
     let(:s3_data) { [file1, file2] }
 

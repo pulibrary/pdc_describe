@@ -11,24 +11,8 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
     let(:user) { FactoryBot.create :princeton_submitter }
     let(:work) { FactoryBot.create(:shakespeare_and_company_work, created_by_user_id: user.id) }
     let(:s3_query_service_double) { instance_double(S3QueryService) }
-    let(:file1) do
-      S3File.new(
-        filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt",
-        last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-        size: 10_759,
-        checksum: "abc123",
-        query_service: s3_query_service_double
-      )
-    end
-    let(:file2) do
-      S3File.new(
-        filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json",
-        last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
-        size: 12_739,
-        checksum: "abc567",
-        query_service: s3_query_service_double
-      )
-    end
+    let(:file1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt", work: work }
+    let(:file2) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json", work: work }
     let(:s3_data) { [file1, file2] }
 
     let(:bucket_url) do
