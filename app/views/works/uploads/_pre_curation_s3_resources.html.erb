@@ -2,13 +2,13 @@
   <div class="lux">
     <div class="card">
       <div class="files card-body">
-        <!-- Only render file download table if there are files in S3 -->
         <h3><%= "#{@work.pre_curation_uploads_count} #{'File'.pluralize(@work.pre_curation_uploads_count)}"%> in precuration storage  </h3>
         <table id="files-table" class="table">
           <thead>
             <tr>
               <th scope="col" nowrap="nowrap"><span><%= t('works.form.curation_uploads.filename') %></span></th>
               <th scope="col"><span><%= t('works.form.curation_uploads.created_at') %></span></th>
+              <th scope="col"><span>Size</span></th>
             </tr>
           </thead>
           <tbody>
@@ -17,20 +17,6 @@
                 <td><span><%= t('works.form.curation_uploads.empty') %></span></td>
                 <td><span></span></td>
               </tr>
-              <% else %>
-                <% @work.pre_curation_uploads_fast.sort_by(&:filename).each_with_index do |file, ix| %>
-                <tr class="files">
-                  <td>
-                    <span>
-                      <i class="bi bi-file-arrow-down"></i>
-                      <a href="<%= file.url %>" class="documents-file-link" target="_blank" title="<%= file.filename %>"><%= pre_curation_uploads_file_name(file: file) %></a>
-                    </span>
-                  </td>
-                  <td>
-                    <span><%= file.created_at %></span>
-                  </td>
-                </tr>
-                <% end %>
               <% end %>
             </tr>
           </tbody>
@@ -41,3 +27,31 @@
     </div>
   </div>
 </section>
+
+<script type="text/javascript">
+  $(function() {
+    // Wire DataTable for the file list.
+    // Related documentation
+    //   AJAX loading: https://datatables.net/manual/ajax
+    //   Column display configuration: https://datatables.net/examples/advanced_init/column_render.html
+    $('#files-table').DataTable({
+      ajax: {
+        url: '<%= work_file_list_path(@work) %>',
+        dataSrc: ''
+      },
+      columns: [
+        { data: 'filename' },
+        { data: 'last_modified' },
+        { data: 'size' }
+      ],
+      columnDefs: [
+        {
+          render: function (data, type, row) {
+            return `<a href="<%= @work.id %>/download?filename=${data}">${data}</a>`;
+          },
+          targets: 0,
+        }
+      ]
+    });
+  });
+</script>

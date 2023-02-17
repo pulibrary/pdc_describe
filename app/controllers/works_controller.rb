@@ -80,6 +80,19 @@ class WorksController < ApplicationController
     end
   end
 
+  def file_list
+    @work = Work.find(params[:id])
+    # @work.pre_curation_uploads_fast is an array of S3File elements (which contain a
+    # reference to S3QueryService). Because of this reference an innocent call to to_json
+    # also serializes the S3QueryService object and this takes forever on large arrays.
+    # To prevent this behavior we create a simple hash with the properties that we need
+    # so that the conversion to JSON is plain and fast.
+    files = @work.pre_curation_uploads_fast.map do |file|
+      { filename: file.filename, last_modified: file.last_modified, size: file.size }
+    end
+    render json: files
+  end
+
   def resolve_doi
     @work = Work.find_by_doi(params[:doi])
     redirect_to @work

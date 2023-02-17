@@ -57,6 +57,22 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
       expect(page).to have_content file2.filename
     end
 
+    it "uses DataTable to display files" do
+      allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
+      allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
+      allow(s3_query_service_double).to receive(:file_count).and_return(s3_data.count)
+      allow(s3_query_service_double).to receive(:client_s3_files).and_return(s3_data)
+      allow(s3_query_service_double).to receive(:file_url).and_return("https://something-something")
+
+      work.save
+
+      visit work_path(work)
+      # DataTables is active
+      expect(page).to have_content "Showing 1 to 2 of 2 entries"
+      # and file are rendered as links pointing to the download endpoint
+      expect(page.body.include?("download?filename=10.34770/pe9w-x904/1/SCoData_combined_v1_2020-07_datapackage.json"))
+    end
+
     context "when item is approved" do
       let(:work) { FactoryBot.create(:approved_work) }
       it "shows data from S3" do
