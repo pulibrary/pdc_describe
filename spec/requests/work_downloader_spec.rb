@@ -19,7 +19,7 @@ RSpec.describe "WorkDownloaders", type: :request do
 
     describe "GET /download" do
       it "Does not allow download for any random user" do
-        get "/works/#{work.id}/download?filename=abc123"
+        get work_download_path(work, filename: "abc123")
         expect(response).to redirect_to(root_path)
       end
 
@@ -31,7 +31,7 @@ RSpec.describe "WorkDownloaders", type: :request do
           fake_s3_service = stub_s3 data: [file]
           allow(fake_s3_service).to receive(:file_url).with(file.key).and_return("https://example-bucket.s3.amazonaws.com/#{file.key}")
 
-          get "/works/#{work.id}/download?filename=#{file.key}"
+          get work_download_path(work, filename: file.key)
           expect(response.code).to redirect_to("https://example-bucket.s3.amazonaws.com/#{file.key}")
           expect(fake_s3_service).to have_received(:file_url).once
         end

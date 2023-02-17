@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 class S3File
-  attr_accessor :filename, :last_modified, :size, :checksum
+  include Rails.application.routes.url_helpers
+
+  attr_accessor :filename, :last_modified, :size, :checksum, :url
   alias key filename
   alias id filename
 
-  def initialize(filename:, last_modified:, size:, checksum:, query_service: nil)
+  def initialize(filename:, last_modified:, size:, checksum:, work:)
     @filename = filename
     @last_modified = last_modified
     @size = size
     @checksum = checksum.delete('"')
-    @query_service = query_service
+    @url = work_download_path(work, filename: filename)
   end
 
   def created_at
@@ -18,10 +20,6 @@ class S3File
 
   def byte_size
     size
-  end
-
-  def url
-    @query_service.file_url(key)
   end
 
   def globus_url

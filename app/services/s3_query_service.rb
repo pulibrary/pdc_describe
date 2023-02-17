@@ -107,7 +107,7 @@ class S3QueryService
     return objects if model.nil?
 
     model_uploads.each do |attachment|
-      s3_file = S3File.new(query_service: self,
+      s3_file = S3File.new(work: model,
                            filename: attachment.key,
                            last_modified: attachment.created_at,
                            size: attachment.byte_size,
@@ -135,7 +135,7 @@ class S3QueryService
     object = get_s3_object(key: s3_object_key)
     return if object.nil?
 
-    S3File.new(query_service: self, filename: s3_object_key, last_modified: object[:last_modified], size: object[:content_length], checksum: object[:etag])
+    S3File.new(work: model, filename: s3_object_key, last_modified: object[:last_modified], size: object[:content_length], checksum: object[:etag])
   end
 
   # Retrieve the S3 resources uploaded to the S3 Bucket
@@ -221,7 +221,7 @@ class S3QueryService
       response_objects = resp_hash[:contents]
       response_objects&.each do |object|
         next if object[:size] == 0 # ignore directories whose size is zero
-        s3_file = S3File.new(query_service: self, filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
+        s3_file = S3File.new(work: model, filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
         objects << s3_file
       end
       objects

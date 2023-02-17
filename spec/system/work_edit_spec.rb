@@ -9,35 +9,9 @@ RSpec.describe "Creating and updating works", type: :system, js: true, mock_s3_q
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
 
-  let(:contents1) do
-    S3File.new(
-      filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
-      last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-      size: 92,
-      checksum: "abc123",
-      query_service: work.s3_query_service
-    )
-  end
-
-  let(:contents2) do
-    S3File.new(
-      filename: "#{work.doi}/#{work.id}/us_covid_2020.csv",
-      last_modified: Time.parse("2022-04-21T19:29:40.000Z"),
-      size: 114,
-      checksum: "abc567",
-      query_service: work.s3_query_service
-    )
-  end
-
-  let(:contents3) do
-    S3File.new(
-      filename: "#{work.doi}/#{work.id}/orcid.csv",
-      last_modified: Time.parse("2022-04-21T19:29:40.000Z"),
-      size: 114,
-      checksum: "abc567",
-      query_service: work.s3_query_service
-    )
-  end
+  let(:contents1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work: work }
+  let(:contents2) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2020.csv", work: work }
+  let(:contents3) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/orcid.csv", work: work }
 
   let(:s3_hash) { [contents1, contents2] }
   let(:s3_hash_after_delete) { [contents2] }

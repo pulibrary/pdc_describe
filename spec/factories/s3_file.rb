@@ -6,10 +6,10 @@ FactoryBot.define do
     last_modified { Time.zone.now }
     size { 10_759 }
     checksum { "abc123" }
-    query_service { nil }
+    work { FactoryBot.create :draft_work }
     initialize_with do
       new(filename: filename, last_modified: last_modified, size: size,
-          checksum: checksum, query_service: query_service)
+          checksum: checksum, work: work)
     end
   end
 end

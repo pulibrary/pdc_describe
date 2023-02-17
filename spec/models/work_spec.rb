@@ -162,20 +162,8 @@ RSpec.describe Work, type: :model do
     let(:post_curation_data_profile) do
       {
         objects: [
-          S3File.new(
-            query_service: pre_curated_query_service,
-            filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
-            last_modified: nil,
-            size: 1024,
-            checksum: ""
-          ),
-          S3File.new(
-            query_service: pre_curated_query_service,
-            filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv",
-            last_modified: nil,
-            size: 2048,
-            checksum: ""
-          )
+          FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work: work, size: 1024),
+          FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv", work: work, size: 2048)
         ]
       }
     end
@@ -791,20 +779,19 @@ RSpec.describe Work, type: :model do
 
       let(:s3_query_service_double) { instance_double(S3QueryService) }
       let(:file1) do
-        S3File.new(
-        filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt",
-        last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-        size: 10_759,
-        checksum: "abc123"
-      )
+        FactoryBot.build(:s3_file,
+                          filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt",
+                          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
+                          size: 10_759,
+                          checksum: "abc123",
+                          work: work)
       end
       let(:file2) do
-        S3File.new(
+        FactoryBot.build(:s3_file,
           filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json",
           last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
           size: 12_739,
-          checksum: "abc567"
-        )
+          checksum: "abc567")
       end
       let(:s3_data) { [file1, file2] }
       let(:bucket_url) do
@@ -889,13 +876,12 @@ RSpec.describe Work, type: :model do
     end
     let(:form_attributes) { work.form_attributes }
     let(:file1) do
-      S3File.new(
+      FactoryBot.build(:s3_file,
         filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
         last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
         size: 10_759,
         checksum: "abc123",
-        query_service: work.s3_query_service
-      )
+        work: work)
     end
 
     before do
@@ -923,7 +909,7 @@ RSpec.describe Work, type: :model do
       expect(upload_attributes).to include(:created_at)
       expect(upload_attributes[:created_at]).to be_a(Time)
       expect(upload_attributes).to include(:url)
-      expect(upload_attributes[:url]).to include("https://example-bucket.s3.amazonaws.com/10.34770/123-abc/#{work.id}/us_covid_2019.csv")
+      expect(upload_attributes[:url]).to eq("/works/#{work.id}/download?filename=10.34770%2F123-abc%2F#{work.id}%2Fus_covid_2019.csv")
     end
   end
 

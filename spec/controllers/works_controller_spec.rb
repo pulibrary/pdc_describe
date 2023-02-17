@@ -472,14 +472,7 @@ RSpec.describe WorksController do
       end
 
       context "when the Work has not been curated" do
-        let(:file1) do
-          S3File.new(
-            filename: "SCoData_combined_v1_2020-07_README.txt",
-            last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-            size: 10_759,
-            checksum: "abc123"
-          )
-        end
+        let(:file1) { FactoryBot.build :s3_file, filename: "SCoData_combined_v1_2020-07_README.txt", work: work }
 
         let(:fake_s3_service) { stub_s3 }
         before do
@@ -512,22 +505,8 @@ RSpec.describe WorksController do
           FactoryBot.create :user, collections_to_admin: [work.collection]
         end
         let(:s3_query_service_double) { instance_double(S3QueryService) }
-        let(:file1) do
-          S3File.new(
-            filename: "SCoData_combined_v1_2020-07_README.txt",
-            last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-            size: 10_759,
-            checksum: "abc123"
-          )
-        end
-        let(:file2) do
-          S3File.new(
-            filename: "SCoData_combined_v1_2020-07_datapackage.json",
-            last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
-            size: 12_739,
-            checksum: "abc567"
-          )
-        end
+        let(:file1) { FactoryBot.build :s3_file, filename: "SCoData_combined_v1_2020-07_README.txt", work: work }
+        let(:file2) { FactoryBot.build :s3_file, filename: "SCoData_combined_v1_2020-07_datapackage.json", work: work }
         let(:s3_data) { [file1, file2] }
         let(:bucket_url) do
           "https://example-bucket.s3.amazonaws.com/"
@@ -598,22 +577,8 @@ RSpec.describe WorksController do
         ]
       end
 
-      let(:file1) do
-        S3File.new(
-          filename: uploaded_file1.path,
-          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-          size: 10_759,
-          checksum: "abc123"
-        )
-      end
-      let(:file2) do
-        S3File.new(
-          filename: uploaded_file2.path,
-          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-          size: 10_759,
-          checksum: "abc123"
-        )
-      end
+      let(:file1) { FactoryBot.build :s3_file, filename: uploaded_file1.path, work: work }
+      let(:file2) { FactoryBot.build :s3_file, filename: uploaded_file2.path, work: work }
 
       let(:bucket_url) do
         "https://example-bucket.s3.amazonaws.com/"
@@ -850,25 +815,8 @@ RSpec.describe WorksController do
         sign_in user
       end
 
-      let(:file1) do
-        S3File.new(
-          filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt",
-          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-          size: 10_759,
-          checksum: "abc123",
-          query_service: nil
-        )
-      end
-
-      let(:file2) do
-        S3File.new(
-          filename: "#{work.doi}/#{work.id}/something.jpg",
-          last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
-          size: 10_759,
-          checksum: "abc123",
-          query_service: nil
-        )
-      end
+      let(:file1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt", work: work }
+      let(:file2) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/something.jpg", work: work }
 
       let(:data) { [file1, file2] }
       let(:fake_s3_service) { stub_s3(data: data) }
