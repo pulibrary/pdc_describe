@@ -53,8 +53,21 @@ class UsersController < ApplicationController
 
     # Use callbacks to share common setup or constraints between actions.
     def set_user
-      @user = User.friendly.find(params[:id])
-      redirect_to action: action_name, id: @user.friendly_id, status: :moved_permanently unless @user.friendly_id == params[:id]
+      user_id = user_id_from_url
+      @user = User.friendly.find(user_id)
+      redirect_to action: action_name, id: @user.friendly_id, status: :moved_permanently unless @user.friendly_id == user_id
+    end
+
+    def user_id_from_url
+      # For external users UID is in the form `user-name@gmail.com`, however, Rails eats the ".com" from
+      # the UID and dumps it into the `format` param. Here we make sure the ".com" is preserved when the
+      # UID looks to be an external user id.
+      external_uid = params[:id].include?("@")
+      if external_uid && params["format"] == "com"
+        "#{params[:id]}.#{params['format']}"
+      else
+        params[:id]
+      end
     end
 
     # Only allow a list of trusted parameters through.
