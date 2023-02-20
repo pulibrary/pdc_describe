@@ -47,9 +47,21 @@
       columnDefs: [
         {
           render: function (data, type, row) {
-            return `<a href="<%= @work.id %>/download?filename=${data}">${data}</a>`;
+            // filename
+            return `<a href="<%= @work.id %>/download?filename=${data}">${row.filename_display}</a>`;
           },
           targets: 0,
+        },
+        {
+          render: function (data, type, row) {
+            // size
+            if (type == "display") {
+              // with commas
+              return data.toLocaleString("en-US");
+            }
+            return data;
+          },
+          targets: 2,
         }
       ]
     });
