@@ -2,12 +2,13 @@
 class S3File
   include Rails.application.routes.url_helpers
 
-  attr_accessor :filename, :last_modified, :size, :checksum, :url
+  attr_accessor :filename, :last_modified, :size, :checksum, :url, :filename_display
   alias key filename
   alias id filename
 
   def initialize(filename:, last_modified:, size:, checksum:, work:)
     @filename = filename
+    @filename_display = filename_short(work, filename)
     @last_modified = last_modified
     @size = size
     @checksum = checksum.delete('"')
@@ -40,4 +41,16 @@ class S3File
     blob.key = filename
     blob
   end
+
+  private
+
+    # Filename without the DOI/work-id/ in the path (but we preserve other path information if there is any)
+    def filename_short(work, filename)
+      prefix = "#{work.doi}/#{work.id}/"
+      if filename.start_with?(prefix)
+        filename[prefix.length..]
+      else
+        filename
+      end
+    end
 end

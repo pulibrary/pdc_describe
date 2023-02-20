@@ -2,8 +2,9 @@
 require "rails_helper"
 
 RSpec.describe S3File, type: :model do
-  subject(:s3_file) { described_class.new(filename: filename, last_modified: last_modified, size: size, checksum: checksum, work: FactoryBot.create(:draft_work)) }
-  let(:filename) { "10-34770/pe9w-x904/filename [with spaces] wéî®∂ chars.txt" }
+  subject(:s3_file) { described_class.new(filename: filename, last_modified: last_modified, size: size, checksum: checksum, work: work) }
+  let(:work) { FactoryBot.create(:draft_work) }
+  let(:filename) { "#{work.doi}/#{work.id}/filename [with spaces] wéî®∂ chars.txt" }
   let(:last_modified) { Time.parse("2022-04-21T18:29:40.000Z") }
   let(:size) { 10_759 }
   let(:checksum) { "abc123" }
@@ -24,9 +25,16 @@ RSpec.describe S3File, type: :model do
     end
   end
 
+  context "filename and filename display" do
+    it "preserves path where appropriate" do
+      expect(s3_file.filename).to eq "#{work.doi}/#{work.id}/filename [with spaces] wéî®∂ chars.txt"
+      expect(s3_file.filename_display).to eq "filename [with spaces] wéî®∂ chars.txt"
+    end
+  end
+
   describe "#globus_url" do
     it "builds the URL for the S3 endpoint" do
-      expect(s3_file.globus_url).to match(%r{^https://example.data.globus.org/10-34770/pe9w-x904/filename})
+      expect(s3_file.globus_url).to match(%r{^https://example.data.globus.org/#{work.doi}/#{work.id}/filename})
       url_file = s3_file.globus_url.split("/").last
       expect(url_file).to eq("filename%20%5Bwith%20spaces%5D%20w%C3%A9%C3%AE%C2%AE%E2%88%82%20chars.txt")
       expect(CGI.unescape(url_file)).to eq(filename.split("/").last)
