@@ -55,4 +55,10 @@ FactoryBot.define do
       User.new_super_admin(user.uid)
     end
   end
+
+  factory :external_user, class: "User" do
+    uid { FFaker::InternetSE.user_name + "@gmail.com"}
+    email { "#{uid}@princeton.edu" }
+    provider { :cas }
+  end
 end
