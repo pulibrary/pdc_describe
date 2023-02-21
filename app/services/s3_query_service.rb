@@ -100,24 +100,6 @@ class S3QueryService
     @client ||= Aws::S3::Client.new(region: region, credentials: credentials)
   end
 
-  # Retrieve the S3 resources attached to the Work model
-  # @return [Array<S3File>]
-  def model_s3_files
-    objects = []
-    return objects if model.nil?
-
-    model_uploads.each do |attachment|
-      s3_file = S3File.new(work: model,
-                           filename: attachment.key,
-                           last_modified: attachment.created_at,
-                           size: attachment.byte_size,
-                           checksum: attachment.checksum)
-      objects << s3_file
-    end
-
-    objects
-  end
-
   def get_s3_object(key:)
     response = client.get_object({
                                    bucket: bucket_name,
@@ -140,7 +122,7 @@ class S3QueryService
 
   # Retrieve the S3 resources uploaded to the S3 Bucket
   # @return [Array<S3File>]
-  def client_s3_files(reload: false)
+  def client_s3_files(reload: false, bucket_name: self.bucket_name)
     @client_s3_files = nil if reload # force a reload
     @client_s3_files ||= begin
       start = Time.zone.now
@@ -184,10 +166,11 @@ class S3QueryService
   # Notice that the copy process happens at AWS (i.e. the files are not downloaded and re-uploaded).
   # Returns an array with the files that were copied.
   def publish_files
-    files = []
     source_bucket = S3QueryService.pre_curation_config[:bucket]
     target_bucket = S3QueryService.post_curation_config[:bucket]
-    model.pre_curation_uploads.each do |file|
+    files = client_s3_files(reload: true, bucket_name: source_bucket)
+
+    files.each do |file|
       params = {
         copy_source: "/#{source_bucket}/#{file.key}",
         bucket: target_bucket,
@@ -195,9 +178,12 @@ class S3QueryService
       }
       Rails.logger.info("Copying #{params[:copy_source]} to #{params[:bucket]}/#{params[:key]}")
       client.copy_object(params)
-      files << file
     end
-    files
+
+    error_files = check_files(target_bucket, files)
+
+    delete_files_and_directory(files) if error_files.empty?
+    error_files
   end
 
   def delete_s3_object(s3_file_key)
@@ -236,6 +222,22 @@ class S3QueryService
         objects += parse_objects(resp_hash)
       end
       objects
+    end
+
+    def check_files(target_bucket, files)
+      error_files = []
+      files.each do |file|
+        error_files << file unless client.head_object({ bucket: target_bucket, key: file.key })
+      end
+      error_files
+    end
+
+    def delete_files_and_directory(files)
+      # ...and delete them from the pre-curation bucket.
+      files.each do |s3_file|
+        delete_s3_object(s3_file.key)
+      end
+      delete_s3_object(model.s3_object_key)
     end
 end
 # rubocop:enable Metrics/ClassLength

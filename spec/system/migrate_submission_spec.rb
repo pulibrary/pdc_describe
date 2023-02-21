@@ -115,10 +115,13 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
 
       sign_in curator
 
-      stub_work_s3_requests(work: work, file_name: file_name)
-      work.pre_curation_uploads.attach(uploaded_file)
       work.save!
       work.reload
+
+      stub_s3
+      allow(Work).to receive(:find).with(work.id).and_return(work)
+      allow(Work).to receive(:find).with(work.id.to_s).and_return(work)
+      allow(work).to receive(:publish_precurated_files).and_return(true)
 
       visit work_path(work)
       click_on "Approve"

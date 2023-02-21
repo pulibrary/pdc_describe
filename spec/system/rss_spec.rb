@@ -6,8 +6,8 @@ RSpec.describe "RSS feed of approved works, for harvesting and indexing", type: 
   let(:work2) { FactoryBot.create(:draft_work) }
   let(:work3) { FactoryBot.create(:draft_work) }
   let(:admin) { FactoryBot.create(:super_admin_user) }
-  let(:file_name) { "us_covid_2019.csv" }
-  let(:uploaded_file) { fixture_file_upload(file_name, "text/csv") }
+  let(:s3_file1) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work1 }
+  let(:s3_file2) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work1 }
   let(:list_objects_response) do
     <<-XML
 <?xml version="1.0" encoding="UTF-8"?>
@@ -33,15 +33,14 @@ XML
 
     allow(work1).to receive(:publish_doi).and_return(true)
     allow(work2).to receive(:publish_doi).and_return(true)
+    allow(work1).to receive(:publish_precurated_files).and_return(true)
+    allow(work2).to receive(:publish_precurated_files).and_return(true)
+    stub_s3(data: [s3_file1])
 
     # Works 1 & 2 are approved, so they should show up in the RSS feed
-    stub_work_s3_requests(work: work1, file_name: uploaded_file.original_filename)
-    work1.pre_curation_uploads.attach(uploaded_file)
     work1.complete_submission!(admin)
     work1.approve!(admin)
 
-    stub_work_s3_requests(work: work2, file_name: uploaded_file.original_filename)
-    work2.pre_curation_uploads.attach(uploaded_file)
     work2.complete_submission!(admin)
     work2.approve!(admin)
 

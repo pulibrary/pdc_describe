@@ -124,7 +124,6 @@ class Work < ApplicationRecord
 
   after_save do |work|
     if work.approved?
-      work.attach_s3_resources if !work.pre_curation_uploads.empty? && work.pre_curation_uploads.length > work.post_curation_uploads.length
       work.reload
     end
   end
@@ -384,20 +383,6 @@ class Work < ApplicationRecord
 
   delegate :bucket_name, to: :s3_query_service
 
-  # Transmit a HEAD request for an S3 Object in the post-curation Bucket
-  # @param key [String]
-  # @param bucket_name [String]
-  # @return [Aws::S3::Types::HeadObjectOutput]
-  def find_post_curation_s3_object(bucket_name:, key:)
-    s3_client.head_object({
-                            bucket: bucket_name,
-                            key: key
-                          })
-    true
-  rescue Aws::S3::Errors::NotFound
-    nil
-  end
-
   # Generates the S3 Object key
   # @return [String]
   def s3_object_key
@@ -408,6 +393,8 @@ class Work < ApplicationRecord
   # @param bucket_name location to be checked to be found
   # @return [Aws::S3::Types::HeadObjectOutput]
   def find_post_curation_s3_dir(bucket_name:)
+    # TODO: Directories really do not exists in S3
+    #      if we really need this check then we need to do something else to check the bucket
     s3_client.head_object({
                             bucket: bucket_name,
                             key: s3_object_key
@@ -415,34 +402,6 @@ class Work < ApplicationRecord
     true
   rescue Aws::S3::Errors::NotFound
     nil
-  end
-
-  # Transmit a DELETE request for the S3 directory in the pre-curation Bucket
-  # @return [Aws::S3::Types::DeleteObjectOutput]
-  def delete_pre_curation_s3_dir
-    s3_client.delete_object({
-                              bucket: bucket_name,
-                              key: s3_object_key
-                            })
-  rescue Aws::S3::Errors::ServiceError => error
-    raise(StandardError, "Failed to delete the pre-curation S3 Bucket directory #{s3_object_key}: #{error}")
-  end
-
-  # This is invoked within the scope of #after_save. Attachment objects require that the parent record be persisted (hence, #before_save is not an option).
-  # However, a consequence of this is that #after_save is invoked whenever a new attached Blob or Attachment object is persisted.
-  def attach_s3_resources
-    return if approved?
-    changes = []
-    # This retrieves and adds S3 uploads if they do not exist
-    pre_curation_s3_resources.each do |s3_file|
-      if add_pre_curation_s3_object(s3_file)
-        changes << { action: :added, filename: s3_file.filename }
-      end
-    end
-
-    # Log the new files, but don't link the change to the current_user since we really don't know
-    # who added the files directly to AWS S3.
-    log_file_changes(changes, nil)
   end
 
   def as_json(options = nil)
@@ -668,7 +627,7 @@ class Work < ApplicationRecord
 
     def publish_precurated_files
       # An error is raised if there are no files to be moved
-      raise(StandardError, "Attempting to publish a Work without attached uploads for #{s3_object_key}") if pre_curation_uploads.empty? && post_curation_uploads.empty?
+      raise(StandardError, "Attempting to publish a Work without attached uploads for #{s3_object_key}") if pre_curation_uploads_fast.empty? && post_curation_uploads.empty?
 
       # We need to explicitly access to post-curation services here.
       # Lets explicitly create it so the state of the work does not have any impact.
@@ -678,17 +637,12 @@ class Work < ApplicationRecord
       raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{s3_object_key}") unless s3_dir.nil?
 
       # Copy the pre-curation S3 Objects to the post-curation S3 Bucket...
-      transferred_files = s3_post_curation_query_service.publish_files
+      transferred_file_errors = s3_query_service.publish_files
 
       # ...check that the files are indeed now in the post-curation bucket...
-      pre_curation_uploads.each do |attachment|
-        s3_object = find_post_curation_s3_object(bucket_name: s3_post_curation_query_service.bucket_name, key: attachment.key)
-        raise(StandardError, "Failed to validate the uploaded S3 Object #{attachment.key}") if s3_object.nil?
+      if transferred_file_errors.count > 0
+        raise(StandardError, "Failed to validate the uploaded S3 Object #{transferred_file_errors.map(&:key).join(', ')}")
       end
-
-      # ...and delete them from the pre-curation bucket.
-      transferred_files.each(&:purge)
-      delete_pre_curation_s3_dir
     end
 end
 # rubocop:enable Metrics/ClassLength

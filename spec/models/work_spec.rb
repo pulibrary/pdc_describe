@@ -25,6 +25,7 @@ RSpec.describe Work, type: :model do
   let(:uploaded_file) do
     fixture_file_upload("us_covid_2019.csv", "text/csv")
   end
+  let(:s3_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work }
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
@@ -138,90 +139,46 @@ RSpec.describe Work, type: :model do
     end
   end
 
-  it "approves works and records the change history" do
-    file_name = uploaded_file.original_filename
-    stub_work_s3_requests(work: work, file_name: file_name)
-    work.pre_curation_uploads.attach(uploaded_file)
-    stub_datacite_doi
-    work.complete_submission!(user)
-    work.approve!(curator_user)
-    # The put for precuration upload
-    expect(a_request(:put, "https://example-bucket.s3.amazonaws.com/#{work.s3_object_key}/#{file_name}")).to have_been_made
-    expect(work.state_history.first.state).to eq "approved"
-    expect(work.reload.state).to eq("approved")
-  end
-
   context "when files are attached to a pre-curation Work" do
-    subject(:work) { FactoryBot.create(:draft_work) }
-    let(:uploaded_file) do
-      fixture_file_upload("us_covid_2019.csv", "text/csv")
-    end
-    let(:uploaded_file2) do
-      fixture_file_upload("us_covid_2019.csv", "text/csv")
-    end
-    let(:post_curation_data_profile) do
-      {
-        objects: [
-          FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work: work, size: 1024),
-          FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv", work: work, size: 2048)
-        ]
-      }
-    end
-    let(:pre_curated_data_profile) do
-      {
-        objects: []
-      }
-    end
-    let(:pre_curated_query_service) { instance_double(S3QueryService) }
-    let(:s3_client) { instance_double(Aws::S3::Client) }
+    subject(:work) { FactoryBot.create(:awaiting_approval_work) }
+
+    let(:file1) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work: work, size: 1024) }
+    let(:file2) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv", work: work, size: 2048) }
+
+    let(:post_curation_data_profile) { { objects: [file1, file2] } }
+    let(:pre_curated_data_profile) { { objects: [] } }
+
+    let(:fake_s3_service_pre) { stub_s3(data: [file1, file2]) }
+    let(:fake_s3_service_post) { stub_s3(data: [file1, file2]) }
 
     before do
-      allow(s3_client).to receive(:copy_object)
-      allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc/#{work.id}").and_raise(Aws::S3::Errors::NotFound.new(true, "test error"))
-      allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc/#{work.id}/us_covid_2019.csv").and_return(true)
-      allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "10.34770/123-abc/#{work.id}/us_covid_2019_2.csv").and_return(true)
-      allow(s3_client).to receive(:delete_object).and_return(nil)
+      allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
+      allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
+      allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
+    end
 
-      allow(pre_curated_query_service).to receive(:data_profile).and_return(
-        pre_curated_data_profile,
-        post_curation_data_profile
-      )
-      allow(pre_curated_query_service).to receive(:bucket_name).and_return("example-bucket")
-      allow(pre_curated_query_service).to receive(:client).and_return(s3_client)
-      allow(S3QueryService).to receive(:new).and_return(pre_curated_query_service)
-
-      stub_request(:delete, /#{attachment_url}/).to_return(status: 200)
-      stub_request(:get, /#{attachment_url}/).to_return(status: 200, body: "test_content")
-      stub_request(:put, /#{attachment_url}/).with(
-        body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
-      ).to_return(status: 200)
+    it "approves works and records the change history" do
       stub_datacite_doi
-
-      work.complete_submission!(user)
-      work.reload
-      2.times { work.pre_curation_uploads.attach(uploaded_file) }
-      work.save!
-      allow(pre_curated_query_service).to receive(:publish_files).and_return([work.pre_curation_uploads.first, work.pre_curation_uploads.last])
+      work.approve!(curator_user)
+      expect(fake_s3_service_pre).to have_received(:publish_files).once
+      expect(work.state_history.first.state).to eq "approved"
+      expect(work.reload.state).to eq("approved")
     end
 
     context "when a Work is approved" do
       it "transfers the files to the AWS Bucket" do
-        first_attachment = work.pre_curation_uploads.first
-        first_attachment_key = first_attachment.key
-        last_attachment = work.pre_curation_uploads.last
-        last_attachment_key = last_attachment.key
-
         work.approve!(curator_user)
         work.reload
 
-        expect(pre_curated_query_service).to have_received(:publish_files).once
+        expect(fake_s3_service_pre).to have_received(:publish_files).once
         expect(work.pre_curation_uploads).to be_empty
         expect(work.post_curation_uploads).not_to be_empty
         expect(work.post_curation_uploads.length).to eq(2)
         expect(work.post_curation_uploads.first).to be_an(S3File)
-        expect(work.post_curation_uploads.first.key).to eq(first_attachment_key)
+        expect(work.post_curation_uploads.first.key).to eq(file1.key)
         expect(work.post_curation_uploads.last).to be_an(S3File)
-        expect(work.post_curation_uploads.last.key).to eq(last_attachment_key)
+        expect(work.post_curation_uploads.last.key).to eq(file2.key)
 
         expect(work.as_json["files"][0].keys).to eq([:filename, :size, :url])
         expect(work.as_json["files"][0][:filename]).to match(/10\.34770\/123-abc\/\d+\/us_covid_2019\.csv/)
@@ -258,10 +215,12 @@ RSpec.describe Work, type: :model do
       Rails.configuration.update_ark_url = false
     end
 
+    before do
+      fake_s3_service = stub_s3(data: [s3_file])
+      allow(fake_s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+    end
+
     it "updates the ARK metadata" do
-      file_name = uploaded_file.original_filename
-      stub_work_s3_requests(work: work, file_name: file_name)
-      work.pre_curation_uploads.attach(uploaded_file)
       work.resource.ark = ezid
       work.save
       work.complete_submission!(user)
@@ -271,9 +230,6 @@ RSpec.describe Work, type: :model do
     end
 
     it "does not update the ARK metadata when it is nil" do
-      file_name = uploaded_file.original_filename
-      stub_work_s3_requests(work: work, file_name: file_name)
-      work.pre_curation_uploads.attach(uploaded_file)
       work.resource.ark = nil
       work.save
       work.complete_submission!(user)
@@ -519,10 +475,9 @@ RSpec.describe Work, type: :model do
     end
 
     it "transitions from awaiting_approval to approved" do
-      file_name = uploaded_file.original_filename
-      stub_work_s3_requests(work: awaiting_approval_work, file_name: file_name)
-      awaiting_approval_work.pre_curation_uploads.attach(uploaded_file)
       stub_datacite_doi
+      fake_s3_service = stub_s3(data: [s3_file])
+      allow(fake_s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: awaiting_approval_work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
 
       awaiting_approval_work.approve!(curator_user)
       expect(awaiting_approval_work.reload.state).to eq("approved")
@@ -559,11 +514,15 @@ RSpec.describe Work, type: :model do
   end
 
   describe "#approve" do
+    let(:fake_s3_service_pre) { stub_s3(data: [s3_file]) }
+    let(:fake_s3_service_post) { stub_s3(data: [s3_file]) }
+
     let(:approved_work) do
       work = FactoryBot.create :awaiting_approval_work
-      file_name = uploaded_file.original_filename
-      stub_work_s3_requests(work: work, file_name: file_name)
-      work.pre_curation_uploads.attach(uploaded_file)
+      allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
+      allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
+      allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
       work.approve!(curator_user)
       work
     end
@@ -573,6 +532,17 @@ RSpec.describe Work, type: :model do
       let(:data_cite_result) { double }
       let(:data_cite_connection) { double }
       let!(:datacite_user) { Rails.configuration.datacite.user }
+
+      let(:approved_work) do
+        work = FactoryBot.create :awaiting_approval_work
+        work.update_curator(curator_user.id, user)
+        allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
+        allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+        allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
+        allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
+        work.approve!(curator_user)
+        work
+      end
 
       before do
         Rails.configuration.datacite.user = "test_user"
@@ -592,18 +562,10 @@ RSpec.describe Work, type: :model do
         Rails.configuration.datacite.user = datacite_user
       end
 
-      it "is approved" do
-        draft_work = FactoryBot.create(:draft_work)
-        file_name = uploaded_file.original_filename
-        stub_work_s3_requests(work: draft_work, file_name: file_name)
-        draft_work.pre_curation_uploads.attach(uploaded_file)
+      it "curator is still set" do
+        approved_work.reload
 
-        draft_work.complete_submission!(user)
-        draft_work.update_curator(curator_user.id, user)
-        draft_work.approve!(curator_user)
-        draft_work.reload
-
-        expect(draft_work.curator).to eq(curator_user)
+        expect(approved_work.curator).to eq(curator_user)
       end
     end
 
@@ -809,63 +771,6 @@ RSpec.describe Work, type: :model do
         work.reload
 
         allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
-      end
-
-      it "persists S3 Bucket resources as ActiveStorage Attachments" do
-        pending "S3 is faster"
-        # call the s3 reload and make sure no more files get added to the model
-        work.attach_s3_resources
-
-        expect(work.pre_curation_uploads).not_to be_empty
-        expect(work.pre_curation_uploads.length).to eq(2)
-        expect(work.pre_curation_uploads.first).to be_a(ActiveStorage::Attachment)
-        expect(work.pre_curation_uploads.first.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt")
-        expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
-        expect(work.pre_curation_uploads.last.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
-        expect(WorkActivity.activities_for_work(work.id, [WorkActivity::FILE_CHANGES]).count).to eq(1)
-
-        # call the s3 reload and make sure no more files get added to the model
-        work.attach_s3_resources
-        expect(work.pre_curation_uploads.length).to eq(2)
-        expect(WorkActivity.activities_for_work(work.id, [WorkActivity::FILE_CHANGES]).count).to eq(1)
-
-        # Make sure pre-curation files do not show up in JSON:
-        expect(work.as_json["files"]).to eq([])
-      end
-
-      context "a blob already exists for one of the files" do
-        # Here is the first Blob which is already attached
-        let(:persisted_blob1) do
-          persisted = ActiveStorage::Blob.create_before_direct_upload!(
-            filename: file1.filename, content_type: "", byte_size: file1.size, checksum: ""
-          )
-          persisted.key = file1.filename
-          persisted
-        end
-        # Here is the second Blob which is exists in the S3 Bucket but is not yet attached
-        let(:persisted_blob2) do
-          persisted = ActiveStorage::Blob.create_before_direct_upload!(
-            filename: file2.filename, content_type: "", byte_size: file2.size, checksum: ""
-          )
-          persisted.key = file2.filename
-          persisted
-        end
-
-        it "finds the blob and attaches it as an ActiveStorage Attachments" do
-          pending "S3 is faster"
-          allow(ActiveStorage::Blob).to receive(:find_by).and_return(persisted_blob2)
-          work.pre_curation_uploads.attach(persisted_blob1)
-
-          work.attach_s3_resources
-          expect(work.pre_curation_uploads).not_to be_empty
-          expect(work.pre_curation_uploads.length).to eq(2)
-          expect(work.pre_curation_uploads.first).to be_a(ActiveStorage::Attachment)
-          expect(work.pre_curation_uploads.first.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt")
-          expect(work.pre_curation_uploads.first.blob).to eq(persisted_blob1)
-          expect(work.pre_curation_uploads.last).to be_a(ActiveStorage::Attachment)
-          expect(work.pre_curation_uploads.last.key).to eq("#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
-          expect(work.pre_curation_uploads.last.blob).to eq(persisted_blob2)
-        end
       end
     end
   end

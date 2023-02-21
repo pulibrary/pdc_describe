@@ -38,8 +38,9 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
 
       expect(page).to have_content "awaiting_approval"
       work = Work.last
-      file_name = "us_covid_2019.csv"
-      stub_work_s3_requests(work: work, file_name: file_name)
+      allow(Work).to receive(:find).with(work.id).and_return(work)
+      allow(Work).to receive(:find).with(work.id.to_s).and_return(work)
+      allow(work).to receive(:publish_precurated_files).and_return(true)
 
       sign_out submitter2
       sign_in super_admin
@@ -73,6 +74,9 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
 
       work.save!
       work.reload
+      allow(Work).to receive(:find).with(work.id).and_return(work)
+      allow(Work).to receive(:find).with(work.id.to_s).and_return(work)
+      allow(work).to receive(:publish_precurated_files).and_return(true)
 
       sign_in super_admin
       visit work_path(work)

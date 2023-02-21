@@ -108,15 +108,7 @@ RSpec.describe S3QueryService, mock_s3_query_service: false do
 
   context "with persisted Works" do
     let(:user) { FactoryBot.create(:user) }
-    let(:doi) { "10.34770/doc-1" }
     let(:work) { FactoryBot.create(:draft_work, doi: doi) }
-    let(:uploaded_file) do
-      fixture_file_upload("us_covid_2019.csv", "text/csv")
-    end
-    let(:uploaded_file2) do
-      fixture_file_upload("us_covid_2019.csv", "text/csv")
-    end
-    let(:attachment_url) { "https://example-bucket.s3.amazonaws.com/#{doi}/" }
     let(:fake_aws_client) { double(Aws::S3::Client) }
 
     before do
@@ -124,25 +116,60 @@ RSpec.describe S3QueryService, mock_s3_query_service: false do
       user
 
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
-      stub_request(:put, /#{attachment_url}/).to_return(status: 200)
-
-      work.pre_curation_uploads.attach(uploaded_file)
-      work.pre_curation_uploads.attach(uploaded_file2)
       work
 
       subject.stub(:client).and_return(fake_aws_client)
       fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
       fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
       fake_s3_resp.stub(:to_h).and_return(s3_hash)
+
+      allow(subject.client).to receive(:copy_object)
+      allow(subject.client).to receive(:delete_object)
+      allow(subject.client).to receive(:head_object).and_return(true)
     end
 
     describe "#publish_files" do
-      it "calls S3 copy_object twice, once for each file" do
-        s3_stub = Aws::S3::Client.new(stub_responses: true)
-        subject.stub(:client).and_return(s3_stub)
-        allow(subject.client).to receive(:copy_object)
-        subject.publish_files
-        expect(subject.client).to have_received(:copy_object).twice
+      it "calls moves the files calling copy_object, head_object, and delete_object twice, once for each file" do
+        expect(subject.publish_files).to eq([])
+        expect(subject.client).to have_received(:copy_object)
+          .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key1}", key: s3_key1 })
+        expect(subject.client).to have_received(:copy_object)
+          .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key2}", key: s3_key2 })
+        expect(subject.client).to have_received(:head_object)
+          .with({ bucket: "example-bucket-post", key: s3_key1 })
+        expect(subject.client).to have_received(:head_object)
+          .with({ bucket: "example-bucket-post", key: s3_key2 })
+        expect(subject.client).to have_received(:delete_object)
+          .with({ bucket: "example-bucket", key: s3_key1 })
+        expect(subject.client).to have_received(:delete_object)
+          .with({ bucket: "example-bucket", key: s3_key2 })
+        expect(subject.client).to have_received(:delete_object)
+          .with({ bucket: "example-bucket", key: work.s3_object_key })
+      end
+      context "the copy fails for some reason" do
+        it "Does not delete anything and returns the missing file" do
+          allow(subject.client).to receive(:head_object).and_return(true, false)
+          expect(subject.publish_files.map(&:key)).to eq([s3_key2])
+          expect(subject.client).to have_received(:copy_object)
+            .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key1}", key: s3_key1 })
+          expect(subject.client).to have_received(:copy_object)
+            .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key2}", key: s3_key2 })
+          expect(subject.client).to have_received(:head_object)
+            .with({ bucket: "example-bucket-post", key: s3_key1 })
+          expect(subject.client).to have_received(:head_object)
+            .with({ bucket: "example-bucket-post", key: s3_key2 })
+          expect(subject.client).not_to have_received(:delete_object)
+            .with({ bucket: "example-bucket", key: s3_key1 })
+          expect(subject.client).not_to have_received(:delete_object)
+            .with({ bucket: "example-bucket", key: s3_key2 })
+          expect(subject.client).not_to have_received(:delete_object)
+            .with({ bucket: "example-bucket", key: work.s3_object_key })
+        end
+
+        it "Does not delete anything and returns both missing files" do
+          allow(subject.client).to receive(:head_object).and_return(false)
+          expect(subject.publish_files.map(&:key)).to eq([s3_key1, s3_key2])
+        end
       end
     end
 
