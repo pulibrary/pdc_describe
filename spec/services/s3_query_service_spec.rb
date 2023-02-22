@@ -308,4 +308,17 @@ RSpec.describe S3QueryService, mock_s3_query_service: false do
       expect(s3_file.checksum).to eq("6805f2cfc46c0f04559748bb039d69ae")
     end
   end
+
+  describe "#file_url" do
+    subject(:s3_query_service) { described_class.new(work) }
+
+    let(:signer) { instance_double(Aws::S3::Presigner) }
+
+    it "creates a presigned url" do
+      allow(Aws::S3::Presigner).to receive(:new).and_return(signer)
+      allow(signer).to receive(:presigned_url).and_return("aws_url")
+      expect(s3_query_service.file_url("test_key")).to eq("aws_url")
+      expect(signer).to have_received(:presigned_url).with(:get_object, { bucket: "example-bucket", key: "test_key" }).once
+    end
+  end
 end
