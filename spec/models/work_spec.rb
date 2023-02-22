@@ -735,7 +735,7 @@ RSpec.describe Work, type: :model do
     end
   end
 
-  describe "#save", mock_s3_query_service: false do
+  describe "#save" do
     context "when the Work is persisted and not yet in the approved state" do
       let(:work) { FactoryBot.create(:draft_work) }
 

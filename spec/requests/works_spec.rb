@@ -9,10 +9,6 @@ RSpec.describe "/works", type: :request do
       FactoryBot.create(:tokamak_work)
     end
 
-    before do
-      stub_work_s3_requests(work: work)
-    end
-
     it "will not show a work page unless the user is logged in" do
       get work_url(work)
       expect(response.code).to eq "302"
@@ -23,6 +19,7 @@ RSpec.describe "/works", type: :request do
     context "when authenticated" do
       before do
         sign_in(user)
+        stub_s3
       end
 
       it "will show the work page displaying the work metadata" do
