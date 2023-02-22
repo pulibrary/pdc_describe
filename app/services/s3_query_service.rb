@@ -74,10 +74,6 @@ class S3QueryService
     signer.presigned_url(:get_object, bucket: bucket_name, key: key)
   end
 
-  def delete_file(key)
-    client.delete_object({ bucket: bucket_name, key: key })
-  end
-
   # There is probably a better way to fetch the current ActiveStorage configuration but we have
   # not found it.
   def active_storage_configuration
