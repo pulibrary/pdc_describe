@@ -65,12 +65,8 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
 
     it "should be able to approve a work" do
       stub_datacite_doi
+      stub_s3
       work = FactoryBot.create :awaiting_approval_work
-
-      file_name = "us_covid_2019.csv"
-      stub_work_s3_requests(work: work, file_name: file_name)
-      uploaded_file = fixture_file_upload(file_name, "text/csv")
-      work.pre_curation_uploads.attach(uploaded_file)
 
       work.save!
       work.reload

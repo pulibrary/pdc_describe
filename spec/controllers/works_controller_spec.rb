@@ -499,7 +499,7 @@ RSpec.describe WorksController do
         end
       end
 
-      context "when the Work has been curated", mock_s3_query_service: false do
+      context "when the Work has been curated" do
         let(:work) { FactoryBot.create(:approved_work) }
         let(:user) do
           FactoryBot.create :user, collections_to_admin: [work.collection]
