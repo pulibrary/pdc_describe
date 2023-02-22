@@ -3,7 +3,7 @@
 require "rails_helper"
 
 describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
-  context "when creating a Work", mock_s3_query_service: false do
+  context "when creating a Work" do
     let(:user) { FactoryBot.create :princeton_submitter }
     let(:work) { FactoryBot.create(:shakespeare_and_company_work, created_by_user_id: user.id) }
     let(:s3_query_service_double) { instance_double(S3QueryService, client_s3_files: s3_data) }

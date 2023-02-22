@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-RSpec.describe S3QueryService, mock_s3_query_service: false do
+RSpec.describe S3QueryService do
   let(:work) { FactoryBot.create :draft_work, doi: doi }
   let(:subject) { described_class.new(work) }
   let(:s3_key1) { "10-34770/pe9w-x904/SCoData_combined_v1_2020-07_README.txt" }
@@ -300,12 +300,14 @@ RSpec.describe S3QueryService, mock_s3_query_service: false do
     let(:s3_file) { s3_query_service.find_s3_file(filename: filename) }
 
     it "retrieves the S3File from the AWS Bucket" do
+      stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt").to_return(status: 200, body: "test_content", headers: response_headers)
       expect(s3_file).not_to be nil
 
       expect(s3_file.filename).to eq("10.34770/pe9w-x904/#{work.id}/test.txt")
       expect(s3_file.last_modified).to be_a(Time)
       expect(s3_file.size).to eq(12)
       expect(s3_file.checksum).to eq("6805f2cfc46c0f04559748bb039d69ae")
+      assert_requested(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt")
     end
   end
 
