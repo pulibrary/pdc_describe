@@ -55,6 +55,8 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
       expect(page).to have_content "Showing 1 to 2 of 2 entries"
       # and file are rendered as links pointing to the download endpoint
       expect(page.body.include?("download?filename=10.34770/pe9w-x904/1/SCoData_combined_v1_2020-07_datapackage.json"))
+      # and we rendered the date in the display format
+      expect(page.body.include?(s3_data.first.last_modified_display))
     end
 
     context "when item is approved" do

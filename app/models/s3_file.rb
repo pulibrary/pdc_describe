@@ -2,7 +2,7 @@
 class S3File
   include Rails.application.routes.url_helpers
 
-  attr_accessor :filename, :last_modified, :size, :checksum, :url, :filename_display
+  attr_accessor :filename, :last_modified, :size, :checksum, :url, :filename_display, :last_modified_display
   alias key filename
   alias id filename
 
@@ -10,6 +10,7 @@ class S3File
     @filename = filename
     @filename_display = filename_short(work, filename)
     @last_modified = last_modified
+    @last_modified_display = last_modified.in_time_zone.strftime("%m/%d/%Y %I:%M %p") # mm/dd/YYYY HH:MM AM
     @size = size
     @checksum = checksum.delete('"')
     @url = work_download_path(work, filename: filename)
