@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  # This route is to handle user ids that are in the form abc@something.com because
+  # Rails (understandably) does not like the ".com" in the URL
+  get "users/:id.:format/edit", to: "users#edit"
+
   resources :users, except: [:new, :destroy, :create]
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   root to: "welcome#index"

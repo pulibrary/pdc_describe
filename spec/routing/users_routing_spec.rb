@@ -11,6 +11,10 @@ RSpec.describe UsersController, type: :routing do
       expect(get: "/users/1/edit").to route_to("users#edit", id: "1")
     end
 
+    it "routes to #edit with guest account" do
+      expect(get: "/users/guestacc@gmail.com/edit").to route_to("users#edit", id: "guestacc@gmail", format: "com")
+    end
+
     it "routes to #update via PUT" do
       expect(put: "/users/1").to route_to("users#update", id: "1")
     end
