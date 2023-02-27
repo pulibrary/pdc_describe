@@ -119,6 +119,9 @@ class S3QueryService
   # Retrieve the S3 resources uploaded to the S3 Bucket
   # @return [Array<S3File>]
   def client_s3_files(reload: false, bucket_name: self.bucket_name)
+    # Allow migration objects to load locally with an AWS key
+    return [] if Rails.env.development?
+
     @client_s3_files = nil if reload # force a reload
     @client_s3_files ||= begin
       start = Time.zone.now
