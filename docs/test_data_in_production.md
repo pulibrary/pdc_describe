@@ -29,8 +29,8 @@ These will need to be kept updated with changes to the UI, changes to the metada
     scp tmp/data_migration/*.json deploy@pdc_describe_staging1.princeton.edu:/tmp
     ```
 
-1. Then, ssh to the server where you want to create this sample work as the `deploy` user. 
-2. Run the import rake task, specifying the location of the .json files and the netid of the user they should import as:
+3. Then, ssh to the server where you want to create this sample work as the `deploy` user. 
+4. Run the import rake task, specifying the location of the .json files and the netid of the user they should import as:
   ```
   bundle exec rake works:import_works\[/path/to/json/files,bs3097]
   ```
