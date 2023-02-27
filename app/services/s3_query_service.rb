@@ -185,6 +185,10 @@ class S3QueryService
     resp.to_h
   end
 
+  def create_directory
+    client.put_object({ bucket: bucket_name, key: prefix, content_length: 0 })
+  end
+
   private
 
     def model_uploads

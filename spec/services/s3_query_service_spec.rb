@@ -323,4 +323,17 @@ RSpec.describe S3QueryService do
       expect(signer).to have_received(:presigned_url).with(:get_object, { bucket: "example-bucket", key: "test_key" }).once
     end
   end
+
+  describe "#create_directory" do
+    subject(:s3_query_service) { described_class.new(work) }
+
+    before do
+      stub_request(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}").to_return(status: 200)
+    end
+
+    it "creates a directory" do
+      s3_query_service.create_directory
+      assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}", headers: { "Content-Length" => 0 })
+    end
+  end
 end
