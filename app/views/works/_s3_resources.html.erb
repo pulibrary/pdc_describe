@@ -2,7 +2,9 @@
   <div class="lux">
     <div class="card">
       <div class="files card-body">
-        <h3><%= "#{@work.pre_curation_uploads_count} #{'File'.pluralize(@work.pre_curation_uploads_count)}"%> in precuration storage  </h3>
+        <h3><%= "#{@work.uploads.count} #{'File'.pluralize(@work.uploads.count)}"%> in
+          <%= @work.approved? ? "post-curation" : "pre-curation" %> storage
+        </h3>
         <table id="files-table" class="table">
           <thead>
             <tr>
@@ -14,15 +16,14 @@
           <tbody>
             <% if @work.uploads.empty? %>
               <tr class="files">
-                <td><span><%= t('works.form.curation_uploads.empty') %></span></td>
+                <td><span>No files in S3</span></td>
+                <td><span></span></td>
                 <td><span></span></td>
               </tr>
-              <% end %>
-            </tr>
+            <% end %>
           </tbody>
           <tfoot></tfoot>
         </table>
-        <!-- End of file download table -->
       </div>
     </div>
   </div>
