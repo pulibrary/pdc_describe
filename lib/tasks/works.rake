@@ -61,22 +61,23 @@ namespace :works do
 
   # See https://github.com/pulibrary/pdc_describe/blob/main/docs/test_data_in_production.md for
   # more information.
+  # Example: rake works:import_works\[/Users/bess/projects/pdc_describe/tmp/data_migration,bs3097]
   desc "Imports works from JSON data"
-  task :import_works, [:path] => :environment do |_, args|
+  task :import_works, [:path, :uid] => :environment do |_, args|
     if args[:path].blank?
-      puts "Usage: bundle exec rake works:import_works\\[path_to_json_files]"
+      puts "Usage: bundle exec rake works:import_works\\[path_to_json_files,uid]"
       exit 1
     end
     path = File.join(args[:path], "*.json")
-    approver = User.first
+    approver = User.find_or_create_by uid: args[:uid]
     puts "Importing files from: #{path}"
     Dir.glob(path).each do |file_name|
       hash = JSON.parse(File.read(file_name))
-      resource = PDCMetadata::Resource.new_from_jsonb(hash)
+      resource = PDCMetadata::Resource.new_from_jsonb(hash["resource"])
       work = Work.new(resource: resource)
-      work.collection = Collection.research_data
+      work.collection = Collection.where(code: hash["collection"]["code"]).first
       work.created_by_user_id = approver.id
-      work.state = "approved"
+      work.state = "draft"
       work.save
       puts "\t#{file_name}"
     end

@@ -79,7 +79,6 @@ module PDCMetadata
       def new_from_jsonb(jsonb_hash)
         resource = PDCMetadata::Resource.new
         return resource if jsonb_hash.blank?
-
         set_basics(resource, jsonb_hash)
         set_curator_controlled_metadata(resource, jsonb_hash)
         set_additional_metadata(resource, jsonb_hash)
