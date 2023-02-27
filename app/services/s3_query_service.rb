@@ -136,11 +136,6 @@ class S3QueryService
     client_s3_files.count
   end
 
-  # TODO: delete this (or client_s3_files)
-  def s3_files
-    client_s3_files
-  end
-
   ##
   # Query the S3 bucket for what we know about the doi
   # For docs see:
@@ -150,7 +145,7 @@ class S3QueryService
   #   objects is an Array of S3File objects
   #   ok is false if there is an error connecting to S3. Otherwise true.
   def data_profile
-    { objects: s3_files, ok: true }
+    { objects: client_s3_files, ok: true }
   rescue => ex
     Rails.logger.error("Error querying S3. Bucket: #{bucket_name}. DOI: #{@doi}. Exception: #{ex.message}")
 
