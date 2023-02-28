@@ -44,5 +44,10 @@ if (typeof (window._rails_loaded) === 'undefined' || window._rails_loaded == nul
 Turbolinks.start();
 ActiveStorage.start();
 
-const loader = new PdcUiLoader();
-loader.run();
+function ready() {
+  const loader = new PdcUiLoader();
+  loader.run();
+}
+
+// Must run the javascript loader on every page even if turbolinks loads it
+$(document).on('turbolinks:load', ready);

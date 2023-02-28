@@ -71,6 +71,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       visit user_path(user)
       click_on(user.uid)
       click_on "Create Dataset"
+      fill_in "title_main", with: "Test title"
       fill_in "given_name_1", with: "Samantha"
       fill_in "family_name_1", with: "Abrams"
       fill_in "description", with: description
@@ -87,6 +88,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       fill_in "publication_year", with: issue_date
+      click_on "Required Metadata"
+      fill_in "title_main", with: ""
       click_on "Create"
       expect(page).to have_content "Must provide a title"
       fill_in "title_main", with: title
