@@ -47,6 +47,11 @@ class FakeIdentifierIntegration < Sinatra::Base
         "id": ror,
         "name": "Deutsche Forschungsgemeinschaft"
       }
+    when /027ka1x80/
+      {
+        "id": ror,
+        "name": "National Aeronautics and Space Administration"
+      }
     else
       {
         "id": ror,
