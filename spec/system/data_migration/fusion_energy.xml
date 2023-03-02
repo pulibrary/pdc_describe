@@ -1,0 +1,68 @@
+<resource xsi:schemaLocation='http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://datacite.org/schema/kernel-4'>
+  <identifier identifierType='DOI'>10.5281/zenodo.7507006</identifier>
+  <creators>
+    <creator>
+      <creatorName>Schwartz, Jacob A.</creatorName>
+      <givenName>Jacob A.</givenName>
+      <familyName>Schwartz</familyName>
+    </creator>
+    <creator>
+      <creatorName>Ricks, Wilson</creatorName>
+      <givenName>Wilson</givenName>
+      <familyName>Ricks</familyName>
+    </creator>
+    <creator>
+      <creatorName>Kolemen, Egemen</creatorName>
+      <givenName>Egemen</givenName>
+      <familyName>Kolemen</familyName>
+    </creator>
+    <creator>
+      <creatorName>Jenkins, Jesse D.</creatorName>
+      <givenName>Jesse D.</givenName>
+      <familyName>Jenkins</familyName>
+    </creator>
+  </creators>
+  <titles>
+    <title>
+      Data for The value of fusion energy to a decarbonized United States
+      electric grid
+    </title>
+  </titles>
+  <publisher>Princeton University</publisher>
+  <resourceType resourceTypeGeneral='Dataset'/>
+  <publicationYear>2022</publicationYear>
+  <fundingReferences>
+    <fundingReference>
+      <funderName>United States Department of Energy</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01bj3aw27</funderIdentifier>
+      <awardNumber awardURI=''>DE-AC02-09CH11466</awardNumber>
+    </fundingReference>
+  </fundingReferences>
+  <relatedIdentifiers>
+    <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp012j62s808w</relatedIdentifier>
+  </relatedIdentifiers>
+  <version>1</version>
+  <rightsList>
+    <rights rightsURI='https://creativecommons.org/licenses/by/4.0/' rightsIdentifier='CC BY'>Creative Commons Attribution 4.0 International</rights>
+  </rightsList>
+  <descriptions>
+    <description descriptionType='Other'>
+      Fusion could be a part of future decarbonized electricity systems, but it
+      will need to compete with other technologies. In particular, pulsed
+      tokamaks plants have a unique operational mode, and evaluating which
+      characteristics make them economically competitive can help select between
+      design pathways. Using a capacity expansion and operations model, we
+      determined cost thresholds for pulsed tokamaks to reach a range of
+      penetration levels in a future decarbonized US Eastern Interconnection.
+      The required capital cost to reach a fusion capacity of 100 GW varied from
+      $3000 to $7200/kW, and the equilibrium penetration increases rapidly with
+      decreasing cost. The value per unit power capacity depends on the variable
+      operational cost and on cost of its competition, particularly fission,
+      much more than on the pulse cycle parameters. These findings can therefore
+      provide initial cost targets for fusion more generally in the United
+      States. This dataset is too large to download directly from this item
+      page. You can access and download the data via Globus at this link:
+      https://app.globus.org/file-manager?destination_id=dc43f461-0ca7-4203-848c-33a9fc00a464&amp;destination_path=%2Ff8em-3c49%2F (See https://docs.globus.org/how-to/get-started/ for instructions on how to use Globus; sign-in is required).
+    </description>
+  </descriptions>
+</resource>
