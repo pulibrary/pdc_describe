@@ -82,7 +82,7 @@ class WorksController < ApplicationController
 
   def file_list
     @work = Work.find(params[:id])
-    render json: @work.pre_curation_uploads_fast
+    render json: @work.uploads
   end
 
   def resolve_doi

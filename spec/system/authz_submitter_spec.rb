@@ -10,10 +10,11 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
     let(:title1) { "Title One" }
     let(:title2) { "Title Two" }
     let(:title3) { "Title Three" }
+    let(:file1) { FactoryBot.build :s3_file, filename: "anyfile.txt", last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
 
     before do
       Collection.create_defaults
-      stub_s3
+      stub_s3 data: [file1]
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     end
 
@@ -42,8 +43,10 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
 
       # Submitter can edit their own work
       visit edit_work_path(work)
+      expect(page).to have_content file1.filename
       fill_in "title_main", with: title2
       click_on "Save Work"
+      expect(page).to have_content file1.filename
       sign_out submitter1
 
       # But other users cannot edit this work. If they try, they are redirected.
