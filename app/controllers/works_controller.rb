@@ -138,6 +138,10 @@ class WorksController < ApplicationController
     @wizard_mode = true
     @work.files_location = params["attachment_type"]
     @work.save!
+
+    # create a directory for the work if the curator will need to move files by hand
+    @work.s3_query_service.create_directory if @work.files_location != "file_upload"
+
     next_url = case @work.files_location
                when "file_upload"
                  work_file_upload_url(@work)
