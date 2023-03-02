@@ -248,21 +248,11 @@
       <% end %>
     </dl>
 
-    <% if @work.approved? %>
-      <% if @work.post_curation_s3_resources.present? %>
-        <section class="uploads">
-          <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
-          <%= render(partial: 'works/uploads/post_curation_s3_resources') %>
-        </section>
-      <% end %>
-    <% else %>
-      <% if @work.pre_curation_uploads_fast.present? %>
-        <section class="uploads">
-          <h2 class="h2"><%= t('works.uploads.pre_curation.heading') %></h2>
-          <%= render(partial: 'works/uploads/pre_curation_s3_resources') %>
-        </section>
-      <% end %>
-    <% end %>
+    <section class="uploads">
+      <h2 class="h2"><%= @work.approved? ? "Curated Files" : "Uncurated Files" %></h2>
+      <%= render(partial: 'works/s3_resources') %>
+    </section>
+
     <%= render(partial: 'work_activity_provenance', locals: {can_add_provenance_note: Rails.configuration.provenance_message_writers.include?(current_user.uid)}) %>
   </div>
   <div class="col-4" id="messages">

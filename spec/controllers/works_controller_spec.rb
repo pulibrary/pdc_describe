@@ -644,19 +644,40 @@ RSpec.describe WorksController do
       expect(response).to render_template(:attachment_select)
     end
 
-    it "redirects to the proper step depending on the attachment type" do
-      sign_in user
-      post :attachment_selected, params: { id: work.id, attachment_type: "file_upload" }
-      expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/works/#{work.id}/file-upload"
+    describe "#attachment_selected" do
+      let(:attachment_type) { "file_upload" }
+      let(:fake_s3_service) { stub_s3 }
+      before do
+        fake_s3_service
+        sign_in user
+        post :attachment_selected, params: { id: work.id, attachment_type: attachment_type }
+      end
 
-      post :attachment_selected, params: { id: work.id, attachment_type: "file_cluster" }
-      expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/works/#{work.id}/file-cluster"
+      it "redirects to file-upload" do
+        expect(response.status).to be 302
+        expect(response.location).to eq "http://test.host/works/#{work.id}/file-upload"
+        expect(fake_s3_service).not_to have_received(:create_directory)
+      end
 
-      post :attachment_selected, params: { id: work.id, attachment_type: "file_other" }
-      expect(response.status).to be 302
-      expect(response.location).to eq "http://test.host/works/#{work.id}/file-other"
+      context "when type is file_cluster" do
+        let(:attachment_type) { "file_cluster" }
+
+        it "redirects to file-cluster" do
+          expect(response.status).to be 302
+          expect(response.location).to eq "http://test.host/works/#{work.id}/file-cluster"
+          expect(fake_s3_service).to have_received(:create_directory)
+        end
+      end
+
+      context "when type is file_other" do
+        let(:attachment_type) { "file_other" }
+
+        it "redirects to file-other" do
+          expect(response.status).to be 302
+          expect(response.location).to eq "http://test.host/works/#{work.id}/file-other"
+          expect(fake_s3_service).to have_received(:create_directory)
+        end
+      end
     end
 
     it "renders the page to upload files directly" do

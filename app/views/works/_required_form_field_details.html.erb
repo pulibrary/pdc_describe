@@ -1,0 +1,10 @@
+<% field_error ||= "Must provide a #{name}" %>
+<details>
+<summary>
+  <%= display_name %><span class="required-field" title="<%= display_name %> for your submission must be indicated">*</span>
+  <span id="<%= name %>-required-message" class="hidden">
+    <i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;<%= field_error %>
+  </span>
+</summary>
+<%= field_detail %>
+</details>

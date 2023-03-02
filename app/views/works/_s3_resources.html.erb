@@ -2,7 +2,9 @@
   <div class="lux">
     <div class="card">
       <div class="files card-body">
-        <h3><%= "#{@work.pre_curation_uploads_count} #{'File'.pluralize(@work.pre_curation_uploads_count)}"%> in precuration storage  </h3>
+        <h3><%= "#{@work.uploads.count} #{'File'.pluralize(@work.uploads.count)}"%> in
+          <%= @work.approved? ? "post-curation" : "pre-curation" %> storage
+        </h3>
         <table id="files-table" class="table">
           <thead>
             <tr>
@@ -16,13 +18,12 @@
               <tr class="files">
                 <td><span><%= t('works.form.curation_uploads.empty') %></span></td>
                 <td><span></span></td>
+                <td><span></span></td>
               </tr>
-              <% end %>
-            </tr>
+            <% end %>
           </tbody>
           <tfoot></tfoot>
         </table>
-        <!-- End of file download table -->
       </div>
     </div>
   </div>
@@ -30,13 +31,17 @@
 
 <script type="text/javascript">
   $(function() {
+    // This is needed so that we can swap the URL during testing
+    // (for more info see external_identifier_specs.rb)
+    var fileListUrl = '<%= work_file_list_path(@work) %>';
+
     // Wire DataTable for the file list.
     // Related documentation
     //   AJAX loading: https://datatables.net/manual/ajax
     //   Column display configuration: https://datatables.net/examples/advanced_init/column_render.html
     $('#files-table').DataTable({
       ajax: {
-        url: '<%= work_file_list_path(@work) %>',
+        url: fileListUrl,
         dataSrc: ''
       },
       columns: [
