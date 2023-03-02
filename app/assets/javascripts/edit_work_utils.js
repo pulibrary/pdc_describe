@@ -282,18 +282,6 @@ $(() => {
     return null;
   }
 
-  // Returns true if there is at least one creator with information
-  function hasCreators() {
-    let i;
-    const rows = $('.creators-table-row');
-    for (i = 0; i < rows.length; i += 1) {
-      if (!isEmptyRow(rows[i].id)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   // Sets the values of a creator given a rowId
   function setCreatorValues(rowId, orcid, givenName, familyName) {
     const suffix = rowId.replace('creator_row_', '');
@@ -383,29 +371,6 @@ $(() => {
 
   $('#btn-submit').on('click', () => {
     updateCreatorsSequence();
-  });
-
-  // Client side validations before allowing user to create the dataset.
-  $('#btn-create-new').on('click', () => {
-    const title = $('#title_main').val() || '';
-    let status = true;
-
-    $('#title-required-message').addClass('hidden');
-    $('#creators-required-message').addClass('hidden');
-
-    if (!hasCreators()) {
-      $(`#${findEmptyCreator()}`).focus();
-      $('#creators-required-message').removeClass('hidden');
-      status = false;
-    }
-
-    if (title.trim() === '') {
-      $('#title_main').focus();
-      $('#title-required-message').removeClass('hidden');
-      status = false;
-    }
-
-    return status;
   });
 
   // Delete button for creators.
