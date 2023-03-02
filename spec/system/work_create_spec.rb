@@ -41,6 +41,9 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
     it "produces and saves a valid datacite record", js: true do
       sign_in user
       visit new_work_path(params: { wizard: true })
+      click_on "Create New"
+      expect(page).to have_content("Must provide a title")
+      expect(page).to have_content("Must provide at least one creator")
       fill_in "title_main", with: title
       expect(find("#related_object_count", visible: false).value).to eq("1")
 
@@ -67,6 +70,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Create New"
       work = Work.last
       expect(work.resource.related_objects.count).to eq(0)
+      click_on "Save Work"
+      expect(page).to have_content("Must provide a description")
       fill_in "description", with: description
       select "GNU General Public License", from: "rights_identifier"
       click_on "Curator Controlled"
