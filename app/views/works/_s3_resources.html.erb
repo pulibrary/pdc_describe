@@ -16,7 +16,7 @@
           <tbody>
             <% if @work.uploads.empty? %>
               <tr class="files">
-                <td><span>No files in S3</span></td>
+                <td><span><%= t('works.form.curation_uploads.empty') %></span></td>
                 <td><span></span></td>
                 <td><span></span></td>
               </tr>
