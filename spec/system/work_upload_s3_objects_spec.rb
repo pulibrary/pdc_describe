@@ -87,8 +87,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
           work.reload
         end
 
-        # TODO: re-enable after implementing https://github.com/pulibrary/pdc_describe/issues/1022
-        xit "renders only the S3 Bucket Objects on the show page", js: true do
+        it "renders only the S3 Bucket Objects on the show page", js: true do
           visit work_path(work)
 
           expect(page).to have_content work.title
@@ -161,8 +160,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
             expect(page).to have_content filename2
           end
 
-          # TODO: re-enable after implementing https://github.com/pulibrary/pdc_describe/issues/1022
-          xit "renders only the S3 Bucket Objects on the edit page", js: true do
+          it "renders only the S3 Bucket Objects on the edit page", js: true do
             visit work_path(approved_work)
             expect(approved_work.reload.pre_curation_uploads.length).to eq(0)
             click_on "Edit"
