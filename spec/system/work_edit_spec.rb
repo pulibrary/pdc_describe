@@ -20,15 +20,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     let(:work) { FactoryBot.create(:draft_work) }
     let(:user) { work.created_by_user }
 
-    let(:uploaded_file1) do
-      fixture_file_upload("us_covid_2019.csv", "text/csv")
-    end
-    let(:uploaded_file2) do
-      fixture_file_upload("us_covid_2020.csv", "text/csv")
-    end
-    let(:uploaded_file3) do
-      fixture_file_upload("orcid.csv", "text/csv")
-    end
     let(:bucket_url) do
       "https://example-bucket.s3.amazonaws.com/"
     end
@@ -49,8 +40,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
 
       stub_request(:put, /#{bucket_url}/).to_return(status: 200)
       stub_request(:delete, /#{delete_url}/).to_return(status: 200)
-      work.pre_curation_uploads.attach(uploaded_file1)
-      work.pre_curation_uploads.attach(uploaded_file2)
       work.save
 
       sign_in user
