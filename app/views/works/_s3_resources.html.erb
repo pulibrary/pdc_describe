@@ -33,7 +33,7 @@
   $(function() {
     // This is needed so that we can swap the URL during testing
     // (for more info see external_identifier_specs.rb)
-    var fileListUrl = '<%= Rails.env.test? ? WORKS_FILE_LIST_URL.gsub(/place-holder/, @work.id.to_s) : work_file_list_path(@work) %>';
+    var fileListUrl = '<%= work_file_list_path(@work) %>';
 
     // Wire DataTable for the file list.
     // Related documentation

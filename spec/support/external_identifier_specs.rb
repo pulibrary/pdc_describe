@@ -84,16 +84,8 @@ class FakeIdentifierIntegration < Sinatra::Base
 
     "#{callback}(#{data.to_json});"
   end
-
-  # We need this endpoint to mimic our own WorksController#file-list because during
-  # system tests we need to call ourselves via AJAX.
-  get "/works/:id/file-list" do |id|
-    work = Work.find(id)
-    work.uploads.to_json
-  end
 end
 
 server = FakeIdentifierIntegration.boot
 ORCID_URL = "http://#{[server.host, server.port].join(':')}/orcid"
 ROR_URL = "http://#{[server.host, server.port].join(':')}/ror"
-WORKS_FILE_LIST_URL = "http://#{[server.host, server.port].join(':')}/works/place-holder/file-list"
