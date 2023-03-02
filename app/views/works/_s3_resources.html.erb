@@ -31,13 +31,17 @@
 
 <script type="text/javascript">
   $(function() {
+    // This is needed so that we can swap the URL during testing
+    // (for more info see external_identifier_specs.rb)
+    var fileListUrl = '<%= Rails.env.test? ? WORKS_FILE_LIST_URL.gsub(/place-holder/, @work.id.to_s) : work_file_list_path(@work) %>';
+
     // Wire DataTable for the file list.
     // Related documentation
     //   AJAX loading: https://datatables.net/manual/ajax
     //   Column display configuration: https://datatables.net/examples/advanced_init/column_render.html
     $('#files-table').DataTable({
       ajax: {
-        url: '<%= work_file_list_path(@work) %>',
+        url: fileListUrl,
         dataSrc: ''
       },
       columns: [

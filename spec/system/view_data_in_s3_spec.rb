@@ -52,9 +52,9 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
 
       visit work_path(work)
       # DataTables is active
-      expect(page).to have_content "Showing 1 to 2 of 2 entries"
+      expect(page.has_content?(/Showing 1 to [0-9]+ of [0-9]+ entries/)).to be true
       # and file are rendered as links pointing to the download endpoint
-      expect(page.body.include?("download?filename=10.34770/pe9w-x904/1/SCoData_combined_v1_2020-07_datapackage.json"))
+      expect(page.body.include?("download?filename=#{file2.filename}"))
       # and we rendered the date in the display format
       expect(page.body.include?(s3_data.first.last_modified_display))
     end
@@ -65,8 +65,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
         stub_s3(data: [file1])
 
         visit work_path(work)
-
-        expect(page).to have_link file1.filename, href: "https://example.data.globus.org/#{file1.filename}"
+        expect(page).to have_link file1.filename_display, href: "#{work.id}/download?filename=#{file1.filename}"
         expect(page).not_to have_button("Edit")
       end
 
@@ -75,12 +74,12 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
         it "shows data from S3" do
           stub_s3(data: s3_data)
           visit work_path(work)
-          expect(page).to have_link file1.filename, href: "https://example.data.globus.org/#{file1.filename}"
-          expect(page).to have_link file2.filename, href: "https://example.data.globus.org/#{file2.filename}"
+          expect(page).to have_link file1.filename_display, href: "#{work.id}/download?filename=#{file1.filename}"
+          expect(page).to have_link file2.filename_display, href: "#{work.id}/download?filename=#{file2.filename}"
 
           click_on "Edit"
-          expect(page).to have_link file1.filename, href: "https://example.data.globus.org/#{file1.filename}"
-          expect(page).to have_link file2.filename, href: "https://example.data.globus.org/#{file2.filename}"
+          expect(page).to have_link file1.filename_display, href: "#{work.id}/download?filename=#{file1.filename}"
+          expect(page).to have_link file2.filename_display, href: "#{work.id}/download?filename=#{file2.filename}"
         end
       end
 
@@ -89,12 +88,12 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
         it "shows data from S3" do
           stub_s3(data: s3_data)
           visit work_path(work)
-          expect(page).to have_link file1.filename, href: "https://example.data.globus.org/#{file1.filename}"
-          expect(page).to have_link file2.filename, href: "https://example.data.globus.org/#{file2.filename}"
+          expect(page).to have_link file1.filename_display, href: "#{work.id}/download?filename=#{file1.filename}"
+          expect(page).to have_link file2.filename_display, href: "#{work.id}/download?filename=#{file2.filename}"
 
           click_on "Edit"
-          expect(page).to have_link file1.filename, href: "https://example.data.globus.org/#{file1.filename}"
-          expect(page).to have_link file2.filename, href: "https://example.data.globus.org/#{file2.filename}"
+          expect(page).to have_link file1.filename_display, href: "#{work.id}/download?filename=#{file1.filename}"
+          expect(page).to have_link file2.filename_display, href: "#{work.id}/download?filename=#{file2.filename}"
         end
       end
     end

@@ -84,8 +84,50 @@ class FakeIdentifierIntegration < Sinatra::Base
 
     "#{callback}(#{data.to_json});"
   end
+
+  get "/works/:id/file-list" do |id|
+    files = []
+    files << {
+      filename: "10.34770/123-abc/#{id}/SCoData_combined_v1_2020-07_README.txt",
+      filename_display: "SCoData_combined_v1_2020-07_README.txt",
+      last_modified: "2022-10-20T20:59:59.000Z",
+      last_modified_display: "10/20/2022 04:59 PM",
+      size: 123,
+      checksum: "12345",
+      url: "/works/#{id}/download?filename=SCoData_combined_v1_2020-07_README.txt"
+    }
+    files << {
+      filename: "10.34770/123-abc/#{id}/SCoData_combined_v1_2020-07_datapackage.json",
+      filename_display: "SCoData_combined_v1_2020-07_datapackage.json",
+      last_modified: "2022-11-20T20:59:59.000Z",
+      last_modified_display: "11/20/2022 04:59 PM",
+      size: 123,
+      checksum: "12345",
+      url: "/works/#{id}/download?filename=SCoData_combined_v1_2020-07_datapackage.json"
+    }
+    files << {
+      filename: "10.34770/123-abc/#{id}/us_covid_2019.csv",
+      filename_display: "us_covid_2019.csv",
+      last_modified: "2022-12-20T20:59:59.000Z",
+      last_modified_display: "12/20/2022 04:59 PM",
+      size: 123,
+      checksum: "12345",
+      url: "/works/#{id}/download?filename=us_covid_2019.csv"
+    }
+    files << {
+      filename: "10.34770/123-abc/#{id}/us_covid_2020.csv",
+      filename_display: "us_covid_2020.csv",
+      last_modified: "2022-12-20T20:59:59.000Z",
+      last_modified_display: "12/20/2022 04:59 PM",
+      size: 123,
+      checksum: "12345",
+      url: "/works/#{id}/download?filename=us_covid_2020.csv"
+    }
+    files.to_json
+  end
 end
 
 server = FakeIdentifierIntegration.boot
 ORCID_URL = "http://#{[server.host, server.port].join(':')}/orcid"
 ROR_URL = "http://#{[server.host, server.port].join(':')}/ror"
+WORKS_FILE_LIST_URL = "http://#{[server.host, server.port].join(':')}/works/place-holder/file-list"

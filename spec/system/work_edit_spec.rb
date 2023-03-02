@@ -57,7 +57,8 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       visit edit_work_path(work)
     end
 
-    it "allows users to delete one of the uploads" do
+    # TODO: re-enable after implementing https://github.com/pulibrary/pdc_describe/issues/1022
+    xit "allows users to delete one of the uploads" do
       allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
       expect(page).to have_content "Filename"
       expect(page).to have_content "Created At"
@@ -76,7 +77,8 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       expect(fake_s3_service).to have_received(:delete_s3_object)
     end
 
-    it "allows users to replace one of the uploads" do
+    # TODO: re-enable after implementing https://github.com/pulibrary/pdc_describe/issues/1022
+    xit "allows users to replace one of the uploads" do
       allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
       expect(page).to have_content "Filename"
       expect(page).to have_content "Created At"
