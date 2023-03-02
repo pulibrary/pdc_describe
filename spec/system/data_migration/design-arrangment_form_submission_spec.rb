@@ -31,7 +31,6 @@ Consult the file README.txt for a more detailed description of the contents."
       fill_in "orcid_1", with: "0000-0002-1104-4434"
       fill_in "given_name_1", with: "Kenneth"
       fill_in "family_name_1", with: "Hammond"
-      byebug
       click_on "Add Another Creator"
       fill_in "given_name_2", with: "Caoxiang"
       fill_in "family_name_2", with: "Zhu"
@@ -61,6 +60,7 @@ Consult the file README.txt for a more detailed description of the contents."
       # https://ror.org/01bj3aw27 == ROR for United States Department of Energy
       page.find(:xpath, "//table[@id='funding']//tr[1]//input[@name='funders[][ror]']").set "https://ror.org/01bj3aw27"
       page.find(:xpath, "//table[@id='funding']//tr[1]//input[@name='funders[][award_number]']").set "DE-AC02-09CH11466"
+     
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2022

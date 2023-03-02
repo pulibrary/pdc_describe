@@ -36,6 +36,7 @@ RSpec.describe "Form submission for migrating attention", type: :system, mock_ez
       fill_in "title_main", with: title
       fill_in "description", with: description
       select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
+      fill_in "orcid_1", with: "0000-0001-9636-8181"
       fill_in "given_name_1", with: "Jacob A."
       fill_in "family_name_1", with: "Schwartz"
       click_on "Add Another Creator"
