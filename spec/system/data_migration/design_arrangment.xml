@@ -1,0 +1,89 @@
+<resource xsi:schemaLocation='http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://datacite.org/schema/kernel-4'>
+  <identifier identifierType='DOI'>10.11578/1888258</identifier>
+  <creators>
+    <creator>
+      <creatorName>Hammond, Kenneth</creatorName>
+      <givenName>Kenneth</givenName>
+      <familyName>Hammond</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0002-1104-4434</nameIdentifier>
+    </creator>
+    <creator>
+      <creatorName>Zhu, Caoxiang</creatorName>
+      <givenName>Caoxiang</givenName>
+      <familyName>Zhu</familyName>
+    </creator>
+    <creator>
+      <creatorName>Korrigan, Keith</creatorName>
+      <givenName>Keith</givenName>
+      <familyName>Korrigan</familyName>
+    </creator>
+    <creator>
+      <creatorName>Gates, David</creatorName>
+      <givenName>David</givenName>
+      <familyName>Gates</familyName>
+    </creator>
+    <creator>
+      <creatorName>Lown, Robert</creatorName>
+      <givenName>Robert</givenName>
+      <familyName>Lown</familyName>
+    </creator>
+    <creator>
+      <creatorName>Mercurio, Robert</creatorName>
+      <givenName>Robert</givenName>
+      <familyName>Mercurio</familyName>
+    </creator>
+    <creator>
+      <creatorName>Qian, Tony</creatorName>
+      <givenName>Tony</givenName>
+      <familyName>Qian</familyName>
+    </creator>
+    <creator>
+      <creatorName>Zarnstorff, Michael</creatorName>
+      <givenName>Michael</givenName>
+      <familyName>Zarnstorff</familyName>
+    </creator>
+  </creators>
+  <titles>
+    <title>
+      Design of an arrangement of cubic magnets for a quasi-axisymmetric
+      stellarator experiment
+    </title>
+  </titles>
+  <publisher>Princeton University</publisher>
+  <resourceType resourceTypeGeneral='Dataset'/>
+  <publicationYear>2022</publicationYear>
+  <fundingReferences>
+    <fundingReference>
+      <funderName>United States Department of Energy</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01bj3aw27</funderIdentifier>
+      <awardNumber awardURI=''>DE-AC02-09CH11466</awardNumber>
+    </fundingReference>
+  </fundingReferences>
+  <relatedIdentifiers>
+    <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp01x059cb547</relatedIdentifier>
+  </relatedIdentifiers>
+  <version>1</version>
+  <rightsList>
+    <rights rightsURI='https://creativecommons.org/licenses/by/4.0/' rightsIdentifier='CC BY'>Creative Commons Attribution 4.0 International</rights>
+  </rightsList>
+  <descriptions>
+    <description descriptionType='Other'>
+      The usage of permanent magnets to shape the confining field of a
+      stellarator has the potential to reduce or eliminate the need for
+      non-planar coils. As a proof-of-concept for this idea, we have developed a
+      procedure for designing an array of cubic permanent magnets that works in
+      tandem with a set of toroidal-field coils to confine a stellarator plasma.
+      All of the magnets in the design are constrained to have identical
+      geometry and one of three polarization types in order to simplify
+      fabrication while still producing sufficient field accuracy. We present
+      some of the key steps leading to the design, including the geometric
+      arrangement of the magnets around the device, the procedure for optimizing
+      the polarizations according to three allowable magnet types, and the
+      choice of magnet types to be used. We apply these methods to design an
+      array of rare-Earth permanent magnets that can be paired with a set of
+      planar toroidal-field coils to confine a quasi-axisymmetric plasma with a
+      toroidal magnetic field strength of about 0.5 T on axis. Consult the file
+      README.txt for a more detailed description of the contents.
+    </description>
+  </descriptions>
+</resource>
