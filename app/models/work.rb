@@ -405,12 +405,7 @@ class Work < ApplicationRecord
     nil
   end
 
-  def as_json(options = nil)
-    if options&.present?
-      raise(StandardError, "Received options #{options}, but not supported")
-      # Included in signature for compatibility with Rails.
-    end
-
+  def as_json(*)
     # Pre-curation files are not accessible externally,
     # so we are not interested in listing them in JSON.
     # (The items in pre_curation_uploads also have different properties.)
