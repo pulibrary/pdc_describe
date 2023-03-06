@@ -7,7 +7,7 @@ class Work < ApplicationRecord
 
   has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many :user_work, -> { order(updated_at: :desc) }, dependent: :destroy
-  has_many :snapshot, -> { order(updated_at: :desc) }, dependent: :destroy
+  has_many :upload_snapshots, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many_attached :pre_curation_uploads, service: :amazon_pre_curation
 
   belongs_to :collection

@@ -942,4 +942,41 @@ RSpec.describe Work, type: :model do
       expect(S3QueryService).to have_received(:new).once
     end
   end
+
+  describe "#upload_snapshots" do
+    let(:upload_snapshot1) { FactoryBot.create(:upload_snapshot, work: work) }
+    let(:upload_snapshot2) { FactoryBot.create(:upload_snapshot, work: work) }
+
+    before do
+      upload_snapshot1
+      upload_snapshot2
+    end
+
+    it "accesses the associating UploadSnapshots" do
+      expect(work.upload_snapshots).not_to be_empty
+      expect(work.upload_snapshots.length).to eq(2)
+      expect(work.upload_snapshots).to include(upload_snapshot1)
+      expect(work.upload_snapshots).to include(upload_snapshot2)
+    end
+  end
+
+  describe "#destroy" do
+    let(:upload_snapshot1) { FactoryBot.create(:upload_snapshot, work: work) }
+    let(:upload_snapshot2) { FactoryBot.create(:upload_snapshot, work: work) }
+
+    before do
+      upload_snapshot1
+      upload_snapshot2
+    end
+
+    it "destroys all associated UploadSnapshots" do
+      expect(work.upload_snapshots).not_to be_empty
+      expect(work.upload_snapshots.length).to eq(2)
+      expect(work.upload_snapshots).to include(upload_snapshot1)
+      expect(work.upload_snapshots).to include(upload_snapshot2)
+
+      work.destroy
+      expect(UploadSnapshot.all).to be_empty
+    end
+  end
 end
