@@ -355,6 +355,7 @@ RSpec.describe Work, type: :model do
     end
   end
 
+  # Is this test providing any coverage?
   describe "#pre_curation_uploads" do
     let(:uploaded_file) do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
