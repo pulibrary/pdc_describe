@@ -74,4 +74,16 @@ RSpec.describe S3File, type: :model do
       end
     end
   end
+
+  describe "#create_snapshot" do
+    let(:snapshot) { s3_file.create_snapshot }
+
+    it "creates an UploadSnapshot" do
+      expect(snapshot).not_to be_nil
+      expect(snapshot).to be_an(UploadSnapshot)
+      expect(snapshot.uri).to eq(s3_file.url)
+      expect(snapshot.work).to eq(work)
+      expect(snapshot.upload).to eq(s3_file)
+    end
+  end
 end
