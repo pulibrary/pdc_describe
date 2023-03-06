@@ -14,6 +14,7 @@ class S3File
     @size = size
     @checksum = checksum.delete('"')
     @url = work_download_path(work, filename: filename)
+    @work = work
   end
 
   def created_at
@@ -41,6 +42,14 @@ class S3File
     blob = ActiveStorage::Blob.create_before_direct_upload!(**params)
     blob.key = filename
     blob
+  end
+
+  # Create a new snapshot of the current upload
+  # @return [UploadSnapshot]
+  def create_snapshot
+    created = UploadSnapshot.create(uri: url, work: @work)
+    created.upload = self
+    created
   end
 
   private
