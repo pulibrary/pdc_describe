@@ -7,6 +7,7 @@ class Work < ApplicationRecord
 
   has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many :user_work, -> { order(updated_at: :desc) }, dependent: :destroy
+  has_many :upload_snapshots, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many_attached :pre_curation_uploads, service: :amazon_pre_curation
 
   belongs_to :collection
@@ -404,12 +405,7 @@ class Work < ApplicationRecord
     nil
   end
 
-  def as_json(options = nil)
-    if options&.present?
-      raise(StandardError, "Received options #{options}, but not supported")
-      # Included in signature for compatibility with Rails.
-    end
-
+  def as_json(*)
     # Pre-curation files are not accessible externally,
     # so we are not interested in listing them in JSON.
     # (The items in pre_curation_uploads also have different properties.)
