@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "Form submission for migrating design-arrangment", type: :system, mock_ezid_api: true, js: true do
-  let(:user) { FactoryBot.create(:research_data_moderator) }
+  let(:user) { FactoryBot.create(:pppl_moderator) }
   let(:title) { "Design of an arrangement of cubic magnets for a quasi-axisymmetric stellarator experiment" }
   let(:description) do
     "The usage of permanent magnets to shape the confining field of a stellarator has the potential to reduce or eliminate the need for non-planar coils. As a proof-of-concept for this idea, we have developed a procedure for designing an array of cubic permanent magnets that works in tandem with a set of toroidal-field coils to confine a stellarator plasma. All of the magnets in the design are constrained to have identical geometry and one of three polarization types in order to simplify fabrication while still producing sufficient field accuracy. We present some of the key steps leading to the design, including the geometric arrangement of the magnets around the device, the procedure for optimizing the polarizations according to three allowable magnet types, and the choice of magnet types to be used. We apply these methods to design an array of rare-Earth permanent magnets that can be paired with a set of planar toroidal-field coils to confine a quasi-axisymmetric plasma with a toroidal magnetic field strength of about 0.5 T on axis.
@@ -10,7 +10,7 @@ RSpec.describe "Form submission for migrating design-arrangment", type: :system,
 Consult the file README.txt for a more detailed description of the contents."
   end
   let(:ark) { "ark:/88435/dsp01x059cb547" }
-  let(:collection) { "Research Data" }
+  let(:collection) { "Princeton Plasma Physics Laboratory" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.11578/1888258" }
   let(:keywords) { "" }
@@ -64,7 +64,7 @@ Consult the file README.txt for a more detailed description of the contents."
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2022
-      select "Research Data", from: "collection_id"
+      select collection, from: "collection_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"

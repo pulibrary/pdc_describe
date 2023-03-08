@@ -66,10 +66,10 @@
   <descriptions>
     <description descriptionType='Other'>
       Coronal mass ejections are solar eruptions driven by a sudden release of
-      magnetic energy stored in the Sun’s corona. In many cases, this magnetic
-      energy is stored in long-lived, arched structures called magnetic flux
-      ropes. When a flux rope destabilizes, it can either erupt and produce a
-      coronal mass ejection or fail and collapse back towards the Sun. The
+      magnetic energy stored in the Sun&apos;s corona. In many cases, this
+      magnetic energy is stored in long-lived, arched structures called magnetic
+      flux ropes. When a flux rope destabilizes, it can either erupt and produce
+      a coronal mass ejection or fail and collapse back towards the Sun. The
       prevailing belief is that the outcome of a given event is determined by a
       magnetohydrodynamic force imbalance called the torus instability. This
       belief is challenged, however, by observations indicating that
@@ -78,14 +78,14 @@
       measurements and the limitations of idealized numerical modelling. Here we
       report the results of a laboratory experiment that reveal a previously
       unknown eruption criterion below which torus-unstable flux ropes fail to
-      erupt. We find that such ‘failed torus’ events occur when the guide
-      magnetic field (that is, the ambient field that runs toroidally along the
-      flux rope) is strong enough to prevent the flux rope from kinking. Under
-      these conditions, the guide field interacts with electric currents in the
-      flux rope to produce a dynamic toroidal field tension force that halts the
-      eruption. This magnetic tension force is missing from existing eruption
-      models, which is why such models cannot explain or predict failed torus
-      events.
+      erupt. We find that such &apos;failed torus&apos; events occur when the
+      guide magnetic field (that is, the ambient field that runs toroidally
+      along the flux rope) is strong enough to prevent the flux rope from
+      kinking. Under these conditions, the guide field interacts with electric
+      currents in the flux rope to produce a dynamic toroidal field tension
+      force that halts the eruption. This magnetic tension force is missing from
+      existing eruption models, which is why such models cannot explain or
+      predict failed torus events.
     </description>
   </descriptions>
 </resource>

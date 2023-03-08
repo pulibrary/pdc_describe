@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "Form submission for observation-axisymmetric", type: :system, mock_ezid_api: true, js: true do
-  let(:user) { FactoryBot.create(:research_data_moderator) }
+  let(:user) { FactoryBot.create(:pppl_moderator) }
   let(:title) { "Source data for Observation of Axisymmetric Standard Magnetorotational Instability in the Laboratory" }
   let(:description) do
     "Source data for the article Observation of Axisymmetric Standard Magnetorotational Instability in the Laboratory published in Physical Review Letters.
@@ -10,7 +10,7 @@ RSpec.describe "Form submission for observation-axisymmetric", type: :system, mo
 Source data for Figure 2, Figure 4, Figure 5 and Figure 7 of the article Observation of Axisymmetric Standard Magnetorotational Instability in the Laboratory published in Physical Review Letters."
   end
   let(:ark) { "ark:/88435/dsp018623j1954" }
-  let(:collection) { "Research Data" }
+  let(:collection) { "Princeton Plasma Physics Laboratory" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.11578/1888278" }
   let(:keywords) { "magnetorotational instability, taylor-couette flow, liquid metal, mhd instability, accretion disk" }
@@ -62,7 +62,7 @@ Source data for Figure 2, Figure 4, Figure 5 and Figure 7 of the article Observa
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2022
-      select "Research Data", from: "collection_id"
+      select collection, from: "collection_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"

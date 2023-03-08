@@ -2,13 +2,13 @@
 require "rails_helper"
 
 RSpec.describe "Form submission for migrating dynamic-tension", type: :system, mock_ezid_api: true, js: true do
-  let(:user) { FactoryBot.create(:research_data_moderator) }
+  let(:user) { FactoryBot.create(:pppl_moderator) }
   let(:title) { "A dynamic magnetic tension force as the cause of failed solar eruptions" }
   let(:description) do
-    "Coronal mass ejections are solar eruptions driven by a sudden release of magnetic energy stored in the Sun’s corona. In many cases, this magnetic energy is stored in long-lived, arched structures called magnetic flux ropes. When a flux rope destabilizes, it can either erupt and produce a coronal mass ejection or fail and collapse back towards the Sun. The prevailing belief is that the outcome of a given event is determined by a magnetohydrodynamic force imbalance called the torus instability. This belief is challenged, however, by observations indicating that torus-unstable flux ropes sometimes fail to erupt. This contradiction has not yet been resolved because of a lack of coronal magnetic field measurements and the limitations of idealized numerical modelling. Here we report the results of a laboratory experiment that reveal a previously unknown eruption criterion below which torus-unstable flux ropes fail to erupt. We find that such ‘failed torus’ events occur when the guide magnetic field (that is, the ambient field that runs toroidally along the flux rope) is strong enough to prevent the flux rope from kinking. Under these conditions, the guide field interacts with electric currents in the flux rope to produce a dynamic toroidal field tension force that halts the eruption. This magnetic tension force is missing from existing eruption models, which is why such models cannot explain or predict failed torus events."
+    "Coronal mass ejections are solar eruptions driven by a sudden release of magnetic energy stored in the Sun's corona. In many cases, this magnetic energy is stored in long-lived, arched structures called magnetic flux ropes. When a flux rope destabilizes, it can either erupt and produce a coronal mass ejection or fail and collapse back towards the Sun. The prevailing belief is that the outcome of a given event is determined by a magnetohydrodynamic force imbalance called the torus instability. This belief is challenged, however, by observations indicating that torus-unstable flux ropes sometimes fail to erupt. This contradiction has not yet been resolved because of a lack of coronal magnetic field measurements and the limitations of idealized numerical modelling. Here we report the results of a laboratory experiment that reveal a previously unknown eruption criterion below which torus-unstable flux ropes fail to erupt. We find that such 'failed torus' events occur when the guide magnetic field (that is, the ambient field that runs toroidally along the flux rope) is strong enough to prevent the flux rope from kinking. Under these conditions, the guide field interacts with electric currents in the flux rope to produce a dynamic toroidal field tension force that halts the eruption. This magnetic tension force is missing from existing eruption models, which is why such models cannot explain or predict failed torus events."
   end
   let(:ark) { "ark:/88435/dsp01j3860933c" }
-  let(:collection) { "Research Data" }
+  let(:collection) { "Princeton Plasma Physics Laboratory" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.11578/1366453" }
   let(:keywords) { "laboratory plasma astrophysics, solar eruptions, coronal mass ejections, magnetohydrodynamic instabilities" }
@@ -62,7 +62,7 @@ RSpec.describe "Form submission for migrating dynamic-tension", type: :system, m
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2015
-      select "Research Data", from: "collection_id"
+      select collection, from: "collection_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"
