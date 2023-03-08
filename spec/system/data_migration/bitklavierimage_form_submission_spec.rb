@@ -68,7 +68,7 @@ This dataset is too large to download directly from this item page. You can acce
       expect(bitklavierimage_work.resource.collection_tags).to eq collection_tags
       expect(bitklavierimage_work.collection).to eq Collection.research_data
       expect(bitklavierimage_work.ark).to eq ark
-      export_spec_data("baldwin.json", bitklavierimage_work.to_json)
+      export_spec_data("bitklavier_image.json", bitklavierimage_work.to_json)
 
       # Ensure the datacite record produced validates against our local copy of the datacite schema.
       # This will allow us to evolve our local datacite standards and test our records against them.
