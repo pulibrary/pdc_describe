@@ -29,6 +29,18 @@ Cataloging application for PDC content and more
 1. Install language-specific dependencies
     1. `bundle install`
     1. `yarn install`
+1. Set up local AWS credentials
+   1. Put a stanza like this in your UNIX setup environment (e.g., `.zshrc` or `.bashrc`). Get the AWS secrets from the staging server:
+   ```
+   # AWS settings for PDC Describe
+   # (copied these values from ENV staging)
+   export AWS_S3_POST_CURATE_BUCKET="pdc-describe-staging-postcuration"
+   export AWS_S3_PRE_CURATE_BUCKET="pdc-describe-staging-precuration"
+   export AWS_S3_SECRET_KEY="AWS_S3_SECRET_KEY"
+   export AWS_S3_POST_CURATE_REGION="us-east-1"
+   export AWS_S3_PRE_CURATE_REGION="us-east-1"
+   export AWS_S3_KEY_ID="AWS_S3_KEY_ID"
+   ```
 
 ### Starting / stopping services
 We use lando to run services required for both test and development environments.
