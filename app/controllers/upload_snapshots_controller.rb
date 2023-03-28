@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 class UploadSnapshotsController < ApplicationController
-  # POST /upload-snapshots/:work_id
+  # POST /upload-snapshots/:work_id/:uri
+  # Here the URI specifies the specific upload for which the snapshot is being generated
   def create
+    upload = find_upload(uri: uri_param)
     @upload_snapshot = upload.create_snapshot
     flash[:notice] = "Successfully created the upload snapshot #{@upload_snapshot.uri} for work #{work.id}."
     redirect_to work_path(work)
@@ -14,6 +16,7 @@ class UploadSnapshotsController < ApplicationController
   end
 
   # DELETE /upload-snapshots/:id
+  # Destroys the snapshot after resolving it from the database ID
   def destroy
     current_work = upload_snapshot.work
     upload_snapshot_uri = upload_snapshot.uri
@@ -51,18 +54,18 @@ class UploadSnapshotsController < ApplicationController
       @work_id
     end
 
-    def uri
-      @uri = params[:uri]
-      raise(ArgumentError, "No URI provided for the file upload.") unless @uri
+    def uri_param
+      @uri_param = params[:uri]
+      raise(ArgumentError, "No URI provided for the file upload.") unless @uri_param
 
-      @uri
+      @uri_param
     end
 
     def work
       @work ||= Work.find(work_id)
     end
 
-    def upload
+    def find_upload(uri:)
       work.uploads.find { |s3_file| uri.include?(s3_file.url) }
     end
 end
