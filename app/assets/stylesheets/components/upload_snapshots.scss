@@ -1,0 +1,30 @@
+
+.upload {
+  padding-top: 1.9rem;
+
+  &__attributes {
+    margin-bottom: 1rem;
+  }
+
+  &__filename {
+    font-size: 1.2rem;
+  }
+}
+
+.upload-snapshot {
+
+  &__header-button {
+    max-width: min-content;
+  }
+
+  &-form {
+    display: inline-flex;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    justify-content: space-between;
+
+    &__submit {
+      margin-left: 0.75rem;
+    }
+  }
+}

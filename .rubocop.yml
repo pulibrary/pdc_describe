@@ -21,26 +21,42 @@ Layout/LineLength:
   Exclude:
     - "spec/system/data_migration/*"
 
+Metrics/AbcSize:
+  Exclude:
+    - app/models/work.rb
+    - app/models/work_activity.rb
+
 Metrics/BlockLength:
   Exclude:
     - "config/environments/**/*"
     - "lib/tasks/**/*"
     - "spec/**/*"
+    - "config/routes.rb"
   Max: 40 # default: 25
 
 Metrics/ClassLength:
   Exclude: []
   Max: 150 # default: 100
 
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - app/models/work.rb
+    - app/models/work_activity.rb
+
 Metrics/MethodLength:
-  Exclude: []
+  Exclude:
+    - "app/models/s3_file.rb"
+    - app/models/work.rb
+    - app/models/work_activity.rb
   Max: 15 # default: 10
 
 Metrics/ParameterLists:
   Enabled: false
 
 Metrics/PerceivedComplexity:
-  Exclude: []
+  Exclude:
+    - app/models/work.rb
+    - app/models/work_activity.rb
 
 Style/GuardClause:
   Enabled: false

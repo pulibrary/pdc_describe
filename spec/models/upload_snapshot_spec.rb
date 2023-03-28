@@ -2,14 +2,30 @@
 require "rails_helper"
 
 RSpec.describe UploadSnapshot, type: :model do
-  subject(:upload_snapshot) { described_class.new(uri: uri, work: work) }
+  subject(:upload_snapshot) { described_class.new(filename: filename, url: url, work: work) }
 
-  let(:uri) { "/works/1/download?filename=10.34770%2F123-abc%2F1%2Fus_covid_2019.csv" }
+  let(:filename) { "us_covid_2019.csv" }
+  let(:url) { "http://localhost.localdomain/us_covid_2019.csv" }
   let(:work) { FactoryBot.create(:approved_work) }
 
+  describe "#filename" do
+    it "accesses the filename attribute" do
+      expect(upload_snapshot.filename).to eq(filename)
+    end
+  end
+
+  describe "#url" do
+    it "accesses the URL attribute" do
+      expect(upload_snapshot.url).to eq(url)
+    end
+  end
+
   describe "#uri" do
+    let(:uri) { upload_snapshot.uri }
+
     it "accesses the URI field" do
-      expect(upload_snapshot.uri).to eq(uri)
+      expect(uri).to be_a(URI::HTTP)
+      expect(uri.to_s).to eq(url)
     end
   end
 
@@ -29,8 +45,9 @@ RSpec.describe UploadSnapshot, type: :model do
     end
 
     context "when the Work has not yet been approved" do
-      let(:file1) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work: work, size: 1024) }
-      let(:uri) { file1.url }
+      let(:filename) { "#{work.doi}/#{work.id}/us_covid_2019.csv" }
+      let(:file1) { FactoryBot.build(:s3_file, filename: filename, work: work, size: 1024) }
+      let(:url) { file1.url }
 
       let(:pre_curation_data_profile) { { objects: [file1] } }
       let(:post_curation_data_profile) { { objects: [] } }
@@ -57,8 +74,9 @@ RSpec.describe UploadSnapshot, type: :model do
     end
 
     context "when the Work has been approved" do
-      let(:file2) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv", work: work, size: 2048) }
-      let(:uri) { file2.url }
+      let(:filename) { "#{work.doi}/#{work.id}/us_covid_2019_2.csv" }
+      let(:file2) { FactoryBot.build(:s3_file, filename: filename, work: work, size: 2048) }
+      let(:url) { file2.url }
 
       let(:pre_curated_data_profile) { { objects: [file2] } }
       let(:post_curation_data_profile) { { objects: [file2] } }

@@ -355,8 +355,25 @@ class Work < ApplicationRecord
     pre_curation_uploads_fast
   end
 
+  def local_pre_curation_s3_files
+    return [] unless Rails.env.development?
+    loaded = pre_curation_uploads.sort_by(&:filename)
+
+    loaded.map do |attachment|
+      S3File.new(
+        work: self,
+        filename: attachment.key,
+        last_modified: attachment.created_at,
+        size: nil,
+        checksum: ""
+      )
+    end
+  end
+
   # Fetches the data from S3 directly bypassing ActiveStorage
   def pre_curation_uploads_fast
+    return local_pre_curation_s3_files if Rails.env.development?
+
     s3_query_service.client_s3_files.sort_by(&:filename)
   end
 
@@ -377,6 +394,60 @@ class Work < ApplicationRecord
     s3_resources
   end
   alias post_curation_uploads post_curation_s3_resources
+
+  def build_snapshots(s3_resources)
+    results = s3_resources.map do |s3_file|
+      UploadSnapshot.find_or_build_by(url: s3_file.url, filename: s3_file.filename, work: self)
+    end
+
+    s3_resource_urls = s3_resources.map(&:url)
+    s3_resource_filenames = s3_resources.map(&:filename)
+
+    persisted = results.reject do |snapshot|
+      removed = !s3_resource_urls.include?(snapshot.url) && !s3_resource_filenames.include?(snapshot.filename)
+
+      if removed
+        snapshot.destroy
+        changes = {
+          action: "removed"
+        }
+        WorkActivity.add_work_activity(id, changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES)
+      end
+
+      removed
+    end
+
+    s3_resources.map do |s3_file|
+      snapshot = persisted.find { |s| s.url == s3_file.url && s.filename == s3_file.filename }
+
+      if snapshot.checksum != s3_file.checksum
+        # cases where the s3 resources are replaced
+        snapshot.checksum = s3_file.checksum
+        changes = if !snapshot.persisted?
+                    {
+                      action: "added"
+                    }
+                  else
+                    {
+                      action: "replaced"
+                    }
+                  end
+        snapshot.save
+
+        WorkActivity.add_work_activity(id, changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES)
+      end
+
+      snapshot.reload
+    end
+  end
+
+  def pre_curation_snapshots
+    @pre_curation_snapshots ||= build_snapshots(pre_curation_s3_resources)
+  end
+
+  def post_curation_snapshots
+    @post_curation_snapshots ||= build_snapshots(post_curation_s3_resources)
+  end
 
   def s3_client
     s3_query_service.client

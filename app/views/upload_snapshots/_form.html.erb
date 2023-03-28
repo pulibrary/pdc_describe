@@ -1,0 +1,7 @@
+<% uploads.each do |upload| %>
+  <%= form_with(method: "POST", url: create_upload_snapshot_path, class: ["upload-snapshot-form form container-fluid"] ) do |form| %>
+    <%= form.hidden_field :work_id, value: @work.id %>
+    <%= form.hidden_field :key, value: upload.key %>
+    <%= form.submit "New Snapshot", class: ["btn", "btn-primary", "upload-snapshot-form__submit"] %>
+  <% end %>
+<% end %>

@@ -72,7 +72,9 @@ ActiveRecord::Schema.define(version: 2023_03_03_165757) do
   end
 
   create_table "upload_snapshots", force: :cascade do |t|
-    t.string "uri", null: false
+    t.string "filename"
+    t.string "url"
+    t.bigint "version"
     t.bigint "work_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false

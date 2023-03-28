@@ -75,6 +75,9 @@
     <% if @work.editable_in_current_state?(current_user)  %>
       <%= link_to("Edit", edit_work_path(@work, wizard: @work.draft?), class: "btn btn-primary") %>
     <% end %>
+    <% if @work.editable_in_current_state?(current_user) %>
+      <%= link_to("File Upload Snapshots", edit_upload_snapshot_path(@work), class: "btn btn-primary") %>
+    <% end %>
     <% if @work.awaiting_approval? && current_user.has_role?(:collection_admin, @collection) %>
       <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post) %>
     <% elsif @work.approved? %>
