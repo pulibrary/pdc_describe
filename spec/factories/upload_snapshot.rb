@@ -2,7 +2,8 @@
 
 FactoryBot.define do
   factory :upload_snapshot do
-    uri { "https://localhost.localdomain/file.txt" }
+    url { "https://localhost.localdomain/file.txt" }
+    version { 1 }
     work { FactoryBot.create(:approved_work) }
   end
 end

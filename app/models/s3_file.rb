@@ -31,6 +31,15 @@ class S3File
     File.join(Rails.configuration.globus["post_curation_base_url"], encoded_filename)
   end
 
+  def create_blob(key: nil)
+    key ||= filename
+    params = { filename: filename, content_type: "", byte_size: size, checksum: checksum }
+
+    blob = ActiveStorage::Blob.create_before_direct_upload!(**params)
+    blob.key = key
+    blob
+  end
+
   def to_blob
     existing_blob = ActiveStorage::Blob.find_by(key: filename)
 
@@ -39,18 +48,46 @@ class S3File
       return existing_blob
     end
 
-    params = { filename: filename, content_type: "", byte_size: size, checksum: checksum }
-    blob = ActiveStorage::Blob.create_before_direct_upload!(**params)
-    blob.key = filename
-    blob
+    create_blob
+  end
+
+  delegate :s3_query_service, to: :@work
+  delegate :bucket_name, to: :s3_query_service
+  def s3_client
+    s3_query_service.client
   end
 
   # Create a new snapshot of the current upload
   # @return [UploadSnapshot]
   def create_snapshot
-    created = UploadSnapshot.create(uri: url, work: @work)
+    created = UploadSnapshot.create(url: url, filename: filename, work: @work)
+
+    persisted_blob = create_blob(key: created.key)
+    created.bitstream.attach(persisted_blob)
+
+    copy_source = "/#{bucket_name}/#{key}"
+    params = {
+      copy_source: copy_source,
+      bucket: bucket_name,
+      key: created.key
+    }
+    Rails.logger.info("Copying #{copy_source} to #{created.key}")
+    s3_client.copy_object(params)
+
+    persisted_blob = create_blob(key: created.key)
+    created.bitstream.attach(persisted_blob)
+
     created.upload = self
-    created
+    created.save
+    created.reload
+  end
+
+  # @return [UploadSnapshot]
+  def snapshots
+    persisted = UploadSnapshot.where(key: key, url: url, work: @work)
+    return [] if persisted.blank?
+
+    persisted
   end
 
   private

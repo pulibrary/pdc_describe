@@ -355,8 +355,25 @@ class Work < ApplicationRecord
     pre_curation_uploads_fast
   end
 
+  def local_pre_curation_s3_files
+    return [] unless Rails.env.development?
+    loaded = pre_curation_uploads.sort_by(&:filename)
+
+    loaded.map do |attachment|
+      S3File.new(
+        work: self,
+        filename: attachment.key,
+        last_modified: attachment.created_at,
+        size: nil,
+        checksum: ""
+      )
+    end
+  end
+
   # Fetches the data from S3 directly bypassing ActiveStorage
   def pre_curation_uploads_fast
+    return local_pre_curation_s3_files if Rails.env.development?
+
     s3_query_service.client_s3_files.sort_by(&:filename)
   end
 

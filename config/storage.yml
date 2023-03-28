@@ -13,8 +13,8 @@ development: &development
 # AWS is the default as the will not really work without AWS
 #  You can go back to local if needed for some reason, just be aware the uploaded
 #  files will not display in the edit or the show pages
-#  <<: *local
-   <<: *amazon
+#   <<: *amazon
+  <<: *local
 
 
 amazon_pre_curation:

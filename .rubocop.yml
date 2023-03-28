@@ -26,6 +26,7 @@ Metrics/BlockLength:
     - "config/environments/**/*"
     - "lib/tasks/**/*"
     - "spec/**/*"
+    - "config/routes.rb"
   Max: 40 # default: 25
 
 Metrics/ClassLength:
@@ -33,7 +34,8 @@ Metrics/ClassLength:
   Max: 150 # default: 100
 
 Metrics/MethodLength:
-  Exclude: []
+  Exclude:
+    - "app/models/s3_file.rb"
   Max: 15 # default: 10
 
 Metrics/ParameterLists:

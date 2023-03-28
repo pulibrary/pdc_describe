@@ -3,6 +3,7 @@ require "rails_helper"
 
 RSpec.describe S3File, type: :model do
   subject(:s3_file) { described_class.new(filename: filename, last_modified: last_modified, size: size, checksum: checksum, work: work) }
+
   let(:work) { FactoryBot.create(:draft_work) }
   let(:filename) { "#{work.doi}/#{work.id}/filename [with spaces] wéî®∂ chars.txt" }
   let(:last_modified) { Time.parse("2022-04-21T18:29:40.000Z") }
@@ -82,14 +83,53 @@ RSpec.describe S3File, type: :model do
   end
 
   describe "#create_snapshot" do
-    let(:snapshot) { s3_file.create_snapshot }
+    let(:s3_file) do
+      S3File.new(
+        filename: "SCoData_combined_v1_2020-07_README.txt",
+        last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
+        size: 12_739,
+        checksum: "abc567",
+        work: work
+      )
+    end
+    let(:blob) do
+      s3_file.to_blob
+    end
+    let(:s3_client) { instance_double(Aws::S3::Client) }
+    let(:s3_query_service) { instance_double(S3QueryService) }
+    let(:bitstream) { instance_double(ActiveStorage::Attached::One) }
+    let(:upload_snapshot) { instance_double(UploadSnapshot) }
+
+    before do
+      allow(s3_client).to receive(:copy_object)
+      allow(work.s3_query_service).to receive(:client).and_return(s3_client)
+
+      allow(upload_snapshot).to receive(:reload)
+      allow(upload_snapshot).to receive(:key).and_return("test-key")
+      allow(upload_snapshot).to receive(:save)
+      allow(upload_snapshot).to receive(:upload=)
+      allow(bitstream).to receive(:attach)
+      allow(upload_snapshot).to receive(:bitstream).and_return(bitstream)
+      allow(UploadSnapshot).to receive(:create).and_return(upload_snapshot)
+
+      allow(Rails.logger).to receive(:info)
+
+      blob
+      s3_file.create_snapshot
+    end
 
     it "creates an UploadSnapshot" do
-      expect(snapshot).not_to be_nil
-      expect(snapshot).to be_an(UploadSnapshot)
-      expect(snapshot.uri).to eq(s3_file.url)
-      expect(snapshot.work).to eq(work)
-      expect(snapshot.upload).to eq(s3_file)
+      expect(Rails.logger).to have_received(:info).with("Copying /example-bucket/SCoData_combined_v1_2020-07_README.txt to test-key")
+      expect(s3_client).to have_received(:copy_object).with({
+                                                              copy_source: "/example-bucket/SCoData_combined_v1_2020-07_README.txt",
+                                                              bucket: "example-bucket",
+                                                              key: "test-key"
+                                                            })
+      expect(upload_snapshot).to have_received(:bitstream).at_least(:once)
+      expect(bitstream).to have_received(:attach).at_least(:once)
+      expect(upload_snapshot).to have_received(:upload=)
+      expect(upload_snapshot).to have_received(:save)
+      expect(upload_snapshot).to have_received(:reload)
     end
   end
 end

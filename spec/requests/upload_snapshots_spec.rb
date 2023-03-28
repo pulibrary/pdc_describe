@@ -10,7 +10,7 @@ RSpec.describe "UploadSnapshots", type: :request do
 
   # uploads
   let(:file2) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv", work: work, size: 2048) }
-  let(:uri) { file2.url }
+  let(:key) { file2.key }
 
   let(:pre_curated_data_profile) { { objects: [file2] } }
   let(:post_curation_data_profile) { { objects: [file2] } }
@@ -35,13 +35,32 @@ RSpec.describe "UploadSnapshots", type: :request do
       let(:params) do
         {
           work_id: work_id,
-          uri: uri
+          key: key
         }
       end
 
       it "creates a new UploadSnapshot and redirects the client to the Works#show view" do
         post "/upload-snapshots", params: params
-        expect(response).to redirect_to(current_work_path)
+
+        response_location = edit_upload_snapshot_path(work)
+        expect(response).to redirect_to(response_location)
+
+        persisted = UploadSnapshot.all
+        expect(persisted.length).to eq(1)
+        expect(persisted.first.version).to eq(1)
+        expect(persisted.first.bitstream).to be_a(ActiveStorage::Attached::One)
+      end
+
+      context "when creating multiple snapshots" do
+        it "multiple versions are persisted" do
+          post "/upload-snapshots", params: params
+          post "/upload-snapshots", params: params
+
+          persisted = UploadSnapshot.all
+          expect(persisted.length).to eq(2)
+          expect(persisted.first.version).to eq(1)
+          expect(persisted.last.version).to eq(2)
+        end
       end
 
       context "when an error is raised connecting to the server API" do
@@ -69,7 +88,9 @@ RSpec.describe "UploadSnapshots", type: :request do
 
       it "deletes an existing UploadSnapshot and redirects the client to the Works#show view" do
         delete "/upload-snapshots/#{id}"
-        expect(response).to redirect_to(current_work_path)
+
+        response_location = edit_upload_snapshot_path(work)
+        expect(response).to redirect_to(response_location)
       end
 
       context "when an error is raised retrieving the persisted upload snapshot" do
