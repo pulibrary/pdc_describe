@@ -115,7 +115,7 @@ RSpec.describe WorksController do
         sign_in user
         post :update, params: params
         expect(response.status).to be 302
-        expect(response.location).to eq "http://test.host/works/#{work.id}/attachment-select"
+        expect(response.location).to eq "http://test.host/works/#{work.id}/readme-select"
         expect(ActiveStorage::PurgeJob).not_to have_received(:new)
       end
     end
@@ -635,6 +635,49 @@ RSpec.describe WorksController do
 
         # original copies of the files get deleted
         expect(fake_s3_service).to have_received(:delete_s3_object).twice
+      end
+    end
+
+    describe "#readme_select" do
+      it "renders view to upload the readme" do
+        sign_in user
+        get :readme_select, params: { id: work.id }
+        expect(response).to render_template(:readme_select)
+      end
+    end
+
+    describe "#readme_uploaded" do
+      let(:bucket_url) do
+        "https://example-bucket.s3.amazonaws.com/"
+      end
+
+      let(:fake_s3_service) { stub_s3 }
+      let(:params) do
+        {
+          "_method" => "patch",
+          "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
+          "patch" => {
+            "readme_file" => uploaded_file
+          },
+          "commit" => "Continue",
+          "controller" => "works",
+          "action" => "file_uploaded",
+          "id" => work.id
+        }
+      end
+
+      before do
+        fake_s3_service
+        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+        sign_in user
+        post :readme_uploaded, params: params
+      end
+
+      it "redirects to file-upload" do
+        expect(response.status).to be 302
+        work.reload
+        expect(work.pre_curation_uploads[0].key).to eq("#{work.doi}/#{work.id}/README.csv")
+        expect(response.location).to eq "http://test.host/works/#{work.id}/attachment-select"
       end
     end
 

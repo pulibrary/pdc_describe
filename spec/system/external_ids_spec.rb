@@ -24,6 +24,7 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
     click_on "Save Work"
     click_on "Continue"
     click_on "Continue"
+    click_on "Continue"
     click_on "Complete"
 
     expect(page).to have_content "awaiting_approval"

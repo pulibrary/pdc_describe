@@ -1,6 +1,6 @@
 <div class="wizard-area">
   <h1><%= t('works.form.file_upload.heading', work_title: @work.title) %></h1>
-  <%= render "wizard_progress", wizard_step: 2 %>
+  <%= render "wizard_progress", wizard_step: 3 %>
   <%= form_with(model: @work, scope: :patch, url: work_file_uploaded_path(id: @work.id)) do |f| %>
     <div id="file-error" class="error_box"></div>
     <%= f.file_field(:pre_curation_uploads, multiple: true) %>

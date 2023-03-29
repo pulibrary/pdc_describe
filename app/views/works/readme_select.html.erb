@@ -1,0 +1,21 @@
+<div class="wizard-area">
+  <h1><%= t('works.form.file_upload.heading', work_title: @work.title) %></h1>
+  <%= render "wizard_progress", wizard_step: 2 %>
+  <%= form_with(model: @work, scope: :patch, url: work_readme_uploaded_path(id: @work.id)) do |f| %>
+    <p><%= t('works.form.readme_upload.title') %></p>
+    <p>If you have not created a README, a <%= link_to("template may be found here", "https://cornell.app.box.com/v/ReadmeTemplate", target: "blank") %>. See this page <%= link_to("for more guidance on how to create a README","https://data.research.cornell.edu/content/readme") %>. </p>
+
+
+    <p><%= t('works.form.readme_upload.actions') %></p>
+    <div id="file-error" class="error_box"></div>
+    <div class="file-upload">
+      <%= f.file_field(:readme_file, multiple: false) %>
+    </div>
+
+    <div class="actions">
+      <%= link_to t('works.form.readme_upload.go_back'), edit_work_path(@work, wizard: true), class: "btn btn-secondary" %>
+      <%= f.submit(t('works.form.readme_upload.continue'), class: "btn btn-primary wizard-next-button", id: 'readme-upload') %>
+    </div>
+  <% end %>
+</div>
+

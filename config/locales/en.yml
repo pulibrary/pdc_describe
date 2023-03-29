@@ -60,6 +60,12 @@ en:
         heading: "Uncurated Files"
       post_curation_uploads:
         heading: "Curated Files"
+      readme_upload:
+        heading: "New Submission (%{work_title})"
+        title: "Please upload the README file for this submission."
+        actions: 'We will ask you about your data files on the next screen'
+        go_back: 'Go Back'
+        continue: 'Continue'
     uneditable:
       approved: "This work has been approved.  Edits are no longer available."
       privs: "You do not have permission to edit this work."
