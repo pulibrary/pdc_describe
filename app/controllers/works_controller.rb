@@ -280,13 +280,14 @@ class WorksController < ApplicationController
   def readme_uploaded
     @work = Work.find(params[:id])
     @wizard = true
-    if readme_file_param
-      extension = File.extname(readme_file_param.original_filename)
-      content_type = readme_file_param.content_type
-      @work.pre_curation_uploads.attach(io: readme_file_param.to_io, filename: "README#{extension}", content_type: content_type)
-      @work.save!
+    readme = Readme.new(@work)
+    readme_error = readme.attach(readme_file_param)
+    if readme_error.nil?
+      redirect_to work_attachment_select_url(@work)
+    else
+      flash[:notice] = readme_error
+      redirect_to work_readme_select_url(@work)
     end
-    redirect_to work_attachment_select_url(@work)
   end
 
   private

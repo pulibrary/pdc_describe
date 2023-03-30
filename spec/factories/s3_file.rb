@@ -11,5 +11,9 @@ FactoryBot.define do
       new(filename: filename, last_modified: last_modified, size: size,
           checksum: checksum, work: work)
     end
+
+    factory :s3_readme do
+      filename { "README.txt" }
+    end
   end
 end
