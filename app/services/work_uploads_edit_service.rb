@@ -10,11 +10,11 @@ class WorkUploadsEditService
   end
 
   def update_precurated_file_list(work_params)
-    if work_params.key?(:deleted_uploads) || work_params.key?(:pre_curation_uploads) || work_params.key?(:replaced_uploads)
+    if work_params.key?(:deleted_uploads) || work_params.key?(:pre_curation_uploads_new) || work_params.key?(:replaced_uploads)
       if work_params.key?(:deleted_uploads)
         delete_pre_curation_uploads(work_params[:deleted_uploads])
-      elsif work_params.key?(:pre_curation_uploads)
-        update_uploads(work_params)
+      elsif work_params.key?(:pre_curation_uploads_new)
+        add_uploads(work_params)
       elsif work_params.key?(:replaced_uploads)
         replace_uploads(work_params[:replaced_uploads])
       end
@@ -50,20 +50,8 @@ class WorkUploadsEditService
       end
     end
 
-    def update_uploads(work_params)
-      # delete all existing uploads...
-      work.pre_curation_uploads_fast.each do |existing_upload|
-        track_change(:deleted, existing_upload.filename.to_s)
-        s3_service.delete_s3_object(existing_upload.key)
-      end
-
-      # TODO: can we remove this reload now???  May be causing issues with mocking
-      # ...reload the work to pick up the changes in the attachments
-      work.reload
-
-      # ...and then and then track the ones indicated in the parameters
-      # todo - How do we know what has been attached in the background?
-      Array(work_params[:pre_curation_uploads]).each do |new_upload|
+    def add_uploads(work_params)
+      Array(work_params[:pre_curation_uploads_new]).each do |new_upload|
         work.pre_curation_uploads.attach(new_upload)
         track_change(:added, new_upload.original_filename)
       end

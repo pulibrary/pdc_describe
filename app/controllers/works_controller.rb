@@ -287,7 +287,7 @@ class WorksController < ApplicationController
     def pre_curation_uploads_param
       return if patch_params.nil?
 
-      patch_params[:pre_curation_uploads]
+      patch_params[:pre_curation_uploads_new]
     end
 
     def rescue_aasm_error
