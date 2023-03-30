@@ -1,6 +1,6 @@
 <div class="wizard-area">
   <h1>New Submission (<%= @work.title %>)</h1>
-  <%= render "wizard_progress", wizard_step: 2 %>
+  <%= render "wizard_progress", wizard_step: 3 %>
   <p>Begin the process to upload your submission. Please select the most appropriate description.</p>
 
   <p>My submission is...</p>
@@ -14,7 +14,7 @@
       <%= @work.files_location_other? ? "checked" : "" %>>more than 100MB and located somewhere else.</input><br/>
 
     <div class="actions">
-      <%= link_to "Go Back", edit_work_path(@work, wizard: true), class: "btn btn-secondary" %>
+      <%= link_to "Go Back", work_readme_select_path(@work, wizard: true), class: "btn btn-secondary" %>
       <%= submit_tag "Continue", class: "btn btn-primary wizard-next-button" %>
     </div>
   <% end %>
