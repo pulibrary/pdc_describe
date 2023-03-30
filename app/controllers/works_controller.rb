@@ -287,7 +287,7 @@ class WorksController < ApplicationController
     def pre_curation_uploads_param
       return if patch_params.nil?
 
-      patch_params[:pre_curation_uploads_new]
+      patch_params[:pre_curation_uploads_added]
     end
 
     def rescue_aasm_error
@@ -325,7 +325,7 @@ class WorksController < ApplicationController
 
         return head(:forbidden) unless deleted_uploads.empty?
       else
-        @work = upload_service.update_precurated_file_list(work_params)
+        @work = upload_service.update_precurated_file_list(added_files_param, deleted_files_param)
       end
 
       process_updates
@@ -336,6 +336,15 @@ class WorksController < ApplicationController
         collection_id: params_collection_id,
         resource: FormToResourceService.convert(params, @work)
       }
+    end
+
+    def added_files_param
+      Array(work_params[:pre_curation_uploads_added])
+    end
+
+    def deleted_files_param
+      deleted_count = (work_params["deleted_files_count"] || "0").to_i
+      (1..deleted_count).map { |i| work_params["deleted_file_#{i}"] }.select {|filename| filename.present? }
     end
 
     def process_updates

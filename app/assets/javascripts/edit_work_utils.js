@@ -399,6 +399,47 @@ $(() => {
     return false;
   });
 
+  // Handles delete of files
+  $(document).on('click', '.delete-file', (el) => {
+    // Mark the file as deleted in the UI.
+    // Relevant DataTables documentation for individual row manipulation:
+    //   https://datatables.net/reference/api/data()
+    //   https://datatables.net/reference/type/row-selector
+    const filename = $(el.target).data('filename');
+    const filesTable = $('#files-table').DataTable();
+    const rowId = "#" + filename;
+    const row = filesTable.row(rowId).data();
+    row.filename_display = "* " + row.filename_display;
+    filesTable.row(rowId).invalidate().draw();
+
+    // Keep track of the deleted file, we do this via a hidden textbox with the name of the file to delete.
+    // (this information will be submitted to the server when the user hits save)
+    const deleteCount = incrementCounter('#deleted_files_count');
+    const sequenceId = `deleted_file_${deleteCount}`;
+    const deletedFileHtml = `<input class="hidden deleted-file-tracker" type="text" id="${sequenceId}" name="work[${sequenceId}]" value="${filename}" />`
+    $('.work-form').append(deletedFileHtml);
+    return false;
+  });
+
+  // Handles undo delete of files
+  $(document).on('click', '.undo-delete-file', (el) => {
+    const filename = $(el.target).data('filename');
+    // Mark the file as not deleted in the UI.
+    const filesTable = $('#files-table').DataTable();
+    const rowId = "#" + filename;
+    const row = filesTable.row(rowId).data();
+    row.filename_display = row.filename_display.replace("* ", "");
+    filesTable.row(rowId).invalidate().draw();
+
+    // Remove the filename from the list of values we submit to the server
+    $('.deleted-file-tracker').each((_index, element) => {
+      if (element.value == filename) {
+        element.value = "";
+      }
+    });
+    return false;
+  });
+
   if ($('.creator-data').length === 0) {
     // Add an empty creator for the use to fill it out
     const num = incrementCounter('#creator_count');

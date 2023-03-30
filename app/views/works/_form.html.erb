@@ -43,17 +43,17 @@
           <% if @work.approved? %>
             <section class="uploads">
               <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
-              <%= render(partial: 'works/s3_resources') %>
+              <%= render(partial: 'works/s3_resources', locals: { edit_mode: false }) %>
             </section>
           <% else %>
             <section class="uploads">
               <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
-              <%= render(partial: 'works/s3_resources', locals: { form: form }) %>
+              <%= render(partial: 'works/s3_resources', locals: { edit_mode: true, form: form }) %>
             </section>
             <div class="container-fluid deposit-uploads">
               <div id="file-error" class="error_box"></div>
-              <%= form.label("Add more files", for: :pre_curation_uploads_new) %>
-              <%= form.file_field(:pre_curation_uploads_new, id: "pre_curation_uploads_new", multiple: true) %>
+              <%= form.label("Add more files", for: :pre_curation_uploads_added) %>
+              <%= form.file_field(:pre_curation_uploads_added, id: "pre_curation_uploads_added", multiple: true) %>
             </div>
           <% end %>
         </div>
