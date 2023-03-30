@@ -410,7 +410,7 @@ $(() => {
     const rowId = "#" + filename;
     const row = filesTable.row(rowId).data();
     row.filename_display = "* " + row.filename_display;
-    filesTable.row(rowId).invalidate().draw();
+    filesTable.row(rowId).invalidate();
 
     // Keep track of the deleted file, we do this via a hidden textbox with the name of the file to delete.
     // (this information will be submitted to the server when the user hits save)
@@ -429,9 +429,9 @@ $(() => {
     const rowId = "#" + filename;
     const row = filesTable.row(rowId).data();
     row.filename_display = row.filename_display.replace("* ", "");
-    filesTable.row(rowId).invalidate().draw();
+    filesTable.row(rowId).invalidate();
 
-    // Remove the filename from the list of values we submit to the server
+    // Remove the filename from the list of values we submit to the server.
     $('.deleted-file-tracker').each((_index, element) => {
       if (element.value == filename) {
         element.value = "";

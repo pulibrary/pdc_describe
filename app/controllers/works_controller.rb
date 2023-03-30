@@ -344,7 +344,7 @@ class WorksController < ApplicationController
 
     def deleted_files_param
       deleted_count = (work_params["deleted_files_count"] || "0").to_i
-      (1..deleted_count).map { |i| work_params["deleted_file_#{i}"] }.select {|filename| filename.present? }
+      (1..deleted_count).map { |i| work_params["deleted_file_#{i}"] }.select(&:present?)
     end
 
     def process_updates
