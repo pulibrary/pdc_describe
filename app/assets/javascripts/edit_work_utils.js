@@ -407,13 +407,14 @@ $(() => {
     //   https://datatables.net/reference/type/row-selector
     const filename = $(el.target).data('filename');
     const filesTable = $('#files-table').DataTable();
-    const rowId = "#" + filename;
+    const rowId = `#{filename`;
     const row = filesTable.row(rowId).data();
-    row.filename_display = "* " + row.filename_display;
+    row.filename_display = `* #{row.filename_display}`;
     filesTable.row(rowId).invalidate();
 
-    // Keep track of the deleted file, we do this via a hidden textbox with the name of the file to delete.
-    // (this information will be submitted to the server when the user hits save)
+    // Keep track of the deleted file, we do this via a hidden textbox with
+    // the name of the file to delete. This information will be submitted
+    // to the server when the user hits save.
     const deleteCount = incrementCounter('#deleted_files_count');
     const sequenceId = `deleted_file_${deleteCount}`;
     const deletedFileHtml = `<input class="hidden deleted-file-tracker" type="text" id="${sequenceId}" name="work[${sequenceId}]" value="${filename}" />`
