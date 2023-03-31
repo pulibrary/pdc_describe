@@ -45,7 +45,7 @@
               <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
               <%= render(partial: 'works/s3_resources', locals: { edit_mode: false }) %>
             </section>
-          <% else %>
+          <% elsif @work.id.present? %>
             <section class="uploads">
               <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
               <%= render(partial: 'works/s3_resources', locals: { edit_mode: true, form: form }) %>
