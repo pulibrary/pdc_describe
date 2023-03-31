@@ -407,9 +407,9 @@ $(() => {
     //   https://datatables.net/reference/type/row-selector
     const filename = $(el.target).data('filename');
     const filesTable = $('#files-table').DataTable();
-    const rowId = `#{filename`;
+    const rowId = `#${filename}`;
     const row = filesTable.row(rowId).data();
-    row.filename_display = `* #{row.filename_display}`;
+    row.filename_display = `* #${row.filename_display}`;
     filesTable.row(rowId).invalidate();
 
     // Keep track of the deleted file, we do this via a hidden textbox with
@@ -417,7 +417,7 @@ $(() => {
     // to the server when the user hits save.
     const deleteCount = incrementCounter('#deleted_files_count');
     const sequenceId = `deleted_file_${deleteCount}`;
-    const deletedFileHtml = `<input class="hidden deleted-file-tracker" type="text" id="${sequenceId}" name="work[${sequenceId}]" value="${filename}" />`
+    const deletedFileHtml = `<input class="hidden deleted-file-tracker" type="text" id="${sequenceId}" name="work[${sequenceId}]" value="${filename}" />`;
     $('.work-form').append(deletedFileHtml);
     return false;
   });
@@ -427,15 +427,15 @@ $(() => {
     const filename = $(el.target).data('filename');
     // Mark the file as not deleted in the UI.
     const filesTable = $('#files-table').DataTable();
-    const rowId = "#" + filename;
+    const rowId = `#${filename}`;
     const row = filesTable.row(rowId).data();
-    row.filename_display = row.filename_display.replace("* ", "");
+    row.filename_display = row.filename_display.replace('* ', '');
     filesTable.row(rowId).invalidate();
 
     // Remove the filename from the list of values we submit to the server.
     $('.deleted-file-tracker').each((_index, element) => {
-      if (element.value == filename) {
-        element.value = "";
+      if (element.value === filename) {
+        element.value = '';
       }
     });
     return false;
