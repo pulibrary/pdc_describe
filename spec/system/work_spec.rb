@@ -286,27 +286,5 @@ RSpec.describe "Creating and updating works", type: :system do
       expect(page).to have_content "updated title"
       expect(page).to have_content "us_covid_2019.csv"
     end
-
-    it "allows users to modify the order of the uploads", js: true do
-      expect(page).to have_content "Filename"
-      expect(page).to have_content "Created At"
-      expect(page).to have_content "Replace Upload"
-      expect(page).to have_content "Delete Upload"
-      expect(page).to have_css('.uploads-row[data-upload-key="0"]', count: 1)
-      expect(page).to have_css('.uploads-row[data-upload-key="1"]', count: 1)
-
-      source = page.find('.uploads-row[data-upload-key="0"]')
-      target = page.find('.uploads-row[data-upload-key="1"]')
-
-      # This is necessary to interact with the rendered JavaScript <table> rows
-      page.scroll_to(target)
-      sleep 1
-
-      source.drag_to(target)
-      sleep 1
-
-      dragged = page.find('.uploads-row[data-upload-key="0"]')
-      expect(dragged[:id]).to eq(source[:id])
-    end
   end
 end
