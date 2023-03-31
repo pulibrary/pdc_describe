@@ -33,9 +33,8 @@
 
 <script type="text/javascript">
   $(function() {
-    // This is needed so that we can swap the URL during testing
-    // (for more info see external_identifier_specs.rb)
-    var fileListUrl = '<%= work_file_list_path(@work) %>';
+    // work.id is nil when the form is rendered during work creation and the work has not been saved
+    var fileListUrl = '<%= work_file_list_path(@work.id || "NONE") %>';
     var isEditMode = <%= edit_mode %>;
 
     // Wire DataTable for the file list.

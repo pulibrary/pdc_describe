@@ -56,7 +56,7 @@ This dataset is too large to download directly from this item page. You can acce
       select "Research Data", from: "collection_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
-      page.attach_file("work[pre_curation_uploads][]", [file_upload], make_visible: true)
+      page.attach_file("work[pre_curation_uploads_added][]", [file_upload], make_visible: true)
       click_on "Create"
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"

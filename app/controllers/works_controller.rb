@@ -40,6 +40,9 @@ class WorksController < ApplicationController
   end
 
   def create
+    # TODO: We need to process files submitted by the user in this method.
+    # We currently do not and therefore there are not saved to the work.
+    # See https://github.com/pulibrary/pdc_describe/issues/1041
     @work = Work.new(created_by_user_id: current_user.id, collection_id: params_collection_id, user_entered_doi: params["doi"].present?)
     @work.resource = FormToResourceService.convert(params, @work)
     if @work.valid?
@@ -81,8 +84,14 @@ class WorksController < ApplicationController
   end
 
   def file_list
-    @work = Work.find(params[:id])
-    render json: @work.uploads
+    if params[:id] == "NONE"
+      # This is a special case when we render the file list for a work being created
+      # (i.e. it does not have an id just yet)
+      render json: []
+    else
+      @work = Work.find(params[:id])
+      render json: @work.uploads
+    end
   end
 
   def resolve_doi
