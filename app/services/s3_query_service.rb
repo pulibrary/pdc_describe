@@ -186,6 +186,15 @@ class S3QueryService
     client.put_object({ bucket: bucket_name, key: prefix, content_length: 0 })
   end
 
+  def upload_file(io:, filename:)
+    # upload file from io in a single request, may not exceed 5GB
+    md5_digest = md5(io: io)
+    client.put_object(bucket: bucket_name, key: "#{prefix}#{filename}", body: io, content_md5: md5_digest)
+  rescue Aws::S3::Errors::SignatureDoesNotMatch => e
+    Honeybadger.notify("Error Uploading file #{filename} for object: #{s3_address} Signature did not match! error: #{e}")
+    false
+  end
+
   private
 
     def model_uploads
@@ -233,6 +242,13 @@ class S3QueryService
         delete_s3_object(s3_file.key)
       end
       delete_s3_object(model.s3_object_key)
+    end
+
+    def md5(io:)
+      md5 = Digest::MD5.new
+      io.each(10_000) { |block| md5.update block }
+      io.rewind
+      md5.base64digest
     end
 end
 # rubocop:enable Metrics/ClassLength

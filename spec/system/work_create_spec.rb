@@ -33,11 +33,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
   let(:ark) { "http://arks.princeton.edu/ark:/88435/dsp01d791sj97j" }
   let(:collection) { "Research Data" }
 
-  let(:bucket_url) { "https://example-bucket.s3.amazonaws.com/" }
-
   before do
     stub_s3
-    stub_request(:put, /#{bucket_url}/).to_return(status: 200)
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
   context "happy path" do
@@ -87,11 +84,18 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       expect(page).to have_content(description)
       click_on "Save Work"
       expect(page).to have_content("Please upload the README")
+      click_on "Continue"
+      expect(page).to have_content("A README file is required")
+      click_on "Continue"
       path = Rails.root.join("spec", "fixtures", "files", "orcid.csv")
       attach_file(path) do
         page.find("#patch_readme_file").click
       end
       click_on "Continue"
+
+      # Make sure the readme is in S3 so when I hit the back button we do not error
+      stub_s3 data: [FactoryBot.build(:s3_readme, work: work)]
+
       click_on "Back"
       expect(page).to have_content("Please upload the README")
       click_on "Continue"

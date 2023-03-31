@@ -20,6 +20,7 @@ def mock_methods(fake_s3_query, data)
   allow(fake_s3_query).to receive(:delete_s3_object)
   allow(fake_s3_query).to receive(:create_directory)
   allow(fake_s3_query).to receive(:publish_files).and_return([])
+  allow(fake_s3_query).to receive(:upload_file).and_return(true)
 end
 
 def mock_bucket(bucket_url)
