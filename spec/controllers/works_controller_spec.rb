@@ -619,11 +619,8 @@ RSpec.describe WorksController do
     end
 
     describe "#readme_uploaded" do
-      let(:bucket_url) do
-        "https://example-bucket.s3.amazonaws.com/"
-      end
-
-      let(:fake_s3_service) { stub_s3 }
+      let(:attach_status) { nil }
+      let(:fake_readme) { instance_double Readme, attach: attach_status, "blank?": true }
       let(:params) do
         {
           "_method" => "patch",
@@ -639,17 +636,24 @@ RSpec.describe WorksController do
       end
 
       before do
-        fake_s3_service
-        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+        allow(Readme).to receive(:new).and_return(fake_readme)
         sign_in user
         post :readme_uploaded, params: params
       end
 
       it "redirects to file-upload" do
         expect(response.status).to be 302
-        work.reload
-        expect(work.pre_curation_uploads[0].key).to eq("#{work.doi}/#{work.id}/README.csv")
+        expect(fake_readme).to have_received(:attach)
         expect(response.location).to eq "http://test.host/works/#{work.id}/attachment-select"
+      end
+
+      context "the upload encounters an error" do
+        let(:attach_status) { "An error occured" }
+
+        it "Stays on the same page" do
+          expect(response).to redirect_to(work_readme_select_path(work))
+          expect(controller.flash[:notice]).to eq("An error occured")
+        end
       end
     end
 

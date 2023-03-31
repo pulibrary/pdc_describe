@@ -336,4 +336,30 @@ RSpec.describe S3QueryService do
       assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}", headers: { "Content-Length" => 0 })
     end
   end
+
+  describe "#upload_file" do
+    subject(:s3_query_service) { described_class.new(work) }
+    let(:filename) { "README.txt" }
+    let(:file) { File.open(Rails.root.join("spec", "fixtures", "files", "readme_template.txt")) }
+
+    before do
+      stub_request(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}").to_return(status: 200)
+    end
+
+    it "uploads the readme" do
+      expect(s3_query_service.upload_file(io: file, filename: filename)).to be_truthy
+      assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}", headers: { "Content-Length" => 2852 })
+    end
+
+    context "when checksum does not match" do
+      before do
+        stub_request(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}").to_raise(Aws::S3::Errors::SignatureDoesNotMatch.new(nil, nil))
+      end
+
+      it "detects the upload error" do
+        expect(s3_query_service.upload_file(io: file, filename: filename)).to be_falsey
+        assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}", headers: { "Content-Length" => 2852 })
+      end
+    end
+  end
 end
