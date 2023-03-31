@@ -423,7 +423,6 @@ $(() => {
   });
 
   // Handles undo delete of files
-  // eslint-disable no-param-reassign
   $(document).on('click', '.undo-delete-file', (el) => {
     const filename = $(el.target).data('filename');
     // Mark the file as not deleted in the UI.
@@ -436,12 +435,11 @@ $(() => {
     // Remove the filename from the list of values we submit to the server.
     $('.deleted-file-tracker').each((_index, element) => {
       if (element.value === filename) {
-        element.value = '';
+        element.value = ''; // eslint-disable-line no-param-reassign
       }
     });
     return false;
   });
-  // eslint-enable no-param-reassign
 
   if ($('.creator-data').length === 0) {
     // Add an empty creator for the use to fill it out
