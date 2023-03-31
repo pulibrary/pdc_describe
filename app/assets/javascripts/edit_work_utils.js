@@ -423,6 +423,7 @@ $(() => {
   });
 
   // Handles undo delete of files
+  // eslint-disable no-param-reassign
   $(document).on('click', '.undo-delete-file', (el) => {
     const filename = $(el.target).data('filename');
     // Mark the file as not deleted in the UI.
@@ -440,6 +441,7 @@ $(() => {
     });
     return false;
   });
+  // eslint-enable no-param-reassign
 
   if ($('.creator-data').length === 0) {
     // Add an empty creator for the use to fill it out
