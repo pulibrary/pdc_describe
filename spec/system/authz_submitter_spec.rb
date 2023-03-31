@@ -33,6 +33,7 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
       click_on "Curator Controlled"
       expect(page).to have_content "Research Data"
       click_on "Save Work"
+      click_on "Continue"
       page.find(:xpath, "//input[@value='file_other']").choose
       click_on "Continue"
       click_on "Continue"

@@ -281,6 +281,23 @@ class WorksController < ApplicationController
     end
   end
 
+  def readme_select
+    @work = Work.find(params[:id])
+    @wizard = true
+  end
+
+  def readme_uploaded
+    @work = Work.find(params[:id])
+    @wizard = true
+    if readme_file_param
+      extension = File.extname(readme_file_param.original_filename)
+      content_type = readme_file_param.content_type
+      @work.pre_curation_uploads.attach(io: readme_file_param.to_io, filename: "README#{extension}", content_type: content_type)
+      @work.save!
+    end
+    redirect_to work_attachment_select_url(@work)
+  end
+
   private
 
     def work_params
@@ -297,6 +314,12 @@ class WorksController < ApplicationController
       return if patch_params.nil?
 
       patch_params[:pre_curation_uploads_added]
+    end
+
+    def readme_file_param
+      return if patch_params.nil?
+
+      patch_params[:readme_file]
     end
 
     def rescue_aasm_error
@@ -364,7 +387,7 @@ class WorksController < ApplicationController
         @work.log_changes(resource_compare, current_user.id)
 
         if @wizard_mode
-          redirect_to work_attachment_select_url(@work)
+          redirect_to work_readme_select_url(@work)
         else
           redirect_to work_url(@work), notice: "Work was successfully updated."
         end

@@ -22,6 +22,8 @@ Rails.application.routes.draw do
 
   get "works/:id/file-list", to: "works#file_list", as: :work_file_list
   post "works/new-submission", to: "works#new_submission", as: :work_new_submission
+  get "works/:id/readme-select", to: "works#readme_select", as: :work_readme_select
+  patch "works/:id/readme-uploaded", to: "works#readme_uploaded", as: :work_readme_uploaded
   get "works/:id/attachment-select", to: "works#attachment_select", as: :work_attachment_select
   post "works/:id/attachment-select", to: "works#attachment_selected", as: :work_attachment_selected
   patch "works/:id/file-upload", to: "works#file_uploaded", as: :work_file_uploaded

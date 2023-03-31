@@ -33,8 +33,11 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
   let(:ark) { "http://arks.princeton.edu/ark:/88435/dsp01d791sj97j" }
   let(:collection) { "Research Data" }
 
+  let(:bucket_url) { "https://example-bucket.s3.amazonaws.com/" }
+
   before do
     stub_s3
+    stub_request(:put, /#{bucket_url}/).to_return(status: 200)
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
   context "happy path" do
@@ -80,6 +83,18 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Additional Metadata"
       fill_in "related_identifier_1", with: "https://related.example.com"
       click_on "Save Work"
+      click_on "Back"
+      expect(page).to have_content(description)
+      click_on "Save Work"
+      expect(page).to have_content("Please upload the README")
+      path = Rails.root.join("spec", "fixtures", "files", "orcid.csv")
+      attach_file(path) do
+        page.find("#patch_readme_file").click
+      end
+      click_on "Continue"
+      click_on "Back"
+      expect(page).to have_content("Please upload the README")
+      click_on "Continue"
       page.find(:xpath, "//input[@value='file_other']").choose
       click_on "Continue"
       click_on "Continue"
@@ -95,6 +110,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       expect(roles).to include("ContactPerson") # Individual roles included
       expect(roles).not_to include("HostingInstitution") # Organizational roles excluded
       click_on "Save Work"
+      click_on "Continue"
       expect(page).to have_content("under 100MB")
       expect(page).to have_content("more than 100MB")
       click_on "Continue"
