@@ -49,34 +49,37 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     it "allows users to delete one of the uploads" do
       allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
       expect(page).to have_content "Filename"
-      expect(page).to have_content "Created At"
-      expect(page).to have_content "Replace Upload"
-      expect(page).to have_content "Delete Upload"
+      expect(page).to have_content "Last Modified"
+      expect(page).to have_content "Size"
       expect(page).to have_content("us_covid_2019.csv")
       expect(page).to have_content("us_covid_2020.csv")
-      check("work-uploads-#{work.pre_curation_uploads_fast[0].id}-delete")
+      click_on "delete-file-#{work.doi}/#{work.id}/us_covid_2019.csv"
       allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_hash_after_delete)
       click_on "Save Work"
       within(".files.card-body") do
         expect(page).to have_content("us_covid_2020.csv")
         expect(page).not_to have_content("us_covid_2019.csv")
       end
-      expect(page).to have_content(/deleted.*us_covid_2019.csv/)
       expect(fake_s3_service).to have_received(:delete_s3_object)
     end
 
     it "allows users to replace one of the uploads" do
       allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
       expect(page).to have_content "Filename"
-      expect(page).to have_content "Created At"
-      expect(page).to have_content "Replace Upload"
-      expect(page).to have_content "Delete Upload"
+      expect(page).to have_content "Last Modified"
+      expect(page).to have_content "Size"
       within(".files.card-body") do
         expect(page).to have_content("us_covid_2019.csv")
         expect(page).to have_content("us_covid_2020.csv")
       end
-      attach_file("work-deposit-uploads-#{work.pre_curation_uploads_fast.first.id}", Rails.root.join("spec", "fixtures", "files", "orcid.csv"))
+
+      # Delete one file...
+      click_on "delete-file-#{work.doi}/#{work.id}/us_covid_2019.csv"
+
+      # ...and add another
+      attach_file("pre_curation_uploads_added", Rails.root.join("spec", "fixtures", "files", "orcid.csv"))
       allow(fake_s3_service).to receive(:client_s3_files).and_return([contents2, contents3])
+
       click_on "Save Work"
       within(".files.card-body") do
         expect(page).to have_content("orcid.csv")
@@ -84,7 +87,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
         expect(page).not_to have_content("us_covid_2019.csv")
       end
       expect(fake_s3_service).to have_received(:delete_s3_object)
-      expect(page).to have_content(/deleted.*us_covid_2019.csv/)
     end
   end
 
@@ -265,7 +267,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       expect(collection_tags_element["readonly"]).to eq("true")
 
       expect(page.all("input[type=text][readonly]").count).to eq(page.all("input[type=text]").count) # all inputs on curator controlled metadata should be readonly
-
       expect(page.all("select[disabled]").count).to eq(page.all("select").count) # all selects inputs on curator controlled metadata should be disabled
     end
   end
