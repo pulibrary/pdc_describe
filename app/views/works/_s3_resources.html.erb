@@ -48,7 +48,7 @@
         url: fileListUrl,
         dataSrc: ''
       },
-      rowId: 'filename',
+      rowId: 'safe_id',
       columns: [
         { data: 'filename' },
         { data: 'last_modified_display' },
@@ -104,13 +104,13 @@
             if (type == "display") {
               if (row.filename_display.startsWith("*")) {
                 html = `<span>
-                  <a class="undo-delete-file" data-filename=${row.filename} data-filename_display=${row.filename_display} href="#">
+                  <a class="undo-delete-file" data-safe_id=${row.safe_id} data-filename=${row.filename} data-filename_display=${row.filename_display} href="#">
                     Undo delete
                   </a>
                 </span>`;
               } else {
                 html = `<span>
-                  <a class="delete-file" data-filename=${row.filename} data-filename_display=${row.filename_display} href="#" id="delete-file-${row.filename}">
+                  <a class="delete-file" data-safe_id=${row.safe_id} data-filename=${row.filename} data-filename_display=${row.filename_display} href="#" id="delete-file-${row.safe_id}">
                     Delete file
                   </a>
                 </span>`;

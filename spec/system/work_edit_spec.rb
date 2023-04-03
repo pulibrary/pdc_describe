@@ -56,7 +56,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       expect(page).to have_content("us_covid_2019.csv")
       expect(page).to have_content("us_covid_2020.csv")
 
-      click_on "delete-file-#{work.doi}/#{work.id}/us_covid_2019.csv"
+      click_on "delete-file-#{contents1.safe_id}"
       click_on "Save Work"
 
       expect(fake_s3_service).to have_received(:delete_s3_object)
@@ -77,7 +77,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       end
 
       # Delete one file...
-      click_on "delete-file-#{work.doi}/#{work.id}/us_covid_2019.csv"
+      click_on "delete-file-#{contents1.safe_id}"
 
       # ...and add another
       attach_file("pre_curation_uploads_added", Rails.root.join("spec", "fixtures", "files", "orcid.csv"))
