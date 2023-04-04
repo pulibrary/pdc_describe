@@ -611,10 +611,17 @@ RSpec.describe WorksController do
     end
 
     describe "#readme_select" do
+      let(:fake_readme) { instance_double Readme, file_name: "README.txt" }
+
+      before do
+        allow(Readme).to receive(:new).and_return(fake_readme)
+      end
+
       it "renders view to upload the readme" do
         sign_in user
         get :readme_select, params: { id: work.id }
         expect(response).to render_template(:readme_select)
+        expect(assigns[:readme]).to eq("README.txt")
       end
     end
 
