@@ -1,0 +1,123 @@
+<resource xsi:schemaLocation='http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://datacite.org/schema/kernel-4'>
+  <identifier identifierType='DOI'>10.34770/doc-1</identifier>
+  <creators>
+    <creator>
+      <creatorName>Hammond, K.C.</creatorName>
+      <givenName>K.C.</givenName>
+      <familyName>Hammond</familyName>
+    </creator>
+    <creator>
+      <creatorName>Laggner, F.M.</creatorName>
+      <givenName>F.M.</givenName>
+      <familyName>Laggner</familyName>
+    </creator>
+    <creator>
+      <creatorName>Diallo, A.</creatorName>
+      <givenName>A.</givenName>
+      <familyName>Diallo</familyName>
+    </creator>
+    <creator>
+      <creatorName>Doskoczynski, S.</creatorName>
+      <givenName>S.</givenName>
+      <familyName>Doskoczynski</familyName>
+    </creator>
+    <creator>
+      <creatorName>Freeman, C.</creatorName>
+      <givenName>C.</givenName>
+      <familyName>Freeman</familyName>
+    </creator>
+    <creator>
+      <creatorName>Funaba, H.</creatorName>
+      <givenName>H.</givenName>
+      <familyName>Funaba</familyName>
+    </creator>
+    <creator>
+      <creatorName>Gates, D.A.</creatorName>
+      <givenName>D.A.</givenName>
+      <familyName>Gates</familyName>
+    </creator>
+    <creator>
+      <creatorName>Rozenblat, R.</creatorName>
+      <givenName>R.</givenName>
+      <familyName>Rozenblat</familyName>
+    </creator>
+    <creator>
+      <creatorName>Tchilinguirian, G.</creatorName>
+      <givenName>G.</givenName>
+      <familyName>Tchilinguirian</familyName>
+    </creator>
+    <creator>
+      <creatorName>Xing, Z.</creatorName>
+      <givenName>Z.</givenName>
+      <familyName>Xing</familyName>
+    </creator>
+    <creator>
+      <creatorName>Yamada, I.</creatorName>
+      <givenName>I.</givenName>
+      <familyName>Yamada</familyName>
+    </creator>
+    <creator>
+      <creatorName>Yasuhara, R.</creatorName>
+      <givenName>R.</givenName>
+      <familyName>Yasuhara</familyName>
+    </creator>
+    <creator>
+      <creatorName>Zimmer, G</creatorName>
+      <givenName>G</givenName>
+      <familyName>Zimmer</familyName>
+    </creator>
+    <creator>
+      <creatorName>Kolemen, E</creatorName>
+      <givenName>E</givenName>
+      <familyName>Kolemen</familyName>
+    </creator>
+  </creators>
+  <titles>
+    <title>
+      Initial operation and data processing on a system for real-time evaluation
+      of Thomson scattering signals on the Large Helical Device
+    </title>
+  </titles>
+  <publisher>Princeton University</publisher>
+  <resourceType resourceTypeGeneral='Dataset'/>
+  <publicationYear>2021</publicationYear>
+  <fundingReferences>
+    <fundingReference>
+      <funderName>United States Department of Energy</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01bj3aw27</funderIdentifier>
+      <awardNumber awardURI=''>DE-AC02-09CH11466</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>United States Department of Energy</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01bj3aw27</funderIdentifier>
+      <awardNumber awardURI=''>DE-SC0015480</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>National Institute for Fusion Science</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01t3wyv61</funderIdentifier>
+      <awardNumber awardURI=''>ULHH040</awardNumber>
+    </fundingReference>
+  </fundingReferences>
+  <relatedIdentifiers>
+    <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp014t64gr25v</relatedIdentifier>
+  </relatedIdentifiers>
+  <version>1</version>
+  <rightsList>
+    <rights rightsURI='https://creativecommons.org/licenses/by/4.0/' rightsIdentifier='CC BY'>Creative Commons Attribution 4.0 International</rights>
+  </rightsList>
+  <descriptions>
+    <description descriptionType='Other'>
+      A scalable system for real-time analysis of electron temperature and
+      density based on signals from the Thomson scattering diagnostic, initially
+      developed for and installed on the NSTX-U experiment, was recently adapted
+      for the Large Helical Device (LHD) and operated for the first time during
+      plasma discharges. During its initial operation run, it routinely recorded
+      and processed signals for four spatial points at the laser repetition rate
+      of 30 Hz, well within the system&apos;s rated capability for 60 Hz. We
+      present examples of data collected from this initial run and describe
+      subsequent adaptations to the analysis code to improve the fidelity of the
+      temperature calculations. Please consult the file README.txt for a
+      description of the archive contents.
+    </description>
+  </descriptions>
+</resource>
