@@ -32,6 +32,12 @@ RSpec.describe S3File, type: :model do
     end
   end
 
+  context "safe_id" do
+    it "calculates correct safe_id for files with spaces and non-alpha numeric characters" do
+      expect(s3_file.safe_id).to eq "10-34770-123-abc-#{work.id}-filename--with-spaces--w-----chars-txt"
+    end
+  end
+
   describe "#globus_url" do
     it "builds the URL for the S3 endpoint" do
       expect(s3_file.globus_url).to match(%r{^https://example.data.globus.org/#{work.doi}/#{work.id}/filename})

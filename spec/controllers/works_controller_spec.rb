@@ -228,7 +228,7 @@ RSpec.describe WorksController do
           "family_name_2" => "lovelace",
           "sequence_2" => "2",
           "creator_count" => "2",
-          "pre_curation_uploads" => uploaded_file
+          "pre_curation_uploads_added" => uploaded_file
         }
         sign_in user
         expect(work.pre_curation_uploads).to be_empty
@@ -289,7 +289,7 @@ RSpec.describe WorksController do
           "family_name_2" => "lovelace",
           "sequence_2" => "2",
           "creator_count" => "2",
-          "pre_curation_uploads" => uploaded_files
+          "pre_curation_uploads_added" => uploaded_files
         }
         sign_in user
         expect(work.pre_curation_uploads).to be_empty
@@ -307,62 +307,22 @@ RSpec.describe WorksController do
         fixture_file_upload("us_covid_2019.csv", "text/csv")
       end
 
-      let(:temp_file1) do
-        file = Tempfile.new("temp_file1")
-        file.write("hello world")
-        file.close
-        file
-      end
-      let(:uploaded_temp_file1) { Rack::Test::UploadedFile.new(temp_file1.path, "text/plain") }
-      let(:temp_file2) do
-        file = Tempfile.new("temp_file2")
-        file.write("hello world 2")
-        file.close
-        file
-      end
-      let(:uploaded_temp_file2) { Rack::Test::UploadedFile.new(temp_file2.path, "text/plain") }
-      let(:temp_file3) do
-        file = Tempfile.new("temp_file3")
-        file.write("hello world 3")
-        file.close
-        file
-      end
-      let(:uploaded_temp_file3) { Rack::Test::UploadedFile.new(temp_file3.path, "text/plain") }
-
-      after do
-        temp_file1.unlink
-        temp_file2.unlink
-        temp_file3.unlink
-      end
-
       let(:uploaded_file2) do
         fixture_file_upload("us_covid_2020.csv", "text/csv")
       end
 
-      let(:uploaded_files) do
-        {
-          work.pre_curation_uploads_fast[0].key => uploaded_file1,
-          work.pre_curation_uploads_fast[2].key => uploaded_file2
-        }
-      end
+      let(:uploaded_files) { [uploaded_file1, uploaded_file2] }
 
       let(:bucket_url) do
         "https://example-bucket.s3.amazonaws.com/"
       end
 
       let(:fake_s3_service) { stub_s3 }
-      let(:file1) { FactoryBot.build :s3_file, filename: temp_file1.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
-      let(:file2) { FactoryBot.build :s3_file, filename: temp_file2.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
-      let(:file3) { FactoryBot.build :s3_file, filename: temp_file3.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
-      let(:replaced_file1) { FactoryBot.build :s3_file, filename: uploaded_file1.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
-      let(:replaced_file3) { FactoryBot.build :s3_file, filename: uploaded_file2.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
+      let(:file1) { FactoryBot.build :s3_file, filename: uploaded_file1.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
+      let(:file2) { FactoryBot.build :s3_file, filename: uploaded_file2.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
 
-      before do
-        # This is utilized for active record to send the file to S3
-        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
-        allow(fake_s3_service).to receive(:client_s3_files).and_return([file1, file2, file3], [replaced_file1, file2, replaced_file3])
-
-        params = {
+      let(:base_params) do
+        {
           "title_main" => "test dataset updated",
           "description" => "a new description",
           "collection_id" => work.collection.id,
@@ -378,24 +338,33 @@ RSpec.describe WorksController do
           "given_name_2" => "ada",
           "family_name_2" => "lovelace",
           "sequence_2" => "2",
-          "creator_count" => "2",
-          "replaced_uploads" => uploaded_files
+          "creator_count" => "2"
         }
+      end
+
+      before do
+        # This is utilized for active record to send the file to S3
+        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+        allow(fake_s3_service).to receive(:client_s3_files).and_return([file1, file2])
+
+        params = base_params.clone
+        params["pre_curation_uploads_added"] = [uploaded_file1, uploaded_file2]
         sign_in user
         post :update, params: params
       end
 
       it "handles the update page" do
+        expect(work.pre_curation_uploads_fast.count).to eq 2
+
+        params = base_params.clone
+        params["pre_curation_uploads_added"] = [uploaded_file2]
+        params["work[deleted_files_count]"] = "1"
+        params["work[deleted_file_1]"] = uploaded_file2.original_filename
+        post :update, params: params
+
         saved_work = Work.find(work.id)
-
-        expect(saved_work.pre_curation_uploads_fast).not_to be_empty
-        expect(saved_work.pre_curation_uploads_fast.length).to eq(3)
-
-        # Remeber! Order is alpabetical
-        expect(saved_work.pre_curation_uploads_fast[0].filename.to_s).to include(File.basename(temp_file2.path))
-        expect(saved_work.pre_curation_uploads_fast[1].filename.to_s).to include("us_covid_2019")
-        expect(saved_work.pre_curation_uploads_fast[2].filename.to_s).to include("us_covid_2020")
-        expect(fake_s3_service).to have_received(:delete_s3_object).twice
+        expect(saved_work.pre_curation_uploads_fast.count).to eq 2
+        expect(fake_s3_service).to have_received(:delete_s3_object).once
       end
     end
 
@@ -602,7 +571,10 @@ RSpec.describe WorksController do
           "family_name_2" => "lovelace",
           "sequence_2" => "2",
           "creator_count" => "2",
-          "pre_curation_uploads" => uploaded_files
+          "pre_curation_uploads_added" => uploaded_files,
+          "work[deleted_files_count]" => "2",
+          "work[deleted_file_1]" => uploaded_file1.original_filename,
+          "work[deleted_file_2]" => uploaded_file2.original_filename
         }
       end
       let(:fake_s3_service) { stub_s3(data: [file1, file2]) }
@@ -739,7 +711,7 @@ RSpec.describe WorksController do
           "_method" => "patch",
           "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
           "patch" => {
-            "pre_curation_uploads" => uploaded_file
+            "pre_curation_uploads_added" => [uploaded_file]
           },
           "commit" => "Continue",
           "controller" => "works",
@@ -792,7 +764,7 @@ RSpec.describe WorksController do
           "_method" => "patch",
           "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
           "patch" => {
-            "pre_curation_uploads" => uploaded_file
+            "pre_curation_uploads_added" => [uploaded_file]
           },
           "commit" => "Continue",
           "controller" => "works",

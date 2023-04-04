@@ -11,7 +11,7 @@ export default class PdcUiLoader {
 
   setup_fileupload_validation() {
     (new MaximumFileUpload('patch_pre_curation_uploads', 'file-upload')).attach_validation();
-    (new MaximumFileUpload('pre_curation_uploads', 'btn-submit')).attach_validation();
+    (new MaximumFileUpload('pre_curation_uploads_added', 'btn-submit')).attach_validation();
     (new CopytoClipboard()).attach_copy();
     (new EditRequiredFields()).attach_validations();
   }
