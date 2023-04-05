@@ -283,6 +283,8 @@ class WorksController < ApplicationController
 
   def readme_select
     @work = Work.find(params[:id])
+    readme = Readme.new(@work)
+    @readme = readme.file_name
     @wizard = true
   end
 

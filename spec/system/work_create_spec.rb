@@ -84,9 +84,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       expect(page).to have_content(description)
       click_on "Save Work"
       expect(page).to have_content("Please upload the README")
-      click_on "Continue"
-      expect(page).to have_content("A README file is required")
-      click_on "Continue"
+      expect(page).to have_button("Continue", disabled: true)
       path = Rails.root.join("spec", "fixtures", "files", "orcid.csv")
       attach_file(path) do
         page.find("#patch_readme_file").click
@@ -98,6 +96,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
 
       click_on "Back"
       expect(page).to have_content("Please upload the README")
+      expect(page).to have_content("README.txt was previously uploaded. You will replace it if you select a different file.")
       click_on "Continue"
       page.find(:xpath, "//input[@value='file_other']").choose
       click_on "Continue"
