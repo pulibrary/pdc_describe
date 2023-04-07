@@ -250,7 +250,7 @@
 
     <section class="uploads">
       <h2 class="h2"><%= @work.approved? ? "Curated Files" : "Uncurated Files" %></h2>
-      <%= render(partial: 'works/s3_resources') %>
+      <%= render(partial: 'works/s3_resources', locals: { edit_mode: false }) %>
     </section>
 
     <%= render(partial: 'work_activity_provenance', locals: {can_add_provenance_note: Rails.configuration.provenance_message_writers.include?(current_user.uid)}) %>

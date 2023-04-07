@@ -66,5 +66,15 @@ RSpec.describe Readme, type: :model do
         expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv")
       end
     end
+
+    context "there is an existing readme that should be replaced" do
+      let(:s3_files) { [FactoryBot.build(:s3_file, work: work), FactoryBot.build(:s3_readme, work: work)] }
+
+      it "returns no error message" do
+        expect(readme.attach(uploaded_file)).to be_nil
+        expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv")
+        expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_files.last.key)
+      end
+    end
   end
 end

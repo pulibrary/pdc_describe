@@ -11,12 +11,14 @@
               <th scope="col" nowrap="nowrap"><span>Filename</span></th>
               <th scope="col"><span>Last Modified</span></th>
               <th scope="col"><span>Size</span></th>
+              <th scope="col"><span></span></th>
             </tr>
           </thead>
           <tbody>
             <% if @work.uploads.empty? %>
               <tr class="files">
                 <td><span><%= t('works.form.curation_uploads.empty') %></span></td>
+                <td><span></span></td>
                 <td><span></span></td>
                 <td><span></span></td>
               </tr>
@@ -31,33 +33,45 @@
 
 <script type="text/javascript">
   $(function() {
-    // This is needed so that we can swap the URL during testing
-    // (for more info see external_identifier_specs.rb)
-    var fileListUrl = '<%= work_file_list_path(@work) %>';
+    // work.id is nil when the form is rendered during work creation and the work has not been saved
+    var fileListUrl = '<%= work_file_list_path(@work.id || "NONE") %>';
+    var isEditMode = <%= edit_mode %>;
 
     // Wire DataTable for the file list.
     // Related documentation
     //   AJAX loading: https://datatables.net/manual/ajax
     //   Column display configuration: https://datatables.net/examples/advanced_init/column_render.html
-    $('#files-table').DataTable({
+    //   Row Id: https://datatables.net/reference/option/rowId
+    var filesTable = $('#files-table').DataTable({
+      select: true,
       ajax: {
         url: fileListUrl,
         dataSrc: ''
       },
+      rowId: 'safe_id',
       columns: [
         { data: 'filename' },
         { data: 'last_modified_display' },
-        { data: 'size' }
+        { data: 'size' },
+        { data: 'filename' }
       ],
       columnDefs: [
         {
           render: function (data, type, row) {
             // filename
-            var html = `<span>
-              <i class="bi bi-file-arrow-down"></i>
-              <a href="<%= @work.id %>/download?filename=${data}">${row.filename_display}</a>
-              </span>`;
-            return html;
+            if (type == "display") {
+              var html;
+              if (row.filename_display.startsWith("*")) {
+                html = `<span><s>${row.filename_display.substring(1)}</s></span>`;
+              } else {
+                html = `<span>
+                  <i class="bi bi-file-arrow-down"></i>
+                  <a href="<%= @work.id %>/download?filename=${data}">${row.filename_display}</a>
+                </span>`;
+              }
+              return html;
+            }
+            return data;
           },
           targets: 0,
         },
@@ -81,6 +95,33 @@
             return data;
           },
           targets: 2,
+          className: 'dt-right'
+        },
+        {
+          render: function (data, type, row) {
+            // delete icon
+            var html = null;
+            if (type == "display") {
+              if (row.filename_display.startsWith("*")) {
+                html = `<span>
+                  <a class="undo-delete-file" data-safe_id=${row.safe_id} data-filename=${row.filename} data-filename_display=${row.filename_display} href="#">
+                    Undo delete
+                  </a>
+                </span>`;
+              } else {
+                html = `<span>
+                  <a class="delete-file" data-safe_id=${row.safe_id} data-filename=${row.filename} data-filename_display=${row.filename_display} href="#" id="delete-file-${row.safe_id}">
+                    Delete file
+                  </a>
+                </span>`;
+              }
+            }
+            return html;
+          },
+          targets: 3,
+          className: 'dt-right',
+          sortable: false,
+          visible: isEditMode
         }
       ]
     });

@@ -2,11 +2,12 @@
 class S3File
   include Rails.application.routes.url_helpers
 
-  attr_accessor :filename, :last_modified, :size, :checksum, :url, :filename_display, :last_modified_display
+  attr_accessor :safe_id, :filename, :last_modified, :size, :checksum, :url, :filename_display, :last_modified_display
   alias key filename
   alias id filename
 
   def initialize(filename:, last_modified:, size:, checksum:, work:)
+    @safe_id = filename_as_id(filename)
     @filename = filename
     @filename_display = filename_short(work, filename)
     @last_modified = last_modified
@@ -62,5 +63,11 @@ class S3File
       else
         filename
       end
+    end
+
+    def filename_as_id(filename)
+      # The full filename and path but only with alphanumeric characters
+      # everything else becomes as dash.
+      filename.gsub(/[^A-Za-z\d]/, "-")
     end
 end

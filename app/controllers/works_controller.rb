@@ -40,6 +40,9 @@ class WorksController < ApplicationController
   end
 
   def create
+    # TODO: We need to process files submitted by the user in this method.
+    # We currently do not and therefore there are not saved to the work.
+    # See https://github.com/pulibrary/pdc_describe/issues/1041
     @work = Work.new(created_by_user_id: current_user.id, collection_id: params_collection_id, user_entered_doi: params["doi"].present?)
     @work.resource = FormToResourceService.convert(params, @work)
     if @work.valid?
@@ -81,8 +84,14 @@ class WorksController < ApplicationController
   end
 
   def file_list
-    @work = Work.find(params[:id])
-    render json: @work.uploads
+    if params[:id] == "NONE"
+      # This is a special case when we render the file list for a work being created
+      # (i.e. it does not have an id just yet)
+      render json: []
+    else
+      @work = Work.find(params[:id])
+      render json: @work.uploads
+    end
   end
 
   def resolve_doi
@@ -274,6 +283,8 @@ class WorksController < ApplicationController
 
   def readme_select
     @work = Work.find(params[:id])
+    readme = Readme.new(@work)
+    @readme = readme.file_name
     @wizard = true
   end
 
@@ -305,7 +316,7 @@ class WorksController < ApplicationController
     def pre_curation_uploads_param
       return if patch_params.nil?
 
-      patch_params[:pre_curation_uploads]
+      patch_params[:pre_curation_uploads_added]
     end
 
     def readme_file_param
@@ -349,7 +360,7 @@ class WorksController < ApplicationController
 
         return head(:forbidden) unless deleted_uploads.empty?
       else
-        @work = upload_service.update_precurated_file_list(work_params)
+        @work = upload_service.update_precurated_file_list(added_files_param, deleted_files_param)
       end
 
       process_updates
@@ -360,6 +371,15 @@ class WorksController < ApplicationController
         collection_id: params_collection_id,
         resource: FormToResourceService.convert(params, @work)
       }
+    end
+
+    def added_files_param
+      Array(work_params[:pre_curation_uploads_added])
+    end
+
+    def deleted_files_param
+      deleted_count = (work_params["deleted_files_count"] || "0").to_i
+      (1..deleted_count).map { |i| work_params["deleted_file_#{i}"] }.select(&:present?)
     end
 
     def process_updates
