@@ -29,14 +29,14 @@ RSpec.describe "File selection", type: :system do
     visit edit_work_path(work)
     paths = (0..20).map { Rails.root.join("spec", "fixtures", "files", "orcid.csv") }
     attach_file(paths) do
-      page.find("#pre_curation_uploads").click
+      page.find("#pre_curation_uploads_added").click
     end
 
     expect(page).to have_content("You can select a maximum of 20 files")
 
     paths = (0..19).map { Rails.root.join("spec", "fixtures", "files", "orcid.csv") }
     attach_file(paths) do
-      page.find("#pre_curation_uploads").click
+      page.find("#pre_curation_uploads_added").click
     end
     expect(page).not_to have_content("You can select a maximum of 20 files")
   end
