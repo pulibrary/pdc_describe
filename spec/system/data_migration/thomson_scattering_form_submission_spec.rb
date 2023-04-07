@@ -6,7 +6,7 @@ RSpec.describe "Form submission for migrating Thomson Scattering", type: :system
   let(:title) { "Initial operation and data processing on a system for real-time evaluation of Thomson scattering signals on the Large Helical Device" }
   let(:description) do
     "A scalable system for real-time analysis of electron temperature and density based on signals from the Thomson scattering diagnostic, initially developed for and installed on the NSTX-U experiment, was recently adapted for the Large Helical Device (LHD) and operated for the first time during plasma discharges. During its initial operation run, it routinely recorded and processed signals for four spatial points at the laser repetition rate of 30 Hz, well within the system's rated capability for 60 Hz. We present examples of data collected from this initial run and describe subsequent adaptations to the analysis code to improve the fidelity of the temperature calculations.
-    
+
 Please consult the file README.txt for a description of the archive contents."
   end
   let(:ark) { "ark:/88435/dsp014t64gr25v" }
