@@ -26,7 +26,7 @@ These will need to be kept updated with changes to the UI, changes to the metada
 
   2. Copy the newly created .json files to the server where you want to load them: 
     ```
-    scp tmp/data_migration/*.json deploy@pdc_describe_staging1.princeton.edu:/tmp
+    scp tmp/data_migration/*.json deploy@pdc-describe-staging1.princeton.edu:/tmp
     ```
 
 3. Then, ssh to the server where you want to create this sample work as the `deploy` user. 
