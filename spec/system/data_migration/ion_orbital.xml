@@ -1,0 +1,92 @@
+<resource xsi:schemaLocation='http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://datacite.org/schema/kernel-4'>
+  <identifier identifierType='DOI'>10.1088/1741-4326/acc815</identifier>
+  <creators>
+    <creator>
+      <creatorName>Zhu, Hongxuan</creatorName>
+      <givenName>Hongxuan</givenName>
+      <familyName>Zhu</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0002-9844-6972</nameIdentifier>
+    </creator>
+    <creator>
+      <creatorName>Stoltzfus-Dueck, T</creatorName>
+      <givenName>T</givenName>
+      <familyName>Stoltzfus-Dueck</familyName>
+    </creator>
+    <creator>
+      <creatorName>Hager, R</creatorName>
+      <givenName>R</givenName>
+      <familyName>Hager</familyName>
+    </creator>
+    <creator>
+      <creatorName>Ku, S</creatorName>
+      <givenName>S</givenName>
+      <familyName>Ku</familyName>
+    </creator>
+    <creator>
+      <creatorName>Chang, C.S.</creatorName>
+      <givenName>C.S.</givenName>
+      <familyName>Chang</familyName>
+    </creator>
+  </creators>
+  <titles>
+    <title>
+      Effects of collisional ion orbit loss on tokamak radial electric field and
+      toroidal rotation in an L-mode plasma
+    </title>
+  </titles>
+  <publisher>Princeton University</publisher>
+  <resourceType resourceTypeGeneral='Dataset'/>
+  <publicationYear>2023</publicationYear>
+  <fundingReferences>
+    <fundingReference>
+      <funderName>United States Department of Energy</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01bj3aw27</funderIdentifier>
+      <awardNumber awardURI=''>DE-AC02-09CH11466</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>United States Department of Energy</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01bj3aw27</funderIdentifier>
+      <awardNumber awardURI=''>DE-AC02- 05CH11231</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>United States Department of Energy</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01bj3aw27</funderIdentifier>
+      <awardNumber awardURI=''>SciDAC-4</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>Princeton University</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/00hx57361</funderIdentifier>
+      <awardNumber awardURI=''>n/a</awardNumber>
+    </fundingReference>
+  </fundingReferences>
+  <relatedIdentifiers>
+    <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp01r494vp42z</relatedIdentifier>
+  </relatedIdentifiers>
+  <version>1</version>
+  <rightsList>
+    <rights rightsURI='https://creativecommons.org/licenses/by/4.0/' rightsIdentifier='CC BY'>Creative Commons Attribution 4.0 International</rights>
+  </rightsList>
+  <descriptions>
+    <description descriptionType='Other'>
+      Ion orbit loss has been used to model the formation of a strong negative
+      radial electric field Er in the tokamak edge, as well as edge momentum
+      transport and toroidal rotation. To quantitatively measure ion orbit loss,
+      an orbit-flux formulation has been developed and numerically applied to
+      the gyrokinetic particle-in-cell code XGC. We study collisional ion orbit
+      loss in an axisymmetric DIII-D L-mode plasma using gyrokinetic ions and
+      drift-kinetic electrons. Numerical simulations, where the plasma density
+      and temperature profiles are maintained through neutral ionization and
+      heating, show the formation of a quasisteady negative Er in the edge. We
+      have measured a radially outgoing ion gyrocenter flux due to collisional
+      scattering of ions into the loss orbits, which is balanced by the radially
+      incoming ion gyrocenter flux from confined orbits on the collisional time
+      scale. This suggests that collisional ion orbit loss can shift Er in the
+      negative direction compared to that in plasmas without orbit loss. It is
+      also found that collisional ion orbit loss can contribute to a radially
+      outgoing (counter-current) toroidal-angular-momentum flux, which is not
+      balanced by the toroidal-angular-momentum flux carried by ions on the
+      confined orbits. Therefore, the edge toroidal rotation shifts in the
+      co-current direction on the collisional time scale.
+    </description>
+  </descriptions>
+</resource>

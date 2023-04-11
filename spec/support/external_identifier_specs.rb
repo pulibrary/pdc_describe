@@ -52,6 +52,26 @@ class FakeIdentifierIntegration < Sinatra::Base
         "id": ror,
         "name": "National Aeronautics and Space Administration"
       }
+    when /01t3wyv61/
+      {
+        "id": ror,
+        "name": "National Institute for Fusion Science"
+      }
+    when /00hx57361/
+      {
+        "id": ror,
+        "name": "Princeton University"
+      }
+    when /03vn1ts68/
+      {
+        "id": ror,
+        "name": "Princeton Plasma Physics Laboratory"
+      }
+    when /037gd6g64/
+      {
+        "id": ror,
+        "name": "Division of Atmospheric and Geospace Sciences"
+      }
     else
       {
         "id": ror,

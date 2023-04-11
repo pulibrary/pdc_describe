@@ -1,0 +1,137 @@
+<resource xsi:schemaLocation='http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://datacite.org/schema/kernel-4'>
+  <identifier identifierType='DOI'>10.1029/2020GL087192</identifier>
+  <creators>
+    <creator>
+      <creatorName>Yoo, Jongsoo</creatorName>
+      <givenName>Jongsoo</givenName>
+      <familyName>Yoo</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0003-3881-1995</nameIdentifier>
+    </creator>
+    <creator>
+      <creatorName>Jeong-Young, Ji</creatorName>
+      <givenName>Ji</givenName>
+      <familyName>Jeong-Young</familyName>
+    </creator>
+    <creator>
+      <creatorName>M.V., Ambat</creatorName>
+      <givenName>Ambat</givenName>
+      <familyName>M.V.</familyName>
+    </creator>
+    <creator>
+      <creatorName>Shan, Wang</creatorName>
+      <givenName>Wang</givenName>
+      <familyName>Shan</familyName>
+    </creator>
+    <creator>
+      <creatorName>Hantao, Ji</creatorName>
+      <givenName>Ji</givenName>
+      <familyName>Hantao</familyName>
+    </creator>
+    <creator>
+      <creatorName>Jenson, Lo</creatorName>
+      <givenName>Lo</givenName>
+      <familyName>Jenson</familyName>
+    </creator>
+    <creator>
+      <creatorName>Bowen, Li</creatorName>
+      <givenName>Li</givenName>
+      <familyName>Bowen</familyName>
+    </creator>
+    <creator>
+      <creatorName>Yang, Ren</creatorName>
+      <givenName>Ren</givenName>
+      <familyName>Yang</familyName>
+    </creator>
+    <creator>
+      <creatorName>J, Jara-Almonte</creatorName>
+      <givenName>Jara-Almonte</givenName>
+      <familyName>J</familyName>
+    </creator>
+    <creator>
+      <creatorName>William, Fox</creatorName>
+      <givenName>Fox</givenName>
+      <familyName>William</familyName>
+    </creator>
+    <creator>
+      <creatorName>Masaaki, Yamada</creatorName>
+      <givenName>Yamada</givenName>
+      <familyName>Masaaki</familyName>
+    </creator>
+    <creator>
+      <creatorName>Andrew, Alt</creatorName>
+      <givenName>Alt</givenName>
+      <familyName>Andrew</familyName>
+    </creator>
+    <creator>
+      <creatorName>Aaron, Goodman</creatorName>
+      <givenName>Goodman</givenName>
+      <familyName>Aaron</familyName>
+    </creator>
+  </creators>
+  <titles>
+    <title>Lower Hybrid Drift Waves During Guide Field Reconnection</title>
+  </titles>
+  <publisher>Princeton University</publisher>
+  <resourceType resourceTypeGeneral='Dataset'/>
+  <publicationYear>2020</publicationYear>
+  <fundingReferences>
+    <fundingReference>
+      <funderName>United States Department of Energy</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01bj3aw27</funderIdentifier>
+      <awardNumber awardURI=''>DE-AC02-09CH11466</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>United States Department of Energy</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01bj3aw27</funderIdentifier>
+      <awardNumber awardURI=''>DESC0016278</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>United States Department of Energy</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01bj3aw27</funderIdentifier>
+      <awardNumber awardURI=''>DE-FG02-04ER54746</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>United States Department of Energy</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01bj3aw27</funderIdentifier>
+      <awardNumber awardURI=''>DE-FG02-00ER54585</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>National Aeronautics and Space Administration</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/027ka1x80</funderIdentifier>
+      <awardNumber awardURI=''>NNH14AX63I</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>National Aeronautics and Space Administration</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/027ka1x80</funderIdentifier>
+      <awardNumber awardURI=''>NNH15AB29I</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>Division of Atmospheric and Geospace Sciences</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/037gd6g64</funderIdentifier>
+      <awardNumber awardURI=''>AGS-1552142</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>Division of Atmospheric and Geospace Sciences</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/037gd6g64</funderIdentifier>
+      <awardNumber awardURI=''>AGS-1619584</awardNumber>
+    </fundingReference>
+    <fundingReference>
+      <funderName>National Science Foundation</funderName>
+      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/021nxhr62</funderIdentifier>
+      <awardNumber awardURI=''>DE-FG02-00ER54585</awardNumber>
+    </fundingReference>
+  </fundingReferences>
+  <relatedIdentifiers>
+    <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp0112579w37b</relatedIdentifier>
+  </relatedIdentifiers>
+  <version>1</version>
+  <rightsList>
+    <rights rightsURI='https://creativecommons.org/licenses/by/4.0/' rightsIdentifier='CC BY'>Creative Commons Attribution 4.0 International</rights>
+  </rightsList>
+  <descriptions>
+    <description descriptionType='Other'>
+      Digital data for figures used in Lower Hybrid Drift Waves During Guide
+      Field Reconnection, Geophysical Research Letters, 47, e2020GL087192, 2020.
+    </description>
+  </descriptions>
+</resource>
