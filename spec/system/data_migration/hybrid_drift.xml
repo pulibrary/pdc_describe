@@ -1,5 +1,5 @@
 <resource xsi:schemaLocation='http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://datacite.org/schema/kernel-4'>
-  <identifier identifierType='DOI'>10.1029/2020GL087192</identifier>
+  <identifier identifierType='DOI'>10.11578/1814938</identifier>
   <creators>
     <creator>
       <creatorName>Yoo, Jongsoo</creatorName>
@@ -123,6 +123,7 @@
   </fundingReferences>
   <relatedIdentifiers>
     <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp0112579w37b</relatedIdentifier>
+    <relatedIdentifier relationType='IsCitedBy' relatedIdentifierType='DOI'>10.1029/2020GL087192</relatedIdentifier>
   </relatedIdentifiers>
   <version>1</version>
   <rightsList>

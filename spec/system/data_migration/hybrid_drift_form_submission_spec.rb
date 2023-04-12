@@ -10,11 +10,16 @@ RSpec.describe "Form submission for migrating Thomson Scattering", type: :system
   let(:ark) { "ark:/88435/dsp0112579w37b" }
   let(:collection) { "Research Data" }
   let(:publisher) { "Princeton University" }
-  let(:doi) { "10.1029/2020GL087192" }
+  # DOI of this data set as found at https://www.osti.gov/pages/biblio/1814564
+  let(:doi) { "10.11578/1814938" }
+  # This is the DOI of the paper that used this data set
+  let(:related_identifier) { "10.1029/2020GL087192" }
+  let(:related_identifier_type) { "DOI" }
+  let(:relation_type) { "IsCitedBy" }
 
   before do
-    stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.1029"))
-    stub_request(:get, "https://handle.stage.datacite.org/10.1029/2020GL087192")
+    stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.11578"))
+    stub_request(:get, "https://handle.stage.datacite.org/10.11578/1814938")
       .to_return(status: 200, body: "", headers: {})
     stub_s3
   end
@@ -65,6 +70,7 @@ RSpec.describe "Form submission for migrating Thomson Scattering", type: :system
       fill_in "given_name_13", with: "Goodman"
       fill_in "family_name_13", with: "Aaron"
 
+      # Select Additional Metadata Tab
       click_on "Additional Metadata"
 
       ## Funder Information
@@ -102,6 +108,15 @@ RSpec.describe "Form submission for migrating Thomson Scattering", type: :system
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2020
       select "Research Data", from: "collection_id"
+
+      # Related Objects
+      fill_in "related_identifier_1", with: related_identifier
+      select related_identifier_type, from: "related_identifier_type_1"
+      select relation_type, from: "relation_type_1"
+
+      # Select Curator Controlled Tab
+      click_on "Curator Controlled"
+
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"
