@@ -43,6 +43,8 @@ RSpec.describe UploadSnapshot, type: :model do
         allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
         allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
         allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
+        stub_ark
+        stub_datacite_doi
 
         work.approve!(curator_user)
         work.save
@@ -69,6 +71,8 @@ RSpec.describe UploadSnapshot, type: :model do
         allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
         allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
         allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
+        stub_ark
+        stub_datacite_doi
 
         work.approve!(curator_user)
         work.save

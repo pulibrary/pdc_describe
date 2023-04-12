@@ -108,8 +108,3 @@ RSpec.configure do |config|
     end
   end
 end
-
-# Fix intermittent errors: "Failed to open TCP connection ... Too many open files"
-# https://stackoverflow.com/a/65946077
-# https://github.com/bblimke/webmock#connecting-on-nethttpstart
-WebMock.allow_net_connect!(net_http_connect_on_start: true)
