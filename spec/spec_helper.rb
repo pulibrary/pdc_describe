@@ -30,7 +30,11 @@ RSpec.configure do |config|
   # WebMock.enable_net_connect! setting.
   # Allow connections to local services / localhost
   allowed_sites = ["localhost", "chromedriver.storage.googleapis.com", "127.0.0.1"]
-  WebMock.disable_net_connect!(allow: allowed_sites)
+
+  # Add net_http_connect_on_start: true, to fix intermittent errors: "Failed to open TCP connection ... Too many open files"
+  # https://stackoverflow.com/a/65946077
+  # https://github.com/bblimke/webmock#connecting-on-nethttpstart
+  WebMock.disable_net_connect!(allow: allowed_sites, net_http_connect_on_start: true)
   # WebMock.enable_net_connect!
 
   # FactoryBot

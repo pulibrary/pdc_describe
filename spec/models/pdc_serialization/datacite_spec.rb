@@ -241,6 +241,7 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
     let(:parsed_xml) { Datacite::Mapping::Resource.parse_xml(datacite) }
 
     it "references the related object in the datacite record" do
+      stub_ark
       expect(parsed_xml.related_identifiers.count).to eq 3
       expect(parsed_xml.related_identifiers[0].identifier_type.value).to eq "ARK"
       expect(parsed_xml.related_identifiers[1].identifier_type.value).to eq "arXiv"
@@ -273,6 +274,7 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
     context "valid XML record" do
       let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
       it "easily validates against our local datacite schema" do
+        stub_ark
         expect(resource.valid?).to eq true
         expect(resource.errors.empty?).to eq true
       end
