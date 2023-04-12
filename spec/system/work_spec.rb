@@ -135,6 +135,7 @@ RSpec.describe "Creating and updating works", type: :system do
 
     before do
       stub_s3
+      stub_ark
       sign_in user
       allow_any_instance_of(PDCMetadata::Resource).to receive(:to_xml).and_return(invalid_xml)
     end
@@ -168,6 +169,7 @@ RSpec.describe "Creating and updating works", type: :system do
     end
 
     it "allows users to modify the order of the creators", js: true do
+      stub_datacite_doi
       creator = draft_work.resource.creators.first
       sign_in user
       visit edit_work_path(draft_work)
