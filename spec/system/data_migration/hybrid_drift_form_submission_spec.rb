@@ -104,22 +104,18 @@ RSpec.describe "Form submission for migrating Thomson Scattering", type: :system
       # https://ror.org/021nxhr62 == ROR for National Science Foundation
       page.find(:xpath, "//table[@id='funding']//tr[9]//input[@name='funders[][ror]']").set "https://ror.org/021nxhr62"
       page.find(:xpath, "//table[@id='funding']//tr[9]//input[@name='funders[][award_number]']").set "DE-FG02-00ER54585"
-  
+
       # Related Objects
       fill_in "related_identifier_1", with: related_identifier
       select related_identifier_type, from: "related_identifier_type_1"
       select relation_type, from: "relation_type_1"
-  
-      click_on "Curator Controlled"
-      
-      fill_in "publisher", with: publisher
-      fill_in "publication_year", with: 2020
-      select "Research Data", from: "collection_id"
-
-  
 
       # Select Curator Controlled Tab
       click_on "Curator Controlled"
+
+      fill_in "publisher", with: publisher
+      fill_in "publication_year", with: 2020
+      select "Research Data", from: "collection_id"
 
       fill_in "doi", with: doi
       fill_in "ark", with: ark
