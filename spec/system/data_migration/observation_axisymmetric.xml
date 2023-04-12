@@ -56,6 +56,7 @@
   </fundingReferences>
   <relatedIdentifiers>
     <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp018623j1954</relatedIdentifier>
+    <relatedIdentifier relationType='IsCitedBy' relatedIdentifierType='DOI'>10.1103/PhysRevLett.129.115001</relatedIdentifier>
   </relatedIdentifiers>
   <version>1</version>
   <rightsList>
