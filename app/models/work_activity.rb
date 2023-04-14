@@ -150,40 +150,25 @@ class WorkActivity < ApplicationRecord
     def body_html
       changes = JSON.parse(@work_activity.message)
 
-      files_added = changes.select { |k, v| k == "action" && v == "added" }
-      files_deleted = changes.select { |k, v| k == "action" && v == "deleted" }
-      files_replaced = changes.reject { |k, v| k == "action" && v == "replaced" }
+      files_added = changes.select { |v| v["action"] == "added" }
+      files_deleted = changes.select { |v| v["action"] == "deleted" }
+      files_replaced = changes.reject { |v| v["action"] == "replaced" }
 
       changes_html = []
       unless files_added.empty?
-        label = if files_added.length == 1
-                  "File"
-                else
-                  "Files"
-                end
-        label += " Added: "
+        label = "Files Added: "
         label += files_added.length.to_s
         changes_html << "<tr><td>#{label}</td></tr>"
       end
 
       unless files_deleted.empty?
-        label = if files_deleted.length == 1
-                  "File"
-                else
-                  "Files"
-                end
-        label += " Deleted: "
+        label = "Files Deleted: "
         label += files_deleted.length.to_s
         changes_html << "<tr><td>#{label}</td></tr>"
       end
 
       unless files_replaced.empty?
-        label = if files_replaced.length == 1
-                  "File"
-                else
-                  "Files"
-                end
-        label += " Replaced: "
+        label = "Files Replaced: "
         label += files_replaced.length.to_s
         changes_html << "<tr><td>#{label}</td></tr>"
       end

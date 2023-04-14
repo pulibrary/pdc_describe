@@ -19,8 +19,10 @@ RSpec.describe "UploadSnapshots", type: :request do
   let(:fake_s3_service_post) { stub_s3(data: [file2]) }
 
   before do
+    stub_datacite_doi
     allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
     allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+    allow(fake_s3_service_pre.client).to receive(:copy_object)
     allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
     allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
 
@@ -39,6 +41,14 @@ RSpec.describe "UploadSnapshots", type: :request do
         }
       end
 
+      before do
+        stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/123-abc/#{work_id}/us_covid_2019_2.csv-1").to_return(
+          status: 200,
+          body: "",
+          headers: {}
+        )
+      end
+
       it "creates a new UploadSnapshot and redirects the client to the Works#show view" do
         post "/upload-snapshots", params: params
 
@@ -52,6 +62,14 @@ RSpec.describe "UploadSnapshots", type: :request do
       end
 
       context "when creating multiple snapshots" do
+        before do
+          stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/123-abc/#{work.id}/us_covid_2019_2.csv-2").to_return(
+            status: 200,
+            body: "",
+            headers: {}
+          )
+        end
+
         it "multiple versions are persisted" do
           post "/upload-snapshots", params: params
           post "/upload-snapshots", params: params

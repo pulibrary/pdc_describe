@@ -66,7 +66,8 @@ class WorksController < ApplicationController
   # When requested as .json, return the internal json resource
   def show
     @work = Work.find(params[:id])
-    @changes =  WorkActivity.changes_for_work(@work.id)
+    @work.reload_snapshots
+    @changes = WorkActivity.changes_for_work(@work.id)
     @messages = WorkActivity.messages_for_work(@work.id)
 
     respond_to do |format|

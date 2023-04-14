@@ -75,6 +75,7 @@ ActiveRecord::Schema.define(version: 2023_03_03_165757) do
     t.string "filename"
     t.string "url"
     t.bigint "version"
+    t.string "checksum"
     t.bigint "work_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false

@@ -33,6 +33,7 @@ RSpec.describe "/works", type: :request do
         let(:work) do
           stubbed = instance_double(Work)
           allow(stubbed).to receive(:s3_object_key).and_return("test-key")
+          allow(stubbed).to receive(:reload_snapshots)
           stubbed
         end
 
@@ -63,6 +64,8 @@ RSpec.describe "/works", type: :request do
       end
 
       context "when files are added to the Work" do
+        let(:work) { FactoryBot.create(:tokamak_work, collection: collection, created_by_user_id: user.id, state: "draft") }
+
         let(:uploaded_file1) do
           fixture_file_upload("us_covid_2019.csv", "text/csv")
         end
@@ -93,14 +96,15 @@ RSpec.describe "/works", type: :request do
         end
 
         let(:fake_s3_service) { stub_s3 }
-        let(:file1) { FactoryBot.build :s3_file, filename: uploaded_file1.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
-        let(:file2) { FactoryBot.build :s3_file, filename: uploaded_file2.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
+        let(:file1) { FactoryBot.build :s3_file, filename: uploaded_file1.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z"), checksum: "test1" }
+        let(:file2) { FactoryBot.build :s3_file, filename: uploaded_file2.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z"), checksum: "test2" }
 
         before do
           # This is utilized for active record to send the file to S3
           stub_request(:put, /#{bucket_url}/).to_return(status: 200)
           allow(fake_s3_service).to receive(:client_s3_files).and_return([], [file1, file2])
 
+          stub_ark
           patch work_url(work), params: params
           work.reload
         end
@@ -114,17 +118,18 @@ RSpec.describe "/works", type: :request do
       end
 
       context "when the files are updated before viewing the Work" do
+        let(:work) { FactoryBot.create(:tokamak_work, collection: collection, created_by_user_id: user.id, state: "draft") }
+
         let(:uploaded_file1) do
           fixture_file_upload("us_covid_2019.csv", "text/csv")
         end
 
         let(:uploaded_file2) do
-          fixture_file_upload("us_covid_2020.csv", "text/csv")
+          fixture_file_upload("versions/us_covid_2019.csv", "text/csv")
         end
 
         let(:uploaded_files) do
           [
-            uploaded_file1,
             uploaded_file2
           ]
         end
@@ -145,12 +150,15 @@ RSpec.describe "/works", type: :request do
 
         let(:fake_s3_service) { stub_s3 }
         let(:file1) { FactoryBot.build :s3_file, filename: uploaded_file1.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
-        let(:file2) { FactoryBot.build :s3_file, filename: uploaded_file2.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
 
         before do
+          stub_ark
           # This is utilized for active record to send the file to S3
           stub_request(:put, /#{bucket_url}/).to_return(status: 200)
-          allow(fake_s3_service).to receive(:client_s3_files).and_return([], [file1, file2])
+          allow(fake_s3_service).to receive(:client_s3_files).and_return([], [file1])
+          work.pre_curation_uploads.attach(uploaded_file1)
+          work.save
+          work.reload
 
           patch work_url(work), params: params
           work.reload
@@ -160,7 +168,7 @@ RSpec.describe "/works", type: :request do
           get work_url(work)
 
           expect(response.code).to eq "200"
-          expect(response.body).to include("Files Added: 2")
+          expect(response.body).to include("Files Replaced: 1")
         end
       end
     end

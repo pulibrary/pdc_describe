@@ -31,7 +31,7 @@ describe "Change History, AKA Provenance" do
     assign(:changes, [WorkActivity.add_work_activity(work.id, { action: "added" }.to_json, user.id,
       activity_type: WorkActivity::FILE_CHANGES)])
     render(partial: partial, locals: { can_add_provenance_note: false })
-    expect(rendered).to include("File Added:")
+    expect(rendered).to include("Files Replaced:")
   end
 
   it "handles prov note" do

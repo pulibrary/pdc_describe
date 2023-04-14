@@ -355,8 +355,7 @@ class Work < ApplicationRecord
     pre_curation_uploads_fast
   end
 
-  def local_pre_curation_s3_files
-    return [] unless Rails.env.development?
+  def pre_curation_s3_files
     loaded = pre_curation_uploads.sort_by(&:filename)
 
     loaded.map do |attachment|
@@ -364,8 +363,8 @@ class Work < ApplicationRecord
         work: self,
         filename: attachment.key,
         last_modified: attachment.created_at,
-        size: nil,
-        checksum: ""
+        size: attachment.byte_size,
+        checksum: attachment.checksum
       )
     end
   end
@@ -395,58 +394,10 @@ class Work < ApplicationRecord
   end
   alias post_curation_uploads post_curation_s3_resources
 
-  def build_snapshots(s3_resources)
-    results = s3_resources.map do |s3_file|
-      UploadSnapshot.find_or_build_by(url: s3_file.url, filename: s3_file.filename, work: self)
-    end
+  def s3_files
+    return s3_resources if approved?
 
-    s3_resource_urls = s3_resources.map(&:url)
-    s3_resource_filenames = s3_resources.map(&:filename)
-
-    persisted = results.reject do |snapshot|
-      removed = !s3_resource_urls.include?(snapshot.url) && !s3_resource_filenames.include?(snapshot.filename)
-
-      if removed
-        snapshot.destroy
-        changes = {
-          action: "removed"
-        }
-        WorkActivity.add_work_activity(id, changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES)
-      end
-
-      removed
-    end
-
-    s3_resources.map do |s3_file|
-      snapshot = persisted.find { |s| s.url == s3_file.url && s.filename == s3_file.filename }
-
-      if snapshot.checksum != s3_file.checksum
-        # cases where the s3 resources are replaced
-        snapshot.checksum = s3_file.checksum
-        changes = if !snapshot.persisted?
-                    {
-                      action: "added"
-                    }
-                  else
-                    {
-                      action: "replaced"
-                    }
-                  end
-        snapshot.save
-
-        WorkActivity.add_work_activity(id, changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES)
-      end
-
-      snapshot.reload
-    end
-  end
-
-  def pre_curation_snapshots
-    @pre_curation_snapshots ||= build_snapshots(pre_curation_s3_resources)
-  end
-
-  def post_curation_snapshots
-    @post_curation_snapshots ||= build_snapshots(post_curation_s3_resources)
+    pre_curation_s3_files
   end
 
   def s3_client
@@ -508,6 +459,72 @@ class Work < ApplicationRecord
   # @return [S3QueryService]
   def s3_query_service
     @s3_query_service ||= S3QueryService.new(self, !approved?)
+  end
+
+  def reload_snapshots
+    results = s3_files.map do |s3_file|
+      UploadSnapshot.find_or_initialize_by(url: s3_file.url, filename: s3_file.filename, work: self)
+    end
+
+    s3_resource_urls = s3_files.map(&:url)
+    s3_resource_filenames = s3_files.map(&:filename)
+
+    # remove the snapshots for s3 file resources which have been deleted
+    persisted = results.reject do |snapshot|
+      removed = !s3_resource_urls.include?(snapshot.url) && !s3_resource_filenames.include?(snapshot.filename)
+
+      if removed
+        snapshot.destroy
+        changes = {
+          action: "removed"
+        }
+        WorkActivity.add_work_activity(id, changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES)
+      end
+
+      removed
+    end
+
+    s3_files.map do |s3_file|
+      s3_match = s3_file.filename.match(/_\d+_/)
+      s3_filename = if s3_match
+                      s3_file.filename.gsub(/_\d+\.([0-9a-zA-Z]+)$/, ".\\1")
+                    else
+                      s3_file.filename
+                    end
+
+      selected = persisted.select do |s|
+        # checking for version substrings
+        snapshot_match = s.filename.match(/_\d+_/)
+        s_filename = if snapshot_match
+                       s.filename.gsub(/_\d+\.([0-9a-zA-Z]+)$/, ".\\1")
+                     else
+                       s.filename
+                     end
+
+        s_filename == s3_filename
+      end
+      snapshot = selected.last
+
+      if snapshot.checksum != s3_file.checksum
+
+        # cases where the s3 resources are replaced
+        snapshot.checksum = s3_file.checksum
+        changes = if !snapshot.persisted?
+                    {
+                      action: "added"
+                    }
+                  else
+                    {
+                      action: "replaced"
+                    }
+                  end
+        snapshot.save
+
+        WorkActivity.add_work_activity(id, changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES)
+      end
+
+      snapshot.reload
+    end
   end
 
   protected
