@@ -1,0 +1,13 @@
+---
+default: &default
+  base_url: 'https://dataspace.princeton.edu/rest/'
+  download_file_path: '/tmp'
+production:
+  <<: *default
+staging:
+  <<: *default
+development:
+  <<: *default
+test:
+  <<: *default
+  base_url: 'https://dataspace.example.com/rest/'
