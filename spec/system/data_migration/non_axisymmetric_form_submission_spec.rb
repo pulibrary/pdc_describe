@@ -12,12 +12,15 @@ File name: SourceData.xlsx Description: source data for the 8 figures in the mai
   let(:ark) { "ark:/88435/dsp01sx61dq46q" }
   let(:collection) { "Princeton Plasma Physics Laboratory" }
   let(:publisher) { "Princeton University" }
-  let(:doi) { "10.1038/s41467-022-32278-0" }
+  let(:doi) { "10.11578/1888278" }
+  let(:related_identifier) { "10.1038/s41467-022-32278-0" }
+  let(:related_identifier_type) { "DOI" }
+  let(:relation_type) { "IsCitedBy" }
   let(:keywords) { "magnetorotational instability, MRI, liquid metal, taylor-couette flow," }
 
   before do
-    stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.1038"))
-    stub_request(:get, "https://handle.stage.datacite.org/10.1038/s41467-022-32278-0")
+    stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.11578"))
+    stub_request(:get, "https://handle.stage.datacite.org/#{doi}")
       .to_return(status: 200, body: "", headers: {})
     stub_s3
   end
@@ -51,6 +54,12 @@ File name: SourceData.xlsx Description: source data for the 8 figures in the mai
       fill_in "family_name_7", with: "Ji"
 
       click_on "Additional Metadata"
+
+      # Related Objects
+      fill_in "related_identifier_1", with: related_identifier
+      select related_identifier_type, from: "related_identifier_type_1"
+      select relation_type, from: "relation_type_1"
+
       fill_in "keywords", with: keywords
 
       ## Funder Information

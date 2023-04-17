@@ -13,6 +13,9 @@ Source data for Figure 2, Figure 4, Figure 5 and Figure 7 of the article Observa
   let(:collection) { "Princeton Plasma Physics Laboratory" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.11578/1888278" }
+  let(:related_identifier) { "10.1103/PhysRevLett.129.115001" }
+  let(:related_identifier_type) { "DOI" }
+  let(:relation_type) { "IsCitedBy" }
   let(:keywords) { "magnetorotational instability, taylor-couette flow, liquid metal, mhd instability, accretion disk" }
 
   before do
@@ -45,6 +48,13 @@ Source data for Figure 2, Figure 4, Figure 5 and Figure 7 of the article Observa
       fill_in "family_name_5", with: "Ji"
 
       click_on "Additional Metadata"
+
+      # Related Objects
+      fill_in "related_identifier_1", with: related_identifier
+      select related_identifier_type, from: "related_identifier_type_1"
+      select relation_type, from: "relation_type_1"
+
+      fill_in "keywords", with: keywords
 
       ## Funder Information
       # https://ror.org/01bj3aw27 == ROR for United States Department of Energy
