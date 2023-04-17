@@ -133,6 +133,7 @@ RSpec.describe Work, type: :model do
   context "with related objects" do
     subject(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
     it "has related objects" do
+      stub_ark
       expect(work.resource.related_objects.first.related_identifier).to eq "https://www.biorxiv.org/content/10.1101/545517v1"
       expect(work.resource.related_objects.first.related_identifier_type).to eq "arXiv"
       expect(work.resource.related_objects.first.relation_type).to eq "IsCitedBy"
@@ -168,6 +169,7 @@ RSpec.describe Work, type: :model do
 
     context "when a Work is approved" do
       it "transfers the files to the AWS Bucket" do
+        stub_datacite_doi
         work.approve!(curator_user)
         work.reload
 

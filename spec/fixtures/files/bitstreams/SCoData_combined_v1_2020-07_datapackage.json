@@ -1,0 +1,476 @@
+{
+  "profile": "tabular-data-package",
+  "title": "Shakespeare and Company Project Dataset: Lending Library Members, Events, and Books",
+  "id": "https://doi.org/10.34770/pe9w-x904",
+  "homepage": "https://shakespeareandco.princeton.edu/about/data/",
+  "version": "1.0.0",
+  "image": "https://shakespeareandco.princeton.edu/static/img/social.png",
+  "licenses": [
+    {
+      "name": "CC-BY-4.0",
+      "path": "https://creativecommons.org/licenses/by/4.0/",
+      "title": "Creative Commons Attribution 4.0"
+    }
+  ],
+  "resources": [
+    {
+      "path": "SCoData_members_v1_2020-07.csv",
+      "profile": "tabular-data-resource",
+      "name": "members",
+      "id": "https://doi.org/10.34770/ht30-g395",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8-sig",
+      "schema": {
+        "fields": [
+          {
+            "name": "uri",
+            "type": "string",
+            "format": "uri",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "format": "default",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "sort_name",
+            "type": "string",
+            "format": "default",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "gender",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "is_organization",
+            "type": "boolean",
+            "format": "default"
+          },
+          {
+            "name": "has_card",
+            "type": "boolean",
+            "format": "default"
+          },
+          {
+            "name": "birth_year",
+            "type": "year",
+            "format": "default"
+          },
+          {
+            "name": "death_year",
+            "type": "year",
+            "format": "default"
+          },
+          {
+            "name": "membership_years",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList",
+            "constraints": {
+              "pattern": "\\d{4}(;\\d{4})*"
+            }
+          },
+          {
+            "name": "viaf_url",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "wikipedia_url",
+            "type": "string",
+            "format": "uri"
+          },
+          {
+            "name": "nationalities",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "addresses",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "postal_codes",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList",
+            "constraints": {
+              "pattern": "(\\d{5}|[A-Z \\d]+|)(;(\\d{5}|[A-Z \\d]+|))*"
+            }
+          },
+          {
+            "name": "arrondissements",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList",
+            "constraints": {
+              "pattern": "(\\d{1,2})?(;(\\d{1,2})?)*"
+            }
+          },
+          {
+            "name": "coordinates",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "notes",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "updated",
+            "type": "datetime",
+            "format": "%Y-%m-%dT%H:%M:%S+00:00"
+          }
+        ],
+        "missingValues": [
+          ""
+        ],
+        "primaryKey": "uri"
+      }
+    },
+    {
+      "path": "SCoData_books_v1_2020-07.csv",
+      "profile": "tabular-data-resource",
+      "name": "books",
+      "id": "https://doi.org/10.34770/g467-3w07",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8-sig",
+      "schema": {
+        "fields": [
+          {
+            "name": "uri",
+            "type": "string",
+            "format": "uri",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "format": "default",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "author",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "editor",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "contributor",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "translator",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "illustrator",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "introduction",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "preface",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "photographer",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "year",
+            "type": "year",
+            "format": "default"
+          },
+          {
+            "name": "format",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "uncertain",
+            "type": "boolean",
+            "format": "default"
+          },
+          {
+            "name": "ebook_url",
+            "type": "string",
+            "format": "uri"
+          },
+          {
+            "name": "volumes_issues",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "notes",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "event_count",
+            "type": "integer",
+            "format": "default"
+          },
+          {
+            "name": "borrow_count",
+            "type": "integer",
+            "format": "default"
+          },
+          {
+            "name": "purchase_count",
+            "type": "integer",
+            "format": "default"
+          },
+          {
+            "name": "circulation_years",
+            "type": "string",
+            "rdfType": "https://schema.org/ItemList",
+            "format": "default",
+            "constraints": {
+              "pattern": "(\\d{4})?(;\\d{4})*"
+            }
+          },
+          {
+            "name": "updated",
+            "type": "datetime",
+            "format": "%Y-%m-%dT%H:%M:%S+00:00"
+          }
+        ],
+        "missingValues": [
+          ""
+        ],
+        "primaryKey": "uri"
+      }
+    },
+    {
+      "path": "SCoData_events_v1_2020-07.csv",
+      "profile": "tabular-data-resource",
+      "name": "events",
+      "id": "https://doi.org/10.34770/2r93-0t85",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8-sig",
+      "schema": {
+        "fields": [
+          {
+            "name": "event_type",
+            "type": "string",
+            "format": "default",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "start_date",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/Date",
+            "constraints": {
+              "pattern": "(\\d{4}|-)?(?:-([01]\\d))?(?:-([0-3]\\d))?"
+            }
+          },
+          {
+            "name": "end_date",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/Date",
+            "constraints": {
+              "pattern": "(\\d{4}|-)?(?:-([01]\\d))?(?:-([0-3]\\d))?"
+            }
+          },
+          {
+            "name": "member_uris",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "member_names",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "member_sort_names",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/ItemList"
+          },
+          {
+            "name": "subscription_price_paid",
+            "type": "number",
+            "format": "default",
+            "rdfType": "https://schema.org/MonetaryAmount"
+          },
+          {
+            "name": "subscription_deposit",
+            "type": "number",
+            "format": "default",
+            "rdfType": "https://schema.org/MonetaryAmount"
+          },
+          {
+            "name": "subscription_duration",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "subscription_duration_days",
+            "type": "integer",
+            "format": "default"
+          },
+          {
+            "name": "subscription_volumes",
+            "type": "integer",
+            "format": "default"
+          },
+          {
+            "name": "subscription_category",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "subscription_purchase_date",
+            "type": "string",
+            "format": "default",
+            "rdfType": "https://schema.org/Date",
+            "constraints": {
+              "pattern": "(\\d{4}|-)?(?:-([01]\\d))?(?:-([0-3]\\d))?"
+            }
+          },
+          {
+            "name": "reimbursement_refund",
+            "type": "number",
+            "format": "default",
+            "rdfType": "https://schema.org/MonetaryAmount"
+          },
+          {
+            "name": "borrow_status",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "purchase_price",
+            "type": "number",
+            "format": "default",
+            "rdfType": "https://schema.org/MonetaryAmount"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "item_uri",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "item_title",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "item_volume",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "item_authors",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "item_year",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "item_notes",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "source_citation",
+            "type": "string",
+            "format": "default"
+          },
+          {
+            "name": "source_manifest",
+            "type": "string",
+            "format": "uri"
+          },
+          {
+            "name": "source_image",
+            "type": "string",
+            "format": "uri"
+          }
+        ],
+        "missingValues": [
+          ""
+        ],
+        "foreignKeys": [
+          {
+            "fields": "member_uris",
+            "reference": {
+              "resource": "members",
+              "fields": "uri"
+            },
+            "fields": "item_uri",
+            "reference": {
+              "resource": "books",
+              "fields": "uri"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

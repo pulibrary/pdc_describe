@@ -7,6 +7,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
 
   before do
     stub_s3
+    stub_ark
   end
 
   it "displays related identifiers" do

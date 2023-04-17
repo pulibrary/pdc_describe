@@ -6,6 +6,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
 
   before do
     stub_s3
+    stub_ark
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
 

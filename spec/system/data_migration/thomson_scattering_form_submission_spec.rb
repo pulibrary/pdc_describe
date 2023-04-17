@@ -12,12 +12,16 @@ Please consult the file README.txt for a description of the archive contents."
   let(:ark) { "ark:/88435/dsp014t64gr25v" }
   let(:collection) { "Research Data" }
   let(:publisher) { "Princeton University" }
-  let(:doi) { "" }
+  let(:doi) { "10.11578/1814942" }
+  let(:related_identifier) { "10.1063/5.0041507" }
+  let(:related_identifier_type) { "DOI" }
+  let(:relation_type) { "IsCitedBy" }
+
   let(:keywords) { "Thomson scattering, real-time, LHD, plasma diagnostic" }
 
   before do
-    stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
-    stub_request(:get, "https://handle.stage.datacite.org/10.34770/gg40-tc15")
+    stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.11578"))
+    stub_request(:get, "https://handle.stage.datacite.org/#{doi}")
       .to_return(status: 200, body: "", headers: {})
     stub_s3
   end
@@ -71,6 +75,12 @@ Please consult the file README.txt for a description of the archive contents."
       fill_in "family_name_14", with: "Kolemen"
 
       click_on "Additional Metadata"
+
+      # Related Objects
+      fill_in "related_identifier_1", with: related_identifier
+      select related_identifier_type, from: "related_identifier_type_1"
+      select relation_type, from: "relation_type_1"
+
       fill_in "keywords", with: keywords
 
       ## Funder Information

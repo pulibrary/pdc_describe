@@ -1,0 +1,77 @@
+[
+	{
+		"id": 145784,
+		"name": "SCoData_combined_v1_2020-07_README.txt",
+		"handle": null,
+		"type": "bitstream",
+		"link": "/rest/bitstreams/145784",
+		"expand": [
+			"parent",
+			"policies",
+			"all"
+		],
+		"bundleName": "ORIGINAL",
+		"description": "Overview of the dataset, including list of fields for all files",
+		"format": "Text",
+		"mimeType": "text/plain",
+		"sizeBytes": 10759,
+		"parentObject": null,
+		"retrieveLink": "/bitstreams/145784/retrieve",
+		"checkSum": {
+			"value": "008eec11c39e7038409739c0160a793a",
+			"checkSumAlgorithm": "MD5"
+		},
+		"sequenceId": 5,
+		"policies": null
+	},
+	{
+		"id": 145785,
+		"name": "SCoData_combined_v1_2020-07_datapackage.json",
+		"handle": null,
+		"type": "bitstream",
+		"link": "/rest/bitstreams/145785",
+		"expand": [
+			"parent",
+			"policies",
+			"all"
+		],
+		"bundleName": "ORIGINAL",
+		"description": "Frictionless data schema describing the CSV files",
+		"format": "Frictionless Data datapackage",
+		"mimeType": "application/octet-stream",
+		"sizeBytes": 12739,
+		"parentObject": null,
+		"retrieveLink": "/bitstreams/145785/retrieve",
+		"checkSum": {
+			"value": "7bd3d4339c034ebc663b990657714688",
+			"checkSumAlgorithm": "MD5"
+		},
+		"sequenceId": 6,
+		"policies": null
+	},
+	{
+		"id": 145762,
+		"name": "license.txt",
+		"handle": null,
+		"type": "bitstream",
+		"link": "/rest/bitstreams/145762",
+		"expand": [
+			"parent",
+			"policies",
+			"all"
+		],
+		"bundleName": "LICENSE",
+		"description": null,
+		"format": "License",
+		"mimeType": "text/plain",
+		"sizeBytes": 3223,
+		"parentObject": null,
+		"retrieveLink": "/bitstreams/145762/retrieve",
+		"checkSum": {
+			"value": "1e204dad3e9e1e2e6660eef9c33467e9",
+			"checkSumAlgorithm": "MD5"
+		},
+		"sequenceId": 4,
+		"policies": null
+	}
+]
