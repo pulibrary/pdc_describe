@@ -551,7 +551,7 @@ class Work < ApplicationRecord
     def publish_doi(user)
       return Rails.logger.info("Publishing hard-coded test DOI during development.") if self.class.publish_test_doi?
 
-      if doi.starts_with?(Rails.configuration.datacite.prefix)
+      if doi&.starts_with?(Rails.configuration.datacite.prefix)
         result = data_cite_connection.update(id: doi, attributes: doi_attributes)
         if result.failure?
           resolved_user = curator_or_current_uid(user)
