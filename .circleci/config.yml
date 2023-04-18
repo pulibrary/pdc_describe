@@ -2,7 +2,7 @@ version: 2.1
 commands:
   install_dependencies:
     steps:
-      - run: gem install bundler -v '2.3.11'
+      - run: gem install bundler -v '2.3.22'
       - run: cp Gemfile.lock Gemfile.lock.bak
       - restore_cache:
           key: &gem_key rails_template-cimg-{{ checksum "Gemfile.lock.bak" }}
@@ -29,7 +29,7 @@ jobs:
     working_directory: ~/rails_template
     docker:
       - &ruby_docker
-        image: cimg/ruby:3.0.3-browsers
+        image: cimg/ruby:3.1.0-browsers
         environment:
           RAILS_ENV: test
     steps:
@@ -55,7 +55,7 @@ jobs:
     # We don't actually need any of the ruby environment to lint JS... but use what we have for now.
     working_directory: ~/rails_template
     docker:
-      - image: cimg/ruby:3.0.3-browsers
+      - image: cimg/ruby:3.1.0-browsers
         environment:
           RAILS_ENV: test
     steps:
