@@ -118,7 +118,7 @@ class S3QueryService
 
   # Retrieve the S3 resources uploaded to the S3 Bucket
   # @return [Array<S3File>]
-  def client_s3_files(reload: false, bucket_name: self.bucket_name)
+  def client_s3_files(reload: false, bucket_name: self.bucket_name, prefix: self.prefix)
     @client_s3_files = nil if reload # force a reload
     @client_s3_files ||= begin
       start = Time.zone.now
@@ -162,19 +162,32 @@ class S3QueryService
     files = client_s3_files(reload: true, bucket_name: source_bucket)
 
     files.each do |file|
-      params = {
-        copy_source: "/#{source_bucket}/#{file.key}",
-        bucket: target_bucket,
-        key: file.key
-      }
-      Rails.logger.info("Copying #{params[:copy_source]} to #{params[:bucket]}/#{params[:key]}")
-      client.copy_object(params)
+      copy_file(source_key: "/#{source_bucket}/#{file.key}", target_bucket: target_bucket,
+                target_key: file.key, size: file.size)
     end
 
     error_files = check_files(target_bucket, files)
 
     delete_files_and_directory(files) if error_files.empty?
     error_files
+  end
+
+  def copy_file(source_key:, target_bucket:, target_key:, size:)
+    Rails.logger.info("Copying #{source_key} to #{target_bucket}/#{target_key}")
+    multi = client.create_multipart_upload(bucket: target_bucket, key: target_key)
+    part_size = 5_368_709_120 # 5GB is the maximum
+    part_num = 0
+    start_byte = 0
+    parts = []
+    while start_byte < size
+      part_num += 1
+      end_byte = [start_byte + part_size, size].min - 1
+      resp = client.upload_part_copy(bucket: target_bucket, copy_source: source_key, key: multi.key, part_number: part_num,
+                                     upload_id: multi.upload_id, copy_source_range: "bytes=#{start_byte}-#{end_byte}")
+      parts << { etag: resp.copy_part_result.etag, part_number: part_num }
+      start_byte = end_byte + 1
+    end
+    client.complete_multipart_upload(bucket: target_bucket, key: target_key, upload_id: multi.upload_id, multipart_upload: { parts: parts })
   end
 
   def delete_s3_object(s3_file_key)
