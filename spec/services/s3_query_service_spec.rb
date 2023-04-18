@@ -110,6 +110,9 @@ RSpec.describe S3QueryService do
     let(:user) { FactoryBot.create(:user) }
     let(:work) { FactoryBot.create(:draft_work, doi: doi) }
     let(:fake_aws_client) { double(Aws::S3::Client) }
+    let(:fake_multi) { instance_double(Aws::S3::Types::CreateMultipartUploadOutput, key: "abc", upload_id: "upload id", bucket: "bucket") }
+    let(:fake_parts) { instance_double(Aws::S3::Types::CopyPartResult, etag: "etag123abc") }
+    let(:fake_upload) { instance_double(Aws::S3::Types::UploadPartCopyOutput, copy_part_result: fake_parts) }
 
     before do
       Collection.create_defaults
@@ -123,18 +126,30 @@ RSpec.describe S3QueryService do
       fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
       fake_s3_resp.stub(:to_h).and_return(s3_hash)
 
-      allow(subject.client).to receive(:copy_object)
+      allow(subject.client).to receive(:create_multipart_upload).and_return(fake_multi)
+      allow(subject.client).to receive(:upload_part_copy).and_return(fake_upload)
       allow(subject.client).to receive(:delete_object)
       allow(subject.client).to receive(:head_object).and_return(true)
+      allow(subject.client).to receive(:complete_multipart_upload)
     end
 
     describe "#publish_files" do
-      it "calls moves the files calling copy_object, head_object, and delete_object twice, once for each file" do
+      it "calls moves the files calling create_multipart_upload, head_object, and delete_object twice, once for each file" do
         expect(subject.publish_files).to eq([])
-        expect(subject.client).to have_received(:copy_object)
-          .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key1}", key: s3_key1 })
-        expect(subject.client).to have_received(:copy_object)
-          .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key2}", key: s3_key2 })
+        expect(subject.client).to have_received(:create_multipart_upload)
+          .with({ bucket: "example-bucket-post", key: s3_key1 })
+        expect(subject.client).to have_received(:create_multipart_upload)
+          .with({ bucket: "example-bucket-post", key: s3_key2 })
+        expect(subject.client).to have_received(:upload_part_copy)
+          .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key1}",
+                  copy_source_range: "bytes=0-10758", key: "abc", part_number: 1, upload_id: "upload id" })
+        expect(subject.client).to have_received(:upload_part_copy)
+          .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key2}",
+                  copy_source_range: "bytes=0-12738", key: "abc", part_number: 1, upload_id: "upload id" })
+        expect(subject.client).to have_received(:complete_multipart_upload)
+          .with({ bucket: "example-bucket-post", key: s3_key1, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1 }] }, upload_id: "upload id" })
+        expect(subject.client).to have_received(:complete_multipart_upload)
+          .with({ bucket: "example-bucket-post", key: s3_key2, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1 }] }, upload_id: "upload id" })
         expect(subject.client).to have_received(:head_object)
           .with({ bucket: "example-bucket-post", key: s3_key1 })
         expect(subject.client).to have_received(:head_object)
@@ -150,10 +165,10 @@ RSpec.describe S3QueryService do
         it "Does not delete anything and returns the missing file" do
           allow(subject.client).to receive(:head_object).and_return(true, false)
           expect(subject.publish_files.map(&:key)).to eq([s3_key2])
-          expect(subject.client).to have_received(:copy_object)
-            .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key1}", key: s3_key1 })
-          expect(subject.client).to have_received(:copy_object)
-            .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key2}", key: s3_key2 })
+          expect(subject.client).to have_received(:create_multipart_upload)
+            .with({ bucket: "example-bucket-post", key: s3_key1 })
+          expect(subject.client).to have_received(:create_multipart_upload)
+            .with({ bucket: "example-bucket-post", key: s3_key2 })
           expect(subject.client).to have_received(:head_object)
             .with({ bucket: "example-bucket-post", key: s3_key1 })
           expect(subject.client).to have_received(:head_object)
