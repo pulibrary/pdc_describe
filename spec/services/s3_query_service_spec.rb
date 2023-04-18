@@ -362,7 +362,7 @@ RSpec.describe S3QueryService do
     end
 
     it "uploads the readme" do
-      expect(s3_query_service.upload_file(io: file, filename: filename)).to be_truthy
+      expect(s3_query_service.upload_file(io: file, filename: filename)).to eq("10.34770/pe9w-x904/#{work.id}/README.txt")
       assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}", headers: { "Content-Length" => 2852 })
     end
 

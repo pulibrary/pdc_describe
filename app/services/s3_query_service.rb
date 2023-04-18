@@ -202,7 +202,9 @@ class S3QueryService
   def upload_file(io:, filename:)
     # upload file from io in a single request, may not exceed 5GB
     md5_digest = md5(io: io)
-    client.put_object(bucket: bucket_name, key: "#{prefix}#{filename}", body: io, content_md5: md5_digest)
+    key = "#{prefix}#{filename}"
+    client.put_object(bucket: bucket_name, key: key, body: io, content_md5: md5_digest)
+    key
   rescue Aws::S3::Errors::SignatureDoesNotMatch => e
     Honeybadger.notify("Error Uploading file #{filename} for object: #{s3_address} Signature did not match! error: #{e}")
     false

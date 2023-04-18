@@ -8,18 +8,7 @@ namespace :dspace do
     work = Work.find(work_id)
     puts "Migrating Files from dspace to PDC for Work #{work.title}"
     dspace = PULDspaceData.new(work)
-    filenames = dspace.download_bitstreams
-    if filenames.any?(nil)
-      bitstreams = dspace.bitstreams
-      error_files = Hash[filenames.zip bitstreams].select { |key, _value| key.nil? }
-      error_names = error_files.map { |bitstream| bitstream["name"] }.join(", ")
-      raise "Error downloading file(s) #{error_names}"
-    end
-    results = dspace.upload_to_s3(filenames)
-    errors = results.reject(&:"blank?")
-    if errors.count > 0
-      raise "Error uploading file(s):\n #{errors.join("\n")}"
-    end
-    puts "Sucessfully migrated #{filenames.count} files for work"
+    dspace.migrate
+    puts "Sucessfully migrated #{dspace.keys.count} files for work"
   end
 end
