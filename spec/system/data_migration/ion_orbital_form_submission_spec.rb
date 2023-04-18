@@ -10,12 +10,15 @@ RSpec.describe "Form submission for ion orbital", type: :system, mock_ezid_api: 
   let(:ark) { "ark:/88435/dsp01r494vp42z" }
   let(:collection) { "Princeton Plasma Physics Laboratory" }
   let(:publisher) { "Princeton University" }
-  let(:doi) { "10.1088/1741-4326/acc815" }
+  let(:doi) { "10.11578/1888260" }
+  let(:related_identifier) { "10.1088/1741-4326/acc815" }
+  let(:related_identifier_type) { "DOI" }
+  let(:relation_type) { "IsCitedBy" }
   let(:keywords) { "ion orbit loss, radial electric field, tokamak edge plasmas, gyrokinetic simulations" }
 
   before do
-    stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.1088"))
-    stub_request(:get, "https://handle.stage.datacite.org/10.1088/1741-4326/acc815")
+    stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.11578"))
+    stub_request(:get, "https://handle.stage.datacite.org/#{doi}")
       .to_return(status: 200, body: "", headers: {})
     stub_s3
   end
@@ -43,6 +46,12 @@ RSpec.describe "Form submission for ion orbital", type: :system, mock_ezid_api: 
       fill_in "family_name_5", with: "Chang"
 
       click_on "Additional Metadata"
+
+      # Related Objects
+      fill_in "related_identifier_1", with: related_identifier
+      select related_identifier_type, from: "related_identifier_type_1"
+      select relation_type, from: "relation_type_1"
+
       fill_in "keywords", with: keywords
 
       ## Funder Information
