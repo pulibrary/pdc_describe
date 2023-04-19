@@ -62,8 +62,10 @@ Rails.application.configure do
   # config.cache_store = :mem_cache_store
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
-  # config.active_job.queue_adapter     = :resque
-  # config.active_job.queue_name_prefix = "drds_rails_template_production"
+  # TODO - Configure the server for a real queing system
+  config.active_job.queue_adapter = :inline
+  # config.active_job.queue_adapter     = :sidekiq
+  # config.active_job.queue_name_prefix = "pdc_describe_production"
 
   config.action_mailer.perform_caching = false
 
