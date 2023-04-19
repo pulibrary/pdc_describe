@@ -68,12 +68,12 @@ class PULDspaceData
     return "" if ark.nil?
     @doi ||= begin
                doi_url = metadata["dc.identifier.uri"].select { |value| value.starts_with?("https://doi.org/") }&.first
-               doi_url.gsub("https://doi.org/", "")
+               doi_url&.gsub("https://doi.org/", "")
              end
   end
 
   def aws_files
-    return [] if ark.nil?
+    return [] if ark.nil? || doi.nil?
     @aws_files ||= work.s3_query_service.client_s3_files(reload: true, bucket_name: dspace_bucket_name, prefix: doi.tr(".", "-"))
   end
 

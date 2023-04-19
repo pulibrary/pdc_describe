@@ -216,7 +216,7 @@
       <% end %>
 
       <dt>Collection</dt>
-      <dd><%= @collection.title %></dd>
+      <dd><%= @collection&.title %></dd>
 
       <% if @work.resource.funders.count > 0 %>
         <dt>Funders</dt>
