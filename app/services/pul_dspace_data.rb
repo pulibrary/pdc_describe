@@ -68,7 +68,7 @@ class PULDspaceData
     return "" if ark.nil?
     @doi ||= begin
                doi_url = metadata["dc.identifier.uri"].select { |value| value.starts_with?("https://doi.org/") }&.first
-               doi_url.gsub("https://doi.org/", "")
+               doi_url&.gsub("https://doi.org/", "")
              end
   end
 
