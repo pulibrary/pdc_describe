@@ -9,8 +9,8 @@ RSpec.describe WorksController do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
   end
-  let(:curator) { FactoryBot.create(:user, collections_to_admin: [collection]) }
-  let(:collection) { Collection.first }
+  let(:collection) { Group.first }
+  let(:curator) { FactoryBot.create(:user, groups_to_admin: [collection]) }
   let(:resource) { FactoryBot.build :resource }
   let(:work) { FactoryBot.create(:draft_work) }
   let(:user) { work.created_by_user }
@@ -56,7 +56,7 @@ RSpec.describe WorksController do
     it "renders the edit page when creating a new dataset" do
       params = {
         "title_main" => "test dataset updated",
-        "collection_id" => work.collection.id,
+        "collection_id" => work.group.id,
         "given_name_1" => "Jane",
         "family_name_1" => "Smith",
         "creator_count" => "1"
@@ -71,7 +71,7 @@ RSpec.describe WorksController do
       params = {
         "title_main" => "test dataset updated",
         "description" => "a new description",
-        "collection_id" => work.collection.id,
+        "collection_id" => work.group.id,
         "commit" => "Update Dataset",
         "controller" => "works",
         "action" => "update",
@@ -100,7 +100,7 @@ RSpec.describe WorksController do
         params = {
           "title_main" => "test dataset updated",
           "description" => "a new description",
-          "collection_id" => work.collection.id,
+          "collection_id" => work.group.id,
           "commit" => "Update Dataset",
           "controller" => "works",
           "action" => "update",
@@ -125,7 +125,7 @@ RSpec.describe WorksController do
         "doi" => "10.34770/tbd",
         "title_main" => "test dataset updated",
         "description" => "a new description",
-        "collection_id" => work.collection.id,
+        "collection_id" => work.group.id,
         "commit" => "Update Dataset",
         "controller" => "works",
         "action" => "update",
@@ -163,7 +163,7 @@ RSpec.describe WorksController do
         "doi" => "10.34770/tbd",
         "title_main" => "test dataset with reordered authors",
         "description" => "a new description",
-        "collection_id" => work.collection.id,
+        "collection_id" => work.group.id,
         "commit" => "Update Dataset",
         "controller" => "works",
         "action" => "update",
@@ -214,7 +214,7 @@ RSpec.describe WorksController do
         params = {
           "title_main" => "test dataset updated",
           "description" => "a new description",
-          "collection_id" => work.collection.id,
+          "collection_id" => work.group.id,
           "commit" => "update dataset",
           "controller" => "works",
           "action" => "update",
@@ -275,7 +275,7 @@ RSpec.describe WorksController do
         params = {
           "title_main" => "test dataset updated",
           "description" => "a new description",
-          "collection_id" => work.collection.id,
+          "collection_id" => work.group.id,
           "commit" => "update dataset",
           "controller" => "works",
           "action" => "update",
@@ -325,7 +325,7 @@ RSpec.describe WorksController do
         {
           "title_main" => "test dataset updated",
           "description" => "a new description",
-          "collection_id" => work.collection.id,
+          "collection_id" => work.group.id,
           "commit" => "update dataset",
           "controller" => "works",
           "action" => "update",
@@ -394,7 +394,7 @@ RSpec.describe WorksController do
         {
           "title_main" => "test dataset updated",
           "description" => "a new description",
-          "collection_id" => work.collection.id,
+          "collection_id" => work.group.id,
           "commit" => "update dataset",
           "controller" => "works",
           "action" => "update",
@@ -417,7 +417,7 @@ RSpec.describe WorksController do
         {
           "title_main" => "test dataset updated",
           "description" => "a new description",
-          "collection_id" => work.collection.id,
+          "collection_id" => work.group.id,
           "commit" => "update dataset",
           "controller" => "works",
           "action" => "update",
@@ -471,7 +471,7 @@ RSpec.describe WorksController do
       context "when the Work has been curated" do
         let(:work) { FactoryBot.create(:approved_work) }
         let(:user) do
-          FactoryBot.create :user, collections_to_admin: [work.collection]
+          FactoryBot.create :user, groups_to_admin: [work.group]
         end
         let(:s3_query_service_double) { instance_double(S3QueryService) }
         let(:file1) { FactoryBot.build :s3_file, filename: "SCoData_combined_v1_2020-07_README.txt", work: work }
@@ -545,7 +545,7 @@ RSpec.describe WorksController do
         {
           "title_main" => "a new title #{rand(10_000)}",
           "description" => "a new description",
-          "collection_id" => work.collection.id,
+          "collection_id" => work.group.id,
           "commit" => "update dataset",
           "controller" => "works",
           "action" => "update",
@@ -600,7 +600,7 @@ RSpec.describe WorksController do
         {
           "title_main" => "test dataset updated",
           "description" => "a new description",
-          "collection_id" => work.collection.id,
+          "collection_id" => work.group.id,
           "commit" => "update dataset",
           "controller" => "works",
           "action" => "update",
@@ -1318,7 +1318,7 @@ RSpec.describe WorksController do
           end
           it "uses the updators default collection" do
             patch :update, params: params
-            expect(work.reload.collection).to eq(user.default_collection)
+            expect(work.reload.group).to eq(user.default_group)
             expect(Honeybadger).to have_received(:notify)
           end
         end
@@ -1500,7 +1500,7 @@ RSpec.describe WorksController do
       work = Work.last
       expect(work.title).to eq("test dataset updated")
       expect(work.resource.description).to eq("a new description")
-      expect(work.collection).to eq(collection)
+      expect(work.group).to eq(collection)
     end
 
     context "when the collection is empty" do
@@ -1523,7 +1523,7 @@ RSpec.describe WorksController do
         work = Work.last
         expect(work.title).to eq("test dataset updated")
         expect(work.resource.description).to eq("a new description")
-        expect(work.collection).to eq(user.default_collection)
+        expect(work.group).to eq(user.default_group)
       end
     end
   end

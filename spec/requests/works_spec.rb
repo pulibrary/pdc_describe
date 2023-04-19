@@ -38,7 +38,7 @@ RSpec.describe "/works", type: :request do
 
         before do
           allow(work).to receive(:id).and_return("test-id")
-          allow(work).to receive(:collection).and_return(nil)
+          allow(work).to receive(:group).and_return(nil)
 
           allow(Work).to receive(:find).and_return(work)
         end

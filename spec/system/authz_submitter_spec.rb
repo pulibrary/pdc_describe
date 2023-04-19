@@ -64,11 +64,11 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
 
     it "should not be able to edit a collection to add curators and submitters" do
       sign_in submitter1
-      visit collection_path(submitter1.default_collection)
+      visit group_path(submitter1.default_group)
       expect(page).not_to have_content "Add Submitter"
       expect(page).not_to have_content "Add Moderator"
-      visit edit_collection_path(submitter1.default_collection)
-      expect(page).not_to have_content "Update Collection"
+      visit edit_group_path(submitter1.default_group)
+      expect(page).not_to have_content "Update Group"
       expect(current_path).to eq "/collections"
     end
 

@@ -3,7 +3,7 @@ require "rails_helper"
 
 RSpec.describe "Form submission for a legacy dataset", type: :system do
   let(:user) { FactoryBot.create(:princeton_submitter) }
-  let!(:curator) { FactoryBot.create(:user, collections_to_admin: [Collection.first]) }
+  let!(:curator) { FactoryBot.create(:user, groups_to_admin: [Group.first]) }
   let(:title) { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
   let(:contributors) do
     [

@@ -66,7 +66,7 @@ This dataset is too large to download directly from this item page. You can acce
       bitklavierimage_work = Work.last
       expect(bitklavierimage_work.title).to eq title
       expect(bitklavierimage_work.resource.collection_tags).to eq collection_tags
-      expect(bitklavierimage_work.collection).to eq Collection.research_data
+      expect(bitklavierimage_work.group).to eq Group.research_data
       expect(bitklavierimage_work.ark).to eq ark
       export_spec_data("bitklavier_image.json", bitklavierimage_work.to_json)
 

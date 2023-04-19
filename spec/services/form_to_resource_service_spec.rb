@@ -4,7 +4,7 @@ require "rails_helper"
 describe FormToResourceService do
   describe ".convert" do
     let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
-    let(:collection) { work.collection }
+    let(:collection) { work.group }
     let(:params) do
       {
         id: work.id,

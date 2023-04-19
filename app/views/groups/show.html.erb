@@ -1,0 +1,41 @@
+<style>
+  .user-section-heading {
+    margin-top: 20px;
+  }
+</style>
+
+<div>
+  <% if @can_edit %>
+    <%= link_to("Edit", edit_collection_path(@collection), class: "btn btn-primary") %>
+  <% end %>
+  <%= link_to("View all collections", collections_path) %>
+</div>
+
+<h1><%= @collection.title.strip %> </h1>
+<% if @collection.description.present? %>
+  <p><%= @collection.description %></p>
+<% end %>
+
+<p>
+  Users that are allowed to approve submissions to this collection:
+  <%= @collection.administrators.map { |user| link_to(user.display_name_safe, user_path(user.uid)) }.to_sentence.html_safe %>
+</p>
+
+<% if @can_edit %>
+  <h2 class="dataset-section">Datasets</h2>
+  <% if @collection.datasets.count > 0 %>
+    <%= render partial: "dataset_table", locals: {table_id: "collection_datasets", datasets: @collection.datasets} %>
+  <% else %>
+    <p>No datasets have been created for this collection.</p>
+  <% end %>
+<% end %>
+
+<script type="text/javascript">
+  $(function() {
+    // https://www.datatables.net/reference/option/
+    //  order: [] preserves the order from the backend
+    var dataset_options = {searching: false, paging: false, info: false, order: []};
+    $('#collection_datasets').DataTable(dataset_options);
+  });
+</script>
+

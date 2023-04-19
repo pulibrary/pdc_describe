@@ -46,10 +46,13 @@ Rails.application.routes.draw do
   match "/doi/*doi", via: :get, to: "works#resolve_doi", as: :resolve_doi, format: false
   match "/ark/*ark", via: :get, to: "works#resolve_ark", as: :resolve_ark, format: false
 
-  delete "collections/:id/:uid", to: "collections#delete_user_from_collection", as: :delete_user_from_collection
-  post "collections/:id/add-submitter/:uid", to: "collections#add_submitter", as: :add_submitter
-  post "collections/:id/add-admin/:uid", to: "collections#add_admin", as: :add_admin
+  # For the legacy Collection Model
   resources :collections
+
+  delete "groups/:id/:uid", to: "collections#delete_user_from_collection", as: :delete_user_from_collection
+  post "groups/:id/add-submitter/:uid", to: "collections#add_submitter", as: :add_submitter
+  post "groups/:id/add-admin/:uid", to: "collections#add_admin", as: :add_admin
+  resources :groups
 
   # Anything still unmatched by the end of the routes file should go to the not_found page
   # match '*a', to: redirect('/404'), via: :get

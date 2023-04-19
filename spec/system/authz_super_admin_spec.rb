@@ -57,13 +57,13 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
     end
 
     it "should be able to edit a collection to add curators and submitters" do
-      collection = FactoryBot.create(:collection) # any random collection
+      collection = FactoryBot.create(:group) # any random collection
       sign_in super_admin
-      visit edit_collection_path(collection)
+      visit edit_group_path(collection)
       expect(page).to have_content "Add Submitter"
       expect(page).to have_content "Add Moderator"
-      fill_in "collection_title", with: title3
-      click_on "Update Collection"
+      fill_in "group_title", with: title3
+      click_on "Update Group"
       expect(current_path).to eq collection_path(collection)
       expect(page).to have_content title3
     end

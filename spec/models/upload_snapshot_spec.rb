@@ -25,7 +25,7 @@ RSpec.describe UploadSnapshot, type: :model do
     end
     let(:work) { FactoryBot.create(:awaiting_approval_work) }
     let(:curator_user) do
-      FactoryBot.create(:user, collections_to_admin: [work.collection])
+      FactoryBot.create(:user, groups_to_admin: [work.group])
     end
 
     context "when the Work has not yet been approved" do

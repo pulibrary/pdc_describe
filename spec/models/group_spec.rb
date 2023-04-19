@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-RSpec.describe Collection, type: :model do
+RSpec.describe Group, type: :model do
   it "creates default collections only when needed" do
     described_class.delete_all
     expect(described_class.count).to be 0
@@ -10,8 +10,8 @@ RSpec.describe Collection, type: :model do
     default_count = described_class.count
     expect(default_count).to be > 0
 
-    expect(Collection.where(code: "PPPL").count).to be 1
-    expect(Collection.where(code: "RD").count).to be 1
+    expect(described_class.where(code: "PPPL").count).to be 1
+    expect(described_class.where(code: "RD").count).to be 1
 
     described_class.create_defaults
     expect(described_class.count).to be default_count
@@ -20,11 +20,11 @@ RSpec.describe Collection, type: :model do
   it "creates defaults when not defined" do
     described_class.delete_all
     expect(described_class.count).to be 0
-    expect(Collection.default).to_not be nil
+    expect(described_class.default).to_not be nil
 
     described_class.delete_all
     expect(described_class.count).to be 0
-    expect(Collection.default_for_department("41000")).to_not be nil
+    expect(described_class.default_for_department("41000")).to_not be nil
   end
 
   describe ".default_for_department" do
@@ -33,7 +33,7 @@ RSpec.describe Collection, type: :model do
     context "when the department number is less than 31000" do
       let(:department_number) { "30000" }
       it "provides the default collection" do
-        expect(collection).to be_a(Collection)
+        expect(collection).to be_a(described_class)
         expect(collection.code).to eq("RD")
       end
     end
@@ -41,7 +41,7 @@ RSpec.describe Collection, type: :model do
     context "when the department number is unexpected" do
       let(:department_number) { "foobar" }
       it "provides the default collection" do
-        expect(collection).to be_a(Collection)
+        expect(collection).to be_a(described_class)
         expect(collection.code).to eq("RD")
       end
     end
@@ -49,7 +49,7 @@ RSpec.describe Collection, type: :model do
     context "when the department number is PPPL" do
       let(:department_number) { "31000" }
       it "provides the default collection" do
-        expect(collection).to be_a(Collection)
+        expect(collection).to be_a(described_class)
         expect(collection.code).to eq("PPPL")
       end
     end
@@ -62,7 +62,7 @@ RSpec.describe Collection, type: :model do
     context "when the user is a super admin" do
       let(:user) { User.new_super_admin("test-admin") }
 
-      xit "disables email messages for notifications for a User" do
+      it "disables email messages for notifications for a User" do
         # Initially messages are disabled for the user
         state = collection.messages_enabled_for?(user: user)
         expect(state).to be false
@@ -91,7 +91,7 @@ RSpec.describe Collection, type: :model do
         user.save!
       end
 
-      xit "disables email messages for notifications for a User" do
+      it "disables email messages for notifications for a User" do
         # Initially messages are disabled for the user
         state = collection.messages_enabled_for?(user: user)
         expect(state).to be false

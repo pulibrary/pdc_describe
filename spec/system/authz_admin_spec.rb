@@ -6,12 +6,12 @@ RSpec.describe "Authz for curators", type: :system, js: true do
   describe "A curator" do
     let(:research_data_moderator) { FactoryBot.create :research_data_moderator }
     let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
-    let(:collection) { Collection.find(work.collection_id) }
+    let(:collection) { Group.find(work.collection_id) }
     let(:new_submitter) { FactoryBot.create :pppl_submitter }
     let(:pppl_moderator) { FactoryBot.create :pppl_moderator }
 
     before do
-      Collection.create_defaults
+      Group.create_defaults
       stub_s3
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     end
@@ -34,36 +34,36 @@ RSpec.describe "Authz for curators", type: :system, js: true do
 
       it "can add submitters to the collection" do
         login_as research_data_moderator
-        expect(research_data_moderator.can_admin?(Collection.research_data)).to eq true
-        expect(new_submitter.can_submit?(Collection.research_data)).to eq false
-        visit edit_collection_path(Collection.research_data)
+        expect(research_data_moderator.can_admin?(Group.research_data)).to eq true
+        expect(new_submitter.can_submit?(Group.research_data)).to eq false
+        visit edit_collection_path(Group.research_data)
         fill_in "submitter-uid-to-add", with: new_submitter.uid
         click_on "Add Submitter"
         expect(page).to have_content new_submitter.uid
-        expect(new_submitter.can_submit?(Collection.research_data)).to eq true
+        expect(new_submitter.can_submit?(Group.research_data)).to eq true
       end
 
       it "can add admins to the collection" do
         login_as research_data_moderator
-        expect(research_data_moderator.can_admin?(Collection.research_data)).to eq true
-        expect(new_submitter.can_admin?(Collection.research_data)).to eq false
-        visit edit_collection_path(Collection.research_data)
+        expect(research_data_moderator.can_admin?(Group.research_data)).to eq true
+        expect(new_submitter.can_admin?(Group.research_data)).to eq false
+        visit edit_collection_path(Group.research_data)
         fill_in "admin-uid-to-add", with: new_submitter.uid
         click_on "Add Moderator"
         expect(page).to have_content new_submitter.uid
-        expect(new_submitter.reload.can_admin?(Collection.research_data)).to eq true
+        expect(new_submitter.reload.can_admin?(Group.research_data)).to eq true
       end
     end
 
     describe "in a collection they do NOT curate" do
       let(:work) { FactoryBot.create(:tokamak_work) }
-      let(:collection) { Collection.find(work.collection_id) }
+      let(:collection) { Group.find(work.collection_id) }
 
       it "can NOT add admins" do
         login_as research_data_moderator
-        expect(research_data_moderator.can_admin?(Collection.research_data)).to eq true
-        expect(research_data_moderator.can_admin?(Collection.plasma_laboratory)).to eq false
-        visit collection_path(Collection.plasma_laboratory)
+        expect(research_data_moderator.can_admin?(Group.research_data)).to eq true
+        expect(research_data_moderator.can_admin?(Group.plasma_laboratory)).to eq false
+        visit collection_path(Group.plasma_laboratory)
         expect(page).not_to have_content "Add Submitter"
         expect(page).not_to have_content "Add Moderator"
       end
@@ -81,7 +81,7 @@ RSpec.describe "Authz for curators", type: :system, js: true do
       end
 
       context "with submitter rights" do
-        let(:other_work) { FactoryBot.create :draft_work, created_by_user_id: research_data_moderator.id, collection: collection }
+        let(:other_work) { FactoryBot.create :draft_work, created_by_user_id: research_data_moderator.id, group: collection }
         let(:user_work) { FactoryBot.create :draft_work }
         before do
           research_data_moderator.add_role :submitter, collection

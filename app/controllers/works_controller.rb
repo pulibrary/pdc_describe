@@ -35,7 +35,7 @@ class WorksController < ApplicationController
     if wizard_mode?
       render "new_submission"
     else
-      @work = Work.new(created_by_user_id: current_user.id, collection: current_user.default_collection)
+      @work = Work.new(created_by_user_id: current_user.id, group: current_user.default_group)
     end
   end
 
@@ -54,7 +54,7 @@ class WorksController < ApplicationController
 
   # Creates the new dataset
   def new_submission
-    default_collection_id = current_user.default_collection.id
+    default_collection_id = current_user.default_group.id
     work = Work.new(created_by_user_id: current_user.id, collection_id: default_collection_id)
     work.resource = FormToResourceService.convert(params, work)
     work.draft!(current_user)
@@ -72,7 +72,7 @@ class WorksController < ApplicationController
     respond_to do |format|
       format.html do
         # Ensure that the Work belongs to a Collection
-        @collection = @work.collection
+        @collection = @work.group
         raise(Work::InvalidCollectionError, "The Work #{@work.id} does not belong to any Collection") unless @collection
 
         @can_curate = current_user.can_admin?(@collection)
@@ -404,7 +404,7 @@ class WorksController < ApplicationController
       @params_collection_id ||= begin
         collection_id = params[:collection_id]
         if collection_id.blank?
-          collection_id = current_user.default_collection.id
+          collection_id = current_user.default_group.id
           Honeybadger.notify("We got a nil collection as part of the parameters #{params} #{request}")
         end
         collection_id

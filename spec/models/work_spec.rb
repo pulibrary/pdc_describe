@@ -3,7 +3,7 @@ require "rails_helper"
 
 RSpec.describe Work, type: :model do
   let(:user) { FactoryBot.create :user }
-  let(:collection) { Collection.research_data }
+  let(:collection) { Group.research_data }
   let(:user_other) { FactoryBot.create :user }
   let(:super_admin_user) { FactoryBot.create :super_admin_user }
   let(:work) { FactoryBot.create(:draft_work) }
@@ -14,7 +14,7 @@ RSpec.describe Work, type: :model do
   let(:pppl_user) { FactoryBot.create :pppl_submitter }
 
   let(:curator_user) do
-    FactoryBot.create :user, collections_to_admin: [Collection.research_data]
+    FactoryBot.create :user, groups_to_admin: [Group.research_data]
   end
 
   # Please see spec/support/ezid_specs.rb
@@ -36,7 +36,7 @@ RSpec.describe Work, type: :model do
       allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
     end
     it "captures everything needed for PDC Describe in JSON" do
-      work = Work.new(collection: collection, resource: FactoryBot.build(:tokamak_work))
+      work = Work.new(group: collection, resource: FactoryBot.build(:tokamak_work))
       expect(JSON.parse(work.to_json)).to eq(
         {
           "resource" => {
@@ -80,19 +80,19 @@ RSpec.describe Work, type: :model do
   end
 
   it "drafts a doi only once" do
-    work = Work.new(collection: collection, resource: FactoryBot.build(:resource))
+    work = Work.new(group: collection, resource: FactoryBot.build(:resource))
     work.draft_doi
     work.draft_doi # Doing this multiple times on purpose to make sure the api is only called once
     expect(a_request(:post, "https://#{Rails.configuration.datacite.host}/dois")).to have_been_made.once
   end
 
   it "prevents datasets with no users" do
-    work = Work.new(collection: collection, resource: PDCMetadata::Resource.new)
+    work = Work.new(group: collection, resource: PDCMetadata::Resource.new)
     expect { work.draft! }.to raise_error AASM::InvalidTransition
   end
 
   it "prevents datasets with no collections" do
-    work = Work.new(collection: nil, resource: FactoryBot.build(:resource))
+    work = Work.new(group: nil, resource: FactoryBot.build(:resource))
     expect { work.save! }.to raise_error ActiveRecord::RecordInvalid
   end
 
@@ -246,7 +246,7 @@ RSpec.describe Work, type: :model do
       subject(:work) { FactoryBot.create(:draft_work) }
       let(:title) { "test title" }
       let(:user_id) { user.id }
-      let(:collection_id) { collection.id }
+      let(:collection_id) { group.id }
 
       before do
         allow(User).to receive(:find).and_raise(ActiveRecord::RecordNotFound)
@@ -379,7 +379,7 @@ RSpec.describe Work, type: :model do
 
   describe "#draft" do
     let(:draft_work) do
-      work = Work.new(collection: collection, resource: FactoryBot.build(:resource), created_by_user_id: user.id)
+      work = Work.new(group: collection, resource: FactoryBot.build(:resource), created_by_user_id: user.id)
       work.draft!(user)
       work = Work.find(work.id)
       work
@@ -715,7 +715,7 @@ RSpec.describe Work, type: :model do
   end
 
   describe "states" do
-    let(:work) { Work.new(collection: collection, resource: FactoryBot.build(:resource)) }
+    let(:work) { Work.new(group: collection, resource: FactoryBot.build(:resource)) }
     it "initally is none" do
       expect(work.none?).to be_truthy
       expect(work.state).to eq("none")
@@ -918,7 +918,7 @@ RSpec.describe Work, type: :model do
 
     it "requires a collection on update of a draft work" do
       work.update({ collection_id: "", resource: work.resource })
-      expect(work.collection).to be_nil
+      expect(work.group).to be_nil
       expect(work).not_to be_valid
     end
   end

@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 require "rails_helper"
 RSpec.describe "Editing collections" do
-  before { Collection.create_defaults }
+  before { Group.create_defaults }
 
   let(:user) { FactoryBot.create :princeton_submitter }
   let(:super_admin_user) { FactoryBot.create :super_admin_user }
-  let(:collection) { FactoryBot.create :collection }
-  let(:collection_other) { Collection.second }
+  let(:collection) { FactoryBot.create :group }
+  let(:collection_other) { Group.second }
 
-  let(:collection_admin_user) { FactoryBot.create :user, collections_to_admin: [collection, Collection.research_data] }
+  let(:collection_admin_user) { FactoryBot.create :user, groups_to_admin: [collection, Group.research_data] }
 
   it "allows super admin to edit collections", js: true do
     sign_in super_admin_user
     visit collection_path(collection)
     click_on "Edit"
-    expect(page).to have_content "Editing Collection"
+    expect(page).to have_content "Editing Group"
   end
 
   it "does not allow a regular user to edit a collection nor view the list of datasets for the collection", js: true do
@@ -29,7 +29,7 @@ RSpec.describe "Editing collections" do
     sign_in collection_admin_user
     visit collection_path(collection)
     click_on "Edit"
-    expect(page).to have_content "Editing Collection"
+    expect(page).to have_content "Editing Group"
   end
 
   it "allows a collection admin to add a submitter to the collection", js: true do
@@ -43,7 +43,7 @@ RSpec.describe "Editing collections" do
 
   it "allows a collection admin to add a submitter to their defailt collection without error only when the user is first created", js: true do
     sign_in collection_admin_user
-    visit edit_collection_path(Collection.research_data)
+    visit edit_collection_path(Group.research_data)
     fill_in "submitter-uid-to-add", with: "submiter123"
     click_on "Add Submitter"
     expect(page).to have_content "submiter123"

@@ -97,7 +97,7 @@ class Collection < ApplicationRecord
   # @param user [User]
   def enable_messages_for(user:)
     raise(ArgumentError, "User #{user.uid} is not an administrator for this collection #{title}") unless user.can_admin?(self)
-    collection_messaging_options << CollectionOption.new(option_type: CollectionOption::EMAIL_MESSAGES, collection: self, user: user)
+    collection_messaging_options << CollectionOption.new(option_type: CollectionOption::EMAIL_MESSAGES, group: self, user: user)
   end
 
   # Disable a User from receiving notification messages for members of this Collection
@@ -117,10 +117,10 @@ class Collection < ApplicationRecord
   end
 
   def self.create_defaults
-    return if Collection.count > 0
+    return if count > 0
     Rails.logger.info "Creating default Collections"
-    Collection.create(title: "Research Data", code: "RD")
-    Collection.create(title: "Princeton Plasma Physics Laboratory", code: "PPPL")
+    create(title: "Research Data", code: "RD")
+    create(title: "Princeton Plasma Physics Laboratory", code: "PPPL")
   end
 
   # Returns the default collection.
@@ -142,11 +142,11 @@ class Collection < ApplicationRecord
 
   def self.research_data
     create_defaults
-    Collection.where(code: "RD").first
+    where(code: "RD").first
   end
 
   def self.plasma_laboratory
     create_defaults
-    Collection.where(code: "PPPL").first
+    where(code: "PPPL").first
   end
 end

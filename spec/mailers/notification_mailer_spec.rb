@@ -4,7 +4,7 @@ require "rails_helper"
 describe NotificationMailer, type: :mailer do
   subject(:notification_mailer) { NotificationMailer.with(user: user, work_activity: work_activity) }
 
-  let(:work) { FactoryBot.create(:work, collection: Collection.default) }
+  let(:work) { FactoryBot.create(:work, group: Group.default) }
   let(:work_activity) { FactoryBot.create(:work_activity, work: work) }
   let(:user) { work_activity.created_by_user }
 
