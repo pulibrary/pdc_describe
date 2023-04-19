@@ -44,6 +44,11 @@ class WorksController < ApplicationController
     # We currently do not and therefore there are not saved to the work.
     # See https://github.com/pulibrary/pdc_describe/issues/1041
     @work = Work.new(created_by_user_id: current_user.id, collection_id: params_collection_id, user_entered_doi: params["doi"].present?)
+
+    byebug
+
+    upload_service = WorkUploadsEditService.new(@work, current_user)
+    upload_service.update_precurated_file_list(added_files_param, deleted_files_param)
     @work.resource = FormToResourceService.convert(params, @work)
     if @work.valid?
       @work.draft!(current_user)
