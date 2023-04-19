@@ -4,7 +4,7 @@ require "rails_helper"
 RSpec.describe "Curator Controlled metadata tab", type: :system do
   let(:draft_work) do
     resource = FactoryBot.build(:resource, creators: [PDCMetadata::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")])
-    FactoryBot.create(:draft_work, resource: resource, created_by_user_id: user.id, collection: Collection.research_data)
+    FactoryBot.create(:draft_work, resource: resource, created_by_user_id: user.id, group: Group.research_data)
   end
 
   before do

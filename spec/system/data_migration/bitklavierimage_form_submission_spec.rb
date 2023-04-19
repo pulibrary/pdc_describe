@@ -65,7 +65,7 @@ Piano Bar: Earthworks—omni-directionals. This microphone system suspends omnid
       bitklavierimage_work = Work.last
       expect(bitklavierimage_work.title).to eq title
       expect(bitklavierimage_work.resource.collection_tags).to eq collection_tags
-      expect(bitklavierimage_work.collection).to eq Collection.research_data
+      expect(bitklavierimage_work.group).to eq Group.research_data
       expect(bitklavierimage_work.ark).to eq ark
       export_spec_data("bitklavier_image.json", bitklavierimage_work.to_json)
 

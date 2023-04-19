@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :user, class: "User" do
     transient do
-      collections_to_admin { [] }
+      groups_to_admin { [] }
     end
     uid { FFaker::InternetSE.unique.login_user_name }
     email { FFaker::InternetSE.unique.email }
@@ -11,38 +11,38 @@ FactoryBot.define do
     display_name { full_name.split(" ").first }
     provider { :cas }
     after(:create) do |user, evaluator|
-      evaluator.collections_to_admin.each do |collection|
-        user.add_role :collection_admin, collection
+      evaluator.groups_to_admin.each do |group|
+        user.add_role :group_admin, group
       end
     end
 
     ##
-    # A user who has submit rights on the PPPL Collection
+    # A user who has submit rights on the PPPL Group
     factory :pppl_submitter do
-      default_collection_id { Collection.default_for_department("31000").id }
+      default_collection_id { Group.default_for_department("31000").id }
     end
 
     ##
-    # A user who has submit rights on the Research Data Collection
+    # A user who has submit rights on the Research Data Group
     factory :princeton_submitter do
-      default_collection_id { Collection.default_for_department("12345").id }
+      default_collection_id { Group.default_for_department("12345").id }
     end
 
     ##
-    # A user who has admin rights on the PPPL Collection
+    # A user who has admin rights on the PPPL Group
     factory :pppl_moderator do
-      default_collection_id { Collection.default_for_department("31000").id }
+      default_collection_id { Group.default_for_department("31000").id }
       after :create do |user|
-        user.add_role :collection_admin, Collection.plasma_laboratory
+        user.add_role :group_admin, Group.plasma_laboratory
       end
     end
 
     ##
-    # A user who has admin rights on the Research Data Collection
+    # A user who has admin rights on the Research Data Group
     factory :research_data_moderator do
-      default_collection_id { Collection.default_for_department("12345").id }
+      default_collection_id { Group.default_for_department("12345").id }
       after :create do |user|
-        user.add_role :collection_admin, Collection.research_data
+        user.add_role :group_admin, Group.research_data
       end
     end
   end

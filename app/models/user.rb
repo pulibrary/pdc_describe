@@ -13,12 +13,20 @@ class User < ApplicationRecord
   has_many :collection_options, dependent: :destroy
   has_many :collection_messaging_options, -> { where(option_type: CollectionOption::EMAIL_MESSAGES) }, class_name: "CollectionOption", dependent: :destroy
 
-  has_many :collections_with_options, through: :collection_options, source: :collection
-  has_many :collections_with_messaging, through: :collection_messaging_options, source: :collection
+  has_many :collections_with_options, through: :collection_options, source: :group
+  has_many :collections_with_messaging, through: :collection_messaging_options, source: :group
 
   after_create :assign_default_role
 
   attr_accessor :just_created
+
+  def default_group_id=(value)
+    self.default_collection_id = value
+  end
+
+  def default_group_id
+    default_collection_id
+  end
 
   validate do |user|
     user.orcid&.strip!
@@ -46,21 +54,21 @@ class User < ApplicationRecord
     user.display_name = access_token.extra.givenname || access_token.uid # Harriet
     user.family_name = access_token.extra.sn || access_token.uid # Tubman
     user.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
-    user.default_collection_id = Collection.default_for_department(access_token.extra.departmentnumber)&.id
+    user.default_group_id = Group.default_for_department(access_token.extra.departmentnumber)&.id
     user.save!
     user
   end
 
   # Updates an existing User record with some information from CAS. This is useful
   # for records created before the user ever logged in (e.g. to gran them permissions
-  # to collections).
+  # to groups).
   def update_with_cas(access_token)
     self.provider = access_token.provider
     self.email = access_token.extra.mail
     self.display_name = access_token.extra.givenname || access_token.uid # Harriet
     self.family_name = access_token.extra.sn || access_token.uid # Tubman
     self.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
-    self.default_collection_id = Collection.default_for_department(access_token.extra.departmentnumber)&.id
+    self.default_group_id = Group.default_for_department(access_token.extra.departmentnumber)&.id
     save!
   end
 
@@ -77,7 +85,7 @@ class User < ApplicationRecord
   def self.new_super_admin(uid)
     user = new_for_uid(uid)
     user.add_role(:super_admin) unless user.has_role?(:super_admin)
-    user.add_role(:collection_admin) unless user.has_role?(:collection_admin)
+    user.add_role(:group_admin) unless user.has_role?(:group_admin)
     user
   end
 
@@ -113,24 +121,24 @@ class User < ApplicationRecord
   end
 
   # Creates the default users as indicated in the super_admin config file
-  # and the default administrators and submitters for each collection.
+  # and the default administrators and submitters for each group.
   # It only creates missing records, i.e. if the records already exist it
   # will not create a duplicate. It also does _not_ remove already configured
-  # access to other collections.
+  # access to other groups.
   def self.create_default_users
     update_super_admins
 
-    Collection.find_each do |collection|
-      Rails.logger.info "Setting up admins for collection #{collection.title}"
-      collection.default_admins_list.each do |uid|
+    Group.find_each do |group|
+      Rails.logger.info "Setting up admins for group #{group.title}"
+      group.default_admins_list.each do |uid|
         user = User.new_for_uid(uid)
-        user.add_role :collection_admin, collection
+        user.add_role :group_admin, group
       end
 
-      Rails.logger.info "Setting up submitters for collection #{collection.title}"
-      collection.default_submitters_list.each do |uid|
+      Rails.logger.info "Setting up submitters for group #{group.title}"
+      group.default_submitters_list.each do |uid|
         user = User.new_for_uid(uid)
-        user.add_role :submitter, collection
+        user.add_role :submitter, group
       end
     end
   end
@@ -150,7 +158,7 @@ class User < ApplicationRecord
 
   ##
   # Is this user a super_admin? super_admins automatically get admin status in every
-  # collection, and they can make new collections.
+  # group, and they can make new groups.
   # @return [Boolean]
   def super_admin?
     has_role? :super_admin
@@ -167,50 +175,50 @@ class User < ApplicationRecord
   end
 
   def moderator?
-    admin_collections.count > 0
+    admin_groups.count > 0
   end
 
-  # Returns a reference to the user's default collection.
-  def default_collection
-    if default_collection_id.nil?
-      Collection.default
+  # Returns a reference to the user's default group.
+  def default_group
+    if default_group_id.nil?
+      Group.default
     else
-      Collection.find(default_collection_id)
+      Group.find(default_group_id)
     end
   end
 
-  # True if the user can submit datasets to the collection
-  def can_submit?(collection)
+  # True if the user can submit datasets to the group
+  def can_submit?(group)
     return true if super_admin?
-    has_role?(:submitter, collection)
+    has_role?(:submitter, group)
   end
 
-  # Returns true if the user can admin the collection
-  def can_admin?(collection)
+  # Returns true if the user can admin the group
+  def can_admin?(group)
     return true if super_admin?
-    has_role? :collection_admin, collection
+    has_role? :group_admin, group
   end
 
-  # Returns the list of collections where the user can submit datasets
-  def submitter_collections
-    @submitter_collections = if super_admin?
-                               Collection.all.to_a
-                             else
-                               Collection.with_role(:submitter, self)
-                             end
+  # Returns the list of groups where the user can submit datasets
+  def submitter_groups
+    @submitter_groups = if super_admin?
+                          Group.all.to_a
+                        else
+                          Group.with_role(:submitter, self)
+                        end
   end
 
-  # Returns the list of collections where the user is an administrator
-  def admin_collections
-    @admin_collections ||= if super_admin?
-                             Collection.all.to_a
-                           else
-                             Collection.with_role(:collection_admin, self)
-                           end
+  # Returns the list of groups where the user is an administrator
+  def admin_groups
+    @admin_groups ||= if super_admin?
+                        Group.all.to_a
+                      else
+                        Group.with_role(:group_admin, self)
+                      end
   end
 
-  def submitter_or_admin_collections
-    submitter_collections | admin_collections
+  def submitter_or_admin_groups
+    submitter_groups | admin_groups
   end
 
   def pending_notifications_count
@@ -219,8 +227,8 @@ class User < ApplicationRecord
 
   def assign_default_role
     @just_created = true
-    add_role(:submitter, default_collection) unless has_role?(:submitter, default_collection)
-    enable_messages_from(collection: default_collection)
+    add_role(:submitter, default_group) unless has_role?(:submitter, default_group)
+    enable_messages_from(group: default_group)
   end
 
   # Returns true if the user has notification e-mails enabled
@@ -229,25 +237,25 @@ class User < ApplicationRecord
     email_messages_enabled
   end
 
-  # Permit this user to receive notification messages for members of a given Collection
-  # @param collection [Collection]
-  def enable_messages_from(collection:)
-    raise(ArgumentError, "User #{uid} is not an administrator or depositor for the collection #{collection.title}") unless can_admin?(collection) || can_submit?(collection)
-    collection_messaging_options << CollectionOption.new(option_type: CollectionOption::EMAIL_MESSAGES, user: self, collection: collection)
+  # Permit this user to receive notification messages for members of a given Group
+  # @param group [Group]
+  def enable_messages_from(group:)
+    raise(ArgumentError, "User #{uid} is not an administrator or depositor for the group #{group.title}") unless can_admin?(group) || can_submit?(group)
+    collection_messaging_options << CollectionOption.new(option_type: CollectionOption::EMAIL_MESSAGES, user: self, group: group)
   end
 
-  # Disable this user from receiving notification messages for members of a given Collection
-  # @param collection [Collection]
-  def disable_messages_from(collection:)
-    raise(ArgumentError, "User #{uid} is not an administrator or depositor for the collection #{collection.title}") unless can_admin?(collection) || can_submit?(collection)
-    collections_with_messaging.destroy(collection)
+  # Disable this user from receiving notification messages for members of a given Group
+  # @param group [Group]
+  def disable_messages_from(group:)
+    raise(ArgumentError, "User #{uid} is not an administrator or depositor for the group #{group.title}") unless can_admin?(group) || can_submit?(group)
+    collections_with_messaging.destroy(group)
   end
 
-  # Returns true if the user has notification e-mails enabled for a given collection
-  # @param collection [Collection]
+  # Returns true if the user has notification e-mails enabled for a given group
+  # @param group [Group]
   # @return [Boolean]
-  def messages_enabled_from?(collection:)
-    found = collection_messaging_options.find_by(collection: collection)
+  def messages_enabled_from?(group:)
+    found = collection_messaging_options.find_by(group: group)
 
     !found.nil?
   end

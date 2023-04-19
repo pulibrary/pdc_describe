@@ -3,12 +3,12 @@ require "rails_helper"
 
 RSpec.describe CollectionsController do
   before do
-    Collection.create_defaults
+    Group.create_defaults
   end
 
   let(:admin_user) { FactoryBot.create :super_admin_user }
   let(:user_no_edit) { User.new_for_uid("user2") }
-  let(:collection) { Collection.where(code: "RD").first }
+  let(:collection) { Group.where(code: "RD").first }
 
   it "renders the list page" do
     sign_in user_no_edit
@@ -124,7 +124,7 @@ RSpec.describe CollectionsController do
   end
 
   describe "#add_submitter" do
-    let(:non_default_collection) { FactoryBot.create :collection }
+    let(:non_default_collection) { FactoryBot.create :group }
     it "adds a submitter" do
       sign_in admin_user
       # Detects that the user already has submitter rights to the default collection

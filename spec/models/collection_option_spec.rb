@@ -9,8 +9,8 @@ describe CollectionOption, type: :model do
   end
 
   describe ".find_option_type_label" do
-    subject(:collection_option) { described_class.create(option_type: described_class::EMAIL_MESSAGES, collection: collection, user: user) }
-    let(:collection) { FactoryBot.create(:collection) }
+    subject(:collection_option) { described_class.create(option_type: described_class::EMAIL_MESSAGES, group: collection, user: user) }
+    let(:collection) { FactoryBot.create(:group) }
     let(:user) { FactoryBot.create(:user) }
     let(:label) do
       described_class.find_option_type_label(collection_option.option_type)
@@ -22,8 +22,8 @@ describe CollectionOption, type: :model do
   end
 
   describe "#option_type_label" do
-    subject(:collection_option) { described_class.create(option_type: described_class::EMAIL_MESSAGES, collection: collection, user: user) }
-    let(:collection) { FactoryBot.create(:collection) }
+    subject(:collection_option) { described_class.create(option_type: described_class::EMAIL_MESSAGES, group: collection, user: user) }
+    let(:collection) { FactoryBot.create(:group) }
     let(:user) { FactoryBot.create(:user) }
     let(:label) { collection_option.option_type_label }
 

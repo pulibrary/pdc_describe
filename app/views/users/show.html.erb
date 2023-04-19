@@ -37,8 +37,8 @@
   <!-- not sure we want to display the collections here, it's pointless -->
 <% elsif @user.moderator? %>
   <p>Moderator for:
-    <%= @user.admin_collections.map do |collection|
-      link_to(collection.title, collection_path(collection))
+    <%= @user.admin_groups.map do |group|
+      link_to(group.title, collection_path(group))
     end.to_sentence.html_safe %></p>
 <% end %>
 

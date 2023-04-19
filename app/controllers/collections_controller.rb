@@ -3,12 +3,12 @@ class CollectionsController < ApplicationController
   def index; end
 
   def show
-    @collection = Collection.find(params[:id])
+    @collection = Group.find(params[:id])
     @can_edit = can_edit?
   end
 
   def edit
-    @collection = Collection.find(params[:id])
+    @collection = Group.find(params[:id])
     if can_edit?
       render "edit"
     else
@@ -19,7 +19,7 @@ class CollectionsController < ApplicationController
 
   # rubocop:disable Metrics/MethodLength
   def update
-    @collection = Collection.find(params[:id])
+    @collection = Group.find(params[:id])
     if can_edit?
       respond_to do |format|
         if @collection.update(collection_params)
@@ -39,21 +39,21 @@ class CollectionsController < ApplicationController
 
   # This is a JSON only endpoint
   def add_admin
-    @collection = Collection.find(params[:id])
+    @collection = Group.find(params[:id])
     @collection.add_administrator(current_user, User.new_for_uid(params[:uid]))
     check_and_render
   end
 
   # This is a JSON only endpoint
   def add_submitter
-    @collection = Collection.find(params[:id])
+    @collection = Group.find(params[:id])
     @collection.add_submitter(current_user, User.new_for_uid(params[:uid]))
     check_and_render
   end
 
   # This is a JSON only endpoint
   def delete_user_from_collection
-    @collection = Collection.find(params[:id])
+    @collection = Group.find(params[:id])
     @collection.delete_permission(current_user, User.find_by(uid: params[:uid]))
     check_and_render
   end

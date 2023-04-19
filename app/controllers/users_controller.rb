@@ -88,13 +88,13 @@ class UsersController < ApplicationController
         extracted = user_params.extract!(:collections_with_messaging)
         collections_with_messaging = extracted[:collections_with_messaging]
 
-        collections_with_messaging.each_pair do |collection_id, param|
-          selected_collection = Collection.find_by(id: collection_id)
+        collections_with_messaging.each_pair do |group_id, param|
+          selected_group = Group.find_by(id: group_id)
 
           if parameter_enables_messaging?(param)
-            @user.enable_messages_from(collection: selected_collection)
+            @user.enable_messages_from(group: selected_group)
           else
-            @user.disable_messages_from(collection: selected_collection)
+            @user.disable_messages_from(group: selected_group)
           end
         end
       end

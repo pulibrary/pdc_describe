@@ -2,7 +2,7 @@
 class CollectionOption < ApplicationRecord
   EMAIL_MESSAGES = 0
 
-  belongs_to :collection
+  belongs_to :group, class_name: "Group", foreign_key: "collection_id"
   belongs_to :user
 
   enum option_type: { email_messages: 0 }

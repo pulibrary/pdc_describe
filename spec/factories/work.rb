@@ -7,35 +7,35 @@ FactoryBot.define do
       ark { nil }
     end
     factory :none_work do
-      collection { Collection.research_data }
+      group { Group.research_data }
       state { "none" }
       created_by_user_id { FactoryBot.create(:user).id }
       resource { FactoryBot.build :resource, doi: doi }
     end
 
     factory :draft_work do
-      collection { Collection.research_data }
+      group { Group.research_data }
       state { "draft" }
       created_by_user_id { FactoryBot.create(:user).id }
       resource { FactoryBot.build :resource, doi: doi, ark: ark }
     end
 
     factory :awaiting_approval_work do
-      collection { Collection.research_data }
+      group { Group.research_data }
       state { "awaiting_approval" }
       created_by_user_id { FactoryBot.create(:user).id }
       resource { FactoryBot.build :resource, doi: doi, ark: ark }
     end
 
     factory :approved_work do
-      collection { Collection.research_data }
+      group { Group.research_data }
       state { "approved" }
       created_by_user_id { FactoryBot.create(:user).id }
       resource { FactoryBot.build :resource, doi: doi, ark: ark }
     end
 
     factory :shakespeare_and_company_work do
-      collection { Collection.research_data }
+      group { Group.research_data }
       resource do
         PDCMetadata::Resource.new_from_jsonb(
           {
@@ -58,7 +58,7 @@ FactoryBot.define do
     end
 
     factory :tokamak_work do
-      collection { Collection.plasma_laboratory }
+      group { Group.plasma_laboratory }
       resource do
         PDCMetadata::Resource.new_from_jsonb({
                                                "doi" => "10.34770/not_yet_assigned",
@@ -79,7 +79,7 @@ FactoryBot.define do
 
     factory :sowing_the_seeds_work do
       title { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
-      collection { Collection.research_data }
+      group { Group.research_data }
       doi { "" } # no DOI associated with this dataset
       ark { "ark:/88435/dsp01d791sj97j" }
       created_by_user_id { FactoryBot.create(:user).id }
@@ -88,7 +88,7 @@ FactoryBot.define do
     # json_from_spec file created from the output of
     # spec/system/cytoskeletal_form_submission_spec.rb
     factory :distinct_cytoskeletal_proteins_work do
-      collection { Collection.research_data }
+      group { Group.research_data }
       resource do
         json_from_spec = File.read(Rails.root.join("spec", "fixtures", "cytoskeletal_metadata.json"))
         PDCMetadata::Resource.new_from_jsonb(JSON.parse(json_from_spec))
@@ -99,7 +99,7 @@ FactoryBot.define do
 
     factory :attention_and_awareness_work do
       title { "Attention and awareness in the dorsal attention network" }
-      collection { Collection.research_data }
+      group { Group.research_data }
       doi { "https://doi.org/10.34770/9425-b553" }
       ark { "ark:/88435/dsp01xp68kk27p" }
       created_by_user_id { FactoryBot.create(:user).id }
@@ -107,7 +107,7 @@ FactoryBot.define do
 
     factory :femtosecond_xray_work do
       title { "Femtosecond X-ray Diffraction of Laser-shocked Forsterite (Mg2SiO4) to 122 GPa" }
-      collection { Collection.research_data }
+      group { Group.research_data }
       doi { "https://doi.org/10.34770/gg40-tc15" }
       ark { "ark:/88435/dsp01rj4307478" }
       created_by_user_id { FactoryBot.create(:user).id }
@@ -115,7 +115,7 @@ FactoryBot.define do
 
     factory :bitklavier_work do
       title { "bitKlavier Grand Sample Library—Piano Bar Mic Image" }
-      collection { Collection.research_data }
+      group { Group.research_data }
       doi { "https://doi.org/10.34770/r75s-9j74" }
       ark { "ark:/88435/dsp015999n653h" }
       created_by_user_id { FactoryBot.create(:user).id }
@@ -123,7 +123,7 @@ FactoryBot.define do
 
     factory :design_and_simulation_of_the_snowflake_work do
       title { "Design and simulation of the snowflake divertor control for NSTX-U" }
-      collection { Collection.research_data }
+      group { Group.research_data }
       doi { "" } # no DOI associated with this dataset
       ark { "ark:/88435/dsp01jm214r94t" }
       created_by_user_id { FactoryBot.create(:user).id }
@@ -131,7 +131,7 @@ FactoryBot.define do
 
     factory :whistler_wave_generation_work do
       title { "Whistler wave generation by anisotropic tail electrons during asymmetric magnetic reconnection in space and laboratory" }
-      collection { Collection.research_data }
+      group { Group.research_data }
       doi { "" } # no DOI associated with this dataset
       ark { "ark:/88435/dsp01t148fk89s" }
       created_by_user_id { FactoryBot.create(:user).id }
@@ -139,7 +139,7 @@ FactoryBot.define do
 
     factory :supplemental_data_work do
       title { "Supplementary data for thesis: The Evolution and Regulation of Morphological Complexity in the Vibrios" }
-      collection { Collection.research_data }
+      group { Group.research_data }
       doi { "https://doi.org/10.34770/gk6n-gj34" }
       ark { "ark:/88435/dsp01vq27zr562" }
       created_by_user_id { FactoryBot.create(:user).id }

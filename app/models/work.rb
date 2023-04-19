@@ -2,15 +2,16 @@
 
 # rubocop:disable Metrics/ClassLength
 class Work < ApplicationRecord
-  # Errors for cases where there is no valid Collection
+  # Errors for cases where there is no valid Group
   class InvalidCollectionError < ::ArgumentError; end
+  class InvalidGroupError < InvalidCollectionError; end
 
   has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many :user_work, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many :upload_snapshots, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many_attached :pre_curation_uploads, service: :amazon_pre_curation
 
-  belongs_to :collection
+  belongs_to :group, class_name: "Group", foreign_key: "collection_id"
   belongs_to :curator, class_name: "User", foreign_key: "curator_user_id", optional: true
 
   attribute :work_type, :string, default: "DATASET"
@@ -89,7 +90,7 @@ class Work < ApplicationRecord
   end
 
   def administered_by?(user)
-    user.has_role?(:collection_admin, collection)
+    user.has_role?(:group_admin, group)
   end
 
   class << self
@@ -198,7 +199,7 @@ class Work < ApplicationRecord
 
   def valid_to_approve(user)
     valid_to_submit
-    unless user.has_role? :collection_admin, collection
+    unless user.has_role? :group_admin, group
       errors.add :base, "Unauthorized to Approve"
     end
     if pre_curation_uploads_fast.empty? && post_curation_uploads.empty?
@@ -451,7 +452,7 @@ class Work < ApplicationRecord
     {
       "resource" => resource.as_json,
       "files" => files,
-      "collection" => collection.as_json.except("id")
+      "collection" => group.as_json.except("id")
     }
   end
 
