@@ -259,6 +259,11 @@ GEM
     net-ftp (0.2.0)
       net-protocol
       time
+    net-imap (0.3.4)
+      date
+      net-protocol
+    net-pop (0.1.2)
+      net-protocol
     net-protocol (0.1.1)
       io-wait
       timeout
@@ -535,6 +540,8 @@ DEPENDENCIES
   listen (~> 3.3)
   mailcatcher
   net-ftp
+  net-imap
+  net-pop
   net-smtp
   net-ssh (= 7.0.0.beta1)
   nokogiri (>= 1.13.4)
