@@ -8,6 +8,11 @@ gem "datacite-mapping"
 gem "factory_bot_rails", require: false
 gem "ffaker"
 gem "honeybadger", "~> 4.0"
+gem "io-wait", "0.2.1"
+gem "net-ftp"
+gem "net-imap"
+gem "net-pop"
+gem "net-ssh", "7.0.0.beta1"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem "rails", "~> 6.1.3", ">= 6.1.3.2"
 # Use sqlite3 as the database for Active Record
