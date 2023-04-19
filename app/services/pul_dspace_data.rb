@@ -73,7 +73,7 @@ class PULDspaceData
   end
 
   def aws_files
-    return [] if ark.nil?
+    return [] if ark.nil? || doi.nil?
     @aws_files ||= work.s3_query_service.client_s3_files(reload: true, bucket_name: dspace_bucket_name, prefix: doi.tr(".", "-"))
   end
 
