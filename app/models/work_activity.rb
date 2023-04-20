@@ -152,7 +152,7 @@ class WorkActivity < ApplicationRecord
 
       files_added = changes.select { |v| v["action"] == "added" }
       files_deleted = changes.select { |v| v["action"] == "deleted" }
-      files_replaced = changes.reject { |v| v["action"] == "replaced" }
+      files_replaced = changes.select { |v| v["action"] == "replaced" }
 
       changes_html = []
       unless files_added.empty?
