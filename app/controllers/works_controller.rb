@@ -174,6 +174,7 @@ class WorksController < ApplicationController
       upload_service = WorkUploadsEditService.new(@work, current_user)
       @work = upload_service.update_precurated_file_list(files, [])
       @work.save!
+      @work.reload_snapshots
     end
     redirect_to(work_review_path)
   rescue StandardError => active_storage_error
@@ -317,7 +318,7 @@ class WorksController < ApplicationController
     def pre_curation_uploads_param
       return if patch_params.nil?
 
-      patch_params[:pre_curation_uploads_added]
+      patch_params[:pre_curation_uploads]
     end
 
     def readme_file_param
