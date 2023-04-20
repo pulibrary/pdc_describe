@@ -629,7 +629,7 @@ RSpec.describe Work, type: :model do
     end
 
     it "notes a issue when an error occurs" do
-      stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new(status: "bad", reason_phrase: "a problem"))))
+      stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new({status: "bad", reason_phrase: "a problem"}))))
       expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(1)
     end
 
