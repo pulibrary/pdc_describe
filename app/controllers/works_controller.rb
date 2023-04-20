@@ -40,13 +40,12 @@ class WorksController < ApplicationController
   end
 
   def create
-    # TODO: We need to process files submitted by the user in this method.
-    # We currently do not and therefore there are not saved to the work.
-    # See https://github.com/pulibrary/pdc_describe/issues/1041
     @work = Work.new(created_by_user_id: current_user.id, collection_id: params_collection_id, user_entered_doi: params["doi"].present?)
     @work.resource = FormToResourceService.convert(params, @work)
     if @work.valid?
       @work.draft!(current_user)
+      upload_service = WorkUploadsEditService.new(@work, current_user)
+      upload_service.update_precurated_file_list(added_files_param, deleted_files_param)
       redirect_to work_url(@work), notice: "Work was successfully created."
     else
       render :new, status: :unprocessable_entity

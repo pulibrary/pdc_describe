@@ -14,12 +14,17 @@ This dataset is too large to download directly from this item page. You can acce
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.34770/9425-b553" }
   let(:file_upload) { Pathname.new(fixture_path).join("dataspace_migration", "attention", "Attention_Awareness_Dorsal_Attention_README.txt").to_s }
+  let(:file1) { FactoryBot.build :s3_file, filename: file_upload }
+  let(:bucket_url) do
+    "https://example-bucket.s3.amazonaws.com/"
+  end
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_request(:get, "https://handle.stage.datacite.org/10.34770/9425-b553")
       .to_return(status: 200, body: "", headers: {})
-    stub_s3
+    stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+    stub_s3(data: [file1])
   end
   context "migrate record from dataspace" do
     it "produces and saves a valid datacite record" do
