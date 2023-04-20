@@ -371,7 +371,7 @@ class Work < ApplicationRecord
 
   # Fetches the data from S3 directly bypassing ActiveStorage
   def pre_curation_uploads_fast
-    return local_pre_curation_s3_files if Rails.env.development?
+    return pre_curation_s3_files if Rails.env.development?
 
     s3_query_service.client_s3_files.sort_by(&:filename)
   end
