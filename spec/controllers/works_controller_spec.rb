@@ -530,6 +530,49 @@ RSpec.describe WorksController do
       end
     end
 
+    context "when creating a work without the wizard" do
+      let(:uploaded_file1) do
+        fixture_file_upload("us_covid_2019.csv", "text/csv")
+      end
+
+      let(:file1) { FactoryBot.build :s3_file, filename: uploaded_file1.path, work: work }
+
+      let(:bucket_url) do
+        "https://example-bucket.s3.amazonaws.com/"
+      end
+
+      let(:request_params) do
+        {
+          "title_main" => "a new title #{rand(10_000)}",
+          "description" => "a new description",
+          "collection_id" => work.collection.id,
+          "commit" => "update dataset",
+          "controller" => "works",
+          "action" => "update",
+          "publisher" => "princeton university",
+          "publication_year" => "2022",
+          "given_name_1" => "jane",
+          "family_name_1" => "smith",
+          "sequence_1" => "1",
+          "creator_count" => "1",
+          "pre_curation_uploads_added" => [uploaded_file1]
+        }
+      end
+      let(:fake_s3_service) { stub_s3(data: [file1]) }
+
+      before do
+        fake_s3_service
+        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
+        sign_in user
+      end
+
+      it "files are saved" do
+        post :create, params: request_params
+        created_work = Work.all.find { |work| work.title == request_params["title_main"] }
+        expect(created_work.pre_curation_uploads.count).to eq 1
+      end
+    end
+
     context "when file uploads are present for an existing Work with uploads" do
       let(:uploaded_file1) do
         fixture_file_upload("us_covid_2019.csv", "text/csv")
