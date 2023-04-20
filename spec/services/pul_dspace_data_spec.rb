@@ -23,6 +23,37 @@ RSpec.describe PULDspaceData, type: :model do
     end
   end
 
+  describe "#metdata" do
+    it "finds no metdata" do
+      expect(dspace_data.metadata).to eq({})
+    end
+  end
+
+  describe "#doi" do
+    it "finds no doi" do
+      expect(dspace_data.doi).to be_empty
+    end
+  end
+
+  describe "#dspace_bucket_name" do
+    it "returns the base path" do
+      expect(dspace_data.dspace_bucket_name).to eq("example-bucket-dspace")
+    end
+  end
+
+  describe "#aws_files" do
+    it "finds no files" do
+      expect(dspace_data.aws_files).to be_empty
+    end
+  end
+
+  describe "#migrate" do
+    it "does nothing" do
+      expect(dspace_data.migrate).to be_nil
+      expect(dspace_data.keys).to be_empty
+    end
+  end
+
   describe "#upload_bitstreams" do
     let(:filename1) { Rails.root.join("spec", "fixtures", "files", "bitstreams", "SCoData_combined_v1_2020-07_README.txt") }
     let(:filename2) { Rails.root.join("spec", "fixtures", "files", "bitstreams", "SCoData_combined_v1_2020-07_datapackage.json") }
@@ -52,6 +83,7 @@ RSpec.describe PULDspaceData, type: :model do
     let(:work) { FactoryBot.create :shakespeare_and_company_work }
     let(:handle_body) { File.read(Rails.root.join("spec", "fixtures", "files", "dspace_handle.json")) }
     let(:bitsreams_body) { File.read(Rails.root.join("spec", "fixtures", "files", "dspace_bitstreams_response.json")) }
+    let(:metadata_body) { File.read(Rails.root.join("spec", "fixtures", "files", "dspace_metadata_response.json")) }
     let(:bitsream1_body) { File.read(Rails.root.join("spec", "fixtures", "files", "bitstreams", "SCoData_combined_v1_2020-07_README.txt")) }
     let(:bitsream2_body) { File.read(Rails.root.join("spec", "fixtures", "files", "bitstreams", "SCoData_combined_v1_2020-07_datapackage.json")) }
     let(:bitsream3_body) { File.read(Rails.root.join("spec", "fixtures", "files", "bitstreams", "license.txt")) }
@@ -60,6 +92,8 @@ RSpec.describe PULDspaceData, type: :model do
         .to_return(status: 200, body: handle_body, headers: {})
       stub_request(:get, "https://dataspace.example.com/rest/items/104718/bitstreams")
         .to_return(status: 200, body: bitsreams_body, headers: {})
+      stub_request(:get, "https://dataspace.example.com/rest/items/104718/metadata")
+        .to_return(status: 200, body: metadata_body, headers: {})
       stub_request(:get, "https://dataspace.example.com/rest//bitstreams/145784/retrieve")
         .to_return(status: 200, body: bitsream1_body, headers: {})
       stub_request(:get, "https://dataspace.example.com/rest//bitstreams/145785/retrieve")
@@ -122,6 +156,71 @@ RSpec.describe PULDspaceData, type: :model do
           expect(filenames).to eq([nil, nil, nil])
           filenames.each { |filename| File.delete(filename) if filename.present? }
         end
+      end
+    end
+
+    describe "#metdata" do
+      it "parses the metadata" do
+        expect(dspace_data.metadata["dc.title"]).to eq(["TIGRESS simulation data"])
+        expect(dspace_data.metadata["dc.identifier.uri"]).to eq(["http://arks.princeton.edu/ark:/88435/dsp01s7526g63n", "https://doi.org/10.34770/ackh-7y71", "https://app.globus.org/file-manager?origin_id=dc43f461-0ca7-4203-848c-33a9fc00a464&origin_path=%2Fackh-7y71%2F"])
+      end
+    end
+
+    describe "#doi" do
+      it "gets the doi from the metadata" do
+        expect(dspace_data.doi).to eq("10.34770/ackh-7y71")
+      end
+    end
+
+    describe "#aws_files" do
+      let(:s3_file) { FactoryBot.build :s3_file, filename: "test_key" }
+
+      before do
+        fake_s3_service = instance_double(S3QueryService, client_s3_files: [s3_file])
+        allow(work).to receive(:s3_query_service).and_return(fake_s3_service)
+      end
+      it "finds files" do
+        expect(dspace_data.aws_files).to eq([s3_file])
+      end
+    end
+
+    describe "#aws_copy" do
+      let(:s3_file) { FactoryBot.build :s3_file, filename: "test_key" }
+      let(:fake_s3_service) { instance_double(S3QueryService) }
+
+      before do
+        allow(work).to receive(:s3_query_service).and_return(fake_s3_service)
+        allow(fake_s3_service).to receive(:copy_file)
+      end
+
+      it "copies files" do
+        expect do
+          expect(dspace_data.aws_copy([s3_file])).to eq([s3_file])
+        end.to have_enqueued_job(DspaceFileCopyJob)
+          .with("10.34770/ackh-7y71", "test_key", 10_759, work.id)
+      end
+    end
+
+    describe "#migrate" do
+      let(:s3_file) { FactoryBot.build :s3_file, filename: "test_key" }
+      let(:fake_s3_service) { instance_double(S3QueryService, client_s3_files: [s3_file]) }
+
+      before do
+        allow(work).to receive(:s3_query_service).and_return(fake_s3_service)
+        allow(fake_s3_service).to receive(:copy_file)
+        allow(fake_s3_service).to receive(:upload_file).with(hash_including(filename: /SCoData_combined_v1_2020-07_README/))
+                                                       .and_return("abc/123/SCoData_combined_v1_2020-07_README.txt")
+        allow(fake_s3_service).to receive(:upload_file).with(hash_including(filename: /SCoData_combined_v1_2020-07_datapackage/))
+                                                       .and_return("abc/123/SCoData_combined_v1_2020-07_datapackage.json")
+        allow(fake_s3_service).to receive(:upload_file).with(hash_including(filename: /license/))
+                                                       .and_return("abc/123/license.txt")
+      end
+      it "migrates the content from dspace and aws" do
+        dspace_data.migrate
+        expect(dspace_data.keys).to eq(["abc/123/SCoData_combined_v1_2020-07_README.txt",
+                                        "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
+                                        "abc/123/license.txt",
+                                        "test_key"])
       end
     end
   end

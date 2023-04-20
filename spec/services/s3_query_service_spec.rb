@@ -362,7 +362,7 @@ RSpec.describe S3QueryService do
     end
 
     it "uploads the readme" do
-      expect(s3_query_service.upload_file(io: file, filename: filename)).to be_truthy
+      expect(s3_query_service.upload_file(io: file, filename: filename)).to eq("10.34770/pe9w-x904/#{work.id}/README.txt")
       assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}", headers: { "Content-Length" => 2852 })
     end
 
@@ -375,6 +375,41 @@ RSpec.describe S3QueryService do
         expect(s3_query_service.upload_file(io: file, filename: filename)).to be_falsey
         assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}", headers: { "Content-Length" => 2852 })
       end
+    end
+  end
+
+  describe "#client_s3_files" do
+    let(:fake_aws_client) { double(Aws::S3::Client) }
+
+    before do
+      subject.stub(:client).and_return(fake_aws_client)
+      fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
+      fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
+      s3_hash_truncated = s3_hash.clone
+      s3_hash_truncated[:is_truncated] = true
+      fake_s3_resp.stub(:to_h).and_return(s3_hash_truncated, s3_hash)
+    end
+
+    it "it retrieves the files for the work" do
+      files = subject.client_s3_files
+      expect(files.count).to eq 4
+      expect(files.first.filename).to match(/README/)
+      expect(files[1].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
+      expect(files[2].filename).to match(/README/)
+      expect(files[3].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "example-bucket", max_keys: 1000, prefix: "10.34770/pe9w-x904/#{work.id}/")
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "example-bucket", continuation_token: nil, max_keys: 1000, prefix: "10.34770/pe9w-x904/#{work.id}/")
+    end
+
+    it "it retrieves the files for a bucket and prefix" do
+      files = subject.client_s3_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix")
+      expect(files.count).to eq 4
+      expect(files.first.filename).to match(/README/)
+      expect(files[1].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
+      expect(files[2].filename).to match(/README/)
+      expect(files[3].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", max_keys: 1000, prefix: "new-prefix")
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", continuation_token: nil, max_keys: 1000, prefix: "new-prefix")
     end
   end
 end

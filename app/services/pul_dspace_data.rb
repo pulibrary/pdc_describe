@@ -1,10 +1,17 @@
 # frozen_string_literal: true
 class PULDspaceData
-  attr_reader :work, :ark
+  attr_reader :work, :ark, :keys
 
   def initialize(work)
     @work = work
     @ark = work.ark&.gsub("ark:/", "")
+    @keys = []
+  end
+
+  def migrate
+    return if ark.nil?
+    migrate_dspace
+    aws_copy(aws_files)
   end
 
   def id
@@ -20,6 +27,20 @@ class PULDspaceData
     @bitstreams ||= get_data("items/#{id}/bitstreams")
   end
 
+  def metadata
+    return {} if ark.nil?
+    @metadata ||= begin
+                    json = get_data("items/#{id}/metadata")
+                    metadata = {}
+                    json.each do |value|
+                      key = value["key"]
+                      metadata[key] = [] if metadata[key].blank?
+                      metadata[key] << value["value"]
+                    end
+                    metadata
+                  end
+  end
+
   def download_bitstreams
     return [] if ark.nil?
     bitstreams.map do |bitstream|
@@ -33,15 +54,57 @@ class PULDspaceData
   def upload_to_s3(filenames)
     filenames.map do |filename|
       io = File.open(filename)
-      if work.s3_query_service.upload_file(io: io, filename: File.basename(filename))
+      key = work.s3_query_service.upload_file(io: io, filename: File.basename(filename))
+      if key
+        @keys << key
         nil
       else
-        "An error uploading #{file_name}.  Please try again."
+        "An error uploading #{filename}.  Please try again."
       end
     end
   end
 
+  def doi
+    return "" if ark.nil?
+    @doi ||= begin
+               doi_url = metadata["dc.identifier.uri"].select { |value| value.starts_with?("https://doi.org/") }&.first
+               doi_url&.gsub("https://doi.org/", "")
+             end
+  end
+
+  def aws_files
+    return [] if ark.nil? || doi.nil?
+    @aws_files ||= work.s3_query_service.client_s3_files(reload: true, bucket_name: dspace_bucket_name, prefix: doi.tr(".", "-"))
+  end
+
+  def aws_copy(files)
+    files.each do |s3_file|
+      DspaceFileCopyJob.perform_later(doi, s3_file.key, s3_file.size, work.id)
+      keys << s3_file.key
+    end
+  end
+
+  def dspace_bucket_name
+    @dspace_bucket_name ||= Rails.configuration.s3.dspace[:bucket]
+  end
+
   private
+
+    def migrate_dspace
+      filenames = download_bitstreams
+      if filenames.any?(nil)
+        bitstreams = dspace.bitstreams
+        error_files = Hash[filenames.zip bitstreams].select { |key, _value| key.nil? }
+        error_names = error_files.map { |bitstream| bitstream["name"] }.join(", ")
+        raise "Error downloading file(s) #{error_names}"
+      end
+      results = upload_to_s3(filenames)
+      errors = results.reject(&:"blank?")
+      if errors.count > 0
+        raise "Error uploading file(s):\n #{errors.join("\n")}"
+      end
+      filenames.each { |filename| File.delete(filename) }
+    end
 
     def get_data(url_path)
       url = "#{Rails.configuration.dspace.base_url}#{url_path}"

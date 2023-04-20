@@ -125,7 +125,7 @@ class S3QueryService
       resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
       resp_hash = resp.to_h
       objects = parse_objects(resp_hash)
-      objects += parse_continuation(resp_hash)
+      objects += parse_continuation(resp_hash, bucket_name: bucket_name, prefix: prefix)
       elapsed = Time.zone.now - start
       Rails.logger.info("Loading S3 objects. Bucket: #{bucket_name}. Prefix: #{prefix}. Elapsed: #{elapsed} seconds")
       objects
@@ -202,7 +202,9 @@ class S3QueryService
   def upload_file(io:, filename:)
     # upload file from io in a single request, may not exceed 5GB
     md5_digest = md5(io: io)
-    client.put_object(bucket: bucket_name, key: "#{prefix}#{filename}", body: io, content_md5: md5_digest)
+    key = "#{prefix}#{filename}"
+    client.put_object(bucket: bucket_name, key: key, body: io, content_md5: md5_digest)
+    key
   rescue Aws::S3::Errors::SignatureDoesNotMatch => e
     Honeybadger.notify("Error Uploading file #{filename} for object: #{s3_address} Signature did not match! error: #{e}")
     false
@@ -230,7 +232,7 @@ class S3QueryService
       objects
     end
 
-    def parse_continuation(resp_hash)
+    def parse_continuation(resp_hash, bucket_name: self.bucket_name, prefix: self.prefix)
       objects = []
       while resp_hash[:is_truncated]
         token = resp_hash[:next_continuation_token]
