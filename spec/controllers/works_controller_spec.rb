@@ -760,8 +760,10 @@ RSpec.describe WorksController do
         {
           "_method" => "patch",
           "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
-          "patch" => {
-            "pre_curation_uploads_added" => [uploaded_file]
+          "work" => {
+            "patch" => {
+              "pre_curation_uploads" => [uploaded_file]
+            }
           },
           "commit" => "Continue",
           "controller" => "works",
@@ -775,6 +777,7 @@ RSpec.describe WorksController do
       end
 
       before do
+        stub_request(:get, /#{bucket_url}/).to_return(status: 200)
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
         sign_in user
         post :file_uploaded, params: params
@@ -813,8 +816,10 @@ RSpec.describe WorksController do
         {
           "_method" => "patch",
           "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
-          "patch" => {
-            "pre_curation_uploads_added" => [uploaded_file]
+          "work" => {
+            "patch" => {
+              "pre_curation_uploads" => [uploaded_file]
+            }
           },
           "commit" => "Continue",
           "controller" => "works",
@@ -839,15 +844,16 @@ RSpec.describe WorksController do
         allow(Work).to receive(:find).and_return(persisted)
         allow(persisted).to receive(:to_s).and_return(work.id)
         allow(persisted).to receive(:doi).and_return(work.doi)
-        allow(persisted).to receive(:pre_curation_uploads).and_raise(StandardError, "test error")
+        allow(persisted).to receive(:s3_query_service).and_return(nil)
+        allow(persisted).to receive(:pre_curation_uploads).and_return([])
 
         post :file_uploaded, params: params
       end
 
       it "does not update the work and renders an error messages" do
         expect(response).to redirect_to(work_file_upload_path(work))
-        expect(controller.flash[:notice]).to eq("Failed to attach the file uploads for the work #{work.doi}: test error. Please contact rdss@princeton.edu for assistance.")
-        expect(Rails.logger).to have_received(:error).with("Failed to attach the file uploads for the work #{work.doi}: test error")
+        expect(controller.flash[:notice].start_with?("Failed to attach the file uploads for the work #{work.doi}")).to be true
+        expect(Rails.logger).to have_received(:error).with(/Failed to attach the file uploads for the work #{work.doi}/)
       end
     end
 

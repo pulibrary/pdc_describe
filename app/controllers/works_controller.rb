@@ -168,11 +168,12 @@ class WorksController < ApplicationController
 
   def file_uploaded
     @work = Work.find(params[:id])
-    if pre_curation_uploads_param
-      @work.pre_curation_uploads.attach(pre_curation_uploads_param)
+    files = work_params.dig("patch", "pre_curation_uploads") || []
+    if files.count > 0
+      upload_service = WorkUploadsEditService.new(@work, current_user)
+      @work = upload_service.update_precurated_file_list(files, [])
       @work.save!
     end
-
     redirect_to(work_review_path)
   rescue StandardError => active_storage_error
     Rails.logger.error("Failed to attach the file uploads for the work #{@work.doi}: #{active_storage_error}")
