@@ -149,6 +149,9 @@ class WorkActivity < ApplicationRecord
     # Returns the message formatted to display _file_ changes that were logged as an activity
     def body_html
       changes = JSON.parse(@work_activity.message)
+      if changes.is_a?(Hash)
+        changes = [changes]
+      end
 
       files_added = changes.select { |v| v["action"] == "added" }
       files_deleted = changes.select { |v| v["action"] == "deleted" }
