@@ -2,13 +2,13 @@
 require "rails_helper"
 
 RSpec.describe "Form submission for migrating Thomson Scattering", type: :system, mock_ezid_api: true, js: true do
-  let(:user) { FactoryBot.create(:research_data_moderator) }
+  let(:user) { FactoryBot.create(:pppl_moderator) }
   let(:title) { "Lower Hybrid Drift Waves During Guide Field Reconnection" }
   let(:description) do
     "Digital data for figures used in Lower Hybrid Drift Waves During Guide Field Reconnection, Geophysical Research Letters, 47, e2020GL087192, 2020."
   end
   let(:ark) { "ark:/88435/dsp0112579w37b" }
-  let(:collection) { "Research Data" }
+  let(:collection) { "Princeton Plasma Physics Laboratory" }
   let(:publisher) { "Princeton University" }
   # DOI of this data set as found at https://www.osti.gov/pages/biblio/1814564
   let(:doi) { "10.11578/1814938" }
@@ -115,7 +115,7 @@ RSpec.describe "Form submission for migrating Thomson Scattering", type: :system
 
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2020
-      select "Research Data", from: "collection_id"
+      select collection, from: "collection_id"
 
       fill_in "doi", with: doi
       fill_in "ark", with: ark
