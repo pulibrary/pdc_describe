@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "Form submission for migrating Thomson Scattering", type: :system, mock_ezid_api: true, js: true do
-  let(:user) { FactoryBot.create(:research_data_moderator) }
+  let(:user) { FactoryBot.create(:pppl_moderator) }
   let(:title) { "Initial operation and data processing on a system for real-time evaluation of Thomson scattering signals on the Large Helical Device" }
   let(:description) do
     "A scalable system for real-time analysis of electron temperature and density based on signals from the Thomson scattering diagnostic, initially developed for and installed on the NSTX-U experiment, was recently adapted for the Large Helical Device (LHD) and operated for the first time during plasma discharges. During its initial operation run, it routinely recorded and processed signals for four spatial points at the laser repetition rate of 30 Hz, well within the system's rated capability for 60 Hz. We present examples of data collected from this initial run and describe subsequent adaptations to the analysis code to improve the fidelity of the temperature calculations.
@@ -10,7 +10,7 @@ RSpec.describe "Form submission for migrating Thomson Scattering", type: :system
 Please consult the file README.txt for a description of the archive contents."
   end
   let(:ark) { "ark:/88435/dsp014t64gr25v" }
-  let(:collection) { "Research Data" }
+  let(:collection) { "Princeton Plasma Physics Laboratory" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.11578/1814942" }
   let(:related_identifier) { "10.1063/5.0041507" }
@@ -97,7 +97,7 @@ Please consult the file README.txt for a description of the archive contents."
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2021
-      select "Research Data", from: "collection_id"
+      select collection, from: "collection_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"
