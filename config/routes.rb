@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require "sidekiq/web"
+
 Rails.application.routes.draw do
+  mount Sidekiq::Web => "/sidekiq" # mount Sidekiq::Web in your Rails app
+
   # This route is to handle user ids that are in the form abc@something.com because
   # Rails (understandably) does not like the ".com" in the URL
   get "users/:id.:format/edit", to: "users#edit"
