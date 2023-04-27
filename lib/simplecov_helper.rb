@@ -4,11 +4,15 @@ require "active_support/inflector"
 require "simplecov"
 
 class SimpleCovHelper
-  def self.report_coverage(base_dir: "./coverage_results")
+  DEFAULT_BASE_DIR = "./coverage/"
+
+  def self.report_coverage(base_dir: DEFAULT_BASE_DIR)
     SimpleCov.configure do
       minimum_coverage(100)
     end
-    new(base_dir: base_dir).merge_results
+
+    built = new(base_dir: base_dir)
+    built.merge_results
   end
 
   attr_reader :base_dir
@@ -22,8 +26,6 @@ class SimpleCovHelper
   end
 
   def merge_results
-    SimpleCov.collate all_results
+    SimpleCov.collate(all_results)
   end
 end
-
-SimpleCovHelper.report_coverage

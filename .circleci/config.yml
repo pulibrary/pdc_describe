@@ -102,12 +102,12 @@ jobs:
     steps:
       - attach_workspace:
           at: *root
-      - run: gem install simplecov -v '~> 0.21'
-      - run: gem install activesupport -v '~> 6.1.6'
+          #- run: gem install simplecov -v '~> 0.21'
+          #- run: gem install activesupport -v '~> 6.1.6'
       - run:
           name: Merge and check coverage
           command: |
-            RAILS_ENV=test ruby ./spec/support/simple_cov_helper.rb
+            RAILS_ENV=test bundle exec rake simplecov:report_coverage
       - store_artifacts:
           path: ~/rails_template/coverage
           destination: coverage
@@ -126,6 +126,6 @@ workflows:
       - eslint:
           requires:
             - build
-      - coverage:
+      - coverage_report:
           requires:
             - test
