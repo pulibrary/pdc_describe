@@ -17,11 +17,11 @@ require "ffaker"
 require "devise"
 
 require "simplecov"
-require "coveralls"
+require "simplecov_json_formatter"
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
   [
     SimpleCov::Formatter::HTMLFormatter,
-    Coveralls::SimpleCov::Formatter
+    SimpleCov::Formatter::JSONFormatter
   ]
 )
 SimpleCov.start "rails" do
