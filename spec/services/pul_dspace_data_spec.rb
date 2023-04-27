@@ -51,6 +51,7 @@ RSpec.describe PULDspaceData, type: :model do
     it "does nothing" do
       expect(dspace_data.migrate).to be_nil
       expect(dspace_data.keys).to be_empty
+      expect(work.resource.migrated).to be_falsey
     end
   end
 
@@ -221,6 +222,7 @@ RSpec.describe PULDspaceData, type: :model do
                                         "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
                                         "abc/123/license.txt",
                                         "test_key"])
+        expect(work.reload.resource.migrated).to be_truthy
       end
     end
   end

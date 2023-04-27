@@ -66,6 +66,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     expect(ds.resource_type).to eq "Dataset"
     expect(ds.creators.count).to be 2
     expect(ds.individual_contributors.count).to be 2
+    expect(ds.migrated).to be_falsey
   end
 
   describe "#identifier_type" do
@@ -160,7 +161,8 @@ RSpec.describe PDCMetadata::Resource, type: :model do
           "award_number" => nil,
           "award_uri" => nil
         }],
-        "domains" => ["Humanities"]
+        "domains" => ["Humanities"],
+        "migrated" => true
       }
     end
     it "parses the json" do
@@ -170,6 +172,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
       expect(resource.keywords).to eq(["red", "yellow", "green"])
       expect(resource.description).to eq("All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.")
       expect(resource.domains).to eq(["Humanities"])
+      expect(resource.migrated).to be_truthy
       expect(JSON.parse(resource.to_json)).to eq(jsonb)
     end
   end

@@ -10,6 +10,8 @@ class PULDspaceData
 
   def migrate
     return if ark.nil?
+    work.resource.migrated = true
+    work.save
     migrate_dspace
     aws_copy(aws_files)
   end
