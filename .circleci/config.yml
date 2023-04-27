@@ -95,6 +95,23 @@ jobs:
       - store_artifacts:
           path: /home/circleci/rails_template/tmp/screenshots
 
+  coverage_report:
+    working_directory: *root
+    docker:
+      - *ruby_docker
+    steps:
+      - attach_workspace:
+          at: *root
+      - run: gem install simplecov -v '~> 0.21'
+      - run: gem install activesupport -v '~> 6.1.6'
+      - run:
+          name: Merge and check coverage
+          command: |
+            RAILS_ENV=test ruby ./spec/support/simple_cov_helper.rb
+      - store_artifacts:
+          path: ~/rails_template/coverage
+          destination: coverage
+
 workflows:
   version: 2
   build_accept_deploy:
@@ -109,3 +126,6 @@ workflows:
       - eslint:
           requires:
             - build
+      - coverage:
+          requires:
+            - test
