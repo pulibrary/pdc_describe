@@ -121,7 +121,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       work.save!
       work.reload
 
-      stub_s3
+      stub_s3 data: [FactoryBot.build(:s3_file)]
       allow(Work).to receive(:find).with(work.id).and_return(work)
       allow(Work).to receive(:find).with(work.id.to_s).and_return(work)
       allow(work).to receive(:publish_precurated_files).and_return(true)

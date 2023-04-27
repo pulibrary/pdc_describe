@@ -887,8 +887,8 @@ RSpec.describe WorksController do
       it "renders the workshow page" do
         get :show, params: { id: work.id }
         expect(response).to render_template("show")
-        expect(assigns[:changes]).to eq([])
-        expect(assigns[:messages]).to eq([])
+        expect(assigns[:work_decorator].changes).to eq([])
+        expect(assigns[:work_decorator].messages).to eq([])
       end
 
       context "when the work has changes and messages" do
@@ -900,8 +900,8 @@ RSpec.describe WorksController do
         it "renders the workshow page" do
           get :show, params: { id: work.id }
           expect(response).to render_template("show")
-          expect(assigns[:changes].map(&:message)).to eq(["Hello System"])
-          expect(assigns[:messages].map(&:message)).to eq(["Hello World"])
+          expect(assigns[:work_decorator].changes.map(&:message)).to eq(["Hello System"])
+          expect(assigns[:work_decorator].messages.map(&:message)).to eq(["Hello World"])
         end
       end
     end
@@ -1023,7 +1023,7 @@ RSpec.describe WorksController do
 
     describe "#approve" do
       before do
-        stub_s3
+        stub_s3 data: [FactoryBot.build(:s3_file)]
         allow(Work).to receive(:find).with(work.id).and_return(work)
         allow(Work).to receive(:find).with(work.id.to_s).and_return(work)
         allow(work).to receive(:publish_precurated_files).and_return(true)
@@ -1064,6 +1064,17 @@ RSpec.describe WorksController do
           expect(response.status).to be 422
           expect(work.reload).to be_draft
           expect(assigns[:errors]).to eq(["Cannot Approve: Event 'approve' cannot transition from 'draft'."])
+        end
+      end
+
+      context "no files attached" do
+        it "handles aproval errors" do
+          work.complete_submission!(user)
+          stub_s3 data: []
+          sign_in curator
+          post :approve, params: { id: work.id }
+          expect(response.status).to be 422
+          expect(assigns[:errors]).to eq(["Cannot Approve: Uploads must be present for a work to be approved"])
         end
       end
 
