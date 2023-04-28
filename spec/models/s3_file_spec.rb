@@ -92,9 +92,6 @@ RSpec.describe S3File, type: :model do
         work: work
       )
     end
-    let(:blob) do
-      s3_file.to_blob
-    end
     let(:s3_client) { instance_double(Aws::S3::Client) }
     let(:s3_query_service) { instance_double(S3QueryService) }
     let(:bitstream) { instance_double(ActiveStorage::Attached::One) }
@@ -108,25 +105,14 @@ RSpec.describe S3File, type: :model do
       allow(upload_snapshot).to receive(:key).and_return("test-key")
       allow(upload_snapshot).to receive(:save)
       allow(upload_snapshot).to receive(:upload=)
-      allow(bitstream).to receive(:attach)
-      allow(upload_snapshot).to receive(:bitstream).and_return(bitstream)
       allow(UploadSnapshot).to receive(:create).and_return(upload_snapshot)
 
       allow(Rails.logger).to receive(:info)
 
-      blob
       s3_file.create_snapshot
     end
 
     it "creates an UploadSnapshot" do
-      expect(Rails.logger).to have_received(:info).with("Copying /example-bucket/SCoData_combined_v1_2020-07_README.txt to test-key")
-      expect(s3_client).to have_received(:copy_object).with({
-                                                              copy_source: "/example-bucket/SCoData_combined_v1_2020-07_README.txt",
-                                                              bucket: "example-bucket",
-                                                              key: "test-key"
-                                                            })
-      expect(upload_snapshot).to have_received(:bitstream).at_least(:once)
-      expect(bitstream).to have_received(:attach).at_least(:once)
       expect(upload_snapshot).to have_received(:upload=)
       expect(upload_snapshot).to have_received(:save)
       expect(upload_snapshot).to have_received(:reload)

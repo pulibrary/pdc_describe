@@ -58,7 +58,6 @@ RSpec.describe "UploadSnapshots", type: :request do
         persisted = UploadSnapshot.all
         expect(persisted.length).to eq(1)
         expect(persisted.first.version).to eq(1)
-        expect(persisted.first.bitstream).to be_a(ActiveStorage::Attached::One)
       end
 
       context "when creating multiple snapshots" do

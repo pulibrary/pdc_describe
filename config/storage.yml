@@ -13,7 +13,7 @@ development: &development
   # Default to the local file system (this avoids coercion into AWS)
   #  AWS is the default as the will not really work without AWS
   #  AWS can be enabled here should that be preferred for development
-  <<: *local
+  <<: *amazon
 
 amazon_pre_curation:
   <% if Rails.env.development? %>

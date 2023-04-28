@@ -355,24 +355,8 @@ class Work < ApplicationRecord
     pre_curation_uploads_fast
   end
 
-  def pre_curation_s3_files
-    loaded = pre_curation_uploads.sort_by(&:filename)
-
-    loaded.map do |attachment|
-      S3File.new(
-        work: self,
-        filename: attachment.key,
-        last_modified: attachment.created_at,
-        size: attachment.byte_size,
-        checksum: attachment.checksum
-      )
-    end
-  end
-
   # Fetches the data from S3 directly bypassing ActiveStorage
   def pre_curation_uploads_fast
-    return pre_curation_s3_files if Rails.env.development?
-
     s3_query_service.client_s3_files.sort_by(&:filename)
   end
 
@@ -395,9 +379,7 @@ class Work < ApplicationRecord
   alias post_curation_uploads post_curation_s3_resources
 
   def s3_files
-    return s3_resources if approved?
-
-    pre_curation_s3_files
+    pre_curation_uploads_fast
   end
 
   def s3_client
@@ -484,6 +466,7 @@ class Work < ApplicationRecord
       removed
     end
 
+    changes = []
     s3_files.map do |s3_file|
       s3_match = s3_file.filename.match(/_\d+_/)
       s3_filename = if s3_match
@@ -509,21 +492,22 @@ class Work < ApplicationRecord
 
         # cases where the s3 resources are replaced
         snapshot.checksum = s3_file.checksum
-        changes = if !snapshot.persisted?
-                    {
-                      action: "added"
-                    }
-                  else
-                    {
-                      action: "replaced"
-                    }
-                  end
+        changes << if !snapshot.persisted?
+                     {
+                       action: "added"
+                     }
+                   else
+                     {
+                       action: "replaced"
+                     }
+                   end
         snapshot.save
-
-        WorkActivity.add_work_activity(id, changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES)
       end
 
       snapshot.reload
+    end
+    unless changes.empty?
+      WorkActivity.add_work_activity(id, changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES)
     end
   end
 

@@ -2,7 +2,6 @@
 class UploadSnapshot < ApplicationRecord
   belongs_to :work
   attr_writer :upload
-  has_one_attached :bitstream
 
   before_create do
     persisted = UploadSnapshot.where(filename: filename, url: url, work: work)

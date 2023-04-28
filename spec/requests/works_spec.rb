@@ -117,7 +117,7 @@ RSpec.describe "/works", type: :request do
         end
       end
 
-      context "when the files are updated before viewing the Work" do
+      context "when the files are updated before viewing the Work", js: true do
         let(:work) { FactoryBot.create(:tokamak_work, collection: collection, created_by_user_id: user.id, state: "draft") }
 
         let(:uploaded_file1) do
@@ -149,15 +149,16 @@ RSpec.describe "/works", type: :request do
         end
 
         let(:fake_s3_service) { stub_s3 }
-        let(:file1) { FactoryBot.build :s3_file, filename: uploaded_file1.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
+        let(:file1) { FactoryBot.build :s3_file, work: work, filename: uploaded_file1.path, checksum: "222333", last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
+        let(:file_before) { FactoryBot.build :s3_file, work: work, filename: uploaded_file1.path, checksum: "1111", last_modified: Time.parse("2022-04-21T19:29:40.000Z") }
 
         before do
           stub_ark
           # This is utilized for active record to send the file to S3
           stub_request(:put, /#{bucket_url}/).to_return(status: 200)
-          allow(fake_s3_service).to receive(:client_s3_files).and_return([], [file1])
-          work.pre_curation_uploads.attach(uploaded_file1)
+          allow(fake_s3_service).to receive(:client_s3_files).and_return([file_before], [file_before], [file_before], [file_before], [file1])
           work.save
+          work.reload_snapshots
           work.reload
 
           patch work_url(work), params: params

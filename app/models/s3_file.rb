@@ -60,22 +60,7 @@ class S3File
   # Create a new snapshot of the current upload
   # @return [UploadSnapshot]
   def create_snapshot
-    created = UploadSnapshot.create(url: url, filename: filename, work: @work)
-
-    persisted_blob = create_blob(key: created.key)
-    created.bitstream.attach(persisted_blob)
-
-    copy_source = "/#{bucket_name}/#{key}"
-    params = {
-      copy_source: copy_source,
-      bucket: bucket_name,
-      key: created.key
-    }
-    Rails.logger.info("Copying #{copy_source} to #{created.key}")
-    s3_client.copy_object(params)
-
-    persisted_blob = create_blob(key: created.key)
-    created.bitstream.attach(persisted_blob)
+    created = UploadSnapshot.create(url: url, filename: filename, work: @work, checksum: checksum)
 
     created.upload = self
     created.save
