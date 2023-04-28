@@ -93,7 +93,7 @@ jobs:
       - persist_to_workspace:
           root: *root
           paths:
-            - '~/rails_template/coverage'
+            - 'coverage'
       - store_artifacts:
           path:
             ~/rails_template/coverage
