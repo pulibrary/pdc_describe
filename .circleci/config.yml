@@ -90,8 +90,10 @@ jobs:
       - run:
           name: Run Rspec
           command: COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN bundle exec rspec
-      - store_artifacts:
-          path: coverage
+      - persist_to_workspace:
+          root: *root
+          paths:
+            - '~/rails_template/coverage'
       - store_artifacts:
           path:
             ~/rails_template/coverage
