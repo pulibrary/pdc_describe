@@ -93,7 +93,9 @@ jobs:
       - store_artifacts:
           path: coverage
       - store_artifacts:
-          path: /home/circleci/rails_template/tmp/screenshots
+          path:
+            ~/rails_template/coverage
+            ~/rails_template/tmp/screenshots
 
   coverage_report:
     working_directory: *root
