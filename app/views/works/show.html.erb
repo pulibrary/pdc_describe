@@ -70,12 +70,14 @@
   }
 </style>
 
+<%= render 'form_errors' %>
+
 <div class="row">
   <div class="col-8">
     <% if @work.editable_in_current_state?(current_user)  %>
       <%= link_to("Edit", edit_work_path(@work, wizard: @work.draft?), class: "btn btn-primary") %>
     <% end %>
-    <% if @work.awaiting_approval? && current_user.has_role?(:collection_admin, @collection) %>
+    <% if @work.awaiting_approval? && current_user.has_role?(:collection_admin, @work_decorator.collection) %>
       <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post) %>
     <% elsif @work.approved? %>
       <%= button_to("Withdraw Dataset", withdraw_work_path(@work), class: "btn btn-secondary", method: :post) %>
@@ -110,10 +112,10 @@
 
       <dt>Curator</dt>
       <dd>
-        <% if @can_curate %>
+        <% if @work_decorator.can_curate %>
           <select id="curator_select">
             <option value="no-one">(no one)</option>
-            <% @collection.administrators.each do |user| %>
+            <% @work_decorator.collection.administrators.each do |user| %>
               <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.display_name_safe %></option>
             <% end %>
           </select>
@@ -216,7 +218,7 @@
       <% end %>
 
       <dt>Collection</dt>
-      <dd><%= @collection&.title %></dd>
+      <dd><%= @work_decorator.collection&.title %></dd>
 
       <% if @work.resource.funders.count > 0 %>
         <dt>Funders</dt>

@@ -32,6 +32,7 @@ RSpec.describe "Work state transions", type: :model do
 
     it "Creates a work activity notification for the curator & the user when approved" do
       allow(work).to receive(:publish)
+      stub_s3 data: [FactoryBot.build(:s3_file)]
       expect do
         work.approve!(curator_user)
       end.to change { WorkActivity.count }.by(2)

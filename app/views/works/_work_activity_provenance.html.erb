@@ -1,10 +1,10 @@
 <div>
   <h2>Change History</h2>
-  <% if @changes.size == 0 %>
+  <% if @work_decorator.changes.size == 0 %>
     No activity
   <% end %>
   <ul class="beads">
-    <% @changes.sort_by(&:created_at).each do |activity| %>
+    <% @work_decorator.changes.sort_by(&:created_at).each do |activity| %>
       <li class="activity-history-item">
         <%= activity.to_html.html_safe %>
       </li>

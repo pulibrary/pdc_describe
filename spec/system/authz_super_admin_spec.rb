@@ -70,7 +70,7 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
 
     it "should be able to approve a work" do
       stub_datacite_doi
-      stub_s3
+      stub_s3 data: [FactoryBot.build(:s3_file)]
       work = FactoryBot.create :awaiting_approval_work
 
       work.save!

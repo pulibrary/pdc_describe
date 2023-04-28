@@ -186,6 +186,9 @@ class Work < ApplicationRecord
     unless user.has_role? :collection_admin, collection
       errors.add :base, "Unauthorized to Approve"
     end
+    if pre_curation_uploads_fast.empty? && post_curation_uploads.empty?
+      errors.add :base, "Uploads must be present for a work to be approved"
+    end
     errors.count == 0
   end
 

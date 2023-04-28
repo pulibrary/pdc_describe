@@ -491,6 +491,7 @@ RSpec.describe Work, type: :model do
       let(:user) { FactoryBot.create(:princeton_submitter) }
 
       it "can not transition from awaitng_approval to approved" do
+        stub_s3 data: [FactoryBot.build(:s3_file)]
         expect { awaiting_approval_work.approve!(user) }.to raise_error AASM::InvalidTransition
         expect(awaiting_approval_work.reload.state).to eq("awaiting_approval")
       end

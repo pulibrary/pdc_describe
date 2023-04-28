@@ -67,16 +67,12 @@ class WorksController < ApplicationController
   def show
     @work = Work.find(params[:id])
     @work.reload_snapshots
-    @changes = WorkActivity.changes_for_work(@work.id)
-    @messages = WorkActivity.messages_for_work(@work.id)
+    @work_decorator = WorkDecorator.new(@work, current_user)
 
     respond_to do |format|
       format.html do
         # Ensure that the Work belongs to a Collection
-        @collection = @work.collection
-        raise(Work::InvalidCollectionError, "The Work #{@work.id} does not belong to any Collection") unless @collection
-
-        @can_curate = current_user.can_admin?(@collection)
+        raise(Work::InvalidCollectionError, "The Work #{@work.id} does not belong to any Collection") unless @work_decorator.collection
         @work.mark_new_notifications_as_read(current_user.id)
       end
       format.json { render json: @work.to_json }
@@ -345,6 +341,7 @@ class WorksController < ApplicationController
       elsif action_name == "validate"
         :edit
       else
+        @work_decorator = WorkDecorator.new(@work, current_user)
         :show
       end
     end
