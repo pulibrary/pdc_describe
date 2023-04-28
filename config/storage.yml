@@ -10,12 +10,10 @@ amazon: &amazon
   bucket: <%= S3QueryService.pre_curation_config.fetch(:bucket) %>
 
 development: &development
-# AWS is the default as the will not really work without AWS
-#  You can go back to local if needed for some reason, just be aware the uploaded
-#  files will not display in the edit or the show pages
-#  <<: *local
-   <<: *amazon
-
+  # Default to the local file system (this avoids coercion into AWS)
+  #  AWS is the default as the will not really work without AWS
+  #  AWS can be enabled here should that be preferred for development
+  <<: *amazon
 
 amazon_pre_curation:
   <% if Rails.env.development? %>

@@ -51,6 +51,11 @@ Rails.application.routes.draw do
   post "collections/:id/add-admin/:uid", to: "collections#add_admin", as: :add_admin
   resources :collections
 
+  get "upload-snapshots/:work_id", to: "upload_snapshots#edit", as: :edit_upload_snapshot
+  get "upload-snapshots/:id/download", to: "upload_snapshots#download", as: :download_upload_snapshot
+  post "upload-snapshots", to: "upload_snapshots#create", as: :create_upload_snapshot
+  delete "upload-snapshots/:id", to: "upload_snapshots#destroy", as: :delete_upload_snapshot
+
   # Anything still unmatched by the end of the routes file should go to the not_found page
   # match '*a', to: redirect('/404'), via: :get
 end

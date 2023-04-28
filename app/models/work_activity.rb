@@ -149,16 +149,34 @@ class WorkActivity < ApplicationRecord
     # Returns the message formatted to display _file_ changes that were logged as an activity
     def body_html
       changes = JSON.parse(@work_activity.message)
-      changes_html = changes.map do |change|
-        icon = if change["action"] == "deleted"
-                 '<i class="bi bi-file-earmark-minus-fill file-deleted-icon"></i>'
-               else
-                 '<i class="bi bi-file-earmark-plus-fill file-added-icon"></i>'
-               end
-        "<tr><td>#{icon}</td><td>#{change['action']}</td> <td>#{change['filename']}</td>"
+      if changes.is_a?(Hash)
+        changes = [changes]
       end
 
-      "<p><b>Files updated:</b></p><table>#{changes_html.join}</table>"
+      files_added = changes.select { |v| v["action"] == "added" }
+      files_deleted = changes.select { |v| v["action"] == "deleted" }
+      files_replaced = changes.select { |v| v["action"] == "replaced" }
+
+      changes_html = []
+      unless files_added.empty?
+        label = "Files Added: "
+        label += files_added.length.to_s
+        changes_html << "<tr><td>#{label}</td></tr>"
+      end
+
+      unless files_deleted.empty?
+        label = "Files Deleted: "
+        label += files_deleted.length.to_s
+        changes_html << "<tr><td>#{label}</td></tr>"
+      end
+
+      unless files_replaced.empty?
+        label = "Files Replaced: "
+        label += files_replaced.length.to_s
+        changes_html << "<tr><td>#{label}</td></tr>"
+      end
+
+      "<table>#{changes_html.join}</table>"
     end
   end
 
