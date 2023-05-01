@@ -76,7 +76,7 @@ class PULDspaceData
 
   def aws_files
     return [] if ark.nil? || doi.nil?
-    @aws_files ||= work.s3_query_service.client_s3_files(reload: true, bucket_name: dspace_bucket_name, prefix: doi.tr(".", "-"))
+    @aws_files ||= work.s3_query_service.client_s3_files(reload: true, bucket_name: dspace_bucket_name, prefix: doi.tr(".", "-"), ignore_directories: false)
   end
 
   def aws_copy(files)

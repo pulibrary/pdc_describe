@@ -69,12 +69,12 @@ RSpec.describe PULDspaceData, type: :model do
 
     context " the upload failed" do
       before do
-        allow(fake_s3_service).to receive(:upload_file).and_return([true, false, true])
+        allow(fake_s3_service).to receive(:upload_file).and_return(true, false, true)
       end
 
       it "returns an error" do
         errors = dspace_data.upload_to_s3([filename1, filename2, filename2])
-        expect(errors).to eq [nil, nil, nil]
+        expect(errors).to eq [nil, "An error uploading #{filename2}.  Please try again.", nil]
         expect(fake_s3_service).to have_received(:upload_file).exactly(3).times
       end
     end
@@ -175,13 +175,15 @@ RSpec.describe PULDspaceData, type: :model do
 
     describe "#aws_files" do
       let(:s3_file) { FactoryBot.build :s3_file, filename: "test_key" }
+      let(:fake_s3_service) { instance_double(S3QueryService, client_s3_files: [s3_file]) }
 
       before do
-        fake_s3_service = instance_double(S3QueryService, client_s3_files: [s3_file])
         allow(work).to receive(:s3_query_service).and_return(fake_s3_service)
       end
       it "finds files" do
         expect(dspace_data.aws_files).to eq([s3_file])
+        expect(fake_s3_service).to have_received(:client_s3_files).with({ bucket_name: "example-bucket-dspace", prefix: "10-34770/ackh-7y71",
+                                                                          ignore_directories: false, reload: true })
       end
     end
 
