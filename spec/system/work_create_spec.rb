@@ -110,8 +110,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       fill_in "contributor_family_name_1", with: "Turing"
       select "Editor", from: "contributor_role_1"
       roles = find_field("contributor_role_1").find_all("option").map(&:text)
-      expect(roles).to include("ContactPerson") # Individual roles included
-      expect(roles).not_to include("HostingInstitution") # Organizational roles excluded
+      expect(roles).to include("Contact Person") # Individual roles included
+      expect(roles).not_to include("Hosting Institution") # Organizational roles excluded
       click_on "Save Work"
       click_on "Continue"
       expect(page).to have_content("under 100MB")

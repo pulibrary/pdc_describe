@@ -110,8 +110,8 @@ module PDCSerialization
         ::Datacite::Mapping::ResourceType.new(resource_type_general: resource_type)
       end
 
-      def datacite_contributor_type(value)
-        ::Datacite::Mapping::ContributorType.find_by_value(value)
+      def datacite_contributor_type(key)
+        ::Datacite::Mapping::ContributorType.find_by_key(key.upcase.to_sym)
       end
 
       private
