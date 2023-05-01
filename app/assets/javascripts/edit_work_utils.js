@@ -120,9 +120,9 @@ $(() => {
     const givenNameId = `contributor_given_name_${num}`;
     const familyNameId = `contributor_family_name_${num}`;
     const sequenceId = `contributor_sequence_${num}`;
-    const disallowedList = ['DISTRIBUTOR', 'FUNDER', 'HOSTING_INSTITUTION',
+    const notAllowed = ['DISTRIBUTOR', 'FUNDER', 'HOSTING_INSTITUTION',
       'REGISTRATION_AGENCY', 'REGISTRATION_AUTHORITY', 'RESEARCH GROUP'];
-    const roleHtml = makeSelectHtmlKeyValue(roleId, role, pdc.dataciteContributorType, disallowedList);
+    const roleHtml = makeSelectHtmlKeyValue(roleId, role, pdc.dataciteContributorType, notAllowed);
 
     const rowHtml = `<tr id="${rowId}" class="contributors-table-row">
       <td>
