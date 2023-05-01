@@ -97,26 +97,26 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
 
       context "contributor types" do
         it "maps contributor types" do
-          expect(described_class.datacite_contributor_type("DataCollector")).to eq Datacite::Mapping::ContributorType::DATA_COLLECTOR
-          expect(described_class.datacite_contributor_type("DataCurator")).to eq Datacite::Mapping::ContributorType::DATA_CURATOR
-          expect(described_class.datacite_contributor_type("DataManager")).to eq Datacite::Mapping::ContributorType::DATA_MANAGER
-          expect(described_class.datacite_contributor_type("Distributor")).to eq Datacite::Mapping::ContributorType::DISTRIBUTOR
-          expect(described_class.datacite_contributor_type("Editor")).to eq Datacite::Mapping::ContributorType::EDITOR
-          expect(described_class.datacite_contributor_type("HostingInstitution")).to eq Datacite::Mapping::ContributorType::HOSTING_INSTITUTION
-          expect(described_class.datacite_contributor_type("Producer")).to eq Datacite::Mapping::ContributorType::PRODUCER
-          expect(described_class.datacite_contributor_type("ProjectLeader")).to eq Datacite::Mapping::ContributorType::PROJECT_LEADER
-          expect(described_class.datacite_contributor_type("ProjectManager")).to eq Datacite::Mapping::ContributorType::PROJECT_MANAGER
-          expect(described_class.datacite_contributor_type("ProjectMember")).to eq Datacite::Mapping::ContributorType::PROJECT_MEMBER
-          expect(described_class.datacite_contributor_type("RegistrationAgency")).to eq Datacite::Mapping::ContributorType::REGISTRATION_AGENCY
-          expect(described_class.datacite_contributor_type("RegistrationAuthority")).to eq Datacite::Mapping::ContributorType::REGISTRATION_AUTHORITY
-          expect(described_class.datacite_contributor_type("RelatedPerson")).to eq Datacite::Mapping::ContributorType::RELATED_PERSON
-          expect(described_class.datacite_contributor_type("Researcher")).to eq Datacite::Mapping::ContributorType::RESEARCHER
-          expect(described_class.datacite_contributor_type("ResearchGroup")).to eq Datacite::Mapping::ContributorType::RESEARCH_GROUP
-          expect(described_class.datacite_contributor_type("RightsHolder")).to eq Datacite::Mapping::ContributorType::RIGHTS_HOLDER
-          expect(described_class.datacite_contributor_type("Sponsor")).to eq Datacite::Mapping::ContributorType::SPONSOR
-          expect(described_class.datacite_contributor_type("Supervisor")).to eq Datacite::Mapping::ContributorType::SUPERVISOR
-          expect(described_class.datacite_contributor_type("WorkPackageLeader")).to eq Datacite::Mapping::ContributorType::WORK_PACKAGE_LEADER
-          expect(described_class.datacite_contributor_type("Other")).to eq Datacite::Mapping::ContributorType::OTHER
+          expect(described_class.datacite_contributor_type("DATA_COLLECTOR")).to eq Datacite::Mapping::ContributorType::DATA_COLLECTOR
+          expect(described_class.datacite_contributor_type("DATA_CURATOR")).to eq Datacite::Mapping::ContributorType::DATA_CURATOR
+          expect(described_class.datacite_contributor_type("DATA_MANAGER")).to eq Datacite::Mapping::ContributorType::DATA_MANAGER
+          expect(described_class.datacite_contributor_type("DISTRIBUTOR")).to eq Datacite::Mapping::ContributorType::DISTRIBUTOR
+          expect(described_class.datacite_contributor_type("EDITOR")).to eq Datacite::Mapping::ContributorType::EDITOR
+          expect(described_class.datacite_contributor_type("HOSTING_INSTITUTION")).to eq Datacite::Mapping::ContributorType::HOSTING_INSTITUTION
+          expect(described_class.datacite_contributor_type("PRODUCER")).to eq Datacite::Mapping::ContributorType::PRODUCER
+          expect(described_class.datacite_contributor_type("PROJECT_LEADER")).to eq Datacite::Mapping::ContributorType::PROJECT_LEADER
+          expect(described_class.datacite_contributor_type("PROJECT_MANAGER")).to eq Datacite::Mapping::ContributorType::PROJECT_MANAGER
+          expect(described_class.datacite_contributor_type("PROJECT_MEMBER")).to eq Datacite::Mapping::ContributorType::PROJECT_MEMBER
+          expect(described_class.datacite_contributor_type("REGISTRATION_AGENCY")).to eq Datacite::Mapping::ContributorType::REGISTRATION_AGENCY
+          expect(described_class.datacite_contributor_type("REGISTRATION_AUTHORITY")).to eq Datacite::Mapping::ContributorType::REGISTRATION_AUTHORITY
+          expect(described_class.datacite_contributor_type("RELATED_PERSON")).to eq Datacite::Mapping::ContributorType::RELATED_PERSON
+          expect(described_class.datacite_contributor_type("RESEARCHER")).to eq Datacite::Mapping::ContributorType::RESEARCHER
+          expect(described_class.datacite_contributor_type("RESEARCH_GROUP")).to eq Datacite::Mapping::ContributorType::RESEARCH_GROUP
+          expect(described_class.datacite_contributor_type("RIGHTS_HOLDER")).to eq Datacite::Mapping::ContributorType::RIGHTS_HOLDER
+          expect(described_class.datacite_contributor_type("SPONSOR")).to eq Datacite::Mapping::ContributorType::SPONSOR
+          expect(described_class.datacite_contributor_type("SUPERVISOR")).to eq Datacite::Mapping::ContributorType::SUPERVISOR
+          expect(described_class.datacite_contributor_type("WORK_PACKAGE_LEADER")).to eq Datacite::Mapping::ContributorType::WORK_PACKAGE_LEADER
+          expect(described_class.datacite_contributor_type("OTHER")).to eq Datacite::Mapping::ContributorType::OTHER
         end
       end
 

@@ -26,13 +26,15 @@ gem "turbolinks", "~> 5"
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem "jbuilder", "~> 2.7"
 # Use Redis adapter to run Action Cable in production
-# gem 'redis', '~> 4.0'
+gem "redis", "~> 4.0"
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 gem "nokogiri", ">= 1.13.4"
 gem "rolify"
 gem "rspec-rails", "~> 5.0.0"
-gem "vite_rails"
+gem "sidekiq", "~> 6.0"
+gem "simplecov", require: false
+gem "vite_rails", "3.0.12"
 gem "webmock"
 gem "whenever"
 
@@ -60,8 +62,10 @@ gem "kramdown"
 gem "net-smtp"
 
 group :development, :test do
+  gem "bcrypt_pbkdf"
   gem "bixby"
   gem "byebug"
+  gem "ed25519"
   gem "equivalent-xml", "~> 0.6.0"
   gem "pry-byebug"
   gem "pry-rails"
@@ -91,7 +95,6 @@ group :test do
   gem "database_cleaner-active_record"
   gem "selenium-webdriver"
   # Use simplecov for coverage analysis
-  gem "simplecov", require: false
   # Used for detecting what a controller rendered
   gem "rails-controller-testing"
   gem "sinatra"
