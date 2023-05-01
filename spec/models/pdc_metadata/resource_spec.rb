@@ -10,8 +10,8 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     PDCMetadata::Creator.new_person("Jane", "Smith")
   end
 
-  let(:contributor1) { PDCMetadata::Creator.new_individual_contributor("Robert", "Smith", "", "ProjectLeader", 1) }
-  let(:contributor2) { PDCMetadata::Creator.new_individual_contributor("Simon", "Gallup", "", "Other", 2) }
+  let(:contributor1) { PDCMetadata::Creator.new_individual_contributor("Robert", "Smith", "", "PROJECT_LEADER", 1) }
+  let(:contributor2) { PDCMetadata::Creator.new_individual_contributor("Simon", "Gallup", "", "OTHER", 2) }
   let(:doi) { "10.5072/example-full" }
 
   let(:ds) do
