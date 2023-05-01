@@ -58,6 +58,7 @@ $(() => {
     $(`#${orcidId}`).focus();
   }
 
+  // Creates an HTML select from a string array (keys and display values are identical)
   function makeSelectHtml(selectId, currentValue, allValues, blocklist = []) {
     const options = allValues.filter(
       (value) => !blocklist.includes(value),
@@ -67,7 +68,8 @@ $(() => {
     return `<select id="${selectId}" name="${selectId}"><option value="" ${currentValue === '' ? 'selected' : ''}></option>${options}</select>`;
   }
 
-  function makeSelectHtml2(selectId, currentValue, allValues, blocklist = []) {
+  // Creates an HTML select from a key/value array (keys and display values can be different)
+  function makeSelectHtmlKeyValue(selectId, currentValue, allValues, blocklist = []) {
     const options = allValues.filter(
       (value) => !blocklist.includes(value.key),
     ).map(
@@ -119,7 +121,7 @@ $(() => {
     const familyNameId = `contributor_family_name_${num}`;
     const sequenceId = `contributor_sequence_${num}`;
     const disallowedList = ['DISTRIBUTOR', 'FUNDER', 'HOSTING_INSTITUTION', 'REGISTRATION_AGENCY', 'REGISTRATION_AUTHORITY', 'RESEARCH GROUP'];
-    const roleHtml = makeSelectHtml2(roleId, role, pdc.dataciteContributorType, disallowedList);
+    const roleHtml = makeSelectHtmlKeyValue(roleId, role, pdc.dataciteContributorType, disallowedList);
 
     const rowHtml = `<tr id="${rowId}" class="contributors-table-row">
       <td>
