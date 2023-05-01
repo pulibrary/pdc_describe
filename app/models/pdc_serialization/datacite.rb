@@ -111,7 +111,7 @@ module PDCSerialization
       end
 
       def datacite_contributor_type(key)
-        type = ::Datacite::Mapping::ContributorType.find_by_key(key.upcase.to_sym)
+        ::Datacite::Mapping::ContributorType.find_by_key(key.upcase.to_sym)
       end
 
       private
