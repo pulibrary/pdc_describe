@@ -67,6 +67,15 @@ $(() => {
     return `<select id="${selectId}" name="${selectId}"><option value="" ${currentValue === '' ? 'selected' : ''}></option>${options}</select>`;
   }
 
+  function makeSelectHtml2(selectId, currentValue, allValues, blocklist = []) {
+    const options = allValues.filter(
+      (value) => !blocklist.includes(value.key),
+    ).map(
+      (value) => `<option value="${value.key}" ${currentValue === value.key ? 'selected' : ''}>${value.value}</option>`,
+    );
+    return `<select id="${selectId}" name="${selectId}"><option value="" ${currentValue === '' ? 'selected' : ''}></option>${options}</select>`;
+  }
+
   // ************************************************ //
   // Related Objects
   // related_identifier:, related_identifier_type:, relation_type
@@ -109,32 +118,8 @@ $(() => {
     const givenNameId = `contributor_given_name_${num}`;
     const familyNameId = `contributor_family_name_${num}`;
     const sequenceId = `contributor_sequence_${num}`;
-    const roleHtml = makeSelectHtml(roleId, role, pdc.datacite.ContributorType, [
-      /* Individual roles have been commented out, leaving just the roles of organizations. */
-
-      // 'ContactPerson',
-      // 'DataCollector',
-      // 'DataCurator',
-      // 'DataManager',
-      'Distributor',
-      // 'Editor',
-      'Funder',
-      'HostingInstitution',
-      // 'Producer',
-      // 'ProjectLeader',
-      // 'ProjectManager',
-      // 'ProjectMember',
-      'RegistrationAgency',
-      'RegistrationAuthority',
-      // 'RelatedPerson',
-      // 'Researcher',
-      'ResearchGroup',
-      // 'RightsHolder',
-      // 'Sponsor',
-      // 'Supervisor',
-      // 'WorkPackageLeader',
-      // 'Other',
-    ]);
+    const disallowedList = [ 'DISTRIBUTOR', 'FUNDER', 'HOSTING_INSTITUTION', 'REGISTRATION_AGENCY', 'REGISTRATION_AUTHORITY', 'RESEARCH GROUP' ];
+    const roleHtml = makeSelectHtml2(roleId, role, pdc.dataciteContributorType, disallowedList);
 
     const rowHtml = `<tr id="${rowId}" class="contributors-table-row">
       <td>
