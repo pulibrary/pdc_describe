@@ -89,11 +89,30 @@ jobs:
       - run: bundle exec rake db:migrate RAILS_ENV=test
       - run:
           name: Run Rspec
-          command: COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN bundle exec rspec
+          command: bundle exec rspec
+      - persist_to_workspace:
+          root: *root
+          paths:
+            - 'coverage'
       - store_artifacts:
-          path: coverage
+          path:
+            ~/rails_template/coverage
+            ~/rails_template/tmp/screenshots
+
+  coverage_report:
+    working_directory: *root
+    docker:
+      - *ruby_docker
+    steps:
+      - attach_workspace:
+          at: *root
+      - run:
+          name: Merge and check coverage
+          command: |
+            RAILS_ENV=test bundle exec rake simplecov:report_coverage\[88.19\]
       - store_artifacts:
-          path: /home/circleci/rails_template/tmp/screenshots
+          path: ~/rails_template/coverage
+          destination: coverage
 
 workflows:
   version: 2
@@ -109,3 +128,6 @@ workflows:
       - eslint:
           requires:
             - build
+      - coverage_report:
+          requires:
+            - test
