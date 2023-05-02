@@ -60,10 +60,13 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
   end
 
   context "validation errors" do
+    let(:work2) { FactoryBot.create :draft_work }
+
     before do
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-ab").to_return(status: 404, body: "", headers: {})
       stub_s3
+      work2
     end
 
     it "returns the user to the new page so they can recover from an error" do
@@ -84,6 +87,10 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "doi", with: "10.34770/123-ab"
       click_on "Create"
       expect(page).to have_content "Invalid DOI: can not verify it's authenticity"
+      click_on "Curator Controlled"
+      fill_in "doi", with: work2.doi
+      click_on "Create"
+      expect(page).to have_content "Invalid DOI: It has already been applied to another work #{work2.id}"
       click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark

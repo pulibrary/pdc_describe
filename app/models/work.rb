@@ -159,6 +159,7 @@ class Work < ApplicationRecord
 
   def validate_doi
     return true unless user_entered_doi
+    return false unless unique_doi
     if /^10.\d{4,9}\/[-._;()\/:a-z0-9\-]+$/.match?(doi.downcase)
       response = Faraday.get("#{Rails.configuration.datacite.doi_url}#{doi}")
       errors.add(:base, "Invalid DOI: can not verify it's authenticity") unless response.success? || response.status == 302
@@ -166,6 +167,14 @@ class Work < ApplicationRecord
       errors.add(:base, "Invalid DOI: does not match format")
     end
     errors.count == 0
+  end
+
+  def unique_doi
+    other_record = Work.find_by_doi(doi)
+    errors.add(:base, "Invalid DOI: It has already been applied to another work #{other_record.id}")
+    false
+  rescue ActiveRecord::RecordNotFound
+    true
   end
 
   def valid_to_draft

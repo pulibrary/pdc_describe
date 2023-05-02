@@ -4,7 +4,7 @@ require "rails_helper"
 RSpec.describe S3File, type: :model do
   subject(:s3_file) { described_class.new(filename: filename, last_modified: last_modified, size: size, checksum: checksum, work: work) }
 
-  let(:work) { FactoryBot.create(:draft_work) }
+  let(:work) { FactoryBot.create(:draft_work, doi: "10.99999/123-abc") }
   let(:filename) { "#{work.doi}/#{work.id}/filename [with spaces] wéî®∂ chars.txt" }
   let(:last_modified) { Time.parse("2022-04-21T18:29:40.000Z") }
   let(:size) { 10_759 }
@@ -35,7 +35,7 @@ RSpec.describe S3File, type: :model do
 
   context "safe_id" do
     it "calculates correct safe_id for files with spaces and non-alpha numeric characters" do
-      expect(s3_file.safe_id).to eq "10-34770-123-abc-#{work.id}-filename--with-spaces--w-----chars-txt"
+      expect(s3_file.safe_id).to eq "10-99999-123-abc-#{work.id}-filename--with-spaces--w-----chars-txt"
     end
   end
 
