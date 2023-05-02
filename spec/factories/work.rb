@@ -2,10 +2,11 @@
 
 FactoryBot.define do
   factory :work do
+    transient do
+      doi { "10.34770/#{format('%03d', rand(999))}-abc" }
+      ark { nil }
+    end
     factory :none_work do
-      transient do
-        doi { "10.34770/123-abc" }
-      end
       collection { Collection.research_data }
       state { "none" }
       created_by_user_id { FactoryBot.create(:user).id }
@@ -13,10 +14,6 @@ FactoryBot.define do
     end
 
     factory :draft_work do
-      transient do
-        doi { "10.34770/123-abc" }
-        ark { nil }
-      end
       collection { Collection.research_data }
       state { "draft" }
       created_by_user_id { FactoryBot.create(:user).id }
@@ -24,10 +21,6 @@ FactoryBot.define do
     end
 
     factory :awaiting_approval_work do
-      transient do
-        doi { "10.34770/123-abc" }
-        ark { nil }
-      end
       collection { Collection.research_data }
       state { "awaiting_approval" }
       created_by_user_id { FactoryBot.create(:user).id }
@@ -35,10 +28,6 @@ FactoryBot.define do
     end
 
     factory :approved_work do
-      transient do
-        doi { "10.34770/123-abc" }
-        ark { nil }
-      end
       collection { Collection.research_data }
       state { "approved" }
       created_by_user_id { FactoryBot.create(:user).id }
