@@ -60,7 +60,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
   end
 
   context "validation errors" do
-    let(:work2) { FactoryBot.create :draft_work }
+    let(:work2) { FactoryBot.create :draft_work, ark: "ark:/99999/dsp01d791sj97j" }
 
     before do
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
@@ -91,6 +91,11 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "doi", with: work2.doi
       click_on "Create"
       expect(page).to have_content "Invalid DOI: It has already been applied to another work #{work2.id}"
+      click_on "Curator Controlled"
+      fill_in "ark", with: work2.ark
+      click_on "Create"
+      expect(page).to have_content "Invalid DOI: It has already been applied to another work #{work2.id}"
+      expect(page).to have_content "Invalid ARK: It has already been applied to another work #{work2.id}"
       click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark

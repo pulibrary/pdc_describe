@@ -131,7 +131,7 @@ class Work < ApplicationRecord
 
   validate do |work|
     if none?
-      work.validate_doi
+      work.validate_ids
     elsif draft?
       work.valid_to_draft
     else
@@ -171,10 +171,16 @@ class Work < ApplicationRecord
 
   def unique_doi
     other_record = Work.find_by_doi(doi)
+    return true if other_record == self
     errors.add(:base, "Invalid DOI: It has already been applied to another work #{other_record.id}")
     false
   rescue ActiveRecord::RecordNotFound
     true
+  end
+
+  def validate_ids
+    validate_doi
+    unique_ark
   end
 
   def valid_to_draft
@@ -626,11 +632,22 @@ class Work < ApplicationRecord
 
     def validate_ark
       return if ark.blank?
+      return false unless unique_ark
       first_save = id.blank?
       changed_value = metadata["ark"] != ark
       if first_save || changed_value
         errors.add(:base, "Invalid ARK provided for the Work: #{ark}") unless Ark.valid?(ark)
       end
+    end
+
+    def unique_ark
+      return true if ark.blank?
+      other_record = Work.find_by_ark(ark)
+      return true if other_record == self
+      errors.add(:base, "Invalid ARK: It has already been applied to another work #{other_record.id}")
+      false
+    rescue ActiveRecord::RecordNotFound
+      true
     end
 
     # rubocop:disable Metrics/AbcSize

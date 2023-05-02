@@ -927,10 +927,20 @@ RSpec.describe Work, type: :model do
 
     it "does not allow two of the same dois to be created" do
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-zzz").to_return(status: 200, body: "", headers: {})
-      FactoryBot.create(:none_work, doi: "10.34770/123-zzz", user_entered_doi: true)
+      original_work = FactoryBot.create(:none_work, doi: "10.34770/123-zzz", user_entered_doi: true)
       work = FactoryBot.build(:none_work, doi: "10.34770/123-zzz", user_entered_doi: true)
-      expect(work.valid?).to be_falsey
+      expect(original_work).to be_valid
+      expect(work).not_to be_valid
       expect(work.errors.first.type). to match(/Invalid DOI: It has already been applied to another work /)
+    end
+
+    it "does not allow two of the same arks to be created" do
+      stub_ark
+      original_work = FactoryBot.create(:draft_work, ark: "ark:/88435/xyz1234")
+      work = FactoryBot.build(:draft_work, ark: "ark:/88435/xyz1234")
+      expect(original_work).to be_valid
+      expect(work).not_to be_valid
+      expect(work.errors.first.type). to match(/Invalid ARK: It has already been applied to another work /)
     end
   end
 
@@ -1004,12 +1014,34 @@ RSpec.describe Work, type: :model do
       expect(Work.find_by_doi("123-zzz")).to eq(work)
     end
 
-    it "does not fin partial matches" do
+    it "does not find partial matches" do
       work # make sure the work is present
       expect { Work.find_by_doi("10.34770/123-zz") }.to raise_error(ActiveRecord::RecordNotFound)
       expect { Work.find_by_doi("10.34770/123-zzzz") }.to raise_error(ActiveRecord::RecordNotFound)
       expect { Work.find_by_doi("123-zzzz") }.to raise_error(ActiveRecord::RecordNotFound)
       expect { Work.find_by_doi("123-zz") }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
+
+  describe "#find_by_ark" do
+    let(:work) { FactoryBot.create(:draft_work, ark: "ark:/88435/xyz123") }
+
+    before do
+      stub_ark
+      work # make sure the work is present
+    end
+
+    it "finds the work" do
+      FactoryBot.create(:draft_work, doi: "ark:/88435/xyz1234")
+      expect(Work.find_by_ark("ark:/88435/xyz123")).to eq(work)
+      expect(Work.find_by_ark("88435/xyz123")).to eq(work)
+    end
+
+    it "does not find partial matches" do
+      expect { Work.find_by_ark("ark:/88435/xyz12") }.to raise_error(ActiveRecord::RecordNotFound)
+      expect { Work.find_by_ark("ark:/88435/xyz1234") }.to raise_error(ActiveRecord::RecordNotFound)
+      expect { Work.find_by_ark("88435/xyz12") }.to raise_error(ActiveRecord::RecordNotFound)
+      expect { Work.find_by_ark("88435/xyz1234") }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 end
