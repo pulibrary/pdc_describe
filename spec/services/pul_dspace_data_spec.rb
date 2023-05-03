@@ -50,7 +50,8 @@ RSpec.describe PULDspaceData, type: :model do
   describe "#migrate" do
     it "does nothing" do
       expect(dspace_data.migrate).to be_nil
-      expect(dspace_data.keys).to be_empty
+      expect(dspace_data.file_keys).to be_empty
+      expect(dspace_data.directory_keys).to be_empty
       expect(work.resource.migrated).to be_falsey
     end
   end
@@ -206,7 +207,8 @@ RSpec.describe PULDspaceData, type: :model do
 
     describe "#migrate" do
       let(:s3_file) { FactoryBot.build :s3_file, filename: "test_key" }
-      let(:fake_s3_service) { instance_double(S3QueryService, client_s3_files: [s3_file]) }
+      let(:s3_directory) { FactoryBot.build :s3_file, filename: "test_directory_key", size: 0 }
+      let(:fake_s3_service) { instance_double(S3QueryService, client_s3_files: [s3_file, s3_directory]) }
 
       before do
         allow(work).to receive(:s3_query_service).and_return(fake_s3_service)
@@ -220,10 +222,13 @@ RSpec.describe PULDspaceData, type: :model do
       end
       it "migrates the content from dspace and aws" do
         dspace_data.migrate
-        expect(dspace_data.keys).to eq(["abc/123/SCoData_combined_v1_2020-07_README.txt",
-                                        "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
-                                        "abc/123/license.txt",
-                                        "test_key"])
+        expect(dspace_data.file_keys).to eq(["abc/123/SCoData_combined_v1_2020-07_README.txt",
+                                             "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
+                                             "abc/123/license.txt",
+                                             "test_key"])
+        expect(dspace_data.directory_keys).to eq(["test_directory_key"])
+        expect(dspace_data.migration_message).to eq("Migration for 4 files and 1 directory")
+
         expect(work.reload.resource.migrated).to be_truthy
       end
     end
