@@ -42,6 +42,7 @@ class WorksController < ApplicationController
   def create
     @work = Work.new(created_by_user_id: current_user.id, collection_id: params_collection_id, user_entered_doi: params["doi"].present?)
     @work.resource = FormToResourceService.convert(params, @work)
+    @work.resource.migrated = (params[:submit] == "Migrate")
     if @work.valid?
       @work.draft!(current_user)
       upload_service = WorkUploadsEditService.new(@work, current_user)

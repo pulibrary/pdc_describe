@@ -35,6 +35,7 @@ class FormToResourceService
 
         resource.doi = work.doi
         resource.ark = work.ark
+        resource.migrated = work.resource.migrated
         resource.collection_tags = work.resource.collection_tags || []
         resource
       end

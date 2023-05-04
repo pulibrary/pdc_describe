@@ -34,6 +34,8 @@ RSpec.describe "/works", type: :request do
           stubbed = instance_double(Work)
           allow(stubbed).to receive(:s3_object_key).and_return("test-key")
           allow(stubbed).to receive(:reload_snapshots)
+          stubbed_resource = instance_double(PDCMetadata::Resource)
+          allow(stubbed).to receive(:resource).and_return(stubbed_resource)
           stubbed
         end
 

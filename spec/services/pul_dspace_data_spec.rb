@@ -50,7 +50,8 @@ RSpec.describe PULDspaceData, type: :model do
   describe "#migrate" do
     it "does nothing" do
       expect(dspace_data.migrate).to be_nil
-      expect(dspace_data.keys).to be_empty
+      expect(dspace_data.file_keys).to be_empty
+      expect(dspace_data.directory_keys).to be_empty
       expect(work.resource.migrated).to be_falsey
     end
   end
@@ -69,12 +70,12 @@ RSpec.describe PULDspaceData, type: :model do
 
     context " the upload failed" do
       before do
-        allow(fake_s3_service).to receive(:upload_file).and_return([true, false, true])
+        allow(fake_s3_service).to receive(:upload_file).and_return(true, false, true)
       end
 
       it "returns an error" do
         errors = dspace_data.upload_to_s3([filename1, filename2, filename2])
-        expect(errors).to eq [nil, nil, nil]
+        expect(errors).to eq [nil, "An error uploading #{filename2}.  Please try again.", nil]
         expect(fake_s3_service).to have_received(:upload_file).exactly(3).times
       end
     end
@@ -175,13 +176,15 @@ RSpec.describe PULDspaceData, type: :model do
 
     describe "#aws_files" do
       let(:s3_file) { FactoryBot.build :s3_file, filename: "test_key" }
+      let(:fake_s3_service) { instance_double(S3QueryService, client_s3_files: [s3_file]) }
 
       before do
-        fake_s3_service = instance_double(S3QueryService, client_s3_files: [s3_file])
         allow(work).to receive(:s3_query_service).and_return(fake_s3_service)
       end
       it "finds files" do
         expect(dspace_data.aws_files).to eq([s3_file])
+        expect(fake_s3_service).to have_received(:client_s3_files).with({ bucket_name: "example-bucket-dspace", prefix: "10-34770/ackh-7y71",
+                                                                          ignore_directories: false, reload: true })
       end
     end
 
@@ -204,7 +207,8 @@ RSpec.describe PULDspaceData, type: :model do
 
     describe "#migrate" do
       let(:s3_file) { FactoryBot.build :s3_file, filename: "test_key" }
-      let(:fake_s3_service) { instance_double(S3QueryService, client_s3_files: [s3_file]) }
+      let(:s3_directory) { FactoryBot.build :s3_file, filename: "test_directory_key", size: 0 }
+      let(:fake_s3_service) { instance_double(S3QueryService, client_s3_files: [s3_file, s3_directory]) }
 
       before do
         allow(work).to receive(:s3_query_service).and_return(fake_s3_service)
@@ -218,10 +222,13 @@ RSpec.describe PULDspaceData, type: :model do
       end
       it "migrates the content from dspace and aws" do
         dspace_data.migrate
-        expect(dspace_data.keys).to eq(["abc/123/SCoData_combined_v1_2020-07_README.txt",
-                                        "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
-                                        "abc/123/license.txt",
-                                        "test_key"])
+        expect(dspace_data.file_keys).to eq(["abc/123/SCoData_combined_v1_2020-07_README.txt",
+                                             "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
+                                             "abc/123/license.txt",
+                                             "test_key"])
+        expect(dspace_data.directory_keys).to eq(["test_directory_key"])
+        expect(dspace_data.migration_message).to eq("Migration for 4 files and 1 directory")
+
         expect(work.reload.resource.migrated).to be_truthy
       end
     end
