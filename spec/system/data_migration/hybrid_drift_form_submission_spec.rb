@@ -70,7 +70,7 @@ RSpec.describe "Form submission for migrating Thomson Scattering", type: :system
       fill_in "given_name_10", with: "Fox"
       fill_in "family_name_10", with: "William"
       click_on "Add Another Creator"
-      fill_in "orcid_11". with: "0000-0003-4996-1649"
+      fill_in "orcid_11", with: "0000-0003-4996-1649"
       fill_in "given_name_11", with: "Yamada"
       fill_in "family_name_11", with: "Masaaki"
       click_on "Add Another Creator"
