@@ -5,16 +5,19 @@
       <creatorName>Hammond, K.C.</creatorName>
       <givenName>K.C.</givenName>
       <familyName>Hammond</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0002-1104-4434</nameIdentifier>
     </creator>
     <creator>
       <creatorName>Laggner, F.M.</creatorName>
       <givenName>F.M.</givenName>
       <familyName>Laggner</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0003-1601-2973</nameIdentifier>
     </creator>
     <creator>
       <creatorName>Diallo, A.</creatorName>
       <givenName>A.</givenName>
       <familyName>Diallo</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0002-0706-060X</nameIdentifier>
     </creator>
     <creator>
       <creatorName>Doskoczynski, S.</creatorName>
@@ -35,6 +38,7 @@
       <creatorName>Gates, D.A.</creatorName>
       <givenName>D.A.</givenName>
       <familyName>Gates</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0001-5679-3124</nameIdentifier>
     </creator>
     <creator>
       <creatorName>Rozenblat, R.</creatorName>
@@ -45,6 +49,7 @@
       <creatorName>Tchilinguirian, G.</creatorName>
       <givenName>G.</givenName>
       <familyName>Tchilinguirian</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0002-8014-5212</nameIdentifier>
     </creator>
     <creator>
       <creatorName>Xing, Z.</creatorName>
@@ -70,6 +75,7 @@
       <creatorName>Kolemen, E</creatorName>
       <givenName>E</givenName>
       <familyName>Kolemen</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0003-4212-3247</nameIdentifier>
     </creator>
   </creators>
   <titles>

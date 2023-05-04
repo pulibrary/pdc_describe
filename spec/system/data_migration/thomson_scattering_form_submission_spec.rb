@@ -84,7 +84,7 @@ Please consult the file README.txt for a description of the archive contents."
       fill_in "given_name_13", with: "G"
       fill_in "family_name_13", with: "Zimmer"
       click_on "Add Another Creator"
-      fill_in "orcid-14", with: "0000-0003-4212-3247"
+      fill_in "orcid_14", with: "0000-0003-4212-3247"
       fill_in "given_name_14", with: "E"
       fill_in "family_name_14", with: "Kolemen"
 
