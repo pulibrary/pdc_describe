@@ -33,6 +33,17 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
   let(:ark) { "http://arks.princeton.edu/ark:/88435/dsp01d791sj97j" }
   let(:collection) { "Research Data" }
 
+  context "non moderator user" do
+    let(:user) { FactoryBot.create(:user) }
+
+    it "does not allow any user to migrate a dataset" do
+      sign_in user
+      visit user_path(user)
+      click_on(user.uid)
+      expect(page).not_to have_link("Create Dataset")
+    end
+  end
+
   context "happy path" do
     before do
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
@@ -43,6 +54,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       sign_in user
       visit user_path(user)
       click_on(user.uid)
+      expect(page).to have_link("Create Dataset")
       click_on "Create Dataset"
       fill_in "title_main", with: title
       fill_in "given_name_1", with: "Samantha"
@@ -54,16 +66,43 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "ark", with: ark
       fill_in "publication_year", with: issue_date
       click_on "Create"
+      expect(Work.last.resource.migrated).to be_falsey
+      expect(page).not_to have_button("Migrate Dataspace Files")
+      click_on "Complete"
+      expect(page).to have_content "awaiting_approval"
+    end
+
+    it "produces and saves a valid datacite record that is migrated" do
+      sign_in user
+      visit user_path(user)
+      click_on(user.uid)
+      expect(page).to have_link("Create Dataset")
+      click_on "Create Dataset"
+      fill_in "title_main", with: title
+      fill_in "given_name_1", with: "Samantha"
+      fill_in "family_name_1", with: "Abrams"
+      fill_in "description", with: description
+      select "GNU General Public License", from: "rights_identifier"
+      click_on "Curator Controlled"
+      fill_in "doi", with: doi
+      fill_in "ark", with: ark
+      fill_in "publication_year", with: issue_date
+      click_on "Migrate"
+      expect(Work.last.resource.migrated).to be_truthy
+      expect(page).to have_button("Migrate Dataspace Files")
       click_on "Complete"
       expect(page).to have_content "awaiting_approval"
     end
   end
 
   context "validation errors" do
+    let(:work2) { FactoryBot.create :draft_work, ark: "ark:/99999/dsp01d791sj97j" }
+
     before do
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-ab").to_return(status: 404, body: "", headers: {})
       stub_s3
+      work2
     end
 
     it "returns the user to the new page so they can recover from an error" do
@@ -84,6 +123,15 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "doi", with: "10.34770/123-ab"
       click_on "Create"
       expect(page).to have_content "Invalid DOI: can not verify it's authenticity"
+      click_on "Curator Controlled"
+      fill_in "doi", with: work2.doi
+      click_on "Create"
+      expect(page).to have_content "Invalid DOI: It has already been applied to another work #{work2.id}"
+      click_on "Curator Controlled"
+      fill_in "ark", with: work2.ark
+      click_on "Create"
+      expect(page).to have_content "Invalid DOI: It has already been applied to another work #{work2.id}"
+      expect(page).to have_content "Invalid ARK: It has already been applied to another work #{work2.id}"
       click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark

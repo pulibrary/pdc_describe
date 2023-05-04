@@ -12,7 +12,7 @@ RSpec.describe WorksController do
   let(:curator) { FactoryBot.create(:user, collections_to_admin: [collection]) }
   let(:collection) { Collection.first }
   let(:resource) { FactoryBot.build :resource }
-  let(:work) { FactoryBot.create(:draft_work) }
+  let(:work) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
   let(:user) { work.created_by_user }
 
   let(:uploaded_file) { fixture_file_upload("us_covid_2019.csv", "text/csv") }

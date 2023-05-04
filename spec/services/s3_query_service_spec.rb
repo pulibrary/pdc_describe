@@ -411,5 +411,33 @@ RSpec.describe S3QueryService do
       expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", max_keys: 1000, prefix: "new-prefix")
       expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", continuation_token: nil, max_keys: 1000, prefix: "new-prefix")
     end
+
+    it "retrieves the directories if requested" do
+      files = subject.client_s3_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix", ignore_directories: false)
+      expect(files.count).to eq 6
+      expect(files.first.filename).to match(/README/)
+      expect(files[1].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
+      expect(files[2].filename).to match(/directory/)
+      expect(files[3].filename).to match(/README/)
+      expect(files[4].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
+      expect(files[5].filename).to match(/directory/)
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", max_keys: 1000, prefix: "new-prefix")
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", continuation_token: nil, max_keys: 1000, prefix: "new-prefix")
+    end
+  end
+
+  describe "#copy_directory" do
+    let(:fake_aws_client) { double(Aws::S3::Client) }
+    let(:fake_completion) { instance_double(Seahorse::Client::Response, "successful?": true) }
+
+    before do
+      subject.stub(:client).and_return(fake_aws_client)
+      fake_aws_client.stub(:copy_object).and_return(fake_completion)
+    end
+
+    it "copies the directory calling copy_object" do
+      expect(subject.copy_directory(target_bucket: "example-bucket-post", source_key: "source-key", target_key: "other-bucket/target-key")).to eq(fake_completion)
+      expect(subject.client).to have_received(:copy_object).with(bucket: "example-bucket-post", copy_source: "source-key", key: "other-bucket/target-key")
+    end
   end
 end

@@ -131,7 +131,7 @@ class Work < ApplicationRecord
 
   validate do |work|
     if none?
-      work.validate_doi
+      work.validate_ids
     elsif draft?
       work.valid_to_draft
     else
@@ -159,6 +159,7 @@ class Work < ApplicationRecord
 
   def validate_doi
     return true unless user_entered_doi
+    return false unless unique_doi
     if /^10.\d{4,9}\/[-._;()\/:a-z0-9\-]+$/.match?(doi.downcase)
       response = Faraday.get("#{Rails.configuration.datacite.doi_url}#{doi}")
       errors.add(:base, "Invalid DOI: can not verify it's authenticity") unless response.success? || response.status == 302
@@ -166,6 +167,20 @@ class Work < ApplicationRecord
       errors.add(:base, "Invalid DOI: does not match format")
     end
     errors.count == 0
+  end
+
+  def unique_doi
+    other_record = Work.find_by_doi(doi)
+    return true if other_record == self
+    errors.add(:base, "Invalid DOI: It has already been applied to another work #{other_record.id}")
+    false
+  rescue ActiveRecord::RecordNotFound
+    true
+  end
+
+  def validate_ids
+    validate_doi
+    unique_ark
   end
 
   def valid_to_draft
@@ -446,72 +461,105 @@ class Work < ApplicationRecord
     @s3_query_service ||= S3QueryService.new(self, !approved?)
   end
 
-  def reload_snapshots
-    results = s3_files.map do |s3_file|
-      UploadSnapshot.find_or_initialize_by(url: s3_file.url, filename: s3_file.filename, work: self)
-    end
+  def past_snapshots
+    UploadSnapshot.where(work: self)
+  end
 
+  # Remove the snapshots for S3 file resources which have been deleted
+  def valid_snapshots
     s3_resource_urls = s3_files.map(&:url)
     s3_resource_filenames = s3_files.map(&:filename)
 
-    # remove the snapshots for s3 file resources which have been deleted
-    persisted = results.reject do |snapshot|
-      removed = !s3_resource_urls.include?(snapshot.url) && !s3_resource_filenames.include?(snapshot.filename)
+    past_snapshots.select do |snapshot|
+      s3_resource_urls.include?(snapshot.url) || s3_resource_filenames.include?(snapshot.filename)
+    end
+  end
 
-      if removed
-        snapshot.destroy
-        changes = {
-          action: "removed"
-        }
-        WorkActivity.add_work_activity(id, changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES)
-      end
+  def new_s3_files
+    s3_files.reject do |s3_file|
+      UploadSnapshot.find_by(work: self, url: s3_file.url, filename: s3_file.filename)
+    end
+  end
 
-      removed
+  def new_snapshots
+    new_s3_files.map do |s3_file|
+      UploadSnapshot.new(work: self, url: s3_file.url, filename: s3_file.filename)
+    end
+  end
+
+  def current_snapshots
+    valid_snapshots + new_snapshots
+  end
+
+  def invalid_snapshots
+    current_snapshots - past_snapshots
+  end
+
+  def self.select_matching_snapshots(snapshots:, s3_filename:)
+    snapshots.select do |snapshot|
+      # Checking for version substrings
+      matching_filename = snapshot.filename.match(/_\d+_/)
+      snapshot_filename = if matching_filename
+                            snapshot.filename.gsub(/_\d+\.([0-9a-zA-Z]+)$/, ".\\1")
+                          else
+                            snapshot.filename
+                          end
+
+      snapshot_filename == s3_filename
+    end
+  end
+
+  def self.select_matching_filename(s3_file:)
+    # Handling the foo.bin, foo_1.bin, foo_2.bin file naming scheme
+    s3_match = s3_file.filename.match(/_\d+_/)
+    if s3_match
+      s3_file.filename.gsub(/_\d+\.([0-9a-zA-Z]+)$/, ".\\1")
+    else
+      s3_file.filename
+    end
+  end
+
+  # Build or find persisted UploadSnapshot models for this Work
+  # @return [UploadSnapshot]
+  def reload_snapshots
+    work_changes = []
+
+    # Remove the existing snapshots and ensure that the WorkActivity is updated
+    invalid_snapshots.each do |invalid|
+      invalid.destroy
+
+      changes = {
+        action: "removed"
+      }
+      work_changes << changes
     end
 
-    changes = []
-    s3_files.map do |s3_file|
-      s3_match = s3_file.filename.match(/_\d+_/)
-      s3_filename = if s3_match
-                      s3_file.filename.gsub(/_\d+\.([0-9a-zA-Z]+)$/, ".\\1")
-                    else
-                      s3_file.filename
-                    end
+    s3_files.each do |s3_file|
+      s3_filename = self.class.select_matching_filename(s3_file: s3_file)
+      matching_snapshots = self.class.select_matching_snapshots(snapshots: current_snapshots, s3_filename: s3_filename)
 
-      selected = persisted.select do |s|
-        # checking for version substrings
-        snapshot_match = s.filename.match(/_\d+_/)
-        s_filename = if snapshot_match
-                       s.filename.gsub(/_\d+\.([0-9a-zA-Z]+)$/, ".\\1")
-                     else
-                       s.filename
-                     end
+      current_snapshot = matching_snapshots.last
 
-        s_filename == s3_filename
-      end
-      snapshot = selected.last
+      # Compare the checksum values for the updated S3 file and current snapshot
+      next if current_snapshot.checksum == s3_file.checksum
 
-      if snapshot.checksum != s3_file.checksum
-
-        # cases where the s3 resources are replaced
-        snapshot.checksum = s3_file.checksum
-        changes << if !snapshot.persisted?
-                     {
-                       action: "added"
-                     }
-                   else
-                     {
-                       action: "replaced"
-                     }
-                   end
-        snapshot.save
-      end
-
-      snapshot.reload
+      current_snapshot.checksum = s3_file.checksum
+      changes = if !current_snapshot.persisted?
+                  {
+                    action: "added"
+                  }
+                else
+                  {
+                    action: "replaced"
+                  }
+                end
+      work_changes << changes
+      current_snapshot.save
+      current_snapshot.reload
     end
-    unless changes.empty?
-      WorkActivity.add_work_activity(id, changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES)
-    end
+
+    # Create WorkActivity models with the set of changes
+    WorkActivity.add_work_activity(id, work_changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES) unless work_changes.empty?
   end
 
   protected
@@ -584,11 +632,22 @@ class Work < ApplicationRecord
 
     def validate_ark
       return if ark.blank?
+      return false unless unique_ark
       first_save = id.blank?
       changed_value = metadata["ark"] != ark
       if first_save || changed_value
         errors.add(:base, "Invalid ARK provided for the Work: #{ark}") unless Ark.valid?(ark)
       end
+    end
+
+    def unique_ark
+      return true if ark.blank?
+      other_record = Work.find_by_ark(ark)
+      return true if other_record == self
+      errors.add(:base, "Invalid ARK: It has already been applied to another work #{other_record.id}")
+      false
+    rescue ActiveRecord::RecordNotFound
+      true
     end
 
     # rubocop:disable Metrics/AbcSize

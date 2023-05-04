@@ -6,7 +6,7 @@ RSpec.describe Work, type: :model do
   let(:collection) { Collection.research_data }
   let(:user_other) { FactoryBot.create :user }
   let(:super_admin_user) { FactoryBot.create :super_admin_user }
-  let(:work) { FactoryBot.create(:draft_work) }
+  let(:work) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
   let(:work2) { FactoryBot.create(:draft_work) }
 
   let(:rd_user) { FactoryBot.create :princeton_submitter }
@@ -142,7 +142,7 @@ RSpec.describe Work, type: :model do
   end
 
   context "when files are attached to a pre-curation Work" do
-    subject(:work) { FactoryBot.create(:awaiting_approval_work) }
+    subject(:work) { FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc") }
 
     let(:file1) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work: work, size: 1024) }
     let(:file2) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv", work: work, size: 2048) }
@@ -523,7 +523,8 @@ RSpec.describe Work, type: :model do
     let(:fake_s3_service_post) { stub_s3(data: [s3_file]) }
 
     let(:approved_work) do
-      work = FactoryBot.create :awaiting_approval_work
+      work = FactoryBot.create :awaiting_approval_work, doi: "10.34770/123-abc"
+      stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
       allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
       allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
       allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
@@ -593,7 +594,6 @@ RSpec.describe Work, type: :model do
     end
 
     it "publishes the doi" do
-      stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
       expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(0)
       expect(a_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")).to have_been_made
     end
@@ -606,13 +606,13 @@ RSpec.describe Work, type: :model do
       end
 
       before do
-        stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
+        stub_request(:put, "https://api.datacite.org/dois/#{approved_work.doi}")
         approved_work
       end
 
       it "transmits a PUT request with the DOI attributes" do
         expect(
-          a_request(:put, "https://api.datacite.org/dois/10.34770/123-abc").with(
+          a_request(:put, "https://api.datacite.org/dois/#{approved_work.doi}").with(
             headers: {
               "Content-Type" => "application/vnd.api+json"
             },
@@ -621,7 +621,7 @@ RSpec.describe Work, type: :model do
                 "attributes": {
                   "event": "publish",
                   "xml": payload_xml,
-                  "url": "https://datacommons.princeton.edu/discovery/doi/#{work.doi}"
+                  "url": "https://datacommons.princeton.edu/discovery/doi/#{approved_work.doi}"
                 }
               }
             }
@@ -924,6 +924,24 @@ RSpec.describe Work, type: :model do
       expect(work.collection).to be_nil
       expect(work).not_to be_valid
     end
+
+    it "does not allow two of the same dois to be created" do
+      stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-zzz").to_return(status: 200, body: "", headers: {})
+      original_work = FactoryBot.create(:none_work, doi: "10.34770/123-zzz", user_entered_doi: true)
+      work = FactoryBot.build(:none_work, doi: "10.34770/123-zzz", user_entered_doi: true)
+      expect(original_work).to be_valid
+      expect(work).not_to be_valid
+      expect(work.errors.first.type). to match(/Invalid DOI: It has already been applied to another work /)
+    end
+
+    it "does not allow two of the same arks to be created" do
+      stub_ark
+      original_work = FactoryBot.create(:draft_work, ark: "ark:/88435/xyz1234")
+      work = FactoryBot.build(:draft_work, ark: "ark:/88435/xyz1234")
+      expect(original_work).to be_valid
+      expect(work).not_to be_valid
+      expect(work.errors.first.type). to match(/Invalid ARK: It has already been applied to another work /)
+    end
   end
 
   describe "delete" do
@@ -983,6 +1001,47 @@ RSpec.describe Work, type: :model do
 
       work.destroy
       expect(UploadSnapshot.all).to be_empty
+    end
+  end
+
+  describe "#find_by_doi" do
+    let(:work) { FactoryBot.create(:draft_work, doi: "10.34770/123-zzz") }
+
+    it "finds the work" do
+      FactoryBot.create(:draft_work, doi: "10.34770/123-zzzz")
+      work # make sure the work is present
+      expect(Work.find_by_doi("10.34770/123-zzz")).to eq(work)
+      expect(Work.find_by_doi("123-zzz")).to eq(work)
+    end
+
+    it "does not find partial matches" do
+      work # make sure the work is present
+      expect { Work.find_by_doi("10.34770/123-zz") }.to raise_error(ActiveRecord::RecordNotFound)
+      expect { Work.find_by_doi("10.34770/123-zzzz") }.to raise_error(ActiveRecord::RecordNotFound)
+      expect { Work.find_by_doi("123-zzzz") }.to raise_error(ActiveRecord::RecordNotFound)
+      expect { Work.find_by_doi("123-zz") }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
+
+  describe "#find_by_ark" do
+    let(:work) { FactoryBot.create(:draft_work, ark: "ark:/88435/xyz123") }
+
+    before do
+      stub_ark
+      work # make sure the work is present
+    end
+
+    it "finds the work" do
+      FactoryBot.create(:draft_work, doi: "ark:/88435/xyz1234")
+      expect(Work.find_by_ark("ark:/88435/xyz123")).to eq(work)
+      expect(Work.find_by_ark("88435/xyz123")).to eq(work)
+    end
+
+    it "does not find partial matches" do
+      expect { Work.find_by_ark("ark:/88435/xyz12") }.to raise_error(ActiveRecord::RecordNotFound)
+      expect { Work.find_by_ark("ark:/88435/xyz1234") }.to raise_error(ActiveRecord::RecordNotFound)
+      expect { Work.find_by_ark("88435/xyz12") }.to raise_error(ActiveRecord::RecordNotFound)
+      expect { Work.find_by_ark("88435/xyz1234") }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 end

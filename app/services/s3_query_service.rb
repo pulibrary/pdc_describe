@@ -118,14 +118,14 @@ class S3QueryService
 
   # Retrieve the S3 resources uploaded to the S3 Bucket
   # @return [Array<S3File>]
-  def client_s3_files(reload: false, bucket_name: self.bucket_name, prefix: self.prefix)
+  def client_s3_files(reload: false, bucket_name: self.bucket_name, prefix: self.prefix, ignore_directories: true)
     @client_s3_files = nil if reload # force a reload
     @client_s3_files ||= begin
       start = Time.zone.now
       resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
       resp_hash = resp.to_h
-      objects = parse_objects(resp_hash)
-      objects += parse_continuation(resp_hash, bucket_name: bucket_name, prefix: prefix)
+      objects = parse_objects(resp_hash, ignore_directories: ignore_directories)
+      objects += parse_continuation(resp_hash, bucket_name: bucket_name, prefix: prefix, ignore_directories: ignore_directories)
       elapsed = Time.zone.now - start
       Rails.logger.info("Loading S3 objects. Bucket: #{bucket_name}. Prefix: #{prefix}. Elapsed: #{elapsed} seconds")
       objects
@@ -190,6 +190,10 @@ class S3QueryService
     client.complete_multipart_upload(bucket: target_bucket, key: target_key, upload_id: multi.upload_id, multipart_upload: { parts: parts })
   end
 
+  def copy_directory(source_key:, target_bucket:, target_key:)
+    client.copy_object(copy_source: source_key, bucket: target_bucket, key: target_key)
+  end
+
   def delete_s3_object(s3_file_key)
     resp = client.delete_object({ bucket: bucket_name, key: s3_file_key })
     resp.to_h
@@ -220,25 +224,25 @@ class S3QueryService
       end
     end
 
-    def parse_objects(resp)
+    def parse_objects(resp, ignore_directories: true)
       objects = []
       resp_hash = resp.to_h
       response_objects = resp_hash[:contents]
       response_objects&.each do |object|
-        next if object[:size] == 0 # ignore directories whose size is zero
+        next if object[:size] == 0 && ignore_directories
         s3_file = S3File.new(work: model, filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
         objects << s3_file
       end
       objects
     end
 
-    def parse_continuation(resp_hash, bucket_name: self.bucket_name, prefix: self.prefix)
+    def parse_continuation(resp_hash, bucket_name: self.bucket_name, prefix: self.prefix, ignore_directories: true)
       objects = []
       while resp_hash[:is_truncated]
         token = resp_hash[:next_continuation_token]
         resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix, continuation_token: token })
         resp_hash = resp.to_h
-        objects += parse_objects(resp_hash)
+        objects += parse_objects(resp_hash, ignore_directories: ignore_directories)
       end
       objects
     end
