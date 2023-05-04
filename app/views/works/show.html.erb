@@ -75,17 +75,20 @@
 <div class="row">
   <div class="col-8">
     <% if @work.editable_in_current_state?(current_user)  %>
-      <%= link_to("Edit", edit_work_path(@work, wizard: @work.draft?), class: "btn btn-primary") %>
+      <%= link_to("Edit", edit_work_path(@work, wizard: @work_decorator.wizard_mode?), class: "btn btn-primary") %>
     <% end %>
-    <% if @work.awaiting_approval? && current_user.has_role?(:collection_admin, @work_decorator.collection) %>
+    <% if @work_decorator.show_approve_button? %>
       <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post) %>
     <% elsif @work.approved? %>
       <%= button_to("Withdraw Dataset", withdraw_work_path(@work), class: "btn btn-secondary", method: :post) %>
     <% elsif @work.withdrawn? %>
       <%= button_to("Resubmit for approval", resubmit_work_path(@work), class: "btn btn-secondary", method: :post) %>
     <% end %>
-    <% if @work.draft? && @work.created_by_user_id == current_user.id %>
+    <% if @work_decorator.show_complete_button? %>
       <%= button_to("Complete", work_validate_path(@work), class: "btn btn-secondary", method: :post) %>
+    <% end %>
+    <% if @work_decorator.show_migrate_button? %>
+      <%= button_to("Migrate Dataspace Files", work_migrate_content_path(@work), class: "btn btn-secondary", method: :post) %>
     <% end %>
     <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-secondary" %>
   </div>

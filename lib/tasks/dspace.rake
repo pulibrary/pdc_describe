@@ -9,6 +9,6 @@ namespace :dspace do
     puts "Migrating Files from dspace to PDC for Work #{work.title}"
     dspace = PULDspaceData.new(work)
     dspace.migrate
-    puts "Sucessfully migrated #{dspace.keys.count} files for work"
+    puts dspace.migration_message
   end
 end

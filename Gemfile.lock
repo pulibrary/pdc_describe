@@ -431,7 +431,6 @@ GEM
     skinny (0.2.2)
       eventmachine (~> 1.0)
       thin
-    spring (4.0.0)
     sprockets (4.1.1)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
@@ -571,7 +570,6 @@ DEPENDENCIES
   sidekiq (~> 6.0)
   simplecov
   sinatra
-  spring
   turbolinks (~> 5)
   tzinfo-data
   vite_rails (= 3.0.12)
@@ -581,4 +579,4 @@ DEPENDENCIES
   whenever
 
 BUNDLED WITH
-   2.3.22
+   2.3.11

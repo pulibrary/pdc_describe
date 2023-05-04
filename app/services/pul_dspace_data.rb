@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 class PULDspaceData
-  attr_reader :work, :ark, :keys
+  attr_reader :work, :ark, :file_keys, :directory_keys
 
   def initialize(work)
     @work = work
     @ark = work.ark&.gsub("ark:/", "")
-    @keys = []
+    @file_keys = []
+    @directory_keys = []
   end
 
   def migrate
@@ -17,7 +18,6 @@ class PULDspaceData
   end
 
   def id
-    return nil if ark.nil?
     @id ||= begin
               json = get_data("handle/#{ark}")
               json["id"]
@@ -25,12 +25,10 @@ class PULDspaceData
   end
 
   def bitstreams
-    return [] if ark.nil?
     @bitstreams ||= get_data("items/#{id}/bitstreams")
   end
 
   def metadata
-    return {} if ark.nil?
     @metadata ||= begin
                     json = get_data("items/#{id}/metadata")
                     metadata = {}
@@ -44,7 +42,6 @@ class PULDspaceData
   end
 
   def download_bitstreams
-    return [] if ark.nil?
     bitstreams.map do |bitstream|
       filename = download_bitstream(bitstream["retrieveLink"], bitstream["name"])
       if checksum_file(filename, bitstream)
@@ -58,7 +55,7 @@ class PULDspaceData
       io = File.open(filename)
       key = work.s3_query_service.upload_file(io: io, filename: File.basename(filename))
       if key
-        @keys << key
+        file_keys << key
         nil
       else
         "An error uploading #{filename}.  Please try again."
@@ -82,12 +79,20 @@ class PULDspaceData
   def aws_copy(files)
     files.each do |s3_file|
       DspaceFileCopyJob.perform_later(doi, s3_file.key, s3_file.size, work.id)
-      keys << s3_file.key
+      if s3_file.directory?
+        directory_keys << s3_file.key
+      else
+        file_keys << s3_file.key
+      end
     end
   end
 
   def dspace_bucket_name
     @dspace_bucket_name ||= Rails.configuration.s3.dspace[:bucket]
+  end
+
+  def migration_message
+    "Migration for #{file_keys.count} #{'file'.pluralize(file_keys.count)} and #{directory_keys.count} #{'directory'.pluralize(directory_keys.count)}"
   end
 
   private
@@ -101,14 +106,16 @@ class PULDspaceData
         raise "Error downloading file(s) #{error_names}"
       end
       results = upload_to_s3(filenames)
+
       errors = results.reject(&:"blank?")
-      if errors.count > 0
-        raise "Error uploading file(s):\n #{errors.join("\n")}"
-      end
+      raise "Error uploading file(s):\n #{errors.join("\n")}" if errors.count > 0
+
       filenames.each { |filename| File.delete(filename) }
     end
 
     def get_data(url_path)
+      return {} if ark.nil?
+
       url = "#{Rails.configuration.dspace.base_url}#{url_path}"
       uri = URI(url)
       http = request_http(url)
