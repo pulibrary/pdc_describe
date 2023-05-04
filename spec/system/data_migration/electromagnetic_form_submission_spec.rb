@@ -44,7 +44,7 @@ This data set includes the data visualized in figures 2-7 in Electromagnetic tot
       fill_in "given_name_4", with: "Randy Michael"
       fill_in "family_name_4", with: "Churchill"
       click_on "Add Another Creator"
-      fill_in 'ORCID_5', with: "0000-0002-3346-5731"
+      fill_in "ORCID_5", with: "0000-0002-3346-5731"
       fill_in "given_name_5", with: "C.S."
       fill_in "family_name_5", with: "Chang"
       click_on "Add Another Creator"
