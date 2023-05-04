@@ -26,6 +26,10 @@ class S3File
     size
   end
 
+  def directory?
+    size == 0
+  end
+
   def globus_url
     encoded_filename = filename.split("/").map { |name| ERB::Util.url_encode(name) }.join("/")
     File.join(Rails.configuration.globus["post_curation_base_url"], encoded_filename)
