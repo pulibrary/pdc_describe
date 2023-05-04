@@ -12,3 +12,13 @@ set :deploy_to, "/opt/pdc_describe"
 
 # Workaround for this issue: https://github.com/capistrano/rails/issues/235
 Rake::Task["deploy:assets:backup_manifest"].clear_actions
+
+namespace :sidekiq do
+  task :restart do
+    on roles(:app) do
+      execute :sudo, :service, "sidekiq-workers", :restart
+    end
+  end
+end
+
+after "passenger:restart", "sidekiq:restart"
