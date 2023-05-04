@@ -146,7 +146,7 @@
       <dd><%= @work.created_by_user.uid %></dd>
 
       <dt>Description</dt>
-      <dd style="white-space: pre-wrap;"><%= @work.resource.description %></dd>
+      <dd style="white-space: pre-wrap;"><%= @work.presenter.description.html_safe %></dd>
 
       <% if @work.resource.keywords.count > 0 %>
         <dt>Keywords</dt>
