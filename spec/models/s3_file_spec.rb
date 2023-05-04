@@ -102,7 +102,6 @@ RSpec.describe S3File, type: :model do
       allow(work.s3_query_service).to receive(:client).and_return(s3_client)
 
       allow(upload_snapshot).to receive(:reload)
-      allow(upload_snapshot).to receive(:key).and_return("test-key")
       allow(upload_snapshot).to receive(:save)
       allow(upload_snapshot).to receive(:upload=)
       allow(UploadSnapshot).to receive(:create).and_return(upload_snapshot)

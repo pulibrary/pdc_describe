@@ -23,7 +23,6 @@ Layout/LineLength:
 
 Metrics/AbcSize:
   Exclude:
-    - app/models/work.rb
     - app/models/work_activity.rb
 
 Metrics/BlockLength:
@@ -40,13 +39,11 @@ Metrics/ClassLength:
 
 Metrics/CyclomaticComplexity:
   Exclude:
-    - app/models/work.rb
     - app/models/work_activity.rb
 
 Metrics/MethodLength:
   Exclude:
     - "app/models/s3_file.rb"
-    - app/models/work.rb
     - app/models/work_activity.rb
   Max: 15 # default: 10
 
@@ -55,7 +52,6 @@ Metrics/ParameterLists:
 
 Metrics/PerceivedComplexity:
   Exclude:
-    - app/models/work.rb
     - app/models/work_activity.rb
 
 Style/GuardClause:
