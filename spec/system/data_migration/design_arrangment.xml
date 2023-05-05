@@ -11,16 +11,19 @@
       <creatorName>Zhu, Caoxiang</creatorName>
       <givenName>Caoxiang</givenName>
       <familyName>Zhu</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0003-2337-3232</nameIdentifier>
     </creator>
     <creator>
-      <creatorName>Korrigan, Keith</creatorName>
+      <creatorName>Corrigan, Keith</creatorName>
       <givenName>Keith</givenName>
-      <familyName>Korrigan</familyName>
+      <familyName>Corrigan</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0001-9857-451X</nameIdentifier>
     </creator>
     <creator>
       <creatorName>Gates, David</creatorName>
       <givenName>David</givenName>
       <familyName>Gates</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0001-5679-3124</nameIdentifier>
     </creator>
     <creator>
       <creatorName>Lown, Robert</creatorName>
@@ -36,11 +39,13 @@
       <creatorName>Qian, Tony</creatorName>
       <givenName>Tony</givenName>
       <familyName>Qian</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0002-6536-5399</nameIdentifier>
     </creator>
     <creator>
       <creatorName>Zarnstorff, Michael</creatorName>
       <givenName>Michael</givenName>
       <familyName>Zarnstorff</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0001-7525-0539</nameIdentifier>
     </creator>
   </creators>
   <titles>
