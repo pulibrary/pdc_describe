@@ -23,6 +23,7 @@ Rails.application.routes.draw do
 
   get "about", to: "welcome#about", as: :welcome_about
   get "license", to: "welcome#license", as: :welcome_license
+  get "how-to-submit", to: "welcome#how_to_submit", as: :welcome_how_to_submit
 
   get "works/:id/file-list", to: "works#file_list", as: :work_file_list
   post "works/new-submission", to: "works#new_submission", as: :work_new_submission
