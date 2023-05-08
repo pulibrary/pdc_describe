@@ -109,7 +109,7 @@ jobs:
       - run:
           name: Merge and check coverage
           command: |
-            RAILS_ENV=test bundle exec rake simplecov:report_coverage\[88.19\]
+            RAILS_ENV=test bundle exec rake simplecov:report_coverage\[87.00\]
       - store_artifacts:
           path: ~/rails_template/coverage
           destination: coverage

@@ -522,50 +522,44 @@ class Work < ApplicationRecord
   # Build or find persisted UploadSnapshot models for this Work
   # @return [UploadSnapshot]
   def reload_snapshots
-    # ===========================================================
-    # Disabled so that SimpleConv does not complain.
-    # Re-enable this method when fixing issue
-    # https://github.com/pulibrary/pdc_describe/issues/1130
-    # ===========================================================
+    work_changes = []
 
-    # work_changes = []
+    # Remove the existing snapshots and ensure that the WorkActivity is updated
+    invalid_snapshots.each do |invalid|
+      invalid.destroy
 
-    # # Remove the existing snapshots and ensure that the WorkActivity is updated
-    # invalid_snapshots.each do |invalid|
-    #   invalid.destroy
+      changes = {
+        action: "removed"
+      }
+      work_changes << changes
+    end
 
-    #   changes = {
-    #     action: "removed"
-    #   }
-    #   work_changes << changes
-    # end
+    s3_files.each do |s3_file|
+      s3_filename = self.class.select_matching_filename(s3_file: s3_file)
+      matching_snapshots = self.class.select_matching_snapshots(snapshots: current_snapshots, s3_filename: s3_filename)
 
-    # s3_files.each do |s3_file|
-    #   s3_filename = self.class.select_matching_filename(s3_file: s3_file)
-    #   matching_snapshots = self.class.select_matching_snapshots(snapshots: current_snapshots, s3_filename: s3_filename)
+      current_snapshot = matching_snapshots.last
 
-    #   current_snapshot = matching_snapshots.last
+      # Compare the checksum values for the updated S3 file and current snapshot
+      next if current_snapshot.checksum == s3_file.checksum
 
-    #   # Compare the checksum values for the updated S3 file and current snapshot
-    #   next if current_snapshot.checksum == s3_file.checksum
+      current_snapshot.checksum = s3_file.checksum
+      changes = if !current_snapshot.persisted?
+                  {
+                    action: "added"
+                  }
+                else
+                  {
+                    action: "replaced"
+                  }
+                end
+      work_changes << changes
+      current_snapshot.save
+      current_snapshot.reload
+    end
 
-    #   current_snapshot.checksum = s3_file.checksum
-    #   changes = if !current_snapshot.persisted?
-    #               {
-    #                 action: "added"
-    #               }
-    #             else
-    #               {
-    #                 action: "replaced"
-    #               }
-    #             end
-    #   work_changes << changes
-    #   current_snapshot.save
-    #   current_snapshot.reload
-    # end
-
-    # # Create WorkActivity models with the set of changes
-    # WorkActivity.add_work_activity(id, work_changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES) unless work_changes.empty?
+    # Create WorkActivity models with the set of changes
+    WorkActivity.add_work_activity(id, work_changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES) unless work_changes.empty?
   end
 
   protected
