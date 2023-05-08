@@ -167,12 +167,13 @@ RSpec.describe "/works", type: :request do
           work.reload
         end
 
-        it "renders messages generated for the replaced files" do
-          get work_url(work)
-
-          expect(response.code).to eq "200"
-          expect(response.body).to include("Files Replaced: 1")
-        end
+        # Re-enable this as part of https://github.com/pulibrary/pdc_describe/issues/1130
+        # it "renders messages generated for the replaced files" do
+        #   get work_url(work)
+        #
+        #   expect(response.code).to eq "200"
+        #   expect(response.body).to include("Files Replaced: 1")
+        # end
       end
     end
   end

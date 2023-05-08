@@ -67,7 +67,14 @@ class WorksController < ApplicationController
   # When requested as .json, return the internal json resource
   def show
     @work = Work.find(params[:id])
-    @work.reload_snapshots
+    # ========================================================
+    # Skip the reload of snapshots for now until we see why it
+    # times out with work 319 in staging that has 3481 files.
+    #
+    # See ticket https://github.com/pulibrary/pdc_describe/issues/1130
+    #
+    # @work.reload_snapshots
+    # ========================================================
     @work_decorator = WorkDecorator.new(@work, current_user)
 
     respond_to do |format|
