@@ -1,29 +1,56 @@
-<div class="content">
-  <h2>About PDC Describe</h2>
-  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
-    et dolore magna aliqua. Metus aliquam eleifend mi in nulla posuere sollicitudin aliquam ultrices.
-    Ut pharetra sit amet aliquam id diam. Sed tempus urna et pharetra pharetra massa massa.
-    Id donec ultrices tincidunt arcu non sodales neque sodales. Nunc eget lorem dolor sed viverra ipsum.
-    Commodo nulla facilisi nullam vehicula ipsum a. Vehicula ipsum a arcu cursus vitae congue mauris rhoncus. Ipsum nunc
-    aliquet bibendum enim facilisis gravida neque. Sit amet venenatis urna cursus eget. Purus viverra accumsan in nisl
-    nisi. Ut etiam sit amet nisl purus. Viverra accumsan in nisl nisi scelerisque eu. Ultricies leo integer malesuada
-    nunc. Arcu vitae elementum curabitur vitae.</p>
-
-  <p>Pellentesque nec nam aliquam sem et tortor consequat id. Fusce id velit ut tortor pretium viverra suspendisse
-    potenti nullam. Massa id neque aliquam vestibulum morbi blandit. Neque viverra justo nec ultrices dui sapien. Diam
-    maecenas sed enim ut sem. Quam quisque id diam vel quam elementum pulvinar. Neque aliquam vestibulum morbi blandit
-    cursus risus at ultrices mi. Eu tincidunt tortor aliquam nulla facilisi cras fermentum. At urna condimentum mattis
-    pellentesque id nibh tortor id. Nisl pretium fusce id velit. Vulputate odio ut enim blandit volutpat maecenas
-    volutpat. Dolor sed viverra ipsum nunc aliquet bibendum enim. Nulla at volutpat diam ut venenatis tellus in metus.
-  </p>
-
-  <p>Id neque aliquam vestibulum morbi blandit cursus risus at. Massa enim nec dui nunc mattis. Accumsan lacus vel
-    facilisis volutpat est velit. Integer eget aliquet nibh praesent tristique magna sit amet purus. Faucibus interdum
-    posuere lorem ipsum dolor sit amet consectetur. In aliquam sem fringilla ut morbi. Lobortis feugiat vivamus at augue
-    eget arcu dictum varius. Turpis nunc eget lorem dolor. Sem et tortor consequat id porta. Sed viverra tellus in hac
-    habitasse platea dictumst. Eget nullam non nisi est sit amet facilisis magna etiam. Sit amet nulla facilisi morbi
-    tempus iaculis urna. Est placerat in egestas erat imperdiet sed. Feugiat vivamus at augue eget arcu dictum varius
-    duis at. Turpis egestas maecenas pharetra convallis posuere morbi leo urna. Velit sed ullamcorper morbi tincidunt.
-    Lectus mauris ultrices eros in. Eu non diam phasellus vestibulum lorem sed risus ultricies tristique. Sagittis nisl
-    rhoncus mattis rhoncus urna neque.</p>
-</div>
+<h1>About Princeton's PDC Research Data Repository</h1>
+<p>Our multidisciplinary digital repository offers expert curation services and is designed to archive and publicly disseminate data and code that are the result of research activities by Princeton University's research community.</p>
+<h2>What is Describe?</h2>
+<p>Princeton’s research data depository is a multilayered infrastructure that is part of the Princeton Data Commons. You may have encountered <%= link_to('Discovery', 'https://datacommons.princeton.edu/discovery/') %>, which serves as the public discovery interface for Princeton University’s published research assets (e.g., data, code) that are deposited to this repository. Describe is where metadata about the deposited research data and code from Princeton researchers are submitted and stored. Describe houses the form used for depositing assets to this repository. (see: <%= link_to('How to Deposit', '/how-to-submit') %>.) The objects (i.e., the files) are submitted using this form, but will be stored in other locations for access and preservation. Describe also mints DOIs through Datacite for submitted assets and shares metadata with Datacite to increase discoverability. </p>
+<h3>Metadata Schema</h3>
+<p>Our metadata schema provides the essential information needed to make assets discoverable and provide necessary context for reuse. We use required and selected properties from Datacite 4.4 to provide essential description, but have added other schema properties to optimally describe research data. Please contact us to suggest additional schema properties we may provide to best describe your deposit(s).</p>
+<h3>ORCID ID Support</h3>
+<p>We are beginning to offer support for ORCID IDs. You may enter an ORCID iD to your profile or apply one to a creator or contributor in the submission form. We are developing additional features supporting ORCID IDs – stay tuned! </p>
+<h3>Messaging and Email Features</h3>
+<p>The Describe Form allows communication with submission portal moderators (e.g., curators, reviewers) making suggestions for changes easier. Essential messages will be forwarded to your email if opting-in to this feature. </p>
+<h2>Who do I contact for assistance?</h2>
+<p>The research data repository has submission portals which are managed separately. You may contact the appropriate management point to request assistance. </p>
+<h3>Princeton Research Data Service (PRDS)</h3>
+<p>Provides submission access and curatorial services for the main collections of research data that are discoverable in this repository. Contact: <%= mail_to('prds@princeton.edu') %></p>
+<h3>Princeton Plasma Physics Laboratory (PPPL)</h3>
+<p>Provides submission access and assistance for the Princeton Plasma Physics Laboratory collections of research data that are discoverable in this repository. Contact: <%= mail_to('publications@pppl.gov') %></p>
+<h2>The Repository Team</h2>
+<h3>Princeton University Library Developers</h3>
+<h4>Research Data and Scholarship Services (RDSS)</h4>
+<ul>
+<li>Tyler Wade - Cataloging and Metadata Services Fellow</li>
+<li>Bess Sadler - Senior Library Software Engineer</li>
+<li>Carolyn Cole - Senior Library Software Engineer</li>
+<li>Hector Correa - Senior Library Software Engineer</li>
+<li>James Griffin - Library Software Engineer</li>
+<li>Kate Lynch - Lead Library Software Engineer</li>
+</ul>
+<h4>Library IT Operations</h4>
+<ul>
+<li>Robert Lee-Faison - IT Operations Fellow</li>
+<li>Francis Kayiwa - Developer Operations Engineer</li>
+<li>Alicia Cozine - Library Operations Engineer</li>
+</ul>
+<h3>Princeton Research Data Service (PRDS)</h3>
+<ul>
+<li>Neggin Keshavarzian - Research Data Management Specialist</li>
+<li>Matt Chandler - Research Data Services Manager</li>
+<li>Halle Burns - Research Data Management Specialist</li>
+<li>Sarah Reiff Conell - Research Data Management Specialist</li>
+</ul>
+<h3>Other Contributors</h3>
+<ul>
+<li>Chun Ly - Division Manager, Research Publications and Data Management, Princeton Plasma Physics Laboratory</li>
+</ul>
+<h3>Repository Management</h3>
+<ul>
+<li>Hannah Hadley - Open Scholarship Repository Manager</li>
+</ul>
+<h3>Project Administration</h3>
+<ul>
+<li>Wind Cowles - Director of Data, Research, and Teaching Services and Head of the Princeton Research Data Service</li>
+</ul>
+<h3>Emeritus Contributors</h3>
+<p>Rishi Joshi, Chuck McCallum</p>
+<h2>About the Princeton Data Commons (PDC) project</h2>
+<p>The Princeton Data Commons is a project to create an ecosystem of online resources and tools to support and advance storing, preserving, managing, sharing, and curating digital research data. Princeton Data Commons - Describe is the second application in this new ecosystem. For more information about the PDC project, please contact Wind Cowles, Director of Data, Research, and Teaching Services and Head of the Princeton Research Data Service (<%= mail_to('windcowles@princeton.edu') %>).</p>
