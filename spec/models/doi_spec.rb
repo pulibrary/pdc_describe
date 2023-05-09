@@ -155,4 +155,11 @@ RSpec.describe "DOI", type: :model do
       expect(data["attributes"]["state"]).to eq("findable")
     end
   end
+
+  describe "Displaying DOIs" do
+    let(:work) { FactoryBot.create :draft_work }
+    it "formats it as a URL for display purposes" do
+      expect(work.doi_url).to eq "https://doi.org/#{work.doi}"
+    end
+  end
 end

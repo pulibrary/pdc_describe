@@ -3,18 +3,26 @@ require "rails_helper"
 
 RSpec.describe "Creating and updating works", type: :system, js: true do
   let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+  let(:related_object) { FactoryBot.build(:related_object) }
   let(:user) { work.created_by_user }
 
   before do
     stub_s3
     stub_ark
+    work.resource.related_objects << related_object
+    work.save
   end
 
   it "displays related identifiers" do
     sign_in user
     visit work_path(work)
-    expect(page).to have_content "IsCitedBy"
-    expect(page).to have_content "https://www.biorxiv.org/content/10.1101/545517v1"
+    related_objects_displayed = page.find_all(:css, ".related_object")
+    expect(related_objects_displayed.size).to eq 3
+    expect(page).to have_link(href: "https://www.biorxiv.org/content/10.1101/545517v1")
+    expect(page).to have_link(href: "https://doi.org/10.7554/eLife.52482")
+
+    # This one was added as a DOI without the https prefix. It came from the FactoryBot related_object.
+    expect(page).to have_link(href: "https://doi.org/10.34770/220-abc")
   end
 
   it "copies DOI to the clipboard" do
