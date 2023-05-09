@@ -115,6 +115,8 @@ RSpec.describe "/works", type: :request do
           get work_url(work)
 
           expect(response.code).to eq "200"
+          snapshots = UploadSnapshot.where(work: work)
+          expect(snapshots.count).to eq(1)
           expect(response.body).to include("Files Added: 2")
         end
       end
@@ -158,7 +160,7 @@ RSpec.describe "/works", type: :request do
           stub_ark
           # This is utilized for active record to send the file to S3
           stub_request(:put, /#{bucket_url}/).to_return(status: 200)
-          allow(fake_s3_service).to receive(:client_s3_files).and_return([file_before], [file_before], [file_before], [file_before], [file1])
+          allow(fake_s3_service).to receive(:client_s3_files).and_return([file_before], [file1])
           work.save
           work.reload_snapshots
           work.reload

@@ -20,11 +20,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
     end
 
     it "shows data from S3 on the Show and Edit pages" do
-      allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
-      allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
-      allow(s3_query_service_double).to receive(:file_count).and_return(s3_data.count)
-      allow(s3_query_service_double).to receive(:client_s3_files).and_return(s3_data)
-      allow(s3_query_service_double).to receive(:file_url).and_return("https://something-something")
+      stub_s3(data: s3_data)
 
       work.save
       work.reload
@@ -42,11 +38,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
     end
 
     it "uses DataTable to display files" do
-      allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
-      allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
-      allow(s3_query_service_double).to receive(:file_count).and_return(s3_data.count)
-      allow(s3_query_service_double).to receive(:client_s3_files).and_return(s3_data)
-      allow(s3_query_service_double).to receive(:file_url).and_return("https://something-something")
+      stub_s3(data: s3_data)
 
       work.save
 
