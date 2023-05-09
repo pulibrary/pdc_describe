@@ -2,10 +2,11 @@
   <div class="p-5 text-left bg-light">
     <%= link_to "PDC Describe", root_path, class: 'navbar-logo' %>
     <div class="menu">
-      <nav id="menu" class="col-md-6" role="menu">
-        <%= link_to "About", "/about", :class => "btn btn-primary", :role => "menuitem" %>
+      <nav id="menu" class="col-sm" role="menu">
+      <%= link_to "About","#{root_url}about", :class => "btn btn-primary", :role => "menuitem" %>
+      <%= link_to "How to Submit", "#{root_url}how-to-submit", :class => "btn btn-primary", :role => "menuitem" %>
       </nav>
-      <nav id="user-actions" class="col-md-6">
+      <nav id="user-actions" class="col-sm">
         <% if current_user %>
         <%= render 'shared/user_actions' %>
         <% else %>

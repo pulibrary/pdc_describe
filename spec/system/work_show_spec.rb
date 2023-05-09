@@ -25,6 +25,18 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     expect(page).to have_link(href: "https://doi.org/10.34770/220-abc")
   end
 
+  context "when the description metadata contains URLs" do
+    let(:description) { "This tests the link http://something.unusual.edu. It also has a summary." }
+    let(:resource) { FactoryBot.build(:resource, doi: "10.34770/123-abc", description: description) }
+    let(:work) { FactoryBot.create(:tokamak_work, resource: resource) }
+
+    it "will render the URLs using HTML markup" do
+      sign_in user
+      visit work_path(work)
+      expect(page).to have_link("http://something.unusual.edu")
+    end
+  end
+
   it "copies DOI to the clipboard" do
     sign_in user
     visit work_path(work)

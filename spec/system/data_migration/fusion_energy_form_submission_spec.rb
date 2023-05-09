@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-RSpec.describe "Form submission for migrating attention", type: :system, mock_ezid_api: true, js: true do
+RSpec.describe "Form submission for migrating fusion energy", type: :system, mock_ezid_api: true, js: true do
   let(:user) { FactoryBot.create(:pppl_moderator) }
   let(:title) { "Data for The value of fusion energy to a decarbonized United States electric grid" }
   let(:description) do
-    "Fusion could be a part of future decarbonized electricity systems, but it will need to compete with other technologies. In particular, pulsed tokamaks plants have a unique operational mode, and evaluating which characteristics make them economically competitive can help select between design pathways. Using a capacity expansion and operations model, we determined cost thresholds for pulsed tokamaks to reach a range of penetration levels in a future decarbonized US Eastern Interconnection. The required capital cost to reach a fusion capacity of 100 GW varied from $3000 to $7200/kW, and the equilibrium penetration increases rapidly with decreasing cost. The value per unit power capacity depends on the variable operational cost and on cost of its competition, particularly fission, much more than on the pulse cycle parameters. These findings can therefore provide initial cost targets for fusion more generally in the United States. This dataset is too large to download directly from this item page. You can access and download the data via Globus at this link: https://app.globus.org/file-manager?destination_id=dc43f461-0ca7-4203-848c-33a9fc00a464&destination_path=%2Ff8em-3c49%2F (See https://docs.globus.org/how-to/get-started/ for instructions on how to use Globus; sign-in is required)."
+    "Fusion could be a part of future decarbonized electricity systems, but it will need to compete with other technologies. In particular, pulsed tokamaks plants have a unique operational mode, and evaluating which characteristics make them economically competitive can help select between design pathways. Using a capacity expansion and operations model, we determined cost thresholds for pulsed tokamaks to reach a range of penetration levels in a future decarbonized US Eastern Interconnection. The required capital cost to reach a fusion capacity of 100 GW varied from $3000 to $7200/kW, and the equilibrium penetration increases rapidly with decreasing cost. The value per unit power capacity depends on the variable operational cost and on cost of its competition, particularly fission, much more than on the pulse cycle parameters. These findings can therefore provide initial cost targets for fusion more generally in the United States."
   end
   let(:ark) { "ark:/88435/dsp012j62s808w" }
   let(:collection) { "Princeton Plasma Physics Laboratory" }
@@ -30,12 +30,15 @@ RSpec.describe "Form submission for migrating attention", type: :system, mock_ez
       fill_in "given_name_1", with: "Jacob A."
       fill_in "family_name_1", with: "Schwartz"
       click_on "Add Another Creator"
+      fill_in "orcid_2", with: ""
       fill_in "given_name_2", with: "Wilson"
       fill_in "family_name_2", with: "Ricks"
       click_on "Add Another Creator"
+      fill_in "orcid_3", with: "0000-0003-4212-3247"
       fill_in "given_name_3", with: "Egemen"
       fill_in "family_name_3", with: "Kolemen"
       click_on "Add Another Creator"
+      fill_in "orcid_4", with: "0000-0002-9670-7793"
       fill_in "given_name_4", with: "Jesse D."
       fill_in "family_name_4", with: "Jenkins"
 

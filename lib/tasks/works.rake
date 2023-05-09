@@ -82,4 +82,16 @@ namespace :works do
       puts "\t#{file_name}"
     end
   end
+
+  # Use this to figure out what works don't have the proper DataCite attributes
+  # (useful when troubleshooting bad data already in the system)
+  desc "Shows what works are valid for DataCite submission."
+  task :validate_datacite_attributes, [:verbose] => :environment do |_, args|
+    Work.all.each do |work|
+      _attributes = work.resource.to_xml
+    rescue => ex
+      details = args[:verbose] == "true" ? ex.backtrace.join : ""
+      puts "Work #{work.id} is not valid, #{ex.message}. #{details}"
+    end
+  end
 end

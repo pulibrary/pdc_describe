@@ -2,15 +2,15 @@
 require "rails_helper"
 
 RSpec.describe UploadSnapshot, type: :model do
-  subject(:upload_snapshot) { described_class.new(filename: filename, url: url, work: work) }
+  subject(:upload_snapshot) { described_class.new(files: [{ filename: filename, checkSum: "aaabbb111222" }], url: url, work: work) }
 
   let(:filename) { "us_covid_2019.csv" }
   let(:url) { "http://localhost.localdomain/us_covid_2019.csv" }
   let(:work) { FactoryBot.create(:approved_work) }
 
-  describe "#filename" do
-    it "accesses the filename attribute" do
-      expect(upload_snapshot.filename).to eq(filename)
+  describe "#files" do
+    it "lists files associated with the snapshot" do
+      expect(upload_snapshot.files).to eq([{ "filename" => filename, "checkSum" => "aaabbb111222" }])
     end
   end
 
@@ -100,6 +100,84 @@ RSpec.describe UploadSnapshot, type: :model do
         expect(upload_snapshot.upload).not_to be_nil
         expect(upload_snapshot.upload).to eq(file2)
       end
+    end
+  end
+
+  describe "#filenames" do
+    it "lists filenames associated with the snapshot" do
+      expect(upload_snapshot.filenames).to eq([filename])
+    end
+  end
+
+  describe "#include?" do
+    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url: url, work: work) }
+
+    let(:s3_file) { FactoryBot.build :s3_file, filename: "fileone" }
+    let(:other_file) { FactoryBot.build :s3_file, filename: "other" }
+    it "checks if a files is part of the snamshot via name" do
+      expect(upload_snapshot.include?(s3_file)).to be_truthy
+      expect(upload_snapshot.include?(other_file)).to be_falsey
+    end
+  end
+
+  describe "#index" do
+    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url: url, work: work) }
+
+    let(:s3_file) { FactoryBot.build :s3_file, filename: "filetwo", checksum: "aaabbb111222" }
+    let(:other_file) { FactoryBot.build :s3_file, filename: "other" }
+    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url: url, work: work) }
+
+    it "lists filenames associated with the snapshot" do
+      expect(upload_snapshot.index(s3_file)).to eq(1)
+      expect(upload_snapshot.index(other_file)).to be_nil
+    end
+
+    it "checks both the filename and the checksum" do
+      s3_file.checksum = "otherchecksum"
+      expect(upload_snapshot.index(s3_file)).to be_nil
+    end
+  end
+
+  describe "#match?" do
+    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url: url, work: work) }
+
+    let(:s3_file) { FactoryBot.build :s3_file, filename: "filetwo", checksum: "aaabbb111222" }
+    let(:other_file) { FactoryBot.build :s3_file, filename: "other" }
+    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url: url, work: work) }
+
+    it "lists filenames associated with the snapshot" do
+      expect(upload_snapshot.match?(s3_file)).to be_truthy
+      expect(upload_snapshot.match?(other_file)).to be_falsey
+    end
+
+    it "checks both the filename and the checksum" do
+      s3_file.checksum = "otherchecksum"
+      expect(upload_snapshot.match?(s3_file)).to be_falsey
+    end
+  end
+
+  describe "#store_files" do
+    let(:s3_file1) { FactoryBot.build :s3_file, filename: "fileone", checksum: "aaabbb111222" }
+    let(:s3_file2) { FactoryBot.build :s3_file, filename: "filetwo", checksum: "dddeee111222" }
+    it "lists filenames associated with the snapshot" do
+      upload_snapshot.store_files([s3_file1, s3_file2])
+      expect(upload_snapshot.files).to eq([{ "filename" => "fileone", "checksum" => "aaabbb111222" },
+                                           { "filename" => "filetwo", "checksum" => "dddeee111222" }])
+    end
+  end
+
+  describe "#find_by_filename" do
+    subject(:upload_snapshot) do
+      described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url: url, work: work)
+    end
+
+    let(:s3_file) { FactoryBot.build :s3_file, filename: "fileone" }
+    let(:other_file) { FactoryBot.build :s3_file, filename: "other" }
+    it "checks if a files is part of the snamshot via name" do
+      expect(UploadSnapshot.find_by_filename(work_id: work.id, filename: "fileone")).to be_nil
+      upload_snapshot.save
+      expect(UploadSnapshot.find_by_filename(work_id: work, filename: "fileone")).to eq(upload_snapshot)
+      expect(UploadSnapshot.find_by_filename(work_id: work, filename: "filetwo")).to eq(upload_snapshot)
     end
   end
 end

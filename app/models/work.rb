@@ -482,91 +482,35 @@ class Work < ApplicationRecord
     end
   end
 
-  def new_s3_files
-    s3_files.reject do |s3_file|
-      UploadSnapshot.find_by(work: self, url: s3_file.url, filename: s3_file.filename)
-    end
-  end
-
-  def new_snapshots
-    new_s3_files.map do |s3_file|
-      UploadSnapshot.new(work: self, url: s3_file.url, filename: s3_file.filename)
-    end
-  end
-
-  def current_snapshots
-    valid_snapshots + new_snapshots
-  end
-
-  def invalid_snapshots
-    current_snapshots - past_snapshots
-  end
-
-  def self.select_matching_snapshots(snapshots:, s3_filename:)
-    snapshots.select do |snapshot|
-      # Checking for version substrings
-      matching_filename = snapshot.filename.match(/_\d+_/)
-      snapshot_filename = if matching_filename
-                            snapshot.filename.gsub(/_\d+\.([0-9a-zA-Z]+)$/, ".\\1")
-                          else
-                            snapshot.filename
-                          end
-
-      snapshot_filename == s3_filename
-    end
-  end
-
-  def self.select_matching_filename(s3_file:)
-    # Handling the foo.bin, foo_1.bin, foo_2.bin file naming scheme
-    s3_match = s3_file.filename.match(/_\d+_/)
-    if s3_match
-      s3_file.filename.gsub(/_\d+\.([0-9a-zA-Z]+)$/, ".\\1")
-    else
-      s3_file.filename
-    end
-  end
-
   # Build or find persisted UploadSnapshot models for this Work
   # @return [UploadSnapshot]
   def reload_snapshots
     work_changes = []
+    s3_files = pre_curation_uploads_fast
+    s3_filenames = s3_files.map(&:filename)
 
-    # Remove the existing snapshots and ensure that the WorkActivity is updated
-    invalid_snapshots.each do |invalid|
-      invalid.destroy
+    upload_snapshot = upload_snapshots.first
+    upload_snapshot ||= UploadSnapshot.new(work: self, files: [])
 
-      changes = {
-        action: "removed"
-      }
-      work_changes << changes
-    end
+    snapshot_deletions(work_changes, s3_filenames, upload_snapshot)
 
-    s3_files.each do |s3_file|
-      s3_filename = self.class.select_matching_filename(s3_file: s3_file)
-      matching_snapshots = self.class.select_matching_snapshots(snapshots: current_snapshots, s3_filename: s3_filename)
-
-      current_snapshot = matching_snapshots.last
-
-      # Compare the checksum values for the updated S3 file and current snapshot
-      next if current_snapshot.checksum == s3_file.checksum
-
-      current_snapshot.checksum = s3_file.checksum
-      changes = if !current_snapshot.persisted?
-                  {
-                    action: "added"
-                  }
-                else
-                  {
-                    action: "replaced"
-                  }
-                end
-      work_changes << changes
-      current_snapshot.save
-      current_snapshot.reload
-    end
+    snapshot_modifications(work_changes, s3_files, upload_snapshot)
 
     # Create WorkActivity models with the set of changes
-    WorkActivity.add_work_activity(id, work_changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES) unless work_changes.empty?
+    unless work_changes.empty?
+      new_snapshot = UploadSnapshot.new(work: self, url: s3_query_service.prefix)
+      new_snapshot.store_files(s3_files)
+      new_snapshot.save!
+      WorkActivity.add_work_activity(id, work_changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES)
+    end
+  end
+
+  def self.presenter_class
+    WorkPresenter
+  end
+
+  def presenter
+    self.class.presenter_class.new(work: self)
   end
 
   protected
@@ -779,6 +723,27 @@ class Work < ApplicationRecord
       # ...check that the files are indeed now in the post-curation bucket...
       if transferred_file_errors.count > 0
         raise(StandardError, "Failed to validate the uploaded S3 Object #{transferred_file_errors.map(&:key).join(', ')}")
+      end
+    end
+
+    def snapshot_deletions(work_changes, s3_filenames, upload_snapshot)
+      upload_snapshot.files.each do |file|
+        filename = file["filename"]
+        unless s3_filenames.include?(filename)
+          work_changes << { action: "removed", filename: filename, checksum: file["checksum"] }
+        end
+      end
+    end
+
+    def snapshot_modifications(work_changes, s3_files, upload_snapshot)
+      # check for modifications
+      s3_files.each do |s3_file|
+        next if upload_snapshot.match?(s3_file)
+        work_changes << if upload_snapshot.include?(s3_file)
+                          { action: "replaced", filename: s3_file.filename, checksum: s3_file.checksum }
+                        else
+                          { action: "added", filename: s3_file.filename, checksum: s3_file.checksum }
+                        end
       end
     end
 end

@@ -70,11 +70,7 @@
       in the corresponding github folder, which includes python scripts which do
       the analysis and PBS job scheduling and submission scripts which show how
       to run the python scripts. For more information on this, please see the
-      github readme. A full description of the structure of the dataset and how
-      to reproduce the figures in the manuscript are given in the dataset README
-      file. This dataset is too large to download directly from this item page.
-      You can access and download the data via Globus at this link:
-      https://app.globus.org/file-manager?origin_id=dc43f461-0ca7-4203-848c-33a9fc00a464&amp;origin_path=%2Fxajd-5n64%2F (See https://docs.globus.org/how-to/get-started/ for instructions on how to use Globus; sign-in is required).
+      github readme.
     </description>
   </descriptions>
 </resource>
