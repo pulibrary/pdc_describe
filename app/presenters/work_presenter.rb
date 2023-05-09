@@ -30,7 +30,7 @@ class WorkPresenter
 
   # Turn an identifier into a link. This will vary for different kinds of related objects.
   # A DOI URL is not the same as an arXiv URL, for example.
-  # For now, only format links for DOIs.
+  # For now, only format links for DOI and arXiv identifiers
   def format_link(id, id_type)
     return id if id.starts_with?("http")
     return "https://doi.org/#{id}" if id_type == "DOI"
