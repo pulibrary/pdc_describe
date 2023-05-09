@@ -64,7 +64,7 @@ class S3File
   # Create a new snapshot of the current upload
   # @return [UploadSnapshot]
   def create_snapshot
-    created = UploadSnapshot.create(url: url, filename: filename, work: @work, checksum: checksum)
+    created = UploadSnapshot.create(url: url, work: @work, files: [{ filename: filename, checksum: checksum }])
 
     created.upload = self
     created.save

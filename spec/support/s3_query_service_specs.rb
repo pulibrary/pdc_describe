@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
-def stub_s3(data: [], bucket_url: nil)
+def stub_s3(data: [], bucket_url: nil, prefix: "10.34770/123-abc/1")
   @s3_client = instance_double(Aws::S3::Client)
   allow(@s3_client).to receive(:head_object)
   allow(@s3_client).to receive(:delete_object)
 
-  fake_s3_query = instance_double(S3QueryService, data_profile: { objects: data, ok: true }, client: @s3_client, client_s3_files: data)
+  fake_s3_query = instance_double(S3QueryService, data_profile: { objects: data, ok: true }, client: @s3_client,
+                                                  client_s3_files: data, prefix: prefix)
   mock_methods(fake_s3_query, data)
   allow(S3QueryService).to receive(:new).and_return(fake_s3_query)
 

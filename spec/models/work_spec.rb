@@ -1044,4 +1044,56 @@ RSpec.describe Work, type: :model do
       expect { Work.find_by_ark("88435/xyz1234") }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
+
+  describe "#reload_snapshots" do
+    let(:work) { FactoryBot.create(:draft_work) }
+    let(:fake_s3_service) { stub_s3 }
+    let(:file1) { FactoryBot.build :s3_file, filename: "file1.txt", last_modified: Time.parse("2022-04-21T18:29:40.000Z"), checksum: "test1" }
+    let(:file2) { FactoryBot.build :s3_file, filename: "file2.txt", last_modified: Time.parse("2022-04-21T18:29:40.000Z"), checksum: "test2" }
+    let(:new_file2) { FactoryBot.build :s3_file, filename: "file2.txt", last_modified: Time.parse("2022-04-21T19:29:40.000Z"), checksum: "test2_new" }
+
+    before do
+      allow(fake_s3_service).to receive(:client_s3_files).and_return([file1, file2], [file1, new_file2])
+    end
+
+    it "starts with nothing" do
+      # shows a replaced file
+      expect(work.upload_snapshots).to be_empty
+      expect(work.work_activity).to be_empty
+    end
+
+    it "loads all the file changes in one snapshot and one work activity" do
+      # shows a replaced file
+      work.reload_snapshots
+      expect(work.upload_snapshots.count).to eq(1)
+      expect(work.upload_snapshots.first.files).to eq([{ "checksum" => "test1", "filename" => "file1.txt" },
+                                                       { "checksum" => "test2", "filename" => "file2.txt" }])
+      expect(work.work_activity.count).to eq(1)
+      expect(work.work_activity.first.message).to eq('[{"action":"added","filename":"file1.txt","checksum":"test1"},{"action":"added","filename":"file2.txt","checksum":"test2"}]')
+
+      # shows a replaced file
+      work.reload_snapshots
+      expect(work.upload_snapshots.count).to eq(2)
+      expect(work.upload_snapshots.first.files).to eq([{ "checksum" => "test1", "filename" => "file1.txt" },
+                                                       { "checksum" => "test2_new", "filename" => "file2.txt" }])
+      expect(work.work_activity.count).to eq(2)
+      expect(work.work_activity.first.message).to eq('[{"action":"replaced","filename":"file2.txt","checksum":"test2_new"}]')
+    end
+
+    context "when no changes occur" do
+      before do
+        allow(fake_s3_service).to receive(:client_s3_files).and_return([file1, file2])
+        work.reload_snapshots
+      end
+
+      it "does not show changes when no changes occur" do
+        expect(work.upload_snapshots.count).to eq(1)
+        expect(work.work_activity.count).to eq(1)
+        work_reload = Work.find(work.id) # making sure there is no instance caching
+        work_reload.reload_snapshots
+        expect(work.upload_snapshots.count).to eq(1)
+        expect(work.work_activity.count).to eq(1)
+      end
+    end
+  end
 end
