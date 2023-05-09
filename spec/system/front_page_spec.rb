@@ -9,7 +9,7 @@ describe "Application landing page", type: :system do
 
   it "has a header with links to helpful info" do
     visit "/"
-    expect(page).to have_link "About"
-    expect(page).to have_link "How to Submit"
+    expect(page).to have_link "About", href: /about/
+    expect(page).to have_link "How to Submit", href: /how-to-submit/
   end
 end
