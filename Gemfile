@@ -60,6 +60,7 @@ gem "datacite", github: "sul-dlss/datacite-ruby", branch: "main"
 gem "kramdown"
 
 gem "net-smtp"
+gem "rinku"
 
 group :development, :test do
   gem "bcrypt_pbkdf"

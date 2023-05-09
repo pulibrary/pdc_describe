@@ -498,6 +498,14 @@ class Work < ApplicationRecord
     end
   end
 
+  def self.presenter_class
+    WorkPresenter
+  end
+
+  def presenter
+    self.class.presenter_class.new(work: self)
+  end
+
   protected
 
     # This must be protected, NOT private for ActiveRecord to work properly with this attribute.
