@@ -88,7 +88,7 @@ namespace :works do
   desc "Shows what works are valid for DataCite submission."
   task :validate_datacite_attributes, [:verbose] => :environment do |_, args|
     Work.all.each do |work|
-      _attributes = work.send(:doi_attribute_xml)
+      _attributes = work.resource.to_xml
     rescue => ex
       details = args[:verbose] == "true" ? ex.backtrace.join : ""
       puts "Work #{work.id} is not valid, #{ex.message}. #{details}"
