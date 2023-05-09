@@ -10,6 +10,7 @@ class WorkPresenter
 
   def description
     value = resource.description
+    return if value.nil?
     Rinku.auto_link(value, :all, 'target="_blank"')
   end
 end

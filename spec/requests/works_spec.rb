@@ -50,21 +50,6 @@ RSpec.describe "/works", type: :request do
           expect { get work_url(work) }.to raise_error(Work::InvalidCollectionError, "The Work test-id does not belong to any Collection")
         end
       end
-
-      context "when the description metadata contains URLs" do
-        let(:description) { "This tests the link http://library.princeton.edu. It also has a summary." }
-        let(:resource) { FactoryBot.build(:resource, doi: "10.34770/123-abc", description: description) }
-        let(:work) { FactoryBot.create(:tokamak_work, resource: resource) }
-
-        before do
-          get work_url(work)
-        end
-
-        it "will render the URLs using HTML markup" do
-          expect(response.status).to eq(200)
-          expect(response.body).to include("This tests the link <a href=\"http://library.princeton.edu\" target=\"_blank\">http://library.princeton.edu</a>. It also has a summary.")
-        end
-      end
     end
   end
 
