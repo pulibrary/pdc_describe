@@ -3,7 +3,7 @@ require "rails_helper"
 
 RSpec.describe "Form submission for non_axisymmetric", type: :system, mock_ezid_api: true, js: true do
   let(:user) { FactoryBot.create(:pppl_moderator) }
-  let(:title) { "Source data for Observation of Axisymmetric Standard Magnetorotational Instability in the Laboratory" }
+  let(:title) { "Identification of a non-axisymmetric mode in laboratory experiments searching for standard magnetorotational instability" }
   let(:description) do
     "This dataset provides the source data of figures in the main text of the paper Identification of a non-axisymmetric mode in laboratory experiments searching for standard magnetorotational instability accepted by Nature Communications.
 
