@@ -216,13 +216,14 @@
         <dd>
           <% @work.presenter.related_objects_link_list.each do |related_object| %>
             <span class="related_object">
-            <%= related_object.relation_type %>
-              <% if related_object.link.blank? %>
-                <%= related_object.identifier %>
-              <% else %>
-                <%= link_to(related_object.identifier, related_object.link) %>                
-              <% end %>
+            <%= related_object.relation_type.titleize %>
+            <% if related_object.link.blank? %>
+              <%= related_object.identifier %>
+            <% else %>
+              <%= link_to(related_object.identifier, related_object.link) %>
+            <% end %>
             </span>
+            <br/>
           <% end %>
         </dd>
       <% end %>
