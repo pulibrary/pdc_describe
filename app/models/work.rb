@@ -246,6 +246,13 @@ class Work < ApplicationRecord
     save!
   end
 
+  # Return the DOI formatted as a URL, so it can be used as a link on display pages
+  # @return [String] A url formatted version of the DOI
+  def doi_url
+    return "https://doi.org/#{doi}" unless doi.starts_with?("https://doi.org")
+    doi
+  end
+
   def created_by_user
     User.find(created_by_user_id)
   rescue ActiveRecord::RecordNotFound
