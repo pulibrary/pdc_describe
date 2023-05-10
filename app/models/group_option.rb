@@ -1,5 +1,7 @@
 # frozen_string_literal: true
-class CollectionOption < ApplicationRecord
+class GroupOption < ApplicationRecord
+  self.table_name = "collection_options"
+
   EMAIL_MESSAGES = 0
 
   belongs_to :group, class_name: "Group", foreign_key: "collection_id"
@@ -12,7 +14,7 @@ class CollectionOption < ApplicationRecord
   # @return [String] the label
   def self.option_type_labels
     {
-      email_messages: "E-mail messages for Collection notifications"
+      email_messages: "E-mail messages for Group notifications"
     }
   end
 

@@ -9,12 +9,12 @@ class User < ApplicationRecord
 
   devise :rememberable, :omniauthable
 
-  # CollectionOptions model extensible options set for Collections and Users
-  has_many :collection_options, dependent: :destroy
-  has_many :collection_messaging_options, -> { where(option_type: CollectionOption::EMAIL_MESSAGES) }, class_name: "CollectionOption", dependent: :destroy
+  # GroupOptions model extensible options set for Groups and Users
+  has_many :group_options, dependent: :destroy
+  has_many :group_messaging_options, -> { where(option_type: GroupOption::EMAIL_MESSAGES) }, class_name: "GroupOption", dependent: :destroy
 
-  has_many :collections_with_options, through: :collection_options, source: :group
-  has_many :collections_with_messaging, through: :collection_messaging_options, source: :group
+  has_many :groups_with_options, through: :group_options, source: :group
+  has_many :groups_with_messaging, through: :group_messaging_options, source: :group
 
   after_create :assign_default_role
 
@@ -241,21 +241,21 @@ class User < ApplicationRecord
   # @param group [Group]
   def enable_messages_from(group:)
     raise(ArgumentError, "User #{uid} is not an administrator or depositor for the group #{group.title}") unless can_admin?(group) || can_submit?(group)
-    collection_messaging_options << CollectionOption.new(option_type: CollectionOption::EMAIL_MESSAGES, user: self, group: group)
+    group_messaging_options << GroupOption.new(option_type: GroupOption::EMAIL_MESSAGES, user: self, group: group)
   end
 
   # Disable this user from receiving notification messages for members of a given Group
   # @param group [Group]
   def disable_messages_from(group:)
     raise(ArgumentError, "User #{uid} is not an administrator or depositor for the group #{group.title}") unless can_admin?(group) || can_submit?(group)
-    collections_with_messaging.destroy(group)
+    groups_with_messaging.destroy(group)
   end
 
   # Returns true if the user has notification e-mails enabled for a given group
   # @param group [Group]
   # @return [Boolean]
   def messages_enabled_from?(group:)
-    found = collection_messaging_options.find_by(group: group)
+    found = group_messaging_options.find_by(group: group)
 
     !found.nil?
   end

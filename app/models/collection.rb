@@ -3,12 +3,16 @@
 class Collection < ApplicationRecord
   resourcify
 
-  # CollectionOptions model extensible options set for Collections and Users
-  has_many :collection_options, dependent: :destroy
-  has_many :collection_messaging_options, -> { where(option_type: CollectionOption::EMAIL_MESSAGES) }, class_name: "CollectionOption", dependent: :destroy
+  def self.option_class
+    GroupOption
+  end
 
-  has_many :users_with_options, through: :collection_options, source: :user
-  has_many :users_with_messaging, through: :collection_messaging_options, source: :user
+  # GroupOptions model extensible options set for Collections and Users
+  has_many :group_options, dependent: :destroy
+  has_many :group_messaging_options, -> { where(option_type: GroupOption::EMAIL_MESSAGES) }, class_name: "GroupOption", dependent: :destroy
+
+  has_many :users_with_options, through: :group_options, source: :user
+  has_many :users_with_messaging, through: :group_messaging_options, source: :user
 
   validate do |collection|
     if collection.title.blank?
@@ -43,7 +47,7 @@ class Collection < ApplicationRecord
   # @param user [User]
   def enable_messages_for(user:)
     raise(ArgumentError, "User #{user.uid} is not an administrator for this collection #{title}") unless user.can_admin?(self)
-    collection_messaging_options << CollectionOption.new(option_type: CollectionOption::EMAIL_MESSAGES, group: self, user: user)
+    group_messaging_options << self.class.option_class.new(option_type: self.class.option_class::EMAIL_MESSAGES, group: self, user: user)
   end
 
   # Disable a User from receiving notification messages for members of this Collection
