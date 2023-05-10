@@ -490,8 +490,7 @@ class Work < ApplicationRecord
     s3_files = pre_curation_uploads_fast
     s3_filenames = s3_files.map(&:filename)
 
-    upload_snapshot = upload_snapshots.first
-    upload_snapshot ||= UploadSnapshot.new(work: self, files: [])
+    upload_snapshot = latest_snapshot
 
     snapshot_deletions(work_changes, s3_filenames, upload_snapshot)
 
@@ -727,8 +726,16 @@ class Work < ApplicationRecord
       end
     end
 
+    def latest_snapshot
+      upload_snapshot = upload_snapshots.first
+      upload_snapshot ||= UploadSnapshot.new(work: self, files: [])
+
+      # return the migration snapshot if this is one, otherwise utilize the upload snapshot
+      MigrationUploadSnapshot.from_upload_snapshot(upload_snapshot)
+    end
+
     def snapshot_deletions(work_changes, s3_filenames, upload_snapshot)
-      upload_snapshot.files.each do |file|
+      upload_snapshot.existing_files.each do |file|
         filename = file["filename"]
         unless s3_filenames.include?(filename)
           work_changes << { action: "removed", filename: filename, checksum: file["checksum"] }

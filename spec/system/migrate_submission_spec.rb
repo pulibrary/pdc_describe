@@ -2,6 +2,8 @@
 require "rails_helper"
 
 RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_api: true, js: true do
+  include ActiveJob::TestHelper
+
   let(:user) { FactoryBot.create(:research_data_moderator) }
   let(:doi) { "10.34770/123-abc" }
   let(:title) { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
@@ -31,7 +33,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
   end
   let(:description) { "Download the README.txt for a detailed description of this dataset's content." }
   let(:ark) { "http://arks.princeton.edu/ark:/88435/dsp01d791sj97j" }
-  let(:collection) { "Research Data" }
+  let(:group) { "Research Data" }
 
   context "non moderator user" do
     let(:user) { FactoryBot.create(:user) }
@@ -206,6 +208,61 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
         expect(identifier).not_to have_received("target=")
         expect(Honeybadger).to have_received(:notify)
       end
+    end
+  end
+
+  context "Data migration" do
+    let(:work) { FactoryBot.create :shakespeare_and_company_work }
+    let(:s3_file) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/test_key" }
+    let(:s3_directory) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/test_directory_key", size: 0 }
+    let(:fake_s3_service) { stub_s3(data: [s3_file, s3_directory], prefix: "bucket/123/abc/") }
+    let(:handle_body) { File.read(Rails.root.join("spec", "fixtures", "files", "dspace_handle.json")) }
+    let(:bitsreams_body) { File.read(Rails.root.join("spec", "fixtures", "files", "dspace_bitstreams_response.json")) }
+    let(:metadata_body) { File.read(Rails.root.join("spec", "fixtures", "files", "dspace_metadata_response.json")) }
+    let(:bitsream1_body) { File.read(Rails.root.join("spec", "fixtures", "files", "bitstreams", "SCoData_combined_v1_2020-07_README.txt")) }
+    let(:bitsream2_body) { File.read(Rails.root.join("spec", "fixtures", "files", "bitstreams", "SCoData_combined_v1_2020-07_datapackage.json")) }
+    let(:bitsream3_body) { File.read(Rails.root.join("spec", "fixtures", "files", "bitstreams", "license.txt")) }
+
+    before do
+      stub_request(:get, "https://dataspace.example.com/rest/handle/88435/dsp01zc77st047")
+        .to_return(status: 200, body: handle_body, headers: {})
+      stub_request(:get, "https://dataspace.example.com/rest/items/104718/bitstreams")
+        .to_return(status: 200, body: bitsreams_body, headers: {})
+      stub_request(:get, "https://dataspace.example.com/rest/items/104718/metadata")
+        .to_return(status: 200, body: metadata_body, headers: {})
+      stub_request(:get, "https://dataspace.example.com/rest//bitstreams/145784/retrieve")
+        .to_return(status: 200, body: bitsream1_body, headers: {})
+      stub_request(:get, "https://dataspace.example.com/rest//bitstreams/145785/retrieve")
+        .to_return(status: 200, body: bitsream2_body, headers: {})
+      stub_request(:get, "https://dataspace.example.com/rest//bitstreams/145762/retrieve")
+        .to_return(status: 200, body: bitsream3_body, headers: {})
+
+      work.resource.migrated = true
+      work.draft!(user)
+      work.save
+      fake_completion = instance_double(Seahorse::Client::Response, "successful?": true)
+      allow(fake_s3_service).to receive(:copy_file).and_return(fake_completion)
+    end
+
+    it "allows the user to click migrate and the migration gets run" do
+      sign_in user
+      visit(work_path(work))
+      expect(page).to have_content work.title
+      click_on("Migrate Dataspace Files")
+      start_activities = WorkActivity.activities_for_work(work.id, WorkActivity::MIGRATION_START)
+      expect(start_activities.count).to eq(1)
+      activity = start_activities.first
+      expect(activity.activity_type).to eq(WorkActivity::MIGRATION_START)
+      expect(activity.created_by_user_id).to eq(user.id)
+      expect(page).to have_content("Migration for 4 files and 1 directory")
+      perform_enqueued_jobs
+      end_activities = WorkActivity.activities_for_work(work.id, WorkActivity::MIGRATION_COMPLETE)
+      expect(end_activities.count).to eq(1)
+      activity = end_activities.first
+      expect(activity.activity_type).to eq(WorkActivity::MIGRATION_COMPLETE)
+      expect(activity.created_by_user_id).to eq(user.id)
+      visit(work_path(work))
+      expect(page).to have_content("4 files and 1 directory have migrated from Dataspace.")
     end
   end
 end
