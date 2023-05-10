@@ -61,7 +61,8 @@ Rails.application.routes.draw do
   post "groups/:id/add-submitter/:uid", to: "groups#add_submitter", as: :add_submitter
   post "groups/:id/add-admin/:uid", to: "groups#add_admin", as: :add_admin
   resources :groups
-  resources :groups
+
+  get "/collections/:id", to: redirect("/groups/%{id}"), as: :collections
 
   # Anything still unmatched by the end of the routes file should go to the not_found page
   # match '*a', to: redirect('/404'), via: :get

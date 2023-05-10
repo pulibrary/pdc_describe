@@ -1,9 +1,0 @@
-<h1><%= t('collections.index.heading') %></h1>
-<ul>
-  <% Collection.all.each do |c| %>
-    <li><%= link_to(c.title, collection_path(c)) %>
-    <% if c.description.present? %>
-      <p><%= c.description %></p>
-    <% end %>
-  <% end %>
-</ul>

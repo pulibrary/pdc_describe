@@ -38,7 +38,7 @@
 <% elsif @user.moderator? %>
   <p>Moderator for:
     <%= @user.admin_groups.map do |group|
-      link_to(group.title, collection_path(group))
+      link_to(group.title, group_path(group))
     end.to_sentence.html_safe %></p>
 <% end %>
 

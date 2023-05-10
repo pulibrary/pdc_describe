@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 require "rails_helper"
 ##
-# A collection admin is a user who has admin rights on a given collection
+# A group admin is a user who has admin rights on a given group
 RSpec.describe "Authz for curators", type: :system, js: true do
   describe "A curator" do
     let(:research_data_moderator) { FactoryBot.create :research_data_moderator }
     let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
-    let(:collection) { Group.find(work.collection_id) }
+    let(:group) { Group.find(work.collection_id) }
     let(:new_submitter) { FactoryBot.create :pppl_submitter }
     let(:pppl_moderator) { FactoryBot.create :pppl_moderator }
 
@@ -16,12 +16,12 @@ RSpec.describe "Authz for curators", type: :system, js: true do
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     end
 
-    describe "in a collection they curate" do
+    describe "in a group they curate" do
       it "can edit any work" do
         # The work is not created by princeton_curator
         expect(work.created_by_user_id).not_to eq research_data_moderator.id
-        # But princeton_curator is an administrator of the collection where the work resides
-        expect(collection.administrators.include?(research_data_moderator)).to eq true
+        # But princeton_curator is an administrator of the group where the work resides
+        expect(group.administrators.include?(research_data_moderator)).to eq true
         # And so, research_data_moderator can edit the work
         login_as research_data_moderator
         visit edit_work_path(work)
@@ -32,22 +32,22 @@ RSpec.describe "Authz for curators", type: :system, js: true do
         expect(work.reload.title).to eq "New Title"
       end
 
-      it "can add submitters to the collection" do
+      it "can add submitters to the group" do
         login_as research_data_moderator
         expect(research_data_moderator.can_admin?(Group.research_data)).to eq true
         expect(new_submitter.can_submit?(Group.research_data)).to eq false
-        visit edit_collection_path(Group.research_data)
+        visit edit_group_path(Group.research_data)
         fill_in "submitter-uid-to-add", with: new_submitter.uid
         click_on "Add Submitter"
         expect(page).to have_content new_submitter.uid
         expect(new_submitter.can_submit?(Group.research_data)).to eq true
       end
 
-      it "can add admins to the collection" do
+      it "can add admins to the group" do
         login_as research_data_moderator
         expect(research_data_moderator.can_admin?(Group.research_data)).to eq true
         expect(new_submitter.can_admin?(Group.research_data)).to eq false
-        visit edit_collection_path(Group.research_data)
+        visit edit_group_path(Group.research_data)
         fill_in "admin-uid-to-add", with: new_submitter.uid
         click_on "Add Moderator"
         expect(page).to have_content new_submitter.uid
@@ -55,23 +55,23 @@ RSpec.describe "Authz for curators", type: :system, js: true do
       end
     end
 
-    describe "in a collection they do NOT curate" do
+    describe "in a group they do NOT curate" do
       let(:work) { FactoryBot.create(:tokamak_work) }
-      let(:collection) { Group.find(work.collection_id) }
+      let(:group) { Group.find(work.collection_id) }
 
       it "can NOT add admins" do
         login_as research_data_moderator
         expect(research_data_moderator.can_admin?(Group.research_data)).to eq true
         expect(research_data_moderator.can_admin?(Group.plasma_laboratory)).to eq false
-        visit collection_path(Group.plasma_laboratory)
+        visit group_path(Group.plasma_laboratory)
         expect(page).not_to have_content "Add Submitter"
         expect(page).not_to have_content "Add Moderator"
       end
 
       it "can NOT edit works" do
         expect(work.created_by_user_id).not_to eq research_data_moderator.id
-        # research_data_moderator is NOT an administrator of the collection where the work resides
-        expect(collection.administrators.include?(research_data_moderator)).to eq false
+        # research_data_moderator is NOT an administrator of the group where the work resides
+        expect(group.administrators.include?(research_data_moderator)).to eq false
         # And so, research_data_moderator can NOT edit the work
         login_as research_data_moderator
         visit edit_work_path(work)
@@ -81,10 +81,10 @@ RSpec.describe "Authz for curators", type: :system, js: true do
       end
 
       context "with submitter rights" do
-        let(:other_work) { FactoryBot.create :draft_work, created_by_user_id: research_data_moderator.id, group: collection }
+        let(:other_work) { FactoryBot.create :draft_work, created_by_user_id: research_data_moderator.id, group: group }
         let(:user_work) { FactoryBot.create :draft_work }
         before do
-          research_data_moderator.add_role :submitter, collection
+          research_data_moderator.add_role :submitter, group
           other_work
           user_work
         end
