@@ -5,6 +5,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 gem "aasm"
 gem "aws-sdk-s3"
 gem "datacite-mapping"
+gem "ddtrace", require: "ddtrace/auto_instrument"
 gem "factory_bot_rails", require: false
 gem "ffaker"
 gem "honeybadger", "~> 4.0"
