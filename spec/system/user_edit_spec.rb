@@ -34,8 +34,8 @@ RSpec.describe "Editing users", type: :system do
 
   describe "Allows a user to edit which collections send emails", js: true do
     let(:user) { FactoryBot.create :princeton_submitter }
-    let(:pppl_collection) { Collection.plasma_laboratory }
-    let(:rd_collection) { Collection.research_data }
+    let(:pppl_collection) { Group.plasma_laboratory }
+    let(:rd_collection) { Group.research_data }
     let(:random_collection) { FactoryBot.create(:collection) }
 
     before do

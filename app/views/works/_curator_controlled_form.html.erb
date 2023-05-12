@@ -64,17 +64,17 @@
 
 <!-- Collection field -->
 <div class="field">
-  Collection: <span class="required-field">*</span><br>
+  <%= t('works.form.group') %>: <span class="required-field">*</span><br>
   <input type="hidden" name="collection_id" value="<%= @work.collection_id%>"/> <!-- put the value in the form as disabled will not send the data back -->
   <select id="collection_id" name="collection_id" class="input-text-long"  <%= is_collection_admin ? '' : 'disabled' %> >
-    <% current_user.submitter_collections.each do |collection| %>
-      <option value="<%=collection.id%>" <%= @work.collection_id == collection.id ? "selected" : "" %>><%=collection.title%></option>
+    <% current_user.submitter_groups.each do |group| %>
+      <option value="<%=group.id%>" <%= @work.collection_id == group.id ? "selected" : "" %>><%=group.title%></option>
     <% end %>
   </select>
 </div>
 
 <!-- Collection Tags field -->
 <div class="field">
-  Collection Tags: <span class="text-muted field-hint">(enter tags that identify the collect in a comma separated list, e.g. Humanities, Life Sciences)</span><br>
+  <%= t('works.form.collection_tags') %>: <span class="text-muted field-hint">(enter tags that identify the collect in a comma separated list, e.g. Humanities, Life Sciences)</span><br>
   <input type="text" id="collection_tags" name="collection_tags" class="input-text-long" value="<%= @work.resource.collection_tags.join(', ') %>" <%= is_collection_admin ? '' : 'readonly' %> />
 </div>

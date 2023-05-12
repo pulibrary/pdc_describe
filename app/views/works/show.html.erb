@@ -228,8 +228,8 @@
         </dd>
       <% end %>
 
-      <dt>Collection</dt>
-      <dd><%= @work_decorator.collection&.title %></dd>
+      <dt><%= t("work.group") %></dt>
+      <dd><%= @work.group.title %></dd>
 
       <% if @work.resource.funders.count > 0 %>
         <dt>Funders</dt>

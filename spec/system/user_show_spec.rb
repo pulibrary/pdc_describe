@@ -13,11 +13,11 @@ RSpec.describe "User dashboard" do
       expect(page).to have_css('td.last-edited[data-sort="' + work_last_edited + '"]')
     end
 
-    it "renders the collection names as links", js: true do
+    it "renders the group names as links", js: true do
       sign_in moderator_user
       visit user_path(moderator_user)
-      pppl_url = collection_path(Collection.plasma_laboratory)
-      expected_link = "<a href=\"#{pppl_url}\">#{Collection.plasma_laboratory.title}</a>"
+      pppl_url = group_path(Group.plasma_laboratory)
+      expected_link = "<a href=\"#{pppl_url}\">#{Group.plasma_laboratory.title}</a>"
       expect(page.html.include?(expected_link)).to be true
     end
   end
@@ -44,7 +44,7 @@ RSpec.describe "User dashboard" do
       expect(page.html.include?("Shakespeare and Company Project Dataset: Lending Library Members, Books, Events")).to be true
     end
 
-    it "allows administrators to find works regardless of the collection" do
+    it "allows administrators to find works regardless of the group" do
       sign_in user_admin
       visit user_path(user_admin) + "?q=shakespeare"
       expect(page.html.include?("Shakespeare and Company Project Dataset: Lending Library Members, Books, Events")).to be true

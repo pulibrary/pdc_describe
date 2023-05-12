@@ -1,7 +1,7 @@
-<h1>Collections</h1>
+<h1><%= t('groups.index.heading') %></h1>
 <ul>
   <% Collection.all.each do |c| %>
-    <li><%= link_to(c.title, collection_path(c)) %>
+    <li><%= link_to(c.title, group_path(c)) %>
     <% if c.description.present? %>
       <p><%= c.description %></p>
     <% end %>

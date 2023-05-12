@@ -10,7 +10,7 @@ RSpec.describe "Form submission for migrating design-arrangment", type: :system,
 Consult the file README.txt for a more detailed description of the contents."
   end
   let(:ark) { "ark:/88435/dsp01x059cb547" }
-  let(:collection) { "Princeton Plasma Physics Laboratory" }
+  let(:group) { "Princeton Plasma Physics Laboratory" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.11578/1888258" }
   let(:keywords) { "" }
@@ -71,7 +71,7 @@ Consult the file README.txt for a more detailed description of the contents."
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2022
-      select collection, from: "collection_id"
+      select group, from: "collection_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"

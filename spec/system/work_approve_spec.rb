@@ -3,7 +3,7 @@ require "rails_helper"
 
 RSpec.describe "Work Approval", type: :system do
   let(:work) { FactoryBot.create(:awaiting_approval_work) }
-  let!(:curator) { FactoryBot.create(:user, collections_to_admin: [work.collection]) }
+  let!(:curator) { FactoryBot.create(:user, groups_to_admin: [work.group]) }
 
   before do
     stub_s3

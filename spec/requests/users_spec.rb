@@ -66,8 +66,8 @@ RSpec.describe "/users", type: :request do
     end
 
     context "when updating Collection notification settings" do
-      let(:collection1) { Collection.plasma_laboratory }
-      let(:collection2) { Collection.research_data }
+      let(:collection1) { Group.plasma_laboratory }
+      let(:collection2) { Group.research_data }
       let(:updated_attributes1) do
         {
           collections_with_messaging: {
@@ -89,9 +89,9 @@ RSpec.describe "/users", type: :request do
       end
 
       before do
-        Collection.create_defaults
-        user.add_role(:collection_admin, collection1)
-        user.add_role(:collection_admin, collection2)
+        Group.create_defaults
+        user.add_role(:group_admin, collection1)
+        user.add_role(:group_admin, collection2)
         user.save!
         user.reload
 
@@ -101,14 +101,14 @@ RSpec.describe "/users", type: :request do
       end
 
       it "updates the notification settings for multiple Collections" do
-        expect(user.messages_enabled_from?(collection: collection1)).to be true
-        expect(user.messages_enabled_from?(collection: collection2)).to be true
+        expect(user.messages_enabled_from?(group: collection1)).to be true
+        expect(user.messages_enabled_from?(group: collection2)).to be true
 
         patch user_url(user), params: { user: updated_attributes2 }
         user.reload
 
-        expect(user.messages_enabled_from?(collection: collection1)).to be false
-        expect(user.messages_enabled_from?(collection: collection2)).to be false
+        expect(user.messages_enabled_from?(group: collection1)).to be false
+        expect(user.messages_enabled_from?(group: collection2)).to be false
       end
     end
 

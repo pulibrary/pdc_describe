@@ -36,7 +36,10 @@ en:
       email_messages: "E-mail Message Settings"
       email_messages_enabled: "Enable e-mail notifications"
       email_messages_submit: "Update"
+      groups: "Groups"
   works:
+    group: "Group"
+    group_tags: "Group Tags"
     uploads:
       pre_curation:
         heading: "Uncurated Files"
@@ -69,3 +72,8 @@ en:
     uneditable:
       approved: "This work has been approved.  Edits are no longer available."
       privs: "You do not have permission to edit this work."
+  groups:
+    form:
+      heading: "Editing Group"
+    index:
+      heading: "Groups"

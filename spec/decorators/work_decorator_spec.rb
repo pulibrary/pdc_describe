@@ -7,7 +7,7 @@ describe WorkDecorator, type: :model do
   let(:work) { FactoryBot.create(:draft_work) }
 
   it "delgate methods" do
-    expect(decorator.collection).to eq(work.collection)
+    expect(decorator.group).to eq(work.group)
     expect(decorator.resource).to eq(work.resource)
     expect(decorator.migrated).to be_falsey
     work.resource.migrated = true
