@@ -10,7 +10,7 @@ class WorkStateTransitionNotification
     @to_state = work.aasm.to_state
     @from_state = work.aasm.from_state
     @depositor = work.created_by_user
-    @collection_administrators = work.collection.administrators.to_a
+    @collection_administrators = work.group.administrators.to_a
     @work_url = Rails.application.routes.url_helpers.work_url(work)
     @work_title = work.title
     @users = @collection_administrators | [@depositor] # Depositor may also be an admin, but should only be listed once.

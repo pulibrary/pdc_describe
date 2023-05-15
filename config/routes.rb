@@ -52,15 +52,17 @@ Rails.application.routes.draw do
   match "/doi/*doi", via: :get, to: "works#resolve_doi", as: :resolve_doi, format: false
   match "/ark/*ark", via: :get, to: "works#resolve_ark", as: :resolve_ark, format: false
 
-  delete "collections/:id/:uid", to: "collections#delete_user_from_collection", as: :delete_user_from_collection
-  post "collections/:id/add-submitter/:uid", to: "collections#add_submitter", as: :add_submitter
-  post "collections/:id/add-admin/:uid", to: "collections#add_admin", as: :add_admin
-  resources :collections
-
   get "upload-snapshots/:work_id", to: "upload_snapshots#edit", as: :edit_upload_snapshot
   get "upload-snapshots/:id/download", to: "upload_snapshots#download", as: :download_upload_snapshot
   post "upload-snapshots", to: "upload_snapshots#create", as: :create_upload_snapshot
   delete "upload-snapshots/:id", to: "upload_snapshots#destroy", as: :delete_upload_snapshot
+
+  delete "groups/:id/:uid", to: "groups#delete_user_from_group", as: :delete_user_from_group
+  post "groups/:id/add-submitter/:uid", to: "groups#add_submitter", as: :add_submitter
+  post "groups/:id/add-admin/:uid", to: "groups#add_admin", as: :add_admin
+  resources :groups
+
+  get "/collections/:id", to: redirect("/groups/%{id}"), as: :collections
 
   # Anything still unmatched by the end of the routes file should go to the not_found page
   # match '*a', to: redirect('/404'), via: :get

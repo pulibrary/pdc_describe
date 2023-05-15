@@ -9,11 +9,13 @@ class WorkActivity < ApplicationRecord
   MESSAGE_ACTIVITY_TYPES = [MESSAGE, NOTIFICATION].freeze
 
   CHANGES = "CHANGES"
+  DATACITE_ERROR = "DATACITE-ERROR"
   FILE_CHANGES = "FILE-CHANGES"
+  MIGRATION_START = "MIGRATION_START"
+  MIGRATION_COMPLETE = "MIGRATION_COMPLETE"
   PROVENANCE_NOTES = "PROVENANCE-NOTES"
   SYSTEM = "SYSTEM"
-  DATACITE_ERROR = "DATACITE-ERROR"
-  CHANGE_LOG_ACTIVITY_TYPES = [CHANGES, FILE_CHANGES, PROVENANCE_NOTES, SYSTEM, DATACITE_ERROR].freeze
+  CHANGE_LOG_ACTIVITY_TYPES = [CHANGES, FILE_CHANGES, PROVENANCE_NOTES, SYSTEM, DATACITE_ERROR, MIGRATION_COMPLETE].freeze
 
   USER_REFERENCE = /@[\w]*/.freeze # e.g. @xy123
 
@@ -83,6 +85,8 @@ class WorkActivity < ApplicationRecord
               MetadataChanges
             elsif activity_type == FILE_CHANGES
               FileChanges
+            elsif activity_type == MIGRATION_COMPLETE
+              Migration
             elsif CHANGE_LOG_ACTIVITY_TYPES.include?(activity_type)
               OtherLogEvent
             else
@@ -154,7 +158,7 @@ class WorkActivity < ApplicationRecord
       end
 
       files_added = changes.select { |v| v["action"] == "added" }
-      files_deleted = changes.select { |v| v["action"] == "deleted" }
+      files_deleted = changes.select { |v| v["action"] == "removed" }
       files_replaced = changes.select { |v| v["action"] == "replaced" }
 
       changes_html = []
@@ -177,6 +181,14 @@ class WorkActivity < ApplicationRecord
       end
 
       "<table>#{changes_html.join}</table>"
+    end
+  end
+
+  class Migration < Renderer
+    # Returns the message formatted to display _file_ changes that were logged as an activity
+    def body_html
+      changes = JSON.parse(@work_activity.message)
+      "<p>#{changes['message']}</p>"
     end
   end
 

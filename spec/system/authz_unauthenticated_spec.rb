@@ -23,21 +23,21 @@ RSpec.describe "Authz for non-authenticated users", type: :system, js: true do
       end
     end
 
-    context "collections" do
+    context "groups" do
       before do
-        Collection.create_defaults
+        Group.create_defaults
       end
-      # As a non-authenticated user if I try to go directly to a collection page,
+      # As a non-authenticated user if I try to go directly to a group page,
       # I am redirected to the sign_in page
-      it "cannot go directly to a collection show page" do
-        visit collection_path(Collection.first)
+      it "cannot go directly to a group show page" do
+        visit group_path(Group.first)
         expect(current_path).to eq "/sign_in"
       end
 
-      # As a non-authenticated user if I try to go directly to a collection edit page,
+      # As a non-authenticated user if I try to go directly to a group edit page,
       # I am redirected to the sign_in page
-      it "cannot go directly to a collection edit page" do
-        visit edit_collection_path(Collection.first)
+      it "cannot go directly to a group edit page" do
+        visit edit_group_path(Group.first)
         expect(current_path).to eq "/sign_in"
       end
     end

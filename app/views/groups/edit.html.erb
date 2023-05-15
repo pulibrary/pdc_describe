@@ -1,11 +1,11 @@
-<h1>Editing Collection</h1>
+<h1><%= t('groups.form.heading') %></h1>
 
-<%= form_with(model: @collection) do |form| %>
-  <% if @collection.errors.any? %>
+<%= form_with(model: @group) do |form| %>
+  <% if @group.errors.any? %>
     <div id="error_explanation">
-      <h2><%= pluralize(@collection.errors.count, "error") %> prohibited this collection from being saved:</h2>
+      <h2><%= pluralize(@group.errors.count, "error") %> prohibited this group from being saved:</h2>
       <ul>
-        <% @collection.errors.each do |error| %>
+        <% @group.errors.each do |error| %>
           <li><%= error.full_message %></li>
         <% end %>
       </ul>
@@ -29,14 +29,14 @@
 
   <div class="actions">
     <%= form.submit class: "btn btn-primary" %>
-    <%= link_to 'Cancel', @collection, class: "btn btn-secondary" %>
+    <%= link_to 'Cancel', @group, class: "btn btn-secondary" %>
   </div>
 <% end %>
 
 <h2>Submitters</h2>
-<p>Users that are allowed to add new works to this collection</p>
+<p>Users that are allowed to add new works to this group</p>
 <ul id="submitter-list">
-<% @collection.submitters.each do |user| %>
+<% @group.submitters.each do |user| %>
   <!--
     Notice that we render the list of submitters and admins as hidden spans that are then
     picked up by the JavaScript on the page and turned into visible HTMLs with all the bells
@@ -46,7 +46,7 @@
   -->
   <span class="hidden submitter-data"
     data-uid="<%= user.uid %>"
-    data-collection-id="<%= @collection.id %>"
+    data-collection-id="<%= @group.id %>"
     data-can-delete="<%= user.uid != current_user.uid %>"
     data-you="<%= user.uid == current_user.uid %>"></span>
 <% end %>
@@ -59,12 +59,12 @@
 </div>
 
 <h2 class="user-section-heading">Moderators</h2>
-<p>Users that are allowed to approve submissions to this collection</p>
+<p>Users that are allowed to approve submissions to this group</p>
 <ul id="curator-list">
-<% @collection.administrators.each do |user| %>
+<% @group.administrators.each do |user| %>
   <span class="hidden curator-data"
     data-uid="<%= user.uid %>"
-    data-collection-id="<%= @collection.id %>"
+    data-collection-id="<%= @group.id %>"
     data-can-delete="<%= user.uid != current_user.uid %>"
     data-you="<%= user.uid == current_user.uid %>"></span>
 <% end %>
@@ -79,10 +79,10 @@
 <h2 class="user-section-heading">System Administrators</h2>
 <p>Users with global access to the system for administration purposes</p>
 <ul id="sysadmin-list">
-<% @collection.super_administrators.each do |user| %>
+<% @group.super_administrators.each do |user| %>
   <span class="hidden sysadmin-data"
     data-uid="<%= user.uid %>"
-    data-collection-id="<%= @collection.id %>"
+    data-collection-id="<%= @group.id %>"
     data-can-delete="false"
     data-super-admin="true"
     data-you="<%= user.uid == current_user.uid %>"></span>
@@ -92,11 +92,11 @@
 <script>
 pdc = {
   ...pdc,
-  deleteUserFromCollectionUrl: '<%= delete_user_from_collection_url(id: @collection.id, uid: "uid-placeholder") %>',
+  deleteUserFromCollectionUrl: '<%= delete_user_from_group_url(id: @group.id, uid: "uid-placeholder") %>',
   formAuthenticityToken: '<%= form_authenticity_token %>',
-  collectionId: '<%= @collection.id %>',
-  addSubmitterUrl: '<%= add_submitter_url(id: @collection.id, uid: "uid-placeholder") %>',
-  addAdminUrl: '<%= add_admin_url(id: @collection.id, uid: "uid-placeholder") %>',
+  collectionId: '<%= @group.id %>',
+  addSubmitterUrl: '<%= add_submitter_url(id: @group.id, uid: "uid-placeholder") %>',
+  addAdminUrl: '<%= add_admin_url(id: @group.id, uid: "uid-placeholder") %>',
   userPath: "<%= user_path('user-placeholder') %>"
 }
 </script>

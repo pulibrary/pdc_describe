@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "Work state transions", type: :model do
-  let(:curator_user) { FactoryBot.create :user, collections_to_admin: [work.collection] }
+  let(:curator_user) { FactoryBot.create :user, groups_to_admin: [work.group] }
 
   {
     none_work: :draft!,
@@ -14,7 +14,7 @@ RSpec.describe "Work state transions", type: :model do
         it "Creates work activity notifications for the curator & the creator after #{method_sym}" do
           user = work.created_by_user
           if creator_is_admin
-            user.add_role(:collection_admin, work.collection)
+            user.add_role(:group_admin, work.group)
           else
             curator_user # make sure the curator exists
           end

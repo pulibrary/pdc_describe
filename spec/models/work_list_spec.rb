@@ -3,7 +3,7 @@ require "rails_helper"
 
 RSpec.describe WorkList, type: :model do
   let(:user) { FactoryBot.create :user }
-  let(:collection) { Collection.research_data }
+  let(:collection) { Group.research_data }
   let(:user_other) { FactoryBot.create :user }
   let(:super_admin_user) { FactoryBot.create :super_admin_user }
   let(:work) { FactoryBot.create(:draft_work) }
@@ -14,7 +14,7 @@ RSpec.describe WorkList, type: :model do
   let(:pppl_user) { FactoryBot.create :pppl_submitter }
 
   let(:curator_user) do
-    FactoryBot.create :user, collections_to_admin: [Collection.research_data]
+    FactoryBot.create :user, groups_to_admin: [Group.research_data]
   end
 
   # Please see spec/support/ezid_specs.rb

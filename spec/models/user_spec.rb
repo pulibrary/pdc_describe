@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe User, type: :model do
-  before { Collection.create_defaults }
+  before { Group.create_defaults }
 
   let(:access_token) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu" }) }
   let(:access_token_pppl) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu", departmentnumber: "31000" }) }
@@ -26,8 +26,8 @@ RSpec.describe User, type: :model do
   let(:pppl_user) { described_class.from_cas(access_token_pppl) }
   let(:super_admin_user) { described_class.new_super_admin("fake1") }
 
-  let(:rd_collection) { Collection.where(code: "RD").first }
-  let(:pppl_collection) { Collection.where(code: "PPPL").first }
+  let(:rd_collection) { Group.where(code: "RD").first }
+  let(:pppl_collection) { Group.where(code: "PPPL").first }
 
   let(:csv) { file_fixture("orcid.csv").to_s }
   # rubocop:disable Layout/LineLength
@@ -38,16 +38,16 @@ RSpec.describe User, type: :model do
     it "returns a user object with a default collection" do
       user = described_class.from_cas(access_token)
       expect(user).to be_a described_class
-      expect(user.default_collection.id).to eq Collection.default.id
-      expect(user.messages_enabled_from?(collection: user.default_collection)).to be_truthy
+      expect(user.default_group.id).to eq Group.default.id
+      expect(user.messages_enabled_from?(group: user.default_group)).to be_truthy
     end
 
     it "sets the proper default collection for a PPPL user" do
-      pppl_collection = Collection.where(code: "PPPL").first
+      pppl_collection = Group.where(code: "PPPL").first
       pppl_user = described_class.from_cas(access_token_pppl)
       expect(pppl_user).to be_a described_class
-      expect(pppl_user.default_collection.id).to eq pppl_collection.id
-      expect(pppl_user.messages_enabled_from?(collection: pppl_user.default_collection)).to be_truthy
+      expect(pppl_user.default_group.id).to eq pppl_collection.id
+      expect(pppl_user.messages_enabled_from?(group: pppl_user.default_group)).to be_truthy
     end
 
     it "sets the CAS info on new" do
@@ -145,7 +145,7 @@ RSpec.describe User, type: :model do
       expect(fake1).to be_super_admin
       admin_user = described_class.find_by(uid: "user1")
       submitter_user = described_class.find_by(uid: "user2")
-      rd = Collection.research_data
+      rd = Group.research_data
       expect(admin_user.can_admin?(rd)).to be true
       expect(submitter_user.can_submit?(rd)).to be true
       expect(submitter_user.can_admin?(rd)).to be false
@@ -158,7 +158,7 @@ RSpec.describe User, type: :model do
       expect(super_admin_user.can_submit?(pppl_collection.id)).to be true
       expect(super_admin_user.can_admin?(rd_collection.id)).to be true
       expect(super_admin_user.can_submit?(rd_collection.id)).to be true
-      expect(super_admin_user.submitter_collections.count).to eq Collection.count
+      expect(super_admin_user.submitter_groups.count).to eq Group.count
     end
 
     it "gives access to research data collection to normal users" do
@@ -166,7 +166,7 @@ RSpec.describe User, type: :model do
       expect(normal_user.can_submit?(pppl_collection)).to be false
       expect(normal_user.can_admin?(rd_collection)).to be false
       expect(normal_user.can_submit?(rd_collection)).to be true
-      expect(normal_user.submitter_collections.count).to eq 1
+      expect(normal_user.submitter_groups.count).to eq 1
     end
 
     it "gives submit access PPPL collection to PPPL users" do
@@ -174,12 +174,12 @@ RSpec.describe User, type: :model do
       expect(pppl_user.can_submit?(pppl_collection)).to be true
       expect(pppl_user.can_admin?(rd_collection)).to be false
       expect(pppl_user.can_submit?(rd_collection)).to be false
-      expect(pppl_user.submitter_collections.count).to eq 1
+      expect(pppl_user.submitter_groups.count).to eq 1
     end
 
     it "gives access to the default collection" do
       user = FactoryBot.build :user
-      user.add_role(:collection_admin, pppl_collection)
+      user.add_role(:group_admin, pppl_collection)
       user.save!
       expect(user.can_submit?(rd_collection)).to be_truthy
     end
@@ -187,15 +187,15 @@ RSpec.describe User, type: :model do
 
   describe "default collection is set on ititalize" do
     it "super admins can access any collection" do
-      expect(super_admin_user.submitter_collections.count).to be Collection.count
+      expect(super_admin_user.submitter_groups.count).to be Group.count
     end
 
     it "gives a user submit access to their default collection" do
-      expect(normal_user.submitter_collections).to eq [rd_collection]
+      expect(normal_user.submitter_groups).to eq [rd_collection]
     end
 
     it "gives a pppl user submit access to their default collection" do
-      expect(pppl_user.submitter_collections).to eq [pppl_collection]
+      expect(pppl_user.submitter_groups).to eq [pppl_collection]
     end
   end
 
@@ -242,54 +242,54 @@ RSpec.describe User, type: :model do
   end
 
   describe "#disable_messages_from" do
-    let(:collection) { Collection.default }
+    let(:collection) { Group.default }
     let(:user) { described_class.create(uid: "test") }
 
     context "when the user is a super admin" do
       let(:user) { described_class.new_super_admin("test-admin") }
 
       it "disables and enables email messages for notifications from a Collection" do
-        initial_state = user.messages_enabled_from?(collection: collection)
+        initial_state = user.messages_enabled_from?(group: collection)
         expect(initial_state).to be true
 
-        user.disable_messages_from(collection: collection)
+        user.disable_messages_from(group: collection)
         user.save!
         user.reload
 
-        disabled_state = user.messages_enabled_from?(collection: collection)
+        disabled_state = user.messages_enabled_from?(group: collection)
         expect(disabled_state).to be false
 
-        user.enable_messages_from(collection: collection)
+        user.enable_messages_from(group: collection)
         user.save!
         user.reload
 
-        enabled_state = user.messages_enabled_from?(collection: collection)
+        enabled_state = user.messages_enabled_from?(group: collection)
         expect(enabled_state).to be true
       end
     end
 
     context "when the user is an administrator for a Collection" do
       before do
-        user.add_role(:collection_admin, collection)
+        user.add_role(:group_admin, collection)
         user.save!
       end
 
       it "disables and enables email messages for notifications from a Collection" do
-        initial_state = user.messages_enabled_from?(collection: collection)
+        initial_state = user.messages_enabled_from?(group: collection)
         expect(initial_state).to be true
 
-        user.disable_messages_from(collection: collection)
+        user.disable_messages_from(group: collection)
         user.save!
         user.reload
 
-        disabled_state = user.messages_enabled_from?(collection: collection)
+        disabled_state = user.messages_enabled_from?(group: collection)
         expect(disabled_state).to be false
 
-        user.enable_messages_from(collection: collection)
+        user.enable_messages_from(group: collection)
         user.save!
         user.reload
 
-        enabled_state = user.messages_enabled_from?(collection: collection)
+        enabled_state = user.messages_enabled_from?(group: collection)
         expect(enabled_state).to be true
       end
     end
@@ -300,53 +300,53 @@ RSpec.describe User, type: :model do
       end
 
       it "disables and enables email messages for notifications from a Collection" do
-        initial_state = user.messages_enabled_from?(collection: collection)
+        initial_state = user.messages_enabled_from?(group: collection)
         expect(initial_state).to be true
 
-        user.disable_messages_from(collection: collection)
+        user.disable_messages_from(group: collection)
         user.save!
         user.reload
 
-        disabled_state = user.messages_enabled_from?(collection: collection)
+        disabled_state = user.messages_enabled_from?(group: collection)
         expect(disabled_state).to be false
 
-        user.enable_messages_from(collection: collection)
+        user.enable_messages_from(group: collection)
         user.save!
         user.reload
 
-        enabled_state = user.messages_enabled_from?(collection: collection)
+        enabled_state = user.messages_enabled_from?(group: collection)
         expect(enabled_state).to be true
       end
     end
 
     it "raises an ArgumentError" do
-      state = user.messages_enabled_from?(collection: collection)
+      state = user.messages_enabled_from?(group: collection)
       expect(state).to be true
 
-      state = user.messages_enabled_from?(collection: pppl_collection)
+      state = user.messages_enabled_from?(group: pppl_collection)
       expect(state).to be false
 
       expect do
-        user.disable_messages_from(collection: pppl_collection)
-      end .to raise_error(ArgumentError, "User #{user.uid} is not an administrator or depositor for the collection #{pppl_collection.title}")
+        user.disable_messages_from(group: pppl_collection)
+      end .to raise_error(ArgumentError, "User #{user.uid} is not an administrator or depositor for the group #{pppl_collection.title}")
       expect do
-        user.enable_messages_from(collection: pppl_collection)
-      end .to raise_error(ArgumentError, "User #{user.uid} is not an administrator or depositor for the collection #{pppl_collection.title}")
+        user.enable_messages_from(group: pppl_collection)
+      end .to raise_error(ArgumentError, "User #{user.uid} is not an administrator or depositor for the group #{pppl_collection.title}")
     end
   end
 
   describe "#submitter_or_admin_collections" do
     it "returns both admin and submitter collections" do
       user = FactoryBot.create(:user)
-      collection1 = FactoryBot.create(:collection)
-      collection2 = FactoryBot.create(:collection)
-      collection3 = FactoryBot.create(:collection)
+      collection1 = FactoryBot.create(:group)
+      collection2 = FactoryBot.create(:group)
+      collection3 = FactoryBot.create(:group)
       user.add_role(:submitter, collection1)
-      user.add_role(:collection_admin, collection2)
-      user.add_role(:collection_admin, collection3)
+      user.add_role(:group_admin, collection2)
+      user.add_role(:group_admin, collection3)
       user.add_role(:submitter, collection3)
       # should contain the rd_collection by default
-      expect(user.submitter_or_admin_collections).to contain_exactly(collection1, collection2, collection3, rd_collection)
+      expect(user.submitter_or_admin_groups).to contain_exactly(collection1, collection2, collection3, rd_collection)
     end
   end
 end

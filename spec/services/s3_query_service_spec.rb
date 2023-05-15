@@ -8,8 +8,8 @@ RSpec.describe S3QueryService do
   let(:s3_key2) { "10-34770/pe9w-x904/SCoData_combined_v1_2020-07_datapackage.json" }
   let(:s3_last_modified1) { Time.parse("2022-04-21T18:29:40.000Z") }
   let(:s3_last_modified2) { Time.parse("2022-04-21T18:30:07.000Z") }
-  let(:s3_size1) { 10_759 }
-  let(:s3_size2) { 12_739 }
+  let(:s3_size1) { 5_368_709_122 }
+  let(:s3_size2) { 5_368_709_128 }
   let(:s3_hash) do
     {
       is_truncated: false,
@@ -65,7 +65,7 @@ RSpec.describe S3QueryService do
     expect(data_profile[:objects].first).to be_instance_of(S3File)
     expect(data_profile[:objects].first.filename).to match(/README/)
     expect(data_profile[:objects].first.last_modified).to eq Time.parse("2022-04-21T18:29:40.000Z")
-    expect(data_profile[:objects].first.size).to eq 10_759
+    expect(data_profile[:objects].first.size).to eq 5_368_709_122
   end
 
   it "takes a DOI and returns information about that DOI in S3 with pagination" do
@@ -142,14 +142,22 @@ RSpec.describe S3QueryService do
           .with({ bucket: "example-bucket-post", key: s3_key2 })
         expect(subject.client).to have_received(:upload_part_copy)
           .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key1}",
-                  copy_source_range: "bytes=0-10758", key: "abc", part_number: 1, upload_id: "upload id" })
+                  copy_source_range: "bytes=0-5368709119", key: "abc", part_number: 1, upload_id: "upload id" })
+        expect(subject.client).to have_received(:upload_part_copy)
+          .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key1}",
+                  copy_source_range: "bytes=5368709120-5368709121", key: "abc", part_number: 2, upload_id: "upload id" })
         expect(subject.client).to have_received(:upload_part_copy)
           .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key2}",
-                  copy_source_range: "bytes=0-12738", key: "abc", part_number: 1, upload_id: "upload id" })
+                  copy_source_range: "bytes=0-5368709119", key: "abc", part_number: 1, upload_id: "upload id" })
+        expect(subject.client).to have_received(:upload_part_copy)
+          .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key2}",
+                  copy_source_range: "bytes=5368709120-5368709127", key: "abc", part_number: 2, upload_id: "upload id" })
         expect(subject.client).to have_received(:complete_multipart_upload)
-          .with({ bucket: "example-bucket-post", key: s3_key1, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1 }] }, upload_id: "upload id" })
+          .with({ bucket: "example-bucket-post", key: s3_key1, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1 }, { etag: "etag123abc", part_number: 2 }] },
+                  upload_id: "upload id" })
         expect(subject.client).to have_received(:complete_multipart_upload)
-          .with({ bucket: "example-bucket-post", key: s3_key2, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1 }] }, upload_id: "upload id" })
+          .with({ bucket: "example-bucket-post", key: s3_key2, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1 }, { etag: "etag123abc", part_number: 2 }] },
+                  upload_id: "upload id" })
         expect(subject.client).to have_received(:head_object)
           .with({ bucket: "example-bucket-post", key: s3_key1 })
         expect(subject.client).to have_received(:head_object)
@@ -256,7 +264,7 @@ RSpec.describe S3QueryService do
       expect(data_profile[:objects].first).to be_instance_of(S3File)
       expect(data_profile[:objects].first.filename).to match(/README/)
       expect(data_profile[:objects].first.last_modified).to eq Time.parse("2022-04-21T18:29:40.000Z")
-      expect(data_profile[:objects].first.size).to eq 10_759
+      expect(data_profile[:objects].first.size).to eq 5_368_709_122
     end
   end
   let(:response_headers) do

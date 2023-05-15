@@ -3,12 +3,16 @@
 class Collection < ApplicationRecord
   resourcify
 
-  # CollectionOptions model extensible options set for Collections and Users
-  has_many :collection_options, dependent: :destroy
-  has_many :collection_messaging_options, -> { where(option_type: CollectionOption::EMAIL_MESSAGES) }, class_name: "CollectionOption", dependent: :destroy
+  def self.option_class
+    GroupOption
+  end
 
-  has_many :users_with_options, through: :collection_options, source: :user
-  has_many :users_with_messaging, through: :collection_messaging_options, source: :user
+  # GroupOptions model extensible options set for Collections and Users
+  has_many :group_options, dependent: :destroy
+  has_many :group_messaging_options, -> { where(option_type: GroupOption::EMAIL_MESSAGES) }, class_name: "GroupOption", dependent: :destroy
+
+  has_many :users_with_options, through: :group_options, source: :user
+  has_many :users_with_messaging, through: :group_messaging_options, source: :user
 
   validate do |collection|
     if collection.title.blank?
@@ -27,66 +31,12 @@ class Collection < ApplicationRecord
     Rails.configuration.collection_defaults.dig(key, :submit) || []
   end
 
-  def administrators
-    User.with_role(:collection_admin, self)
-  end
-
   def super_administrators
     User.with_role(:super_admin)
   end
 
   def datasets
     Work.where(collection_id: id)
-  end
-
-  ##
-  # The current user adds a new admin user to a collection.
-  # For use in the UI - we need to check whether the current_user
-  # has the right permissions to add someone as an admin_user.
-  # @param [User] current_user - the currently logged in user
-  # @param [User] admin_user - the user who will be granted admin rights on this collection
-  def add_administrator(current_user, admin_user)
-    if current_user.has_role?(:super_admin) || current_user.has_role?(:collection_admin, self)
-      if admin_user.has_role? :collection_admin, self
-        errors.add(:admin, "User has already been added")
-      else
-        errors.delete(:admin)
-        admin_user.add_role :collection_admin, self
-      end
-    else
-      errors.add(:admin, "Unauthorized")
-    end
-  end
-
-  def add_submitter(current_user, additional_user)
-    if current_user.has_role?(:super_admin) || current_user.has_role?(:collection_admin, self)
-      return if (self == additional_user.default_collection) && additional_user.just_created
-
-      if additional_user.has_role? :submitter, self
-        errors.add(:submitter, "User has already been added")
-      else
-        errors.delete(:submitter)
-        additional_user.add_role :submitter, self
-      end
-    else
-      errors.add(:submitter, "Unauthorized")
-    end
-  end
-
-  def delete_permission(current_user, removed_user)
-    if current_user.has_role?(:super_admin) || current_user.has_role?(:collection_admin, self)
-      if removed_user.nil?
-        errors.add(:delete_permission, "User was not found")
-      elsif removed_user == current_user
-        errors.add(:delete_permission, "Cannot remove yourself from a collection. Contact a super-admin for help.")
-      else
-        errors.delete(:delete_permission)
-        removed_user.remove_role :collection_admin, self
-        removed_user.remove_role :submitter, self
-      end
-    else
-      errors.add(:delete_permission, "Unauthorized")
-    end
   end
 
   def submitters
@@ -97,7 +47,7 @@ class Collection < ApplicationRecord
   # @param user [User]
   def enable_messages_for(user:)
     raise(ArgumentError, "User #{user.uid} is not an administrator for this collection #{title}") unless user.can_admin?(self)
-    collection_messaging_options << CollectionOption.new(option_type: CollectionOption::EMAIL_MESSAGES, collection: self, user: user)
+    group_messaging_options << self.class.option_class.new(option_type: self.class.option_class::EMAIL_MESSAGES, group: self, user: user)
   end
 
   # Disable a User from receiving notification messages for members of this Collection
@@ -117,10 +67,10 @@ class Collection < ApplicationRecord
   end
 
   def self.create_defaults
-    return if Collection.count > 0
+    return if count > 0
     Rails.logger.info "Creating default Collections"
-    Collection.create(title: "Research Data", code: "RD")
-    Collection.create(title: "Princeton Plasma Physics Laboratory", code: "PPPL")
+    create(title: "Research Data", code: "RD")
+    create(title: "Princeton Plasma Physics Laboratory", code: "PPPL")
   end
 
   # Returns the default collection.
@@ -142,11 +92,11 @@ class Collection < ApplicationRecord
 
   def self.research_data
     create_defaults
-    Collection.where(code: "RD").first
+    where(code: "RD").first
   end
 
   def self.plasma_laboratory
     create_defaults
-    Collection.where(code: "PPPL").first
+    where(code: "PPPL").first
   end
 end

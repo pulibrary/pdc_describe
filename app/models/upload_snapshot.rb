@@ -3,6 +3,8 @@ class UploadSnapshot < ApplicationRecord
   belongs_to :work
   attr_writer :upload
 
+  alias_attribute :existing_files, :files
+
   def upload
     @upload ||= uploads.find { |s3_file| filenames.include?(s3_file.filename) }
   end
