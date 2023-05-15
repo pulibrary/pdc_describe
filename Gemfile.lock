@@ -188,6 +188,7 @@ GEM
       warden (~> 1.2.3)
     diff-lcs (1.5.0)
     docile (1.4.0)
+    dogstatsd-ruby (5.5.0)
     dry-cli (0.7.0)
     dry-core (0.8.1)
       concurrent-ruby (~> 1.0)
@@ -550,6 +551,7 @@ DEPENDENCIES
   datacite-mapping
   ddtrace
   devise
+  dogstatsd-ruby
   ed25519
   equivalent-xml (~> 0.6.0)
   ezid-client!
