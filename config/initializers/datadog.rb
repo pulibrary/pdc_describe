@@ -20,5 +20,20 @@ if Rails.env.staging? || Rails.env.production?
     # DogStatsD is automatically configured with default settings if `dogstatsd-ruby` is available.
     # You can configure with host and port of Datadog agent; defaults to 'localhost:8125'.
     c.runtime_metrics.statsd = Datadog::Statsd.new
+
+    # Rails
+    c.tracing.instrument :rails
+
+    # Redis
+    c.tracing.instrument :redis
+
+    # Net::HTTP
+    c.tracing.instrument :http
+
+    # Sidekiq
+    c.tracing.instrument :sidekiq
+
+    # Faraday
+    c.tracing.instrument :faraday
   end
 end
