@@ -19,7 +19,7 @@ class WorkPreservationService
   # Creates and stores the preservation files for the work.
   # @return [String] The AWS S3 path where the files were stored
   def preserve!
-    raise "Cannot preserve work #{@work.id} because it has not been approved" unless @work.approved?
+    raise StandardError.new("Cannot preserve work #{@work.id} because it has not been approved") unless @work.approved?
     create_preservation_directory
     upload_file(io: metadata_io, filename: "metadata.json")
     upload_file(io: datacite_io, filename: "datacite.xml")
