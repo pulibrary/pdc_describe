@@ -19,6 +19,8 @@ class S3QueryService
     configuration.post_curation
   end
 
+  attr_reader :part_size
+
   ##
   # @param [Work] model
   # @param [Boolean] pre_curation
@@ -27,6 +29,7 @@ class S3QueryService
     @model = model
     @doi = model.doi
     @pre_curation = pre_curation
+    @part_size = 5_368_709_120 # 5GB is the maximum part size for AWS
   end
 
   def config
@@ -174,8 +177,15 @@ class S3QueryService
 
   def copy_file(source_key:, target_bucket:, target_key:, size:)
     Rails.logger.info("Copying #{source_key} to #{target_bucket}/#{target_key}")
+    if size > part_size
+      copy_multi_part(source_key:, target_bucket:, target_key:, size:)
+    else
+      client.copy_object(copy_source: source_key, bucket: target_bucket, key: target_key)
+    end
+  end
+
+  def copy_multi_part(source_key:, target_bucket:, target_key:, size:)
     multi = client.create_multipart_upload(bucket: target_bucket, key: target_key)
-    part_size = 5_368_709_120 # 5GB is the maximum
     part_num = 0
     start_byte = 0
     parts = []
@@ -203,9 +213,9 @@ class S3QueryService
     client.put_object({ bucket: bucket_name, key: prefix, content_length: 0 })
   end
 
-  def upload_file(io:, filename:)
+  def upload_file(io:, filename:, md5_digest: nil)
     # upload file from io in a single request, may not exceed 5GB
-    md5_digest = md5(io: io)
+    md5_digest ||= md5(io: io)
     key = "#{prefix}#{filename}"
     client.put_object(bucket: bucket_name, key: key, body: io, content_md5: md5_digest)
     key
