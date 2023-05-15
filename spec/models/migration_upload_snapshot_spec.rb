@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe MigrationUploadSnapshot, type: :model do
-  subject(:migration_upload_snapshot) { described_class.new(files: [], url: "example.com", work: work, id: 123) }
+  subject(:migration_upload_snapshot) { described_class.create(files: [], url: "example.com", work: work, id: 123) }
   let(:work) { FactoryBot.create(:approved_work) }
   let(:s3_file1) { FactoryBot.build :s3_file, filename: "fileone", checksum: "aaabbb111222" }
   let(:s3_file2) { FactoryBot.build :s3_file, filename: "filetwo", checksum: "dddeee111222" }
