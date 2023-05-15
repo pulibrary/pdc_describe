@@ -7,7 +7,7 @@ class MigrationUploadSnapshot < UploadSnapshot
 
   def store_files(s3_files, pre_existing_files: [])
     self.files = s3_files.map { |file| { "filename" => file.filename, "checksum" => file.checksum, "migrate_status" => "started" } }
-    files.concat pre_existing_files
+    files.concat pre_existing_files if pre_existing_files.present?
   end
 
   def mark_complete(s3_file)
