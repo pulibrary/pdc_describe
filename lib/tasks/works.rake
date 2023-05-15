@@ -96,9 +96,9 @@ namespace :works do
   end
 
   desc "Preserves a single work"
-  task :preserve, [:work_id] => :environment do |_, args|
+  task :preserve, [:work_id, :bucket_name, :path] => :environment do |_, args|
     work = Work.find(args[:work_id])
-    work_preservation = WorkPreservationService.new(work)
+    work_preservation = WorkPreservationService.new(work: work)
     puts work_preservation.preserve!
   end
 end
