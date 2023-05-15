@@ -1,20 +1,10 @@
 # frozen_string_literal: true
-class PULDspaceData
-  attr_reader :work, :ark, :file_keys, :directory_keys
+class PULDspaceConnector
+  attr_reader :work, :ark
 
   def initialize(work)
     @work = work
     @ark = work.ark&.gsub("ark:/", "")
-    @file_keys = []
-    @directory_keys = []
-  end
-
-  def migrate
-    return if ark.nil?
-    work.resource.migrated = true
-    work.save
-    migrate_dspace
-    aws_copy(aws_files)
   end
 
   def id
@@ -45,20 +35,7 @@ class PULDspaceData
     bitstreams.map do |bitstream|
       filename = download_bitstream(bitstream["retrieveLink"], bitstream["name"])
       if checksum_file(filename, bitstream)
-        filename
-      end
-    end
-  end
-
-  def upload_to_s3(filenames)
-    filenames.map do |filename|
-      io = File.open(filename)
-      key = work.s3_query_service.upload_file(io: io, filename: File.basename(filename))
-      if key
-        file_keys << key
-        nil
-      else
-        "An error uploading #{filename}.  Please try again."
+        S3File.new(filename: filename, checksum: bitstream["checkSum"]["value"], last_modified: DateTime.now, size: -1, work: work)
       end
     end
   end
@@ -71,47 +48,7 @@ class PULDspaceData
              end
   end
 
-  def aws_files
-    return [] if ark.nil? || doi.nil?
-    @aws_files ||= work.s3_query_service.client_s3_files(reload: true, bucket_name: dspace_bucket_name, prefix: doi.tr(".", "-"), ignore_directories: false)
-  end
-
-  def aws_copy(files)
-    files.each do |s3_file|
-      DspaceFileCopyJob.perform_later(doi, s3_file.key, s3_file.size, work.id)
-      if s3_file.directory?
-        directory_keys << s3_file.key
-      else
-        file_keys << s3_file.key
-      end
-    end
-  end
-
-  def dspace_bucket_name
-    @dspace_bucket_name ||= Rails.configuration.s3.dspace[:bucket]
-  end
-
-  def migration_message
-    "Migration for #{file_keys.count} #{'file'.pluralize(file_keys.count)} and #{directory_keys.count} #{'directory'.pluralize(directory_keys.count)}"
-  end
-
   private
-
-    def migrate_dspace
-      filenames = download_bitstreams
-      if filenames.any?(nil)
-        bitstreams = dspace.bitstreams
-        error_files = Hash[filenames.zip bitstreams].select { |key, _value| key.nil? }
-        error_names = error_files.map { |bitstream| bitstream["name"] }.join(", ")
-        raise "Error downloading file(s) #{error_names}"
-      end
-      results = upload_to_s3(filenames)
-
-      errors = results.reject(&:"blank?")
-      raise "Error uploading file(s):\n #{errors.join("\n")}" if errors.count > 0
-
-      filenames.each { |filename| File.delete(filename) }
-    end
 
     def get_data(url_path)
       return {} if ark.nil?

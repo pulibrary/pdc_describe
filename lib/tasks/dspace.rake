@@ -7,7 +7,7 @@ namespace :dspace do
     work_id = args[:work_id]
     work = Work.find(work_id)
     puts "Migrating Files from dspace to PDC for Work #{work.title}"
-    dspace = PULDspaceData.new(work)
+    dspace = PULDspaceMigrate.new(work)
     dspace.migrate
     puts dspace.migration_message
   end
