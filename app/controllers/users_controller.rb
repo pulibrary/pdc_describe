@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 class UsersController < ApplicationController
   # Constants set by the <form> <input> parameters transmitted using POST/PATCH/PUT requests
-  COLLECTION_MESSAGING_DISABLED = "0"
-  COLLECTION_MESSAGING_ENABLED = "1"
+  GROUP_MESSAGING_DISABLED = "0"
+  GROUP_MESSAGING_ENABLED = "1"
 
   before_action :set_user, only: %i[show edit update]
 
@@ -80,7 +80,7 @@ class UsersController < ApplicationController
     end
 
     def parameter_enables_messaging?(form_value)
-      form_value.to_s == COLLECTION_MESSAGING_ENABLED
+      form_value.to_s == GROUP_MESSAGING_ENABLED
     end
 
     def update_groups_with_messaging

@@ -72,11 +72,11 @@ class WorksController < ApplicationController
 
     respond_to do |format|
       format.html do
-        # Ensure that the Work belongs to a Collection
-        @collection = @work_decorator.group
-        raise(Work::InvalidCollectionError, "The Work #{@work.id} does not belong to any Collection") unless @collection
+        # Ensure that the Work belongs to a Group
+        group = @work_decorator.group
+        raise(Work::InvalidGroupError, "The Work #{@work.id} does not belong to any Group") unless group
 
-        @can_curate = current_user.can_admin?(@collection)
+        @can_curate = current_user.can_admin?(group)
         @work.mark_new_notifications_as_read(current_user.id)
       end
       format.json { render json: @work.to_json }
