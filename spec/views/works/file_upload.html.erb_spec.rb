@@ -2,11 +2,11 @@
 require "rails_helper"
 
 describe "works/file_upload.html.erb" do
-  let(:collection) { Collection.first }
+  let(:collection) { Group.first }
   let(:user) { FactoryBot.create(:user) }
 
   before do
-    Collection.create_defaults
+    Group.create_defaults
     user
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end

@@ -4,7 +4,7 @@ require "rails_helper"
 
 RSpec.describe WorksController do
   before do
-    Collection.create_defaults
+    Group.create_defaults
     user
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
