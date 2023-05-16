@@ -47,7 +47,7 @@ RSpec.describe "/works", type: :request do
         end
 
         it "will raise an error" do
-          expect { get work_url(work) }.to raise_error(Work::InvalidCollectionError, "The Work test-id does not belong to any Collection")
+          expect { get work_url(work) }.to raise_error(Work::InvalidGroupError, "The Work test-id does not belong to any Group")
         end
       end
     end

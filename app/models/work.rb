@@ -3,8 +3,7 @@
 # rubocop:disable Metrics/ClassLength
 class Work < ApplicationRecord
   # Errors for cases where there is no valid Group
-  class InvalidCollectionError < ::ArgumentError; end
-  class InvalidGroupError < InvalidCollectionError; end
+  class InvalidGroupError < ::ArgumentError; end
 
   has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many :user_work, -> { order(updated_at: :desc) }, dependent: :destroy
