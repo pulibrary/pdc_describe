@@ -23,12 +23,12 @@ class Collection < ApplicationRecord
   def default_admins_list
     return [] if code.blank?
     key = code.downcase.to_sym
-    Rails.configuration.collection_defaults.dig(key, :admin) || []
+    Rails.configuration.group_defaults.dig(key, :admin) || []
   end
 
   def default_submitters_list
     key = code.downcase.to_sym
-    Rails.configuration.collection_defaults.dig(key, :submit) || []
+    Rails.configuration.group_defaults.dig(key, :submit) || []
   end
 
   def super_administrators
