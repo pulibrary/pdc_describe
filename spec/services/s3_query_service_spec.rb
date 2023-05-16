@@ -124,7 +124,7 @@ RSpec.describe S3QueryService do
     let(:fake_s3_resp) { double(Aws::S3::Types::ListObjectsV2Output) }
 
     before do
-      Collection.create_defaults
+      Group.create_defaults
       user
 
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))

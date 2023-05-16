@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 namespace :users do
-  desc "Creates user records for the users defined as the defaul collection administrators and submitters"
+  desc "Creates user records for the users defined as the default group administrators and submitters"
   task setup_default: :environment do
     User.create_default_users
   end
@@ -19,56 +19,20 @@ namespace :users do
 
   # Use this task to regenerate the group_defaults.yml file with the data currently
   # in the database. This is useful to seed the data from one environment to another.
-  desc "Outputs to the console the user/collection admin rights in YAML format"
+  desc "Outputs to the console the user/group admin rights in YAML format"
   task export_admin_setup: :environment do
     puts "---"
     puts "shared:"
-    Collection.all.each do |collection|
-      puts "  #{collection.code.downcase}:"
+    Group.all.each do |group|
+      puts "  #{group.code.downcase}:"
       puts "    admin:"
-      collection.administrators.each do |user|
+      group.administrators.each do |user|
         puts "      - #{user.uid}"
       end
       puts "    submit:"
-      collection.submitters.each do |user|
+      group.submitters.each do |user|
         puts "      - #{user.uid}"
       end
-    end
-  end
-
-  desc "Removes collections that we don't use anymore"
-  task :collection_cleanup, [:fixit] => :environment do |_, args|
-    fixit = (args[:fixit] == "true")
-    if fixit
-      puts "=> Fixing data"
-    else
-      puts "=> Showing data only"
-    end
-
-    puts "-- User records"
-    User.all.each do |user|
-      next if user.default_collection.code == "RD" || user.default_collection.code == "PPPL"
-      puts "fixing #{user.uid}, #{user.default_collection_id}, #{user.default_collection.code}"
-      user.default_collection_id = Collection.research_data.id
-      if fixit
-        user.save!
-        user.assign_default_role
-      end
-    end
-
-    puts "-- Work records"
-    Work.all.each do |work|
-      next if work.collection&.code == "RD" || work.collection&.code == "PPPL"
-      puts "fixing work #{work.id}, #{work.collection_id}, #{work.collection&.code}"
-      work.collection_id = Collection.research_data.id
-      work.save! if fixit
-    end
-
-    puts "-- Collection records"
-    Collection.all.each do |collection|
-      next if collection.code == "RD" || collection.code == "PPPL"
-      puts "deleting collection #{collection.id}, #{collection.title}"
-      collection.delete if fixit
     end
   end
 end

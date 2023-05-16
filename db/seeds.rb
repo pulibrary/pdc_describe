@@ -7,4 +7,4 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 # Create default collection records
-Collection.create_defaults
+Group.create_defaults
