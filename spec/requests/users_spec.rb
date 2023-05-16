@@ -65,22 +65,22 @@ RSpec.describe "/users", type: :request do
       end
     end
 
-    context "when updating Collection notification settings" do
-      let(:collection1) { Group.plasma_laboratory }
-      let(:collection2) { Group.research_data }
+    context "when updating group notification settings" do
+      let(:group1) { Group.plasma_laboratory }
+      let(:group2) { Group.research_data }
       let(:updated_attributes1) do
         {
-          collections_with_messaging: {
-            collection1.id => "1",
-            collection2.id => "1"
+          groups_with_messaging: {
+            group1.id => "1",
+            group2.id => "1"
           }
         }
       end
       let(:updated_attributes2) do
         {
-          collections_with_messaging: {
-            collection1.id => "0",
-            collection2.id => "0"
+          groups_with_messaging: {
+            group1.id => "0",
+            group2.id => "0"
           }
         }
       end
@@ -90,8 +90,8 @@ RSpec.describe "/users", type: :request do
 
       before do
         Group.create_defaults
-        user.add_role(:group_admin, collection1)
-        user.add_role(:group_admin, collection2)
+        user.add_role(:group_admin, group1)
+        user.add_role(:group_admin, group2)
         user.save!
         user.reload
 
@@ -100,15 +100,15 @@ RSpec.describe "/users", type: :request do
         user.reload
       end
 
-      it "updates the notification settings for multiple Collections" do
-        expect(user.messages_enabled_from?(group: collection1)).to be true
-        expect(user.messages_enabled_from?(group: collection2)).to be true
+      it "updates the notification settings for multiple groups" do
+        expect(user.messages_enabled_from?(group: group1)).to be true
+        expect(user.messages_enabled_from?(group: group2)).to be true
 
         patch user_url(user), params: { user: updated_attributes2 }
         user.reload
 
-        expect(user.messages_enabled_from?(group: collection1)).to be false
-        expect(user.messages_enabled_from?(group: collection2)).to be false
+        expect(user.messages_enabled_from?(group: group1)).to be false
+        expect(user.messages_enabled_from?(group: group2)).to be false
       end
     end
 
