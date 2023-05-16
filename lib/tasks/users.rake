@@ -17,7 +17,7 @@ namespace :users do
     User.create_default_users
   end
 
-  # Use this task to regenerate the collection_defaults.yml file with the data currently
+  # Use this task to regenerate the group_defaults.yml file with the data currently
   # in the database. This is useful to seed the data from one environment to another.
   desc "Outputs to the console the user/collection admin rights in YAML format"
   task export_admin_setup: :environment do
