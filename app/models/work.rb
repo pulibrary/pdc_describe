@@ -718,12 +718,7 @@ class Work < ApplicationRecord
       raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{s3_object_key}") unless s3_dir.nil?
 
       # Copy the pre-curation S3 Objects to the post-curation S3 Bucket...
-      transferred_file_errors = s3_query_service.publish_files
-
-      # ...check that the files are indeed now in the post-curation bucket...
-      if transferred_file_errors.count > 0
-        raise(StandardError, "Failed to validate the uploaded S3 Object #{transferred_file_errors.map(&:key).join(', ')}")
-      end
+      s3_query_service.publish_files
     end
 
     def latest_snapshot

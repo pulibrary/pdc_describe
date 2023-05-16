@@ -165,14 +165,10 @@ class S3QueryService
     files = client_s3_files(reload: true, bucket_name: source_bucket)
 
     files.each do |file|
-      copy_file(source_key: "/#{source_bucket}/#{file.key}", target_bucket: target_bucket,
+      ApprovedFileMoveJob.perform_later(work_id: model.id, source_bucket: source_bucket, source_key: file.key, target_bucket: target_bucket,
                 target_key: file.key, size: file.size)
     end
-
-    error_files = check_files(target_bucket, files)
-
-    delete_files_and_directory(files) if error_files.empty?
-    error_files
+    true
   end
 
   def copy_file(source_key:, target_bucket:, target_key:, size:)
@@ -204,8 +200,8 @@ class S3QueryService
     client.copy_object(copy_source: source_key, bucket: target_bucket, key: target_key)
   end
 
-  def delete_s3_object(s3_file_key)
-    resp = client.delete_object({ bucket: bucket_name, key: s3_file_key })
+  def delete_s3_object(s3_file_key, bucket: bucket_name)
+    resp = client.delete_object({ bucket: bucket, key: s3_file_key })
     resp.to_h
   end
 
@@ -222,6 +218,10 @@ class S3QueryService
   rescue Aws::S3::Errors::SignatureDoesNotMatch => e
     Honeybadger.notify("Error Uploading file #{filename} for object: #{s3_address} Signature did not match! error: #{e}")
     false
+  end
+
+  def check_file(bucket:, key:)
+    client.head_object({ bucket: bucket, key: key })
   end
 
   private
@@ -255,22 +255,6 @@ class S3QueryService
         objects += parse_objects(resp_hash, ignore_directories: ignore_directories)
       end
       objects
-    end
-
-    def check_files(target_bucket, files)
-      error_files = []
-      files.each do |file|
-        error_files << file unless client.head_object({ bucket: target_bucket, key: file.key })
-      end
-      error_files
-    end
-
-    def delete_files_and_directory(files)
-      # ...and delete them from the pre-curation bucket.
-      files.each do |s3_file|
-        delete_s3_object(s3_file.key)
-      end
-      delete_s3_object(model.s3_object_key)
     end
 
     def md5(io:)
