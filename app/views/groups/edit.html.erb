@@ -46,7 +46,7 @@
   -->
   <span class="hidden submitter-data"
     data-uid="<%= user.uid %>"
-    data-collection-id="<%= @group.id %>"
+    data-group-id="<%= @group.id %>"
     data-can-delete="<%= user.uid != current_user.uid %>"
     data-you="<%= user.uid == current_user.uid %>"></span>
 <% end %>
@@ -64,7 +64,7 @@
 <% @group.administrators.each do |user| %>
   <span class="hidden curator-data"
     data-uid="<%= user.uid %>"
-    data-collection-id="<%= @group.id %>"
+    data-group-id="<%= @group.id %>"
     data-can-delete="<%= user.uid != current_user.uid %>"
     data-you="<%= user.uid == current_user.uid %>"></span>
 <% end %>
@@ -82,7 +82,7 @@
 <% @group.super_administrators.each do |user| %>
   <span class="hidden sysadmin-data"
     data-uid="<%= user.uid %>"
-    data-collection-id="<%= @group.id %>"
+    data-group-id="<%= @group.id %>"
     data-can-delete="false"
     data-super-admin="true"
     data-you="<%= user.uid == current_user.uid %>"></span>
@@ -92,9 +92,9 @@
 <script>
 pdc = {
   ...pdc,
-  deleteUserFromCollectionUrl: '<%= delete_user_from_group_url(id: @group.id, uid: "uid-placeholder") %>',
+  deleteUserFromGroupUrl: '<%= delete_user_from_group_url(id: @group.id, uid: "uid-placeholder") %>',
   formAuthenticityToken: '<%= form_authenticity_token %>',
-  collectionId: '<%= @group.id %>',
+  groupId: '<%= @group.id %>',
   addSubmitterUrl: '<%= add_submitter_url(id: @group.id, uid: "uid-placeholder") %>',
   addAdminUrl: '<%= add_admin_url(id: @group.id, uid: "uid-placeholder") %>',
   userPath: "<%= user_path('user-placeholder') %>"
