@@ -2,6 +2,8 @@
 require "rails_helper"
 
 RSpec.describe S3QueryService do
+  include ActiveJob::TestHelper
+
   let(:work) { FactoryBot.create :draft_work, doi: doi }
   let(:subject) { described_class.new(work) }
   let(:s3_key1) { "10-34770/pe9w-x904/SCoData_combined_v1_2020-07_README.txt" }
@@ -36,6 +38,12 @@ RSpec.describe S3QueryService do
           storage_class: "STANDARD"
         }
       ]
+    }
+  end
+  let(:empty_s3_hash) do
+    {
+      is_truncated: false,
+      contents: []
     }
   end
 
@@ -113,6 +121,7 @@ RSpec.describe S3QueryService do
     let(:fake_multi) { instance_double(Aws::S3::Types::CreateMultipartUploadOutput, key: "abc", upload_id: "upload id", bucket: "bucket") }
     let(:fake_parts) { instance_double(Aws::S3::Types::CopyPartResult, etag: "etag123abc") }
     let(:fake_upload) { instance_double(Aws::S3::Types::UploadPartCopyOutput, copy_part_result: fake_parts) }
+    let(:fake_s3_resp) { double(Aws::S3::Types::ListObjectsV2Output) }
 
     before do
       Collection.create_defaults
@@ -121,21 +130,25 @@ RSpec.describe S3QueryService do
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
       work
 
+      allow(S3QueryService).to receive(:new).and_return(subject)
       subject.stub(:client).and_return(fake_aws_client)
-      fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
       fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
       fake_s3_resp.stub(:to_h).and_return(s3_hash)
+      fake_completion = instance_double(Seahorse::Client::Response, "successful?": true)
+      fake_delete = instance_double(Aws::S3::Types::DeleteObjectOutput, "to_h": {})
 
       allow(subject.client).to receive(:create_multipart_upload).and_return(fake_multi)
       allow(subject.client).to receive(:upload_part_copy).and_return(fake_upload)
-      allow(subject.client).to receive(:delete_object)
+      allow(subject.client).to receive(:delete_object).and_return(fake_delete)
       allow(subject.client).to receive(:head_object).and_return(true)
-      allow(subject.client).to receive(:complete_multipart_upload)
+      allow(subject.client).to receive(:complete_multipart_upload).and_return(fake_completion)
     end
 
     describe "#publish_files" do
       it "calls moves the files calling create_multipart_upload, head_object, and delete_object twice, once for each file" do
-        expect(subject.publish_files).to eq([])
+        expect(subject.publish_files).to be_truthy
+        fake_s3_resp.stub(:to_h).and_return(s3_hash, empty_s3_hash)
+        perform_enqueued_jobs
         expect(subject.client).to have_received(:create_multipart_upload)
           .with({ bucket: "example-bucket-post", key: s3_key1 })
         expect(subject.client).to have_received(:create_multipart_upload)
@@ -172,7 +185,32 @@ RSpec.describe S3QueryService do
       context "the copy fails for some reason" do
         it "Does not delete anything and returns the missing file" do
           allow(subject.client).to receive(:head_object).and_return(true, false)
-          expect(subject.publish_files.map(&:key)).to eq([s3_key2])
+          expect(subject.publish_files).to be_truthy
+          expect { perform_enqueued_jobs }.to raise_error(/File check was not valid/)
+          expect(subject.client).to have_received(:create_multipart_upload)
+            .with({ bucket: "example-bucket-post", key: s3_key1 })
+          expect(subject.client).to have_received(:create_multipart_upload)
+            .with({ bucket: "example-bucket-post", key: s3_key2 })
+          expect(subject.client).to have_received(:head_object)
+            .with({ bucket: "example-bucket-post", key: s3_key1 })
+          expect(subject.client).to have_received(:head_object)
+            .with({ bucket: "example-bucket-post", key: s3_key2 })
+          expect(subject.client).to have_received(:delete_object)
+            .with({ bucket: "example-bucket", key: s3_key1 })
+          expect(subject.client).not_to have_received(:delete_object)
+            .with({ bucket: "example-bucket", key: s3_key2 })
+          expect(subject.client).not_to have_received(:delete_object)
+            .with({ bucket: "example-bucket", key: work.s3_object_key })
+        end
+
+        it "Does not delete anything and returns both missing files" do
+          allow(subject.client).to receive(:head_object).and_return(false)
+          expect(subject.publish_files).to be_truthy
+
+          # both jobs create an exception
+          expect { perform_enqueued_jobs }.to raise_error(/File check was not valid/)
+          expect { perform_enqueued_jobs }.to raise_error(/File check was not valid/)
+
           expect(subject.client).to have_received(:create_multipart_upload)
             .with({ bucket: "example-bucket-post", key: s3_key1 })
           expect(subject.client).to have_received(:create_multipart_upload)
@@ -187,11 +225,6 @@ RSpec.describe S3QueryService do
             .with({ bucket: "example-bucket", key: s3_key2 })
           expect(subject.client).not_to have_received(:delete_object)
             .with({ bucket: "example-bucket", key: work.s3_object_key })
-        end
-
-        it "Does not delete anything and returns both missing files" do
-          allow(subject.client).to receive(:head_object).and_return(false)
-          expect(subject.publish_files.map(&:key)).to eq([s3_key1, s3_key2])
         end
       end
     end
