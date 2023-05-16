@@ -33,7 +33,7 @@ class UsersController < ApplicationController
   def update
     if can_edit?
       respond_to do |format|
-        update_collections_with_messaging if user_params.key?(:collections_with_messaging)
+        update_groups_with_messaging if user_params.key?(:groups_with_messaging)
 
         if @user.update(user_params)
           format.html { redirect_to user_url(@user), notice: "User was successfully updated." }
@@ -72,7 +72,7 @@ class UsersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
-      @user_params ||= params.require(:user).permit([:display_name, :full_name, :family_name, :orcid, :email_messages_enabled, collections_with_messaging: {}])
+      @user_params ||= params.require(:user).permit([:display_name, :full_name, :family_name, :orcid, :email_messages_enabled, groups_with_messaging: {}])
     end
 
     def can_edit?
@@ -83,12 +83,12 @@ class UsersController < ApplicationController
       form_value.to_s == COLLECTION_MESSAGING_ENABLED
     end
 
-    def update_collections_with_messaging
-      if user_params.key?(:collections_with_messaging)
-        extracted = user_params.extract!(:collections_with_messaging)
-        collections_with_messaging = extracted[:collections_with_messaging]
+    def update_groups_with_messaging
+      if user_params.key?(:groups_with_messaging)
+        extracted = user_params.extract!(:groups_with_messaging)
+        groups_with_messaging = extracted[:groups_with_messaging]
 
-        collections_with_messaging.each_pair do |group_id, param|
+        groups_with_messaging.each_pair do |group_id, param|
           selected_group = Group.find_by(id: group_id)
 
           if parameter_enables_messaging?(param)
