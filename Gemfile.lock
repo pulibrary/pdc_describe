@@ -172,6 +172,12 @@ GEM
       typesafe_enum (~> 0.1, >= 0.1.7)
       xml-mapping_extensions (~> 0.4, >= 0.4.7)
     date (3.3.3)
+    ddtrace (1.11.1)
+      debase-ruby_core_source (>= 0.10.16, <= 3.2.0)
+      libdatadog (~> 2.0.0.1.0)
+      libddwaf (~> 1.8.2.0.0)
+      msgpack
+    debase-ruby_core_source (3.2.0)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     devise (4.8.1)
@@ -182,6 +188,7 @@ GEM
       warden (~> 1.2.3)
     diff-lcs (1.5.0)
     docile (1.4.0)
+    dogstatsd-ruby (5.5.0)
     dry-cli (0.7.0)
     dry-core (0.8.1)
       concurrent-ruby (~> 1.0)
@@ -229,6 +236,14 @@ GEM
     json_schema (0.21.0)
     kramdown (2.4.0)
       rexml
+    libdatadog (2.0.0.1.0)
+    libdatadog (2.0.0.1.0-x86_64-linux)
+    libddwaf (1.8.2.0.0)
+      ffi (~> 1.0)
+    libddwaf (1.8.2.0.0-x86_64-darwin)
+      ffi (~> 1.0)
+    libddwaf (1.8.2.0.0-x86_64-linux)
+      ffi (~> 1.0)
     listen (3.7.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -534,7 +549,9 @@ DEPENDENCIES
   database_cleaner-active_record
   datacite!
   datacite-mapping
+  ddtrace
   devise
+  dogstatsd-ruby
   ed25519
   equivalent-xml (~> 0.6.0)
   ezid-client!
