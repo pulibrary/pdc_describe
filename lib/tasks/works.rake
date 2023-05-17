@@ -94,4 +94,11 @@ namespace :works do
       puts "Work #{work.id} is not valid, #{ex.message}. #{details}"
     end
   end
+
+  desc "Preserves a single work"
+  task :preserve, [:work_id, :bucket_name, :path] => :environment do |_, args|
+    work = Work.find(args[:work_id])
+    work_preservation = WorkPreservationService.new(work: work)
+    puts work_preservation.preserve!
+  end
 end

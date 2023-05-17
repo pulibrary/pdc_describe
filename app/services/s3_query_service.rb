@@ -224,6 +224,13 @@ class S3QueryService
     client.head_object({ bucket: bucket, key: key })
   end
 
+  def md5(io:)
+    md5 = Digest::MD5.new
+    io.each(10_000) { |block| md5.update block }
+    io.rewind
+    md5.base64digest
+  end
+
   private
 
     def model_uploads
@@ -255,13 +262,6 @@ class S3QueryService
         objects += parse_objects(resp_hash, ignore_directories: ignore_directories)
       end
       objects
-    end
-
-    def md5(io:)
-      md5 = Digest::MD5.new
-      io.each(10_000) { |block| md5.update block }
-      io.rewind
-      md5.base64digest
     end
 end
 # rubocop:enable Metrics/ClassLength
