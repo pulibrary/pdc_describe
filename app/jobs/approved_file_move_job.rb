@@ -12,14 +12,19 @@ class ApprovedFileMoveJob < ApplicationJob
       raise "Error copying #{key} to #{target_bucket}/#{target_key} Response #{resp.to_json}"
     end
     status = service.check_file(bucket: target_bucket, key: target_key)
-    unless status 
+    unless status
       raise "File check was not valid #{source_key} to #{target_bucket}/#{target_key} Response #{status.to_json}"
     end
     service.delete_s3_object(source_key, bucket: source_bucket)
 
-    # if this was the last file to be deleted also delete the directory
+    # Once the last file has been deleted...
     if service.client_s3_files(reload: true, bucket_name: source_bucket).count == 0
+      # delete the source directory...
       service.delete_s3_object(work.s3_object_key, bucket: source_bucket)
+
+      # ...and create the preservation files in the target bucket
+      work_preservation = WorkPreservationService.new(work_id: work_id, bucket_name: target_bucket, path: "#{work.doi}/#{work.id}")
+      work_preservation.preserve!
     end
   end
 end
