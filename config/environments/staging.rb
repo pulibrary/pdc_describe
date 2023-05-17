@@ -146,11 +146,7 @@ Rails.application.configure do
       params: event.payload[:params].except(*exceptions).to_json,
       rails_env: Rails.env,
       exception: event.payload[:exception]&.first,
-      request_id: event.payload[:headers]['action_dispatch.request_id'],
-      dd.env: Datadog::Tracing.correlation.env,
-      dd.service: Datadog::Tracing.correlation.service,
-      dd.trace_id: Datadog::Tracing.correlation.trace_id,
-      dd.span_id: Datadog::Tracing.correlation.span_id
+      request_id: event.payload[:headers]['action_dispatch.request_id']
     }.compact
   end
 
