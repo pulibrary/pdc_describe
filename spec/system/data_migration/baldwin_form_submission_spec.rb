@@ -8,7 +8,7 @@ RSpec.describe "Form submission for migrating baldwin", type: :system, mock_ezid
     "This data is compiled to support a publication in the journal Earth's Future: Baldwin et al 2019 \"Temporally Compound Heat Waves and Global Warming: An Emerging Hazard\". The GCM GFDL CM2.5-FLOR was used to produce the raw climate model data. The model code for FLOR is freely available and can be downloaded at https://www.gfdl.noaa.gov/cm2-5-and-flor/. Code used to calculate the derived heat wave statistics data and produce figures in the paper is available at https://github.com/janewbaldwin/Compound-Heat-Waves The heat wave statistics derived output for only one definition is provided (daily minimum temperature, 90th percentile threshold, temporal structure 3114) which is the definition used the most in the paper figures. Statistics for the other definitions can be created by running the HWSTATS code provided in the corresponding github folder, which includes python scripts which do the analysis and PBS job scheduling and submission scripts which show how to run the python scripts. For more information on this, please see the github readme."
   end
   let(:ark) { "ark:/88435/dsp01bz60d033c" }
-  let(:collection) { "Research Data" }
+  let(:group) { "Research Data" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.34770/xajd-5n64" }
 

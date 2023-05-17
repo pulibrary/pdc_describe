@@ -109,8 +109,8 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
       end
 
       context "when the Work is approved" do
-        let(:collection) { approved_work.group }
-        let(:user) { FactoryBot.create(:user, groups_to_admin: [collection]) }
+        let(:group) { approved_work.group }
+        let(:user) { FactoryBot.create(:user, groups_to_admin: [group]) }
         let(:approved_work) { FactoryBot.create(:shakespeare_and_company_work) }
         let(:work) { approved_work } # make sure the id in the file key matches the work
 

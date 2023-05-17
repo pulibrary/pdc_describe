@@ -3,7 +3,7 @@ require "rails_helper"
 
 RSpec.describe WorkList, type: :model do
   let(:user) { FactoryBot.create :user }
-  let(:collection) { Group.research_data }
+  let(:group) { Group.research_data }
   let(:user_other) { FactoryBot.create :user }
   let(:super_admin_user) { FactoryBot.create :super_admin_user }
   let(:work) { FactoryBot.create(:draft_work) }
@@ -40,11 +40,11 @@ RSpec.describe WorkList, type: :model do
       expect(user_datasets.count { |ds| ds.created_by_user_id == rd_user.id }).to be 1
     end
 
-    it "for a curator retrieves dataset created in collections they can curate" do
+    it "for a moderator retrieves dataset created in groups they can curate" do
       expect(described_class.unfinished_works(curator_user).length).to eq(3)
     end
 
-    it "for super_admins retrieves for all collections" do
+    it "for super_admins retrieves for all groups" do
       expect(described_class.unfinished_works(super_admin_user).length).to eq(4)
     end
   end
@@ -67,11 +67,11 @@ RSpec.describe WorkList, type: :model do
       expect(user_datasets.count { |ds| ds.created_by_user_id == rd_user.id }).to be 1
     end
 
-    it "for a curator retrieves dataset created in collections they can curate" do
+    it "for a moderator retrieves dataset created in groups they can curate" do
       expect(described_class.completed_works(curator_user).length).to eq(2)
     end
 
-    it "for super_admins retrieves for all collections" do
+    it "for super_admins retrieves for all groups" do
       expect(described_class.completed_works(super_admin_user).length).to eq(3)
     end
   end
@@ -97,11 +97,11 @@ RSpec.describe WorkList, type: :model do
       expect(user_datasets.count { |ds| ds.created_by_user_id == rd_user.id }).to be 1
     end
 
-    it "for a curator retrieves dataset created in collections they can curate" do
+    it "for a curator retrieves dataset created in groups they can curate" do
       expect(described_class.withdrawn_works(curator_user).length).to eq(2)
     end
 
-    it "for super_admins retrieves for all collections" do
+    it "for super_admins retrieves for all groups" do
       expect(described_class.withdrawn_works(super_admin_user).length).to eq(3)
     end
   end

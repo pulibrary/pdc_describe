@@ -8,7 +8,7 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
     "The bitKlavier Grand consists of sample collections of a new Steinway D grand piano from nine different stereo mic images, with: 16 velocity layers, at every minor 3rd (starting at A0); Hammer release samples; Release resonance samples; Pedal samples. Release packages at 96k/24bit, 88.2k/24bit, 48k/24bit, 44.1k/16bit are available for various applications. Binaural: Neumann KU100 This is the binaural head placed in the same location as a seated pianist. It accurately captures what the player would hear while playing the instrument. File Naming Convention: C4 = middle C. Main note names: [note name][octave]v[velocity].wav -- e.g., “D#5v13.wav”. Release resonance notes: harm[note name][octave]v[velocity].wav -- e.g., “harmC2v2.wav”. Hammer samples: rel[1-88].wav (one per key) -- e.g., “rel23.wav”. Pedal samples: pedal[D/U][velocity].wav -- e.g., “pedalU2.wav” => pedal release (U = up), velocity = 2 (quicker release than velocity = 1)."
   end
   let(:ark) { "ark:/88435/dsp01nv9356017" }
-  let(:collection) { "Research Data" }
+  let(:group) { "Research Data" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.34770/zztk-f783" }
 

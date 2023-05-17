@@ -29,7 +29,7 @@ RSpec.describe "/works", type: :request do
         expect(response.body).to include("Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas")
       end
 
-      context "when the work does not have a valid collection" do
+      context "when the work does not have a valid group" do
         let(:work) do
           stubbed = instance_double(Work)
           allow(stubbed).to receive(:s3_object_key).and_return("test-key")
@@ -54,9 +54,9 @@ RSpec.describe "/works", type: :request do
   end
 
   describe "POST /work" do
-    let(:collection) { Group.plasma_laboratory }
+    let(:group) { Group.plasma_laboratory }
     let(:work) do
-      FactoryBot.create(:tokamak_work, group: collection, created_by_user_id: user.id, state: "draft")
+      FactoryBot.create(:tokamak_work, group: group, created_by_user_id: user.id, state: "draft")
     end
 
     context "when authenticated" do
@@ -66,7 +66,7 @@ RSpec.describe "/works", type: :request do
       end
 
       context "when files are added to the Work" do
-        let(:work) { FactoryBot.create(:tokamak_work, group: collection, created_by_user_id: user.id, state: "draft") }
+        let(:work) { FactoryBot.create(:tokamak_work, group: group, created_by_user_id: user.id, state: "draft") }
 
         let(:uploaded_file1) do
           fixture_file_upload("us_covid_2019.csv", "text/csv")
@@ -122,7 +122,7 @@ RSpec.describe "/works", type: :request do
       end
 
       context "when the files are updated before viewing the Work", js: true do
-        let(:work) { FactoryBot.create(:tokamak_work, group: collection, created_by_user_id: user.id, state: "draft") }
+        let(:work) { FactoryBot.create(:tokamak_work, group: group, created_by_user_id: user.id, state: "draft") }
 
         let(:uploaded_file1) do
           fixture_file_upload("us_covid_2019.csv", "text/csv")
