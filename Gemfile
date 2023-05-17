@@ -11,6 +11,7 @@ gem "factory_bot_rails", require: false
 gem "ffaker"
 gem "honeybadger", "~> 4.0"
 gem "io-wait", "0.2.1"
+gem "lograge"
 gem "net-ftp"
 gem "net-imap"
 gem "net-pop"

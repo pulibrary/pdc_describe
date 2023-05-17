@@ -130,6 +130,30 @@ Rails.application.configure do
   # config.active_record.database_selector = { delay: 2.seconds }
   # config.active_record.database_resolver = ActiveRecord::Middleware::DatabaseSelector::Resolver
   # config.active_record.database_resolver_context = ActiveRecord::Middleware::DatabaseSelector::Resolver::Session
+
+  config.lograge.formatter = Lograge::Formatters::Json.new
+  config.lograge.enabled = true
+  config.lograge.base_controller_class = ['ActionController::Base']
+  config.lograge.custom_options = lambda do |event|
+    {
+      request_time: Time.now,
+      application: Rails.application.class.parent_name,
+      process_id: Process.pid,
+      host: event.payload[:host],
+      remote_ip: event.payload[:remote_ip],
+      ip: event.payload[:ip],
+      x_forwarded_for: event.payload[:x_forwarded_for],
+      params: event.payload[:params].except(*exceptions).to_json,
+      rails_env: Rails.env,
+      exception: event.payload[:exception]&.first,
+      request_id: event.payload[:headers]['action_dispatch.request_id'],
+      dd.env: Datadog::Tracing.correlation.env,
+      dd.service: Datadog::Tracing.correlation.service,
+      dd.trace_id: Datadog::Tracing.correlation.trace_id,
+      dd.span_id: Datadog::Tracing.correlation.span_id
+    }.compact
+  end
+
 end
 
 ORCID_URL = "https://pub.orcid.org/v2.0"
