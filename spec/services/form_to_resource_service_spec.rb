@@ -9,7 +9,7 @@ describe FormToResourceService do
       {
         id: work.id,
         title_main: work.title,
-        collection_id: collection.id,
+        group_id: collection.id,
         title_1: "the subtitle",
         title_type_1: "Subtitle",
         existing_title_count: "1",

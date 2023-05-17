@@ -6,7 +6,7 @@ RSpec.describe "Authz for curators", type: :system, js: true do
   describe "A curator" do
     let(:research_data_moderator) { FactoryBot.create :research_data_moderator }
     let(:work) { FactoryBot.create(:shakespeare_and_company_work) }
-    let(:group) { Group.find(work.collection_id) }
+    let(:group) { Group.find(work.group_id) }
     let(:new_submitter) { FactoryBot.create :pppl_submitter }
     let(:pppl_moderator) { FactoryBot.create :pppl_moderator }
 
@@ -57,7 +57,7 @@ RSpec.describe "Authz for curators", type: :system, js: true do
 
     describe "in a group they do NOT curate" do
       let(:work) { FactoryBot.create(:tokamak_work) }
-      let(:group) { Group.find(work.collection_id) }
+      let(:group) { Group.find(work.group_id) }
 
       it "can NOT add admins" do
         login_as research_data_moderator

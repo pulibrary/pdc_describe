@@ -60,7 +60,7 @@ describe "application accessibility", type: :system, js: true do
       resource = PDCMetadata::Resource.new(title: "Test dataset")
       resource.creators << PDCMetadata::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")
       resource.ark = "ark:/99999/dsp01qb98mj541"
-      work = FactoryBot.create(:draft_work, created_by_user_id: user.id, collection_id: user.default_group_id, resource: resource)
+      work = FactoryBot.create(:draft_work, created_by_user_id: user.id, group_id: user.default_group_id, resource: resource)
       visit work_path(work)
       expect(page).to be_axe_clean
         .according_to(:wcag2a, :wcag2aa, :wcag21a, :wcag21aa, :section508)

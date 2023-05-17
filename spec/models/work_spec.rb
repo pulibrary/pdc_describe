@@ -247,7 +247,7 @@ RSpec.describe Work, type: :model do
       subject(:work) { FactoryBot.create(:draft_work) }
       let(:title) { "test title" }
       let(:user_id) { user.id }
-      let(:collection_id) { group.id }
+      let(:group_id) { group.id }
 
       before do
         allow(User).to receive(:find).and_raise(ActiveRecord::RecordNotFound)
@@ -915,12 +915,12 @@ RSpec.describe Work, type: :model do
 
   describe "valid?" do
     it "requires a collection" do
-      work = Work.new(created_by_user_id: user.id, collection_id: nil, user_entered_doi: false)
+      work = Work.new(created_by_user_id: user.id, group_id: nil, user_entered_doi: false)
       expect(work).not_to be_valid
     end
 
     it "requires a collection on update of a draft work" do
-      work.update({ collection_id: "", resource: work.resource })
+      work.update({ group_id: "", resource: work.resource })
       expect(work.group).to be_nil
       expect(work).not_to be_valid
     end
