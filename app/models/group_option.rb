@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 class GroupOption < ApplicationRecord
-  self.table_name = "collection_options"
-
   EMAIL_MESSAGES = 0
 
   belongs_to :group, class_name: "Group"
