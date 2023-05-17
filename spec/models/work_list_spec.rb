@@ -27,7 +27,7 @@ RSpec.describe WorkList, type: :model do
       FactoryBot.create(:approved_work, created_by_user_id: user.id)
       FactoryBot.create(:draft_work, created_by_user_id: user.id)
       FactoryBot.create(:draft_work, created_by_user_id: user.id)
-      FactoryBot.create(:draft_work, created_by_user_id: pppl_user.id, collection_id: Group.plasma_laboratory.id)
+      FactoryBot.create(:draft_work, created_by_user_id: pppl_user.id, group_id: Group.plasma_laboratory.id)
       # Create the dataset for `rd_user` and @mention `user`
       ds = FactoryBot.create(:draft_work, created_by_user_id: rd_user.id)
       WorkActivity.add_work_activity(ds.id, "Tagging @#{user.uid} in this dataset", rd_user.id, activity_type: WorkActivity::SYSTEM)
@@ -54,7 +54,7 @@ RSpec.describe WorkList, type: :model do
       FactoryBot.create(:approved_work, created_by_user_id: user.id)
       FactoryBot.create(:awaiting_approval_work, created_by_user_id: user.id)
       FactoryBot.create(:draft_work, created_by_user_id: user.id)
-      FactoryBot.create(:approved_work, created_by_user_id: pppl_user.id, collection_id: Group.plasma_laboratory.id)
+      FactoryBot.create(:approved_work, created_by_user_id: pppl_user.id, group_id: Group.plasma_laboratory.id)
       # Create the dataset for `rd_user` and @mention `user`
       ds = FactoryBot.create(:approved_work, created_by_user_id: rd_user.id)
       WorkActivity.add_work_activity(ds.id, "Tagging @#{user.uid} in this dataset", rd_user.id, activity_type: WorkActivity::SYSTEM)
@@ -82,7 +82,7 @@ RSpec.describe WorkList, type: :model do
       work.withdraw!(user)
       FactoryBot.create(:awaiting_approval_work, created_by_user_id: user.id)
       FactoryBot.create(:draft_work, created_by_user_id: user.id)
-      pppl_work = FactoryBot.create(:approved_work, created_by_user_id: pppl_user.id, collection_id: Group.plasma_laboratory.id)
+      pppl_work = FactoryBot.create(:approved_work, created_by_user_id: pppl_user.id, group_id: Group.plasma_laboratory.id)
       pppl_work.withdraw!(user)
       # Create the dataset for `rd_user` and @mention `user`
       ds = FactoryBot.create(:approved_work, created_by_user_id: rd_user.id)

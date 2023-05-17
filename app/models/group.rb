@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class Group < ApplicationRecord
-  self.table_name = "collections"
   resourcify
 
   def self.option_class
@@ -37,7 +36,7 @@ class Group < ApplicationRecord
   end
 
   def datasets
-    Work.where(collection_id: id)
+    Work.where(group_id: id)
   end
 
   def submitters

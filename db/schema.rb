@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_05_17_124232) do
+ActiveRecord::Schema.define(version: 2023_05_17_183649) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -43,15 +43,6 @@ ActiveRecord::Schema.define(version: 2023_05_17_124232) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "collections", force: :cascade do |t|
-    t.string "title"
-    t.text "description"
-    t.string "code"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["code"], name: "index_collections_on_code", unique: true
-  end
-
   create_table "group_options", force: :cascade do |t|
     t.integer "option_type"
     t.integer "option_value"
@@ -59,6 +50,15 @@ ActiveRecord::Schema.define(version: 2023_05_17_124232) do
     t.bigint "user_id"
     t.index ["group_id"], name: "index_group_options_on_group_id"
     t.index ["user_id"], name: "index_group_options_on_user_id"
+  end
+
+  create_table "groups", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.string "code"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["code"], name: "index_groups_on_code", unique: true
   end
 
   create_table "roles", force: :cascade do |t|
@@ -139,7 +139,7 @@ ActiveRecord::Schema.define(version: 2023_05_17_124232) do
   create_table "works", force: :cascade do |t|
     t.string "work_type"
     t.string "state"
-    t.integer "collection_id"
+    t.integer "group_id"
     t.integer "created_by_user_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -156,12 +156,12 @@ ActiveRecord::Schema.define(version: 2023_05_17_124232) do
   add_foreign_key "upload_snapshots", "works"
   add_foreign_key "user_works", "users"
   add_foreign_key "user_works", "works"
-  add_foreign_key "users", "collections", column: "default_group_id"
+  add_foreign_key "users", "groups", column: "default_group_id"
   add_foreign_key "work_activities", "users", column: "created_by_user_id"
   add_foreign_key "work_activities", "works"
   add_foreign_key "work_activity_notifications", "users"
   add_foreign_key "work_activity_notifications", "work_activities"
-  add_foreign_key "works", "collections"
+  add_foreign_key "works", "groups"
   add_foreign_key "works", "users", column: "created_by_user_id"
   add_foreign_key "works", "users", column: "curator_user_id"
 end

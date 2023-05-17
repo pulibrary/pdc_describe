@@ -2,7 +2,6 @@
 require "rails_helper"
 
 describe "works/file_upload.html.erb" do
-  let(:collection) { Group.first }
   let(:user) { FactoryBot.create(:user) }
 
   before do

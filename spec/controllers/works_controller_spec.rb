@@ -9,8 +9,8 @@ RSpec.describe WorksController do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
   end
-  let(:collection) { Group.first }
-  let(:curator) { FactoryBot.create(:user, groups_to_admin: [collection]) }
+  let(:group) { Group.first }
+  let(:curator) { FactoryBot.create(:user, groups_to_admin: [group]) }
   let(:resource) { FactoryBot.build :resource }
   let(:work) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
   let(:user) { work.created_by_user }
@@ -1237,7 +1237,7 @@ RSpec.describe WorksController do
       {
         id: work.id,
         title_main: work.title,
-        group_id: collection.id,
+        group_id: group.id,
         new_title_1: "the subtitle",
         new_title_type_1: "Subtitle",
         existing_title_count: "1",
@@ -1294,7 +1294,7 @@ RSpec.describe WorksController do
           end
         end
 
-        context "a collection admin trying to update curator controlled fields" do
+        context "a group admin trying to update curator controlled fields" do
           let(:user) { FactoryBot.create :research_data_moderator }
           before do
             new_params = params.merge(doi: "new-doi")
@@ -1328,12 +1328,12 @@ RSpec.describe WorksController do
           end
         end
 
-        context "when sending a nil collection" do
+        context "when sending a nil group" do
           before do
             params[:group_id] = nil
             allow(Honeybadger).to receive(:notify)
           end
-          it "uses the updators default collection" do
+          it "uses the updators default group" do
             patch :update, params: params
             expect(work.reload.group).to eq(user.default_group)
             expect(Honeybadger).to have_received(:notify)
@@ -1502,7 +1502,7 @@ RSpec.describe WorksController do
       params = {
         "title_main" => "test dataset updated",
         "description" => "a new description",
-        "group_id" => collection.id,
+        "group_id" => group.id,
         "commit" => "Update Dataset",
         "publisher" => "Princeton University",
         "publication_year" => "2022",
@@ -1517,11 +1517,11 @@ RSpec.describe WorksController do
       work = Work.last
       expect(work.title).to eq("test dataset updated")
       expect(work.resource.description).to eq("a new description")
-      expect(work.group).to eq(collection)
+      expect(work.group).to eq(group)
     end
 
-    context "when the collection is empty" do
-      it "creates a work in the user's default collection" do
+    context "when the group is empty" do
+      it "creates a work in the user's default group" do
         params = {
           "title_main" => "test dataset updated",
           "description" => "a new description",
