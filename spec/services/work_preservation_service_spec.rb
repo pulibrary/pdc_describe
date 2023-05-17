@@ -37,7 +37,7 @@ RSpec.describe WorkPreservationService do
       stub_request(:put, "https://custom-bucket.s3.amazonaws.com/custom/path/princeton_data_commons/datacite.xml").to_return(status: 200)
     end
 
-    it "preserves a work to the default location" do
+    it "preserves a work a custom location" do
       subject = described_class.new(work: approved_work, bucket_name: "custom-bucket", path: "custom/path/")
       expect(subject.preserve!).to eq "s3://custom-bucket/custom/path/princeton_data_commons/"
     end
