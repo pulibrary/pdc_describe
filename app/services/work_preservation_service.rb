@@ -23,10 +23,15 @@ class WorkPreservationService
     create_preservation_directory
     upload_file(io: metadata_io, filename: "metadata.json")
     upload_file(io: datacite_io, filename: "datacite.xml")
-    "s3://#{@bucket_name}/#{preservation_directory}"
+    Rails.logger.info "Preservation files for work #{@work.id} saved to #{target_location}"
+    target_location
   end
 
   private
+
+    def target_location
+      "s3://#{@bucket_name}/#{preservation_directory}"
+    end
 
     def metadata_io
       StringIO.new(@work.to_json)
@@ -47,6 +52,7 @@ class WorkPreservationService
     def create_preservation_directory
       s3_client.put_object({ bucket: @bucket_name, key: preservation_directory.to_s, content_length: 0 })
     end
+
     def upload_file(io:, filename:)
       md5_digest = @work.s3_query_service.md5(io:)
       key = preservation_directory.join(filename).to_s
