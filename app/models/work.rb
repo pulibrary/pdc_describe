@@ -10,7 +10,7 @@ class Work < ApplicationRecord
   has_many :upload_snapshots, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many_attached :pre_curation_uploads, service: :amazon_pre_curation
 
-  belongs_to :group, class_name: "Group", foreign_key: "collection_id"
+  belongs_to :group, class_name: "Group"
   belongs_to :curator, class_name: "User", foreign_key: "curator_user_id", optional: true
 
   attribute :work_type, :string, default: "DATASET"
