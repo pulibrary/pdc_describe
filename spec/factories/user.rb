@@ -19,19 +19,19 @@ FactoryBot.define do
     ##
     # A user who has submit rights on the PPPL Group
     factory :pppl_submitter do
-      default_collection_id { Group.default_for_department("31000").id }
+      default_group_id { Group.default_for_department("31000").id }
     end
 
     ##
     # A user who has submit rights on the Research Data Group
     factory :princeton_submitter do
-      default_collection_id { Group.default_for_department("12345").id }
+      default_group_id { Group.default_for_department("12345").id }
     end
 
     ##
     # A user who has admin rights on the PPPL Group
     factory :pppl_moderator do
-      default_collection_id { Group.default_for_department("31000").id }
+      default_group_id { Group.default_for_department("31000").id }
       after :create do |user|
         user.add_role :group_admin, Group.plasma_laboratory
       end
@@ -40,7 +40,7 @@ FactoryBot.define do
     ##
     # A user who has admin rights on the Research Data Group
     factory :research_data_moderator do
-      default_collection_id { Group.default_for_department("12345").id }
+      default_group_id { Group.default_for_department("12345").id }
       after :create do |user|
         user.add_role :group_admin, Group.research_data
       end

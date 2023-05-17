@@ -55,8 +55,8 @@ class WorksController < ApplicationController
 
   # Creates the new dataset
   def new_submission
-    default_collection_id = current_user.default_group.id
-    work = Work.new(created_by_user_id: current_user.id, collection_id: default_collection_id)
+    default_group_id = current_user.default_group.id
+    work = Work.new(created_by_user_id: current_user.id, collection_id: default_group_id)
     work.resource = FormToResourceService.convert(params, work)
     work.draft!(current_user)
     redirect_to edit_work_path(work, wizard: true)

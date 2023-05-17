@@ -20,14 +20,6 @@ class User < ApplicationRecord
 
   attr_accessor :just_created
 
-  def default_group_id=(value)
-    self.default_collection_id = value
-  end
-
-  def default_group_id
-    default_collection_id
-  end
-
   validate do |user|
     user.orcid&.strip!
     if user.orcid.present? && Orcid.invalid?(user.orcid)
