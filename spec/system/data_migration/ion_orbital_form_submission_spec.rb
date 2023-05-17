@@ -71,7 +71,7 @@ RSpec.describe "Form submission for ion orbital", type: :system, mock_ezid_api: 
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2023
-      select collection, from: "collection_id"
+      select collection, from: "group_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"

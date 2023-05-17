@@ -56,7 +56,7 @@ RSpec.describe WorksController do
     it "renders the edit page when creating a new dataset" do
       params = {
         "title_main" => "test dataset updated",
-        "collection_id" => work.group.id,
+        "group_id" => work.group.id,
         "given_name_1" => "Jane",
         "family_name_1" => "Smith",
         "creator_count" => "1"
@@ -71,7 +71,7 @@ RSpec.describe WorksController do
       params = {
         "title_main" => "test dataset updated",
         "description" => "a new description",
-        "collection_id" => work.group.id,
+        "group_id" => work.group.id,
         "commit" => "Update Dataset",
         "controller" => "works",
         "action" => "update",
@@ -100,7 +100,7 @@ RSpec.describe WorksController do
         params = {
           "title_main" => "test dataset updated",
           "description" => "a new description",
-          "collection_id" => work.group.id,
+          "group_id" => work.group.id,
           "commit" => "Update Dataset",
           "controller" => "works",
           "action" => "update",
@@ -125,7 +125,7 @@ RSpec.describe WorksController do
         "doi" => "10.34770/tbd",
         "title_main" => "test dataset updated",
         "description" => "a new description",
-        "collection_id" => work.group.id,
+        "group_id" => work.group.id,
         "commit" => "Update Dataset",
         "controller" => "works",
         "action" => "update",
@@ -163,7 +163,7 @@ RSpec.describe WorksController do
         "doi" => "10.34770/tbd",
         "title_main" => "test dataset with reordered authors",
         "description" => "a new description",
-        "collection_id" => work.group.id,
+        "group_id" => work.group.id,
         "commit" => "Update Dataset",
         "controller" => "works",
         "action" => "update",
@@ -214,7 +214,7 @@ RSpec.describe WorksController do
         params = {
           "title_main" => "test dataset updated",
           "description" => "a new description",
-          "collection_id" => work.group.id,
+          "group_id" => work.group.id,
           "commit" => "update dataset",
           "controller" => "works",
           "action" => "update",
@@ -275,7 +275,7 @@ RSpec.describe WorksController do
         params = {
           "title_main" => "test dataset updated",
           "description" => "a new description",
-          "collection_id" => work.group.id,
+          "group_id" => work.group.id,
           "commit" => "update dataset",
           "controller" => "works",
           "action" => "update",
@@ -325,7 +325,7 @@ RSpec.describe WorksController do
         {
           "title_main" => "test dataset updated",
           "description" => "a new description",
-          "collection_id" => work.group.id,
+          "group_id" => work.group.id,
           "commit" => "update dataset",
           "controller" => "works",
           "action" => "update",
@@ -394,7 +394,7 @@ RSpec.describe WorksController do
         {
           "title_main" => "test dataset updated",
           "description" => "a new description",
-          "collection_id" => work.group.id,
+          "group_id" => work.group.id,
           "commit" => "update dataset",
           "controller" => "works",
           "action" => "update",
@@ -417,7 +417,7 @@ RSpec.describe WorksController do
         {
           "title_main" => "test dataset updated",
           "description" => "a new description",
-          "collection_id" => work.group.id,
+          "group_id" => work.group.id,
           "commit" => "update dataset",
           "controller" => "works",
           "action" => "update",
@@ -545,7 +545,7 @@ RSpec.describe WorksController do
         {
           "title_main" => "a new title #{rand(10_000)}",
           "description" => "a new description",
-          "collection_id" => work.group.id,
+          "group_id" => work.group.id,
           "commit" => "update dataset",
           "controller" => "works",
           "action" => "update",
@@ -600,7 +600,7 @@ RSpec.describe WorksController do
         {
           "title_main" => "test dataset updated",
           "description" => "a new description",
-          "collection_id" => work.group.id,
+          "group_id" => work.group.id,
           "commit" => "update dataset",
           "controller" => "works",
           "action" => "update",
@@ -1237,7 +1237,7 @@ RSpec.describe WorksController do
       {
         id: work.id,
         title_main: work.title,
-        collection_id: collection.id,
+        group_id: collection.id,
         new_title_1: "the subtitle",
         new_title_type_1: "Subtitle",
         existing_title_count: "1",
@@ -1330,7 +1330,7 @@ RSpec.describe WorksController do
 
         context "when sending a nil collection" do
           before do
-            params[:collection_id] = nil
+            params[:group_id] = nil
             allow(Honeybadger).to receive(:notify)
           end
           it "uses the updators default collection" do
@@ -1502,7 +1502,7 @@ RSpec.describe WorksController do
       params = {
         "title_main" => "test dataset updated",
         "description" => "a new description",
-        "collection_id" => collection.id,
+        "group_id" => collection.id,
         "commit" => "Update Dataset",
         "publisher" => "Princeton University",
         "publication_year" => "2022",
@@ -1525,7 +1525,7 @@ RSpec.describe WorksController do
         params = {
           "title_main" => "test dataset updated",
           "description" => "a new description",
-          "collection_id" => "",
+          "group_id" => "",
           "commit" => "Update Dataset",
           "publisher" => "Princeton University",
           "publication_year" => "2022",

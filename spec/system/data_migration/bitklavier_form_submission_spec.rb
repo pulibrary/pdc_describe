@@ -46,7 +46,7 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2021
-      select "Research Data", from: "collection_id"
+      select "Research Data", from: "group_id"
       click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark

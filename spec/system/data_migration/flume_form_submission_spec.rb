@@ -46,7 +46,7 @@ The attached readme.txt file explains the data attributes"
       fill_in "publication_year", with: 2020
       fill_in "doi", with: doi
       fill_in "ark", with: ark
-      select "Research Data", from: "collection_id"
+      select "Research Data", from: "group_id"
       click_on "Create"
 
       expect(page).to have_content "marked as Draft"

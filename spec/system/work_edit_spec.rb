@@ -262,7 +262,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       expect(version_number_element.tag_name).to eq("select")
       expect(version_number_element["disabled"]).to eq("true")
 
-      collection_id_element = page.find("#collection_id")
+      collection_id_element = page.find("#group_id")
       expect(collection_id_element.tag_name).to eq("select")
       expect(collection_id_element["disabled"]).to eq("true")
 

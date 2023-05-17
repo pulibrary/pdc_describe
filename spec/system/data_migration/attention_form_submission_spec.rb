@@ -56,7 +56,7 @@ RSpec.describe "Form submission for migrating attention", type: :system, mock_ez
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2020
-      select "Research Data", from: "collection_id"
+      select "Research Data", from: "group_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       page.attach_file("work[pre_curation_uploads_added][]", [file_upload], make_visible: true)

@@ -71,7 +71,7 @@ This data set includes the data visualized in figures 2-7 in Electromagnetic tot
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2022
-      select collection, from: "collection_id"
+      select collection, from: "group_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"
