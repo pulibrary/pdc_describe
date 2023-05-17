@@ -118,7 +118,7 @@
         <% if @work_decorator.can_curate %>
           <select id="curator_select">
             <option value="no-one">(no one)</option>
-            <% @work_decorator.collection.administrators.each do |user| %>
+            <% @work_decorator.group.administrators.each do |user| %>
               <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.display_name_safe %></option>
             <% end %>
           </select>

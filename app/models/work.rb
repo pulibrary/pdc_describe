@@ -68,7 +68,7 @@ class Work < ApplicationRecord
   # Is this work editable by a given user?
   # A work is editable when:
   # * it is being edited by the person who made it
-  # * it is being edited by a collection admin of the collection where is resides
+  # * it is being edited by a group admin of the group where is resides
   # * it is being edited by a super admin
   # @param [User]
   # @return [Boolean]

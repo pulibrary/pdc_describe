@@ -8,16 +8,16 @@ class Group < ApplicationRecord
     GroupOption
   end
 
-  # GroupOptions model extensible options set for Collections and Users
+  # GroupOptions model extensible options set for Groups and Users
   has_many :group_options, dependent: :destroy
   has_many :group_messaging_options, -> { where(option_type: GroupOption::EMAIL_MESSAGES) }, class_name: "GroupOption", dependent: :destroy
 
   has_many :users_with_options, through: :group_options, source: :user
   has_many :users_with_messaging, through: :group_messaging_options, source: :user
 
-  validate do |collection|
-    if collection.title.blank?
-      collection.errors.add :base, "Title cannot be empty"
+  validate do |group|
+    if group.title.blank?
+      group.errors.add :base, "Title cannot be empty"
     end
   end
 
@@ -47,14 +47,14 @@ class Group < ApplicationRecord
   # Permit a User to receive notification messages for members of this Group
   # @param user [User]
   def enable_messages_for(user:)
-    raise(ArgumentError, "User #{user.uid} is not an administrator for this collection #{title}") unless user.can_admin?(self)
+    raise(ArgumentError, "User #{user.uid} is not an administrator for this group #{title}") unless user.can_admin?(self)
     group_messaging_options << self.class.option_class.new(option_type: self.class.option_class::EMAIL_MESSAGES, group: self, user: user)
   end
 
   # Disable a User from receiving notification messages for members of this Group
   # @param user [User]
   def disable_messages_for(user:)
-    raise(ArgumentError, "User #{user.uid} is not an administrator for this collection #{title}") unless user.can_admin?(self)
+    raise(ArgumentError, "User #{user.uid} is not an administrator for this group #{title}") unless user.can_admin?(self)
     users_with_messaging.destroy(user)
   end
 
@@ -69,19 +69,19 @@ class Group < ApplicationRecord
 
   def self.create_defaults
     return if count > 0
-    Rails.logger.info "Creating default Collections"
+    Rails.logger.info "Creating default Groups"
     create(title: "Research Data", code: "RD")
     create(title: "Princeton Plasma Physics Laboratory", code: "PPPL")
   end
 
-  # Returns the default collection.
+  # Returns the default group.
   # Used when we don't have anything else to determine a more specific Group for a user.
   def self.default
     create_defaults
     research_data
   end
 
-  # Returns the default collection for a given department number.
+  # Returns the default group for a given department number.
   # Reference: https://docs.google.com/spreadsheets/d/1_Elxs3Ex-2wCbbKUzD4ii3k16zx36sYf/edit#gid=1484576831
   def self.default_for_department(department_number)
     if department_number.present? && department_number >= "31000" && department_number <= "31026"
@@ -106,11 +106,11 @@ class Group < ApplicationRecord
   end
 
   ##
-  # The current user adds a new admin user to a collection.
+  # The current user adds a new admin user to a group.
   # For use in the UI - we need to check whether the current_user
   # has the right permissions to add someone as an admin_user.
   # @param [User] current_user - the currently logged in user
-  # @param [User] admin_user - the user who will be granted admin rights on this collection
+  # @param [User] admin_user - the user who will be granted admin rights on this group
   def add_administrator(current_user, admin_user)
     if current_user.has_role?(:super_admin) || current_user.has_role?(:group_admin, self)
       if admin_user.has_role? :group_admin, self
@@ -144,7 +144,7 @@ class Group < ApplicationRecord
       if removed_user.nil?
         errors.add(:delete_permission, "User was not found")
       elsif removed_user == current_user
-        errors.add(:delete_permission, "Cannot remove yourself from a collection. Contact a super-admin for help.")
+        errors.add(:delete_permission, "Cannot remove yourself from a group. Contact a super-admin for help.")
       else
         errors.delete(:delete_permission)
         removed_user.remove_role :group_admin, self

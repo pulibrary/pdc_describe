@@ -24,7 +24,7 @@
 <% if @can_edit %>
   <h2 class="dataset-section">Datasets</h2>
   <% if @group.datasets.count > 0 %>
-    <%= render partial: "dataset_table", locals: {table_id: "collection_datasets", datasets: @group.datasets} %>
+    <%= render partial: "dataset_table", locals: {table_id: "group_datasets", datasets: @group.datasets} %>
   <% else %>
     <p>No datasets have been created for this group.</p>
   <% end %>
@@ -35,7 +35,7 @@
     // https://www.datatables.net/reference/option/
     //  order: [] preserves the order from the backend
     var dataset_options = {searching: false, paging: false, info: false, order: []};
-    $('#collection_datasets').DataTable(dataset_options);
+    $('#group_datasets').DataTable(dataset_options);
   });
 </script>
 

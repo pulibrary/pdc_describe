@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe Group, type: :model do
-  it "creates default collections only when needed" do
+  it "creates default groups only when needed" do
     described_class.delete_all
     expect(described_class.count).to be 0
 
@@ -28,97 +28,97 @@ RSpec.describe Group, type: :model do
   end
 
   describe ".default_for_department" do
-    subject(:collection) { described_class.default_for_department(department_number) }
+    subject(:group) { described_class.default_for_department(department_number) }
 
     context "when the department number is less than 31000" do
       let(:department_number) { "30000" }
-      it "provides the default collection" do
-        expect(collection).to be_a(described_class)
-        expect(collection.code).to eq("RD")
+      it "provides the default group" do
+        expect(group).to be_a(described_class)
+        expect(group.code).to eq("RD")
       end
     end
 
     context "when the department number is unexpected" do
       let(:department_number) { "foobar" }
-      it "provides the default collection" do
-        expect(collection).to be_a(described_class)
-        expect(collection.code).to eq("RD")
+      it "provides the default group" do
+        expect(group).to be_a(described_class)
+        expect(group.code).to eq("RD")
       end
     end
 
     context "when the department number is PPPL" do
       let(:department_number) { "31000" }
-      it "provides the default collection" do
-        expect(collection).to be_a(described_class)
-        expect(collection.code).to eq("PPPL")
+      it "provides the default group" do
+        expect(group).to be_a(described_class)
+        expect(group.code).to eq("PPPL")
       end
     end
   end
 
   describe "#disable_messages_for" do
     let(:user) { FactoryBot.create(:user) }
-    let(:collection) { described_class.create(title: "test") }
+    let(:group) { described_class.create(title: "test") }
 
     context "when the user is a super admin" do
       let(:user) { User.new_super_admin("test-admin") }
 
       it "disables email messages for notifications for a User" do
         # Initially messages are disabled for the user
-        state = collection.messages_enabled_for?(user: user)
+        state = group.messages_enabled_for?(user: user)
         expect(state).to be false
 
-        collection.enable_messages_for(user: user)
-        collection.save!
-        collection.reload
+        group.enable_messages_for(user: user)
+        group.save!
+        group.reload
 
         # After enabling messages for the user, that they are enabled is verified
-        enabled_state = collection.messages_enabled_for?(user: user)
+        enabled_state = group.messages_enabled_for?(user: user)
         expect(enabled_state).to be true
 
-        collection.disable_messages_for(user: user)
-        collection.save!
-        collection.reload
+        group.disable_messages_for(user: user)
+        group.save!
+        group.reload
 
         # After disabling messages for the user, that they are disabled is verified
-        disabled_state = collection.messages_enabled_for?(user: user)
+        disabled_state = group.messages_enabled_for?(user: user)
         expect(disabled_state).to be false
       end
     end
 
-    context "when the user is an administrator for a Collection" do
+    context "when the user is an administrator for a group" do
       before do
-        user.add_role(:group_admin, collection)
+        user.add_role(:group_admin, group)
         user.save!
       end
 
       it "disables email messages for notifications for a User" do
         # Initially messages are disabled for the user
-        state = collection.messages_enabled_for?(user: user)
+        state = group.messages_enabled_for?(user: user)
         expect(state).to be false
 
-        collection.enable_messages_for(user: user)
-        collection.save!
-        collection.reload
+        group.enable_messages_for(user: user)
+        group.save!
+        group.reload
 
         # After enabling messages for the user, that they are enabled is verified
-        enabled_state = collection.messages_enabled_for?(user: user)
+        enabled_state = group.messages_enabled_for?(user: user)
         expect(enabled_state).to be true
 
-        collection.disable_messages_for(user: user)
-        collection.save!
-        collection.reload
+        group.disable_messages_for(user: user)
+        group.save!
+        group.reload
 
         # After disabling messages for the user, that they are disabled is verified
-        disabled_state = collection.messages_enabled_for?(user: user)
+        disabled_state = group.messages_enabled_for?(user: user)
         expect(disabled_state).to be false
       end
     end
 
     it "raises an ArgumentError" do
-      state = collection.messages_enabled_for?(user: user)
+      state = group.messages_enabled_for?(user: user)
       expect(state).to be false
 
-      expect { collection.disable_messages_for(user: user) }.to raise_error(ArgumentError, "User #{user.uid} is not an administrator for this collection #{collection.title}")
+      expect { group.disable_messages_for(user: user) }.to raise_error(ArgumentError, "User #{user.uid} is not an administrator for this group #{group.title}")
     end
   end
 end

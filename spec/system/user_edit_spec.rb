@@ -48,14 +48,14 @@ RSpec.describe "Editing users", type: :system do
       visit edit_user_path(user)
       expect(page).to have_field("user_display_name", with: user.display_name)
       expect(page).to have_content "My Profile Settings"
-      expect(page).to have_unchecked_field "collection_messaging_#{pppl_group.id}"
-      expect(page).to have_checked_field "collection_messaging_#{rd_group.id}"
-      expect(page).not_to have_field "collection_messaging_#{random_group.id}"
-      check "collection_messaging_#{pppl_group.id}"
+      expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}"
+      expect(page).to have_checked_field "group_messaging_#{rd_group.id}"
+      expect(page).not_to have_field "group_messaging_#{random_group.id}"
+      check "group_messaging_#{pppl_group.id}"
       click_on "Update"
       visit edit_user_path(user)
-      expect(page).to have_checked_field "collection_messaging_#{pppl_group.id}"
-      expect(page).to have_checked_field "collection_messaging_#{rd_group.id}"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}"
+      expect(page).to have_checked_field "group_messaging_#{rd_group.id}"
     end
 
     context "User is super admin" do
@@ -65,15 +65,15 @@ RSpec.describe "Editing users", type: :system do
         visit edit_user_path(user)
         expect(page).to have_field("user_display_name", with: user.display_name)
         expect(page).to have_content "My Profile Settings"
-        expect(page).to have_unchecked_field "collection_messaging_#{pppl_group.id}"
-        expect(page).to have_checked_field "collection_messaging_#{rd_group.id}"
-        expect(page).to have_unchecked_field "collection_messaging_#{random_group.id}"
-        uncheck "collection_messaging_#{rd_group.id}"
+        expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}"
+        expect(page).to have_checked_field "group_messaging_#{rd_group.id}"
+        expect(page).to have_unchecked_field "group_messaging_#{random_group.id}"
+        uncheck "group_messaging_#{rd_group.id}"
         click_on "Update"
         visit edit_user_path(user)
-        expect(page).to have_unchecked_field "collection_messaging_#{pppl_group.id}"
-        expect(page).to have_unchecked_field "collection_messaging_#{rd_group.id}"
-        expect(page).to have_unchecked_field "collection_messaging_#{random_group.id}"
+        expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}"
+        expect(page).to have_unchecked_field "group_messaging_#{rd_group.id}"
+        expect(page).to have_unchecked_field "group_messaging_#{random_group.id}"
       end
     end
   end

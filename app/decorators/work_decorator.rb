@@ -13,12 +13,6 @@ class WorkDecorator
     @can_curate = current_user&.can_admin?(group)
   end
 
-  # @todo This supports the legacy models where Groups were previously implemented as Collections
-  # @return [Group]
-  def collection
-    group
-  end
-
   def show_approve_button?
     work.awaiting_approval? && current_user.has_role?(:group_admin, group)
   end
