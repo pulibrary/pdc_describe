@@ -143,7 +143,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Show Messages"
       expect(page).to have_content(has_been_created_message)
 
-      # Now sign is as the collection curator and see the notification on your dashboard
+      # Now sign is as the group moderator and see the notification on your dashboard
       sign_out user
       sign_in curator
       visit(user_path(curator))
