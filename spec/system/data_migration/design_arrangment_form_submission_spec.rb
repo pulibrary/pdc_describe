@@ -71,7 +71,7 @@ Consult the file README.txt for a more detailed description of the contents."
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2022
-      select group, from: "collection_id"
+      select group, from: "group_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"

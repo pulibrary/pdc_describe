@@ -113,7 +113,7 @@ RSpec.describe "Form submission for migrating femtosecond", type: :system, mock_
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2020
-      select "Research Data", from: "collection_id"
+      select "Research Data", from: "group_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"

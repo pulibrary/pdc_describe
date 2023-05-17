@@ -40,7 +40,7 @@ class WorksController < ApplicationController
   end
 
   def create
-    @work = Work.new(created_by_user_id: current_user.id, collection_id: params_collection_id, user_entered_doi: params["doi"].present?)
+    @work = Work.new(created_by_user_id: current_user.id, collection_id: params_group_id, user_entered_doi: params["doi"].present?)
     @work.resource = FormToResourceService.convert(params, @work)
     @work.resource.migrated = (params[:submit] == "Migrate")
     if @work.valid?
@@ -371,7 +371,7 @@ class WorksController < ApplicationController
 
     def update_params
       {
-        collection_id: params_collection_id,
+        collection_id: params_group_id,
         resource: FormToResourceService.convert(params, @work)
       }
     end
@@ -403,15 +403,15 @@ class WorksController < ApplicationController
       end
     end
 
-    def params_collection_id
-      # Do not allow a nil for the collection id
-      @params_collection_id ||= begin
-        collection_id = params[:collection_id]
-        if collection_id.blank?
-          collection_id = current_user.default_group.id
-          Honeybadger.notify("We got a nil collection as part of the parameters #{params} #{request}")
+    def params_group_id
+      # Do not allow a nil for the group id
+      @params_group_id ||= begin
+        group_id = params[:group_id]
+        if group_id.blank?
+          group_id = current_user.default_group.id
+          Honeybadger.notify("We got a nil group as part of the parameters #{params} #{request}")
         end
-        collection_id
+        group_id
       end
     end
 end

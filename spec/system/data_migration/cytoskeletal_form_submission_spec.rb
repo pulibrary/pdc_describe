@@ -72,7 +72,7 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2019
-      select "Research Data", from: "collection_id"
+      select "Research Data", from: "group_id"
 
       # Select Additional Metadata Tab
       click_on "Additional Metadata"

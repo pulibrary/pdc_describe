@@ -127,7 +127,7 @@ RSpec.describe "Form submission for migrating Thomson Scattering", type: :system
 
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2020
-      select collection, from: "collection_id"
+      select collection, from: "group_id"
 
       fill_in "doi", with: doi
       fill_in "ark", with: ark

@@ -65,8 +65,8 @@
 <!-- Collection field -->
 <div class="field">
   <%= t('works.form.group') %>: <span class="required-field">*</span><br>
-  <input type="hidden" name="collection_id" value="<%= @work.collection_id%>"/> <!-- put the value in the form as disabled will not send the data back -->
-  <select id="collection_id" name="collection_id" class="input-text-long"  <%= is_collection_admin ? '' : 'disabled' %> >
+  <input type="hidden" name="group_id" value="<%= @work.collection_id%>"/> <!-- put the value in the form as disabled will not send the data back -->
+  <select id="group_id" name="group_id" class="input-text-long"  <%= is_collection_admin ? '' : 'disabled' %> >
     <% current_user.submitter_groups.each do |group| %>
       <option value="<%=group.id%>" <%= @work.collection_id == group.id ? "selected" : "" %>><%=group.title%></option>
     <% end %>
