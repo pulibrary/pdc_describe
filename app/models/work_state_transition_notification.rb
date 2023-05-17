@@ -3,17 +3,17 @@
 # Connect with the curators of a work when an activity occurs
 #
 class WorkStateTransitionNotification
-  attr_accessor :collection_administrators, :depositor, :to_state, :from_state,
+  attr_accessor :group_administrators, :depositor, :to_state, :from_state,
                 :work_url, :notification, :users, :id, :current_user_id, :work_title
 
   def initialize(work, current_user_id)
     @to_state = work.aasm.to_state
     @from_state = work.aasm.from_state
     @depositor = work.created_by_user
-    @collection_administrators = work.group.administrators.to_a
+    @group_administrators = work.group.administrators.to_a
     @work_url = Rails.application.routes.url_helpers.work_url(work)
     @work_title = work.title
-    @users = @collection_administrators | [@depositor] # Depositor may also be an admin, but should only be listed once.
+    @users = @group_administrators | [@depositor] # Depositor may also be an admin, but should only be listed once.
     @notification = notification_for_transition
     @id = work.id
     @current_user_id = current_user_id

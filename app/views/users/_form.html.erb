@@ -9,13 +9,13 @@
         </div>
       </fieldset>
 
-      <section class="card container collections"> 
+      <section class="card container groups"> 
         <h2><%= t('users.form.group') %></h2>
         <fieldset>
           <% @user.submitter_or_admin_groups.each do |group| %>
             <legend><%= group.title %></legend>
             <div class="form-check">
-              <%= form.check_box("[groups_with_messaging][#{group.id}]", { id: "collection_messaging_#{group.id}", checked: user.messages_enabled_from?(group: group), class: ["form-check-input"] }) %>
+              <%= form.check_box("[groups_with_messaging][#{group.id}]", { id: "group_messaging_#{group.id}", checked: user.messages_enabled_from?(group: group), class: ["form-check-input"] }) %>
               <%= form.label("[groups_with_messaging][#{group.id}]", t("users.form.email_messages_enabled"), class: ["form-check-label"]) %>
             </div>
           <% end %>
@@ -72,7 +72,7 @@
   </div>
 
   <div class="field">
-    Default collection<br />
+    Default group<br />
     <input type="text" disabled value="<%= @user.default_group.title %>" />
   </div>
 

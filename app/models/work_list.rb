@@ -33,10 +33,10 @@ class WorkList
         works = search_context.where(created_by_user_id: user, state: state).to_a
 
         if user.admin_groups.count > 0
-          # The works that match the given state, in all the collections the user can admin
+          # The works that match the given state, in all the groups the user can admin
           # (regardless of who created those works)
-          user.admin_groups.each do |collection|
-            works += search_context.where(collection_id: collection.id, state: state)
+          user.admin_groups.each do |group|
+            works += search_context.where(collection_id: group.id, state: state)
           end
         end
 

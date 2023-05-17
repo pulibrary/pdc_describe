@@ -32,7 +32,7 @@
 
         <!-- tab: curator controlled fields -->
         <div class="tab-pane fade" id="v-pills-curator-controlled" role="tabpanel" aria-labelledby="v-pills-curator-controlled-tab">
-          <%= render 'curator_controlled_form', is_collection_admin: current_user.has_role?(:group_admin, @work.group) %>
+          <%= render 'curator_controlled_form', is_group_admin: current_user.has_role?(:group_admin, @work.group) %>
         </div>
 
       </div>

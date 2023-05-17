@@ -34,7 +34,7 @@
 <% end %>
 
 <% if @user.super_admin? %>
-  <!-- not sure we want to display the collections here, it's pointless -->
+  <!-- not sure we want to display the groups here, it's pointless -->
 <% elsif @user.moderator? %>
   <p>Moderator for:
     <%= @user.admin_groups.map do |group|
