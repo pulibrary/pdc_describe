@@ -34,28 +34,28 @@ RSpec.describe "Editing users", type: :system do
 
   describe "Allows a user to edit which collections send emails", js: true do
     let(:user) { FactoryBot.create :princeton_submitter }
-    let(:pppl_collection) { Group.plasma_laboratory }
-    let(:rd_collection) { Group.research_data }
-    let(:random_collection) { FactoryBot.create(:collection) }
+    let(:pppl_group) { Group.plasma_laboratory }
+    let(:rd_group) { Group.research_data }
+    let(:random_group) { FactoryBot.create(:group) }
 
     before do
       sign_in user
-      user.add_role(:submitter, pppl_collection)
-      random_collection # ensure the collection exists
+      user.add_role(:submitter, pppl_group)
+      random_group # ensure the collection exists
     end
 
     it "shows the form" do
       visit edit_user_path(user)
       expect(page).to have_field("user_display_name", with: user.display_name)
       expect(page).to have_content "My Profile Settings"
-      expect(page).to have_unchecked_field "collection_messaging_#{pppl_collection.id}"
-      expect(page).to have_checked_field "collection_messaging_#{rd_collection.id}"
-      expect(page).not_to have_field "collection_messaging_#{random_collection.id}"
-      check "collection_messaging_#{pppl_collection.id}"
+      expect(page).to have_unchecked_field "collection_messaging_#{pppl_group.id}"
+      expect(page).to have_checked_field "collection_messaging_#{rd_group.id}"
+      expect(page).not_to have_field "collection_messaging_#{random_group.id}"
+      check "collection_messaging_#{pppl_group.id}"
       click_on "Update"
       visit edit_user_path(user)
-      expect(page).to have_checked_field "collection_messaging_#{pppl_collection.id}"
-      expect(page).to have_checked_field "collection_messaging_#{rd_collection.id}"
+      expect(page).to have_checked_field "collection_messaging_#{pppl_group.id}"
+      expect(page).to have_checked_field "collection_messaging_#{rd_group.id}"
     end
 
     context "User is super admin" do
@@ -65,15 +65,15 @@ RSpec.describe "Editing users", type: :system do
         visit edit_user_path(user)
         expect(page).to have_field("user_display_name", with: user.display_name)
         expect(page).to have_content "My Profile Settings"
-        expect(page).to have_unchecked_field "collection_messaging_#{pppl_collection.id}"
-        expect(page).to have_checked_field "collection_messaging_#{rd_collection.id}"
-        expect(page).to have_unchecked_field "collection_messaging_#{random_collection.id}"
-        uncheck "collection_messaging_#{rd_collection.id}"
+        expect(page).to have_unchecked_field "collection_messaging_#{pppl_group.id}"
+        expect(page).to have_checked_field "collection_messaging_#{rd_group.id}"
+        expect(page).to have_unchecked_field "collection_messaging_#{random_group.id}"
+        uncheck "collection_messaging_#{rd_group.id}"
         click_on "Update"
         visit edit_user_path(user)
-        expect(page).to have_unchecked_field "collection_messaging_#{pppl_collection.id}"
-        expect(page).to have_unchecked_field "collection_messaging_#{rd_collection.id}"
-        expect(page).to have_unchecked_field "collection_messaging_#{random_collection.id}"
+        expect(page).to have_unchecked_field "collection_messaging_#{pppl_group.id}"
+        expect(page).to have_unchecked_field "collection_messaging_#{rd_group.id}"
+        expect(page).to have_unchecked_field "collection_messaging_#{random_group.id}"
       end
     end
   end
