@@ -75,7 +75,7 @@ namespace :works do
       hash = JSON.parse(File.read(file_name))
       resource = PDCMetadata::Resource.new_from_jsonb(hash["resource"])
       work = Work.new(resource: resource)
-      work.collection = Group.where(code: hash["collection"]["code"]).first
+      work.group = Group.where(code: hash["group"]["code"]).first
       work.created_by_user_id = approver.id
       work.state = "draft"
       work.save

@@ -61,7 +61,7 @@ RSpec.describe Work, type: :model do
             "migrated" => false
           },
           "files" => [],
-          "collection" => {
+          "group" => {
             "title" => "Princeton Research Data Service (PRDS)",
             "description" => nil,
             "code" => "RD",
