@@ -5,7 +5,7 @@
 # with our AWS credentials, but allows the bucket and path to be configurable.
 class WorkPreservationService
 
-  # @param work [Integer] The ID of the work to preserve.
+  # @param work_id [Integer] The ID of the work to preserve.
   # @param bucket_name [String] The AWS S3 bucket name where the work will be preserved.
   # @param path [String] The path where the work will be preserved.
   def initialize(work_id:, bucket_name:, path:)
