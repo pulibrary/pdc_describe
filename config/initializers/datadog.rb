@@ -25,10 +25,10 @@ Datadog.configure do |c|
   c.tracing.instrument :rails
 
   # Redis
-  c.tracing.instrument :redis
+  # c.tracing.instrument :redis
 
   # Net::HTTP
-  c.tracing.instrument :http
+  # c.tracing.instrument :http
 
   # Sidekiq
   c.tracing.instrument :sidekiq
