@@ -35,8 +35,8 @@ Datadog.configure do |c|
 
   # Faraday
   c.tracing.instrument :faraday
-
-  apm_config:
-    filter_tags:
-      reject: ["http.useragent:nginx/1.23.4 (health check)"]
 end
+
+apm_config:
+  filter_tags:
+    reject: ["http.useragent:nginx/1.23.4 (health check)"]
