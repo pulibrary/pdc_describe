@@ -38,7 +38,7 @@ RSpec.describe "Curator Controlled metadata tab", type: :system do
       expect(draft_work.reload.resource.description).to eq "The work can be changed"
     end
   end
-  context "As a collection admin" do
+  context "As a group admin" do
     let(:user) { FactoryBot.create :research_data_moderator }
 
     it "allows editing of curator controlled fields", js: true, mock_ezid_api: true do

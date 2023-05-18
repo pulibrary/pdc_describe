@@ -39,7 +39,6 @@ en:
       groups: "Groups"
   works:
     group: "Group"
-    group_tags: "Group Tags"
     uploads:
       pre_curation:
         heading: "Uncurated Files"

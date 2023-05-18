@@ -41,7 +41,7 @@ RSpec.describe "Editing users", type: :system do
     before do
       sign_in user
       user.add_role(:submitter, pppl_group)
-      random_group # ensure the collection exists
+      random_group # ensure the group exists
     end
 
     it "shows the form" do
@@ -61,7 +61,7 @@ RSpec.describe "Editing users", type: :system do
     context "User is super admin" do
       let(:user) { FactoryBot.create :super_admin_user }
 
-      it "shows the form with all the collections and only the default collection is checked" do
+      it "shows the form with all the collections and only the default group is checked" do
         visit edit_user_path(user)
         expect(page).to have_field("user_display_name", with: user.display_name)
         expect(page).to have_content "My Profile Settings"
