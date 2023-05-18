@@ -38,7 +38,7 @@ RSpec.describe WorksController do
       work_json = JSON.parse(response.body)
       expect(work_json["resource"]).to_not be nil
       expect(work_json["files"]).to_not be nil
-      expect(work_json["collection"]).to_not be nil
+      expect(work_json["group"]).to_not be nil
     end
 
     it "renders the new submission wizard' step 0" do

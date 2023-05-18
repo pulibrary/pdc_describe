@@ -463,7 +463,7 @@ class Work < ApplicationRecord
     {
       "resource" => resource.as_json,
       "files" => files,
-      "collection" => group.as_json.except("id")
+      "group" => group.as_json.except("id")
     }
   end
 
