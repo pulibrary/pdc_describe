@@ -3,7 +3,6 @@ require "rails_helper"
 
 RSpec.describe WorkList, type: :model do
   let(:user) { FactoryBot.create :user }
-  let(:collection) { Group.research_data }
   let(:user_other) { FactoryBot.create :user }
   let(:super_admin_user) { FactoryBot.create :super_admin_user }
   let(:work) { FactoryBot.create(:draft_work) }

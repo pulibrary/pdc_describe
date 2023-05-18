@@ -10,7 +10,6 @@ RSpec.describe "Form submission for migrating flume", type: :system, mock_ezid_a
 The attached readme.txt file explains the data attributes"
   end
   let(:ark) { "ark:/88435/dsp01qj72pb044" }
-  let(:collection) { "Research Data" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.34770/7hyr-rf67" }
   let(:keywords) { "vegetation canopy turbulence, flume experiments, scalar diffusion, land-atmosphere interactions" }

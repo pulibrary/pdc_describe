@@ -3,7 +3,7 @@ require "rails_helper"
 
 RSpec.describe Work, type: :model do
   let(:user) { FactoryBot.create :user }
-  let(:collection) { Group.research_data }
+  let(:group) { Group.research_data }
   let(:user_other) { FactoryBot.create :user }
   let(:super_admin_user) { FactoryBot.create :super_admin_user }
   let(:work) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
@@ -36,7 +36,7 @@ RSpec.describe Work, type: :model do
       allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
     end
     it "captures everything needed for PDC Describe in JSON" do
-      work = Work.new(group: collection, resource: FactoryBot.build(:tokamak_work))
+      work = Work.new(group: group, resource: FactoryBot.build(:tokamak_work))
       expect(JSON.parse(work.to_json)).to eq(
         {
           "resource" => {
@@ -81,14 +81,14 @@ RSpec.describe Work, type: :model do
   end
 
   it "drafts a doi only once" do
-    work = Work.new(group: collection, resource: FactoryBot.build(:resource))
+    work = Work.new(group: group, resource: FactoryBot.build(:resource))
     work.draft_doi
     work.draft_doi # Doing this multiple times on purpose to make sure the api is only called once
     expect(a_request(:post, "https://#{Rails.configuration.datacite.host}/dois")).to have_been_made.once
   end
 
   it "prevents datasets with no users" do
-    work = Work.new(group: collection, resource: PDCMetadata::Resource.new)
+    work = Work.new(group: group, resource: PDCMetadata::Resource.new)
     expect { work.draft! }.to raise_error AASM::InvalidTransition
   end
 
@@ -114,7 +114,7 @@ RSpec.describe Work, type: :model do
       expect(work.editable_by?(submitter)).to eq true
     end
 
-    it "is editable by collection admins of its collection" do
+    it "is editable by group admins of its group" do
       expect(work.editable_by?(pppl_moderator)).to eq true
     end
 
@@ -126,7 +126,7 @@ RSpec.describe Work, type: :model do
       expect(work.editable_by?(other_user)).to eq false
     end
 
-    it "is not editable by a collection admin of a different collection" do
+    it "is not editable by a group admin of a different group" do
       expect(work.editable_by?(research_data_moderator)).to eq false
     end
   end
@@ -380,7 +380,7 @@ RSpec.describe Work, type: :model do
 
   describe "#draft" do
     let(:draft_work) do
-      work = Work.new(group: collection, resource: FactoryBot.build(:resource), created_by_user_id: user.id)
+      work = Work.new(group: group, resource: FactoryBot.build(:resource), created_by_user_id: user.id)
       work.draft!(user)
       work = Work.find(work.id)
       work
@@ -717,7 +717,7 @@ RSpec.describe Work, type: :model do
   end
 
   describe "states" do
-    let(:work) { Work.new(group: collection, resource: FactoryBot.build(:resource)) }
+    let(:work) { Work.new(group: group, resource: FactoryBot.build(:resource)) }
     it "initally is none" do
       expect(work.none?).to be_truthy
       expect(work.state).to eq("none")
@@ -914,12 +914,12 @@ RSpec.describe Work, type: :model do
   end
 
   describe "valid?" do
-    it "requires a collection" do
+    it "requires a group" do
       work = Work.new(created_by_user_id: user.id, group_id: nil, user_entered_doi: false)
       expect(work).not_to be_valid
     end
 
-    it "requires a collection on update of a draft work" do
+    it "requires a group on update of a draft work" do
       work.update({ group_id: "", resource: work.resource })
       expect(work.group).to be_nil
       expect(work).not_to be_valid

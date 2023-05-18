@@ -11,7 +11,7 @@ Piano Bar: Earthworks—omni-directionals. This microphone system suspends omnid
   end
   let(:ark) { "ark:/88435/dsp015999n653h" }
   let(:collection_tags) { ["bitklavier"] }
-  let(:collection) { "Research Data" }
+  let(:group) { "Research Data" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.34770/r75s-9j74" }
   let(:keywords) { "bitKlavier, sample library, piano" }
@@ -55,7 +55,7 @@ Piano Bar: Earthworks—omni-directionals. This microphone system suspends omnid
       fill_in "publication_year", with: 2021
       fill_in "doi", with: doi
       fill_in "ark", with: ark
-      select collection, from: "group_id"
+      select group, from: "group_id"
       fill_in "collection_tags", with: collection_tags.join(", ")
       click_on "Create"
       expect(page).to have_content "marked as Draft"

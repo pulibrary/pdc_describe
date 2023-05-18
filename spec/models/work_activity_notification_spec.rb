@@ -3,8 +3,8 @@ require "rails_helper"
 
 describe WorkActivityNotification, type: :model do
   let(:user) { FactoryBot.create :user }
-  let(:collection) { Group.default }
-  let(:work) { FactoryBot.create(:work, group: collection) }
+  let(:group) { Group.default }
+  let(:work) { FactoryBot.create(:work, group: group) }
   let(:work_activity) { FactoryBot.create(:work_activity, work: work) }
   let(:notification_mailer) { instance_double(NotificationMailer) }
   let(:message_delivery) { instance_double(ActionMailer::Parameterized::MessageDelivery) }
@@ -21,9 +21,9 @@ describe WorkActivityNotification, type: :model do
       expect(message_delivery).to have_received(:deliver_later)
     end
 
-    context "when e-mail notifications are disabled for the Collection" do
+    context "when e-mail notifications are disabled for the Group" do
       before do
-        user.disable_messages_from(group: collection)
+        user.disable_messages_from(group: group)
       end
 
       it "does not enqueue an e-mail message to be delivered for the notification" do

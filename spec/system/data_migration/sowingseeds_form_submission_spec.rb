@@ -11,7 +11,6 @@ and the facilitators took notes on the subjects' behavior and commentary during 
 Download the README.txt for a detailed description of this dataset's content."
   end
   let(:ark) { "ark:/88435/dsp01d791sj97j" }
-  let(:collection) { "Research Data" }
   let(:publisher) { "Princeton University" }
   let(:doi) {}
   let(:file1) { Pathname.new(fixture_path).join("dataspace_migration", "sowingseeds", "readmearchiveitusability.rtf").to_s }

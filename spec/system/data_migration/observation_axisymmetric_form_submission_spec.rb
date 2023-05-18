@@ -10,7 +10,7 @@ RSpec.describe "Form submission for observation-axisymmetric", type: :system, mo
 Source data for Figure 2, Figure 4, Figure 5 and Figure 7 of the article Observation of Axisymmetric Standard Magnetorotational Instability in the Laboratory published in Physical Review Letters."
   end
   let(:ark) { "ark:/88435/dsp018623j1954" }
-  let(:collection) { "Princeton Plasma Physics Laboratory" }
+  let(:group) { "Princeton Plasma Physics Laboratory" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.11578/1888278" }
   let(:related_identifier) { "10.1103/PhysRevLett.129.115001" }
@@ -76,7 +76,7 @@ Source data for Figure 2, Figure 4, Figure 5 and Figure 7 of the article Observa
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2022
-      select collection, from: "group_id"
+      select group, from: "group_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       click_on "Create"

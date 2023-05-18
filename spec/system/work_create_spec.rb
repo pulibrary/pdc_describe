@@ -31,7 +31,6 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
   end
   let(:description) { "Download the README.txt for a detailed description of this dataset's content." }
   let(:ark) { "http://arks.princeton.edu/ark:/88435/dsp01d791sj97j" }
-  let(:collection) { "Research Data" }
 
   before do
     stub_s3
