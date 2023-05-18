@@ -10,7 +10,7 @@ RSpec.describe "Form submission for migrating design-arrangment", type: :system,
 Consult the file README.txt for a more detailed description of the contents."
   end
   let(:ark) { "ark:/88435/dsp01x059cb547" }
-  let(:group) { "Princeton Plasma Physics Laboratory" }
+  let(:group) { "Princeton Plasma Physics Lab (PPPL)" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.11578/1888258" }
   let(:keywords) { "" }

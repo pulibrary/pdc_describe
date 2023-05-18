@@ -10,7 +10,7 @@ RSpec.describe "Form submission for migrating Thomson Scattering", type: :system
 Please consult the file README.txt for a description of the archive contents."
   end
   let(:ark) { "ark:/88435/dsp014t64gr25v" }
-  let(:group) { "Princeton Plasma Physics Laboratory" }
+  let(:group) { "Princeton Plasma Physics Lab (PPPL)" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.11578/1814942" }
   let(:related_identifier) { "10.1063/5.0041507" }

@@ -10,7 +10,7 @@ RSpec.describe "Form submission for non_axisymmetric", type: :system, mock_ezid_
 File name: SourceData.xlsx Description: source data for the 8 figures in the main text of the paper Identification of a non-axisymmetric mode in laboratory experiments searching for standard magnetorotational instability accepted by Nature Communications."
   end
   let(:ark) { "ark:/88435/dsp01sx61dq46q" }
-  let(:group) { "Princeton Plasma Physics Laboratory" }
+  let(:group) { "Princeton Plasma Physics Lab (PPPL)" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.11578/1888278" }
   let(:related_identifier) { "10.1038/s41467-022-32278-0" }

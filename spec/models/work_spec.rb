@@ -62,7 +62,7 @@ RSpec.describe Work, type: :model do
           },
           "files" => [],
           "collection" => {
-            "title" => "Research Data",
+            "title" => "Princeton Research Data Service (PRDS)",
             "description" => nil,
             "code" => "RD",
             "created_at" => "2021-12-31T19:00:00.000-05:00",

@@ -8,7 +8,7 @@ RSpec.describe "Form submission for migrating Thomson Scattering", type: :system
     "Digital data for figures used in Lower Hybrid Drift Waves During Guide Field Reconnection, Geophysical Research Letters, 47, e2020GL087192, 2020."
   end
   let(:ark) { "ark:/88435/dsp0112579w37b" }
-  let(:group) { "Princeton Plasma Physics Laboratory" }
+  let(:group) { "Princeton Plasma Physics Lab (PPPL)" }
   let(:publisher) { "Princeton University" }
   # DOI of this data set as found at https://www.osti.gov/pages/biblio/1814564
   let(:doi) { "10.11578/1814938" }

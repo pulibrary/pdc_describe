@@ -10,7 +10,7 @@ RSpec.describe "Form submission for electromagnetic", type: :system, mock_ezid_a
 This data set includes the data visualized in figures 2-7 in Electromagnetic total-f algorithm for gyrokinetic particle-in-cell simulations of boundary plasma in XGC Physics of Plasmas 29, 112308 (2022); https://doi.org/10.1063/5.0097855. The file names indicate to which figure the data belongs. The data files themselves are in self-descriptive HDF5 format."
   end
   let(:ark) { "ark:/88435/dsp01zw12z8539" }
-  let(:group) { "Princeton Plasma Physics Laboratory" }
+  let(:group) { "Princeton Plasma Physics Lab (PPPL)" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.1063/5.0097855" }
   let(:keywords) { "Tokamak, Magnetic confinement fusion, gyrokinetic, XGC" }

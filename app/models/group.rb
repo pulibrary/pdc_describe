@@ -69,8 +69,8 @@ class Group < ApplicationRecord
   def self.create_defaults
     return if count > 0
     Rails.logger.info "Creating default Groups"
-    create(title: "Research Data", code: "RD")
-    create(title: "Princeton Plasma Physics Laboratory", code: "PPPL")
+    create(title: "Princeton Research Data Service (PRDS)", code: "RD")
+    create(title: "Princeton Plasma Physics Lab (PPPL)", code: "PPPL")
   end
 
   # Returns the default group.
