@@ -142,10 +142,11 @@ RSpec.describe S3QueryService do
       allow(subject.client).to receive(:delete_object).and_return(fake_delete)
       allow(subject.client).to receive(:head_object).and_return(true)
       allow(subject.client).to receive(:complete_multipart_upload).and_return(fake_completion)
+      allow(subject.client).to receive(:put_object).and_return(nil)
     end
 
     describe "#publish_files" do
-      it "calls moves the files calling create_multipart_upload, head_object, and delete_object twice, once for each file" do
+      it "calls moves the files calling create_multipart_upload, head_object, and delete_object twice, once for each file, and create the preservation folder" do
         expect(subject.publish_files).to be_truthy
         fake_s3_resp.stub(:to_h).and_return(s3_hash, empty_s3_hash)
         perform_enqueued_jobs
@@ -181,6 +182,13 @@ RSpec.describe S3QueryService do
           .with({ bucket: "example-bucket", key: s3_key2 })
         expect(subject.client).to have_received(:delete_object)
           .with({ bucket: "example-bucket", key: work.s3_object_key })
+        # Creates the PDC preservation folder and its files
+        expect(subject.client).to have_received(:put_object)
+          .with({ bucket: "example-bucket-post", key: "10.34770/pe9w-x904/#{work.id}/princeton_data_commons/", content_length: 0 })
+        expect(subject.client).to have_received(:put_object)
+          .with(hash_including(bucket: "example-bucket-post", key: "10.34770/pe9w-x904/#{work.id}/princeton_data_commons/datacite.xml"))
+        expect(subject.client).to have_received(:put_object)
+          .with(hash_including(bucket: "example-bucket-post", key: "10.34770/pe9w-x904/#{work.id}/princeton_data_commons/metadata.json"))
       end
       context "the copy fails for some reason" do
         it "Does not delete anything and returns the missing file" do

@@ -95,10 +95,12 @@ namespace :works do
     end
   end
 
-  desc "Preserves a single work"
+  desc "Creates the preservation objects for a given work and saves them in the indicated bucket and path"
   task :preserve, [:work_id, :bucket_name, :path] => :environment do |_, args|
-    work = Work.find(args[:work_id])
-    work_preservation = WorkPreservationService.new(work: work)
+    work_id = args[:work_id].to_i
+    bucket_name = args[:bucket_name] # e.g. "pdc-describe-staging-postcuration"
+    path = args[:path] # e.g. "10.34770/xy123/10"
+    work_preservation = WorkPreservationService.new(work_id: work_id, bucket_name: bucket_name, path: path)
     puts work_preservation.preserve!
   end
 end

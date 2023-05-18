@@ -401,7 +401,18 @@ class Work < ApplicationRecord
 
     s3_resources
   end
-  alias post_curation_uploads post_curation_s3_resources
+
+  # Returns the files in post-curation for the work
+  def post_curation_uploads(force_post_curation: false)
+    if force_post_curation
+      # Always use the post-curation data regardless of the work's status
+      post_curation_s3_query_service = S3QueryService.new(self, false)
+      post_curation_s3_query_service.data_profile.fetch(:objects, [])
+    else
+      # Return the list based of files honoring the work status
+      post_curation_s3_resources
+    end
+  end
 
   def s3_files
     pre_curation_uploads_fast
@@ -434,11 +445,12 @@ class Work < ApplicationRecord
     nil
   end
 
-  def as_json(*)
+  def as_json(*args)
+    force_post_curation = args.any? {|arg| arg[:force_post_curation] == true }
     # Pre-curation files are not accessible externally,
     # so we are not interested in listing them in JSON.
     # (The items in pre_curation_uploads also have different properties.)
-    files = post_curation_uploads.map do |upload|
+    files = post_curation_uploads(force_post_curation:).map do |upload|
       {
         "filename": upload.filename,
         "size": upload.size,

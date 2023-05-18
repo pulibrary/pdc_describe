@@ -16,6 +16,7 @@ RSpec.describe ApprovedFileMoveJob, type: :job do
     allow(fake_s3_service).to receive(:copy_file).and_return(fake_completion)
     allow(fake_s3_service).to receive(:delete_s3_object).and_return(fake_completion)
     allow(fake_s3_service).to receive(:check_file).and_return(true)
+    allow(fake_s3_service.client).to receive(:put_object).and_return(nil)
   end
 
   it "runs an aws copy and delete" do
@@ -24,6 +25,7 @@ RSpec.describe ApprovedFileMoveJob, type: :job do
                                                               target_bucket: "example-bucket-post", target_key: "10.34770/ackh-7y71/1/test_key")
     expect(fake_s3_service).to have_received(:delete_s3_object).with("10.34770/ackh-7y71/1/test_key", bucket: "example-bucket")
     expect(fake_s3_service).to have_received(:delete_s3_object).with(work.s3_object_key, bucket: "example-bucket")
+    expect(fake_s3_service.client).to have_received(:put_object).with({ bucket: "example-bucket-post", content_length: 0, key: "#{work.doi}/#{work.id}/princeton_data_commons/" })
   end
 
   context "the copy fails" do

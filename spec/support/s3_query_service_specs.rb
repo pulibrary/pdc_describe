@@ -4,6 +4,7 @@ def stub_s3(data: [], bucket_url: nil, prefix: "10.34770/123-abc/1")
   @s3_client = instance_double(Aws::S3::Client)
   allow(@s3_client).to receive(:head_object)
   allow(@s3_client).to receive(:delete_object)
+  allow(@s3_client).to receive(:put_object)
 
   fake_s3_query = instance_double(S3QueryService, data_profile: { objects: data, ok: true }, client: @s3_client,
                                                   client_s3_files: data, prefix: prefix)
@@ -22,6 +23,7 @@ def mock_methods(fake_s3_query, data)
   allow(fake_s3_query).to receive(:create_directory)
   allow(fake_s3_query).to receive(:publish_files).and_return([])
   allow(fake_s3_query).to receive(:upload_file).and_return(true)
+  allow(fake_s3_query).to receive(:md5).and_return(nil)
 end
 
 def mock_bucket(bucket_url)
