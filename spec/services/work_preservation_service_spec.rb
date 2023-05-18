@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe WorkPreservationService do
-  describe "preserves to default location" do
+  describe "#preserve!" do
     let(:approved_work) { FactoryBot.create :approved_work, doi: "10.34770/pe9w-x904" }
     let(:bucket_name) { approved_work.s3_query_service.bucket_name }
     let(:path) { approved_work.s3_query_service.prefix }
