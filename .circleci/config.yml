@@ -92,8 +92,7 @@ jobs:
           command: bundle exec rspec
       - persist_to_workspace:
           root: *root
-          paths:
-            - 'coverage'
+          paths: 'coverage'
       - store_artifacts:
           path:
             ~/rails_template/coverage

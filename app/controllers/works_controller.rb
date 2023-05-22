@@ -171,6 +171,7 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     files = work_params.dig("patch", "pre_curation_uploads") || []
     if files.count > 0
+      # Uploads should be asynchronous here
       upload_service = WorkUploadsEditService.new(@work, current_user)
       @work = upload_service.update_precurated_file_list(files, [])
       @work.save!

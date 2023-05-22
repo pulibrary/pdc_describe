@@ -47,6 +47,19 @@ RSpec.describe WorkUploadsEditService do
   end
   let(:s3_data) { [s3_file1, s3_file2] }
 
+  before(:all) do
+    ActiveJob::Base.queue_adapter = :inline
+  end
+
+  after(:all) do
+    ActiveJob::Base.queue_adapter = :test
+  end
+
+  before do
+    stub_request(:get, /#{Regexp.escape("https://example-bucket.s3.amazonaws.com/us_covid")}.+\.csv/).to_return(status: 200, body: "", headers: {})
+    stub_request(:get, /#{Regexp.escape("https://example-bucket.s3.amazonaws.com/orcid")}*+\.csv/).to_return(status: 200, body: "", headers: {})
+  end
+
   context "When no uploads changes are requested" do
     let(:added_files) { [] }
     let(:deleted_files) { [] }
@@ -73,11 +86,13 @@ RSpec.describe WorkUploadsEditService do
 
       upload_service = described_class.new(work, user)
       updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
-      expect(updated_work.pre_curation_uploads_fast.map(&:filename).sort).to eq([s3_file1.key, s3_file2.key, s3_file3.key].sort)
+
+      expect(updated_work.pre_curation_uploads_fast.map(&:filename).sort).to eq([s3_file1.key, s3_file2.key].sort)
+      # Assert the the ActiveJob had method
       expect(fake_s3_service).not_to have_received(:delete_s3_object)
 
       # it logs the addition (and no delete)
-      activity_log = JSON.parse(work.work_activity.first.message)
+      activity_log = JSON.parse(updated_work.work_activity.first.message)
       expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == s3_file3.filename_display }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "deleted" }).to be nil
     end
@@ -113,11 +128,13 @@ RSpec.describe WorkUploadsEditService do
       upload_service = described_class.new(work, user)
       updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
       list = updated_work.reload.pre_curation_uploads_fast
+
       expect(list.map(&:filename)).to eq([s3_file3.key, s3_file2.key])
       expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_file1.key).once
 
       # it logs the activity
-      activity_log = JSON.parse(work.work_activity.first.message)
+      work_activities = work.work_activity
+      activity_log = work_activities.map { |work_activity| JSON.parse(work_activity.message) }.flatten
       expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"] == s3_file1.key }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "us_covid_2020.csv" }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "orcid.csv" }).not_to be nil
@@ -141,7 +158,8 @@ RSpec.describe WorkUploadsEditService do
       expect(fake_s3_service).to have_received(:delete_s3_object).twice
 
       # it logs the activity (2 deletes + 2 adds)
-      activity_log = JSON.parse(work.work_activity.first.message)
+      work_activities = work.work_activity
+      activity_log = work_activities.map { |work_activity| JSON.parse(work_activity.message) }.flatten
       expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"].include?("us_covid_2019.csv") }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil

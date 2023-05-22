@@ -344,7 +344,7 @@ class Work < ApplicationRecord
     WorkActivity.add_work_activity(id, resource_compare.differences.to_json, current_user_id, activity_type: WorkActivity::CHANGES)
   end
 
-  def log_file_changes(changes, current_user_id)
+  def log_file_changes(current_user_id)
     return if changes.count == 0
     WorkActivity.add_work_activity(id, changes.to_json, current_user_id, activity_type: WorkActivity::FILE_CHANGES)
   end
@@ -525,6 +525,14 @@ class Work < ApplicationRecord
 
   def presenter
     self.class.presenter_class.new(work: self)
+  end
+
+  def changes
+    @changes ||= []
+  end
+
+  def track_change(action, filename)
+    changes << { action: action, filename: filename }
   end
 
   protected

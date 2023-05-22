@@ -4,7 +4,7 @@ require "rails_helper"
 describe WorkActivity, type: :model do
   let(:user) { FactoryBot.create :user }
   let(:work) { FactoryBot.create(:draft_work) }
-  let(:message) { "test message for @#{user.uid}" }
+  let(:message) { ["test message for @#{user.uid}"].to_json }
   let(:work_activity) do
     described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::SYSTEM)
   end

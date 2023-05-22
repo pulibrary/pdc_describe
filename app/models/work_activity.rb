@@ -132,12 +132,21 @@ class WorkActivity < ApplicationRecord
   class MetadataChanges < Renderer
     # Returns the message formatted to display _metadata_ changes that were logged as an activity
     def body_html
-      changes = JSON.parse(@work_activity.message)
+      messages = JSON.parse(@work_activity.message)
 
-      changes.keys.map do |field|
-        mapped = changes[field].map { |value| change_value_html(value) }
-        "<details class='message-html'><summary class='show-changes'>#{field}</summary>#{mapped.join}</details>"
-      end.join
+      unless messages.is_a?(Array)
+        messages = Array.wrap(messages)
+      end
+
+      elements = messages.map do |message|
+        markup = message.keys.map do |field|
+          mapped = message[field].map { |value| change_value_html(value) }
+          "<details class='message-html'><summary class='show-changes'>#{field}</summary>#{mapped.join}</details>"
+        end
+        markup.join
+      end
+
+      elements.flatten.join
     end
 
     def change_value_html(value)
