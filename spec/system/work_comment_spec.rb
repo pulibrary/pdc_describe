@@ -8,17 +8,29 @@ RSpec.describe "Commenting on works sends emails or not", type: :system, js: tru
   let(:message) { "@#{user2.uid} Look at this work!" }
 
   before do
+    @default_queue_adapter = ActiveJob::Base.queue_adapter
+    ActiveJob::Base.queue_adapter = :test
+
     stub_s3
     sign_in user
     visit work_path(work)
   end
 
+  after do
+    ActiveJob::Base.queue_adapter = @default_queue_adapter
+  end
+
   it "Allows the user to comment and tag another user and will send an email" do
+    default_queue_adapter = ActiveJob::Base.queue_adapter
+    ActiveJob::Base.queue_adapter = :test
+
     fill_in "new-message", with: message
     expect { click_on "Message" }
       .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
       .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(1).times
     expect(page).to have_content message
+
+    ActiveJob::Base.queue_adapter = default_queue_adapter
   end
 
   context "when the user has emails disabled" do

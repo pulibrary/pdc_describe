@@ -102,9 +102,12 @@ RSpec.describe "/works", type: :request do
         let(:file2) { FactoryBot.build :s3_file, filename: uploaded_file2.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z"), checksum: "test2" }
 
         before do
+          ActiveJob::Base.queue_adapter = :inline
+
           # This is utilized for active record to send the file to S3
           stub_request(:put, /#{bucket_url}/).to_return(status: 200)
           allow(fake_s3_service).to receive(:client_s3_files).and_return([], [file1, file2])
+          allow(AttachFileToWorkJob).to receive(:perform_later)
 
           stub_ark
           patch work_url(work), params: params
@@ -115,9 +118,20 @@ RSpec.describe "/works", type: :request do
           get work_url(work)
 
           expect(response.code).to eq "200"
-          snapshots = UploadSnapshot.where(work: work)
-          expect(snapshots.count).to eq(1)
-          expect(response.body).to include("Files Added: 2")
+          expect(AttachFileToWorkJob).to have_received(:perform_later).with(
+            user_id: user.id,
+            work_id: work.id,
+            size: 92,
+            file_name: "us_covid_2019.csv",
+            file_path: anything
+          )
+          expect(AttachFileToWorkJob).to have_received(:perform_later).with(
+            user_id: user.id,
+            work_id: work.id,
+            size: 114,
+            file_name: "us_covid_2020.csv",
+            file_path: anything
+          )
         end
       end
 

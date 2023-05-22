@@ -101,6 +101,12 @@ RSpec.configure do |config|
     DatabaseCleaner.clean_with(:truncation)
   end
 
+  config.before(:each, type: :system) do
+    @bucket_url = "https://example-bucket.s3.amazonaws.com/"
+
+    stub_request(:get, /#{@bucket_url}/).to_return(status: 200)
+  end
+
   config.around(:each) do |example|
     DatabaseCleaner.cleaning do
       example.run
