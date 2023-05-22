@@ -2,9 +2,12 @@
 class DspaceFileCopyJob < ApplicationJob
   queue_as :default
 
-  def perform(dspace_doi, s3_key, s3_size, work_id, migration_snapshot_id)
+  def perform(s3_file_json:, work_id:, migration_snapshot_id:)
+    s3_file = JSON.parse(s3_file_json)
     work = Work.find(work_id)
-    new_key = s3_key.gsub("#{dspace_doi}/".tr(".", "-"), work.s3_query_service.prefix)
+    new_key = s3_file["filename_display"]
+    s3_key = s3_file["filename"]
+    s3_size = s3_file["size"]
     resp = work.s3_query_service.copy_file(source_key: "#{dspace_bucket_name}/#{s3_key}",
                                            target_bucket: work.s3_query_service.bucket_name,
                                            target_key: new_key, size: s3_size)

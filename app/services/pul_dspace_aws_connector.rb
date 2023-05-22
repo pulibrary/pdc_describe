@@ -12,10 +12,10 @@ class PULDspaceAwsConnector
     dspace_files.map do |dspace_file|
       filename = dspace_file.filename
       match_dspace_file = dspace_file.clone
-      basename = File.basename(filename)
-      match_dspace_file.filename = work.s3_query_service.prefix + basename
+      basename = File.basename(dspace_file.filename_display)
+      match_dspace_file.filename = dspace_file.filename_display
       io = File.open(filename)
-      key = work.s3_query_service.upload_file(io: io, filename: basename)
+      key = work.s3_query_service.upload_file(io: io, filename: basename, md5_digest: dspace_file.checksum)
       if key
         { key: key, file: match_dspace_file, error: nil }
       else
