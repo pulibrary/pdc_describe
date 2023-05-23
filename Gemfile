@@ -3,6 +3,7 @@ source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 gem "aasm"
+gem "amazing_print"
 gem "aws-sdk-s3"
 gem "datacite-mapping"
 gem "ddtrace", require: "ddtrace/auto_instrument"
