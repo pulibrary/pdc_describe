@@ -44,7 +44,7 @@ class PULDspaceMigrate
     end
 
     def remove_overlap_and_combine
-      dpsace_update_display_to_final_key(dspace_files)
+      dpsace_update_display_to_final_key
       aws_files_only = aws_files_and_directories.reject(&:directory?)
       aws_update_display_to_final_key(aws_files_only)
       aws_file_names = aws_files_only.map(&:filename_display)
@@ -59,7 +59,7 @@ class PULDspaceMigrate
       dspace_files + aws_files_only
     end
 
-    def dpsace_update_display_to_final_key(dspace_files)
+    def dpsace_update_display_to_final_key
       dspace_files.each do |s3_file|
         s3_file.filename_display = work.s3_query_service.prefix + File.basename(s3_file.filename)
       end
