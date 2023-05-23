@@ -90,8 +90,9 @@ class PULDspaceConnector
     def checksum_file(filename, bitstream)
       checksum_class = Digest.const_get(bitstream["checkSum"]["checkSumAlgorithm"])
       if checksum_class.file(filename).hexdigest != bitstream["checkSum"]["value"]
-        Rails.logger.error "mismatching checksum #{filename} #{bitstream}"
-        Honeybadger.notify("Mismatching checksum #{filename} #{bitstream}")
+        msg = "Mismatching checksum #{filename} #{bitstream} for work: #{work.id} doi: #{work.doi} ark: #{work.ark}"
+        Rails.logger.error msg
+        Honeybadger.notify(msg)
         false
       else
         Rails.logger.debug "Matching checksums for #{filename}"
