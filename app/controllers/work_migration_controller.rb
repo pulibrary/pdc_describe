@@ -3,7 +3,11 @@ class WorkMigrationController < ApplicationController
   def migrate
     work = Work.find(params[:id])
     if work.ark.present? && current_user.can_admin?(work.group)
-      run_migration(work)
+      begin
+        run_migration(work)
+      rescue RuntimeError => e
+        flash[:notice] = e.message
+      end
     elsif !current_user.can_admin?(work.group)
       flash[:notice] = "Unauthorized migration"
       Honeybadger.notify("Unauthorized to migration work #{work.id} (current user: #{current_user.id})")
