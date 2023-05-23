@@ -23,8 +23,7 @@ class PULDspaceMigrate
     work.save
     @aws_files_and_directories = aws_connector.aws_files
     @dspace_files = dpsace_connector.download_bitstreams
-    generate_migration_snapshot
-    migrate_dspace(dspace_files)
+    migrate_dspace
     aws_copy(aws_files_and_directories)
   end
 
@@ -81,13 +80,14 @@ class PULDspaceMigrate
       end
     end
 
-    def migrate_dspace(dspace_files)
+    def migrate_dspace
       if dspace_files.any?(nil)
         bitstreams = dpsace_connector.bitstreams
-        error_files = Hash[dspace_files.zip bitstreams].select { |key, _value| key.nil? }
+        error_files = dspace_files.zip(bitstreams).select { |values| values.first.nil? }.map(&:last)
         error_names = error_files.map { |bitstream| bitstream["name"] }.join(", ")
         raise "Error downloading file(s) #{error_names}"
       end
+      generate_migration_snapshot
       errors = upload_dspace_files(dspace_files)
       if errors.count > 0
         raise "Error uploading file(s):\n #{errors.join("\n")}" if errors.count > 0

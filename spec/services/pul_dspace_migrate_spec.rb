@@ -139,6 +139,17 @@ RSpec.describe PULDspaceMigrate, type: :model do
           expect(MigrationUploadSnapshot.last.migration_complete?).to be_truthy
         end
       end
+
+      context "a dspace bitstream missmatch" do
+        # realy should be the readme, but we are intetionally returning the wrong data
+        let(:bitsream1_body) { "not the readme!!" }
+
+        it "downloads the bitstreams" do
+          allow(Honeybadger).to receive(:notify)
+          expect { dspace_data.migrate }.to raise_error("Error downloading file(s) SCoData_combined_v1_2020-07_README.txt")
+          expect(Honeybadger).to have_received(:notify).with(/Mismatching checksum .* for work: #{work.id} doi: #{work.doi} ark: #{work.ark}/)
+        end
+      end
     end
   end
 end
