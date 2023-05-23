@@ -33,7 +33,6 @@ gem "redis", "~> 4.0"
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 gem "nokogiri", ">= 1.13.4"
-gem "rails_semantic_logger"
 gem "rolify"
 gem "rspec-rails", "~> 5.0.0"
 gem "sidekiq", "~> 6.0"
