@@ -14,29 +14,25 @@ Datadog.configure do |c|
   # From https://docs.datadoghq.com/tracing/metrics/runtime_metrics/ruby/
   # To enable runtime metrics collection, set `true`. Defaults to `false`
   # You can also set DD_RUNTIME_METRICS_ENABLED=true to configure this.
-  # c.runtime_metrics.enabled = true
+  c.runtime_metrics.enabled = true
 
   # Optionally, you can configure the DogStatsD instance used for sending runtime metrics.
   # DogStatsD is automatically configured with default settings if `dogstatsd-ruby` is available.
   # You can configure with host and port of Datadog agent; defaults to 'localhost:8125'.
-  # c.runtime_metrics.statsd = Datadog::Statsd.new
+  c.runtime_metrics.statsd = Datadog::Statsd.new
 
   # Rails
   c.tracing.instrument :rails
 
   # Redis
-  # c.tracing.instrument :redis
+  c.tracing.instrument :redis
 
   # Net::HTTP
   c.tracing.instrument :http
 
   # Sidekiq
-  # c.tracing.instrument :sidekiq
+  c.tracing.instrument :sidekiq
 
   # Faraday
   c.tracing.instrument :faraday
 end
-
-apm_config:
-  filter_tags:
-    reject: ["http.useragent:nginx/1.23.4 (health check)"]
