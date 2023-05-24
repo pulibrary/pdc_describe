@@ -95,13 +95,13 @@ class Work < ApplicationRecord
   class << self
     def find_by_doi(doi)
       prefix = "10.34770/"
-      doi = "#{prefix}#{doi}" unless doi.start_with?(prefix)
+      doi = "#{prefix}#{doi}" unless doi.blank? || doi.start_with?(prefix)
       Work.find_by!("metadata @> ?", JSON.dump(doi: doi))
     end
 
     def find_by_ark(ark)
       prefix = "ark:/"
-      ark = "#{prefix}#{ark}" unless ark.start_with?(prefix)
+      ark = "#{prefix}#{ark}" unless ark.blank? || ark.start_with?(prefix)
       Work.find_by!("metadata @> ?", JSON.dump(ark: ark))
     end
 
