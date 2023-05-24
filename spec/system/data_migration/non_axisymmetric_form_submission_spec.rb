@@ -87,7 +87,8 @@ File name: SourceData.xlsx Description: source data for the 8 figures in the mai
       select group, from: "group_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
-      click_on "Create"
+      click_on "Migrate"
+      expect(page).to have_button("Migrate Dataspace Files")
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
       click_on "Complete"
