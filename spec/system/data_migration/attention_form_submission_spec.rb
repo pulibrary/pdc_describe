@@ -59,7 +59,8 @@ RSpec.describe "Form submission for migrating attention", type: :system, mock_ez
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       page.attach_file("work[pre_curation_uploads_added][]", [file_upload], make_visible: true)
-      click_on "Create"
+      click_on "Migrate"
+      expect(page).to have_button("Migrate Dataspace Files")
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
       click_on "Complete"
