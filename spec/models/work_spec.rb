@@ -189,6 +189,16 @@ RSpec.describe Work, type: :model do
         expect(work.as_json["files"][0][:url]).to eq "https://example.data.globus.org/10.34770/123-abc/#{work.id}/us_covid_2019.csv"
       end
     end
+
+    context "when the doi is empty" do
+      it "fails the transition" do
+        expect(work.reload.state).to eq("awaiting_approval")
+        work.resource.doi = ""
+        expect { work.approve!(curator_user) }.to raise_error(AASM::InvalidTransition)
+        expect(work.errors.map(&:type)).to eq(["DOI must be present for a work to be approved"])
+        expect(work.reload.state).to eq("awaiting_approval")
+      end
+    end
   end
 
   it "withdraw works and records the change history" do

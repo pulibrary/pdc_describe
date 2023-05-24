@@ -198,6 +198,9 @@ class Work < ApplicationRecord
 
   def valid_to_approve(user)
     valid_to_submit
+    if resource.doi.blank?
+      errors.add :base, "DOI must be present for a work to be approved"
+    end
     unless user.has_role? :group_admin, group
       errors.add :base, "Unauthorized to Approve"
     end
