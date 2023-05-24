@@ -43,7 +43,7 @@ class User < ApplicationRecord
     user.provider = access_token.provider
     user.uid = access_token.uid # this is the netid
     user.email = access_token.extra.mail
-    user.display_name = access_token.extra.givenname || access_token.uid # Harriet
+    user.given_name = access_token.extra.givenname || access_token.uid # Harriet
     user.family_name = access_token.extra.sn || access_token.uid # Tubman
     user.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
     user.default_group_id = Group.default_for_department(access_token.extra.departmentnumber)&.id
@@ -57,7 +57,7 @@ class User < ApplicationRecord
   def update_with_cas(access_token)
     self.provider = access_token.provider
     self.email = access_token.extra.mail
-    self.display_name = access_token.extra.givenname || access_token.uid # Harriet
+    self.given_name = access_token.extra.givenname || access_token.uid # Harriet
     self.family_name = access_token.extra.sn || access_token.uid # Tubman
     self.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
     self.default_group_id = Group.default_for_department(access_token.extra.departmentnumber)&.id
@@ -86,7 +86,7 @@ class User < ApplicationRecord
     email = "#{csv_params['Net ID']}@princeton.edu"
     uid = csv_params["Net ID"]
     full_name = "#{csv_params['First Name']} #{csv_params['Last Name']}"
-    display_name = csv_params["First Name"]
+    given_name = csv_params["First Name"]
     orcid = csv_params["ORCID ID"]
     user = User.where(email: email).first_or_create
     params_hash = {
@@ -94,7 +94,7 @@ class User < ApplicationRecord
       uid: uid,
       orcid: orcid,
       full_name: (full_name if user.full_name.blank?),
-      display_name: (display_name if user.display_name.blank?)
+      given_name: (given_name if user.given_name.blank?)
     }.compact
 
     user.update(params_hash)
@@ -162,8 +162,8 @@ class User < ApplicationRecord
   # Returns a display name that always has a value
   # This is needed because we have records in the Users table that are created automatically
   # in which the only value we have for sure its their uid (aka NetID).
-  def display_name_safe
-    display_name.presence || uid
+  def given_name_safe
+    given_name.presence || uid
   end
 
   def moderator?

@@ -111,7 +111,7 @@ class WorkActivity < ApplicationRecord
     def created_by_user_html
       return UNKNOWN_USER unless @work_activity.created_by_user
 
-      @work_activity.created_by_user.display_name_safe
+      @work_activity.created_by_user.given_name_safe
     end
 
     def created_updated_html
@@ -203,7 +203,7 @@ class WorkActivity < ApplicationRecord
         if uid
           user = User.find_by(uid: uid)
           user_info = if user
-                        user.display_name_safe
+                        user.given_name_safe
                       else
                         uid
                       end
@@ -228,7 +228,7 @@ class WorkActivity < ApplicationRecord
       return UNKNOWN_USER unless @work_activity.created_by_user
 
       user = @work_activity.created_by_user
-      "#{user.display_name_safe} (@#{user.uid})"
+      "#{user.given_name_safe} (@#{user.uid})"
     end
 
     def title_html

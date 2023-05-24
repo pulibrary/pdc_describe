@@ -54,7 +54,7 @@ RSpec.describe User, type: :model do
       user = described_class.from_cas(access_token_full_extras)
       expect(user.email).to eq "who@princeton.edu"
       expect(user.full_name).to eq "Areyou, Who"
-      expect(user.display_name).to eq "Who"
+      expect(user.given_name).to eq "Who"
       expect(user.family_name).to eq "Areyou"
     end
 
@@ -63,13 +63,13 @@ RSpec.describe User, type: :model do
       described_class.where(uid: "test123").delete_all
       user = described_class.new(uid: "test123", email: "test123@princeton.edu")
       user.save!
-      expect(user.display_name).to be nil
+      expect(user.given_name).to be nil
 
       # ...make sure it's updated with CAS info
       user = described_class.from_cas(access_token_full_extras)
       expect(user.email).to eq "who@princeton.edu"
       expect(user.full_name).to eq "Areyou, Who"
-      expect(user.display_name).to eq "Who"
+      expect(user.given_name).to eq "Who"
       expect(user.family_name).to eq "Areyou"
     end
   end
@@ -118,12 +118,12 @@ RSpec.describe User, type: :model do
       described_class.where(uid: "fake_netid_dw1234").delete_all
       user = described_class.new_from_csv_params(csv_params)
       user.full_name = "Darryl Arthur Williamson"
-      user.display_name = "D. Williamson"
+      user.given_name = "D. Williamson"
       user.orcid = "0000-0000-0000-1111"
       user.save!
       user = described_class.new_from_csv_params(csv_params)
       expect(user.full_name).to eq "Darryl Arthur Williamson"
-      expect(user.display_name).to eq "D. Williamson"
+      expect(user.given_name).to eq "D. Williamson"
       expect(user.orcid).to eq "0000-0000-0000-0000"
     end
   end

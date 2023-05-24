@@ -10,7 +10,7 @@ RSpec.describe "Editing users", type: :system do
 
     it "allows an admin to edit other users ORCID", js: true do
       visit user_path(user)
-      expect(page).to have_content user.display_name
+      expect(page).to have_content user.given_name
       click_on "Edit"
       expect(page).to have_content "My Profile Settings"
       fill_in "user_orcid", with: orcid
@@ -27,7 +27,7 @@ RSpec.describe "Editing users", type: :system do
 
     it "allows an admin to edit other users ORCID", js: true do
       visit user_path(user_other)
-      expect(page).to have_content user_other.display_name
+      expect(page).to have_content user_other.given_name
       expect(page).to_not have_content "Edit"
     end
   end
@@ -46,7 +46,7 @@ RSpec.describe "Editing users", type: :system do
 
     it "shows the form" do
       visit edit_user_path(user)
-      expect(page).to have_field("user_display_name", with: user.display_name)
+      expect(page).to have_field("user_given_name", with: user.given_name)
       expect(page).to have_content "My Profile Settings"
       expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}"
       expect(page).to have_checked_field "group_messaging_#{rd_group.id}"
@@ -63,7 +63,7 @@ RSpec.describe "Editing users", type: :system do
 
       it "shows the form with all the collections and only the default group is checked" do
         visit edit_user_path(user)
-        expect(page).to have_field("user_display_name", with: user.display_name)
+        expect(page).to have_field("user_given_name", with: user.given_name)
         expect(page).to have_content "My Profile Settings"
         expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}"
         expect(page).to have_checked_field "group_messaging_#{rd_group.id}"

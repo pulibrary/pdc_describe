@@ -21,7 +21,7 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
     it "should not be able to edit someone else's work" do
       sign_in submitter1
       visit user_path(submitter1)
-      expect(page).to have_content submitter1.display_name
+      expect(page).to have_content submitter1.given_name
       click_on "Submit New"
       fill_in "title_main", with: title1
 

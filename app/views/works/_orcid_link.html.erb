@@ -1,4 +1,4 @@
-<% display_name = capture do %>
+<% given_name = capture do %>
   <%= person.value %>
   <% if person.type.present? %>
     (<%= person.type.titleize %>)
@@ -8,8 +8,8 @@
 <span class="author-name">
   <% if person.orcid.present? %>
     <img alt="ORCID logo" src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height="16" />
-    <a href="https://orcid.org/<%= person.orcid %>" target="_blank"><%= display_name %></a>
+    <a href="https://orcid.org/<%= person.orcid %>" target="_blank"><%= given_name %></a>
   <% else %>
-    <%= display_name -%>
+    <%= given_name -%>
   <% end %>
 </span>
