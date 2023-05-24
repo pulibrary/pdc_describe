@@ -1021,6 +1021,16 @@ RSpec.describe Work, type: :model do
       expect { Work.find_by_doi("123-zzzz") }.to raise_error(ActiveRecord::RecordNotFound)
       expect { Work.find_by_doi("123-zz") }.to raise_error(ActiveRecord::RecordNotFound)
     end
+
+    it "can find nil dois" do
+      work = FactoryBot.create(:draft_work, doi: nil)
+      expect(Work.find_by_doi(nil)).to eq(work)
+    end
+
+    it "can find empty dois" do
+      work = FactoryBot.create(:draft_work, doi: "")
+      expect(Work.find_by_doi("")).to eq(work)
+    end
   end
 
   describe "#find_by_ark" do
@@ -1042,6 +1052,16 @@ RSpec.describe Work, type: :model do
       expect { Work.find_by_ark("ark:/88435/xyz1234") }.to raise_error(ActiveRecord::RecordNotFound)
       expect { Work.find_by_ark("88435/xyz12") }.to raise_error(ActiveRecord::RecordNotFound)
       expect { Work.find_by_ark("88435/xyz1234") }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it "can find nil arks" do
+      work = FactoryBot.create(:draft_work, ark: nil)
+      expect(Work.find_by_ark(nil)).to eq(work)
+    end
+
+    it "can find empty dois" do
+      work = FactoryBot.create(:draft_work, ark: "")
+      expect(Work.find_by_ark("")).to eq(work)
     end
   end
 
