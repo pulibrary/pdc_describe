@@ -57,7 +57,8 @@ Piano Bar: Earthworks—omni-directionals. This microphone system suspends omnid
       fill_in "ark", with: ark
       select group, from: "group_id"
       fill_in "collection_tags", with: collection_tags.join(", ")
-      click_on "Create"
+      click_on "Migrate"
+      expect(page).to have_button("Migrate Dataspace Files")
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
       click_on "Complete"
