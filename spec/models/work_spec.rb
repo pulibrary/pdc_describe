@@ -81,7 +81,7 @@ RSpec.describe Work, type: :model do
   end
 
   it "drafts a doi only once" do
-    work = Work.new(group: group, resource: FactoryBot.build(:resource))
+    work = Work.new(group: group, resource: FactoryBot.build(:resource, doi: ""))
     work.draft_doi
     work.draft_doi # Doing this multiple times on purpose to make sure the api is only called once
     expect(a_request(:post, "https://#{Rails.configuration.datacite.host}/dois")).to have_been_made.once
