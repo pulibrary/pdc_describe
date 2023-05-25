@@ -139,9 +139,13 @@ class WorkActivity < ApplicationRecord
       end
 
       elements = messages.map do |message|
-        markup = message.keys.map do |field|
-          mapped = message[field].map { |value| change_value_html(value) }
-          "<details class='message-html'><summary class='show-changes'>#{field}</summary>#{mapped.join}</details>"
+        if message.is_a?(Hash)
+          markup = message.keys.map do |field|
+            mapped = message[field].map { |value| change_value_html(value) }
+            "<details class='message-html'><summary class='show-changes'>#{field}</summary>#{mapped.join}</details>"
+          end
+        else
+          message
         end
         markup.join
       end

@@ -39,6 +39,8 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       # allow(s3).to receive(:client).and_return(fake_aws_client)
       # allow(S3QueryService).to receive(:new).and_return(s3)
 
+      # Ensure that the S3 API confirms the file already exists
+      stub_request(:get, /#{bucket_url}/).to_return(status: 200)
       stub_request(:put, /#{bucket_url}/).to_return(status: 200)
       stub_request(:delete, /#{delete_url}/).to_return(status: 200)
       work.save
