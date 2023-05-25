@@ -20,6 +20,7 @@ RSpec.describe "Form submission for migrating attention", type: :system, mock_ez
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_request(:get, "https://handle.stage.datacite.org/10.34770/9425-b553")
       .to_return(status: 200, body: "", headers: {})
+    stub_request(:get, /#{bucket_url}/).to_return(status: 200)
     stub_request(:put, /#{bucket_url}/).to_return(status: 200)
     stub_s3(data: [file1])
   end
