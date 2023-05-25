@@ -2,6 +2,7 @@
 require "rails_helper"
 
 RSpec.describe WorkUploadsEditService do
+  include ActiveJob::TestHelper
   let(:user) { FactoryBot.create :research_data_moderator }
   let(:work) { FactoryBot.create :draft_work }
   let(:uploaded_file) do
@@ -47,14 +48,6 @@ RSpec.describe WorkUploadsEditService do
   end
   let(:s3_data) { [s3_file1, s3_file2] }
 
-  before(:all) do
-    ActiveJob::Base.queue_adapter = :inline
-  end
-
-  after(:all) do
-    ActiveJob::Base.queue_adapter = :test
-  end
-
   before do
     stub_request(:get, /#{Regexp.escape("https://example-bucket.s3.amazonaws.com/us_covid")}.+\.csv/).to_return(status: 200, body: "", headers: {})
     stub_request(:get, /#{Regexp.escape("https://example-bucket.s3.amazonaws.com/orcid")}*+\.csv/).to_return(status: 200, body: "", headers: {})
@@ -86,6 +79,7 @@ RSpec.describe WorkUploadsEditService do
 
       upload_service = described_class.new(work, user)
       updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
+      perform_enqueued_jobs
 
       expect(updated_work.pre_curation_uploads_fast.map(&:filename).sort).to eq([s3_file1.key, s3_file2.key].sort)
       expect(fake_s3_service).not_to have_received(:delete_s3_object)
@@ -127,6 +121,7 @@ RSpec.describe WorkUploadsEditService do
       upload_service = described_class.new(work, user)
       updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
       list = updated_work.reload.pre_curation_uploads_fast
+      perform_enqueued_jobs
 
       expect(list.map(&:filename)).to eq([s3_file3.key, s3_file2.key])
       expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_file1.key).once
@@ -150,6 +145,7 @@ RSpec.describe WorkUploadsEditService do
       # upload the two new files
       upload_service = described_class.new(work, user)
       updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
+      perform_enqueued_jobs
       filenames = updated_work.reload.pre_curation_uploads.map { |attachment| attachment.filename.to_s }
       expect(filenames).to eq([uploaded_file2.original_filename, uploaded_file3.original_filename])
 

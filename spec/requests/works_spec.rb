@@ -102,8 +102,6 @@ RSpec.describe "/works", type: :request do
         let(:file2) { FactoryBot.build :s3_file, filename: uploaded_file2.path, last_modified: Time.parse("2022-04-21T18:29:40.000Z"), checksum: "test2" }
 
         before do
-          ActiveJob::Base.queue_adapter = :inline
-
           # This is utilized for active record to send the file to S3
           stub_request(:put, /#{bucket_url}/).to_return(status: 200)
           allow(fake_s3_service).to receive(:client_s3_files).and_return([], [file1, file2])
