@@ -132,12 +132,31 @@ class WorkActivity < ApplicationRecord
   class MetadataChanges < Renderer
     # Returns the message formatted to display _metadata_ changes that were logged as an activity
     def body_html
-      changes = JSON.parse(@work_activity.message)
+      message_json = JSON.parse(@work_activity.message)
 
-      changes.keys.map do |field|
-        mapped = changes[field].map { |value| change_value_html(value) }
-        "<details class='message-html'><summary class='show-changes'>#{field}</summary>#{mapped.join}</details>"
-      end.join
+      # Messages should consistently be Arrays of Hashes, but this might require a migration from legacy field records
+      messages = if message_json.is_a?(Array)
+                   message_json
+                 else
+                   Array.wrap(message_json)
+                 end
+
+      elements = messages.map do |message|
+        markup = if message.is_a?(Hash)
+                   message.keys.map do |field|
+                     mapped = message[field].map { |value| change_value_html(value) }
+                     "<details class='message-html'><summary class='show-changes'>#{field}</summary>#{mapped.join}</details>"
+                   end
+                 else
+                   # For handling cases where WorkActivity#message only contains Strings, or Arrays of Strings
+                   [
+                     "<details class='message-html'><summary class='show-changes'></summary>#{message}</details>"
+                   ]
+                 end
+        markup.join
+      end
+
+      elements.flatten.join
     end
 
     def change_value_html(value)

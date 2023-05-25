@@ -8,7 +8,18 @@ RSpec.describe WorksController do
     user
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
+
+    stub_request(:get, /#{Regexp.escape("https://example-bucket.s3.amazonaws.com/us_covid_20")}.*\.csv/).to_return(status: 200, body: "", headers: {})
   end
+
+  before(:all) do
+    ActiveJob::Base.queue_adapter = :inline
+  end
+
+  after(:all) do
+    ActiveJob::Base.queue_adapter = :test
+  end
+
   let(:group) { Group.first }
   let(:curator) { FactoryBot.create(:user, groups_to_admin: [group]) }
   let(:resource) { FactoryBot.build :resource }
@@ -207,7 +218,7 @@ RSpec.describe WorksController do
 
       before do
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
-        allow(fake_s3_service).to receive(:client_s3_files).and_return([], [file1])
+        allow(fake_s3_service).to receive(:client_s3_files).and_return([file1])
       end
 
       it "handles the update page" do
@@ -268,7 +279,7 @@ RSpec.describe WorksController do
       before do
         # This is utilized for active record to send the file to S3
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
-        allow(fake_s3_service).to receive(:client_s3_files).and_return([], [file1, file2])
+        allow(fake_s3_service).to receive(:client_s3_files).and_return([file1, file2])
       end
 
       it "handles the update page" do
@@ -842,6 +853,7 @@ RSpec.describe WorksController do
 
         allow(Rails.logger).to receive(:error)
         allow(Work).to receive(:find).and_return(persisted)
+        allow(persisted).to receive(:id).and_return(work.id)
         allow(persisted).to receive(:to_s).and_return(work.id)
         allow(persisted).to receive(:doi).and_return(work.doi)
         allow(persisted).to receive(:s3_query_service).and_return(nil)
