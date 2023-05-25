@@ -28,14 +28,7 @@ RSpec.describe Work, type: :model do
   let(:s3_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work }
 
   before do
-    @default_queue_adapter = ActiveJob::Base.queue_adapter
-    ActiveJob::Base.queue_adapter = :test
-
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
-  end
-
-  after do
-    ActiveJob::Base.queue_adapter = @default_queue_adapter
   end
 
   context "fixed time" do
