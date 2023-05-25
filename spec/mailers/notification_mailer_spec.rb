@@ -26,7 +26,7 @@ describe NotificationMailer, type: :mailer do
       expect(message.body.parts.first.content_type).to eq("text/plain; charset=UTF-8")
       expect(message.body.parts.last).to be_an(Mail::Part)
       expect(message.body.parts.last.content_type).to eq("text/html; charset=UTF-8")
-      expect(message.body.encoded).to include("Hello #{user.display_name},")
+      expect(message.body.encoded).to include("Hello #{user.given_name},")
       expect(message.body.encoded).to include(work_activity.message)
       expect(message.body.encoded).to include("To view the notification, please browse to http://www.example.com/works/#{work.id}.")
     end
@@ -44,11 +44,11 @@ describe NotificationMailer, type: :mailer do
         html_part = message.html_part
         expect(text_part.content_type).to eq("text/plain; charset=UTF-8")
         expect(html_part.content_type).to eq("text/html; charset=UTF-8")
-        expect(html_part.encoded).to include("Hello #{user.display_name},")
+        expect(html_part.encoded).to include("Hello #{user.given_name},")
         expect(html_part.encoded).to include("To view the notification, please browse to http://www.example.com/works/#{work.id}.")
         expect(html_part.encoded).to include("I like to send &lt;a href=&quot;https://www.google.com&quot;&gt;links&lt;/a&gt;")
         expect(text_part.encoded).to include(work_activity.message)
-        expect(text_part.encoded).to include("Hello #{user.display_name},")
+        expect(text_part.encoded).to include("Hello #{user.given_name},")
         expect(text_part.encoded).to include("To view the notification, please browse to http://www.example.com/works/#{work.id}.")
       end
     end

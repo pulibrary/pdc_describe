@@ -8,7 +8,7 @@
 </div>
 
 <h2>
-  <%= @my_dashboard ? "Welcome " : "" %><%= @user.display_name_safe %>
+  <%= @my_dashboard ? "Welcome " : "" %><%= @user.given_name_safe %>
   <% if @user.super_admin? %>
     <span class="badge rounded-pill bg-primary text-bg-secondary">Administrator</span>
   <% elsif @user.moderator? %>

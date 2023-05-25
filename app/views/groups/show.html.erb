@@ -18,7 +18,7 @@
 
 <p>
   Users that are allowed to approve submissions to this group:
-  <%= @group.administrators.map { |user| link_to(user.display_name_safe, user_path(user.uid)) }.to_sentence.html_safe %>
+  <%= @group.administrators.map { |user| link_to(user.given_name_safe, user_path(user.uid)) }.to_sentence.html_safe %>
 </p>
 
 <% if @can_edit %>

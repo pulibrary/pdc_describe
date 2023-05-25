@@ -14,7 +14,7 @@ RSpec.describe "Work Approval", type: :system do
     it "produces and saves a valid datacite record", js: true do
       sign_in curator
       visit(user_path(curator))
-      expect(page).to have_content curator.display_name
+      expect(page).to have_content curator.given_name
       click_link work.title
       expect(page).to have_content(work.doi)
       click_on "Approve Dataset"
