@@ -8,7 +8,6 @@ class Work < ApplicationRecord
   has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many :user_work, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many :upload_snapshots, -> { order(updated_at: :desc) }, dependent: :destroy
-  has_many_attached :pre_curation_uploads, service: :amazon_pre_curation
 
   belongs_to :group, class_name: "Group"
   belongs_to :curator, class_name: "User", foreign_key: "curator_user_id", optional: true
@@ -124,6 +123,8 @@ class Work < ApplicationRecord
   end
 
   after_save do |work|
+    s3_query_service.client_s3_files.sort_by(&:filename)
+
     if work.approved?
       work.reload
     end
@@ -377,18 +378,17 @@ class Work < ApplicationRecord
     aasm.current_event.to_s.humanize.delete("!")
   end
 
+  def pre_curation_uploads_fast
+    s3_query_service.client_s3_files.sort_by(&:filename)
+  end
+  alias pre_curation_uploads pre_curation_uploads_fast
+
   def uploads
     return post_curation_uploads if approved?
 
     pre_curation_uploads_fast
   end
 
-  # Fetches the data from S3 directly bypassing ActiveStorage
-  def pre_curation_uploads_fast
-    s3_query_service.client_s3_files.sort_by(&:filename)
-  end
-
-  # This ensures that new ActiveStorage::Attachment objects can be modified before they are persisted
   def save_pre_curation_uploads
     return if pre_curation_uploads.empty?
 
@@ -564,32 +564,6 @@ class Work < ApplicationRecord
       end
     end
 
-    # Generates the key for ActiveStorage::Attachment and Attachment::Blob objects
-    # @param attachment [ActiveStorage::Attachment]
-    # @return [String]
-    def generate_attachment_key(attachment)
-      attachment_filename = attachment.filename.to_s
-      attachment_key = attachment.key
-
-      # Files actually coming from S3 include the DOI and bucket as part of the file name
-      #  Files being attached in another manner may not have it, so we should include it.
-      #  This is really for testing only.
-      key_base = "#{doi}/#{id}"
-      attachment_key = [key_base, attachment_filename].join("/") unless attachment_key.include?(key_base)
-
-      attachment_ext = File.extname(attachment_filename)
-      attachment_query = attachment_key.gsub(attachment_ext, "")
-      results = ActiveStorage::Blob.where("key LIKE :query", query: "%#{attachment_query}%")
-      blobs = results.to_a
-
-      if blobs.present?
-        index = blobs.length + 1
-        attachment_key = attachment_key.gsub(/\.([a-zA-Z0-9\.]+)$/, "_#{index}.\\1")
-      end
-
-      attachment_key
-    end
-
     def track_state_change(user, state = aasm.to_state)
       uw = UserWork.new(user_id: user.id, work_id: id, state: state)
       uw.save!
@@ -696,11 +670,10 @@ class Work < ApplicationRecord
     # @param new_attachments [Array<ActiveStorage::Attachment>]
     def save_new_attachments(new_attachments:)
       new_attachments.each do |attachment|
+        binding.pry
         # There are cases (race conditions?) where the ActiveStorage::Blob objects are not persisted
         next if attachment.frozen?
 
-        # This ensures that the custom key for the ActiveStorage::Attachment and ActiveStorage::Blob objects are generated
-        generated_key = generate_attachment_key(attachment)
         attachment.blob.key = generated_key
         attachment.blob.save
 

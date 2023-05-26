@@ -25,10 +25,20 @@ RSpec.describe Work, type: :model do
   let(:uploaded_file) do
     fixture_file_upload("us_covid_2019.csv", "text/csv")
   end
-  let(:s3_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work }
+  # let(:s3_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work }
+  # let(:s3_file2) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/SCoData_combined_v1_2020-07_README.txt" }
+  # let(:s3_directory) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/test_directory_key", size: 0 }
+  # let(:fake_s3_service) { stub_s3(data: [s3_file, s3_file2, s3_directory], prefix: "abc/123/") }
+
+  let(:s3_file) { FactoryBot.build :s3_file, filename: "#{work.doi}/test_key" }
+  # let(:s3_service_data) { [s3_file] }
+  let(:s3_service_data) { [] }
+  let(:s3_service) { stub_s3(data: s3_service_data) }
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+
+    s3_service
   end
 
   context "fixed time" do
@@ -380,7 +390,10 @@ RSpec.describe Work, type: :model do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
 
+    let(:s3_service) { stub_s3(data: []) }
+
     before do
+      s3_service
       stub_request(:put, /#{attachment_url}/).with(
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
       ).to_return(status: 200)
@@ -805,20 +818,24 @@ RSpec.describe Work, type: :model do
         checksum: "abc123",
         work: work)
     end
+    # let(:fake_s3_service) { stub_s3(data: [], prefix: "10.34770/123/") }
+    let(:s3_service) { stub_s3(data: [], prefix: "10.34770/123/") }
 
     before do
+      s3_service
       stub_request(:put, /#{attachment_url}/).with(
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
       ).to_return(status: 200)
 
-      work.pre_curation_uploads.attach(uploaded_file)
+      # work.pre_curation_uploads.attach(uploaded_file)
+      work.pre_curation_uploads.append(uploaded_file)
       work.save
     end
 
     it "generates JSON properties for each attribute" do
-      service_stub = stub_s3
-      allow(service_stub).to receive(:client_s3_files).and_return([file1])
-      allow(service_stub).to receive(:file_url).with("10.34770/123-abc/#{work.id}/us_covid_2019.csv").and_return("https://example-bucket.s3.amazonaws.com/10.34770/123-abc/#{work.id}/us_covid_2019.csv")
+      allow(s3_service).to receive(:client_s3_files).and_return([file1])
+      allow(s3_service).to receive(:file_url).with("10.34770/123-abc/#{work.id}/us_covid_2019.csv").and_return("https://example-bucket.s3.amazonaws.com/10.34770/123-abc/#{work.id}/us_covid_2019.csv")
+
       expect(form_attributes.length).to eq(1)
       expect(form_attributes).to include(:uploads)
       uploads_attributes = form_attributes[:uploads]
