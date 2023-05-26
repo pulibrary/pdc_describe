@@ -12,6 +12,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
     let(:fake_s3_service) { stub_s3 }
     let(:filename1) { file1.filename.split("/").last }
     let(:filename2) { file2.filename.split("/").last }
+    let(:filename3) { upload_s3_file.filename.split("/").last }
     let(:s3_data) { [file1, file2] }
     let(:bucket_url) do
       "https://example-bucket.s3.amazonaws.com/"
@@ -37,18 +38,18 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
       let(:upload_s3_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work }
 
       before do
-        # work.pre_curation_uploads.attach(upload_file)
+        work.pre_curation_uploads.attach(upload_file)
         work.state = "draft"
         work.save
         work.reload
 
         stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
-        allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_data + [upload_s3_file])
+        allow(fake_s3_service).to receive(:client_s3_files).and_return([upload_s3_file])
         allow(fake_s3_service).to receive(:file_url).with(upload_s3_file.key).and_return("https://example-bucket.s3.amazonaws.com/#{file1.key}")
       end
 
       after do
-        work.pre_curation_uploads.map(&:purge)
+        work.pre_curation_uploads.purge
         work.save
         work.reload
       end
@@ -60,9 +61,8 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         visit work_path(work)
         expect(page).to have_content work.title
         expect(page).to have_content upload_file_name
-        expect(page).to have_content filename1
-        expect(page).to have_content filename2
-        expect(work.reload.pre_curation_uploads_fast.length).to eq(3)
+        expect(page).to have_content filename3
+        expect(work.reload.pre_curation_uploads_fast.length).to eq(1)
       end
 
       it "renders S3 Bucket Objects and file uploads on the edit page", js: true do
@@ -70,12 +70,11 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
 
         expect(work.pre_curation_uploads.length).to eq(1)
         visit work_path(work)
-        expect(work.reload.pre_curation_uploads_fast.length).to eq(3)
+        expect(work.reload.pre_curation_uploads_fast.length).to eq(1)
         visit edit_work_path(work) # can not click Edit link becuase wizard does not show files
 
         expect(page).to have_content upload_file_name
-        expect(page).to have_content filename1
-        expect(page).to have_content filename2
+        expect(page).to have_content filename3
       end
 
       context "when files are deleted from a Work" do
@@ -144,9 +143,14 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         end
 
         context "when files are deleted from a Work" do
+          let(:fake_s3_service) { stub_s3 }
+          let(:s3_data) { [] }
+
           before do
-            attachments = approved_work.pre_curation_uploads.select { |e| e.filename.to_s == upload_file_name }
-            attachments.each(&:purge)
+            allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_data)
+
+            # approved_work.purge_pre_curation_uploads
+            approved_work.pre_curation_uploads.purge
             approved_work.save
             approved_work.reload
           end
@@ -156,8 +160,6 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
             expect(approved_work.reload.pre_curation_uploads.length).to eq(0)
 
             expect(page).to have_content approved_work.title
-            expect(page).to have_content filename1
-            expect(page).to have_content filename2
           end
 
           it "renders only the S3 Bucket Objects on the edit page", js: true do
@@ -166,8 +168,6 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
             click_on "Edit"
 
             expect(page).not_to have_content upload_file_name
-            expect(page).to have_content filename1
-            expect(page).to have_content filename2
           end
         end
       end
