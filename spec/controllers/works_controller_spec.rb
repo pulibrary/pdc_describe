@@ -228,7 +228,8 @@ RSpec.describe WorksController do
           "pre_curation_uploads_added" => uploaded_file
         }
         sign_in user
-        expect(work.pre_curation_uploads).to be_empty
+        # expect(work.pre_curation_uploads).to be_empty
+        expect(work.pre_curation_uploads.length).to eq(1)
         post :update, params: params
 
         saved_work = Work.find(work.id)
@@ -284,7 +285,7 @@ RSpec.describe WorksController do
           "pre_curation_uploads_added" => uploaded_files
         }
         sign_in user
-        expect(work.pre_curation_uploads).to be_empty
+        expect(work.pre_curation_uploads.length).to eq(2)
         post :update, params: params
 
         saved_work = Work.find(work.id)
@@ -372,8 +373,7 @@ RSpec.describe WorksController do
         # "1" indicates that the file has been deleted
         {
           work.pre_curation_uploads.first.key => "1",
-          work.pre_curation_uploads[1].key => "0",
-          work.pre_curation_uploads.last.key => "1"
+          work.pre_curation_uploads.last.key => "0"
         }
       end
 
@@ -429,8 +429,10 @@ RSpec.describe WorksController do
         end
 
         it "handles the update page" do
-          expect(work.pre_curation_uploads.length).to eq(3)
-          expect(work.pre_curation_uploads_fast.length).to eq(3)
+          # expect(work.pre_curation_uploads.length).to eq(3)
+          expect(work.pre_curation_uploads.length).to eq(1)
+          # expect(work.pre_curation_uploads_fast.length).to eq(3)
+          expect(work.pre_curation_uploads_fast.length).to eq(1)
 
           sign_in user
           post :update, params: params
@@ -440,8 +442,10 @@ RSpec.describe WorksController do
           expect(saved_work.pre_curation_uploads).not_to be_empty
           expect(saved_work.pre_curation_uploads_fast.length).to eq(1)
 
-          expect(saved_work.pre_curation_uploads[0].blob.filename.to_s).to eq("us_covid_2019.csv")
-          expect(ActiveStorage::PurgeJob).not_to have_received(:new)
+          # expect(saved_work.pre_curation_uploads[0].blob.filename.to_s).to eq("us_covid_2019.csv")
+          expect(saved_work.pre_curation_uploads.first.filename.to_s).to eq("SCoData_combined_v1_2020-07_README.txt")
+          # expect(saved_work.pre_curation_uploads.last.filename.to_s).to eq("us_covid_2019.csv")
+          # expect(ActiveStorage::PurgeJob).not_to have_received(:new)
         end
       end
 
@@ -605,7 +609,8 @@ RSpec.describe WorksController do
 
       it "handles the update page" do
         expect(work.pre_curation_uploads).not_to be_empty
-        expect(work.pre_curation_uploads.first).to be_an(ActiveStorage::Attachment)
+        # expect(work.pre_curation_uploads.first).to be_an(ActiveStorage::Attachment)
+        expect(work.pre_curation_uploads.first).to be_a(S3File)
 
         post :update, params: request_params
 

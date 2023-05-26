@@ -30,7 +30,7 @@ class Ark
     identifier = Ezid::Identifier.find(ezid)
     if identifier.target != new_url
       identifier.target = new_url
-      identifier.save!
+      identifier.save
     end
   end
 

@@ -57,51 +57,70 @@ describe ResourceCompareService do
   end
 
   describe "checking every field" do
-    new_values = {
-      # These could be filled in with representative values, but since this
-      # really just checking the coverage of the ResouceCompareService,
-      # that isn't critical.
-      related_objects: [],
-      titles: [PDCMetadata::Title.new(title: "new title")],
-      description: "new description",
-      collection_tags: ["fake"],
-      funders: [],
-      keywords: [],
-      individual_contributors: [],
-      organizational_contributors: [],
-      creators: [],
-      domains: ["Humanities"],
-      communities: [],
-      subcommunities: []
-    }
-    expected_diff = {
-      doi: [{ action: :changed, from: "10.34770/pe9w-x904", to: "" }],
-      ark: [{ action: :changed, from: "ark:/88435/dsp01zc77st047", to: "" }],
-      description: [{ action: :changed,
-                      from: "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
-                      to: "new description" }],
-      publication_year: [{ action: :changed, from: "2020", to: "" }],
-      version_number: [{ action: :changed, from: "1", to: "" }],
-      publisher: [{ action: :changed, from: "Princeton University", to: "" }],
-      resource_type: [{ action: :changed, from: "Dataset", to: "" }],
-      rights: [{ action: :changed, from: "Creative Commons Attribution 4.0 International", to: "" }],
-      titles: [{ action: :changed, from: "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events ()", to: "new title ()" }],
-      collection_tags: [{ action: :changed, from: "", to: "fake" }],
-      creators: [{ action: :changed, from: "Kotin, Joshua | 1 | ", to: "" }],
-      domains: [{ action: :changed, from: "", to: "Humanities" }],
-      migrated: [{ action: :changed, from: "false", to: "" }]
-    }
-    resource1 = FactoryBot.create(:shakespeare_and_company_work).resource
-    accessors = resource1.accessors
-    accessors.each do |accessor|
-      # If a new accessor is added to the resource, but the ResourceCompareService misses it,
-      # we'll still test it here, and there should be a failure.
-      it "correctly compares #{accessor}" do
-        setter = "#{accessor}=".to_sym
-        resource2 = FactoryBot.create(:shakespeare_and_company_work).resource
-        resource2.send(setter, new_values[accessor])
-        compare = described_class.new(resource1, resource2)
-        expect(compare.differences[accessor]).to eq expected_diff[accessor]
+    let(:new_values) do
+      {
+        # These could be filled in with representative values, but since this
+        # really just checking the coverage of the ResouceCompareService,
+        # that isn't critical.
+        related_objects: [],
+        titles: [PDCMetadata::Title.new(title: "new title")],
+        description: "new description",
+        collection_tags: ["fake"],
+        funders: [],
+        keywords: [],
+        individual_contributors: [],
+        organizational_contributors: [],
+        creators: [],
+        domains: ["Humanities"],
+        communities: [],
+        subcommunities: []
+      }
+    end
+
+    let(:expected_diff) do
+      {
+        doi: [{ action: :changed, from: "10.34770/pe9w-x904", to: "" }],
+        ark: [{ action: :changed, from: @ark1, to: "" }],
+        description: [{ action: :changed,
+                        from: "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
+                        to: "new description" }],
+        publication_year: [{ action: :changed, from: "2020", to: "" }],
+        version_number: [{ action: :changed, from: "1", to: "" }],
+        publisher: [{ action: :changed, from: "Princeton University", to: "" }],
+        resource_type: [{ action: :changed, from: "Dataset", to: "" }],
+        rights: [{ action: :changed, from: "Creative Commons Attribution 4.0 International", to: "" }],
+        titles: [{ action: :changed, from: "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events ()", to: "new title ()" }],
+        collection_tags: [{ action: :changed, from: "", to: "fake" }],
+        creators: [{ action: :changed, from: "Kotin, Joshua | 1 | ", to: "" }],
+        domains: [{ action: :changed, from: "", to: "Humanities" }],
+        migrated: [{ action: :changed, from: "false", to: "" }]
+      }
+    end
+
+    describe "compares accessor methods" do
+      Work.destroy_all
+      @ark = "ark:/88435/dsp#{SecureRandom.uuid}"
+
+      @work = FactoryBot.create(:shakespeare_and_company_work, ark: @ark)
+      @resource = @work.resource
+      @accessors = @resource.accessors
+
+      @accessors.each do |accessor|
+        # If a new accessor is added to the resource, but the ResourceCompareService misses it,
+        # we'll still test it here, and there should be a failure.
+        it "correctly compares #{accessor}" do
+          setter = "#{accessor}=".to_sym
+
+          @ark1 = "ark:/88435/dsp#{SecureRandom.uuid}"
+          resource1 = FactoryBot.create(:shakespeare_and_company_work, ark: @ark1).resource
+
+          ark2 = "ark:/88435/dsp#{SecureRandom.uuid}"
+          resource2 = FactoryBot.create(:shakespeare_and_company_work, ark: ark2).resource
+          resource2.send(setter, new_values[accessor])
+
+          compare = described_class.new(resource1, resource2)
+          expect(compare.differences[accessor]).to eq expected_diff[accessor]
+        end
       end
     end
   end
