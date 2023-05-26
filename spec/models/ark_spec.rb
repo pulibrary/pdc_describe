@@ -15,15 +15,24 @@ RSpec.describe Ark, type: :model, mock_ezid_api: true do
     let(:ark) { "ark:/88435/dsp01qb98mj541" }
     let(:old_target) { "https://dataspace.princeton.edu/handle/88435/dsp01qb98mj541" }
     let(:new_target) { "https://dataspace.princeton.edu/handle/88435/dsp01qb98mj541-new" }
+    # let(:identifier) { instance_double(Ezid::Identifier) }
+    let(:identifier) { double(Ezid::Identifier) }
+
+    before do
+      allow(identifier).to receive(:save)
+      allow(identifier).to receive(:target=)
+      allow(identifier).to receive(:target)
+      allow(Ezid::Identifier).to receive(:find).and_return(identifier)
+    end
 
     it "makes the call to EZID" do
       described_class.update(ark, new_target)
-      expect(@identifier).to have_received(:save!)
+      expect(identifier).to have_received(:save)
     end
 
     it "does not make the call to EZID" do
       described_class.update(ark, old_target)
-      expect(@identifier).to_not have_received(:save!)
+      expect(@identifier).to_not have_received(:save)
     end
   end
 

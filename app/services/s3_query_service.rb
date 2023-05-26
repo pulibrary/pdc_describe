@@ -122,14 +122,17 @@ class S3QueryService
   # Retrieve the S3 resources uploaded to the S3 Bucket
   # @return [Array<S3File>]
   def client_s3_files(reload: false, bucket_name: self.bucket_name, prefix: self.prefix, ignore_directories: true)
+    return [] unless model.persisted?
+
     @client_s3_files = nil if reload # force a reload
     @client_s3_files ||= begin
       start = Time.zone.now
       resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
       resp_hash = resp.to_h
       objects = parse_objects(resp_hash, ignore_directories: ignore_directories)
-      objects += parse_continuation(resp_hash, bucket_name: bucket_name, prefix: prefix, ignore_directories: ignore_directories)
-      elapsed = Time.zone.now - start
+      # Track the time for retrieving the S3 resources
+      current = Time.zone.now
+      elapsed = current - start
       Rails.logger.info("Loading S3 objects. Bucket: #{bucket_name}. Prefix: #{prefix}. Elapsed: #{elapsed} seconds")
       objects
     end

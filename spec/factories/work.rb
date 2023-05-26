@@ -36,11 +36,14 @@ FactoryBot.define do
 
     factory :shakespeare_and_company_work do
       group { Group.research_data }
+      transient do
+        ark { "ark:/88435/dsp01zc77st047" }
+      end
       resource do
         PDCMetadata::Resource.new_from_jsonb(
           {
             "doi" => "10.34770/pe9w-x904",
-            "ark" => "ark:/88435/dsp01zc77st047",
+            "ark" => ark,
             "identifier_type" => "DOI",
             "titles" => [{ "title" => "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events" }],
             "description" =>
