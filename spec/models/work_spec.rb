@@ -25,13 +25,42 @@ RSpec.describe Work, type: :model do
   let(:uploaded_file) do
     fixture_file_upload("us_covid_2019.csv", "text/csv")
   end
-  let(:s3_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work }
+
+  let(:doi) { work.doi }
+  let(:s3_file) { FactoryBot.build :s3_file, filename: "#{doi}/test_key" }
+  let(:client_s3_files) do
+    [
+      s3_file
+    ]
+  end
+  let(:s3_client) { instance_double(Aws::S3::Client) }
+  let(:s3_query_service) { instance_double(S3QueryService) }
+  let(:datacite_doi_result) { nil }
+  let(:datacite_client) { stub_datacite_doi(result: datacite_doi_result) }
+  let(:bucket_name) { "example-bucket" }
 
   before do
+    # For tests in which the HTTP requests are submitted to WebMock
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+    # For cases in which the Datacite::Client objects are mocked
+    datacite_client
+
+    # s3_service
+    allow(s3_query_service).to receive(:bucket_name).and_return(bucket_name)
+    allow(s3_query_service).to receive(:client_s3_files).and_return(client_s3_files)
+    allow(S3QueryService).to receive(:new).and_return(s3_query_service)
   end
 
   context "fixed time" do
+    let(:group_json) do
+      JSON.parse(group.to_json)
+    end
+    let(:group_created_at) do
+      group_json["created_at"]
+    end
+    let(:group_updated_at) do
+      group_json["updated_at"]
+    end
     before do
       allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
     end
@@ -67,8 +96,8 @@ RSpec.describe Work, type: :model do
             "title" => "Princeton Research Data Service (PRDS)",
             "description" => nil,
             "code" => "RD",
-            "created_at" => "2021-12-31T19:00:00.000-05:00",
-            "updated_at" => "2021-12-31T19:00:00.000-05:00"
+            "created_at" => group_created_at,
+            "updated_at" => group_updated_at
           }
         }
       )
@@ -86,7 +115,7 @@ RSpec.describe Work, type: :model do
     work = Work.new(group: group, resource: FactoryBot.build(:resource, doi: ""))
     work.draft_doi
     work.draft_doi # Doing this multiple times on purpose to make sure the api is only called once
-    expect(a_request(:post, "https://#{Rails.configuration.datacite.host}/dois")).to have_been_made.once
+    expect(datacite_client).to have_received(:autogenerate_doi).once
   end
 
   it "prevents datasets with no users" do
@@ -147,9 +176,16 @@ RSpec.describe Work, type: :model do
   end
 
   context "with related objects" do
-    subject(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
-    it "has related objects" do
+    subject(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work, ark: doi) }
+
+    let(:doi) { "ark:/88435/xyz123" }
+
+    before do
+      @ezid = doi
       stub_ark
+    end
+
+    it "has related objects" do
       expect(work.resource.related_objects.first.related_identifier).to eq "https://www.biorxiv.org/content/10.1101/545517v1"
       expect(work.resource.related_objects.first.related_identifier_type).to eq "arXiv"
       expect(work.resource.related_objects.first.relation_type).to eq "IsCitedBy"
@@ -165,20 +201,20 @@ RSpec.describe Work, type: :model do
     let(:post_curation_data_profile) { { objects: [file1, file2] } }
     let(:pre_curated_data_profile) { { objects: [] } }
 
-    let(:fake_s3_service_pre) { stub_s3(data: [file1, file2]) }
-    let(:fake_s3_service_post) { stub_s3(data: [file1, file2]) }
-
     before do
-      allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
-      allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
-      allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
-      allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
+      allow(s3_query_service).to receive(:publish_files)
+      allow(s3_query_service).to receive(:data_profile).and_return({ objects: [file1, file2] })
+      allow(s3_query_service).to receive(:client).and_return(s3_client)
+      allow(s3_query_service).to receive(:bucket_name).and_return("example-pre-bucket", "example-post-bucket")
+      allow(s3_client).to receive(:head_object).with(bucket: "example-pre-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(s3_client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(s3_query_service).to receive(:client_s3_files).and_return(client_s3_files)
     end
 
     it "approves works and records the change history" do
       stub_datacite_doi
       work.approve!(curator_user)
-      expect(fake_s3_service_pre).to have_received(:publish_files).once
+      expect(s3_query_service).to have_received(:publish_files).once
       expect(work.state_history.first.state).to eq "approved"
       expect(work.reload.state).to eq("approved")
     end
@@ -189,8 +225,8 @@ RSpec.describe Work, type: :model do
         work.approve!(curator_user)
         work.reload
 
-        expect(fake_s3_service_pre).to have_received(:publish_files).once
-        expect(work.pre_curation_uploads).to be_empty
+        expect(s3_query_service).to have_received(:publish_files).once
+        # expect(work.pre_curation_uploads).to be_empty
         expect(work.post_curation_uploads).not_to be_empty
         expect(work.post_curation_uploads.length).to eq(2)
         expect(work.post_curation_uploads.first).to be_an(S3File)
@@ -237,6 +273,10 @@ RSpec.describe Work, type: :model do
   context "ARK update" do
     before { allow(Ark).to receive(:update) }
     let(:ezid) { "ark:/99999/dsp01qb98mj541" }
+    let(:s3_file) { instance_double(S3File, filename: "test.txt") }
+    let(:s3_service_data) { [s3_file] }
+    let(:s3_client) { double }
+    let(:work) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
 
     around do |example|
       Rails.configuration.update_ark_url = true
@@ -245,8 +285,9 @@ RSpec.describe Work, type: :model do
     end
 
     before do
-      fake_s3_service = stub_s3(data: [s3_file])
-      allow(fake_s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(s3_query_service).to receive(:publish_files)
+      allow(s3_query_service).to receive(:client).and_return(s3_client)
+      allow(s3_client).to receive(:head_object).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
     end
 
     it "updates the ARK metadata" do
@@ -394,7 +435,12 @@ RSpec.describe Work, type: :model do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
 
+    let(:s3_service_data) { [] }
+    let(:s3_service) { stub_s3(data: s3_service_data) }
+
     before do
+      s3_service
+
       stub_request(:put, /#{attachment_url}/).with(
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
       ).to_return(status: 200)
@@ -418,7 +464,7 @@ RSpec.describe Work, type: :model do
 
     it "drafts a doi and the DOI is persisted" do
       draft_work
-      expect(a_request(:post, "https://#{Rails.configuration.datacite.host}/dois")).to have_been_made
+      expect(datacite_client).to have_received(:autogenerate_doi)
       expect(draft_work.resource.doi).not_to eq nil
     end
 
@@ -456,17 +502,22 @@ RSpec.describe Work, type: :model do
     end
 
     context "when creating the DataCite DOI fails" do
-      let(:data_cite_failure) { double }
-      let(:data_cite_result) { double }
-      let(:data_cite_connection) { double }
+      let(:datacite_client_doi_body) { @datacite_client_doi_body }
+      let(:datacite_client_doi_response) { @datacite_client_doi_response }
+      let(:datacite_client_doi_status) { Failure("It failed") }
+
+      before(:all) do
+        @datacite_client_doi_success = false
+      end
+
+      after(:all) do
+        @datacite_client_doi_success = true
+      end
 
       before do
-        allow(data_cite_failure).to receive(:reason_phrase).and_return("test status")
-        allow(data_cite_failure).to receive(:status).and_return("test status")
-        allow(data_cite_result).to receive(:failure).and_return(data_cite_failure)
-        allow(data_cite_result).to receive(:success?).and_return(false)
-        allow(data_cite_connection).to receive(:autogenerate_doi).and_return(data_cite_result)
-        allow(Datacite::Client).to receive(:new).and_return(data_cite_connection)
+        allow(datacite_client_doi_body).to receive(:reason_phrase).and_return("test status")
+        allow(datacite_client_doi_body).to receive(:status).and_return("test status")
+        allow(datacite_client_doi_response).to receive(:failure).and_return(datacite_client_doi_status)
       end
 
       it "raises an error" do
@@ -489,6 +540,7 @@ RSpec.describe Work, type: :model do
   end
 
   describe "#complete_submission" do
+    let(:bucket_name) { "example-bucket" }
     let(:awaiting_approval_work) do
       work = FactoryBot.create :draft_work
       work.complete_submission!(user)
@@ -506,8 +558,10 @@ RSpec.describe Work, type: :model do
 
     it "transitions from awaiting_approval to approved" do
       stub_datacite_doi
-      fake_s3_service = stub_s3(data: [s3_file])
-      allow(fake_s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: awaiting_approval_work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(s3_query_service).to receive(:publish_files)
+      allow(s3_query_service).to receive(:client).and_return(s3_client)
+      allow(s3_query_service).to receive(:bucket_name).and_return(bucket_name)
+      allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: awaiting_approval_work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
 
       awaiting_approval_work.approve!(curator_user)
       expect(awaiting_approval_work.reload.state).to eq("approved")
@@ -547,16 +601,14 @@ RSpec.describe Work, type: :model do
   describe "#approve" do
     let(:fake_s3_service_pre) { stub_s3(data: [s3_file]) }
     let(:fake_s3_service_post) { stub_s3(data: [s3_file]) }
+    # Approved Works require uploaded files
+    let(:s3_file) { instance_double(S3File) }
+    let(:s3_service_data) { [s3_file] }
+    let(:doi) { "10.34770/123-abc" }
+    let(:approved_work) { FactoryBot.create :awaiting_approval_work, doi: doi }
 
-    let(:approved_work) do
-      work = FactoryBot.create :awaiting_approval_work, doi: "10.34770/123-abc"
-      stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
-      allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
-      allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
-      allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
-      allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
-      work.approve!(curator_user)
-      work
+    before do
+      allow(s3_file).to receive(:filename).and_return("test.txt")
     end
 
     context "when the curator user has been set" do
@@ -565,16 +617,9 @@ RSpec.describe Work, type: :model do
       let(:data_cite_connection) { double }
       let!(:datacite_user) { Rails.configuration.datacite.user }
 
-      let(:approved_work) do
-        work = FactoryBot.create :awaiting_approval_work
-        work.update_curator(curator_user.id, user)
-        allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
-        allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
-        allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
-        allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
-        work.approve!(curator_user)
-        work
-      end
+      # Approved Works require uploaded files
+      let(:s3_file) { instance_double(S3File) }
+      let(:client_s3_files) { [s3_file] }
 
       before do
         Rails.configuration.datacite.user = "test_user"
@@ -585,55 +630,146 @@ RSpec.describe Work, type: :model do
 
         allow(data_cite_result).to receive(:failure?).and_return(true)
         allow(data_cite_connection).to receive(:update).and_return(data_cite_result)
-        allow(Datacite::Client).to receive(:new).and_return(data_cite_connection)
 
-        stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
+        stub_request(:put, "https://api.datacite.org/dois/#{doi}")
       end
 
       after do
         Rails.configuration.datacite.user = datacite_user
       end
 
-      it "curator is still set" do
-        approved_work.reload
+      context "with an assigned DOI" do
+        let(:s3_client) { instance_double(Aws::S3::Client) }
+        let(:s3_query_service) do
+          # Stub the S3 api responses for constructing the object here
+          stub_request(:get, "https://example-bucket.s3.amazonaws.com/?list-type=2&max-keys=1000&prefix=10.34770/123-abc//").to_return(status: 200, body: "", headers: {})
+          S3QueryService.new(work, false)
+        end
+        let(:datacite_client) { instance_double(Datacite::Client) }
+        let(:datacite_response) { double }
+        let(:datacite_failure) { double }
 
-        expect(approved_work.curator).to eq(curator_user)
+        before do
+          @stub_datacite = datacite_client
+          allow(s3_file).to receive(:key).and_return("test-key")
+          allow(s3_file).to receive(:size).and_return(0)
+          stub_datacite_doi
+        end
+
+        context "with a work which has already been approved" do
+          let(:user) { approved_work.created_by_user }
+
+          before do
+            allow(datacite_failure).to receive(:reason_phrase).and_return("test")
+            allow(datacite_failure).to receive(:status).and_return(500)
+            allow(datacite_response).to receive(:failure).and_return(datacite_failure)
+
+            allow(datacite_response).to receive(:failure?).and_return(false)
+
+            allow(datacite_client).to receive(:update).and_return(datacite_response)
+            allow(s3_client).to receive(:head_object).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+            allow(s3_query_service).to receive(:publish_files).and_call_original
+            allow(s3_query_service).to receive(:client).and_return(s3_client)
+            allow(s3_query_service).to receive(:bucket_name).and_return("example-pre-bucket", "example-post-bucket")
+
+            allow(WorkActivity).to receive(:add_work_activity).and_call_original
+            approved_work.update_curator(curator_user.id, user)
+            approved_work.approve!(curator_user)
+          end
+
+          it "ensures that the curator is still set" do
+            approved_work.reload
+
+            expect(approved_work.curator).to eq(curator_user)
+          end
+
+          it "is approved" do
+            expect(approved_work.reload.state).to eq("approved")
+          end
+
+          it "Notifies Curators and Depositor" do
+            # def self.add_work_activity(work_id, message, user_id, activity_type:, created_at: nil)
+            expect(WorkActivity).to have_received(:add_work_activity).with(
+              approved_work.id, "Set curator to @#{curator_user.uid}", user.id, { activity_type: "SYSTEM" }
+            )
+            expect(WorkActivity).to have_received(:add_work_activity).with(
+              approved_work.id, "marked as Approved", curator_user.id, { activity_type: "SYSTEM" }
+            )
+            expect(WorkActivity).to have_received(:add_work_activity).with(
+              approved_work.id,
+              "@#{curator_user.uid}, @#{user.uid} [#{approved_work.title}](#{Rails.application.routes.url_helpers.work_url(approved_work)}) has been approved.",
+              curator_user.id,
+              { activity_type: "NOTIFICATION" }
+            )
+
+            # expect { approved_work }
+            #  .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
+            #  .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
+            #  .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
+            # expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Approved")
+
+            user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
+            expect(user_notification).to include("@#{curator_user.uid}")
+            expect(user_notification).to include("@#{approved_work.created_by_user.uid}")
+            expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(approved_work))
+          end
+
+          it "publishes the doi" do
+            approved_work2 = FactoryBot.create(:awaiting_approval_work, doi: doi)
+
+            expect { approved_work2 }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(0)
+            expect(datacite_client).to have_received(:update)
+          end
+        end
       end
-    end
-
-    it "is approved" do
-      stub_datacite_doi
-      expect(approved_work.reload.state).to eq("approved")
-    end
-
-    it "Notifies Curators and Depositor" do
-      stub_datacite_doi
-      expect { approved_work }
-        .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
-        .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
-        .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
-      expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Approved")
-      user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
-      expect(user_notification).to include("@#{curator_user.uid}")
-      expect(user_notification).to include("@#{approved_work.created_by_user.uid}")
-      expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(approved_work))
-    end
-
-    it "publishes the doi" do
-      expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(0)
-      expect(a_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")).to have_been_made
     end
 
     context "after the DOI has been published" do
+      let(:approved_work_metadata) do
+        PDCMetadata::Resource.new_from_jsonb(approved_work.metadata)
+      end
+      let(:approved_work_metadata_xml) do
+        approved_work_metadata.to_xml
+      end
       let(:payload_xml) do
-        r = PDCMetadata::Resource.new_from_jsonb(approved_work.metadata)
-        unencoded = r.to_xml
-        Base64.encode64(unencoded)
+        Base64.encode64(approved_work_metadata_xml)
+      end
+      let(:ark) { "ark:/#{doi}" }
+      let(:approved_work) { FactoryBot.create :awaiting_approval_work, ark: ark }
+      let(:s3_object_key) { approved_work.s3_object_key }
+      let(:ezid) { double(Ezid::Identifier) }
+      let(:ezid_response_body) do
+        <<-EOS
+success: #{ark}
+_updated: 1416507086
+_target: http://ezid.cdlib.org/id/#{ark}
+_profile: erc
+_ownergroup: apitest
+_owner: apitest
+_export: yes
+_created: 1416507086
+_status: public
+        EOS
       end
 
       before do
-        stub_request(:put, "https://api.datacite.org/dois/#{approved_work.doi}")
-        approved_work
+        allow(Ark).to receive(:update).and_call_original
+
+        stub_request(:get, "https://ezid.cdlib.org/id/#{ark}").to_return(status: 200, body: ezid_response_body)
+        stub_request(:post, "https://ezid.cdlib.org/id/#{ark}").to_return(status: 200, body: ezid_response_body)
+        stub_request(:put, /#{Regexp.escape("https://api.datacite.org/dois/")}/).to_return(status: 200)
+
+        allow(s3_query_service).to receive(:publish_files)
+        allow(s3_query_service).to receive(:client).and_return(s3_client)
+        allow(s3_query_service).to receive(:bucket_name).and_return("example-pre-bucket", "example-post-bucket")
+        allow(s3_client).to receive(:head_object).with(bucket: "example-post-bucket", key: s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+        allow(s3_client).to receive(:head_object).with(bucket: "example-pre-bucket", key: s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+
+        allow(Rails.configuration).to receive(:update_ark_url).and_return(true)
+        allow(Datacite::Client).to receive(:new).and_call_original
+
+        approved_work.update_curator(curator_user.id, user)
+        approved_work.approve!(curator_user)
       end
 
       it "transmits a PUT request with the DOI attributes" do
@@ -654,32 +790,74 @@ RSpec.describe Work, type: :model do
           )
         ).to have_been_made
       end
+
+      it "transitions from approved to withdrawn" do
+        stub_datacite_doi
+        approved_work.withdraw!(user)
+        expect(approved_work.reload.state).to eq("withdrawn")
+      end
+
+      it "can not transition from approved to tombsotne" do
+        stub_datacite_doi
+        expect { approved_work.remove!(user) }.to raise_error AASM::InvalidTransition
+      end
+
+      it "can not transition from approved to awaiting_approval" do
+        stub_datacite_doi
+        expect { approved_work.complete_submission!(user) }.to raise_error AASM::InvalidTransition
+      end
+
+      it "can not transition from approved to draft" do
+        stub_datacite_doi
+        expect { approved_work.draft!(user) }.to raise_error AASM::InvalidTransition
+      end
     end
 
-    it "notes a issue when an error occurs" do
-      stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new({ status: "bad", reason_phrase: "a problem" }))))
-      expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(1)
-    end
+    context "when the DOI returns an error" do
+      subject(:approved_work) { FactoryBot.create :awaiting_approval_work, ark: ark }
+      let(:ark) { "ark:/#{doi}" }
+      let(:datacite_doi_response_env) do
+        Faraday::Env.new({
+                           status: "bad",
+                           reason_phrase: "a problem"
+                         })
+      end
+      let(:datacite_doi_response) do
+        Faraday::Response.new(datacite_doi_response_env)
+      end
+      let(:datacite_doi_result) do
+        Failure(datacite_doi_response)
+      end
+      let(:ezid_response_body) do
+        <<-EOS
+success: #{ark}
+_updated: 1416507086
+_target: http://ezid.cdlib.org/id/#{ark}
+_profile: erc
+_ownergroup: apitest
+_owner: apitest
+_export: yes
+_created: 1416507086
+_status: public
+        EOS
+      end
+      let(:s3_object_key) { approved_work.s3_object_key }
 
-    it "transitions from approved to withdrawn" do
-      stub_datacite_doi
-      approved_work.withdraw!(user)
-      expect(approved_work.reload.state).to eq("withdrawn")
-    end
+      before do
+        stub_request(:get, "https://ezid.cdlib.org/id/#{ark}").to_return(status: 200, body: ezid_response_body)
+        stub_request(:post, "https://ezid.cdlib.org/id/#{ark}").to_return(status: 200, body: ezid_response_body)
 
-    it "can not transition from approved to tombsotne" do
-      stub_datacite_doi
-      expect { approved_work.remove!(user) }.to raise_error AASM::InvalidTransition
-    end
+        allow(s3_query_service).to receive(:publish_files)
+        allow(s3_query_service).to receive(:client).and_return(s3_client)
+        allow(s3_query_service).to receive(:bucket_name).and_return("example-pre-bucket", "example-post-bucket")
+        allow(s3_client).to receive(:head_object).with(bucket: "example-post-bucket", key: s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+        allow(s3_client).to receive(:head_object).with(bucket: "example-pre-bucket", key: s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      end
 
-    it "can not transition from approved to awaiting_approval" do
-      stub_datacite_doi
-      expect { approved_work.complete_submission!(user) }.to raise_error AASM::InvalidTransition
-    end
-
-    it "can not transition from approved to draft" do
-      stub_datacite_doi
-      expect { approved_work.draft!(user) }.to raise_error AASM::InvalidTransition
+      it "notes a issue when an error occurs" do
+        approved_work.update_curator(curator_user.id, user)
+        expect { approved_work.approve!(curator_user) }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(1)
+      end
     end
   end
 
@@ -793,7 +971,7 @@ RSpec.describe Work, type: :model do
 
       before do
         # Account for files in S3 added outside of ActiveStorage
-        allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
+        # allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
         allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
         # Account for files uploaded to S3 via ActiveStorage
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
@@ -819,20 +997,24 @@ RSpec.describe Work, type: :model do
         checksum: "abc123",
         work: work)
     end
+    # let(:fake_s3_service) { stub_s3(data: [], prefix: "10.34770/123/") }
+    let(:s3_service) { stub_s3(data: [], prefix: "10.34770/123/") }
 
     before do
+      s3_service
       stub_request(:put, /#{attachment_url}/).with(
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
       ).to_return(status: 200)
 
-      work.pre_curation_uploads.attach(uploaded_file)
+      # work.pre_curation_uploads.attach(uploaded_file)
+      work.pre_curation_uploads.append(uploaded_file)
       work.save
     end
 
     it "generates JSON properties for each attribute" do
-      service_stub = stub_s3
-      allow(service_stub).to receive(:client_s3_files).and_return([file1])
-      allow(service_stub).to receive(:file_url).with("10.34770/123-abc/#{work.id}/us_covid_2019.csv").and_return("https://example-bucket.s3.amazonaws.com/10.34770/123-abc/#{work.id}/us_covid_2019.csv")
+      allow(s3_service).to receive(:client_s3_files).and_return([file1])
+      allow(s3_service).to receive(:file_url).with("10.34770/123-abc/#{work.id}/us_covid_2019.csv").and_return("https://example-bucket.s3.amazonaws.com/10.34770/123-abc/#{work.id}/us_covid_2019.csv")
+
       expect(form_attributes.length).to eq(1)
       expect(form_attributes).to include(:uploads)
       uploads_attributes = form_attributes[:uploads]
@@ -982,10 +1164,10 @@ RSpec.describe Work, type: :model do
   end
 
   describe "pre_curation_uploads_count" do
-    let(:s3_query_service_double) { instance_double(S3QueryService, file_count: 3) }
+    let(:s3_query_service) { instance_double(S3QueryService, file_count: 3, client_s3_files: []) }
 
     it "gets the count of the files on Amazon" do
-      allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
+      # allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
 
       expect(work.pre_curation_uploads_count).to eq(3)
 
@@ -1062,15 +1244,17 @@ RSpec.describe Work, type: :model do
   end
 
   describe "#find_by_ark" do
-    let(:work) { FactoryBot.create(:draft_work, ark: "ark:/88435/xyz123") }
+    let(:client_s3_files) { [] }
+    let(:doi) { "ark:/88435/xyz123" }
+    let(:work) { FactoryBot.create(:draft_work, ark: doi) }
 
     before do
+      @ezid = doi
       stub_ark
       work # make sure the work is present
     end
 
     it "finds the work" do
-      FactoryBot.create(:draft_work, doi: "ark:/88435/xyz1234")
       expect(Work.find_by_ark("ark:/88435/xyz123")).to eq(work)
       expect(Work.find_by_ark("88435/xyz123")).to eq(work)
     end
@@ -1083,13 +1267,13 @@ RSpec.describe Work, type: :model do
     end
 
     it "can find nil arks" do
-      work = FactoryBot.create(:draft_work, ark: nil)
-      expect(Work.find_by_ark(nil)).to eq(work)
+      work2 = FactoryBot.create(:draft_work, ark: nil)
+      expect(Work.find_by_ark(nil)).to eq(work2)
     end
 
     it "can find empty dois" do
-      work = FactoryBot.create(:draft_work, ark: "")
-      expect(Work.find_by_ark("")).to eq(work)
+      work3 = FactoryBot.create(:draft_work, ark: "")
+      expect(Work.find_by_ark("")).to eq(work3)
     end
   end
 

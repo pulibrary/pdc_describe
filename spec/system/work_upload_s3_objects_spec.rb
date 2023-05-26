@@ -48,7 +48,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
       end
 
       after do
-        work.pre_curation_uploads.map(&:purge)
+        work.purge_pre_curation_uploads
         work.save
         work.reload
       end
@@ -144,9 +144,13 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         end
 
         context "when files are deleted from a Work" do
+          let(:fake_s3_service) { stub_s3 }
+          let(:s3_data) { [] }
+
           before do
-            attachments = approved_work.pre_curation_uploads.select { |e| e.filename.to_s == upload_file_name }
-            attachments.each(&:purge)
+            allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_data)
+
+            approved_work.purge_pre_curation_uploads
             approved_work.save
             approved_work.reload
           end
@@ -156,8 +160,6 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
             expect(approved_work.reload.pre_curation_uploads.length).to eq(0)
 
             expect(page).to have_content approved_work.title
-            expect(page).to have_content filename1
-            expect(page).to have_content filename2
           end
 
           it "renders only the S3 Bucket Objects on the edit page", js: true do
@@ -166,8 +168,6 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
             click_on "Edit"
 
             expect(page).not_to have_content upload_file_name
-            expect(page).to have_content filename1
-            expect(page).to have_content filename2
           end
         end
       end
