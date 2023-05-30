@@ -25,6 +25,7 @@ RSpec.describe Work, type: :model do
   let(:uploaded_file) do
     fixture_file_upload("us_covid_2019.csv", "text/csv")
   end
+
   # let(:s3_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work }
   # let(:s3_file2) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/SCoData_combined_v1_2020-07_README.txt" }
   # let(:s3_directory) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/test_directory_key", size: 0 }
@@ -163,7 +164,9 @@ RSpec.describe Work, type: :model do
     let(:pre_curated_data_profile) { { objects: [] } }
 
     let(:fake_s3_service_pre) { stub_s3(data: [file1, file2]) }
+    # let(:s3_service_pre) { stub_s3(data: [file1, file2]) }
     let(:fake_s3_service_post) { stub_s3(data: [file1, file2]) }
+    # let(:s3_service_post) { stub_s3(data: [file1, file2]) }
 
     before do
       allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
@@ -234,6 +237,9 @@ RSpec.describe Work, type: :model do
     before { allow(Ark).to receive(:update) }
     let(:ezid) { "ark:/99999/dsp01qb98mj541" }
 
+    let(:s3_file) { FactoryBot.build :s3_file, filename: "#{work.doi}/test_key" }
+    let(:s3_service_data) { [s3_file] }
+
     around do |example|
       Rails.configuration.update_ark_url = true
       example.run
@@ -241,8 +247,9 @@ RSpec.describe Work, type: :model do
     end
 
     before do
-      fake_s3_service = stub_s3(data: [s3_file])
-      allow(fake_s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      # fake_s3_service = stub_s3(data: [s3_file])
+      # allow(fake_s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
     end
 
     it "updates the ARK metadata" do
@@ -390,10 +397,12 @@ RSpec.describe Work, type: :model do
       fixture_file_upload("us_covid_2019.csv", "text/csv")
     end
 
-    let(:s3_service) { stub_s3(data: []) }
+    let(:s3_service_data) { [] }
+    let(:s3_service) { stub_s3(data: s3_service_data) }
 
     before do
       s3_service
+
       stub_request(:put, /#{attachment_url}/).with(
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
       ).to_return(status: 200)
@@ -505,8 +514,9 @@ RSpec.describe Work, type: :model do
 
     it "transitions from awaiting_approval to approved" do
       stub_datacite_doi
-      fake_s3_service = stub_s3(data: [s3_file])
-      allow(fake_s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: awaiting_approval_work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      # fake_s3_service = stub_s3(data: [s3_file])
+      # allow(fake_s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: awaiting_approval_work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: awaiting_approval_work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
 
       awaiting_approval_work.approve!(curator_user)
       expect(awaiting_approval_work.reload.state).to eq("approved")
@@ -550,10 +560,12 @@ RSpec.describe Work, type: :model do
     let(:approved_work) do
       work = FactoryBot.create :awaiting_approval_work, doi: "10.34770/123-abc"
       stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
+
       allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
       allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
       allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
       allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
+
       work.approve!(curator_user)
       work
     end
@@ -567,10 +579,13 @@ RSpec.describe Work, type: :model do
       let(:approved_work) do
         work = FactoryBot.create :awaiting_approval_work
         work.update_curator(curator_user.id, user)
+
         allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
         allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
         allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
         allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
+
+        # binding.pry
         work.approve!(curator_user)
         work
       end
@@ -594,6 +609,9 @@ RSpec.describe Work, type: :model do
       end
 
       it "curator is still set" do
+        # binding.pry
+        approved_work
+        # binding.pry
         approved_work.reload
 
         expect(approved_work.curator).to eq(curator_user)

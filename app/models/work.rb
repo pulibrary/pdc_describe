@@ -198,6 +198,7 @@ class Work < ApplicationRecord
   end
 
   def valid_to_approve(user)
+    binding.pry
     valid_to_submit
     if resource.doi.blank?
       errors.add :base, "DOI must be present for a work to be approved"
@@ -205,6 +206,7 @@ class Work < ApplicationRecord
     unless user.has_role? :group_admin, group
       errors.add :base, "Unauthorized to Approve"
     end
+    binding.pry
     if pre_curation_uploads_fast.empty? && post_curation_uploads.empty?
       errors.add :base, "Uploads must be present for a work to be approved"
     end
@@ -392,10 +394,10 @@ class Work < ApplicationRecord
   def save_pre_curation_uploads
     return if pre_curation_uploads.empty?
 
-    new_attachments = pre_curation_uploads.reject(&:persisted?)
-    return if new_attachments.empty?
-
-    save_new_attachments(new_attachments: new_attachments)
+    #binding.pry
+    #new_attachments = pre_curation_uploads.reject(&:persisted?)
+    #return if new_attachments.empty?
+    new_attachments = pre_curation_uploads
   end
 
   # Accesses post-curation S3 Bucket Objects
@@ -480,6 +482,7 @@ class Work < ApplicationRecord
   # S3QueryService object associated with this Work
   # @return [S3QueryService]
   def s3_query_service
+    binding.pry if @s3_query_service.nil?
     @s3_query_service ||= S3QueryService.new(self, !approved?)
   end
 
@@ -663,22 +666,6 @@ class Work < ApplicationRecord
         "xml" => doi_attribute_xml,
         "url" => doi_attribute_url
       }
-    end
-
-    # This needs to be called #before_save
-    # This ensures that new ActiveStorage::Attachment objects are persisted with custom keys (which are generated from the file name and DOI)
-    # @param new_attachments [Array<ActiveStorage::Attachment>]
-    def save_new_attachments(new_attachments:)
-      new_attachments.each do |attachment|
-        binding.pry
-        # There are cases (race conditions?) where the ActiveStorage::Blob objects are not persisted
-        next if attachment.frozen?
-
-        attachment.blob.key = generated_key
-        attachment.blob.save
-
-        attachment.save
-      end
     end
 
     # Request S3 Bucket Objects associated with this Work
