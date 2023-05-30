@@ -86,9 +86,7 @@ RSpec.describe "/works", type: :request do
         let(:params) do
           {
             "title_main" => "test dataset updated",
-            "given_name_1" => "Jane",
-            "family_name_1" => "Smith",
-            "creator_count" => "1",
+            "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }],
             "pre_curation_uploads_added" => uploaded_files
           }
         end
@@ -153,9 +151,7 @@ RSpec.describe "/works", type: :request do
         let(:params) do
           {
             "title_main" => "test dataset updated",
-            "given_name_1" => "Jane",
-            "family_name_1" => "Smith",
-            "creator_count" => "1",
+            "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }],
             "pre_curation_uploads_added" => uploaded_files
           }
         end

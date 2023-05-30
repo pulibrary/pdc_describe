@@ -89,12 +89,8 @@ class FormToResourceService
       # Creators:
 
       def add_creators(params, resource)
-        resource.creators = (1..params["creator_count"].to_i).filter_map do |i|
-          given_name = params["given_name_#{i}"]
-          family_name = params["family_name_#{i}"]
-          orcid = params["orcid_#{i}"]
-          sequence = params["sequence_#{i}"]
-          new_creator(given_name, family_name, orcid, sequence)
+        resource.creators = params[:creators].each_with_index.filter_map do |creator, idx|
+          new_creator(creator[:given_name], creator[:family_name], creator[:orcid], idx)
         end
       end
 

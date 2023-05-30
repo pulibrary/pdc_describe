@@ -28,14 +28,14 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       fill_in "new_title_1", with: alternative_title
       fill_in "description", with: description
       select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
-      fill_in "given_name_1", with: "Robert"
-      fill_in "family_name_1", with: "Leach"
+      find("tr:last-child input[name='creators[][given_name]']").set "Robert"
+      find("tr:last-child input[name='creators[][family_name]']").set "Leach"
       click_on "Add Another Creator"
-      fill_in "given_name_2", with: "Michael"
-      fill_in "family_name_2", with: "Hecht"
+      find("tr:last-child input[name='creators[][given_name]']").set "Michael"
+      find("tr:last-child input[name='creators[][family_name]']").set "Hecht"
       click_on "Add Another Creator"
-      fill_in "given_name_3", with: "Christina"
-      fill_in "family_name_3", with: "Karas"
+      find("tr:last-child input[name='creators[][given_name]']").set "Christina"
+      find("tr:last-child input[name='creators[][family_name]']").set "Karas"
       click_on "Additional Metadata"
       fill_in "keywords", with: keywords
       click_on "Curator Controlled"

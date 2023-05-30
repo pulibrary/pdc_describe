@@ -134,7 +134,8 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       # To just confirm that edits work, this is more direct.)
       visit edit_work_path(work)
       click_on "Additional Metadata"
-      find(:xpath, "(//i[@class='bi bi-trash btn-del-row'])[1]").click
+      expect(page).to have_content("Funding Reference")
+      find(:xpath, "(//table[@id='funding']//i[@class='bi bi-trash btn-del-row'])[1]").click
       click_on "Save Work"
       work.reload
       funders = work.resource.funders.map(&:funder_name)
@@ -145,6 +146,8 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       # Test row reordering
       visit edit_work_path(work)
       click_on "Additional Metadata"
+      expect(page).to have_content("Funding Reference")
+      # TODO: Why is this breaking and should I use this format for Adding Creators
       # There should be a blank line we can immediately enter data into.
       find("tr:last-child input[name='funders[][funder_name]']").set "DOE"
       # For the second, we add a row.
@@ -188,9 +191,9 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     it "fetches information for creators" do
       sign_in user
       visit edit_work_path(work)
-      fill_in "orcid_1", with: "0000-0001-8965-6820"
-      expect(page.find("#given_name_1").value).to eq "Carmen"
-      expect(page.find("#family_name_1").value).to eq "Valdez"
+      fill_in "creators[][orcid]", with: "0000-0001-8965-6820"
+      expect(find("tr:last-child input[name='creators[][given_name]']").value).to eq "Carmen"
+      expect(find("tr:last-child input[name='creators[][family_name]']").value).to eq "Valdez"
     end
 
     it "fetches information for individual contributors" do

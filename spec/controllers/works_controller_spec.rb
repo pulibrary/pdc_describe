@@ -61,9 +61,7 @@ RSpec.describe WorksController do
       params = {
         "title_main" => "test dataset updated",
         "group_id" => work.group.id,
-        "given_name_1" => "Jane",
-        "family_name_1" => "Smith",
-        "creator_count" => "1"
+        "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
       }
       sign_in user
       post :new_submission, params: params
@@ -82,9 +80,7 @@ RSpec.describe WorksController do
         "id" => work.id.to_s,
         "publisher" => "Princeton University",
         "publication_year" => "2022",
-        "given_name_1" => "Jane",
-        "family_name_1" => "Smith",
-        "creator_count" => "1",
+        "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }],
         "resource_type" => "Dataset",
         "resource_type_general" => "Dataset"
       }
@@ -112,9 +108,7 @@ RSpec.describe WorksController do
           "wizard" => "true",
           "publisher" => "Princeton University",
           "publication_year" => "2022",
-          "given_name_1" => "Jane",
-          "family_name_1" => "Smith",
-          "creator_count" => "1"
+          creators: [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
         }
         sign_in user
         post :update, params: params
@@ -136,13 +130,8 @@ RSpec.describe WorksController do
         "id" => work.id.to_s,
         "publisher" => "Princeton University",
         "publication_year" => "2022",
-        "given_name_1" => "Jane",
-        "family_name_1" => "Smith",
-        "sequence_1" => "1",
-        "given_name_2" => "Ada",
-        "family_name_2" => "Lovelace",
-        "sequence_2" => "2",
-        "creator_count" => "2",
+        creators: [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" },
+                   { "orcid" => "", "given_name" => "Ada", "family_name" => "Lovelace" }],
         "resource_type" => "Dataset",
         "resource_type_general" => "Dataset"
       }
@@ -174,13 +163,8 @@ RSpec.describe WorksController do
         "id" => work.id.to_s,
         "publisher" => "Princeton University",
         "publication_year" => "2022",
-        "given_name_1" => "Jane",
-        "family_name_1" => "Smith",
-        "sequence_1" => "2",
-        "given_name_2" => "Ada",
-        "family_name_2" => "Lovelace",
-        "sequence_2" => "1",
-        "creator_count" => "2",
+        creators: [{ "orcid" => "", "given_name" => "Ada", "family_name" => "Lovelace" },
+                   { "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }],
         "resource_type" => "Dataset",
         "resource_type_general" => "Dataset"
       }
@@ -225,13 +209,8 @@ RSpec.describe WorksController do
           "id" => work.id.to_s,
           "publisher" => "princeton university",
           "publication_year" => "2022",
-          "given_name_1" => "jane",
-          "family_name_1" => "smith",
-          "sequence_1" => "1",
-          "given_name_2" => "ada",
-          "family_name_2" => "lovelace",
-          "sequence_2" => "2",
-          "creator_count" => "2",
+          creators: [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" },
+                     { "orcid" => "", "given_name" => "Ada", "family_name" => "Lovelace" }],
           "pre_curation_uploads_added" => uploaded_file
         }
         sign_in user
@@ -286,13 +265,8 @@ RSpec.describe WorksController do
           "id" => work.id.to_s,
           "publisher" => "princeton university",
           "publication_year" => "2022",
-          "given_name_1" => "jane",
-          "family_name_1" => "smith",
-          "sequence_1" => "1",
-          "given_name_2" => "ada",
-          "family_name_2" => "lovelace",
-          "sequence_2" => "2",
-          "creator_count" => "2",
+          "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" },
+                         { "orcid" => "", "given_name" => "Ada", "family_name" => "Lovelace" }],
           "pre_curation_uploads_added" => uploaded_files
         }
         sign_in user
@@ -336,13 +310,8 @@ RSpec.describe WorksController do
           "id" => work.id.to_s,
           "publisher" => "princeton university",
           "publication_year" => "2022",
-          "given_name_1" => "jane",
-          "family_name_1" => "smith",
-          "sequence_1" => "1",
-          "given_name_2" => "ada",
-          "family_name_2" => "lovelace",
-          "sequence_2" => "2",
-          "creator_count" => "2"
+          "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" },
+                         { "orcid" => "", "given_name" => "Ada", "family_name" => "Lovelace" }]
         }
       end
 
@@ -405,13 +374,8 @@ RSpec.describe WorksController do
           "id" => work.id.to_s,
           "publisher" => "princeton university",
           "publication_year" => "2022",
-          "given_name_1" => "jane",
-          "family_name_1" => "smith",
-          "sequence_1" => "1",
-          "given_name_2" => "ada",
-          "family_name_2" => "lovelace",
-          "sequence_2" => "2",
-          "creator_count" => "2",
+          "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" },
+                         { "orcid" => "", "given_name" => "Ada", "family_name" => "Lovelace" }],
           "deleted_uploads" => deleted_uploads
         }
       end
@@ -428,13 +392,8 @@ RSpec.describe WorksController do
           "id" => work.id.to_s,
           "publisher" => "princeton university",
           "publication_year" => "2022",
-          "given_name_1" => "jane",
-          "family_name_1" => "smith",
-          "sequence_1" => "1",
-          "given_name_2" => "ada",
-          "family_name_2" => "lovelace",
-          "sequence_2" => "2",
-          "creator_count" => "2",
+          "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" },
+                         { "orcid" => "", "given_name" => "Ada", "family_name" => "Lovelace" }],
           "rights_identifier" => "CC BY"
         }.with_indifferent_access
       end
@@ -555,10 +514,7 @@ RSpec.describe WorksController do
           "action" => "update",
           "publisher" => "princeton university",
           "publication_year" => "2022",
-          "given_name_1" => "jane",
-          "family_name_1" => "smith",
-          "sequence_1" => "1",
-          "creator_count" => "1",
+          "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }],
           "pre_curation_uploads_added" => [uploaded_file1]
         }
       end
@@ -612,13 +568,8 @@ RSpec.describe WorksController do
           "id" => work.id.to_s,
           "publisher" => "princeton university",
           "publication_year" => "2022",
-          "given_name_1" => "jane",
-          "family_name_1" => "smith",
-          "sequence_1" => "1",
-          "given_name_2" => "ada",
-          "family_name_2" => "lovelace",
-          "sequence_2" => "2",
-          "creator_count" => "2",
+          "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" },
+                         { "orcid" => "", "given_name" => "Ada", "family_name" => "Lovelace" }],
           "pre_curation_uploads_added" => uploaded_files,
           "work[deleted_files_count]" => "2",
           "work[deleted_file_1]" => uploaded_file1.original_filename,
@@ -1252,15 +1203,8 @@ RSpec.describe WorksController do
         new_title_type_1: "Subtitle",
         existing_title_count: "1",
         new_title_count: "1",
-        given_name_1: "Toni",
-        family_name_1: "Morrison",
-        sequence_1: "1",
-        given_name_2: "Sonia",
-        family_name_2: "Sotomayor",
-        sequence_2: "1",
-        orcid_2: "1234-1234-1234-1234",
-        creator_count: "1",
-        new_creator_count: "1",
+        "creators" => [{ "orcid" => "", "given_name" => "Toni", "family_name" => "Morrison" },
+                       { "orcid" => "1234-1234-1234-1234", "given_name" => "Sonia", "family_name" => "Sotomayor" }],
         rights_identifier: "CC BY",
         description: "a new description"
       }
@@ -1516,9 +1460,7 @@ RSpec.describe WorksController do
         "commit" => "Update Dataset",
         "publisher" => "Princeton University",
         "publication_year" => "2022",
-        "given_name_1" => "Jane",
-        "family_name_1" => "Smith",
-        "creator_count" => "1",
+        "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }],
         "resource_type" => "Dataset",
         "resource_type_general" => "Dataset"
       }
@@ -1539,9 +1481,7 @@ RSpec.describe WorksController do
           "commit" => "Update Dataset",
           "publisher" => "Princeton University",
           "publication_year" => "2022",
-          "given_name_1" => "Jane",
-          "family_name_1" => "Smith",
-          "creator_count" => "1",
+          "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }],
           "resource_type" => "Dataset",
           "resource_type_general" => "Dataset"
         }
