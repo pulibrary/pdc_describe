@@ -10,9 +10,15 @@ export default class WorkOrcid {
   attach_validation() {
     // Using $(document).on here so that the newly added rows will also pick up the event
     $(document).on('input', this.orcidClass, (el) => {
-      const num = el.target.attributes['data-num'].value;
       const orcid = $(el.target).val().trim();
-      this.fetchOrcid(orcid, `#${this.givenNamePrefix}${num}`, `#${this.familyNamePrefix}${num}`);
+      if (el.target.attributes['data-num'] == null) {
+        const givenName = $(el.target).closest('tr').find("input[name='creators[][given_name]']");
+        const familyName = $(el.target).closest('tr').find("input[name='creators[][family_name]']");
+        this.fetchOrcid(orcid, givenName, familyName);
+      } else {
+        const num = el.target.attributes['data-num'].value;
+        this.fetchOrcid(orcid, `#${this.givenNamePrefix}${num}`, `#${this.familyNamePrefix}${num}`);
+      }
     });
   }
 

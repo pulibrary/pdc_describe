@@ -59,8 +59,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       expect(page).to have_link("Create Dataset")
       click_on "Create Dataset"
       fill_in "title_main", with: title
-      fill_in "given_name_1", with: "Samantha"
-      fill_in "family_name_1", with: "Abrams"
+      fill_in "creators[][given_name]", with: "Samantha"
+      fill_in "creators[][family_name]", with: "Abrams"
       fill_in "description", with: description
       select "GNU General Public License", from: "rights_identifier"
       click_on "Curator Controlled"
@@ -68,7 +68,10 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "ark", with: ark
       fill_in "publication_year", with: issue_date
       click_on "Create"
-      expect(Work.last.resource.migrated).to be_falsey
+      resource = Work.last.resource
+      expect(resource.creators.last.given_name).to have_content("Samantha")
+      expect(resource.creators.last.family_name).to have_content("Abrams")
+      expect(resource.migrated).to be_falsey
       expect(page).not_to have_button("Migrate Dataspace Files")
       click_on "Complete"
       expect(page).to have_content "awaiting_approval"
@@ -81,8 +84,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       expect(page).to have_link("Create Dataset")
       click_on "Create Dataset"
       fill_in "title_main", with: title
-      fill_in "given_name_1", with: "Samantha"
-      fill_in "family_name_1", with: "Abrams"
+      fill_in "creators[][given_name]", with: "Samantha"
+      fill_in "creators[][family_name]", with: "Abrams"
       fill_in "description", with: description
       select "GNU General Public License", from: "rights_identifier"
       click_on "Curator Controlled"
@@ -90,7 +93,10 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "ark", with: ark
       fill_in "publication_year", with: issue_date
       click_on "Migrate"
-      expect(Work.last.resource.migrated).to be_truthy
+      resource = Work.last.resource
+      expect(resource.creators.last.given_name).to have_content("Samantha")
+      expect(resource.creators.last.family_name).to have_content("Abrams")
+      expect(resource.migrated).to be_truthy
       expect(page).to have_button("Migrate Dataspace Files")
       click_on "Complete"
       expect(page).to have_content "awaiting_approval"
@@ -113,8 +119,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       click_on(user.uid)
       click_on "Create Dataset"
       fill_in "title_main", with: "Test title"
-      fill_in "given_name_1", with: "Samantha"
-      fill_in "family_name_1", with: "Abrams"
+      fill_in "creators[][given_name]", with: "Samantha"
+      fill_in "creators[][family_name]", with: "Abrams"
       fill_in "description", with: description
       select "GNU General Public License", from: "rights_identifier"
       click_on "Curator Controlled"

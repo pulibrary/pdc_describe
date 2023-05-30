@@ -23,26 +23,38 @@
         <th>&nbsp;</th> <!-- delete icon-->
       </tr>
     </thead>
-    <tbody class="sortable"></tbody>
+    <tbody class="sortable">
+      <% creators = if @work.nil? || @work.resource.creators.empty? 
+                      [nil]
+                    else
+                      @work.resource.creators 
+                    end %>
+      <% creators.each do |creator| %>
+        <tr class="creators-table-row">
+        <td>
+          <input name="creators[][orcid]" value="<%= creator&.orcid %>" class="orcid-entry-creator"  placeholder="0000-0000-0000-0000" />
+        </td>
+        <td>
+          <input name="creators[][given_name]" value="<%= creator&.given_name %>" class="given-entry-creator" />
+        </td>
+        <td class="creators-table-row-family-name">
+          <input name="creators[][family_name]" value="<%= creator&.family_name %>" class="family-entry-creator" />
+        </td>
+        <%= render(partial: 'works/row_controls') %>
+        </tr>
+      <% end %>
+    </tbody>
     <tfoot>
       <tr>
         <td colspan="3">
-          <%= link_to "Add Another Creator", "#", id: "btn-add-creator", class: "btn btn-secondary" %>
-          <%= link_to "Add me as a Creator", "#", id: "btn-add-me-creator", class: "btn btn-secondary" %>
+          <button class="btn btn-secondary btn-add-row">
+            Add Another Creator
+          </button>
+          <button class="btn btn-secondary btn-add-user-creator">
+            Add me as a Creator
+          </button>
         </td>
       </tr>
     </tfoot>
   </table>
-
-  <% if @work %>
-    <% @work.resource.creators.each_with_index do |creator, i| %>
-    <span class="hidden creator-data"
-      data-num="<%= i + 1 %>"
-      data-orcid="<%= creator.orcid %>"
-      data-given-name="<%= creator.given_name %>"
-      data-family-name="<%= creator.family_name %>"
-      data-sequence="<%= creator.sequence %>"
-      ></span>
-    <% end %>
-  <% end %>
 </div>

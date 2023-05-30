@@ -242,51 +242,6 @@ $(() => {
     return creators;
   }
 
-  // Returns true if the "user entered" textboxes for the row are empty.
-  function isEmptyRow(rowId) {
-    let i; let textboxId; let value;
-    const $textboxes = $(`#${rowId} > td > input`);
-    for (i = 0; i < $textboxes.length; i += 1) {
-      textboxId = $textboxes[i].id;
-      if (textboxId.startsWith('orcid_') || textboxId.startsWith('given_name_') || textboxId.startsWith('family_name_')) {
-        value = $(`#${textboxId}`).val().trim();
-        if (value !== '') {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-
-  // Returns the ID of the first row that has an empty creator (if any)
-  function findEmptyCreator() {
-    let i;
-    const rows = $('.creators-table-row');
-    for (i = 0; i < rows.length; i += 1) {
-      if (isEmptyRow(rows[i].id)) {
-        return rows[i].id;
-      }
-    }
-    return null;
-  }
-
-  // Sets the values of a creator given a rowId
-  function setCreatorValues(rowId, orcid, givenName, familyName) {
-    const suffix = rowId.replace('creator_row_', '');
-    $(`#orcid_${suffix}`).val(orcid);
-    $(`#given_name_${suffix}`).val(givenName);
-    $(`#family_name_${suffix}`).val(familyName);
-  }
-
-  // This is generic and could be used to add blank rows to any table.
-  $('.btn-add-row').on('click', (event) => {
-    const $tbody = $(event.target).closest('table').find('tbody');
-    const $newTr = $tbody.find('tr').last().clone();
-    $newTr.find('input').val('');
-    $tbody.append($newTr);
-    return false;
-  });
-
   // This is generic and can be used to remove rows from any table.
   $(document).on('click', '.btn-del-row', (event) => {
     const $target = $(event.target);
@@ -310,20 +265,6 @@ $(() => {
   $('#btn-add-related-object').on('click', () => {
     const num = incrementCounter('#related_object_count');
     addRelatedObjectHtml(num, '', '', '');
-    return false;
-  });
-
-  $('#btn-add-me-creator').on('click', () => {
-    const num = incrementCounter('#creator_count');
-    const orcid = $('#user_orcid').val();
-    const givenName = $('#user_given_name').val();
-    const familyName = $('#user_family_name').val();
-    const emptyRowId = findEmptyCreator();
-    if (emptyRowId == null) {
-      addCreatorHtml(num, orcid, givenName, familyName);
-    } else {
-      setCreatorValues(emptyRowId, orcid, givenName, familyName);
-    }
     return false;
   });
 
@@ -409,25 +350,6 @@ $(() => {
     });
     return false;
   });
-
-  if ($('.creator-data').length === 0) {
-    // Add an empty creator for the use to fill it out
-    const num = incrementCounter('#creator_count');
-    addCreatorHtml(num, '', '', '', 1);
-  } else {
-    // Adds the existing creators making sure we honor the ordering.
-    const creators = peopleSorted('.creator-data');
-    for (let i = 0; i < creators.length; i += 1) {
-      const creator = creators[i];
-      addCreatorHtml(
-        creator.num,
-        creator.orcid,
-        creator.givenName,
-        creator.familyName,
-        creator.sequence,
-      );
-    }
-  }
 
   // Load any existing related objects into the edit form.
   // If there are any related objects they should appear in hidden <span> tags.

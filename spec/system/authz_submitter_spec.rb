@@ -25,8 +25,8 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
       click_on "Submit New"
       fill_in "title_main", with: title1
 
-      fill_in "given_name_1", with: FFaker::Name.first_name
-      fill_in "family_name_1", with: FFaker::Name.last_name
+      fill_in "creators[][given_name]", with: FFaker::Name.first_name
+      fill_in "creators[][family_name]", with: FFaker::Name.last_name
       click_on "Create New"
       fill_in "description", with: FFaker::Lorem.paragraph
       select "GNU General Public License", from: "rights_identifier"

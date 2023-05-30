@@ -4,6 +4,7 @@ import EditRequiredFields from './edit_required_fields.es6';
 import ReadmeFileUpload from './readme_file_upload.es6';
 import WorkOrcid from './work_orcid.es6';
 import WorkRoR from './work_ror.es6';
+import EditTableActions from './edit_table_actions.es6';
 
 /* eslint class-methods-use-this: ["error", { "exceptMethods": ["setup_fileupload_validation"] }] */
 
@@ -21,5 +22,6 @@ export default class PdcUiLoader {
     (new WorkOrcid('.orcid-entry-creator', 'given_name_', 'family_name_')).attach_validation();
     (new WorkOrcid('.orcid-entry-collaborator', 'contributor_given_name_', 'contributor_family_name_')).attach_validation();
     (new WorkRoR(pdc.ror_url)).attach_query();
+    (new EditTableActions()).attach_actions();
   }
 }

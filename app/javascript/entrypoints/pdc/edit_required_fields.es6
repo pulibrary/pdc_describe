@@ -1,4 +1,7 @@
-/* eslint class-methods-use-this: ["error", { "exceptMethods": ["isEmptyRow"] }] */
+/* eslint class-methods-use-this: ["error", {
+  "exceptMethods": ["hasCreators", "findEmptyCreator"] }] */
+
+import TableRow from './table_row.es6';
 
 export default class EditRequiredFields {
   attach_validations() {
@@ -17,7 +20,7 @@ export default class EditRequiredFields {
     $('#creators-required-message').addClass('hidden');
 
     if (!this.hasCreators()) {
-      $(`#${this.findEmptyCreator()}`).focus();
+      $(this.findEmptyCreator()).focus();
       $('#creators-required-message').removeClass('hidden');
       status = false;
     }
@@ -49,27 +52,11 @@ export default class EditRequiredFields {
     let i;
     const rows = $('.creators-table-row');
     for (i = 0; i < rows.length; i += 1) {
-      if (!this.isEmptyRow(rows[i].id)) {
+      if (!((new TableRow(rows[i])).is_empty())) {
         return true;
       }
     }
     return false;
-  }
-
-  // Returns true if the "user entered" textboxes for the row are empty.
-  isEmptyRow(rowId) {
-    let i; let textboxId; let value;
-    const $textboxes = $(`#${rowId} > td > input`);
-    for (i = 0; i < $textboxes.length; i += 1) {
-      textboxId = $textboxes[i].id;
-      if (textboxId.startsWith('orcid_') || textboxId.startsWith('given_name_') || textboxId.startsWith('family_name_')) {
-        value = $(`#${textboxId}`).val().trim();
-        if (value !== '') {
-          return false;
-        }
-      }
-    }
-    return true;
   }
 
   // Returns the ID of the first row that has an empty creator (if any)
@@ -77,8 +64,8 @@ export default class EditRequiredFields {
     let i;
     const rows = $('.creators-table-row');
     for (i = 0; i < rows.length; i += 1) {
-      if (this.isEmptyRow(rows[i].id)) {
-        return rows[i].id;
+      if ((new TableRow(rows[i])).is_empty()) {
+        return rows[i];
       }
     }
     return null;
