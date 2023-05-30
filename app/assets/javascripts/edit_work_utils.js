@@ -476,18 +476,6 @@ $(() => {
     }
   });
 
-  // Fetch information for funder via the ROR API
-  $(document).on('change', '.ror-input', (el) => {
-    const $target = $(el.target);
-    const ror = $target.val().trim();
-    fetch(`${pdc.ror_url}/${ror}`).then()
-      .then((response) => response.json())
-      .then((responseJson) => {
-        const { name } = responseJson;
-        $target.closest('tr').find('.ror-output').val(name);
-      });
-  });
-
   // Allows the creators and contributors to be reordered via drag and drop.
   // The `cancel` property "prevents sorting if you start on elements matching the selector"
   // https://api.jqueryui.com/sortable/#method-cancel

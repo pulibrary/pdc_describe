@@ -1,6 +1,6 @@
 /* eslint class-methods-use-this: ["error", { "exceptMethods": ["isOrcidFormat"] }] */
 
-export default class EditOrcid {
+export default class WorkOrcid {
   constructor(orcidClass, givenNamePrefix, familyNamePrefix) {
     this.orcidClass = orcidClass;
     this.givenNamePrefix = givenNamePrefix;
