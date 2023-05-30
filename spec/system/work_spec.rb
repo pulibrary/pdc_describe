@@ -14,10 +14,8 @@ RSpec.describe "Creating and updating works", type: :system do
     visit user_path(user)
     click_on "Submit New"
     fill_in "title_main", with: "Supreme"
-    within("#creator_row_1") do
-      fill_in "given_name_1", with: "Sonia"
-      fill_in "family_name_1", with: "Sotomayor"
-    end
+    fill_in "creators[][given_name]", with: "Sonia"
+    fill_in "creators[][family_name]", with: "Sotomayor"
     click_on "Create New"
     work = Work.last
     expect(work.resource.resource_type).to eq "Dataset"
@@ -38,11 +36,9 @@ RSpec.describe "Creating and updating works", type: :system do
     sign_in user
     visit new_work_path(params: { wizard: true })
     click_on "Add Another Creator"
-    within("#creator_row_1") do
-      fill_in "orcid_1", with: "0000-0000-1111-2222"
-    end
-    expect(page).to have_field("given_name_1", with: "Sally")
-    expect(page).to have_field("family_name_1", with: "Smith")
+    find("tr:last-child input[name='creators[][orcid]']").set "0000-0000-1111-2222"
+    expect(find("tr:last-child input[name='creators[][given_name]']").value).to eq "Sally"
+    expect(find("tr:last-child input[name='creators[][family_name]']").value).to eq "Smith"
   end
 
   it "Renders ORCID links for creators", js: true do
@@ -174,8 +170,8 @@ RSpec.describe "Creating and updating works", type: :system do
       sign_in user
       visit edit_work_path(draft_work)
       click_on "Add Another Creator"
-      fill_in "given_name_2", with: "Sally"
-      fill_in "family_name_2", with: "Smith"
+      find("tr:last-child input[name='creators[][given_name]']").set "Sally"
+      find("tr:last-child input[name='creators[][family_name]']").set "Smith"
 
       creator_text = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
       expect(creator_text).to eq("#{creator.given_name} #{creator.family_name}  Sally Smith")
