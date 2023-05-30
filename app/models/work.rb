@@ -198,7 +198,7 @@ class Work < ApplicationRecord
   end
 
   def valid_to_approve(user)
-    binding.pry
+    # binding.pry
     valid_to_submit
     if resource.doi.blank?
       errors.add :base, "DOI must be present for a work to be approved"
@@ -206,7 +206,7 @@ class Work < ApplicationRecord
     unless user.has_role? :group_admin, group
       errors.add :base, "Unauthorized to Approve"
     end
-    binding.pry
+    # binding.pry
     if pre_curation_uploads_fast.empty? && post_curation_uploads.empty?
       errors.add :base, "Uploads must be present for a work to be approved"
     end
@@ -381,6 +381,7 @@ class Work < ApplicationRecord
   end
 
   def pre_curation_uploads_fast
+    # binding.pry
     s3_query_service.client_s3_files.sort_by(&:filename)
   end
   alias pre_curation_uploads pre_curation_uploads_fast
@@ -482,7 +483,7 @@ class Work < ApplicationRecord
   # S3QueryService object associated with this Work
   # @return [S3QueryService]
   def s3_query_service
-    binding.pry if @s3_query_service.nil?
+    # binding.pry if @s3_query_service.nil?
     @s3_query_service ||= S3QueryService.new(self, !approved?)
   end
 

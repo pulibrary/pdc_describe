@@ -236,9 +236,9 @@ RSpec.describe Work, type: :model do
   context "ARK update" do
     before { allow(Ark).to receive(:update) }
     let(:ezid) { "ark:/99999/dsp01qb98mj541" }
-
-    let(:s3_file) { FactoryBot.build :s3_file, filename: "#{work.doi}/test_key" }
+    let(:s3_file) { instance_double(S3File) }
     let(:s3_service_data) { [s3_file] }
+    let(:work) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
 
     around do |example|
       Rails.configuration.update_ark_url = true
@@ -247,8 +247,7 @@ RSpec.describe Work, type: :model do
     end
 
     before do
-      # fake_s3_service = stub_s3(data: [s3_file])
-      # allow(fake_s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(s3_file).to receive(:filename).and_return("foo/test_key")
       allow(s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
     end
 
@@ -1003,7 +1002,7 @@ RSpec.describe Work, type: :model do
   end
 
   describe "pre_curation_uploads_count" do
-    let(:s3_query_service_double) { instance_double(S3QueryService, file_count: 3) }
+    let(:s3_query_service_double) { instance_double(S3QueryService, file_count: 3, client_s3_files: []) }
 
     it "gets the count of the files on Amazon" do
       allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
