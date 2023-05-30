@@ -555,8 +555,13 @@ RSpec.describe Work, type: :model do
   describe "#approve" do
     let(:fake_s3_service_pre) { stub_s3(data: [s3_file]) }
     let(:fake_s3_service_post) { stub_s3(data: [s3_file]) }
+    # Approved Works require uploaded files
+    let(:s3_file) { instance_double(S3File) }
+    let(:s3_service_data) { [s3_file] }
+    # let(:s3_service) { stub_s3(data: s3_service_data) }
 
     let(:approved_work) do
+      allow(s3_file).to receive(:filename).and_return("test.txt")
       work = FactoryBot.create :awaiting_approval_work, doi: "10.34770/123-abc"
       stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
 
@@ -574,22 +579,27 @@ RSpec.describe Work, type: :model do
       let(:data_cite_result) { double }
       let(:data_cite_connection) { double }
       let!(:datacite_user) { Rails.configuration.datacite.user }
+      # Approved Works require uploaded files
+      let(:client_s3_files) { [s3_file] }
 
       let(:approved_work) do
-        work = FactoryBot.create :awaiting_approval_work
-        work.update_curator(curator_user.id, user)
-
         allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
         allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
         allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
         allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
 
-        # binding.pry
+        work = FactoryBot.create :awaiting_approval_work
+        work.update_curator(curator_user.id, user)
+
         work.approve!(curator_user)
         work
       end
 
       before do
+        # allow(S3QueryService).to receive(:new).and_return(s3_query_service)
+        # allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
+        # allow(s3_query_service).to receive(:client_s3_files).and_return(client_s3_files)
+
         Rails.configuration.datacite.user = "test_user"
 
         allow(data_cite_failure).to receive(:reason_phrase).and_return("test status")
@@ -608,9 +618,7 @@ RSpec.describe Work, type: :model do
       end
 
       it "curator is still set" do
-        # binding.pry
         approved_work
-        # binding.pry
         approved_work.reload
 
         expect(approved_work.curator).to eq(curator_user)
