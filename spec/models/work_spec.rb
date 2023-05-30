@@ -81,7 +81,7 @@ RSpec.describe Work, type: :model do
   end
 
   it "drafts a doi only once" do
-    work = Work.new(group: group, resource: FactoryBot.build(:resource))
+    work = Work.new(group: group, resource: FactoryBot.build(:resource, doi: ""))
     work.draft_doi
     work.draft_doi # Doing this multiple times on purpose to make sure the api is only called once
     expect(a_request(:post, "https://#{Rails.configuration.datacite.host}/dois")).to have_been_made.once
@@ -187,6 +187,16 @@ RSpec.describe Work, type: :model do
         expect(work.as_json["files"][0][:filename]).to match(/10\.34770\/123-abc\/\d+\/us_covid_2019\.csv/)
         expect(work.as_json["files"][0][:size]).to eq(1024)
         expect(work.as_json["files"][0][:url]).to eq "https://example.data.globus.org/10.34770/123-abc/#{work.id}/us_covid_2019.csv"
+      end
+    end
+
+    context "when the doi is empty" do
+      it "fails the transition" do
+        expect(work.reload.state).to eq("awaiting_approval")
+        work.resource.doi = ""
+        expect { work.approve!(curator_user) }.to raise_error(AASM::InvalidTransition)
+        expect(work.errors.map(&:type)).to eq(["DOI must be present for a work to be approved"])
+        expect(work.reload.state).to eq("awaiting_approval")
       end
     end
   end
@@ -1021,6 +1031,16 @@ RSpec.describe Work, type: :model do
       expect { Work.find_by_doi("123-zzzz") }.to raise_error(ActiveRecord::RecordNotFound)
       expect { Work.find_by_doi("123-zz") }.to raise_error(ActiveRecord::RecordNotFound)
     end
+
+    it "can find nil dois" do
+      work = FactoryBot.create(:draft_work, doi: nil)
+      expect(Work.find_by_doi(nil)).to eq(work)
+    end
+
+    it "can find empty dois" do
+      work = FactoryBot.create(:draft_work, doi: "")
+      expect(Work.find_by_doi("")).to eq(work)
+    end
   end
 
   describe "#find_by_ark" do
@@ -1042,6 +1062,16 @@ RSpec.describe Work, type: :model do
       expect { Work.find_by_ark("ark:/88435/xyz1234") }.to raise_error(ActiveRecord::RecordNotFound)
       expect { Work.find_by_ark("88435/xyz12") }.to raise_error(ActiveRecord::RecordNotFound)
       expect { Work.find_by_ark("88435/xyz1234") }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it "can find nil arks" do
+      work = FactoryBot.create(:draft_work, ark: nil)
+      expect(Work.find_by_ark(nil)).to eq(work)
+    end
+
+    it "can find empty dois" do
+      work = FactoryBot.create(:draft_work, ark: "")
+      expect(Work.find_by_ark("")).to eq(work)
     end
   end
 

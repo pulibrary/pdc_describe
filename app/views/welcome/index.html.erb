@@ -1,6 +1,6 @@
 <% if current_user %>
   <div class="content">
-    <h2>Welcome, <%= current_user.display_name %></h2>
+    <h2>Welcome, <%= current_user.given_name %></h2>
     <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-primary" %>
   </div>
 <% else %>

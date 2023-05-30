@@ -119,14 +119,14 @@
           <select id="curator_select">
             <option value="no-one">(no one)</option>
             <% @work_decorator.group.administrators.each do |user| %>
-              <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.display_name_safe %></option>
+              <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.given_name_safe %></option>
             <% end %>
           </select>
         <% else %>
           <% if @work.curator_user_id.nil? %>
             none
           <% else %>
-            <%= User.find(@work.curator_user_id).display_name_safe %>
+            <%= User.find(@work.curator_user_id).given_name_safe %>
           <% end %>
         <% end %>
       </dd>

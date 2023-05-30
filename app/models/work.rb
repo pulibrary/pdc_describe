@@ -95,13 +95,13 @@ class Work < ApplicationRecord
   class << self
     def find_by_doi(doi)
       prefix = "10.34770/"
-      doi = "#{prefix}#{doi}" unless doi.start_with?(prefix)
+      doi = "#{prefix}#{doi}" unless doi.blank? || doi.start_with?(prefix)
       Work.find_by!("metadata @> ?", JSON.dump(doi: doi))
     end
 
     def find_by_ark(ark)
       prefix = "ark:/"
-      ark = "#{prefix}#{ark}" unless ark.start_with?(prefix)
+      ark = "#{prefix}#{ark}" unless ark.blank? || ark.start_with?(prefix)
       Work.find_by!("metadata @> ?", JSON.dump(ark: ark))
     end
 
@@ -198,6 +198,9 @@ class Work < ApplicationRecord
 
   def valid_to_approve(user)
     valid_to_submit
+    if resource.doi.blank?
+      errors.add :base, "DOI must be present for a work to be approved"
+    end
     unless user.has_role? :group_admin, group
       errors.add :base, "Unauthorized to Approve"
     end
@@ -341,7 +344,7 @@ class Work < ApplicationRecord
     WorkActivity.add_work_activity(id, resource_compare.differences.to_json, current_user_id, activity_type: WorkActivity::CHANGES)
   end
 
-  def log_file_changes(changes, current_user_id)
+  def log_file_changes(current_user_id)
     return if changes.count == 0
     WorkActivity.add_work_activity(id, changes.to_json, current_user_id, activity_type: WorkActivity::FILE_CHANGES)
   end
@@ -522,6 +525,14 @@ class Work < ApplicationRecord
 
   def presenter
     self.class.presenter_class.new(work: self)
+  end
+
+  def changes
+    @changes ||= []
+  end
+
+  def track_change(action, filename)
+    changes << { action: action, filename: filename }
   end
 
   protected

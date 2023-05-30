@@ -10,6 +10,7 @@ Datadog.configure do |c|
   c.tracing.analytics.enabled = true
   c.tracing.enabled = Rails.env.staging? || Rails.env.production?
   c.tracing.report_hostname = true
+  c.tracing.log_injection = true
 
   # From https://docs.datadoghq.com/tracing/metrics/runtime_metrics/ruby/
   # To enable runtime metrics collection, set `true`. Defaults to `false`

@@ -12,14 +12,13 @@ RSpec.describe "Form submission for migrating attention", type: :system, mock_ez
   let(:doi) { "10.34770/9425-b553" }
   let(:file_upload) { Pathname.new(fixture_path).join("dataspace_migration", "attention", "Attention_Awareness_Dorsal_Attention_README.txt").to_s }
   let(:file1) { FactoryBot.build :s3_file, filename: file_upload }
-  let(:bucket_url) do
-    "https://example-bucket.s3.amazonaws.com/"
-  end
+  let(:bucket_url) { @bucket_url }
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     stub_request(:get, "https://handle.stage.datacite.org/10.34770/9425-b553")
       .to_return(status: 200, body: "", headers: {})
+    stub_request(:get, /#{bucket_url}/).to_return(status: 200)
     stub_request(:put, /#{bucket_url}/).to_return(status: 200)
     stub_s3(data: [file1])
   end
@@ -59,7 +58,8 @@ RSpec.describe "Form submission for migrating attention", type: :system, mock_ez
       fill_in "doi", with: doi
       fill_in "ark", with: ark
       page.attach_file("work[pre_curation_uploads_added][]", [file_upload], make_visible: true)
-      click_on "Create"
+      click_on "Migrate"
+      expect(page).to have_button("Migrate Dataspace Files")
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
       click_on "Complete"

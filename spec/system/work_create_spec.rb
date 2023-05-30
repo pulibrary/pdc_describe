@@ -146,7 +146,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       sign_out user
       sign_in curator
       visit(user_path(curator))
-      expect(page).to have_content curator.display_name
+      expect(page).to have_content curator.given_name
       # This is the blue badge on the work that should show up for a curator
       #  when a work is startend and marked completed by a submitter
       within("#unfinished_datasets span.badge.rounded-pill.bg-primary") do

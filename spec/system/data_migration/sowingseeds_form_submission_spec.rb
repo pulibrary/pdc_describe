@@ -60,7 +60,8 @@ Download the README.txt for a detailed description of this dataset's content."
       click_on "Additional Metadata"
       click_on "Curator Controlled"
       fill_in "ark", with: ark
-      click_on "Create"
+      click_on "Migrate"
+      expect(page).to have_button("Migrate Dataspace Files")
       click_on "Complete"
       click_on "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It"
 
@@ -76,8 +77,6 @@ Download the README.txt for a detailed description of this dataset's content."
       datacite = PDCSerialization::Datacite.new_from_work(sowingseeds_work)
       expect(datacite.valid?).to eq true
       expect(datacite.to_xml).to be_equivalent_to(File.read("spec/system/data_migration/sowingseeds.xml"))
-      # Ensure the DOI is blank so a new one will be minted when this is imported
-      sowingseeds_work.resource.doi = nil
       export_spec_data("sowingseeds.json", sowingseeds_work.to_json)
     end
   end

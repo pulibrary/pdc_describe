@@ -74,7 +74,8 @@ Consult the file README.txt for a more detailed description of the contents."
       select group, from: "group_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
-      click_on "Create"
+      click_on "Migrate"
+      expect(page).to have_button("Migrate Dataspace Files")
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
       click_on "Complete"

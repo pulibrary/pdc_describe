@@ -278,25 +278,6 @@ $(() => {
     $(`#family_name_${suffix}`).val(familyName);
   }
 
-  // Fetch information via ORCID's public API and dumps the data into the elements indicated.
-  function fetchOrcid(orcidValue, givenNameId, familyNameId) {
-    if (isOrcid(orcidValue)) {
-      $.ajax({
-        url: `${pdc.orcid_url}/${orcidValue}`,
-        dataType: 'jsonp',
-      })
-        .done((data) => {
-          const givenName = data.person.name['given-names'].value;
-          const familyName = data.person.name['family-name'].value;
-          $(givenNameId).val(givenName);
-          $(familyNameId).val(familyName);
-        })
-        .fail((XMLHttpRequest, textStatus, errorThrown) => {
-          console.error(`Error fetching ORCID for ${errorThrown}`);
-        });
-    }
-  }
-
   // This is generic and could be used to add blank rows to any table.
   $('.btn-add-row').on('click', (event) => {
     const $tbody = $(event.target).closest('table').find('tbody');
@@ -484,20 +465,6 @@ $(() => {
     }
   }
 
-  // Fetch information for a creator via ORCID's public API
-  $(document).on('input', '.orcid-entry-creator', (el) => {
-    const num = el.target.attributes['data-num'].value;
-    const orcid = $(el.target).val().trim();
-    fetchOrcid(orcid, `#given_name_${num}`, `#family_name_${num}`);
-  });
-
-  // Fetch information for a collaborator/contributor via ORCID's public API
-  $(document).on('input', '.orcid-entry-collaborator', (el) => {
-    const num = el.target.attributes['data-num'].value;
-    const orcid = $(el.target).val().trim();
-    fetchOrcid(orcid, `#contributor_given_name_${num}`, `#contributor_family_name_${num}`);
-  });
-
   // Drop the "http..."" portion of the URL if the user enters the full URL of a DataSpace ARK
   // http://arks.princeton.edu/ark:/88435/dsp01hx11xj13h => ark:/88435/dsp01hx11xj13h
   $('#ark').on('input', (event) => {
@@ -507,18 +474,6 @@ $(() => {
     if (ark.startsWith(prefix)) {
       target.value = ark.replace(prefix, '');
     }
-  });
-
-  // Fetch information for funder via the ROR API
-  $(document).on('change', '.ror-input', (el) => {
-    const $target = $(el.target);
-    const ror = $target.val().trim();
-    fetch(`${pdc.ror_url}/${ror}`).then()
-      .then((response) => response.json())
-      .then((responseJson) => {
-        const { name } = responseJson;
-        $target.closest('tr').find('.ror-output').val(name);
-      });
   });
 
   // Allows the creators and contributors to be reordered via drag and drop.

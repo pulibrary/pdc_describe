@@ -45,7 +45,8 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
-      click_on "Create"
+      click_on "Migrate"
+      expect(page).to have_button("Migrate Dataspace Files")
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
       click_on "Complete"
@@ -59,8 +60,6 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       datacite = PDCSerialization::Datacite.new_from_work(cklibrary_work)
       expect(datacite.valid?).to eq true
       expect(datacite.to_xml).to be_equivalent_to(File.read("spec/system/data_migration/cklibrary.xml"))
-      # Ensure the DOI is blank so a new one will be minted when this is imported
-      cklibrary_work.resource.doi = nil
       export_spec_data("cklibrary.json", cklibrary_work.to_json)
     end
   end

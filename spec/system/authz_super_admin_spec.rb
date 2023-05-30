@@ -19,7 +19,7 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
       stub_s3
       sign_in submitter2
       visit user_path(submitter2)
-      expect(page).to have_content submitter2.display_name
+      expect(page).to have_content submitter2.given_name
       click_on "Submit New"
       fill_in "title_main", with: title1
 

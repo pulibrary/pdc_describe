@@ -41,53 +41,114 @@ RSpec.describe PULDspaceMigrate, type: :model do
 
     describe "#migrate" do
       let(:s3_file) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/test_key" }
+      let(:s3_file2) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/SCoData_combined_v1_2020-07_README.txt" }
       let(:s3_directory) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/test_directory_key", size: 0 }
-      let(:fake_s3_service) { stub_s3(data: [s3_file, s3_directory], prefix: "bucket/123/abc/") }
+      let(:fake_s3_service) { stub_s3(data: [s3_file, s3_file2, s3_directory], prefix: "abc/123/") }
+      let(:fake_completion) { instance_double(Seahorse::Client::Response, "successful?": true) }
 
       before do
-        allow(fake_s3_service).to receive(:upload_file).with(hash_including(filename: /SCoData_combined_v1_2020-07_README/))
-                                                       .and_return("abc/123/SCoData_combined_v1_2020-07_README.txt")
+        allow(fake_s3_service).to receive(:upload_file).with(hash_including(filename: /data_space_SCoData_combined_v1_2020-07_README/))
+                                                       .and_return("abc/123/data_space_SCoData_combined_v1_2020-07_README.txt")
+        allow(fake_s3_service).to receive(:upload_file).with(hash_including(filename: /globus_SCoData_combined_v1_2020-07_README/))
+                                                       .and_return("abc/123/globus_SCoData_combined_v1_2020-07_README.txt")
         allow(fake_s3_service).to receive(:upload_file).with(hash_including(filename: /SCoData_combined_v1_2020-07_datapackage/))
                                                        .and_return("abc/123/SCoData_combined_v1_2020-07_datapackage.json")
         allow(fake_s3_service).to receive(:upload_file).with(hash_including(filename: /license/))
                                                        .and_return("abc/123/license.txt")
-        fake_completion = instance_double(Seahorse::Client::Response, "successful?": true)
         allow(fake_s3_service).to receive(:copy_file).with(hash_including(target_key: /test_key/))
                                                      .and_return(fake_completion)
         allow(fake_s3_service).to receive(:copy_file).with(hash_including(target_key: /test_directory_key/))
                                                      .and_return(fake_completion)
+        allow(fake_s3_service).to receive(:copy_file).with(hash_including(target_key: /globus_SCoData_combined_v1_2020-07_README.txt/))
+                                                     .and_return(fake_completion)
       end
       it "migrates the content from dspace and aws" do
         expect(UploadSnapshot.all.count).to eq(0)
-        FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "bucket/123/abc/test_exist_key" }])
+        FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
         dspace_data.migrate
-        expect(dspace_data.file_keys).to eq(["abc/123/SCoData_combined_v1_2020-07_README.txt",
+        expect(dspace_data.file_keys).to eq(["abc/123/data_space_SCoData_combined_v1_2020-07_README.txt",
                                              "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
                                              "abc/123/license.txt",
-                                             "10-34770/ackh-7y71/test_key"])
+                                             "abc/123/test_key",
+                                             "abc/123/globus_SCoData_combined_v1_2020-07_README.txt"])
         expect(dspace_data.directory_keys).to eq(["10-34770/ackh-7y71/test_directory_key"])
-        expect(dspace_data.migration_message).to eq("Migration for 4 files and 1 directory")
+        expect(dspace_data.migration_message).to eq("Migration for 5 files and 1 directory")
 
         expect(work.reload.resource.migrated).to be_truthy
-        expect(enqueued_jobs.size).to eq(2)
-        expect(MigrationUploadSnapshot.last.files).to eq([{ "checksum" => "008eec11c39e7038409739c0160a793a", "filename" => "bucket/123/abc/SCoData_combined_v1_2020-07_README.txt",
+        expect(enqueued_jobs.size).to eq(3)
+        expect(MigrationUploadSnapshot.last.files).to eq([{ "checksum" => "008eec11c39e7038409739c0160a793a", "filename" => "abc/123/data_space_SCoData_combined_v1_2020-07_README.txt",
                                                             "migrate_status" => "complete" },
-                                                          { "checksum" => "7bd3d4339c034ebc663b990657714688", "filename" => "bucket/123/abc/SCoData_combined_v1_2020-07_datapackage.json",
+                                                          { "checksum" => "7bd3d4339c034ebc663b990657714688", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
                                                             "migrate_status" => "complete" },
-                                                          { "checksum" => "1e204dad3e9e1e2e6660eef9c33467e9", "filename" => "bucket/123/abc/license.txt", "migrate_status" => "complete" },
-                                                          { "checksum" => "abc123", "filename" => "bucket/123/abc/test_key", "migrate_status" => "started" },
-                                                          { "checksum" => "abc123", "filename" => "bucket/123/abc/test_exist_key" }])
+                                                          { "checksum" => "1e204dad3e9e1e2e6660eef9c33467e9", "filename" => "abc/123/license.txt", "migrate_status" => "complete" },
+                                                          { "checksum" => "abc123", "filename" => "abc/123/test_key", "migrate_status" => "started" },
+                                                          { "checksum" => "abc123", "filename" => "abc/123/globus_SCoData_combined_v1_2020-07_README.txt", "migrate_status" => "started" },
+                                                          { "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
         perform_enqueued_jobs
         expect(enqueued_jobs.size).to eq(0)
         expect(UploadSnapshot.all.count).to eq(2)
-        expect(MigrationUploadSnapshot.last.files).to eq([{ "checksum" => "008eec11c39e7038409739c0160a793a", "filename" => "bucket/123/abc/SCoData_combined_v1_2020-07_README.txt",
+        expect(MigrationUploadSnapshot.last.files).to eq([{ "checksum" => "008eec11c39e7038409739c0160a793a", "filename" => "abc/123/data_space_SCoData_combined_v1_2020-07_README.txt",
                                                             "migrate_status" => "complete" },
-                                                          { "checksum" => "7bd3d4339c034ebc663b990657714688", "filename" => "bucket/123/abc/SCoData_combined_v1_2020-07_datapackage.json",
+                                                          { "checksum" => "7bd3d4339c034ebc663b990657714688", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
                                                             "migrate_status" => "complete" },
-                                                          { "checksum" => "1e204dad3e9e1e2e6660eef9c33467e9", "filename" => "bucket/123/abc/license.txt", "migrate_status" => "complete" },
-                                                          { "checksum" => "abc123", "filename" => "bucket/123/abc/test_key", "migrate_status" => "complete" },
-                                                          { "checksum" => "abc123", "filename" => "bucket/123/abc/test_exist_key" }])
+                                                          { "checksum" => "1e204dad3e9e1e2e6660eef9c33467e9", "filename" => "abc/123/license.txt", "migrate_status" => "complete" },
+                                                          { "checksum" => "abc123", "filename" => "abc/123/test_key", "migrate_status" => "complete" },
+                                                          { "checksum" => "abc123", "filename" => "abc/123/globus_SCoData_combined_v1_2020-07_README.txt", "migrate_status" => "complete" },
+                                                          { "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
         expect(MigrationUploadSnapshot.last.migration_complete?).to be_truthy
+      end
+
+      context "the checksums are the same" do
+        let(:s3_file2) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/SCoData_combined_v1_2020-07_README.txt", checksum: "008eec11c39e7038409739c0160a793a" }
+
+        before do
+          allow(fake_s3_service).to receive(:copy_file).with(hash_including(target_key: /SCoData_combined_v1_2020-07_README.txt/))
+                                                       .and_return(fake_completion)
+        end
+
+        it "migrates the content from dspace and aws skipping the same file" do
+          expect(UploadSnapshot.all.count).to eq(0)
+          FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
+          dspace_data.migrate
+          expect(dspace_data.file_keys).to eq(["abc/123/SCoData_combined_v1_2020-07_datapackage.json",
+                                               "abc/123/license.txt",
+                                               "abc/123/test_key",
+                                               "abc/123/SCoData_combined_v1_2020-07_README.txt"])
+          expect(dspace_data.directory_keys).to eq(["10-34770/ackh-7y71/test_directory_key"])
+          expect(dspace_data.migration_message).to eq("Migration for 4 files and 1 directory")
+
+          expect(work.reload.resource.migrated).to be_truthy
+          expect(enqueued_jobs.size).to eq(3)
+          expect(MigrationUploadSnapshot.last.files).to eq([{ "checksum" => "7bd3d4339c034ebc663b990657714688", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
+                                                              "migrate_status" => "complete" },
+                                                            { "checksum" => "1e204dad3e9e1e2e6660eef9c33467e9", "filename" => "abc/123/license.txt", "migrate_status" => "complete" },
+                                                            { "checksum" => "abc123", "filename" => "abc/123/test_key", "migrate_status" => "started" },
+                                                            { "checksum" => "008eec11c39e7038409739c0160a793a", "filename" => "abc/123/SCoData_combined_v1_2020-07_README.txt",
+                                                              "migrate_status" => "started" },
+                                                            { "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
+          perform_enqueued_jobs
+          expect(enqueued_jobs.size).to eq(0)
+          expect(UploadSnapshot.all.count).to eq(2)
+          expect(MigrationUploadSnapshot.last.files).to eq([{ "checksum" => "7bd3d4339c034ebc663b990657714688", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
+                                                              "migrate_status" => "complete" },
+                                                            { "checksum" => "1e204dad3e9e1e2e6660eef9c33467e9", "filename" => "abc/123/license.txt", "migrate_status" => "complete" },
+                                                            { "checksum" => "abc123", "filename" => "abc/123/test_key", "migrate_status" => "complete" },
+                                                            { "checksum" => "008eec11c39e7038409739c0160a793a", "filename" => "abc/123/SCoData_combined_v1_2020-07_README.txt",
+                                                              "migrate_status" => "complete" },
+                                                            { "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
+          expect(MigrationUploadSnapshot.last.migration_complete?).to be_truthy
+        end
+      end
+
+      context "a dspace bitstream missmatch" do
+        # realy should be the readme, but we are intetionally returning the wrong data
+        let(:bitsream1_body) { "not the readme!!" }
+
+        it "downloads the bitstreams" do
+          allow(Honeybadger).to receive(:notify)
+          expect { dspace_data.migrate }.to raise_error("Error downloading file(s) SCoData_combined_v1_2020-07_README.txt")
+          expect(Honeybadger).to have_received(:notify).with(/Mismatching checksum .* for work: #{work.id} doi: #{work.doi} ark: #{work.ark}/)
+        end
       end
     end
   end

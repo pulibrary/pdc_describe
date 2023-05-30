@@ -3,12 +3,16 @@
 require "rails_helper"
 
 RSpec.describe WorksController do
+  include ActiveJob::TestHelper
   before do
     Group.create_defaults
     user
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
+
+    stub_request(:get, /#{Regexp.escape("https://example-bucket.s3.amazonaws.com/us_covid_20")}.*\.csv/).to_return(status: 200, body: "", headers: {})
   end
+
   let(:group) { Group.first }
   let(:curator) { FactoryBot.create(:user, groups_to_admin: [group]) }
   let(:resource) { FactoryBot.build :resource }
@@ -207,7 +211,7 @@ RSpec.describe WorksController do
 
       before do
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
-        allow(fake_s3_service).to receive(:client_s3_files).and_return([], [file1])
+        allow(fake_s3_service).to receive(:client_s3_files).and_return([file1])
       end
 
       it "handles the update page" do
@@ -268,7 +272,7 @@ RSpec.describe WorksController do
       before do
         # This is utilized for active record to send the file to S3
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
-        allow(fake_s3_service).to receive(:client_s3_files).and_return([], [file1, file2])
+        allow(fake_s3_service).to receive(:client_s3_files).and_return([file1, file2])
       end
 
       it "handles the update page" do
@@ -568,6 +572,7 @@ RSpec.describe WorksController do
 
       it "files are saved" do
         post :create, params: request_params
+        perform_enqueued_jobs
         created_work = Work.all.find { |work| work.title == request_params["title_main"] }
         expect(created_work.pre_curation_uploads.count).to eq 1
       end
@@ -781,6 +786,7 @@ RSpec.describe WorksController do
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
         sign_in user
         post :file_uploaded, params: params
+        perform_enqueued_jobs
       end
 
       it "upload files directly from user requests" do
@@ -842,15 +848,19 @@ RSpec.describe WorksController do
 
         allow(Rails.logger).to receive(:error)
         allow(Work).to receive(:find).and_return(persisted)
+        allow(persisted).to receive(:id).and_return(work.id)
         allow(persisted).to receive(:to_s).and_return(work.id)
         allow(persisted).to receive(:doi).and_return(work.doi)
         allow(persisted).to receive(:s3_query_service).and_return(nil)
         allow(persisted).to receive(:pre_curation_uploads).and_return([])
+        allow(persisted).to receive(:changes).and_raise("Error!")
 
         post :file_uploaded, params: params
       end
 
       it "does not update the work and renders an error messages" do
+        # TODO: - how do we tell the user there was an error now that this in not in the page context?
+        # This error that is happening seems to be just a random error so it is ok that we still capture that
         expect(response).to redirect_to(work_file_upload_path(work))
         expect(controller.flash[:notice].start_with?("Failed to attach the file uploads for the work #{work.doi}")).to be true
         expect(Rails.logger).to have_received(:error).with(/Failed to attach the file uploads for the work #{work.doi}/)

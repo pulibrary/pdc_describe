@@ -77,8 +77,7 @@ namespace :works do
       work = Work.new(resource: resource)
       work.group = Group.where(code: hash["group"]["code"]).first
       work.created_by_user_id = approver.id
-      work.state = "draft"
-      work.save
+      work.draft!(approver)
       puts "\t#{file_name}"
     end
   end
