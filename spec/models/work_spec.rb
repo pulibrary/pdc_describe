@@ -236,7 +236,7 @@ RSpec.describe Work, type: :model do
   context "ARK update" do
     before { allow(Ark).to receive(:update) }
     let(:ezid) { "ark:/99999/dsp01qb98mj541" }
-    let(:s3_file) { instance_double(S3File) }
+    let(:s3_file) { instance_double(S3File, filename: "test.txt") }
     let(:s3_service_data) { [s3_file] }
     let(:work) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
 
@@ -247,7 +247,6 @@ RSpec.describe Work, type: :model do
     end
 
     before do
-      allow(s3_file).to receive(:filename).and_return("foo/test_key")
       allow(s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
     end
 
@@ -558,7 +557,6 @@ RSpec.describe Work, type: :model do
     # Approved Works require uploaded files
     let(:s3_file) { instance_double(S3File) }
     let(:s3_service_data) { [s3_file] }
-    # let(:s3_service) { stub_s3(data: s3_service_data) }
 
     let(:approved_work) do
       allow(s3_file).to receive(:filename).and_return("test.txt")
@@ -580,9 +578,12 @@ RSpec.describe Work, type: :model do
       let(:data_cite_connection) { double }
       let!(:datacite_user) { Rails.configuration.datacite.user }
       # Approved Works require uploaded files
+      let(:s3_file) { instance_double(S3File) }
       let(:client_s3_files) { [s3_file] }
 
       let(:approved_work) do
+        allow(s3_file).to receive(:filename).and_return("test.txt")
+
         allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
         allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
         allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
@@ -596,10 +597,6 @@ RSpec.describe Work, type: :model do
       end
 
       before do
-        # allow(S3QueryService).to receive(:new).and_return(s3_query_service)
-        # allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
-        # allow(s3_query_service).to receive(:client_s3_files).and_return(client_s3_files)
-
         Rails.configuration.datacite.user = "test_user"
 
         allow(data_cite_failure).to receive(:reason_phrase).and_return("test status")
