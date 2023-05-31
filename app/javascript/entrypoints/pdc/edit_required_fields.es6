@@ -1,9 +1,13 @@
 /* eslint class-methods-use-this: ["error", {
-  "exceptMethods": ["hasCreators", "findEmptyCreator"] }] */
+  "exceptMethods": ["hasCreators"] }] */
 
 import TableRow from './table_row.es6';
 
 export default class EditRequiredFields {
+  constructor() {
+    this.required_tab = $('#v-pills-required-tab');
+  }
+
   attach_validations() {
     // Client side validations before allowing user to create the dataset.
     $('#btn-create-new').on('click', this.validate_required.bind(this));
@@ -20,12 +24,14 @@ export default class EditRequiredFields {
     $('#creators-required-message').addClass('hidden');
 
     if (!this.hasCreators()) {
-      $(this.findEmptyCreator()).focus();
+      this.openRequired();
+      $('.creators-table-row input').focus();
       $('#creators-required-message').removeClass('hidden');
       status = false;
     }
 
     if (title.trim() === '') {
+      this.openRequired();
       $('#title_main').focus();
       $('#title-required-message').removeClass('hidden');
       status = false;
@@ -40,7 +46,10 @@ export default class EditRequiredFields {
     $('#description-required-message').addClass('hidden');
 
     if (description.trim() === '') {
-      if (status) $('#description').focus();
+      if (status) {
+        this.openRequired();
+        $('#description').focus();
+      }
       $('#description-required-message').removeClass('hidden');
       status = false;
     }
@@ -59,15 +68,9 @@ export default class EditRequiredFields {
     return false;
   }
 
-  // Returns the ID of the first row that has an empty creator (if any)
-  findEmptyCreator() {
-    let i;
-    const rows = $('.creators-table-row');
-    for (i = 0; i < rows.length; i += 1) {
-      if ((new TableRow(rows[i])).is_empty()) {
-        return rows[i];
-      }
+  openRequired() {
+    if (this.required_tab.length > 0 && this.required_tab[0].className !== 'nav-link active') {
+      this.required_tab.click();
     }
-    return null;
   }
 }

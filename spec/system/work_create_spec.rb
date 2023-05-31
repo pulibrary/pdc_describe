@@ -69,6 +69,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Create New"
       work = Work.last
       expect(work.resource.related_objects.count).to eq(0)
+      click_on "Additional Metadata"
+      expect(page).to have_content("Additional Individual Contributors")
       click_on "Save Work"
       expect(page).to have_content("Must provide a description")
       fill_in "description", with: description
