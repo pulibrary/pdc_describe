@@ -557,19 +557,11 @@ RSpec.describe Work, type: :model do
     # Approved Works require uploaded files
     let(:s3_file) { instance_double(S3File) }
     let(:s3_service_data) { [s3_file] }
+    let(:doi) { "10.34770/123-abc" }
+    let(:approved_work) { FactoryBot.create :awaiting_approval_work, doi: doi }
 
-    let(:approved_work) do
+    before do
       allow(s3_file).to receive(:filename).and_return("test.txt")
-      work = FactoryBot.create :awaiting_approval_work, doi: "10.34770/123-abc"
-      stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
-
-      allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
-      allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
-      allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
-      allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
-
-      work.approve!(curator_user)
-      work
     end
 
     context "when the curator user has been set" do
@@ -577,24 +569,10 @@ RSpec.describe Work, type: :model do
       let(:data_cite_result) { double }
       let(:data_cite_connection) { double }
       let!(:datacite_user) { Rails.configuration.datacite.user }
+
       # Approved Works require uploaded files
       let(:s3_file) { instance_double(S3File) }
       let(:client_s3_files) { [s3_file] }
-
-      let(:approved_work) do
-        allow(s3_file).to receive(:filename).and_return("test.txt")
-
-        allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
-        allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
-        allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
-        allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
-
-        work = FactoryBot.create :awaiting_approval_work
-        work.update_curator(curator_user.id, user)
-
-        work.approve!(curator_user)
-        work
-      end
 
       before do
         Rails.configuration.datacite.user = "test_user"
@@ -607,53 +585,79 @@ RSpec.describe Work, type: :model do
         allow(data_cite_connection).to receive(:update).and_return(data_cite_result)
         allow(Datacite::Client).to receive(:new).and_return(data_cite_connection)
 
-        stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
+        stub_request(:put, "https://api.datacite.org/dois/#{doi}")
+        #stub_datacite_doi
       end
 
       after do
         Rails.configuration.datacite.user = datacite_user
       end
 
-      it "curator is still set" do
-        approved_work
-        approved_work.reload
+      context "with an assigned DOI" do
+        before do
+          stub_datacite_doi
+        end
 
-        expect(approved_work.curator).to eq(curator_user)
+        context "with a work which has already been approved" do
+          before do
+            #allow(s3_file).to receive(:filename).and_return("test.txt")
+
+            allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
+            allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
+            allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+            allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
+
+            allowed_work.update_curator(curator_user.id, user)
+            allowed_work.approve!(curator_user)
+          end
+
+          it "ensures that the curator is still set" do
+            approved_work.reload
+
+            expect(approved_work.curator).to eq(curator_user)
+          end
+
+          it "is approved" do
+            #stub_datacite_doi
+
+            expect(approved_work.reload.state).to eq("approved")
+          end
+
+          it "Notifies Curators and Depositor" do
+            #stub_datacite_doi
+
+            expect { approved_work }
+              .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
+              .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
+              .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
+            expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Approved")
+            user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
+            expect(user_notification).to include("@#{curator_user.uid}")
+            expect(user_notification).to include("@#{approved_work.created_by_user.uid}")
+            expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(approved_work))
+          end
+
+          it "publishes the doi" do
+            expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(0)
+            expect(a_request(:put, "https://api.datacite.org/dois/#{doi}")).to have_been_made
+          end
+        end
       end
-    end
-
-    it "is approved" do
-      stub_datacite_doi
-      expect(approved_work.reload.state).to eq("approved")
-    end
-
-    it "Notifies Curators and Depositor" do
-      stub_datacite_doi
-      expect { approved_work }
-        .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
-        .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
-        .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
-      expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Approved")
-      user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
-      expect(user_notification).to include("@#{curator_user.uid}")
-      expect(user_notification).to include("@#{approved_work.created_by_user.uid}")
-      expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(approved_work))
-    end
-
-    it "publishes the doi" do
-      expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(0)
-      expect(a_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")).to have_been_made
     end
 
     context "after the DOI has been published" do
+      let(:approved_work_metadata) do
+        PDCMetadata::Resource.new_from_jsonb(approved_work.metadata)
+      end
+      let(:approved_work_metadata_xml) do
+        approved_work_metadata.to_xml
+      end
       let(:payload_xml) do
-        r = PDCMetadata::Resource.new_from_jsonb(approved_work.metadata)
-        unencoded = r.to_xml
-        Base64.encode64(unencoded)
+        Base64.encode64(approved_work_metadata_xml)
       end
 
       before do
-        stub_request(:put, "https://api.datacite.org/dois/#{approved_work.doi}")
+        #stub_request(:put, "https://api.datacite.org/dois/#{approved_work.doi}")
         approved_work
       end
 
@@ -675,12 +679,6 @@ RSpec.describe Work, type: :model do
           )
         ).to have_been_made
       end
-    end
-
-    it "notes a issue when an error occurs" do
-      stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new({ status: "bad", reason_phrase: "a problem" }))))
-      expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(1)
-    end
 
     it "transitions from approved to withdrawn" do
       stub_datacite_doi
@@ -701,6 +699,17 @@ RSpec.describe Work, type: :model do
     it "can not transition from approved to draft" do
       stub_datacite_doi
       expect { approved_work.draft!(user) }.to raise_error AASM::InvalidTransition
+    end
+    end
+
+    context "when the DOI returns an error" do
+      before do
+        stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new({ status: "bad", reason_phrase: "a problem" }))))
+      end
+
+      it "notes a issue when an error occurs" do
+        expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(1)
+      end
     end
   end
 
