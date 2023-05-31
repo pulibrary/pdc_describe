@@ -201,11 +201,12 @@ RSpec.describe "Creating and updating works", type: :system do
       sign_in user
       visit edit_work_path(draft_work)
       click_on "Additional Metadata"
-      fill_in "contributor_given_name_1", with: "Robert"
-      fill_in "contributor_family_name_1", with: "Smith"
+      expect(page).to have_content("Additional Individual Contributors")
+      find("tr:last-child input[name='contributors[][given_name]']").set "Robert"
+      find("tr:last-child input[name='contributors[][family_name]']").set "Smith"
       click_on "Add Another Individual Contributor"
-      fill_in "contributor_given_name_2", with: "Simon"
-      fill_in "contributor_family_name_2", with: "Gallup"
+      find("tr:last-child input[name='contributors[][given_name]']").set "Simon"
+      find("tr:last-child input[name='contributors[][family_name]']").set "Gallup"
       contributor_text = page.find("#contributors-table").find_all("tr").map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
       expect(contributor_text).to eq("Robert Smith  Simon Gallup")
 

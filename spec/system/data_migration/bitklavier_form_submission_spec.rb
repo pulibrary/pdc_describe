@@ -27,21 +27,21 @@ RSpec.describe "Form submission for migrating bitklavier", type: :system, mock_e
       find("tr:last-child input[name='creators[][given_name]']").set "Daniel"
       find("tr:last-child input[name='creators[][family_name]']").set "Trueman"
       click_on "Additional Metadata"
-      fill_in "contributor_given_name_1", with: "Matthew"
-      fill_in "contributor_family_name_1", with: "Wang"
-      find("#contributor_role_1").find(:xpath, "option[2]").select_option
+      find("tr:last-child input[name='contributors[][given_name]']").set "Matthew"
+      find("tr:last-child input[name='contributors[][family_name]']").set "Wang"
+      find("tr:last-child select[name='contributors[][role]']").find(:option, "Contact Person").select_option
       click_on "Add Another Individual Contributor"
-      fill_in "contributor_given_name_2", with: "Andrés"
-      fill_in "contributor_family_name_2", with: "Villalta"
-      find("#contributor_role_2").find(:xpath, "option[2]").select_option
+      find("tr:last-child input[name='contributors[][given_name]']").set "Andrés"
+      find("tr:last-child input[name='contributors[][family_name]']").set "Villalta"
+      find("tr:last-child select[name='contributors[][role]']").find(:option, "Contact Person").select_option
       click_on "Add Another Individual Contributor"
-      fill_in "contributor_given_name_3", with: "Katie"
-      fill_in "contributor_family_name_3", with: "Chou"
-      find("#contributor_role_3").find(:xpath, "option[2]").select_option
+      find("tr:last-child input[name='contributors[][given_name]']").set "Katie"
+      find("tr:last-child input[name='contributors[][family_name]']").set "Chou"
+      find("tr:last-child select[name='contributors[][role]']").find(:option, "Contact Person").select_option
       click_on "Add Another Individual Contributor"
-      fill_in "contributor_given_name_4", with: "Christien"
-      fill_in "contributor_family_name_4", with: "Ayres"
-      find("#contributor_role_4").find(:xpath, "option[2]").select_option
+      find("tr:last-child input[name='contributors[][given_name]']").set "Christien"
+      find("tr:last-child input[name='contributors[][family_name]']").set "Ayres"
+      find("tr:last-child select[name='contributors[][role]']").find(:option, "Contact Person").select_option
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2021

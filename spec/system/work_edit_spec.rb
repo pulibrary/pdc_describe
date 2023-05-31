@@ -200,9 +200,9 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       sign_in user
       visit edit_work_path(work)
       click_on "Additional Metadata"
-      fill_in "contributor_orcid_1", with: "0000-0001-5443-5964"
-      expect(page.find("#contributor_given_name_1").value).to eq "Melody"
-      expect(page.find("#contributor_family_name_1").value).to eq "Loya"
+      fill_in "contributors[][orcid]", with: "0000-0001-5443-5964"
+      expect(page.find("tr:last-child input[name='contributors[][given_name]']").value).to eq "Melody"
+      expect(page.find("tr:last-child input[name='contributors[][family_name]']").value).to eq "Loya"
     end
   end
 

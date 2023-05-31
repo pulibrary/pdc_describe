@@ -1,24 +1,19 @@
 /* eslint class-methods-use-this: ["error", { "exceptMethods": ["isOrcidFormat"] }] */
 
 export default class WorkOrcid {
-  constructor(orcidClass, givenNamePrefix, familyNamePrefix) {
+  constructor(orcidClass, givenNameKey, familyNameKey) {
     this.orcidClass = orcidClass;
-    this.givenNamePrefix = givenNamePrefix;
-    this.familyNamePrefix = familyNamePrefix;
+    this.givenNameKey = givenNameKey;
+    this.familyNameKey = familyNameKey;
   }
 
   attach_validation() {
     // Using $(document).on here so that the newly added rows will also pick up the event
     $(document).on('input', this.orcidClass, (el) => {
       const orcid = $(el.target).val().trim();
-      if (el.target.attributes['data-num'] == null) {
-        const givenName = $(el.target).closest('tr').find("input[name='creators[][given_name]']");
-        const familyName = $(el.target).closest('tr').find("input[name='creators[][family_name]']");
-        this.fetchOrcid(orcid, givenName, familyName);
-      } else {
-        const num = el.target.attributes['data-num'].value;
-        this.fetchOrcid(orcid, `#${this.givenNamePrefix}${num}`, `#${this.familyNamePrefix}${num}`);
-      }
+      const givenName = $(el.target).closest('tr').find(`input[name='${this.givenNameKey}']`);
+      const familyName = $(el.target).closest('tr').find(`input[name='${this.familyNameKey}']`);
+      this.fetchOrcid(orcid, givenName, familyName);
     });
   }
 

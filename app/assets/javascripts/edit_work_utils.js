@@ -24,56 +24,12 @@ $(() => {
     return counter;
   }
 
-  function addCreatorHtml(num, orcid, givenName, familyName, sequence) {
-    const rowId = `creator_row_${num}`;
-    const orcidId = `orcid_${num}`;
-    const givenNameId = `given_name_${num}`;
-    const familyNameId = `family_name_${num}`;
-    const sequenceId = `sequence_${num}`;
-    const rowHtml = `<tr id="${rowId}" class="creators-table-row">
-      <td>
-        <input class="orcid-entry-creator" type="text" id="${orcidId}" name="${orcidId}" value="${orcid}" data-num="${num}" placeholder="0000-0000-0000-0000" />
-      </td>
-      <td>
-        <input type="text" id="${givenNameId}" name="${givenNameId}" value="${givenName}" />
-      </td>
-      <td class="creators-table-row-family-name">
-        <input type="text" id="${familyNameId}" name="${familyNameId}" value="${familyName}" />
-      </td>
-      <td>
-        <input class="sequence hidden" type="text" id="${sequenceId}" name="${sequenceId}" value="${sequence}" />
-      </td>
-      <td>
-        <i class="bi bi-arrow-down-up" style="color: gray;" title="Click and drag to reorder"></i>
-      </td>
-      <td>
-        <span>
-          <a class="delete-creator" data-creator-num="${num}" href="#" title="Remove this creator">
-            <i class="bi bi-trash delete_icon" data-creator-num="${num}"></i>
-          </a>
-        </span>
-      </td>
-    </tr>`;
-    $('#creators-table').append(rowHtml);
-    $(`#${orcidId}`).focus();
-  }
-
   // Creates an HTML select from a string array (keys and display values are identical)
   function makeSelectHtml(selectId, currentValue, allValues, blocklist = []) {
     const options = allValues.filter(
       (value) => !blocklist.includes(value),
     ).map(
       (value) => `<option value="${value}" ${currentValue === value ? 'selected' : ''}>${value}</option>`,
-    );
-    return `<select id="${selectId}" name="${selectId}"><option value="" ${currentValue === '' ? 'selected' : ''}></option>${options}</select>`;
-  }
-
-  // Creates an HTML select from a key/value array (keys and display values can be different)
-  function makeSelectHtmlKeyValue(selectId, currentValue, allValues, blocklist = []) {
-    const options = allValues.filter(
-      (value) => !blocklist.includes(value.key),
-    ).map(
-      (value) => `<option value="${value.key}" ${currentValue === value.key ? 'selected' : ''}>${value.value}</option>`,
     );
     return `<select id="${selectId}" name="${selectId}"><option value="" ${currentValue === '' ? 'selected' : ''}></option>${options}</select>`;
   }
@@ -112,48 +68,6 @@ $(() => {
   }
 
   // ************************************************ //
-
-  function addContributorHtml(num, orcid, givenName, familyName, role, sequence) {
-    const rowId = `contributor_row_${num}`;
-    const orcidId = `contributor_orcid_${num}`;
-    const roleId = `contributor_role_${num}`;
-    const givenNameId = `contributor_given_name_${num}`;
-    const familyNameId = `contributor_family_name_${num}`;
-    const sequenceId = `contributor_sequence_${num}`;
-    const notAllowed = ['DISTRIBUTOR', 'FUNDER', 'HOSTING_INSTITUTION',
-      'REGISTRATION_AGENCY', 'REGISTRATION_AUTHORITY', 'RESEARCH GROUP'];
-    const roleHtml = makeSelectHtmlKeyValue(roleId, role, pdc.dataciteContributorType, notAllowed);
-
-    const rowHtml = `<tr id="${rowId}" class="contributors-table-row">
-      <td>
-        <input class="orcid-entry-collaborator" type="text" id="${orcidId}" name="${orcidId}" value="${orcid}" data-num="${num}" placeholder="0000-0000-0000-0000" />
-      </td>
-      <td>
-        <input type="text" id="${givenNameId}" name="${givenNameId}" value="${givenName}" />
-      </td>
-      <td class="contributors-table-row-family-name">
-        <input type="text" id="${familyNameId}" name="${familyNameId}" value="${familyName}" />
-      </td>
-      <td>
-        ${roleHtml}
-      </td>
-      <td>
-        <input class="sequence hidden" type="text" id="${sequenceId}" name="${sequenceId}" value="${sequence}" />
-      </td>
-      <td>
-        <i class="bi bi-arrow-down-up" style="color: gray;" title="Click and drag to reorder"></i>
-      </td>
-      <td>
-        <span>
-          <a class="delete-contributor" data-contributor-num="${num}" href="#" title="Remove this contributor">
-            <i class="bi bi-trash delete_icon" data-contributor-num="${num}"></i>
-          </a>
-        </span>
-      </td>
-    </tr>`;
-    $('#contributors-table').append(rowHtml);
-    $(`#${orcidId}`).focus();
-  }
 
   function deletePerson(rowToDelete, type) {
     const rowExists = $(rowToDelete).length > 0;
@@ -221,27 +135,6 @@ $(() => {
     $('#new-titles-anchor').append(html);
   }
 
-  function peopleSorted(selector) {
-    let i; let el; let
-      creator;
-    const creatorSpans = $(selector);
-    const creators = [];
-    for (i = 0; i < creatorSpans.length; i += 1) {
-      el = $(creatorSpans[i]);
-      creator = {
-        num: el.data('num'),
-        orcid: el.data('orcid'),
-        givenName: el.data('given-name'),
-        familyName: el.data('family-name'),
-        sequence: el.data('sequence'),
-        role: el.data('role'),
-      };
-      creators.push(creator);
-    }
-    creators.sort((a, b) => a.sequence - b.sequence);
-    return creators;
-  }
-
   // This is generic and can be used to remove rows from any table.
   $(document).on('click', '.btn-del-row', (event) => {
     const $target = $(event.target);
@@ -256,21 +149,9 @@ $(() => {
     return false;
   });
 
-  $('#btn-add-creator').on('click', () => {
-    const num = incrementCounter('#creator_count');
-    addCreatorHtml(num, '', '', '');
-    return false;
-  });
-
   $('#btn-add-related-object').on('click', () => {
     const num = incrementCounter('#related_object_count');
     addRelatedObjectHtml(num, '', '', '');
-    return false;
-  });
-
-  $('#btn-add-contributor').on('click', () => {
-    const num = incrementCounter('#contributor_count');
-    addContributorHtml(num, '', '', '', 'Other');
     return false;
   });
 
@@ -364,26 +245,6 @@ $(() => {
         num, relatedIdentifier, relatedIdentifierType, relationType,
       } = relatedObject.dataset;
       addRelatedObjectHtml(num, relatedIdentifier, relatedIdentifierType, relationType);
-    }
-  }
-
-  if ($('.contributor-data').length === 0) {
-    // Add an empty contributor for the use to fill it out
-    const num = incrementCounter('#contributor_count');
-    addContributorHtml(num, '', '', '', 'Other', 1);
-  } else {
-    // Adds the existing contributors making sure we honor the ordering.
-    const contributors = peopleSorted('.contributor-data');
-    for (let i = 0; i < contributors.length; i += 1) {
-      const contributor = contributors[i];
-      addContributorHtml(
-        contributor.num,
-        contributor.orcid,
-        contributor.givenName,
-        contributor.familyName,
-        contributor.role,
-        contributor.sequence,
-      );
     }
   }
 

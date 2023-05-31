@@ -5,13 +5,7 @@
     Enter additional individual contributors here.
   </details>
 
-  <!--
-    Render the list of creators a hidden SPANs that are then added below
-    the HTML TABLE via JavaScript. This is so that we have a single way
-    of rendering creators already on the record *and* creators added
-    on the fly.
-  -->
-  <table>
+  <table id="contributors-table">
     <thead>
       <tr class="header-row">
         <th>ORCID</th>
@@ -22,24 +16,45 @@
         <th>&nbsp;</th> <!-- delete icon-->
       </tr>
     </thead>
-    <tbody id="contributors-table" class="sortable"></tbody>
+    <tbody class="sortable">
+      <% contributors = if @work.nil? || @work.resource.individual_contributors.empty? 
+                      [nil]
+                    else
+                      @work.resource.individual_contributors 
+                    end %>
+      <% skipped_roles = ['DISTRIBUTOR', 'FUNDER', 'HOSTING_INSTITUTION', 'REGISTRATION_AGENCY', 'REGISTRATION_AUTHORITY', 'RESEARCH GROUP'] %>
+      <% contributors.each do |contributor| %>
+        <tr class="contributors-table-row">
+          <td>
+            <input name="contributors[][orcid]" value="<%= contributor&.orcid %>" class="orcid-entry-contributor"  placeholder="0000-0000-0000-0000" />
+          </td>
+          <td>
+            <input name="contributors[][given_name]" value="<%= contributor&.given_name %>" class="given-entry-contributor" />
+          </td>
+          <td class="contributors-table-row-family-name">
+            <input name="contributors[][family_name]" value="<%= contributor&.family_name %>" class="family-entry-contributor" />
+          </td>
+          <td>
+            <select name="contributors[][role]">
+              <option value="" <%= contributor&.type == '' ? 'selected' : ''%> ></option>
+              <% Datacite::Mapping::ContributorType.to_a.map do |role| %>
+                <% next if skipped_roles.include?(role.key.to_s) %>
+                <option value="<%= role.key %>" <%= contributor&.type == role.key ? 'selected' : ''%>><%= role.value.titleize %></option>
+              <% end %>
+            </select>
+          </td>
+          <%= render(partial: 'works/row_controls') %>
+        </tr>
+      <% end %>
+    </tbody>
     <tfoot>
       <tr>
         <td colspan="3">
-          <%= link_to "Add Another Individual Contributor", "#", id: "btn-add-contributor", class: "btn btn-secondary" %>
+          <button class="btn btn-secondary btn-add-row">
+            Add Another Individual Contributor
+          </button>
         </td>
       </tr>
     </tfoot>
   </table>
-
-  <% @work.resource.individual_contributors.each_with_index do |contributor, i| %>
-    <span class="hidden contributor-data"
-      data-num="<%= i + 1 %>"
-      data-orcid="<%= contributor.orcid %>"
-      data-given-name="<%= contributor.given_name %>"
-      data-family-name="<%= contributor.family_name %>"
-      data-role="<%= contributor.type %>"
-      data-sequence="<%= contributor.sequence || 0 %>">
-    </span>
-  <% end %>
 </div>
