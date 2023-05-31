@@ -102,13 +102,9 @@ class FormToResourceService
       # Individual Contributors:
 
       def add_individual_contributors(params, resource)
-        resource.individual_contributors = (1..params["contributor_count"].to_i).filter_map do |i|
-          given_name = params["contributor_given_name_#{i}"]
-          family_name = params["contributor_family_name_#{i}"]
-          orcid = params["contributor_orcid_#{i}"]
-          type = params["contributor_role_#{i}"]
-          sequence = params["contributor_sequence_#{i}"]
-          new_individual_contributor(given_name, family_name, orcid, type, sequence)
+        return if params[:contributors].blank?
+        resource.individual_contributors = params[:contributors].each_with_index.filter_map do |contributor, idx|
+          new_individual_contributor(contributor[:given_name], contributor[:family_name], contributor[:orcid], contributor[:role], idx)
         end
       end
 

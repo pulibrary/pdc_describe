@@ -19,8 +19,8 @@ export default class PdcUiLoader {
     (new CopytoClipboard()).attach_copy();
     (new EditRequiredFields()).attach_validations();
     (new ReadmeFileUpload('patch_readme_file', 'readme-upload')).attach_validation();
-    (new WorkOrcid('.orcid-entry-creator', 'given_name_', 'family_name_')).attach_validation();
-    (new WorkOrcid('.orcid-entry-collaborator', 'contributor_given_name_', 'contributor_family_name_')).attach_validation();
+    (new WorkOrcid('.orcid-entry-creator', 'creators[][given_name]', 'creators[][family_name]')).attach_validation();
+    (new WorkOrcid('.orcid-entry-contributor', 'contributors[][given_name]', 'contributors[][family_name]')).attach_validation();
     (new WorkRoR(pdc.ror_url)).attach_query();
     (new EditTableActions()).attach_actions();
   }
