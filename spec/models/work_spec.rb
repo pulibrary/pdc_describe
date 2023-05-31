@@ -586,7 +586,7 @@ RSpec.describe Work, type: :model do
         allow(Datacite::Client).to receive(:new).and_return(data_cite_connection)
 
         stub_request(:put, "https://api.datacite.org/dois/#{doi}")
-        #stub_datacite_doi
+        # stub_datacite_doi
       end
 
       after do
@@ -600,7 +600,7 @@ RSpec.describe Work, type: :model do
 
         context "with a work which has already been approved" do
           before do
-            #allow(s3_file).to receive(:filename).and_return("test.txt")
+            # allow(s3_file).to receive(:filename).and_return("test.txt")
 
             allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
             allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
@@ -618,13 +618,13 @@ RSpec.describe Work, type: :model do
           end
 
           it "is approved" do
-            #stub_datacite_doi
+            # stub_datacite_doi
 
             expect(approved_work.reload.state).to eq("approved")
           end
 
           it "Notifies Curators and Depositor" do
-            #stub_datacite_doi
+            # stub_datacite_doi
 
             expect { approved_work }
               .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
@@ -657,7 +657,7 @@ RSpec.describe Work, type: :model do
       end
 
       before do
-        #stub_request(:put, "https://api.datacite.org/dois/#{approved_work.doi}")
+        # stub_request(:put, "https://api.datacite.org/dois/#{approved_work.doi}")
         approved_work
       end
 
@@ -680,26 +680,26 @@ RSpec.describe Work, type: :model do
         ).to have_been_made
       end
 
-    it "transitions from approved to withdrawn" do
-      stub_datacite_doi
-      approved_work.withdraw!(user)
-      expect(approved_work.reload.state).to eq("withdrawn")
-    end
+      it "transitions from approved to withdrawn" do
+        stub_datacite_doi
+        approved_work.withdraw!(user)
+        expect(approved_work.reload.state).to eq("withdrawn")
+      end
 
-    it "can not transition from approved to tombsotne" do
-      stub_datacite_doi
-      expect { approved_work.remove!(user) }.to raise_error AASM::InvalidTransition
-    end
+      it "can not transition from approved to tombsotne" do
+        stub_datacite_doi
+        expect { approved_work.remove!(user) }.to raise_error AASM::InvalidTransition
+      end
 
-    it "can not transition from approved to awaiting_approval" do
-      stub_datacite_doi
-      expect { approved_work.complete_submission!(user) }.to raise_error AASM::InvalidTransition
-    end
+      it "can not transition from approved to awaiting_approval" do
+        stub_datacite_doi
+        expect { approved_work.complete_submission!(user) }.to raise_error AASM::InvalidTransition
+      end
 
-    it "can not transition from approved to draft" do
-      stub_datacite_doi
-      expect { approved_work.draft!(user) }.to raise_error AASM::InvalidTransition
-    end
+      it "can not transition from approved to draft" do
+        stub_datacite_doi
+        expect { approved_work.draft!(user) }.to raise_error AASM::InvalidTransition
+      end
     end
 
     context "when the DOI returns an error" do
