@@ -54,9 +54,9 @@ Source data for Figure 2, Figure 4, Figure 5 and Figure 7 of the article Observa
       click_on "Additional Metadata"
 
       # Related Objects
-      fill_in "related_identifier_1", with: related_identifier
-      select related_identifier_type, from: "related_identifier_type_1"
-      select relation_type, from: "relation_type_1"
+      find("tr:last-child input[name='related_objects[][related_identifier]']").set related_identifier
+      find("tr:last-child select[name='related_objects[][related_identifier_type]']").find(:option, related_identifier_type).select_option
+      find("tr:last-child select[name='related_objects[][relation_type]']").find(:option, relation_type).select_option
 
       fill_in "keywords", with: keywords
 

@@ -44,7 +44,6 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       expect(page).to have_content("Must provide a title")
       expect(page).to have_content("Must provide at least one creator")
       fill_in "title_main", with: title
-      expect(find("#related_object_count", visible: false).value).to eq("1")
 
       find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
       find("tr:last-child input[name='creators[][family_name]']").set "Abrams"
@@ -69,15 +68,16 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Create New"
       work = Work.last
       expect(work.resource.related_objects.count).to eq(0)
+      click_on "Additional Metadata"
+      expect(page).to have_content("Additional Individual Contributors")
       click_on "Save Work"
       expect(page).to have_content("Must provide a description")
       fill_in "description", with: description
       select "GNU General Public License", from: "rights_identifier"
       click_on "Curator Controlled"
       fill_in "publication_year", with: issue_date
-      expect(find("#related_object_count", visible: false).value).to eq("1")
       click_on "Additional Metadata"
-      fill_in "related_identifier_1", with: "https://related.example.com"
+      find("tr:last-child input[name='related_objects[][related_identifier]']").set "https://related.example.com"
       click_on "Save Work"
       click_on "Back"
       expect(page).to have_content(description)
@@ -103,8 +103,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Complete"
       expect(page).to have_content("Related Identifier Type is missing or invalid for https://related.example.com, Relationship Type is missing or invalid for https://related.example.com")
       click_on "Additional Metadata"
-      select "DOI", from: "related_identifier_type_1"
-      select "Cites", from: "relation_type_1"
+      find("tr:last-child select[name='related_objects[][related_identifier_type]']").find(:option, "DOI").select_option
+      find("tr:last-child select[name='related_objects[][relation_type]']").find(:option, "Cites").select_option
       find("tr:last-child input[name='contributors[][given_name]']").set "Alan"
       find("tr:last-child input[name='contributors[][family_name]']").set "Turing"
       find("tr:last-child select[name='contributors[][role]']").find(:option, "Editor").select_option

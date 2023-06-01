@@ -73,11 +73,9 @@ class FormToResourceService
       # Related Objects:
 
       def add_related_objects(params, resource)
-        resource.related_objects = (1..params["related_object_count"].to_i).filter_map do |i|
-          related_identifier = params["related_identifier_#{i}"]
-          related_identifier_type = params["related_identifier_type_#{i}"]
-          relation_type = params["relation_type_#{i}"]
-          new_related_object(related_identifier, related_identifier_type, relation_type)
+        return if params[:related_objects].blank?
+        resource.related_objects = params[:related_objects].each.filter_map do |related_object|
+          new_related_object(related_object[:related_identifier], related_object[:related_identifier_type], related_object[:relation_type])
         end
       end
 
