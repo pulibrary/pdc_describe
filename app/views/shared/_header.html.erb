@@ -2,14 +2,12 @@
   <div class="p-5 text-left bg-light">
     <%= link_to "PDC Describe", root_path, class: 'navbar-logo' %>
     <div class="menu">
-      <nav id="admin-actions" class="col-sm" role="menu">
-        <% if current_user && (current_user.super_admin? || current_user.moderator?) %>
+      <% if current_user && (current_user.super_admin? || current_user.moderator?) %>
         <%= render 'shared/admin_actions' %>
-        <% end %>
-      </nav>
+      <% end %>
       <nav id="menu" class="col-sm" role="menu">
-      <%= link_to "About","#{root_url}about", :class => "btn btn-primary", :role => "menuitem" %>
-      <%= link_to "How to Submit", "#{root_url}how-to-submit", :class => "btn btn-primary", :role => "menuitem" %>
+        <%= link_to "About","#{root_url}about", :class => "btn btn-primary", :role => "menuitem" %>
+        <%= link_to "How to Submit", "#{root_url}how-to-submit", :class => "btn btn-primary", :role => "menuitem" %>
       </nav>
       <nav id="user-actions" class="col-sm">
         <% if current_user %>

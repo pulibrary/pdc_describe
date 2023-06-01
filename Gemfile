@@ -100,6 +100,7 @@ group :test do
   # Used for detecting what a controller rendered
   gem "rails-controller-testing"
   gem "sinatra"
+  gem 'rspec-html-matchers'
   # Easy installation and use of web drivers to run system tests with browsers
   gem "webdrivers"
 end
