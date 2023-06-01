@@ -10,7 +10,7 @@ module PDCMetadata
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
       :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :related_objects,
-      :funders, :organizational_contributors, :domains, :migrated
+      :funders, :organizational_contributors, :domains, :migrated, :communities, :subcommunities
 
     # rubocop:disable Metrics/MethodLength
     def initialize(doi: nil, title: nil, resource_type: nil, resource_type_general: nil, creators: [], description: nil)
@@ -33,6 +33,8 @@ module PDCMetadata
       @organizational_contributors = []
       @funders = []
       @domains = []
+      @communities = []
+      @subcommunities = []
       @migrated = false
     end
     # rubocop:enable Metrics/MethodLength
@@ -136,6 +138,8 @@ module PDCMetadata
 
         def set_additional_metadata(resource, hash)
           resource.keywords = hash["keywords"] || []
+          resource.communities = hash["communities"] || []
+          resource.subcommunities = hash["subcommunities"] || []
         end
 
         def set_titles(resource, hash)

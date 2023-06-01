@@ -16,6 +16,8 @@ class FormToResourceService
       resource.rights = PDCMetadata::Rights.find(params["rights_identifier"])
       resource.keywords = (params["keywords"] || "").split(",").map(&:strip)
       resource.domains = params["domains"] || []
+      resource.communities = params["communities"] || []
+      resource.subcommunities = params["subcommunities"] || []
 
       add_curator_controlled(params, resource)
       add_titles(params, resource)

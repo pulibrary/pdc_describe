@@ -1,0 +1,46 @@
+<div class="section-title">
+  <% if @work.group.communities.count == 1 %>
+    <!-- Special case for PPPL that has a single community -->
+    <details>
+      <summary>Community</summary>
+      The community for this dataset.
+    </details>
+    <select id="communities" name="communities[]" class="form-select" >
+      <option selected><%= @work.group.communities.first %></option>
+    </select>
+  <% else %>
+    <details>
+      <summary>Communities</summary>
+      Select one or more communities for this dataset.
+    </details>
+    <select id="communities" name="communities[]" class="form-select" multiple >
+      <% @work.group.communities.each do |community| %>
+        <% if @work.resource.communities.include?(community) %>
+          <option selected><%= community %></option>
+        <% else %>
+          <option><%= community %></option>
+        <% end %>
+      <% end %>
+    </select>
+  <% end %>
+
+  <% if @work.group.subcommunities.count > 0 %>
+    <br/>
+    <!-- Display subcommunities only for those groups that have them. -->
+    <details>
+      <summary>Subcommunities</summary>
+      Select one or more subcommunities for this dataset.
+    </details>
+
+    <select id="subcommunities" name="subcommunities[]" class="form-select" multiple >
+      <% @work.group.subcommunities.each do |subcommunity| %>
+        <% if @work.resource.subcommunities.include?(subcommunity) %>
+          <option selected><%= subcommunity %></option>
+        <% else %>
+          <option><%= subcommunity %></option>
+        <% end %>
+      <% end %>
+    </select>
+  <% end %>
+</div>
+

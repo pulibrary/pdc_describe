@@ -153,4 +153,50 @@ class Group < ApplicationRecord
       errors.add(:delete_permission, "Unauthorized")
     end
   end
+
+  def communities
+    values = []
+    if code == "PPPL"
+      values << "Princeton Plasma Physics Laboratory"
+    else
+      values << "Princeton Neuroscience Institute"
+      values << "Department of Geosciences"
+      values << "Mechanical and Aerospace Engineering"
+      values << "Astrophysical Sciences"
+      values << "Civil and Environmental Engineering"
+      values << "Chemical and Biological Engineering"
+      values << "Digital Humanities"
+      values << "Music and Arts"
+      values << "Princeton School of Public and International Affairs"
+    end
+    values
+  end
+
+  def subcommunities
+    values = []
+    if code == "PPPL"
+      values << "Spherical Torus"
+      values << "Advanced Projects"
+      values << "ITER and Tokamaks"
+      values << "Theory"
+      values << "NSTX-U"
+      values << "NSTX"
+      values << "Plasma Science & Technology"
+      values << "Theory and Computation"
+      values << "Stellarators"
+      values << "PPPL Collaborations"
+      values << "MAST-U"
+      values << "Other Projects"
+      values << "System Studies"
+    end
+    values
+  end
+
+  def default_community
+    if code == "PPPL"
+      communities.first
+    else
+      nil
+    end
+  end
 end
