@@ -7,6 +7,7 @@ module PDCMetadata
     obj.key.to_s == value or obj.value.casecmp(value).zero?
   end
 
+  # rubocop:disable Metrics/ClassLength
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
       :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :related_objects,
@@ -200,4 +201,5 @@ module PDCMetadata
         end
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

@@ -172,6 +172,7 @@ class Group < ApplicationRecord
     values
   end
 
+  # rubocop:disable Metrics/MethodLength
   def subcommunities
     values = []
     if code == "PPPL"
@@ -191,12 +192,9 @@ class Group < ApplicationRecord
     end
     values
   end
+  # rubocop:enable Metrics/MethodLength
 
   def default_community
-    if code == "PPPL"
-      communities.first
-    else
-      nil
-    end
+    return communities.first if code == "PPPL"
   end
 end

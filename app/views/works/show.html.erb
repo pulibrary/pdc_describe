@@ -234,19 +234,15 @@
       <% if @work.resource.communities.count > 0 %>
         <dt>Communities</dt>
         <% @work.resource.communities.each do |community| %>
-        <dd>
-          <%= community %>
-        </dd>
+          <dd><%= community %></dd>
         <% end %>
 
         <% if @work.resource.subcommunities.count > 0 %>
-        <dt>Subcommunities</dt>
-        <% @work.resource.subcommunities.each do |subcommunity| %>
-        <dd>
-          <%= subcommunity %>
-        </dd>
+          <dt>Subcommunities</dt>
+          <% @work.resource.subcommunities.each do |subcommunity| %>
+            <dd><%= subcommunity %></dd>
+          <% end %>
         <% end %>
-      <% end %>
       <% end %>
 
       <% if @work.resource.funders.count > 0 %>
