@@ -24,49 +24,6 @@ $(() => {
     return counter;
   }
 
-  // Creates an HTML select from a string array (keys and display values are identical)
-  function makeSelectHtml(selectId, currentValue, allValues, blocklist = []) {
-    const options = allValues.filter(
-      (value) => !blocklist.includes(value),
-    ).map(
-      (value) => `<option value="${value}" ${currentValue === value ? 'selected' : ''}>${value}</option>`,
-    );
-    return `<select id="${selectId}" name="${selectId}"><option value="" ${currentValue === '' ? 'selected' : ''}></option>${options}</select>`;
-  }
-
-  // ************************************************ //
-  // Related Objects
-  // related_identifier:, related_identifier_type:, relation_type
-  function addRelatedObjectHtml(num, relatedIdentifier, relatedIdentifierType, relationType) {
-    const rowId = `related_object_row_${num}`;
-    const relatedIdentifierId = `related_identifier_${num}`;
-    const relatedIdentifierTypeId = `related_identifier_type_${num}`;
-    const relationTypeId = `relation_type_${num}`;
-    const relatedIdentifierTypeHtml = makeSelectHtml(
-      relatedIdentifierTypeId,
-      relatedIdentifierType,
-      pdc.datacite.RelatedIdentifierType,
-    );
-    const relationTypeHtml = makeSelectHtml(
-      relationTypeId,
-      relationType,
-      pdc.datacite.RelationType,
-    );
-
-    const rowHtml = `<tr id="${rowId}" class="related-objects-table-row">
-      <td>
-        <input type="text" id="${relatedIdentifierId}" name="${relatedIdentifierId}" value="${relatedIdentifier}" data-num="${num}"/>
-      </td>
-      <td>
-        ${relatedIdentifierTypeHtml}
-      </td>
-      <td>
-        ${relationTypeHtml}
-      </td>
-    </tr>`;
-    $('#related-objects-table').append(rowHtml);
-  }
-
   // ************************************************ //
 
   function addTitlePlaceholder() {
@@ -104,12 +61,6 @@ $(() => {
       // We use the row as a template, so we just blank it, if only one remains.
       $tr.find('input').val('');
     }
-    return false;
-  });
-
-  $('#btn-add-related-object').on('click', () => {
-    const num = incrementCounter('#related_object_count');
-    addRelatedObjectHtml(num, '', '', '');
     return false;
   });
 
@@ -166,22 +117,6 @@ $(() => {
     });
     return false;
   });
-
-  // Load any existing related objects into the edit form.
-  // If there are any related objects they should appear in hidden <span> tags.
-  if ($('.related-object-data').length === 0) {
-    // Add an empty related object for the user to fill it out
-    const num = incrementCounter('#related_object_count');
-    addRelatedObjectHtml(num, '', '', '');
-  } else {
-    // Add existing related objects for editing
-    for (const relatedObject of $('.related-object-data')) {
-      const {
-        num, relatedIdentifier, relatedIdentifierType, relationType,
-      } = relatedObject.dataset;
-      addRelatedObjectHtml(num, relatedIdentifier, relatedIdentifierType, relationType);
-    }
-  }
 
   // Drop the "http..."" portion of the URL if the user enters the full URL of a DataSpace ARK
   // http://arks.princeton.edu/ark:/88435/dsp01hx11xj13h => ark:/88435/dsp01hx11xj13h

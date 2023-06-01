@@ -20,10 +20,7 @@ describe FormToResourceService do
         ],
         resource_type: "Dataset",
         resource_type_general: "Audiovisual",
-        related_identifier_1: "",
-        related_identifier_type_1: "",
-        relation_type_1: "",
-        related_object_count: "1"
+        related_objects: [{ related_identifier: "", related_identifier_type: "", relation_type: "" }]
       }.with_indifferent_access
     end
     let(:current_user) { FactoryBot.create(:user) }

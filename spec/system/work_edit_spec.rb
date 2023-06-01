@@ -104,9 +104,13 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       sign_in user
       visit edit_work_path(work)
       click_on "Additional Metadata"
-      expect(page.find("#related_identifier_1").value).to eq "https://www.biorxiv.org/content/10.1101/545517v1"
-      expect(page.find("#related_identifier_type_1").value).to eq "arXiv"
-      expect(page.find("#relation_type_1").value).to have_content "IsCitedBy"
+
+      expect(page.find("tr:first-child input[name='related_objects[][related_identifier]']").value).to eq "https://www.biorxiv.org/content/10.1101/545517v1"
+      expect(page.find("tr:first-child select[name='related_objects[][related_identifier_type]']").value).to eq "arXiv"
+      expect(page.find("tr:first-child select[name='related_objects[][relation_type]']").value).to have_content "IsCitedBy"
+      expect(page.find("tr:last-child input[name='related_objects[][related_identifier]']").value).to eq "https://doi.org/10.7554/eLife.52482"
+      expect(page.find("tr:last-child select[name='related_objects[][related_identifier_type]']").value).to eq "DOI"
+      expect(page.find("tr:last-child select[name='related_objects[][relation_type]']").value).to have_content "IsCitedBy"
     end
   end
 
