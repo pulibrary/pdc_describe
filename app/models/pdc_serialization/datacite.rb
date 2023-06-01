@@ -123,7 +123,7 @@ module PDCSerialization
               given_name: creator.given_name,
               family_name: creator.family_name,
               identifier: name_identifier_from_identifier(creator.identifier),
-              affiliations: nil
+              affiliations: creator.affiliations&.map { |affiliation| ::Datacite::Mapping::Affiliation.new(**affiliation.datacite_attributes) }
             )
           end
         end
