@@ -70,7 +70,9 @@ describe ResourceCompareService do
       individual_contributors: [],
       organizational_contributors: [],
       creators: [],
-      domains: ["Humanities"]
+      domains: ["Humanities"],
+      communities: [],
+      subcommunities: []
     }
     expected_diff = {
       doi: [{ action: :changed, from: "10.34770/pe9w-x904", to: "" }],

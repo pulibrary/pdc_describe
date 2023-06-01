@@ -58,6 +58,8 @@ RSpec.describe Work, type: :model do
             "contributors" => [],
             "funders" => [],
             "domains" => [],
+            "communities" => [],
+            "subcommunities" => [],
             "migrated" => false
           },
           "files" => [],
@@ -894,6 +896,8 @@ RSpec.describe Work, type: :model do
           }
         ],
         "domains":[],
+        "communities":[],
+        "subcommunities":[],
         "migrated": false
       }'
     end
