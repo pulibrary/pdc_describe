@@ -77,13 +77,13 @@ RSpec.describe "Form submission for migrating cytoskeletal", type: :system, mock
       click_on "Additional Metadata"
 
       # Related Objects
-      fill_in "related_identifier_1", with: related_identifier
-      select related_identifier_type, from: "related_identifier_type_1"
-      select relation_type, from: "relation_type_1"
+      find("tr:last-child input[name='related_objects[][related_identifier]']").set related_identifier
+      find("tr:last-child select[name='related_objects[][related_identifier_type]']").find(:option, related_identifier_type).select_option
+      find("tr:last-child select[name='related_objects[][relation_type]']").find(:option, relation_type).select_option
       click_on "Add Another Related Object"
-      fill_in "related_identifier_2", with: "https://doi.org/10.7554/eLife.52482"
-      select "DOI", from: "related_identifier_type_2"
-      select relation_type, from: "relation_type_2"
+      find("tr:last-child input[name='related_objects[][related_identifier]']").set "https://doi.org/10.7554/eLife.52482"
+      find("tr:last-child select[name='related_objects[][related_identifier_type]']").find(:option, "DOI").select_option
+      find("tr:last-child select[name='related_objects[][relation_type]']").find(:option, relation_type).select_option
 
       # Select Curator Controlled Tab
       click_on "Curator Controlled"

@@ -118,9 +118,9 @@ RSpec.describe "Form submission for migrating Thomson Scattering", type: :system
       page.find(:xpath, "//table[@id='funding']//tr[9]//input[@name='funders[][award_number]']").set "DE-FG02-00ER54585"
 
       # Related Objects
-      fill_in "related_identifier_1", with: related_identifier
-      select related_identifier_type, from: "related_identifier_type_1"
-      select relation_type, from: "relation_type_1"
+      find("tr:last-child input[name='related_objects[][related_identifier]']").set related_identifier
+      find("tr:last-child select[name='related_objects[][related_identifier_type]']").find(:option, related_identifier_type).select_option
+      find("tr:last-child select[name='related_objects[][relation_type]']").find(:option, relation_type).select_option
 
       # Select Curator Controlled Tab
       click_on "Curator Controlled"
