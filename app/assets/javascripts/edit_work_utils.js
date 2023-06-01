@@ -69,48 +69,6 @@ $(() => {
 
   // ************************************************ //
 
-  function deletePerson(rowToDelete, type) {
-    const rowExists = $(rowToDelete).length > 0;
-    const rowData = $(`${rowToDelete} input:not(.hidden)`);
-    let i; let
-      token;
-    let rowText = '';
-    for (i = 0; i < rowData.length; i += 1) {
-      token = $(rowData[i]).val();
-      if (token.trim().length > 0) {
-        rowText += `${token} `;
-      }
-    }
-    const emptyRow = (rowText.trim().length === 0);
-    if (rowExists) {
-      if (emptyRow) {
-        // delete it without asking
-        $(rowToDelete).remove();
-      } else if (window.confirm(`Remove ${type} ${rowText}`)) {
-        $(rowToDelete).remove();
-      }
-    }
-  }
-
-  function deleteCreator(num) {
-    deletePerson(`#creator_row_${num}`, 'creator');
-  }
-
-  function deleteContributor(num) {
-    deletePerson(`#contributor_row_${num}`, 'contributor');
-  }
-
-  // Updates the creators sequence value to match the order
-  // in which they are displayed. This is needed if the user
-  // reordered the creators (via drag and drop).
-  function updateCreatorsSequence() {
-    let i;
-    const sequences = $('.creators-table-row > td > input.sequence');
-    for (i = 0; i < sequences.length; i += 1) {
-      sequences[i].value = i + 1;
-    }
-  }
-
   function addTitlePlaceholder() {
     const newTitleCount = incrementCounter('#new_title_count');
     const containerId = `new_title_container_${newTitleCount}`;
@@ -157,29 +115,6 @@ $(() => {
 
   $('#btn-add-title').on('click', (event) => {
     addTitlePlaceholder(event);
-    return false;
-  });
-
-  $('#btn-submit').on('click', () => {
-    updateCreatorsSequence();
-  });
-
-  // Delete button for creators.
-  //
-  // Notice the use of $(document).on("click", selector, ...) instead of the
-  // typical $(selector).on("click", ...). This syntax is required so that
-  // we can detect the click even on HTML elements _added on the fly_ which
-  // is the case when a user adds a new creator.
-  // Reference: https://stackoverflow.com/a/17086311/446681
-  $(document).on('click', '.delete-creator', (el) => {
-    const num = $(el.target).data('creator-num');
-    deleteCreator(num);
-    return false;
-  });
-
-  $(document).on('click', '.delete-contributor', (el) => {
-    const num = $(el.target).data('contributor-num');
-    deleteContributor(num);
     return false;
   });
 
@@ -259,16 +194,16 @@ $(() => {
     }
   });
 
-  // Allows the creators and contributors to be reordered via drag and drop.
+  // Allows the multi-fields to be reordered via drag and drop.
   // The `cancel` property "prevents sorting if you start on elements matching the selector"
   // https://api.jqueryui.com/sortable/#method-cancel
   //
   //  input           - prevents reordering on the textboxes (so they are still editable)
   //  select, option  - prevents reordering on the dropwdown (so they are still selectable)
-  //  .delete-creator - prevents reording on the delete icon
+  //  .btn-del-row    - prevents reordering on the delete icon
   //
   $('.sortable').sortable({
-    cancel: 'input, select, option, .delete-contributor, .delete-creator, .btn-del-row',
+    cancel: 'input, select, option, .btn-del-row',
   });
 
   // Give the initial focus to the title.
