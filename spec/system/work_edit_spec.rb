@@ -168,6 +168,35 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     end
   end
 
+  context "for PRDS works" do
+    let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+    let(:user) { work.created_by_user }
+
+    it "allows user to select a community (but not subcommunities)" do
+      sign_in user
+      visit edit_work_path(work)
+      click_on "Additional Metadata"
+      select "Department of Geosciences", from: "communities"
+      expect(page).to_not have_content("Subcommunities")
+      click_on "Save Work"
+      expect(page).to have_content("Department of Geosciences")
+    end
+  end
+
+  context "for PPPL works" do
+    let(:work) { FactoryBot.create(:tokamak_work_awaiting_approval) }
+    let(:user) { work.created_by_user }
+
+    it "allows user to select a subcommunity" do
+      sign_in user
+      visit edit_work_path(work)
+      click_on "Additional Metadata"
+      select "Spherical Torus", from: "subcommunities"
+      click_on "Save Work"
+      expect(page).to have_content("Spherical Torus")
+    end
+  end
+
   context "change log" do
     let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
     let(:user) { work.created_by_user }
