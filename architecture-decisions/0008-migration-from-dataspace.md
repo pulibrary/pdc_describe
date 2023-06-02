@@ -81,7 +81,10 @@ If a work already has a DOI, it is important that we NOT register a new one.
   To mark that this is a migrated work click the `Migrate` button on the Create Data form.  This marks the item as a migration item and enables the `Migrate Dataspace Files` button on the work show page.
   
 #### Migrate the data
-1. Once your metadata is complete, you can click the "Migrate Dataspace Files" button on the work show page and the data from this work will be automatically moved from DataSpace to PDC Describe pre-curation. In some cases this might take a long time. You may need to put the work down for a day and come back to it after the migration process is complete.  **Note:  The migration of data is queued in the background, so your browser will return after all files are queued, but before the file data has completed migration**
+1. Once your metadata is complete, you can click the "Migrate Dataspace Files" button on the work show page and the data from this work will be automatically moved from DataSpace to PDC Describe pre-curation. In some cases this might take a long time. You may need to put the work down for a day and come back to it after the migration process is complete.  
+   1. **Note:  The migration of data is queued in the background, so your browser will return after all files are queued, but before the file data has completed migration.**
+   2. If the migration fails, open an issue in the [PDC Describe issue queue](https://github.com/pulibrary/pdc_describe/issues). Make sure to include your name, the ARK of the item you're trying to migrate, and the approximate time of the error (so we can find it in the error logs and get more details). 
+   3. Some objects will not be able to migrate automatically. If this object is one of those, we will follow the procedures documented in the [Manual Data Migration ADR](0010-manual-data-migration.md). 
 
 #### Ask someone to check your work
 1. We want at least two people from the migration team to check every item. One person should re-describe the item, and another person should check it in PDC Describe, and approve it once it is ready. If there needs to be discussion about the correct description, use the PDC Describe interface so we can exercise that interface functionality, and also so we will have a record of the discussion and the decision that was reached. 

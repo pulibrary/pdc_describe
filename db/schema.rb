@@ -72,11 +72,11 @@ ActiveRecord::Schema.define(version: 2023_05_24_181606) do
   end
 
   create_table "upload_snapshots", force: :cascade do |t|
-    t.string "url"
-    t.bigint "version"
+    t.string "url", null: false
     t.bigint "work_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "version"
     t.jsonb "files"
     t.index ["work_id"], name: "index_upload_snapshots_on_work_id"
   end

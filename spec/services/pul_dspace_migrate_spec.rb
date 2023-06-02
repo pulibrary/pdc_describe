@@ -98,6 +98,14 @@ RSpec.describe PULDspaceMigrate, type: :model do
         expect(MigrationUploadSnapshot.last.migration_complete?).to be_truthy
       end
 
+      it "does not attempt to migrate files from DataSpace if the ARK is on the manual migration list" do
+        byebug
+        dspace_data.migrate
+        expect(dspace_data.migration_message).to eq("DataSpace migration skipped... only moving files from Globus.")
+        expect(work.reload.resource.migrated).to be_truthy
+        expect(enqueued_jobs.size).to eq(0)
+      end
+
       context "the checksums are the same" do
         let(:s3_file2) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/SCoData_combined_v1_2020-07_README.txt", checksum: "008eec11c39e7038409739c0160a793a" }
 

@@ -102,6 +102,13 @@ RSpec.describe Work, type: :model do
     expect { work.state = "sorry" }.to raise_error(StandardError, /Invalid state 'sorry'/)
   end
 
+  describe "#manual_migration?" do
+    it "checks the application config to determine whether this work should skip DataSpace file downloading" do
+      work = Work.new
+      expect(work.manual_migration?).to be_falsey
+    end
+  end
+
   describe "#editable_by?" do
     subject(:work) { FactoryBot.create(:tokamak_work) }
     let(:submitter) { work.created_by_user }
