@@ -6,8 +6,24 @@ RSpec.describe PDCMetadata::Creator, type: :model do
   let(:last_name) { "Miller" }
   let(:orcid) { "1234-5678-9012-1234" }
 
-  it "#new_person" do
-    new_person = described_class.new_person(first_name, last_name, orcid)
-    expect(new_person.value).to eq "Miller, Elizabeth"
+  describe "#new_person" do
+    it "allows a new person to be created" do
+      new_person = described_class.new_person(first_name, last_name, orcid)
+      expect(new_person.value).to eq "Miller, Elizabeth"
+    end
+
+    it "allows a new person to be created with ror and affiliation" do
+      new_person = described_class.new_person(first_name, last_name, orcid, ror: "http://example.com", affiliation: "Example")
+      expect(new_person.value).to eq "Miller, Elizabeth"
+      expect(new_person.affiliations.count).to eq(1)
+      expect(new_person.affiliations.map(&:value)).to eq(["Example"])
+      expect(new_person.affiliations.map(&:identifier)).to eq(["http://example.com"])
+      expect(new_person.affiliations.map(&:scheme)).to eq(["ROR"])
+    end
+  end
+
+  it "allows affilitation to be set" do
+    creator = described_class.new(affiliations: [PDCMetadata::Affiliation.new(value: "Princeton")])
+    expect(creator.affiliations.map(&:value)).to eq(["Princeton"])
   end
 end
