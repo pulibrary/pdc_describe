@@ -231,6 +231,20 @@
       <dt><%= t("work.group") %></dt>
       <dd><%= @work.group.title %></dd>
 
+      <% if @work.resource.communities.count > 0 %>
+        <dt>Communities</dt>
+        <% @work.resource.communities.each do |community| %>
+          <dd><%= community %></dd>
+        <% end %>
+
+        <% if @work.resource.subcommunities.count > 0 %>
+          <dt>Subcommunities</dt>
+          <% @work.resource.subcommunities.each do |subcommunity| %>
+            <dd><%= subcommunity %></dd>
+          <% end %>
+        <% end %>
+      <% end %>
+
       <% if @work.resource.funders.count > 0 %>
         <dt>Funders</dt>
         <% @work.resource.funders.each do |funder| %>

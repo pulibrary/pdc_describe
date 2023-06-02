@@ -77,6 +77,27 @@ FactoryBot.define do
       created_by_user_id { FactoryBot.create(:pppl_submitter).id }
     end
 
+    factory :tokamak_work_awaiting_approval do
+      group { Group.plasma_laboratory }
+      state { "awaiting_approval" }
+      resource do
+        PDCMetadata::Resource.new_from_jsonb({
+                                               "doi" => "10.34770/not_yet_assigned",
+                                               "ark" => "ark:/88435/dsp015d86p342b",
+                                               "identifier_type" => "DOI",
+                                               "titles" => [{ "title" => "Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas" }],
+                                               "description" => "A new model for electron temperature gradient (ETG) modes is developed as a component of the Multi-Mode anomalous transport module.",
+                                               "creators" => [
+                                                 { "value" => "Rafiq, Tariq", "name_type" => "Personal", "given_name" => "Tariq", "family_name" => "Rafiq", "affiliations" => [], "sequence" => "1" }
+                                               ],
+                                               "resource_type" => "Dataset", "publisher" => "Princeton University", "publication_year" => "2022",
+                                               "version_number" => "1",
+                                               "rights" => { "identifier" => "CC BY" }
+                                             })
+      end
+      created_by_user_id { FactoryBot.create(:pppl_submitter).id }
+    end
+
     factory :sowing_the_seeds_work do
       title { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
       group { Group.research_data }
