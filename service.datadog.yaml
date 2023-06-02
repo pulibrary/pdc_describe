@@ -1,0 +1,8 @@
+---
+schema-version: v2
+dd-service: pdc-describe
+team: rdss
+links:
+  - name: PDC Describe Dashboard
+    type: dashboard
+    url: https://app.datadoghq.com/dashboard/ys9-2u3-i84/pdc-describe-monitoring
