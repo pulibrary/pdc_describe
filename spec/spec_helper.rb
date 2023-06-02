@@ -4,6 +4,8 @@ FactoryBot.find_definitions
 
 require "webmock/rspec"
 
+require "rspec-html-matchers"
+
 # require 'rspec/matchers' # req by equivalent-xml custom matcher `be_equivalent_to`
 require "equivalent-xml"
 
@@ -39,6 +41,8 @@ RSpec.configure do |config|
 
   # FactoryBot
   config.include FactoryBot::Syntax::Methods
+
+  config.include RSpecHtmlMatchers
 
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
