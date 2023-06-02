@@ -14,7 +14,12 @@ module PDCMetadata
         family_name = creator["family_name"]
         orcid = creator.dig("identifier", "scheme") == "ORCID" ? creator.dig("identifier", "value") : nil
         sequence = (creator["sequence"] || "").to_i
-        PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
+        pdc_creator = PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
+        pdc_creator.affiliations = (creator["affiliations"])&.map do |affiliation|
+          PDCMetadata::Affiliation.new(value: affiliation["value"], identifier: affiliation["identifier"],
+                                       scheme: affiliation["scheme"], scheme_uri: affiliation["scheme_uri"])
+        end
+        pdc_creator
       end
 
       def individual_contributor_from_hash(contributor)
@@ -35,13 +40,13 @@ module PDCMetadata
     end
 
     # rubocop:disable Metrics/ParameterLists
-    def initialize(value: nil, name_type: nil, given_name: nil, family_name: nil, identifier: nil, sequence: 0)
+    def initialize(value: nil, name_type: nil, given_name: nil, family_name: nil, identifier: nil, sequence: 0, affiliations: [])
       @value = value
       @name_type = name_type
       @given_name = given_name
       @family_name = family_name
       @identifier = identifier
-      @affiliations = []
+      @affiliations = affiliations
       @sequence = sequence
     end
     # rubocop:enable Metrics/ParameterLists
@@ -66,11 +71,25 @@ module PDCMetadata
       "#{value} | #{sequence} | #{type}"
     end
 
-    def self.new_person(given_name, family_name, orcid_id = nil, sequence = 0)
+    def affiliation
+      return "" if affiliations.empty?
+      affiliations.first.value
+    end
+
+    def affiliation_ror
+      ror_affiliations = affiliations.select { |affiliation| affiliation.scheme == "ROR" }
+      return "" if ror_affiliations.empty?
+      ror_affiliations.first.identifier
+    end
+
+    def self.new_person(given_name, family_name, orcid_id = nil, sequence = 0, ror: nil, affiliation: nil)
       full_name = "#{family_name}, #{given_name}"
       creator = Creator.new(value: full_name, name_type: "Personal", given_name: given_name, family_name: family_name, sequence: sequence)
       if orcid_id.present?
         creator.identifier = NameIdentifier.new_orcid(orcid_id.strip)
+      end
+      if affiliation.present? || ror.present?
+        creator.affiliations << Affiliation.new_affiliation(value: affiliation, ror: ror)
       end
       creator
     end

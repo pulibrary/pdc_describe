@@ -94,13 +94,13 @@ class FormToResourceService
 
       def add_creators(params, resource)
         resource.creators = params[:creators].each_with_index.filter_map do |creator, idx|
-          new_creator(creator[:given_name], creator[:family_name], creator[:orcid], idx)
+          new_creator(creator[:given_name], creator[:family_name], creator[:orcid], idx, creator[:affiliation], creator[:ror])
         end
       end
 
-      def new_creator(given_name, family_name, orcid, sequence)
+      def new_creator(given_name, family_name, orcid, sequence, affiliation, ror)
         return if family_name.blank? && given_name.blank? && orcid.blank?
-        PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
+        PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence, affiliation: affiliation, ror: ror)
       end
 
       # Individual Contributors:

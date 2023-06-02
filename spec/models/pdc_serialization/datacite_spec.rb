@@ -53,7 +53,7 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
         "titles" => [{ "title" => "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events" }],
         "description" => "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
         "creators" => [
-          { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => "1" }
+          { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [{ "value" => "Example" }], "sequence" => "1" }
         ],
         "resource_type" => "Dataset",
         "publisher" => "Princeton University",
@@ -77,6 +77,7 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
 
       it "has a creator" do
         expect(mapping.creators.first.creator_name.value).to eq "Kotin, Joshua"
+        expect(mapping.creators.first.affiliations.map(&:value)).to eq(["Example"])
       end
 
       it "has a resource type" do
