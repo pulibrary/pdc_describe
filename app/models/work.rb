@@ -198,7 +198,6 @@ class Work < ApplicationRecord
   end
 
   def valid_to_approve(user)
-    # binding.pry
     valid_to_submit
     if resource.doi.blank?
       errors.add :base, "DOI must be present for a work to be approved"
@@ -206,7 +205,6 @@ class Work < ApplicationRecord
     unless user.has_role? :group_admin, group
       errors.add :base, "Unauthorized to Approve"
     end
-    # binding.pry
     if pre_curation_uploads_fast.empty? && post_curation_uploads.empty?
       errors.add :base, "Uploads must be present for a work to be approved"
     end
@@ -394,7 +392,6 @@ class Work < ApplicationRecord
   def save_pre_curation_uploads
     return if pre_curation_uploads.empty?
 
-    #binding.pry
     #new_attachments = pre_curation_uploads.reject(&:persisted?)
     #return if new_attachments.empty?
     new_attachments = pre_curation_uploads
@@ -482,7 +479,6 @@ class Work < ApplicationRecord
   # S3QueryService object associated with this Work
   # @return [S3QueryService]
   def s3_query_service
-    # binding.pry if @s3_query_service.nil?
     @s3_query_service ||= S3QueryService.new(self, !approved?)
   end
 
@@ -697,7 +693,7 @@ class Work < ApplicationRecord
       s3_post_curation_query_service = S3QueryService.new(self, false)
 
       s3_dir = find_post_curation_s3_dir(bucket_name: s3_post_curation_query_service.bucket_name)
-      binding.pry unless s3_dir.nil?
+      binding.pry
       raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{s3_object_key}") unless s3_dir.nil?
 
       # Copy the pre-curation S3 Objects to the post-curation S3 Bucket...

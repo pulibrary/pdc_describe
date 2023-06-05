@@ -605,10 +605,14 @@ RSpec.describe Work, type: :model do
             allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
             allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
             allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+            allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
+            allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
+            allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+
             allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
 
-            allowed_work.update_curator(curator_user.id, user)
-            allowed_work.approve!(curator_user)
+            approved_work.update_curator(curator_user.id, user)
+            approved_work.approve!(curator_user)
           end
 
           it "ensures that the curator is still set" do
@@ -655,10 +659,24 @@ RSpec.describe Work, type: :model do
       let(:payload_xml) do
         Base64.encode64(approved_work_metadata_xml)
       end
+      let!(:approved_work) { FactoryBot.create :awaiting_approval_work, doi: doi }
 
       before do
-        # stub_request(:put, "https://api.datacite.org/dois/#{approved_work.doi}")
-        approved_work
+        stub_request(:put, "https://api.datacite.org/dois/#{approved_work.doi}")
+
+        # allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
+        # allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
+        # allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+        # allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
+
+        allow(S3QueryService).to receive(:new).and_call_original
+        allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
+        allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
+        allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+        # allow(S3QueryService).to receive(:new).and_call_original
+
+        approved_work.update_curator(curator_user.id, user)
+        approved_work.approve!(curator_user)
       end
 
       it "transmits a PUT request with the DOI attributes" do
