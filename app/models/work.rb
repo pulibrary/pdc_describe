@@ -693,7 +693,6 @@ class Work < ApplicationRecord
       s3_post_curation_query_service = S3QueryService.new(self, false)
 
       s3_dir = find_post_curation_s3_dir(bucket_name: s3_post_curation_query_service.bucket_name)
-      binding.pry
       raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{s3_object_key}") unless s3_dir.nil?
 
       # Copy the pre-curation S3 Objects to the post-curation S3 Bucket...
