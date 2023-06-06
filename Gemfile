@@ -65,6 +65,8 @@ gem "kramdown"
 gem "net-smtp"
 gem "rinku"
 
+gem "bytesize"
+
 group :development, :test do
   gem "bcrypt_pbkdf"
   gem "bixby"

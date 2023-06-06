@@ -1,4 +1,7 @@
 # frozen_string_literal: true
+
+require 'bytesize'
+
 class S3File
   include Rails.application.routes.url_helpers
 
@@ -23,7 +26,7 @@ class S3File
   end
 
   def byte_size
-    size
+    ByteSize.new(size)
   end
 
   def directory?
