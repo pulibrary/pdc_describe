@@ -1,20 +1,23 @@
 # frozen_string_literal: true
 class PULDspaceMigrate
-  attr_reader :work, :ark, :file_keys, :directory_keys, :dpsace_connector,
+  attr_reader :work, :ark, :file_keys, :directory_keys,
               :aws_connector, :migration_snapshot, :dspace_files, :aws_files_and_directories
 
-  delegate :doi, to: :dpsace_connector
+  delegate :doi, to: :dspace_connector
 
   def initialize(work)
     @work = work
     @ark = work.ark&.gsub("ark:/", "")
     @file_keys = []
     @directory_keys = []
-    @dpsace_connector = PULDspaceConnector.new(work)
-    @aws_connector = PULDspaceAwsConnector.new(work, doi)
+    @aws_connector = PULDspaceAwsConnector.new(work, work.doi)
     @migration_snapshot = nil
     @aws_files_and_directories = nil
     @dspace_files = nil
+  end
+
+  def dspace_connector
+    @dspace_connector ||= PULDspaceConnector.new(@work)
   end
 
   def migrate
@@ -22,13 +25,15 @@ class PULDspaceMigrate
     work.resource.migrated = true
     work.save
     @aws_files_and_directories = aws_connector.aws_files
-    @dspace_files = dpsace_connector.download_bitstreams
     migrate_dspace
     aws_copy(aws_files_and_directories)
   end
 
   def migration_message
-    "Migration for #{file_keys.count} #{'file'.pluralize(file_keys.count)} and #{directory_keys.count} #{'directory'.pluralize(directory_keys.count)}"
+    message = []
+    message << "DataSpace migration skipped for #{work.ark}. " if work.skip_dataspace_migration?
+    message << "Migration for #{file_keys.count} #{'file'.pluralize(file_keys.count)} and #{directory_keys.count} #{'directory'.pluralize(directory_keys.count)}"
+    message.join(" ")
   end
 
   private
@@ -80,9 +85,14 @@ class PULDspaceMigrate
       end
     end
 
+    # Connect to DataSpace. Download all bitstreams. Generate Migration Snapshot. Upload files to the pre-curation AWS bucket.
+    # Skip DataSpace files migration if the ark for this work is in config/manual_dataspace_migration.yml
     def migrate_dspace
+      return if work.skip_dataspace_migration?
+
+      @dspace_files = dspace_connector.download_bitstreams
       if dspace_files.any?(nil)
-        bitstreams = dpsace_connector.bitstreams
+        bitstreams = dspace_connector.bitstreams
         error_files = dspace_files.zip(bitstreams).select { |values| values.first.nil? }.map(&:last)
         error_names = error_files.map { |bitstream| bitstream["name"] }.join(", ")
         raise "Error downloading file(s) #{error_names}"

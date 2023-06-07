@@ -104,10 +104,16 @@ RSpec.describe Work, type: :model do
     expect { work.state = "sorry" }.to raise_error(StandardError, /Invalid state 'sorry'/)
   end
 
-  describe "#manual_migration?" do
-    it "checks the application config to determine whether this work should skip DataSpace file downloading" do
-      work = Work.new
-      expect(work.manual_migration?).to be_falsey
+  # Check the application config to determine whether this work should skip DataSpace file downloading
+  # This is a workaround because some objects have data so large the files cannot be automatically fetched
+  # from DataSpace and they must be moved manually.
+  describe "#skip_dataspace_migration?" do
+    it "is false by default" do
+      expect(work.skip_dataspace_migration?).to be_falsey
+    end
+    it "is true if the ARK is in the manual migration config" do
+      work.resource.ark = "ark:/88435/dsp01h415pd457"
+      expect(work.skip_dataspace_migration?).to be_truthy
     end
   end
 

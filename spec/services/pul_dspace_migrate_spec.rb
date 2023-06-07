@@ -99,11 +99,13 @@ RSpec.describe PULDspaceMigrate, type: :model do
       end
 
       it "does not attempt to migrate files from DataSpace if the ARK is on the manual migration list" do
-        byebug
+        expect(work.resource.migrated).to be_falsey
+        work.resource.ark = "ark:/88435/dsp01h415pd457"
+        expect(work.skip_dataspace_migration?).to be_truthy
         dspace_data.migrate
-        expect(dspace_data.migration_message).to eq("DataSpace migration skipped... only moving files from Globus.")
+        expect(dspace_data.migration_message).to match("DataSpace migration skipped for ark:/88435/dsp01h415pd457")
         expect(work.reload.resource.migrated).to be_truthy
-        expect(enqueued_jobs.size).to eq(0)
+        expect(enqueued_jobs.size).to eq(3) # but we still migrate the files from Globus
       end
 
       context "the checksums are the same" do

@@ -25,3 +25,4 @@ Some DataSpace objects cannot be automatically migrated. As of June 2023 this in
   ```
   aws s3 sync r2dz-ys12 s3://prds-dataspace/10-34770/r2dz-ys12/
   ```
+5. Add the work's ark to the list in `config/manual_dataspace_migration.yml` and commit the changes. Once that change is deployed, the software will no longer attempt to auto-migrate DataSpace files for this object, but will still auto-migrate the files from Globus.
