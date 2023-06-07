@@ -162,6 +162,8 @@ RSpec.describe PDCMetadata::Resource, type: :model do
           "award_uri" => nil
         }],
         "domains" => ["Humanities"],
+        "communities" => [],
+        "subcommunities" => [],
         "migrated" => true
       }
     end

@@ -15,8 +15,8 @@ class FormToResourceService
       resource.publication_year = params["publication_year"] if params["publication_year"].present?
       resource.rights = PDCMetadata::Rights.find(params["rights_identifier"])
       resource.keywords = (params["keywords"] || "").split(",").map(&:strip)
-      resource.domains = params["domains"] || []
 
+      add_additional_metadata(params, resource)
       add_curator_controlled(params, resource)
       add_titles(params, resource)
       add_related_objects(params, resource)
@@ -38,6 +38,12 @@ class FormToResourceService
         resource.migrated = work.resource.migrated
         resource.collection_tags = work.resource.collection_tags || []
         resource
+      end
+
+      def add_additional_metadata(params, resource)
+        resource.domains = params["domains"] || []
+        resource.communities = params["communities"] || []
+        resource.subcommunities = params["subcommunities"] || []
       end
 
       def add_curator_controlled(params, resource)
@@ -88,13 +94,13 @@ class FormToResourceService
 
       def add_creators(params, resource)
         resource.creators = params[:creators].each_with_index.filter_map do |creator, idx|
-          new_creator(creator[:given_name], creator[:family_name], creator[:orcid], idx)
+          new_creator(creator[:given_name], creator[:family_name], creator[:orcid], idx, creator[:affiliation], creator[:ror])
         end
       end
 
-      def new_creator(given_name, family_name, orcid, sequence)
+      def new_creator(given_name, family_name, orcid, sequence, affiliation, ror)
         return if family_name.blank? && given_name.blank? && orcid.blank?
-        PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence)
+        PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence, affiliation: affiliation, ror: ror)
       end
 
       # Individual Contributors:

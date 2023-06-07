@@ -17,8 +17,10 @@
     <thead>
       <tr class="header-row">
         <th>ORCID</th>
-        <th>Given name</th>
-        <th>Family name</th>
+        <th>Given name<span class="required-field" title="Given name for your submission must be indicated">*</span></th>
+        <th>Family name<span class="required-field" title="Family name for your submission must be indicated">*</span></th>
+        <th>Affiliation</th>
+        <th>ROR</th>
         <th>&nbsp;</th> <!-- move icon-->
         <th>&nbsp;</th> <!-- delete icon-->
       </tr>
@@ -39,6 +41,12 @@
         </td>
         <td class="creators-table-row-family-name">
           <input name="creators[][family_name]" value="<%= creator&.family_name %>" class="family-entry-creator" />
+        </td>
+        <td class="creators-table-row-affiliation">
+          <input name="creators[][affiliation]" value="<%= creator&.affiliation %>" class="family-entry-creator ror-output" />
+        </td>
+        <td>
+          <input name="creators[][ror]" value="<%= creator&.affiliation_ror %>" placeholder="https://ror.org/........" pattern="https://ror.org/0[a-z|0-9]{6}[0-9]{2}" class="ror-input" />
         </td>
         <%= render(partial: 'works/row_controls') %>
         </tr>

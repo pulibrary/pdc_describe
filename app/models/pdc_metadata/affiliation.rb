@@ -13,5 +13,24 @@ module PDCMetadata
       @scheme = scheme
       @scheme_uri = scheme_uri
     end
+
+    def datacite_attributes
+      {
+        value: value,
+        identifier: identifier,
+        identifier_scheme: scheme,
+        scheme_uri: scheme_uri
+      }
+    end
+
+    def self.new_affiliation(value:, ror: nil)
+      scheme = nil
+      identifier = nil
+      if ror.present?
+        scheme = "ROR"
+        identifier = ror
+      end
+      new(value: value, scheme: scheme, identifier: identifier, scheme_uri: nil)
+    end
   end
 end

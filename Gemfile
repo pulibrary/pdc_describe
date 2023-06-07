@@ -99,6 +99,7 @@ group :test do
   # Use simplecov for coverage analysis
   # Used for detecting what a controller rendered
   gem "rails-controller-testing"
+  gem "rspec-html-matchers"
   gem "sinatra"
   # Easy installation and use of web drivers to run system tests with browsers
   gem "webdrivers"
