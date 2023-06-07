@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 class PULDspaceMigrate
-  attr_reader :work, :ark, :file_keys, :directory_keys, :dpsace_connector,
+  attr_reader :work, :ark, :file_keys, :directory_keys, :dspace_connector,
               :aws_connector, :migration_snapshot, :dspace_files, :aws_files_and_directories
 
-  delegate :doi, to: :dpsace_connector
+  delegate :doi, to: :dspace_connector
 
   def initialize(work)
     @work = work
     @ark = work.ark&.gsub("ark:/", "")
     @file_keys = []
     @directory_keys = []
-    @dpsace_connector = PULDspaceConnector.new(work)
+    @dspace_connector = PULDspaceConnector.new(work)
     @aws_connector = PULDspaceAwsConnector.new(work, doi)
     @migration_snapshot = nil
     @aws_files_and_directories = nil
@@ -22,7 +22,7 @@ class PULDspaceMigrate
     work.resource.migrated = true
     work.save
     @aws_files_and_directories = aws_connector.aws_files
-    @dspace_files = dpsace_connector.download_bitstreams
+    @dspace_files = dspace_connector.download_bitstreams
     migrate_dspace
     aws_copy(aws_files_and_directories)
   end
@@ -82,7 +82,7 @@ class PULDspaceMigrate
 
     def migrate_dspace
       if dspace_files.any?(nil)
-        bitstreams = dpsace_connector.bitstreams
+        bitstreams = dspace_connector.bitstreams
         error_files = dspace_files.zip(bitstreams).select { |values| values.first.nil? }.map(&:last)
         error_names = error_files.map { |bitstream| bitstream["name"] }.join(", ")
         raise "Error downloading file(s) #{error_names}"
