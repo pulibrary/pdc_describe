@@ -71,7 +71,6 @@ RSpec.describe "DOI", type: :model do
               ->(response) { response.doi },
               ->(response) { raise("Something went wrong", response.status) }
             )
-      puts doi
       expect(doi).to be_present
     end
 
