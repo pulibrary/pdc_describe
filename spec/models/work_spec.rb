@@ -33,13 +33,17 @@ RSpec.describe Work, type: :model do
 
   let(:s3_file) { FactoryBot.build :s3_file, filename: "#{work.doi}/test_key" }
   # let(:s3_service_data) { [s3_file] }
-  let(:s3_service_data) { [] }
-  let(:s3_service) { stub_s3(data: s3_service_data) }
+  # let(:s3_service_data) { [] }
+  # let(:s3_service) { stub_s3(data: s3_service_data) }
+  let(:client_s3_files) { [] }
+  let(:s3_query_service) { instance_double(S3QueryService) }
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
 
-    s3_service
+    # s3_service
+    allow(s3_query_service).to receive(:client_s3_files).and_return(client_s3_files)
+    allow(S3QueryService).to receive(:new).and_return(s3_query_service)
   end
 
   context "fixed time" do
@@ -164,12 +168,10 @@ RSpec.describe Work, type: :model do
     let(:pre_curated_data_profile) { { objects: [] } }
 
     let(:fake_s3_service_pre) { stub_s3(data: [file1, file2]) }
-    # let(:s3_service_pre) { stub_s3(data: [file1, file2]) }
     let(:fake_s3_service_post) { stub_s3(data: [file1, file2]) }
-    # let(:s3_service_post) { stub_s3(data: [file1, file2]) }
 
     before do
-      allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
+      # allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
       allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
       allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
       allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
@@ -238,6 +240,7 @@ RSpec.describe Work, type: :model do
     let(:ezid) { "ark:/99999/dsp01qb98mj541" }
     let(:s3_file) { instance_double(S3File, filename: "test.txt") }
     let(:s3_service_data) { [s3_file] }
+    let(:s3_client) { double }
     let(:work) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
 
     around do |example|
@@ -247,7 +250,8 @@ RSpec.describe Work, type: :model do
     end
 
     before do
-      allow(s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(s3_query_service).to receive(:client).and_return(s3_client)
+      allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
     end
 
     it "updates the ARK metadata" do
@@ -514,7 +518,7 @@ RSpec.describe Work, type: :model do
       stub_datacite_doi
       # fake_s3_service = stub_s3(data: [s3_file])
       # allow(fake_s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: awaiting_approval_work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
-      allow(s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: awaiting_approval_work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(s3_query_service.client).to receive(:head_object).with(bucket: "example-bucket", key: awaiting_approval_work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
 
       awaiting_approval_work.approve!(curator_user)
       expect(awaiting_approval_work.reload.state).to eq("approved")
@@ -594,22 +598,25 @@ RSpec.describe Work, type: :model do
       end
 
       context "with an assigned DOI" do
+        let(:s3_client) { instance_double(Aws::S3::Client) }
+        let(:s3_query_service) do
+          # Stub the S3 api responses for constructing the object here
+          stub_request(:get, "https://example-bucket.s3.amazonaws.com/?list-type=2&max-keys=1000&prefix=10.34770/123-abc//").to_return(status: 200, body: "", headers: {})
+          S3QueryService.new(work, false)
+        end
+
         before do
+          allow(s3_file).to receive(:key).and_return("test-key")
+          allow(s3_file).to receive(:size).and_return(0)
           stub_datacite_doi
         end
 
         context "with a work which has already been approved" do
           before do
-            # allow(s3_file).to receive(:filename).and_return("test.txt")
-
-            allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
-            allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
-            allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
-            allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
-            allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
-            allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
-
-            allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
+            allow(s3_client).to receive(:head_object).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+            allow(s3_query_service).to receive(:publish_files).and_call_original
+            allow(s3_query_service).to receive(:client).and_return(s3_client)
+            allow(s3_query_service).to receive(:bucket_name).and_return("example-pre-bucket", "example-post-bucket")
 
             approved_work.update_curator(curator_user.id, user)
             approved_work.approve!(curator_user)
@@ -669,7 +676,6 @@ RSpec.describe Work, type: :model do
         # allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
         # allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
 
-        allow(S3QueryService).to receive(:new).and_call_original
         allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
         allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
         allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
@@ -841,7 +847,7 @@ RSpec.describe Work, type: :model do
 
       before do
         # Account for files in S3 added outside of ActiveStorage
-        allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
+        # allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
         allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
         # Account for files uploaded to S3 via ActiveStorage
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
@@ -1034,10 +1040,10 @@ RSpec.describe Work, type: :model do
   end
 
   describe "pre_curation_uploads_count" do
-    let(:s3_query_service_double) { instance_double(S3QueryService, file_count: 3, client_s3_files: []) }
+    let(:s3_query_service) { instance_double(S3QueryService, file_count: 3, client_s3_files: []) }
 
     it "gets the count of the files on Amazon" do
-      allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
+      # allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
 
       expect(work.pre_curation_uploads_count).to eq(3)
 
