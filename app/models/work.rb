@@ -535,6 +535,14 @@ class Work < ApplicationRecord
     changes << { action: action, filename: filename }
   end
 
+  # Check the application config to determine whether this work should skip DataSpace file downloading
+  # This is a workaround because some objects have data so large the files cannot be automatically fetched
+  # from DataSpace and they must be moved manually.
+  def skip_dataspace_migration?
+    return false if resource.ark.blank?
+    Rails.configuration.manual_dataspace_migration[:arks].include? resource.ark
+  end
+
   protected
 
     # This must be protected, NOT private for ActiveRecord to work properly with this attribute.
