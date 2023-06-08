@@ -15,7 +15,7 @@ class S3File
     @filename_display = filename_short(work, filename)
     @last_modified = last_modified
     @last_modified_display = last_modified.in_time_zone.strftime("%m/%d/%Y %I:%M %p") # mm/dd/YYYY HH:MM AM
-    @size = size
+    @size = size_display(size)
     @checksum = checksum.delete('"')
     @url = work_download_path(work, filename: filename)
     @work = work
@@ -28,6 +28,10 @@ class S3File
   def byte_size
     ByteSize.new(size)
   end
+
+  def size_display(size)
+    ByteSize.new(size).to_s
+  end 
 
   def directory?
     size == 0
