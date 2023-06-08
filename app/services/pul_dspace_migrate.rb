@@ -11,7 +11,7 @@ class PULDspaceMigrate
     @file_keys = []
     @directory_keys = []
     @dspace_connector = PULDspaceConnector.new(work)
-    @aws_connector = PULDspaceAwsConnector.new(work, doi)
+    @aws_connector = PULDspaceAwsConnector.new(work, work.doi)
     @migration_snapshot = nil
     @aws_files_and_directories = nil
     @dspace_files = nil
