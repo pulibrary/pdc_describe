@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 class PULDspaceMigrate
-  attr_reader :work, :ark, :file_keys, :directory_keys, :dspace_connector,
+  attr_reader :work, :ark, :file_keys, :directory_keys,
               :aws_connector, :migration_snapshot, :dspace_files, :aws_files_and_directories
 
   delegate :doi, to: :dspace_connector
@@ -10,7 +10,6 @@ class PULDspaceMigrate
     @ark = work.ark&.gsub("ark:/", "")
     @file_keys = []
     @directory_keys = []
-    @dspace_connector = PULDspaceConnector.new(work)
     @aws_connector = PULDspaceAwsConnector.new(work, work.doi)
     @migration_snapshot = nil
     @aws_files_and_directories = nil
@@ -25,6 +24,10 @@ class PULDspaceMigrate
     @dspace_files = dspace_connector.download_bitstreams
     migrate_dspace
     aws_copy(aws_files_and_directories)
+  end
+
+  def dspace_connector
+    @dspace_connector ||= PULDspaceConnector.new(work)
   end
 
   def migration_message
