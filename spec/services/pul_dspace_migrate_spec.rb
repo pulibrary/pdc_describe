@@ -27,6 +27,8 @@ RSpec.describe PULDspaceMigrate, type: :model do
     before do
       stub_request(:get, "https://dataspace.example.com/rest/handle/88435/dsp01zc77st047")
         .to_return(status: 200, body: handle_body, headers: {})
+      stub_request(:get, "https://dataspace.example.com/rest/handle/88435/dsp01h415pd457")
+        .to_return(status: 200, body: handle_body, headers: {})
       stub_request(:get, "https://dataspace.example.com/rest/items/104718/bitstreams")
         .to_return(status: 200, body: bitsreams_body, headers: {})
       stub_request(:get, "https://dataspace.example.com/rest/items/104718/metadata")

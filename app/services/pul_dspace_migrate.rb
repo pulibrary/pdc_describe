@@ -13,7 +13,7 @@ class PULDspaceMigrate
     @aws_connector = PULDspaceAwsConnector.new(work, work.doi)
     @migration_snapshot = nil
     @aws_files_and_directories = nil
-    @dspace_files = nil
+    @dspace_files = []
   end
 
   def migrate
@@ -23,6 +23,10 @@ class PULDspaceMigrate
     @aws_files_and_directories = aws_connector.aws_files
     migrate_dspace
     aws_copy(aws_files_and_directories)
+
+    # If we didn't migrate anything from DataSpace then we didn't generate the migration snapshot,
+    # so do that now.
+    generate_migration_snapshot if work.skip_dataspace_migration?
   end
 
   def dspace_connector
