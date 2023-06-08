@@ -67,10 +67,10 @@ RSpec.describe PULDspaceMigrate, type: :model do
         FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
         subject.migrate
         expect(subject.file_keys).to eq(["abc/123/data_space_SCoData_combined_v1_2020-07_README.txt",
-                                             "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
-                                             "abc/123/license.txt",
-                                             "abc/123/test_key",
-                                             "abc/123/globus_SCoData_combined_v1_2020-07_README.txt"])
+                                         "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
+                                         "abc/123/license.txt",
+                                         "abc/123/test_key",
+                                         "abc/123/globus_SCoData_combined_v1_2020-07_README.txt"])
         expect(subject.directory_keys).to eq(["10-34770/ackh-7y71/test_directory_key"])
         expect(subject.migration_message).to eq("Migration for 5 files and 1 directory")
 
@@ -121,9 +121,9 @@ RSpec.describe PULDspaceMigrate, type: :model do
           FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
           subject.migrate
           expect(subject.file_keys).to eq(["abc/123/SCoData_combined_v1_2020-07_datapackage.json",
-                                               "abc/123/license.txt",
-                                               "abc/123/test_key",
-                                               "abc/123/SCoData_combined_v1_2020-07_README.txt"])
+                                           "abc/123/license.txt",
+                                           "abc/123/test_key",
+                                           "abc/123/SCoData_combined_v1_2020-07_README.txt"])
           expect(subject.directory_keys).to eq(["10-34770/ackh-7y71/test_directory_key"])
           expect(subject.migration_message).to eq("Migration for 4 files and 1 directory")
 
