@@ -13,7 +13,7 @@
           <th>Relation Type</th>
         </tr>
       </thead>
-      <tbody id="related-objects-table">
+      <tbody id="related-objects-table" class="sortable">
         <% related_objects = if @work.nil? || @work.resource.related_objects.empty? 
           [nil]
         else
@@ -40,6 +40,7 @@
                 <% end %>
               </select>
             </td>
+            <%= render(partial: 'works/row_controls') %>
           </tr>
         <% end %>
       </tbody>

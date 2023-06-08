@@ -111,6 +111,13 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       expect(page.find("tr:last-child input[name='related_objects[][related_identifier]']").value).to eq "https://doi.org/10.7554/eLife.52482"
       expect(page.find("tr:last-child select[name='related_objects[][related_identifier_type]']").value).to eq "DOI"
       expect(page.find("tr:last-child select[name='related_objects[][relation_type]']").value).to have_content "IsCitedBy"
+      click_on "Add Another Related Object"
+      expect(page.html.match?(/545517v1.*52482/m)).to be true
+      source = page.find_all("#related-objects-table .bi-arrow-down-up")[1].native
+      target = page.find_all("#related-objects-table .bi-arrow-down-up")[0].native
+      builder = page.driver.browser.action
+      builder.drag_and_drop(source, target).perform
+      expect(page.html.match?(/52482.*545517v1/m)).to be true
     end
   end
 
