@@ -4,14 +4,14 @@ require "rails_helper"
 RSpec.describe PULDspaceMigrate, type: :model do
   include ActiveJob::TestHelper
 
-  subject(:dspace_data) { described_class.new(work) }
+  subject(:subject) { described_class.new(work) }
   let(:work) { FactoryBot.create :draft_work }
 
   describe "#migrate" do
     it "does nothing" do
-      expect(dspace_data.migrate).to be_nil
-      expect(dspace_data.file_keys).to be_empty
-      expect(dspace_data.directory_keys).to be_empty
+      expect(subject.migrate).to be_nil
+      expect(subject.file_keys).to be_empty
+      expect(subject.directory_keys).to be_empty
       expect(work.resource.migrated).to be_falsey
     end
   end
@@ -26,6 +26,8 @@ RSpec.describe PULDspaceMigrate, type: :model do
     let(:bitsream3_body) { File.read(Rails.root.join("spec", "fixtures", "files", "bitstreams", "license.txt")) }
     before do
       stub_request(:get, "https://dataspace.example.com/rest/handle/88435/dsp01zc77st047")
+        .to_return(status: 200, body: handle_body, headers: {})
+      stub_request(:get, "https://dataspace.example.com/rest/handle/88435/dsp01h415pd457")
         .to_return(status: 200, body: handle_body, headers: {})
       stub_request(:get, "https://dataspace.example.com/rest/items/104718/bitstreams")
         .to_return(status: 200, body: bitsreams_body, headers: {})
@@ -65,14 +67,14 @@ RSpec.describe PULDspaceMigrate, type: :model do
       it "migrates the content from dspace and aws" do
         expect(UploadSnapshot.all.count).to eq(0)
         FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
-        dspace_data.migrate
-        expect(dspace_data.file_keys).to eq(["abc/123/data_space_SCoData_combined_v1_2020-07_README.txt",
-                                             "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
-                                             "abc/123/license.txt",
-                                             "abc/123/test_key",
-                                             "abc/123/globus_SCoData_combined_v1_2020-07_README.txt"])
-        expect(dspace_data.directory_keys).to eq(["10-34770/ackh-7y71/test_directory_key"])
-        expect(dspace_data.migration_message).to eq("Migration for 5 files and 1 directory")
+        subject.migrate
+        expect(subject.file_keys).to eq(["abc/123/data_space_SCoData_combined_v1_2020-07_README.txt",
+                                         "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
+                                         "abc/123/license.txt",
+                                         "abc/123/test_key",
+                                         "abc/123/globus_SCoData_combined_v1_2020-07_README.txt"])
+        expect(subject.directory_keys).to eq(["10-34770/ackh-7y71/test_directory_key"])
+        expect(subject.migration_message).to eq("Migration for 5 files and 1 directory")
 
         expect(work.reload.resource.migrated).to be_truthy
         expect(enqueued_jobs.size).to eq(3)
@@ -102,8 +104,9 @@ RSpec.describe PULDspaceMigrate, type: :model do
         expect(work.resource.migrated).to be_falsey
         work.resource.ark = "ark:/88435/dsp01h415pd457"
         expect(work.skip_dataspace_migration?).to be_truthy
-        dspace_data.migrate
-        expect(dspace_data.migration_message).to match("DataSpace migration skipped for ark:/88435/dsp01h415pd457")
+        subject.migrate
+        expect(subject.migration_snapshot).to be_instance_of MigrationUploadSnapshot
+        expect(subject.migration_message).to match("DataSpace migration skipped for ark:/88435/dsp01h415pd457")
         expect(work.reload.resource.migrated).to be_truthy
         expect(enqueued_jobs.size).to eq(3) # but we still migrate the files from Globus
       end
@@ -119,13 +122,13 @@ RSpec.describe PULDspaceMigrate, type: :model do
         it "migrates the content from dspace and aws skipping the same file" do
           expect(UploadSnapshot.all.count).to eq(0)
           FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
-          dspace_data.migrate
-          expect(dspace_data.file_keys).to eq(["abc/123/SCoData_combined_v1_2020-07_datapackage.json",
-                                               "abc/123/license.txt",
-                                               "abc/123/test_key",
-                                               "abc/123/SCoData_combined_v1_2020-07_README.txt"])
-          expect(dspace_data.directory_keys).to eq(["10-34770/ackh-7y71/test_directory_key"])
-          expect(dspace_data.migration_message).to eq("Migration for 4 files and 1 directory")
+          subject.migrate
+          expect(subject.file_keys).to eq(["abc/123/SCoData_combined_v1_2020-07_datapackage.json",
+                                           "abc/123/license.txt",
+                                           "abc/123/test_key",
+                                           "abc/123/SCoData_combined_v1_2020-07_README.txt"])
+          expect(subject.directory_keys).to eq(["10-34770/ackh-7y71/test_directory_key"])
+          expect(subject.migration_message).to eq("Migration for 4 files and 1 directory")
 
           expect(work.reload.resource.migrated).to be_truthy
           expect(enqueued_jobs.size).to eq(3)
@@ -156,7 +159,7 @@ RSpec.describe PULDspaceMigrate, type: :model do
 
         it "downloads the bitstreams" do
           allow(Honeybadger).to receive(:notify)
-          expect { dspace_data.migrate }.to raise_error("Error downloading file(s) SCoData_combined_v1_2020-07_README.txt")
+          expect { subject.migrate }.to raise_error("Error downloading file(s) SCoData_combined_v1_2020-07_README.txt")
           expect(Honeybadger).to have_received(:notify).with(/Mismatching checksum .* for work: #{work.id} doi: #{work.doi} ark: #{work.ark}/)
         end
       end
