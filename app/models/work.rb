@@ -383,6 +383,25 @@ class Work < ApplicationRecord
     pre_curation_uploads_fast
   end
 
+  # Returns the list of files for the work with some basic information about each of them.
+  # This method is much faster than `uploads` because it does not return the actual S3File
+  # objects to the client, instead it returns just a few selected data elements.
+  def file_list
+    s3_files = approved? ? post_curation_uploads : pre_curation_uploads_fast
+    files_info = s3_files.map do |s3_file|
+      {
+        "safe_id": s3_file.safe_id,
+        "filename": s3_file.filename,
+        "filename_display": s3_file.filename_display,
+        "last_modified": s3_file.last_modified,
+        "last_modified_display": s3_file.last_modified_display,
+        "size": s3_file.size,
+        "url": s3_file.url
+    }
+    end
+    files_info
+  end
+
   # Fetches the data from S3 directly bypassing ActiveStorage
   def pre_curation_uploads_fast
     s3_query_service.client_s3_files.sort_by(&:filename)
@@ -450,33 +469,29 @@ class Work < ApplicationRecord
     nil
   end
 
-  # def as_json(*args)
-  #   force_post_curation = args.any? {|arg| arg[:force_post_curation] == true }
-  #   # Pre-curation files are not accessible externally,
-  #   # so we are not interested in listing them in JSON.
-  #   # (The items in pre_curation_uploads also have different properties.)
-  #   byebug
-  #   xx = post_curation_uploads(force_post_curation:)
-  #   files = xx.map do |upload|
-  #     {
-  #       "filename": upload.filename,
-  #       "size": upload.size,
-  #       "url": upload.globus_url
-  #     }
-  #   end
+  def as_json(*args)
+    force_post_curation = args.any? {|arg| arg[:force_post_curation] == true }
+    # Pre-curation files are not accessible externally,
+    # so we are not interested in listing them in JSON.
+    # (The items in pre_curation_uploads also have different properties.)
+    files = post_curation_uploads(force_post_curation:).map do |upload|
+      {
+        "filename": upload.filename,
+        "size": upload.size,
+        "url": upload.globus_url
+      }
+    end
 
-  #   yy = resource.as_json
-  #   zz = group.as_json.except("id")
-  #   # to_json returns a string of serialized JSON.
-  #   # as_json returns the corresponding hash.
-  #   the_ret_val = {
-  #     "resource" => yy,
-  #     "files" => files,
-  #     "group" => zz
-  #   }
-  #   byebug
-  #   the_ret_val
-  # end
+    # to_json returns a string of serialized JSON.
+    # as_json returns the corresponding hash.
+    {
+      "resource" => resource.as_json,
+      "files" => files,
+      "group" => group.as_json.except("id")
+    }
+  end
+
+
 
   def pre_curation_uploads_count
     s3_query_service.file_count
