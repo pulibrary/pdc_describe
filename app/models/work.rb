@@ -491,8 +491,6 @@ class Work < ApplicationRecord
     }
   end
 
-
-
   def pre_curation_uploads_count
     s3_query_service.file_count
   end
@@ -513,8 +511,6 @@ class Work < ApplicationRecord
   # Build or find persisted UploadSnapshot models for this Work
   # @return [UploadSnapshot]
   def reload_snapshots
-    start = Time.zone.now
-    Rails.logger.info "SNAPSHOTS: reload_snapshots started"
     work_changes = []
     s3_files = pre_curation_uploads_fast
     s3_filenames = s3_files.map(&:filename)
@@ -522,10 +518,8 @@ class Work < ApplicationRecord
     upload_snapshot = latest_snapshot
 
     snapshot_deletions(work_changes, s3_filenames, upload_snapshot)
-    delete_count = work_changes.count
 
     snapshot_modifications(work_changes, s3_files, upload_snapshot)
-    change_count = work_changes.count - delete_count
 
     # Create WorkActivity models with the set of changes
     unless work_changes.empty?
@@ -534,8 +528,6 @@ class Work < ApplicationRecord
       new_snapshot.save!
       WorkActivity.add_work_activity(id, work_changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES)
     end
-    elapsed = Time.zone.now - start
-    Rails.logger.info "SNAPSHOTS: reload_snapshots ended. Files: #{s3_files.count}. Deletes: #{delete_count}. Changes: #{change_count}. Elapsed: #{elapsed} seconds"
   end
 
   def self.presenter_class
