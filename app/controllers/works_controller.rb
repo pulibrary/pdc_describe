@@ -90,7 +90,7 @@ class WorksController < ApplicationController
       render json: []
     else
       @work = Work.find(params[:id])
-      render json: @work.uploads
+      render json: @work.file_list
     end
   end
 
