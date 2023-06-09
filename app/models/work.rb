@@ -383,6 +383,25 @@ class Work < ApplicationRecord
     pre_curation_uploads_fast
   end
 
+  # Returns the list of files for the work with some basic information about each of them.
+  # This method is much faster than `uploads` because it does not return the actual S3File
+  # objects to the client, instead it returns just a few selected data elements.
+  def file_list
+    s3_files = approved? ? post_curation_uploads : pre_curation_uploads_fast
+    files_info = s3_files.map do |s3_file|
+      {
+        "safe_id": s3_file.safe_id,
+        "filename": s3_file.filename,
+        "filename_display": s3_file.filename_display,
+        "last_modified": s3_file.last_modified,
+        "last_modified_display": s3_file.last_modified_display,
+        "size": s3_file.size,
+        "url": s3_file.url
+    }
+    end
+    files_info
+  end
+
   # Fetches the data from S3 directly bypassing ActiveStorage
   def pre_curation_uploads_fast
     s3_query_service.client_s3_files.sort_by(&:filename)
@@ -400,9 +419,11 @@ class Work < ApplicationRecord
 
   # Accesses post-curation S3 Bucket Objects
   def post_curation_s3_resources
-    return [] unless approved?
-
-    s3_resources
+    if approved?
+      s3_resources
+    else
+      []
+    end
   end
 
   # Returns the files in post-curation for the work
@@ -487,16 +508,6 @@ class Work < ApplicationRecord
     UploadSnapshot.where(work: self)
   end
 
-  # Remove the snapshots for S3 file resources which have been deleted
-  def valid_snapshots
-    s3_resource_urls = s3_files.map(&:url)
-    s3_resource_filenames = s3_files.map(&:filename)
-
-    past_snapshots.select do |snapshot|
-      s3_resource_urls.include?(snapshot.url) || s3_resource_filenames.include?(snapshot.filename)
-    end
-  end
-
   # Build or find persisted UploadSnapshot models for this Work
   # @return [UploadSnapshot]
   def reload_snapshots
@@ -533,6 +544,14 @@ class Work < ApplicationRecord
 
   def track_change(action, filename)
     changes << { action: action, filename: filename }
+  end
+
+  # Check the application config to determine whether this work should skip DataSpace file downloading
+  # This is a workaround because some objects have data so large the files cannot be automatically fetched
+  # from DataSpace and they must be moved manually.
+  def skip_dataspace_migration?
+    return false if resource.ark.blank?
+    Rails.configuration.manual_dataspace_migration[:arks].include? resource.ark
   end
 
   protected
