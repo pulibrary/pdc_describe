@@ -400,9 +400,11 @@ class Work < ApplicationRecord
 
   # Accesses post-curation S3 Bucket Objects
   def post_curation_s3_resources
-    return [] unless approved?
-
-    s3_resources
+    if approved?
+      s3_resources
+    else
+      []
+    end
   end
 
   # Returns the files in post-curation for the work
@@ -448,27 +450,33 @@ class Work < ApplicationRecord
     nil
   end
 
-  def as_json(*args)
-    force_post_curation = args.any? {|arg| arg[:force_post_curation] == true }
-    # Pre-curation files are not accessible externally,
-    # so we are not interested in listing them in JSON.
-    # (The items in pre_curation_uploads also have different properties.)
-    files = post_curation_uploads(force_post_curation:).map do |upload|
-      {
-        "filename": upload.filename,
-        "size": upload.size,
-        "url": upload.globus_url
-      }
-    end
+  # def as_json(*args)
+  #   force_post_curation = args.any? {|arg| arg[:force_post_curation] == true }
+  #   # Pre-curation files are not accessible externally,
+  #   # so we are not interested in listing them in JSON.
+  #   # (The items in pre_curation_uploads also have different properties.)
+  #   byebug
+  #   xx = post_curation_uploads(force_post_curation:)
+  #   files = xx.map do |upload|
+  #     {
+  #       "filename": upload.filename,
+  #       "size": upload.size,
+  #       "url": upload.globus_url
+  #     }
+  #   end
 
-    # to_json returns a string of serialized JSON.
-    # as_json returns the corresponding hash.
-    {
-      "resource" => resource.as_json,
-      "files" => files,
-      "group" => group.as_json.except("id")
-    }
-  end
+  #   yy = resource.as_json
+  #   zz = group.as_json.except("id")
+  #   # to_json returns a string of serialized JSON.
+  #   # as_json returns the corresponding hash.
+  #   the_ret_val = {
+  #     "resource" => yy,
+  #     "files" => files,
+  #     "group" => zz
+  #   }
+  #   byebug
+  #   the_ret_val
+  # end
 
   def pre_curation_uploads_count
     s3_query_service.file_count
@@ -487,19 +495,11 @@ class Work < ApplicationRecord
     UploadSnapshot.where(work: self)
   end
 
-  # Remove the snapshots for S3 file resources which have been deleted
-  def valid_snapshots
-    s3_resource_urls = s3_files.map(&:url)
-    s3_resource_filenames = s3_files.map(&:filename)
-
-    past_snapshots.select do |snapshot|
-      s3_resource_urls.include?(snapshot.url) || s3_resource_filenames.include?(snapshot.filename)
-    end
-  end
-
   # Build or find persisted UploadSnapshot models for this Work
   # @return [UploadSnapshot]
   def reload_snapshots
+    start = Time.zone.now
+    Rails.logger.info "SNAPSHOTS: reload_snapshots started"
     work_changes = []
     s3_files = pre_curation_uploads_fast
     s3_filenames = s3_files.map(&:filename)
@@ -507,8 +507,10 @@ class Work < ApplicationRecord
     upload_snapshot = latest_snapshot
 
     snapshot_deletions(work_changes, s3_filenames, upload_snapshot)
+    delete_count = work_changes.count
 
     snapshot_modifications(work_changes, s3_files, upload_snapshot)
+    change_count = work_changes.count - delete_count
 
     # Create WorkActivity models with the set of changes
     unless work_changes.empty?
@@ -517,6 +519,8 @@ class Work < ApplicationRecord
       new_snapshot.save!
       WorkActivity.add_work_activity(id, work_changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES)
     end
+    elapsed = Time.zone.now - start
+    Rails.logger.info "SNAPSHOTS: reload_snapshots ended. Files: #{s3_files.count}. Deletes: #{delete_count}. Changes: #{change_count}. Elapsed: #{elapsed} seconds"
   end
 
   def self.presenter_class

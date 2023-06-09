@@ -90,7 +90,19 @@ class WorksController < ApplicationController
       render json: []
     else
       @work = Work.find(params[:id])
-      render json: @work.uploads
+      s3_files = @work.approved? ? @work.post_curation_uploads : @work.pre_curation_uploads_fast
+      files_info = s3_files.map do |s3_file|
+        {
+          "safe_id": s3_file.safe_id,
+          "filename": s3_file.filename,
+          "filename_display": s3_file.filename_display,
+          "last_modified": s3_file.last_modified,
+          "last_modified_display": s3_file.last_modified_display,
+          "size": s3_file.size,
+          "url": s3_file.url
+        }
+      end
+      render json: files_info
     end
   end
 
