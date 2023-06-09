@@ -29,18 +29,23 @@ RSpec.describe "Form submission for migrating attention", type: :system, mock_ez
       fill_in "title_main", with: title
       fill_in "description", with: description
       select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
+      find("tr:last-child input[name='creators[][orcid]']").set "0000-0002-4080-5386"
       find("tr:last-child input[name='creators[][given_name]']").set "Andrew"
       find("tr:last-child input[name='creators[][family_name]']").set "Wilterson"
       click_on "Add Another Creator"
+      find("tr:last-child input[name='creators[][orcid]']").set "0000-0001-7013-5275"
       find("tr:last-child input[name='creators[][given_name]']").set "Samuel"
       find("tr:last-child input[name='creators[][family_name]']").set "Nastase"
       click_on "Add Another Creator"
+      find("tr:last-child input[name='creators[][orcid]']").set "0000-0002-6243-3165"
       find("tr:last-child input[name='creators[][given_name]']").set "Branden"
       find("tr:last-child input[name='creators[][family_name]']").set "Bio"
       click_on "Add Another Creator"
+      find("tr:last-child input[name='creators[][orcid]']").set "0000-0002-3694-1318"
       find("tr:last-child input[name='creators[][given_name]']").set "Arvid"
       find("tr:last-child input[name='creators[][family_name]']").set "Guterstam"
       click_on "Add Another Creator"
+      find("tr:last-child input[name='creators[][orcid]']").set ""
       find("tr:last-child input[name='creators[][given_name]']").set "Michael"
       find("tr:last-child input[name='creators[][family_name]']").set "Graziano"
 

@@ -66,6 +66,7 @@
   </fundingReferences>
   <relatedIdentifiers>
     <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp01x059cb547</relatedIdentifier>
+    <relatedIdentifier relationType='IsCitedBy' relatedIdentifierType='DOI'>https://doi.org/10.1088/1741-4326/ac906e</relatedIdentifier>
   </relatedIdentifiers>
   <version>1</version>
   <rightsList>

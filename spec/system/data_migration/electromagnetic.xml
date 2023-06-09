@@ -70,6 +70,7 @@
   </fundingReferences>
   <relatedIdentifiers>
     <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp01zw12z8539</relatedIdentifier>
+    <relatedIdentifier relationType='IsCitedBy' relatedIdentifierType='DOI'>https://doi.org/10.1063/5.0097855</relatedIdentifier>
   </relatedIdentifiers>
   <version>1</version>
   <rightsList>

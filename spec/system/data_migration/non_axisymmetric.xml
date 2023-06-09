@@ -8,8 +8,8 @@
       <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0002-6572-4902</nameIdentifier>
     </creator>
     <creator>
-      <creatorName>Gilson, Erik</creatorName>
-      <givenName>Erik</givenName>
+      <creatorName>Gilson, Erik P.</creatorName>
+      <givenName>Erik P.</givenName>
       <familyName>Gilson</familyName>
       <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0001-6820-9132</nameIdentifier>
     </creator>
@@ -62,7 +62,7 @@
     <fundingReference>
       <funderName>National Science Foundation</funderName>
       <funderIdentifier funderIdentifierType='ROR'>https://ror.org/021nxhr62</funderIdentifier>
-      <awardNumber awardURI=''>2108871</awardNumber>
+      <awardNumber awardURI=''>AST-2108871</awardNumber>
     </fundingReference>
     <fundingReference>
       <funderName>National Aeronautics and Space Administration</funderName>

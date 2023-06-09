@@ -1,112 +1,34 @@
 <resource xsi:schemaLocation='http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://datacite.org/schema/kernel-4'>
-  <identifier identifierType='DOI'>10.11578/1814942</identifier>
+  <identifier identifierType='DOI'>10.34770/zztk-f783</identifier>
   <creators>
     <creator>
-      <creatorName>Hammond, K.C.</creatorName>
-      <givenName>K.C.</givenName>
-      <familyName>Hammond</familyName>
-      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0002-1104-4434</nameIdentifier>
-    </creator>
-    <creator>
-      <creatorName>Laggner, F.M.</creatorName>
-      <givenName>F.M.</givenName>
-      <familyName>Laggner</familyName>
-      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0003-1601-2973</nameIdentifier>
-    </creator>
-    <creator>
-      <creatorName>Diallo, A.</creatorName>
-      <givenName>A.</givenName>
-      <familyName>Diallo</familyName>
-      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0002-0706-060X</nameIdentifier>
-    </creator>
-    <creator>
-      <creatorName>Doskoczynski, S.</creatorName>
-      <givenName>S.</givenName>
-      <familyName>Doskoczynski</familyName>
-    </creator>
-    <creator>
-      <creatorName>Freeman, C.</creatorName>
-      <givenName>C.</givenName>
-      <familyName>Freeman</familyName>
-    </creator>
-    <creator>
-      <creatorName>Funaba, H.</creatorName>
-      <givenName>H.</givenName>
-      <familyName>Funaba</familyName>
-    </creator>
-    <creator>
-      <creatorName>Gates, D.A.</creatorName>
-      <givenName>D.A.</givenName>
-      <familyName>Gates</familyName>
-      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0001-5679-3124</nameIdentifier>
-    </creator>
-    <creator>
-      <creatorName>Rozenblat, R.</creatorName>
-      <givenName>R.</givenName>
-      <familyName>Rozenblat</familyName>
-    </creator>
-    <creator>
-      <creatorName>Tchilinguirian, G.</creatorName>
-      <givenName>G.</givenName>
-      <familyName>Tchilinguirian</familyName>
-      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0002-8014-5212</nameIdentifier>
-    </creator>
-    <creator>
-      <creatorName>Xing, Z.</creatorName>
-      <givenName>Z.</givenName>
-      <familyName>Xing</familyName>
-    </creator>
-    <creator>
-      <creatorName>Yamada, I.</creatorName>
-      <givenName>I.</givenName>
-      <familyName>Yamada</familyName>
-    </creator>
-    <creator>
-      <creatorName>Yasuhara, R.</creatorName>
-      <givenName>R.</givenName>
-      <familyName>Yasuhara</familyName>
-    </creator>
-    <creator>
-      <creatorName>Zimmer, G</creatorName>
-      <givenName>G</givenName>
-      <familyName>Zimmer</familyName>
-    </creator>
-    <creator>
-      <creatorName>Kolemen, E</creatorName>
-      <givenName>E</givenName>
-      <familyName>Kolemen</familyName>
-      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0003-4212-3247</nameIdentifier>
+      <creatorName>Trueman, Daniel</creatorName>
+      <givenName>Daniel</givenName>
+      <familyName>Trueman</familyName>
     </creator>
   </creators>
   <titles>
-    <title>
-      Initial operation and data processing on a system for real-time evaluation
-      of Thomson scattering signals on the Large Helical Device
-    </title>
+    <title>bitKlavier Grand Sample Library—Binaural Mic Image</title>
   </titles>
   <publisher>Princeton University</publisher>
   <resourceType resourceTypeGeneral='Dataset'/>
   <publicationYear>2021</publicationYear>
-  <fundingReferences>
-    <fundingReference>
-      <funderName>United States Department of Energy</funderName>
-      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01bj3aw27</funderIdentifier>
-      <awardNumber awardURI=''>DE-AC02-09CH11466</awardNumber>
-    </fundingReference>
-    <fundingReference>
-      <funderName>United States Department of Energy</funderName>
-      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01bj3aw27</funderIdentifier>
-      <awardNumber awardURI=''>DE-SC0015480</awardNumber>
-    </fundingReference>
-    <fundingReference>
-      <funderName>National Institute for Fusion Science</funderName>
-      <funderIdentifier funderIdentifierType='ROR'>https://ror.org/01t3wyv61</funderIdentifier>
-      <awardNumber awardURI=''>ULHH040</awardNumber>
-    </fundingReference>
-  </fundingReferences>
+  <contributors>
+    <contributor contributorType='ContactPerson'>
+      <contributorName>Wang, Matthew</contributorName>
+    </contributor>
+    <contributor contributorType='ContactPerson'>
+      <contributorName>Villalta, Andrés</contributorName>
+    </contributor>
+    <contributor contributorType='ContactPerson'>
+      <contributorName>Chou, Katie</contributorName>
+    </contributor>
+    <contributor contributorType='ContactPerson'>
+      <contributorName>Ayres, Christien</contributorName>
+    </contributor>
+  </contributors>
   <relatedIdentifiers>
-    <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp014t64gr25v</relatedIdentifier>
-    <relatedIdentifier relationType='IsCitedBy' relatedIdentifierType='DOI'>10.1063/5.0041507</relatedIdentifier>
+    <relatedIdentifier relationType='IsIdenticalTo' relatedIdentifierType='ARK'>ark:/88435/dsp01nv9356017</relatedIdentifier>
   </relatedIdentifiers>
   <version>1</version>
   <rightsList>
@@ -114,17 +36,20 @@
   </rightsList>
   <descriptions>
     <description descriptionType='Other'>
-      A scalable system for real-time analysis of electron temperature and
-      density based on signals from the Thomson scattering diagnostic, initially
-      developed for and installed on the NSTX-U experiment, was recently adapted
-      for the Large Helical Device (LHD) and operated for the first time during
-      plasma discharges. During its initial operation run, it routinely recorded
-      and processed signals for four spatial points at the laser repetition rate
-      of 30 Hz, well within the system&apos;s rated capability for 60 Hz. We
-      present examples of data collected from this initial run and describe
-      subsequent adaptations to the analysis code to improve the fidelity of the
-      temperature calculations. Please consult the file README.txt for a
-      description of the archive contents.
+      The bitKlavier Grand consists of sample collections of a new Steinway D
+      grand piano from nine different stereo mic images, with: 16 velocity
+      layers, at every minor 3rd (starting at A0); Hammer release samples;
+      Release resonance samples; Pedal samples. Release packages at 96k/24bit,
+      88.2k/24bit, 48k/24bit, 44.1k/16bit are available for various
+      applications. Binaural: Neumann KU100 This is the binaural head placed in
+      the same location as a seated pianist. It accurately captures what the
+      player would hear while playing the instrument. File Naming Convention: C4
+      = middle C. Main note names: [note name][octave]v[velocity].wav -- e.g.,
+      “D#5v13.wav”. Release resonance notes: harm[note
+      name][octave]v[velocity].wav -- e.g., “harmC2v2.wav”. Hammer samples:
+      rel[1-88].wav (one per key) -- e.g., “rel23.wav”. Pedal samples:
+      pedal[D/U][velocity].wav -- e.g., “pedalU2.wav” =&gt; pedal release (U =
+      up), velocity = 2 (quicker release than velocity = 1).
     </description>
   </descriptions>
 </resource>
