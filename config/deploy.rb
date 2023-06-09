@@ -22,3 +22,23 @@ namespace :sidekiq do
 end
 
 after "passenger:restart", "sidekiq:restart"
+
+# rubocop:disable Rails/Output
+namespace :sidekiq do
+  desc "Opens Sidekiq Consoles"
+  task :console do
+    on roles(:app) do |host|
+      sidekiq_host = host.hostname
+      user = "pulsys"
+      port = rand(9000..9999)
+      puts "Opening #{sidekiq_host} Sidekiq Console on port #{port} as user #{user}"
+      Net::SSH.start(sidekiq_host, user) do |session|
+        session.forward.local(port, "localhost", 80)
+        puts "Press Ctrl+C to end Console connection"
+        `open http://localhost:#{port}/describe/sidekiq`
+        session.loop(0.1) { true }
+      end
+    end
+  end
+end
+# rubocop:enable Rails/Output
