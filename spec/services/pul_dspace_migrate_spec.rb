@@ -106,7 +106,7 @@ RSpec.describe PULDspaceMigrate, type: :model do
         expect(work.skip_dataspace_migration?).to be_truthy
         subject.migrate
         expect(subject.migration_snapshot).to be_instance_of MigrationUploadSnapshot
-        expect(subject.migration_message).to match("DataSpace migration skipped for ark:/88435/dsp01h415pd457")
+        expect(subject.migration_message).to match("DSpace migration skipped for ark:/88435/dsp01h415pd457")
         expect(work.reload.resource.migrated).to be_truthy
         expect(enqueued_jobs.size).to eq(3) # but we still migrate the files from Globus
       end

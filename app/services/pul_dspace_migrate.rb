@@ -36,7 +36,7 @@ class PULDspaceMigrate
 
   def migration_message
     message = []
-    message << "DataSpace migration skipped for #{work.ark}. " if work.skip_dataspace_migration?
+    message << "DSpace migration skipped for #{work.ark}. Only migrating files from AWS/Globus." if work.skip_dataspace_migration?
     message << "Migration for #{file_keys.count} #{'file'.pluralize(file_keys.count)} and #{directory_keys.count} #{'directory'.pluralize(directory_keys.count)}"
     message.join(" ")
   end
