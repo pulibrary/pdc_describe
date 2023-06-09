@@ -26,16 +26,7 @@ RSpec.describe Work, type: :model do
     fixture_file_upload("us_covid_2019.csv", "text/csv")
   end
 
-  # let(:s3_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work }
-  # let(:s3_file2) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/SCoData_combined_v1_2020-07_README.txt" }
-  # let(:s3_directory) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/test_directory_key", size: 0 }
-  # let(:fake_s3_service) { stub_s3(data: [s3_file, s3_file2, s3_directory], prefix: "abc/123/") }
-
   let(:s3_file) { FactoryBot.build :s3_file, filename: "#{work.doi}/test_key" }
-  # let(:s3_service_data) { [s3_file] }
-  # let(:s3_service_data) { [] }
-  # let(:s3_service) { stub_s3(data: s3_service_data) }
-  let(:client_s3_files) { [] }
   let(:s3_query_service) { instance_double(S3QueryService) }
 
   before do

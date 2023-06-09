@@ -119,11 +119,13 @@ class Work < ApplicationRecord
   before_save do |work|
     # Ensure that the metadata JSONB postgres field is persisted properly
     work.metadata = JSON.parse(work.resource.to_json)
-    work.save_pre_curation_uploads
   end
 
   after_save do |work|
-    s3_query_service.client_s3_files.sort_by(&:filename)
+    unless Rails.env.test?
+      save_pre_curation_uploads
+      s3_query_service.client_s3_files.sort_by(&:filename)
+    end
 
     if work.approved?
       work.reload

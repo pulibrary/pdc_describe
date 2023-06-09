@@ -112,4 +112,9 @@ RSpec.configure do |config|
       example.run
     end
   end
+
+  # binding.pry
+  config.before(:all) do
+    # DatabaseCleaner.start
+  end
 end
