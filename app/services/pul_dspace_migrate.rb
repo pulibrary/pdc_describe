@@ -22,11 +22,12 @@ class PULDspaceMigrate
     work.save
     @aws_files_and_directories = aws_connector.aws_files
     migrate_dspace
-    aws_copy(aws_files_and_directories)
 
-    # If we didn't migrate anything from DSpace then we didn't generate the migration snapshot,
-    # so do that now.
+    # If we didn't migrate anything from DataSpace then we didn't generate the migration snapshot,
+    # so do that now. Do it before copying the aws files so the MigrationUploadSnapshot will exist
+    # already when the DspaceFileCopyJob is started, and it will update correctly.
     generate_migration_snapshot if work.skip_dataspace_migration?
+    aws_copy(aws_files_and_directories)
   end
 
   def dspace_connector
@@ -120,6 +121,7 @@ class PULDspaceMigrate
     end
 
     def aws_copy(files)
+      Honeybadger.notify("DspaceFileCopyJob started for ark #{work.ark} doi #{work.doi} without a migration snapshot") unless @migration_snapshot
       files.each do |s3_file|
         DspaceFileCopyJob.perform_later(s3_file_json: s3_file.to_json, work_id: work.id, migration_snapshot_id: @migration_snapshot&.id)
         if s3_file.directory?
