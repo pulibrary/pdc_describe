@@ -91,6 +91,10 @@ We use DataCite to mint DOIs and in production you must to define the `DATACITE_
 
 RDSS uses the same [release and deployment process](https://github.com/pulibrary/rdss-handbook/blob/main/release_process.md) for all projects.
 
+## Sidekiq
+
+Background jobs in staging and production are run via [sidekiq](https://sidekiq.org/). You can go to `https://pdc-describe-staging.princeton.edu/describe/sidekiq` to see the sidekiq dashboard, but because these environments are load balanced, that view will switch back and forth between hosts. Instead, use the capistrano task: `cap staging sidekiq:console` or `cap production sidekiq:console`. This will open an ssh tunnel to all nodes in a PDC Describe environment (staging or production), with a tab in your browser for each one.
+
 ## Mail
 
 ### Mail on Development
@@ -108,13 +112,3 @@ Once the tunnel is open you can see the mail that has been sent on [staging1 her
 
 ### Mail on Production
 Emails on production are sent via [Pony Express](https://github.com/pulibrary/pul-it-handbook/blob/f54dfdc7ada1ff993a721f6edb4aa1707bb3a3a5/services/smtp-mail-server.md).
-
-## Design
-An early stages Entity-Relationship Diagram (ERD) is available in [this Google Doc](https://docs.google.com/drawings/d/1q2sfj8rrcNVgqQPK5uT_t79A9SYqncinh3HbnCSGMyQ/edit).
-
-### Sample Data
-Sample data available here: https://docs.google.com/document/d/18ZkBldqWxIIR1UA6qMY87RnGFTKU9HG3EJzodzzFf2A/edit
-
-## Notes on migration process from DataSpace
-
-Datasets are re-described in order to migrate its metadata from modified Dublin Core to modified DataCite, and to migrate location from Princeton's legacy DataSpace repository to the DataCite compliant Princeton Data Commons suite of applications.

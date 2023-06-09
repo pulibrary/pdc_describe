@@ -884,6 +884,11 @@ RSpec.describe WorksController do
         get :file_list, params: { id: work.id }
         file_list = JSON.parse(response.body)
         expect(file_list.map { |f| f["filename"] }.sort).to eq(["10.34770/123-abc/#{work.id}/SCoData_combined_v1_2020-07_README.txt", "10.34770/123-abc/#{work.id}/something.jpg"])
+
+        # Check that we don't accidentally serialize the Work as part of the JSON file list.
+        # Including the work is bad for large records, because if for example a Work has 500 files
+        # and we include the Work in the file list we will be including the 500 files 500 times.
+        expect(file_list[0].keys.include?("work")). to be false
       end
     end
 
