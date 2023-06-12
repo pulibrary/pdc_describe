@@ -27,6 +27,11 @@ RSpec.describe Work, type: :model do
   end
 
   let(:s3_file) { FactoryBot.build :s3_file, filename: "#{work.doi}/test_key" }
+  let(:client_s3_files) do
+    [
+      s3_file
+    ]
+  end
   let(:s3_query_service) { instance_double(S3QueryService) }
 
   before do
@@ -38,6 +43,15 @@ RSpec.describe Work, type: :model do
   end
 
   context "fixed time" do
+    let(:group_json) do
+      JSON.parse(group.to_json)
+    end
+    let(:group_created_at) do
+      group_json["created_at"]
+    end
+    let(:group_updated_at) do
+      group_json["updated_at"]
+    end
     before do
       allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
     end
@@ -73,8 +87,8 @@ RSpec.describe Work, type: :model do
             "title" => "Princeton Research Data Service (PRDS)",
             "description" => nil,
             "code" => "RD",
-            "created_at" => "2021-12-31T19:00:00.000-05:00",
-            "updated_at" => "2021-12-31T19:00:00.000-05:00"
+            "created_at" => group_created_at,
+            "updated_at" => group_updated_at
           }
         }
       )
