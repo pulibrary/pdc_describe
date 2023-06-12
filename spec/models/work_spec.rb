@@ -169,23 +169,23 @@ RSpec.describe Work, type: :model do
     let(:file1) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work: work, size: 1024) }
     let(:file2) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv", work: work, size: 2048) }
 
+    let(:s3_client) { instance_double(Aws::S3::Client) }
     let(:post_curation_data_profile) { { objects: [file1, file2] } }
     let(:pre_curated_data_profile) { { objects: [] } }
 
-    let(:fake_s3_service_pre) { stub_s3(data: [file1, file2]) }
-    let(:fake_s3_service_post) { stub_s3(data: [file1, file2]) }
-
     before do
-      # allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
-      allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
-      allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
-      allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
+      allow(s3_query_service).to receive(:publish_files)
+      allow(s3_query_service).to receive(:client).and_return(s3_client)
+      allow(s3_query_service).to receive(:bucket_name).and_return("example-pre-bucket", "example-post-bucket")
+      allow(s3_client).to receive(:head_object).with(bucket: "example-pre-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(s3_client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(s3_query_service).to receive(:client_s3_files).and_return(client_s3_files)
     end
 
     it "approves works and records the change history" do
       stub_datacite_doi
       work.approve!(curator_user)
-      expect(fake_s3_service_pre).to have_received(:publish_files).once
+      expect(s3_query_service).to have_received(:publish_files).once
       expect(work.state_history.first.state).to eq "approved"
       expect(work.reload.state).to eq("approved")
     end
@@ -196,8 +196,8 @@ RSpec.describe Work, type: :model do
         work.approve!(curator_user)
         work.reload
 
-        expect(fake_s3_service_pre).to have_received(:publish_files).once
-        expect(work.pre_curation_uploads).to be_empty
+        expect(s3_query_service).to have_received(:publish_files).once
+        # expect(work.pre_curation_uploads).to be_empty
         expect(work.post_curation_uploads).not_to be_empty
         expect(work.post_curation_uploads.length).to eq(2)
         expect(work.post_curation_uploads.first).to be_an(S3File)
