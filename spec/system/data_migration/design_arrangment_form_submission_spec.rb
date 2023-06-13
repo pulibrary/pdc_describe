@@ -14,6 +14,7 @@ Consult the file README.txt for a more detailed description of the contents."
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.11578/1888258" }
   let(:keywords) { "" }
+  let(:relation_type) { "IsCitedBy" }
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.11578"))
@@ -68,6 +69,10 @@ Consult the file README.txt for a more detailed description of the contents."
       page.find(:xpath, "//table[@id='funding']//tr[1]//input[@name='funders[][ror]']").set "https://ror.org/01bj3aw27"
       page.find(:xpath, "//table[@id='funding']//tr[1]//input[@name='funders[][award_number]']").set "DE-AC02-09CH11466"
 
+      # Related Objects
+      find("tr:last-child input[name='related_objects[][related_identifier]']").set "https://doi.org/10.1088/1741-4326/ac906e"
+      find("tr:last-child select[name='related_objects[][related_identifier_type]']").find(:option, "DOI").select_option
+      find("tr:last-child select[name='related_objects[][relation_type]']").find(:option, relation_type).select_option
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2022

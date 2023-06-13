@@ -5,21 +5,25 @@
       <creatorName>Baldwin, Jane W</creatorName>
       <givenName>Jane W</givenName>
       <familyName>Baldwin</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0002-4174-2743</nameIdentifier>
     </creator>
     <creator>
       <creatorName>Dessy, Jay Benjamin</creatorName>
       <givenName>Jay Benjamin</givenName>
       <familyName>Dessy</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0003-0053-7409</nameIdentifier>
     </creator>
     <creator>
       <creatorName>Vecchi, Gabriel A</creatorName>
       <givenName>Gabriel A</givenName>
       <familyName>Vecchi</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0002-5085-224X</nameIdentifier>
     </creator>
     <creator>
       <creatorName>Oppenheimer, Michael</creatorName>
       <givenName>Michael</givenName>
       <familyName>Oppenheimer</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0002-9708-5914</nameIdentifier>
     </creator>
     <creator>
       <creatorName>Jia, Liwei</creatorName>
@@ -35,6 +39,7 @@
       <creatorName>Paffendorf, Karen</creatorName>
       <givenName>Karen</givenName>
       <familyName>Paffendorf</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0003-0657-3515</nameIdentifier>
     </creator>
   </creators>
   <titles>

@@ -55,7 +55,7 @@ RSpec.describe "Form submission for migrating dynamic-tension", type: :system, m
       find("tr:last-child input[name='creators[][family_name]']").set "Savcheva"
       click_on "Add Another Creator"
       find("tr:last-child input[name='creators[][orcid]']").set ""
-      find("tr:last-child input[name='creators[][given_name]']").set "DeLuca"
+      find("tr:last-child input[name='creators[][given_name]']").set "Edward E"
       find("tr:last-child input[name='creators[][family_name]']").set "DeLuca"
 
       click_on "Additional Metadata"
@@ -90,6 +90,7 @@ RSpec.describe "Form submission for migrating dynamic-tension", type: :system, m
       # # This will allow us to evolve our local datacite standards and test our records against them.
       datacite = PDCSerialization::Datacite.new_from_work(dynamic_tension_work)
       expect(datacite.valid?).to eq true
+
       expect(datacite.to_xml).to be_equivalent_to(File.read("spec/system/data_migration/dynamic_tension.xml"))
       export_spec_data("dynamic_tension.json", dynamic_tension_work.to_json)
     end

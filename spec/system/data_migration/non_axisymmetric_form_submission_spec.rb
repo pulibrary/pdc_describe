@@ -36,7 +36,7 @@ File name: SourceData.xlsx Description: source data for the 8 figures in the mai
       find("tr:last-child input[name='creators[][family_name]']").set "Wang"
       click_on "Add Another Creator"
       find("tr:last-child input[name='creators[][orcid]']").set "0000-0001-6820-9132"
-      find("tr:last-child input[name='creators[][given_name]']").set "Erik"
+      find("tr:last-child input[name='creators[][given_name]']").set "Erik P."
       find("tr:last-child input[name='creators[][family_name]']").set "Gilson"
       click_on "Add Another Creator"
       find("tr:last-child input[name='creators[][orcid]']").set "0000-0003-3109-5367"
@@ -75,7 +75,7 @@ File name: SourceData.xlsx Description: source data for the 8 figures in the mai
       click_on "Add Another Funder"
       # https://ror.org/021nxhr62 == ROR for National Science Foundation
       page.find(:xpath, "//table[@id='funding']//tr[2]//input[@name='funders[][ror]']").set "https://ror.org/021nxhr62"
-      page.find(:xpath, "//table[@id='funding']//tr[2]//input[@name='funders[][award_number]']").set "2108871"
+      page.find(:xpath, "//table[@id='funding']//tr[2]//input[@name='funders[][award_number]']").set "AST-2108871"
       click_on "Add Another Funder"
       # https://ror.org/027ka1x80 == ROR for National Aeronautics and Space Administration
       page.find(:xpath, "//table[@id='funding']//tr[3]//input[@name='funders[][ror]']").set "https://ror.org/027ka1x80"

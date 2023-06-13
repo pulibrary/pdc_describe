@@ -70,10 +70,11 @@
       <creatorName>Zimmer, G</creatorName>
       <givenName>G</givenName>
       <familyName>Zimmer</familyName>
+      <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0002-1992-5121</nameIdentifier>
     </creator>
     <creator>
-      <creatorName>Kolemen, E</creatorName>
-      <givenName>E</givenName>
+      <creatorName>Kolemen, E.</creatorName>
+      <givenName>E.</givenName>
       <familyName>Kolemen</familyName>
       <nameIdentifier nameIdentifierScheme='ORCID' schemeURI='https://orcid.org'>0000-0003-4212-3247</nameIdentifier>
     </creator>
