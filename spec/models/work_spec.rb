@@ -32,6 +32,7 @@ RSpec.describe Work, type: :model do
       s3_file
     ]
   end
+  let(:s3_client) { instance_double(Aws::S3::Client) }
   let(:s3_query_service) { instance_double(S3QueryService) }
 
   before do
@@ -169,7 +170,6 @@ RSpec.describe Work, type: :model do
     let(:file1) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work: work, size: 1024) }
     let(:file2) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv", work: work, size: 2048) }
 
-    let(:s3_client) { instance_double(Aws::S3::Client) }
     let(:post_curation_data_profile) { { objects: [file1, file2] } }
     let(:pre_curated_data_profile) { { objects: [] } }
 
@@ -504,6 +504,7 @@ RSpec.describe Work, type: :model do
   end
 
   describe "#complete_submission" do
+    let(:bucket_name) { "example-bucket" }
     let(:awaiting_approval_work) do
       work = FactoryBot.create :draft_work
       work.complete_submission!(user)
@@ -521,9 +522,10 @@ RSpec.describe Work, type: :model do
 
     it "transitions from awaiting_approval to approved" do
       stub_datacite_doi
-      # fake_s3_service = stub_s3(data: [s3_file])
-      # allow(fake_s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: awaiting_approval_work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
-      allow(s3_query_service.client).to receive(:head_object).with(bucket: "example-bucket", key: awaiting_approval_work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(s3_query_service).to receive(:publish_files)
+      allow(s3_query_service).to receive(:client).and_return(s3_client)
+      allow(s3_query_service).to receive(:bucket_name).and_return(bucket_name)
+      allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: awaiting_approval_work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
 
       awaiting_approval_work.approve!(curator_user)
       expect(awaiting_approval_work.reload.state).to eq("approved")
