@@ -2,12 +2,37 @@
 require "dry/monads"
 include Dry::Monads[:result] # Needed to mock the datacite client Success and Failure
 
-def stub_datacite_doi(result: Success("It worked"))
-  stub_datacite = instance_double("Datacite::Client")
-  allow(stub_datacite).to receive(:update).and_return(result)
+def default_datacite_response
+  Success("It worked")
+end
+
+# rubocop:disable Metrics/MethodLength
+def stub_datacite_doi(result: nil)
+  @datacite_client_response = result || default_datacite_response
+
+  stub_datacite = if @stub_datacite
+                    @stub_datacite
+                  else
+                    # stubbed = double("Datacite::Client")
+                    stubbed = instance_double("Datacite::Client")
+                    allow(stubbed).to receive(:update).and_return(@datacite_client_response)
+                    @stub_datacite = stubbed
+                  end
+
+  @datacite_new_doi ||= "test-doi"
+  @datacite_client_doi_body ||= double("datacite_client_doi_body")
+  @datacite_client_doi_status ||= true
+  @datacite_client_doi_response ||= double("datacite_client_doi_response")
+
+  allow(@datacite_client_doi_body).to receive(:doi).and_return(@datacite_new_doi)
+  allow(@datacite_client_doi_response).to receive(:success).and_return(@datacite_client_doi_body)
+  allow(@datacite_client_doi_response).to receive(:success?).and_return(@datacite_client_doi_status)
+  allow(stub_datacite).to receive(:autogenerate_doi).and_return(@datacite_client_doi_response)
   allow(Datacite::Client).to receive(:new).and_return(stub_datacite)
+
   stub_datacite
 end
+# rubocop:enable Metrics/MethodLength
 
 def datacite_register_body(prefix: "10.80021")
   Rails.configuration.datacite.prefix = prefix

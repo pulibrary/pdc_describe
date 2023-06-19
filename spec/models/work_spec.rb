@@ -35,6 +35,7 @@ RSpec.describe Work, type: :model do
   let(:s3_client) { instance_double(Aws::S3::Client) }
   let(:s3_query_service) { instance_double(S3QueryService) }
   let(:datacite_client) { stub_datacite_doi }
+  # let(:datacite_client_result) { nil }
 
   before do
     # For tests in which the HTTP requests are submitted to WebMock
@@ -484,8 +485,9 @@ RSpec.describe Work, type: :model do
         allow(data_cite_failure).to receive(:status).and_return("test status")
         allow(data_cite_result).to receive(:failure).and_return(data_cite_failure)
         allow(data_cite_result).to receive(:success?).and_return(false)
-        allow(data_cite_connection).to receive(:autogenerate_doi).and_return(data_cite_result)
-        allow(Datacite::Client).to receive(:new).and_return(data_cite_connection)
+
+        # @data_cite_result = data_cite_result
+        # allow(Datacite::Client).to receive(:new).and_return(data_cite_connection)
       end
 
       it "raises an error" do
@@ -665,7 +667,6 @@ RSpec.describe Work, type: :model do
             expect(WorkActivity).to have_received(
               2, "@jon_lindberg, @virginaema_eliasson [Invasion of the Forbidden Brains](http://www.example.com/works/2) has been approved.", 3, { activity_type: "NOTIFICATION" }
             )
-            # binding.pry
 
             # expect { approved_work }
             #  .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)

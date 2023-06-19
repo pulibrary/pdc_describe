@@ -123,7 +123,6 @@ class S3QueryService
   # @return [Array<S3File>]
   def client_s3_files(reload: false, bucket_name: self.bucket_name, prefix: self.prefix, ignore_directories: true)
     return [] unless model.persisted?
-    binding.pry
 
     @client_s3_files = nil if reload # force a reload
     @client_s3_files ||= begin
