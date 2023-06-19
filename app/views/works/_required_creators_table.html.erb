@@ -37,9 +37,11 @@
           <input name="creators[][orcid]" value="<%= creator&.orcid %>" class="orcid-entry-creator"  placeholder="0000-0000-0000-0000" />
         </td>
         <td>
+          <span class="hidden given-name-required-message"><i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a given name</span>
           <input name="creators[][given_name]" value="<%= creator&.given_name %>" class="given-entry-creator" />
         </td>
         <td class="creators-table-row-family-name">
+          <span class="hidden family-name-required-message"><i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a family name</span>
           <input name="creators[][family_name]" value="<%= creator&.family_name %>" class="family-entry-creator" />
         </td>
         <td class="creators-table-row-affiliation">

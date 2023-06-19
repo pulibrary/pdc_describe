@@ -1,5 +1,5 @@
 /* eslint class-methods-use-this: ["error", {
-  "exceptMethods": ["hasCreators"] }] */
+  "exceptMethods": ["hasCreators", "validCreators"] }] */
 
 import TableRow from './table_row.es6';
 
@@ -27,6 +27,8 @@ export default class EditRequiredFields {
       this.openRequired();
       $('.creators-table-row input').focus();
       $('#creators-required-message').removeClass('hidden');
+      status = false;
+    } else if (!this.validCreators()) {
       status = false;
     }
 
@@ -66,6 +68,29 @@ export default class EditRequiredFields {
       }
     }
     return false;
+  }
+
+  validCreators() {
+    let i;
+    let validCreators = true;
+    const rows = $('.creators-table-row');
+    for (i = 0; i < rows.length; i += 1) {
+      const given = $(rows[i]).find('.given-entry-creator')[0];
+      if (given.value === '') {
+        $(rows[i]).find('.given-name-required-message').removeClass('hidden');
+        validCreators = false;
+      } else {
+        $(rows[i]).find('.given-name-required-message').addClass('hidden');
+      }
+      const family = $(rows[i]).find('.family-entry-creator')[0];
+      if (family.value === '') {
+        $(rows[i]).find('.family-name-required-message').removeClass('hidden');
+        validCreators = false;
+      } else {
+        $(rows[i]).find('.family-name-required-message').addClass('hidden');
+      }
+    }
+    return validCreators;
   }
 
   openRequired() {
