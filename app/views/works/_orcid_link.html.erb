@@ -13,3 +13,13 @@
     <%= given_name -%>
   <% end %>
 </span>
+<% if person.affiliation.present? %>
+  &nbsp;from&nbsp;
+  <span class="affiliation">
+    <% if person.affiliation_ror.present? %>
+      <%= render("ror_link", ror_link: person.affiliation_ror, ror_name: person.affiliation) %>
+    <% else %>
+      <%= person.affiliation -%>
+    <% end %>
+  </span>
+<% end %>

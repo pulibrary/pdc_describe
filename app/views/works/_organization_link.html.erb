@@ -1,0 +1,14 @@
+<% display_name = capture do %>
+  <%= organization.value %>
+  <% if organization.type.present? %>
+    (<%= organization.type.titleize %>)
+  <% end %>
+<% end.strip %>
+
+<span class="author-name">
+  <% if organization.ror.present? %>
+    <%= render("ror_link", ror_link: organization.ror, ror_name: display_name) %>
+  <% else %>
+    <%= display_name -%>
+  <% end %>
+</span>
