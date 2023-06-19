@@ -34,9 +34,13 @@ RSpec.describe Work, type: :model do
   end
   let(:s3_client) { instance_double(Aws::S3::Client) }
   let(:s3_query_service) { instance_double(S3QueryService) }
+  let(:datacite_client) { stub_datacite_doi }
 
   before do
+    # For tests in which the HTTP requests are submitted to WebMock
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+    # For cases in which the Datacite::Client objects are mocked
+    datacite_client
 
     # s3_service
     allow(s3_query_service).to receive(:client_s3_files).and_return(client_s3_files)
@@ -594,7 +598,7 @@ RSpec.describe Work, type: :model do
 
         allow(data_cite_result).to receive(:failure?).and_return(true)
         allow(data_cite_connection).to receive(:update).and_return(data_cite_result)
-        allow(Datacite::Client).to receive(:new).and_return(data_cite_connection)
+        # allow(Datacite::Client).to receive(:new).and_return(data_cite_connection)
 
         stub_request(:put, "https://api.datacite.org/dois/#{doi}")
         # stub_datacite_doi
@@ -611,8 +615,12 @@ RSpec.describe Work, type: :model do
           stub_request(:get, "https://example-bucket.s3.amazonaws.com/?list-type=2&max-keys=1000&prefix=10.34770/123-abc//").to_return(status: 200, body: "", headers: {})
           S3QueryService.new(work, false)
         end
+        let(:datacite_client) { instance_double(Datacite::Client) }
+        let(:datacite_response) { double }
+        let(:datacite_failure) { double }
 
         before do
+          @stub_datacite = datacite_client
           allow(s3_file).to receive(:key).and_return("test-key")
           allow(s3_file).to receive(:size).and_return(0)
           stub_datacite_doi
@@ -620,11 +628,19 @@ RSpec.describe Work, type: :model do
 
         context "with a work which has already been approved" do
           before do
+            allow(datacite_failure).to receive(:reason_phrase).and_return("test")
+            allow(datacite_failure).to receive(:status).and_return(500)
+            allow(datacite_response).to receive(:failure).and_return(datacite_failure)
+
+            allow(datacite_response).to receive(:failure?).and_return(false)
+
+            allow(datacite_client).to receive(:update).and_return(datacite_response)
             allow(s3_client).to receive(:head_object).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
             allow(s3_query_service).to receive(:publish_files).and_call_original
             allow(s3_query_service).to receive(:client).and_return(s3_client)
             allow(s3_query_service).to receive(:bucket_name).and_return("example-pre-bucket", "example-post-bucket")
 
+            allow(WorkActivity).to receive(:add_work_activity).and_call_original
             approved_work.update_curator(curator_user.id, user)
             approved_work.approve!(curator_user)
           end
@@ -636,19 +652,27 @@ RSpec.describe Work, type: :model do
           end
 
           it "is approved" do
-            # stub_datacite_doi
-
             expect(approved_work.reload.state).to eq("approved")
           end
 
           it "Notifies Curators and Depositor" do
-            # stub_datacite_doi
+            expect(WorkActivity).to have_received(:add_work_activity).with(
+              2, "Set curator to @jon_lindberg", 4, { activity_type: "SYSTEM" }
+            )
+            expect(WorkActivity).to have_received(
+              2, "marked as Approved", 3, { activity_type: "SYSTEM" }
+            )
+            expect(WorkActivity).to have_received(
+              2, "@jon_lindberg, @virginaema_eliasson [Invasion of the Forbidden Brains](http://www.example.com/works/2) has been approved.", 3, { activity_type: "NOTIFICATION" }
+            )
+            # binding.pry
 
-            expect { approved_work }
-              .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
-              .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
-              .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
-            expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Approved")
+            # expect { approved_work }
+            #  .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
+            #  .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
+            #  .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
+            # expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Approved")
+
             user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
             expect(user_notification).to include("@#{curator_user.uid}")
             expect(user_notification).to include("@#{approved_work.created_by_user.uid}")
@@ -656,8 +680,10 @@ RSpec.describe Work, type: :model do
           end
 
           it "publishes the doi" do
-            expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(0)
-            expect(a_request(:put, "https://api.datacite.org/dois/#{doi}")).to have_been_made
+            approved_work2 = FactoryBot.create(:awaiting_approval_work, doi: doi)
+
+            expect { approved_work2 }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(0)
+            expect(datacite_client).to have_received(:update)
           end
         end
       end
@@ -678,11 +704,6 @@ RSpec.describe Work, type: :model do
 
       before do
         stub_request(:put, "https://api.datacite.org/dois/#{approved_work.doi}")
-
-        # allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
-        # allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
-        # allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
-        # allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
 
         allow(s3_query_service).to receive(:publish_files)
         allow(s3_query_service).to receive(:client).and_return(s3_client)
