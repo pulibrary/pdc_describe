@@ -46,8 +46,14 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       fill_in "title_main", with: title
 
       find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
+      click_on "Create New"
+      expect(page).to have_content("Must provide a family name")
+
       find("tr:last-child input[name='creators[][family_name]']").set "Abrams"
       click_on "Add Another Creator"
+      click_on "Create New"
+      expect(page).to have_content("Must provide a given name")
+      expect(page).to have_content("Must provide a family name")
       find("tr:last-child input[name='creators[][given_name]']").set "Alexis"
       find("tr:last-child input[name='creators[][family_name]']").set "Antracoli"
       click_on "Add Another Creator"
