@@ -49,9 +49,11 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
       # Submitter can edit their own work
       visit edit_work_path(work)
       expect(page).to have_content file1.filename
+      expect(page).to have_content file1.display_size
       fill_in "title_main", with: title2
       click_on "Save Work"
       expect(page).to have_content file1.filename
+      expect(page).to have_content file1.display_size
       sign_out submitter1
 
       # But other users cannot edit this work. If they try, they are redirected.

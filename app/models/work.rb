@@ -396,6 +396,7 @@ class Work < ApplicationRecord
         "last_modified": s3_file.last_modified,
         "last_modified_display": s3_file.last_modified_display,
         "size": s3_file.size,
+        "display_size": s3_file.display_size,
         "url": s3_file.url
     }
     end
@@ -478,6 +479,7 @@ class Work < ApplicationRecord
       {
         "filename": upload.filename,
         "size": upload.size,
+        "display_size": upload.display_size,
         "url": upload.globus_url
       }
     end
