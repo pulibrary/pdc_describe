@@ -69,6 +69,20 @@ RSpec.describe WorksController do
       expect(response.location.start_with?("http://test.host/works/")).to be true
     end
 
+    # in theory we should never get to the new submission without a title, becuase the javascript should prevent it
+    #  In reality we are occasionally having issues with the javascript failing and the button submitting anyway.
+    it "renders the edit page when creating a new dataset without a title" do
+      params = {
+        "group_id" => work.group.id,
+        "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
+      }
+      sign_in user
+      post :new_submission, params: params
+      expect(response.status).to be 422
+      expect(assigns[:errors]).to eq(["Cannot Draft: Must provide a title"])
+      expect(response).to render_template :new_submission
+    end
+
     it "handles the update page" do
       params = {
         "title_main" => "test dataset updated",

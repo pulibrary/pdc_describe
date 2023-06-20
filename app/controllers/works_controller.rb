@@ -6,7 +6,7 @@ require "open-uri"
 # rubocop:disable Metrics/ClassLength
 class WorksController < ApplicationController
   include ERB::Util
-  around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :validate, :create]
+  around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :validate, :create, :new_submission]
 
   skip_before_action :authenticate_user!
   before_action :authenticate_user!, unless: :public_request?
@@ -32,10 +32,9 @@ class WorksController < ApplicationController
 
   # Renders the "step 0" information page before creating a new dataset
   def new
+    @work = Work.new(created_by_user_id: current_user.id, group: current_user.default_group)
     if wizard_mode?
       render "new_submission"
-    else
-      @work = Work.new(created_by_user_id: current_user.id, group: current_user.default_group)
     end
   end
 
@@ -56,10 +55,10 @@ class WorksController < ApplicationController
   # Creates the new dataset
   def new_submission
     default_group_id = current_user.default_group.id
-    work = Work.new(created_by_user_id: current_user.id, group_id: default_group_id)
-    work.resource = FormToResourceService.convert(params, work)
-    work.draft!(current_user)
-    redirect_to edit_work_path(work, wizard: true)
+    @work = Work.new(created_by_user_id: current_user.id, group_id: default_group_id)
+    @work.resource = FormToResourceService.convert(params, @work)
+    @work.draft!(current_user)
+    redirect_to edit_work_path(@work, wizard: true)
   end
 
   ##
@@ -344,6 +343,8 @@ class WorksController < ApplicationController
         :new
       elsif action_name == "validate"
         :edit
+      elsif action_name == "new_submission"
+        :new_submission
       else
         @work_decorator = WorkDecorator.new(@work, current_user)
         :show
