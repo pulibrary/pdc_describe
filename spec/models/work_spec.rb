@@ -26,7 +26,8 @@ RSpec.describe Work, type: :model do
     fixture_file_upload("us_covid_2019.csv", "text/csv")
   end
 
-  let(:s3_file) { FactoryBot.build :s3_file, filename: "#{work.doi}/test_key" }
+  let(:doi) { work.doi }
+  let(:s3_file) { FactoryBot.build :s3_file, filename: "#{doi}/test_key" }
   let(:client_s3_files) do
     [
       s3_file
@@ -35,7 +36,7 @@ RSpec.describe Work, type: :model do
   let(:s3_client) { instance_double(Aws::S3::Client) }
   let(:s3_query_service) { instance_double(S3QueryService) }
   let(:datacite_client) { stub_datacite_doi }
-  # let(:datacite_client_result) { nil }
+  let(:bucket_name) { "example-bucket" }
 
   before do
     # For tests in which the HTTP requests are submitted to WebMock
@@ -44,6 +45,7 @@ RSpec.describe Work, type: :model do
     datacite_client
 
     # s3_service
+    allow(s3_query_service).to receive(:bucket_name).and_return(bucket_name)
     allow(s3_query_service).to receive(:client_s3_files).and_return(client_s3_files)
     allow(S3QueryService).to receive(:new).and_return(s3_query_service)
   end
@@ -180,6 +182,7 @@ RSpec.describe Work, type: :model do
 
     before do
       allow(s3_query_service).to receive(:publish_files)
+      allow(s3_query_service).to receive(:data_profile).and_return({ objects: [file1, file2] })
       allow(s3_query_service).to receive(:client).and_return(s3_client)
       allow(s3_query_service).to receive(:bucket_name).and_return("example-pre-bucket", "example-post-bucket")
       allow(s3_client).to receive(:head_object).with(bucket: "example-pre-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
@@ -260,8 +263,9 @@ RSpec.describe Work, type: :model do
     end
 
     before do
+      allow(s3_query_service).to receive(:publish_files)
       allow(s3_query_service).to receive(:client).and_return(s3_client)
-      allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(s3_client).to receive(:head_object).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
     end
 
     it "updates the ARK metadata" do
@@ -1151,15 +1155,17 @@ RSpec.describe Work, type: :model do
   end
 
   describe "#find_by_ark" do
-    let(:work) { FactoryBot.create(:draft_work, ark: "ark:/88435/xyz123") }
+    let(:client_s3_files) { [] }
+    let(:doi) { "ark:/88435/xyz123" }
+    let(:work) { FactoryBot.create(:draft_work, ark: doi) }
 
     before do
+      @ezid = doi
       stub_ark
       work # make sure the work is present
     end
 
     it "finds the work" do
-      FactoryBot.create(:draft_work, doi: "ark:/88435/xyz1234")
       expect(Work.find_by_ark("ark:/88435/xyz123")).to eq(work)
       expect(Work.find_by_ark("88435/xyz123")).to eq(work)
     end
@@ -1172,13 +1178,13 @@ RSpec.describe Work, type: :model do
     end
 
     it "can find nil arks" do
-      work = FactoryBot.create(:draft_work, ark: nil)
-      expect(Work.find_by_ark(nil)).to eq(work)
+      work2 = FactoryBot.create(:draft_work, ark: nil)
+      expect(Work.find_by_ark(nil)).to eq(work2)
     end
 
     it "can find empty dois" do
-      work = FactoryBot.create(:draft_work, ark: "")
-      expect(Work.find_by_ark("")).to eq(work)
+      work3 = FactoryBot.create(:draft_work, ark: "")
+      expect(Work.find_by_ark("")).to eq(work3)
     end
   end
 
