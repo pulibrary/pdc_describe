@@ -633,6 +633,8 @@ RSpec.describe Work, type: :model do
         end
 
         context "with a work which has already been approved" do
+          let(:user) { approved_work.created_by_user }
+
           before do
             allow(datacite_failure).to receive(:reason_phrase).and_return("test")
             allow(datacite_failure).to receive(:status).and_return(500)
@@ -662,16 +664,17 @@ RSpec.describe Work, type: :model do
           end
 
           it "Notifies Curators and Depositor" do
+            # def self.add_work_activity(work_id, message, user_id, activity_type:, created_at: nil)
             expect(WorkActivity).to have_received(:add_work_activity).with(
-              2, "Set curator to @#{curator_user.uid}", 4, { activity_type: "SYSTEM" }
+              approved_work.id, "Set curator to @#{curator_user.uid}", user.id, { activity_type: "SYSTEM" }
             )
             expect(WorkActivity).to have_received(:add_work_activity).with(
-              2, "marked as Approved", 3, { activity_type: "SYSTEM" }
+              approved_work.id, "marked as Approved", curator_user.id, { activity_type: "SYSTEM" }
             )
             expect(WorkActivity).to have_received(:add_work_activity).with(
-              2,
-              "@#{curator_user.uid}, @#{approved_work.created_by_user.uid} [#{approved_work.title}](#{Rails.application.routes.url_helpers.work_url(approved_work)}) has been approved.",
-              3,
+              approved_work.id,
+              "@#{curator_user.uid}, @#{user.uid} [#{approved_work.title}](#{Rails.application.routes.url_helpers.work_url(approved_work)}) has been approved.",
+              curator_user.id,
               { activity_type: "NOTIFICATION" }
             )
 
