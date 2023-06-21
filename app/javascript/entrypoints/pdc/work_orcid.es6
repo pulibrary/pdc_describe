@@ -22,7 +22,14 @@ export default class WorkOrcid {
     if (this.isOrcidFormat(orcidValue)) {
       $.ajax({
         url: `${pdc.orcid_url}/${orcidValue}`,
-        dataType: 'jsonp',
+        beforeSend(xhr) {
+          // The ORCID API is very finicky and does not reliably work if the
+          // "`Accept: application/json" request header is not present.
+          //
+          // These two ORCIDS are examples that only work if the Accept header is
+          // present: 0000-0002-8201-2528 and 0000-0002-7348-7142
+          xhr.setRequestHeader('Accept', 'application/json');
+        },
       })
         .done((data) => {
           const givenName = data.person.name['given-names'].value;
@@ -30,8 +37,8 @@ export default class WorkOrcid {
           $(givenNameId).val(givenName);
           $(familyNameId).val(familyName);
         })
-        .fail((XMLHttpRequest, textStatus, errorThrown) => {
-          console.error(`Error fetching ORCID for ${errorThrown}`);
+        .fail((_XMLHttpRequest, _textStatus, errorThrown) => {
+          console.error(`Error fetching ORCID ${orcidValue}: ${errorThrown}`);
         });
     }
   }
