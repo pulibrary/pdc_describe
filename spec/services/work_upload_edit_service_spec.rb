@@ -146,14 +146,14 @@ RSpec.describe WorkUploadsEditService do
       upload_service = described_class.new(work, user)
       updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
       perform_enqueued_jobs
-      filenames = updated_work.reload.pre_curation_uploads.map { |attachment| attachment.filename.to_s }
-      expect(filenames).to eq([uploaded_file2.original_filename, uploaded_file3.original_filename])
+      expect(fake_s3_service).to have_received(:upload_file).with(hash_including(filename: uploaded_file2.original_filename))
+      expect(fake_s3_service).to have_received(:upload_file).with(hash_including(filename: uploaded_file3.original_filename))
 
       # deleted the two existing files
       expect(fake_s3_service).to have_received(:delete_s3_object).twice
 
       # it logs the activity (2 deletes + 2 adds)
-      work_activities = work.work_activity
+      work_activities = updated_work.work_activity
       activity_log = work_activities.map { |work_activity| JSON.parse(work_activity.message) }.flatten
       expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"].include?("us_covid_2019.csv") }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil
