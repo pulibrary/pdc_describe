@@ -114,7 +114,7 @@ RSpec.describe Work, type: :model do
     work = Work.new(group: group, resource: FactoryBot.build(:resource, doi: ""))
     work.draft_doi
     work.draft_doi # Doing this multiple times on purpose to make sure the api is only called once
-    expect(a_request(:post, "https://#{Rails.configuration.datacite.host}/dois")).to have_been_made.once
+    expect(datacite_client).to have_received(:autogenerate_doi).once
   end
 
   it "prevents datasets with no users" do
@@ -442,7 +442,7 @@ RSpec.describe Work, type: :model do
 
     it "drafts a doi and the DOI is persisted" do
       draft_work
-      expect(a_request(:post, "https://#{Rails.configuration.datacite.host}/dois")).to have_been_made
+      expect(datacite_client).to have_received(:autogenerate_doi)
       expect(draft_work.resource.doi).not_to eq nil
     end
 
