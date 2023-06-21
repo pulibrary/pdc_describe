@@ -663,13 +663,16 @@ RSpec.describe Work, type: :model do
 
           it "Notifies Curators and Depositor" do
             expect(WorkActivity).to have_received(:add_work_activity).with(
-              2, "Set curator to @jon_lindberg", 4, { activity_type: "SYSTEM" }
+              2, "Set curator to @#{curator_user.uid}", 4, { activity_type: "SYSTEM" }
             )
-            expect(WorkActivity).to have_received(
+            expect(WorkActivity).to have_received(:add_work_activity).with(
               2, "marked as Approved", 3, { activity_type: "SYSTEM" }
             )
-            expect(WorkActivity).to have_received(
-              2, "@jon_lindberg, @virginaema_eliasson [Invasion of the Forbidden Brains](http://www.example.com/works/2) has been approved.", 3, { activity_type: "NOTIFICATION" }
+            expect(WorkActivity).to have_received(:add_work_activity).with(
+              2,
+              "@#{curator_user.uid}, @#{approved_work.created_by_user.uid} [#{approved_work.title}](#{Rails.application.routes.url_helpers.work_url(approved_work)}) has been approved.",
+              3,
+              { activity_type: "NOTIFICATION" }
             )
 
             # expect { approved_work }
