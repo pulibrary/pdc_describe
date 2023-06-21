@@ -162,9 +162,16 @@ RSpec.describe Work, type: :model do
   end
 
   context "with related objects" do
-    subject(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
-    it "has related objects" do
+    subject(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work, ark: doi) }
+
+    let(:doi) { "ark:/88435/xyz123" }
+
+    before do
+      @ezid = doi
       stub_ark
+    end
+
+    it "has related objects" do
       expect(work.resource.related_objects.first.related_identifier).to eq "https://www.biorxiv.org/content/10.1101/545517v1"
       expect(work.resource.related_objects.first.related_identifier_type).to eq "arXiv"
       expect(work.resource.related_objects.first.relation_type).to eq "IsCitedBy"
@@ -480,18 +487,22 @@ RSpec.describe Work, type: :model do
     end
 
     context "when creating the DataCite DOI fails" do
-      let(:data_cite_failure) { double }
-      let(:data_cite_result) { double }
-      let(:data_cite_connection) { double }
+      let(:datacite_client_doi_body) { @datacite_client_doi_body }
+      let(:datacite_client_doi_response) { @datacite_client_doi_response }
+      let(:datacite_client_doi_status) { Failure("It failed") }
+
+      before(:all) do
+        @datacite_client_doi_success = false
+      end
+
+      after(:all) do
+        @datacite_client_doi_success = true
+      end
 
       before do
-        allow(data_cite_failure).to receive(:reason_phrase).and_return("test status")
-        allow(data_cite_failure).to receive(:status).and_return("test status")
-        allow(data_cite_result).to receive(:failure).and_return(data_cite_failure)
-        allow(data_cite_result).to receive(:success?).and_return(false)
-
-        # @data_cite_result = data_cite_result
-        # allow(Datacite::Client).to receive(:new).and_return(data_cite_connection)
+        allow(datacite_client_doi_body).to receive(:reason_phrase).and_return("test status")
+        allow(datacite_client_doi_body).to receive(:status).and_return("test status")
+        allow(datacite_client_doi_response).to receive(:failure).and_return(datacite_client_doi_status)
       end
 
       it "raises an error" do

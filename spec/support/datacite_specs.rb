@@ -13,7 +13,6 @@ def stub_datacite_doi(result: nil)
   stub_datacite = if @stub_datacite
                     @stub_datacite
                   else
-                    # stubbed = double("Datacite::Client")
                     stubbed = instance_double("Datacite::Client")
                     allow(stubbed).to receive(:update).and_return(@datacite_client_response)
                     @stub_datacite = stubbed
@@ -21,12 +20,12 @@ def stub_datacite_doi(result: nil)
 
   @datacite_new_doi ||= "test-doi"
   @datacite_client_doi_body ||= double("datacite_client_doi_body")
-  @datacite_client_doi_status ||= true
+  @datacite_client_doi_success = true unless defined?(@datacite_client_doi_success)
   @datacite_client_doi_response ||= double("datacite_client_doi_response")
 
   allow(@datacite_client_doi_body).to receive(:doi).and_return(@datacite_new_doi)
   allow(@datacite_client_doi_response).to receive(:success).and_return(@datacite_client_doi_body)
-  allow(@datacite_client_doi_response).to receive(:success?).and_return(@datacite_client_doi_status)
+  allow(@datacite_client_doi_response).to receive(:success?).and_return(@datacite_client_doi_success)
   allow(stub_datacite).to receive(:autogenerate_doi).and_return(@datacite_client_doi_response)
   allow(Datacite::Client).to receive(:new).and_return(stub_datacite)
 

@@ -16,6 +16,9 @@ require "ffaker"
 # NOTE: require 'devise' after require 'rspec/rails'
 require "devise"
 
+require "dry/monads"
+include Dry::Monads[:result] # Needed to mock the datacite client Success and Failure
+
 require "simplecov"
 require "simplecov_json_formatter"
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
