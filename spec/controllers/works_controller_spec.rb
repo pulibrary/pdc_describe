@@ -543,8 +543,7 @@ RSpec.describe WorksController do
       it "files are saved" do
         post :create, params: request_params
         perform_enqueued_jobs
-        created_work = Work.all.find { |work| work.title == request_params["title_main"] }
-        expect(created_work.pre_curation_uploads.count).to eq 1
+        expect(fake_s3_service).to have_received(:upload_file).with(hash_including(filename: "us_covid_2019.csv"))
       end
     end
 
@@ -726,6 +725,7 @@ RSpec.describe WorksController do
     end
 
     context "with an uploaded CSV file" do
+      let(:fake_s3_service) { stub_s3 }
       let(:params) do
         {
           "_method" => "patch",
@@ -747,18 +747,15 @@ RSpec.describe WorksController do
       end
 
       before do
-        stub_request(:get, /#{bucket_url}/).to_return(status: 200)
-        stub_request(:put, /#{bucket_url}/).to_return(status: 200)
         sign_in user
+        fake_s3_service # make sure the s3 service is mocked here
         post :file_uploaded, params: params
         perform_enqueued_jobs
       end
 
       it "upload files directly from user requests" do
         expect(response).to redirect_to(work_review_path)
-        reloaded = work.reload
-        expect(reloaded.pre_curation_uploads).not_to be_empty
-        expect(reloaded.pre_curation_uploads.first).to be_an(ActiveStorage::Attachment)
+        expect(fake_s3_service).to have_received(:upload_file).with(hash_including(filename: "us_covid_2019.csv"))
       end
 
       context "when files are not specified within the parameters" do

@@ -11,9 +11,12 @@ class AttachFileToWorkJob < ApplicationJob
     @file_name = file_name
     @size = size
 
-    blob = create_blob
+    File.open(file_path) do |file|
+      unless work.s3_query_service.upload_file(io: file.to_io, filename: file_name)
+        raise "An error uploading #{file_name} was encountered for work #{work}"
+      end
+    end
 
-    work.pre_curation_uploads.attach(blob)
     work.track_change(:added, @file_name)
     work.log_file_changes(@user_id)
   end
@@ -22,13 +25,5 @@ class AttachFileToWorkJob < ApplicationJob
 
     def work
       @work ||= Work.find(@work_id)
-    end
-
-    def create_blob
-      params = { filename: @file_name, content_type: "", byte_size: @size, checksum: "" }
-
-      blob = ActiveStorage::Blob.create_before_direct_upload!(**params)
-      blob.key = @file_name
-      blob
     end
 end
