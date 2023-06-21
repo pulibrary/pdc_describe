@@ -82,12 +82,10 @@ class FakeIdentifierIntegration < Sinatra::Base
   # rubocop:enable Metrics/MethodLength
 
   get "/orcid/:orcid" do |orcid|
-
     # Notice that we force "application/json" on the JavaScript call and therefore
     # we must use `content_type :json` in our response as well.
     content_type(:json)
 
-    callback = params[:callback]
     data = {
       "orcid-identifier" => {
         "uri" => "http://orcid.org/#{orcid}",
