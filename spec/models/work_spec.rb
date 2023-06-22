@@ -35,7 +35,8 @@ RSpec.describe Work, type: :model do
   end
   let(:s3_client) { instance_double(Aws::S3::Client) }
   let(:s3_query_service) { instance_double(S3QueryService) }
-  let(:datacite_client) { stub_datacite_doi }
+  let(:datacite_doi_result) { nil }
+  let(:datacite_client) { stub_datacite_doi(result: datacite_doi_result) }
   let(:bucket_name) { "example-bucket" }
 
   before do
@@ -615,10 +616,8 @@ RSpec.describe Work, type: :model do
 
         allow(data_cite_result).to receive(:failure?).and_return(true)
         allow(data_cite_connection).to receive(:update).and_return(data_cite_result)
-        # allow(Datacite::Client).to receive(:new).and_return(data_cite_connection)
 
         stub_request(:put, "https://api.datacite.org/dois/#{doi}")
-        # stub_datacite_doi
       end
 
       after do
@@ -801,12 +800,49 @@ _status: public
     end
 
     context "when the DOI returns an error" do
+      subject(:approved_work) { FactoryBot.create :awaiting_approval_work, ark: ark }
+      let(:ark) { "ark:/#{doi}" }
+      let(:datacite_doi_response_env) do
+        Faraday::Env.new({
+                           status: "bad",
+                           reason_phrase: "a problem"
+                         })
+      end
+      let(:datacite_doi_response) do
+        Faraday::Response.new(datacite_doi_response_env)
+      end
+      let(:datacite_doi_result) do
+        Failure(datacite_doi_response)
+      end
+      let(:ezid_response_body) do
+        <<-EOS
+success: #{ark}
+_updated: 1416507086
+_target: http://ezid.cdlib.org/id/#{ark}
+_profile: erc
+_ownergroup: apitest
+_owner: apitest
+_export: yes
+_created: 1416507086
+_status: public
+        EOS
+      end
+      let(:s3_object_key) { approved_work.s3_object_key }
+
       before do
-        stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new({ status: "bad", reason_phrase: "a problem" }))))
+        stub_request(:get, "https://ezid.cdlib.org/id/#{ark}").to_return(status: 200, body: ezid_response_body)
+        stub_request(:post, "https://ezid.cdlib.org/id/#{ark}").to_return(status: 200, body: ezid_response_body)
+
+        allow(s3_query_service).to receive(:publish_files)
+        allow(s3_query_service).to receive(:client).and_return(s3_client)
+        allow(s3_query_service).to receive(:bucket_name).and_return("example-pre-bucket", "example-post-bucket")
+        allow(s3_client).to receive(:head_object).with(bucket: "example-post-bucket", key: s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+        allow(s3_client).to receive(:head_object).with(bucket: "example-pre-bucket", key: s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
       end
 
       it "notes a issue when an error occurs" do
-        expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(1)
+        approved_work.update_curator(curator_user.id, user)
+        expect { approved_work.approve!(curator_user) }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(1)
       end
     end
   end

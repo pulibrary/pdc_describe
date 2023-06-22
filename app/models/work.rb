@@ -635,6 +635,7 @@ class Work < ApplicationRecord
 
       if doi&.starts_with?(Rails.configuration.datacite.prefix)
         result = data_cite_connection.update(id: doi, attributes: doi_attributes)
+        binding.pry
         if result.failure?
           resolved_user = curator_or_current_uid(user)
           message = "@#{resolved_user} Error publishing DOI. #{result.failure.status} / #{result.failure.reason_phrase}"
