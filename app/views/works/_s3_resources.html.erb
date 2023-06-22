@@ -66,7 +66,7 @@
               } else {
                 html = `<span>
                   <i class="bi bi-file-arrow-down"></i>
-                  <a href="<%= @work.id %>/download?filename=${data}">${row.filename_display}</a>
+                  <a href="<%= @work.id %>/download?filename=${data}" target="_blank">${row.filename_display}</a>
                 </span>`;
               }
               return html;
