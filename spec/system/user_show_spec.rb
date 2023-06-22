@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require "rails_helper"
-RSpec.describe "User dashboard" do
+RSpec.describe "User dashboard", type: :system, js: true do
   describe "Sort by last edited uses the proper value" do
     let(:user_admin) { FactoryBot.create :super_admin_user }
     let(:work) { FactoryBot.create(:draft_work) }
@@ -76,6 +76,24 @@ RSpec.describe "User dashboard" do
       # search within the creators
       visit user_path(rd_moderator) + "?q=Kotin"
       expect(page.html.include?("Shakespeare and Company")).to be true
+    end
+  end
+
+  describe "User List" do
+    let(:user_admin) { FactoryBot.create :super_admin_user }
+
+    before do
+      FactoryBot.create :pppl_moderator
+      FactoryBot.create :research_data_moderator
+    end
+
+    it "shows basic information about users" do
+      sign_in user_admin
+      visit users_path
+      expect(page.html.include?("Net ID")).to be true
+      expect(page.html.include?("Given name")).to be true
+      expect(page.html.include?("ORCID")).to be true
+      expect(page.html.include?(user_admin.uid)).to be true
     end
   end
 end

@@ -1,10 +1,30 @@
 <h1>Users</h1>
 
-<% @users.each do |user| %>
-  <p><%= link_to(user.given_name_safe, user_path(user)) %></p>
-<% end %>
+<table id="user-list-table">
+  <thead>
+    <tr class="user-list-header-row">
+      <th>Net ID</th>
+      <th>Given name</th>
+      <th>Family name</th>
+      <th>Full name</th>
+      <th>ORCID</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @users.each do |user| %>
+    <tr class="user-list-data-row">
+      <td>
+        <%= link_to(user.uid, user_path(user)) %>
+        <% if user.uid == current_user.uid %>
+          &nbsp;(you)
+        <% end %>
+      </td>
 
-<div>
-  <%= link_to "New Dataset", new_work_path, class: "btn btn-primary" %>
-</div>
-<hr />
+      <td><%= user.given_name_safe %></td>
+      <td><%= user.family_name %></td>
+      <td><%= user.full_name %></td>
+      <td><%= user.orcid %></td>
+    </tr>
+    <% end %>
+</tbody>
+</table>

@@ -5,9 +5,10 @@ class UsersController < ApplicationController
   GROUP_MESSAGING_ENABLED = "1"
 
   before_action :set_user, only: %i[show edit update]
+  before_action :authenticate_user!
 
   def index
-    @users = User.all
+    @users = User.all.sort_by(&:family_name)
   end
 
   # GET /users/1
