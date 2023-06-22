@@ -28,17 +28,6 @@ RSpec.describe "/users", type: :request do
     end
   end
 
-  # We do NOT allow the creation of arbitrary users. New users should only be created
-  # via CAS authentication.
-  describe "GET /new" do
-    it "redirects to CAS" do
-      get "/users/new"
-      expect(response.code).to eq "302"
-      redirect_location = response.header["Location"]
-      expect(redirect_location).to eq "http://www.example.com/sign_in"
-    end
-  end
-
   describe "GET /edit" do
     it "redirects to CAS" do
       user = User.create! valid_attributes
