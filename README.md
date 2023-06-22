@@ -73,6 +73,8 @@ Tests should never depend on outside resources, and it's best minimize dependenc
 ```
 export AWS_S3_PRE_CURATE_BUCKET=pdc-describe-staging-precuration
 export AWS_S3_POST_CURATE_BUCKET=pdc-describe-staging-postcuration
+export AWS_S3_DSPACE_BUCKET=prds-dataspace
+export AWS_S3_DSPACE_REGION=us-east-1
 # For these last two, open Lastpass and look under `princeton_ansible/RDSS Globus AWS`:
 export AWS_S3_KEY_ID=...
 export AWS_S3_SECRET_KEY=...
