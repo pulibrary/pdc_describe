@@ -740,14 +740,11 @@ _status: public
       end
 
       before do
-        allow(ezid).to receive(:target=)
-        allow(ezid).to receive(:target)
-        allow(ezid).to receive(:save!)
-        #allow(Ezid::Identifier).to receive(:find).and_return(ezid)
         allow(Ark).to receive(:update).and_call_original
 
-        stub_request(:get, "https://ezid.cdlib.org/id/ark:/10.34770/123-abc").to_return(status: 200, body: ezid_response_body)
-        stub_request(:put, "https://api.datacite.org/dois/#{approved_work.doi}")
+        stub_request(:get, "https://ezid.cdlib.org/id/#{ark}").to_return(status: 200, body: ezid_response_body)
+        stub_request(:post, "https://ezid.cdlib.org/id/#{ark}").to_return(status: 200, body: ezid_response_body)
+        stub_request(:put, /#{Regexp.escape("https://api.datacite.org/dois/")}/).to_return(status: 200)
 
         allow(s3_query_service).to receive(:publish_files)
         allow(s3_query_service).to receive(:client).and_return(s3_client)
@@ -756,6 +753,7 @@ _status: public
         allow(s3_client).to receive(:head_object).with(bucket: "example-pre-bucket", key: s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
 
         allow(Rails.configuration).to receive(:update_ark_url).and_return(true)
+        allow(Datacite::Client).to receive(:new).and_call_original
 
         approved_work.update_curator(curator_user.id, user)
         approved_work.approve!(curator_user)

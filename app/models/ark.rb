@@ -19,7 +19,6 @@ class Ark
   end
 
   def self.find(ezid)
-    binding.pry
     Ezid::Identifier.find(format_ark(ezid))
   rescue StandardError => error
     Rails.logger.error("Failed to find the EZID #{ezid}: #{error.class}: #{error.message}")
@@ -27,12 +26,11 @@ class Ark
   end
 
   def self.update(ezid, new_url)
-    binding.pry
     return if ezid.start_with?(EZID_TEST_SHOULDER)
     identifier = Ezid::Identifier.find(ezid)
     if identifier.target != new_url
       identifier.target = new_url
-      identifier.save!
+      identifier.save
     end
   end
 
@@ -40,7 +38,6 @@ class Ark
   # @param [ezid] [String] the EZID being validated
   # @return [Boolean]
   def self.valid?(ezid)
-    binding.pry
     # Always consider test ARKs valid
     return true if ezid.start_with?(EZID_TEST_SHOULDER)
     # Try and retrieve the ARK
@@ -55,7 +52,6 @@ class Ark
   end
 
   def initialize(ezid)
-    binding.pry
     @object = self.class.find(ezid)
     raise(ArgumentError, "Invalid EZID provided for an ARK: #{ezid}") if @object.nil? || !self.class.valid_shoulder?(ezid)
   end

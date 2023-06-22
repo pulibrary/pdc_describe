@@ -560,7 +560,6 @@ class Work < ApplicationRecord
       # Set this value in config/update_ark_url.yml
       if Rails.configuration.update_ark_url
         if ark.present?
-          binding.pry
           Ark.update(ark, url)
         end
       end
