@@ -58,6 +58,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
 
         visit work_path(work)
         expect(page).to have_link file1.filename_display, href: "#{work.id}/download?filename=#{file1.filename}"
+        expect(find_link(file1.filename_display)[:target]).to eq("_blank")
         expect(page).not_to have_button("Edit")
       end
 
