@@ -35,7 +35,7 @@ class PULDspaceConnector
     bitstreams.map do |bitstream|
       filename = download_bitstream(bitstream["retrieveLink"], bitstream["name"])
       if checksum_file(filename, bitstream)
-        S3File.new(filename: filename, checksum: bitstream["checkSum"]["value"], last_modified: DateTime.now, size: -1, work: work)
+        S3File.new(filename: filename, checksum: bitstream["checkSum"]["base64"], last_modified: DateTime.now, size: -1, work: work)
       end
     end
   end
@@ -87,9 +87,14 @@ class PULDspaceConnector
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def checksum_file(filename, bitstream)
       checksum_class = Digest.const_get(bitstream["checkSum"]["checkSumAlgorithm"])
-      if checksum_class.file(filename).hexdigest != bitstream["checkSum"]["value"]
+      checksum = checksum_class.file(filename)
+      hexdigest = checksum.hexdigest
+      base64 = checksum.base64digest
+      bitstream["checkSum"]["base64"] = base64
+      if hexdigest != bitstream["checkSum"]["value"]
         msg = "Mismatching checksum #{filename} #{bitstream} for work: #{work.id} doi: #{work.doi} ark: #{work.ark}"
         Rails.logger.error msg
         Honeybadger.notify(msg)
@@ -102,6 +107,7 @@ class PULDspaceConnector
       Honeybadger.notify("Unknown checksum algorithm #{bitstream['checkSum']['checkSumAlgorithm']} #{filename} #{bitstream}")
       false
     end
+    # rubocop:enable Metrics/MethodLength
 
     def request_http(url)
       uri = URI(url)
