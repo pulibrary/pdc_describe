@@ -4,6 +4,10 @@ class UsersController < ApplicationController
   GROUP_MESSAGING_DISABLED = "0"
   GROUP_MESSAGING_ENABLED = "1"
 
+  # Notice that `set_user` sets the value of the user that we are viewing or editing
+  # while `authenticate_user` sets the value of the current logged in user.
+  # These values can be different (e.g. when an admin users is editing the information
+  # of another user)
   before_action :set_user, only: %i[show edit update]
   before_action :authenticate_user!
 
