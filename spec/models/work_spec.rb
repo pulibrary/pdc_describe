@@ -721,10 +721,32 @@ RSpec.describe Work, type: :model do
       let(:payload_xml) do
         Base64.encode64(approved_work_metadata_xml)
       end
-      let!(:approved_work) { FactoryBot.create :awaiting_approval_work, doi: doi }
+      let(:ark) { "ark:/#{doi}" }
+      let(:approved_work) { FactoryBot.create :awaiting_approval_work, ark: ark }
       let(:s3_object_key) { approved_work.s3_object_key }
+      let(:ezid) { double(Ezid::Identifier) }
+      let(:ezid_response_body) do
+        <<-EOS
+success: #{ark}
+_updated: 1416507086
+_target: http://ezid.cdlib.org/id/#{ark}
+_profile: erc
+_ownergroup: apitest
+_owner: apitest
+_export: yes
+_created: 1416507086
+_status: public
+        EOS
+      end
 
       before do
+        allow(ezid).to receive(:target=)
+        allow(ezid).to receive(:target)
+        allow(ezid).to receive(:save!)
+        #allow(Ezid::Identifier).to receive(:find).and_return(ezid)
+        allow(Ark).to receive(:update).and_call_original
+
+        stub_request(:get, "https://ezid.cdlib.org/id/ark:/10.34770/123-abc").to_return(status: 200, body: ezid_response_body)
         stub_request(:put, "https://api.datacite.org/dois/#{approved_work.doi}")
 
         allow(s3_query_service).to receive(:publish_files)
@@ -732,6 +754,8 @@ RSpec.describe Work, type: :model do
         allow(s3_query_service).to receive(:bucket_name).and_return("example-pre-bucket", "example-post-bucket")
         allow(s3_client).to receive(:head_object).with(bucket: "example-post-bucket", key: s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
         allow(s3_client).to receive(:head_object).with(bucket: "example-pre-bucket", key: s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+
+        allow(Rails.configuration).to receive(:update_ark_url).and_return(true)
 
         approved_work.update_curator(curator_user.id, user)
         approved_work.approve!(curator_user)
