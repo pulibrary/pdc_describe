@@ -85,8 +85,9 @@ class User < ApplicationRecord
   def self.new_from_csv_params(csv_params)
     email = "#{csv_params['Net ID']}@princeton.edu"
     uid = csv_params["Net ID"]
-    full_name = "#{csv_params['First Name']} #{csv_params['Last Name']}"
     given_name = csv_params["First Name"]
+    family_name = csv_params["Last Name"]
+    full_name = "#{given_name} #{family_name}"
     orcid = csv_params["ORCID ID"]
     user = User.where(email: email).first_or_create
     params_hash = {
@@ -94,6 +95,7 @@ class User < ApplicationRecord
       uid: uid,
       orcid: orcid,
       full_name: (full_name if user.full_name.blank?),
+      family_name: (family_name if user.family_name.blank?),
       given_name: (given_name if user.given_name.blank?)
     }.compact
 

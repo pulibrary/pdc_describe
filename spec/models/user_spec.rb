@@ -133,6 +133,8 @@ RSpec.describe User, type: :model do
       users = described_class.create_users_from_csv(csv)
       expect(users.length).to eq 3
       expect(users.first.full_name).to eq "Jackie Alvarez"
+      expect(users.first.given_name).to eq "Jackie"
+      expect(users.first.family_name).to eq "Alvarez"
       expect(users.last.full_name).to eq "Kent Jenson"
     end
   end
