@@ -385,6 +385,15 @@ class Work < ApplicationRecord
   end
   alias pre_curation_uploads pre_curation_uploads_fast
 
+  def purge_pre_curation_uploads
+    pre_curation_uploads.each do |s3_file|
+      s3_query_service.delete_s3_object(s3_file.key, bucket: bucket_name)
+    end
+
+    reload
+    pre_curation_uploads
+  end
+
   def uploads
     return post_curation_uploads if approved?
 
@@ -635,7 +644,6 @@ class Work < ApplicationRecord
 
       if doi&.starts_with?(Rails.configuration.datacite.prefix)
         result = data_cite_connection.update(id: doi, attributes: doi_attributes)
-        binding.pry
         if result.failure?
           resolved_user = curator_or_current_uid(user)
           message = "@#{resolved_user} Error publishing DOI. #{result.failure.status} / #{result.failure.reason_phrase}"
