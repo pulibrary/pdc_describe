@@ -69,8 +69,8 @@ RSpec.describe WorksController do
       expect(response.location.start_with?("http://test.host/works/")).to be true
     end
 
-    # in theory we should never get to the new submission without a title, becuase the javascript should prevent it
-    #  In reality we are occasionally having issues with the javascript failing and the button submitting anyway.
+    # In theory we should never get to the new submission without a title, because the javascript should prevent it
+    # In reality we are occasionally having issues with the javascript failing and the button submitting anyway.
     it "renders the edit page when creating a new dataset without a title" do
       params = {
         "group_id" => work.group.id,
