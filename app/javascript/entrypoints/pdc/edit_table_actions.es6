@@ -51,7 +51,7 @@ export default class EditTableActions {
     const rows = $(button).closest('table').find('tbody').find('tr');
     let empty = null;
     for (const row of rows) {
-      if ((new TableRow(row)).is_empty) {
+      if ((new TableRow(row)).is_empty()) {
         empty = $(row);
         break;
       }
