@@ -28,10 +28,11 @@
 </style>
 
 <div class="wizard-area">
-  
-  # in theory the new submission should never submit without a title or creators, becuase the javascript should prevent it
-  #  In reality we are occasionally having issues with the javascript failing and the button submitting anyway.
-  #  In that case we want to show the error to the user so they cna fix it
+
+  <!--
+    In theory the new submission should never submit without a title or creators, because the javascript should prevent it.
+    In reality we are occasionally having issues with the javascript failing and the button submitting anyway.
+    In that case we want to show the error to the user so they can fix it. -->
   <%= render 'form_errors' %>
 
   <h1>New Submission</h1>
