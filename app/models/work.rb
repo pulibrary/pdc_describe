@@ -380,11 +380,42 @@ class Work < ApplicationRecord
     aasm.current_event.to_s.humanize.delete("!")
   end
 
+  class UploadsProxy
+    include Enumerable
+    attr_reader :model, :values
+    delegate :length, to: :values
+    delegate :s3_query_service, :bucket_name, to: :model
+
+    def initialize(model:, values:)
+      @model = model
+      @values = values
+    end
+
+    def each
+      values.each do |s3_file|
+        yield s3_file
+      end
+    end
+
+    def purge
+      values.each do |s3_file|
+        s3_query_service.delete_s3_object(s3_file.key, bucket: bucket_name)
+      end
+      @values = []
+    end
+
+    def attach(value)
+      values << value
+    end
+  end
+
   def pre_curation_uploads_fast
-    s3_query_service.client_s3_files.sort_by(&:filename)
+    s3_resources = s3_query_service.client_s3_files.sort_by(&:filename)
+    UploadsProxy.new(model: self, values: s3_resources)
   end
   alias pre_curation_uploads pre_curation_uploads_fast
 
+  # Deprecate
   def purge_pre_curation_uploads
     pre_curation_uploads.each do |s3_file|
       s3_query_service.delete_s3_object(s3_file.key, bucket: bucket_name)

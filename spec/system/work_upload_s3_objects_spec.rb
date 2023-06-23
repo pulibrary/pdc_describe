@@ -48,7 +48,8 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
       end
 
       after do
-        work.purge_pre_curation_uploads
+        # work.purge_pre_curation_uploads
+        work.pre_curation_uploads.purge
         work.save
         work.reload
       end
@@ -150,7 +151,8 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
           before do
             allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_data)
 
-            approved_work.purge_pre_curation_uploads
+            # approved_work.purge_pre_curation_uploads
+            approved_work.pre_curation_uploads.purge
             approved_work.save
             approved_work.reload
           end
