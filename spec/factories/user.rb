@@ -9,6 +9,7 @@ FactoryBot.define do
     email { FFaker::InternetSE.unique.email }
     full_name { FFaker::Name.name }
     given_name { full_name.split(" ").first }
+    family_name { full_name.split(" ").last }
     provider { :cas }
     after(:create) do |user, evaluator|
       evaluator.groups_to_admin.each do |group|

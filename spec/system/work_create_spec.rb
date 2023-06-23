@@ -71,6 +71,11 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Add Another Creator"
       find("tr:last-child input[name='creators[][given_name]']").set "Stefanie"
       find("tr:last-child input[name='creators[][family_name]']").set "Ramsay"
+      click_on "Add me as a Creator"
+      expect(find("tr:last-child input[name='creators[][given_name]']").value).to eq(user.given_name)
+      expect(find("tr:last-child input[name='creators[][family_name]']").value).to eq(user.family_name)
+      expect(find("tr:last-child input[name='creators[][affiliation]']").value).to eq("")
+
       click_on "Create New"
       work = Work.last
       expect(work.resource.related_objects.count).to eq(0)
