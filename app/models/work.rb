@@ -383,7 +383,7 @@ class Work < ApplicationRecord
   class UploadsProxy
     include Enumerable
     attr_reader :model, :values
-    delegate :length, to: :values
+    delegate :length, :empty?, to: :values
     delegate :s3_query_service, :bucket_name, to: :model
 
     def initialize(model:, values:)

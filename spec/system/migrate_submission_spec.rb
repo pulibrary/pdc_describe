@@ -192,7 +192,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       it "updates the DOI and ARK url when approved" do
         expect(datacite_stub).to have_received("update")
         expect(identifier).to have_received("target=")
-        expect(identifier).to have_received("save!")
+        expect(identifier).to have_received("save")
       end
     end
 
@@ -203,7 +203,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
         expect(datacite_stub).not_to have_received("update")
         expect(Honeybadger).not_to have_received(:notify)
         expect(identifier).to have_received("target=")
-        expect(identifier).to have_received("save!")
+        expect(identifier).to have_received("save")
       end
     end
 
