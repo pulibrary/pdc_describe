@@ -130,8 +130,9 @@ class S3QueryService
       resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
       resp_hash = resp.to_h
       objects = parse_objects(resp_hash, ignore_directories: ignore_directories)
-      # Remove this
-      elapsed = 0
+      # Track the time for retrieving the S3 resources
+      current = Time.zone.now
+      elapsed = current - start
       Rails.logger.info("Loading S3 objects. Bucket: #{bucket_name}. Prefix: #{prefix}. Elapsed: #{elapsed} seconds")
       objects
     end
