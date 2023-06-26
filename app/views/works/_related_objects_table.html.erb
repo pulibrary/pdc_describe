@@ -14,15 +14,15 @@
         </tr>
       </thead>
       <tbody id="related-objects-table" class="sortable">
-        <% related_objects = if @work.nil? || @work.resource.related_objects.empty? 
+        <% related_objects = if @work.nil? || @work.resource.related_objects.empty?
           [nil]
         else
-          @work.resource.related_objects 
+          @work.resource.related_objects
         end %>
         <% related_objects.each do |related_object| %>
           <tr class="related-objects-table-row">
             <td>
-              <input name="related_objects[][related_identifier]" value="<%= related_object&.related_identifier %>" class="related_identifier-related_objects"  placeholder="0000-0000-0000-0000" />
+              <input name="related_objects[][related_identifier]" value="<%= related_object&.related_identifier %>" class="related_identifier-related_objects"  placeholder="" />
             </td>
             <td>
               <select name="related_objects[][related_identifier_type]">
