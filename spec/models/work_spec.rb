@@ -1006,8 +1006,7 @@ _status: public
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
       ).to_return(status: 200)
 
-      # work.pre_curation_uploads.attach(uploaded_file)
-      work.pre_curation_uploads.append(uploaded_file)
+      work.pre_curation_uploads.attach(uploaded_file)
       work.save
     end
 

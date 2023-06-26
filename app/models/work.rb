@@ -383,7 +383,7 @@ class Work < ApplicationRecord
   class UploadsProxy
     include Enumerable
     attr_reader :model, :values
-    delegate :length, :empty?, :[], :first, :last, to: :values
+    delegate :length, :empty?, :[], :first, :last, :<<, to: :values
     delegate :s3_query_service, :bucket_name, to: :model
 
     def initialize(model:, values:)
@@ -408,9 +408,7 @@ class Work < ApplicationRecord
       values << value
     end
     alias attach <<
-
-    
-
+    alias append <<
   end
 
   def pre_curation_uploads_fast
