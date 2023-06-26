@@ -404,9 +404,10 @@ class Work < ApplicationRecord
       @values = []
     end
 
-    def attach(value)
+    def <<(value)
       values << value
     end
+    alias attach <<
   end
 
   def pre_curation_uploads_fast
