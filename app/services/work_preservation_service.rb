@@ -7,6 +7,7 @@ class WorkPreservationService
 
   # @param work_id [Integer] The ID of the work to preserve.
   # @param bucket_name [String] The AWS S3 bucket name where the work will be preserved.
+  #    If the bucket name is "localhost" the preservation files will be saved to disk on the localhost.
   # @param path [String] The path where the work will be preserved.
   def initialize(work_id:, bucket_name:, path:)
     @work = Work.find(work_id)
@@ -18,16 +19,25 @@ class WorkPreservationService
   # @return [String] The AWS S3 path where the files were stored
   def preserve!
     create_preservation_directory
-    upload_file(io: metadata_io, filename: "metadata.json")
-    upload_file(io: datacite_io, filename: "datacite.xml")
+    preserve_file(io: metadata_io, filename: "metadata.json")
+    preserve_file(io: datacite_io, filename: "datacite.xml")
+    preserve_file(io: provenance_io, filename: "provenance.json")
     Rails.logger.info "Preservation files for work #{@work.id} saved to #{target_location}"
     target_location
   end
 
   private
 
+    def is_local?
+      @bucket_name == "localhost"
+    end
+
     def target_location
-      "s3://#{@bucket_name}/#{preservation_directory}"
+      if is_local?
+        "file://" + File.join(Dir.pwd,preservation_directory)
+      else
+        "s3://#{@bucket_name}/#{preservation_directory}"
+      end
     end
 
     def metadata_io
@@ -39,6 +49,10 @@ class WorkPreservationService
       StringIO.new(@work.to_xml)
     end
 
+    def provenance_io
+      StringIO.new(@work.work_activity.to_json)
+    end
+
     def preservation_directory
       Pathname.new(@path).join("princeton_data_commons/")
     end
@@ -48,7 +62,19 @@ class WorkPreservationService
     end
 
     def create_preservation_directory
-      s3_client.put_object({ bucket: @bucket_name, key: preservation_directory.to_s, content_length: 0 })
+      if is_local?
+        FileUtils.mkdir_p preservation_directory.to_s
+      else
+        s3_client.put_object({ bucket: @bucket_name, key: preservation_directory.to_s, content_length: 0 })
+      end
+    end
+
+    def preserve_file(io:, filename:)
+      if is_local?
+        save_local_file(io:, filename:)
+      else
+        upload_file(io:, filename:)
+      end
     end
 
     def upload_file(io:, filename:)
@@ -56,5 +82,13 @@ class WorkPreservationService
       key = preservation_directory.join(filename).to_s
       s3_client.put_object(bucket: @bucket_name, key: key, body: io, content_md5: md5_digest)
       key
+    end
+
+    def save_local_file(io:, filename:)
+      full_filename = preservation_directory.join(filename).to_s
+      File.open(full_filename, 'w') do |file|
+        file.puts(io.read)
+      end
+      full_filename
     end
 end
