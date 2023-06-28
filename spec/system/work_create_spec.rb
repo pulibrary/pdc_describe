@@ -95,7 +95,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Save Work"
       expect(page).to have_content("Please upload the README")
       expect(page).to have_button("Continue", disabled: true)
-      path = Rails.root.join("spec", "fixtures", "files", "orcid.csv")
+      path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
       attach_file(path) do
         page.find("#patch_readme_file").click
       end
@@ -163,6 +163,37 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       within("#unfinished_datasets span.badge.rounded-pill.bg-primary") do
         expect(page).to have_content "2"
       end
+    end
+  end
+
+  context "invalid readme" do
+    it "prevents the user from continuing when the readme file is not valid", js: true do
+      sign_in user
+      visit new_work_path(params: { wizard: true })
+      click_on "Create New"
+      fill_in "title_main", with: title
+
+      find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
+      find("tr:last-child input[name='creators[][family_name]']").set "Abrams"
+      click_on "Create New"
+
+      fill_in "description", with: description
+      click_on "Save Work"
+
+      expect(page).to have_content("Please upload the README")
+      expect(page).to have_button("Continue", disabled: true)
+
+      # Make sure we limit the file extensions a user can select
+      expect(page.html.include?('accept=".txt,.md"')).to be true
+
+      # We on purpose upload a non-read me file...
+      path = Rails.root.join("spec", "fixtures", "files", "orcid.csv")
+      attach_file(path) do
+        page.find("#patch_readme_file").click
+      end
+      # ...and we expect and error message to be displayed and the button to continue to remain disabled
+      expect(page).to have_content("You must select a file that includes the word README in the name")
+      expect(page).to have_button("Continue", disabled: true)
     end
   end
 end
