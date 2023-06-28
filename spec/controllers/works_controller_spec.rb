@@ -542,6 +542,7 @@ RSpec.describe WorksController do
         fake_s3_service
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
         sign_in user
+        allow(AttachFileToWorkJob).to receive(:perform_later).and_call_original
       end
 
       it "files are saved" do
@@ -755,12 +756,16 @@ RSpec.describe WorksController do
         sign_in user
         fake_s3_service # make sure the s3 service is mocked here
         post :file_uploaded, params: params
-        perform_enqueued_jobs
+        allow(AttachFileToWorkJob).to receive(:perform_later)
       end
 
       it "upload files directly from user requests" do
         expect(response).to redirect_to(work_review_path)
-        expect(fake_s3_service).to have_received(:upload_file).with(hash_including(filename: "us_covid_2019.csv"))
+        expect(AttachFileToWorkJob).to have_received(:perform_later).with(
+          hash_including(
+            work_id: work.id, user_id: user.id, file_name: uploaded_file.original_filename, size: uploaded_file.size
+          )
+        )
       end
 
       context "when files are not specified within the parameters" do
@@ -1050,6 +1055,11 @@ RSpec.describe WorksController do
       end
 
       context "no files attached" do
+        let(:s3_query_service) { instance_double(S3QueryService) }
+        before do
+          allow(s3_query_service).to receive(:client_s3_files).and_return([])
+          allow(S3QueryService).to receive(:new).and_return(s3_query_service)
+        end
         it "handles aproval errors" do
           work.complete_submission!(user)
           stub_s3 data: []

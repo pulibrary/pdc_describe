@@ -112,6 +112,10 @@ class Work < ApplicationRecord
     def publish_test_doi?
       (Rails.env.development? || Rails.env.test?) && Rails.configuration.datacite.user.blank?
     end
+
+    def presenter_class
+      WorkPresenter
+    end
   end
 
   include Rails.application.routes.url_helpers
@@ -122,10 +126,7 @@ class Work < ApplicationRecord
   end
 
   after_save do |work|
-    unless Rails.env.test?
-      save_pre_curation_uploads
-      s3_query_service.client_s3_files.sort_by(&:filename)
-    end
+    save_pre_curation_uploads
 
     if work.approved?
       work.reload
@@ -207,7 +208,7 @@ class Work < ApplicationRecord
     unless user.has_role? :group_admin, group
       errors.add :base, "Unauthorized to Approve"
     end
-    if pre_curation_uploads_fast.empty? && post_curation_uploads.empty?
+    if pre_curation_uploads.empty? && post_curation_uploads.empty?
       errors.add :base, "Uploads must be present for a work to be approved"
     end
     errors.count == 0
@@ -380,6 +381,10 @@ class Work < ApplicationRecord
     aasm.current_event.to_s.humanize.delete("!")
   end
 
+  # Amazon Web Services S3 resources
+  #
+
+  # Ensures that #pre_curation_uploads exposes an interface similar to ActiveStorage
   class UploadsProxy
     include Enumerable
     attr_reader :model, :values
@@ -411,64 +416,22 @@ class Work < ApplicationRecord
     alias append <<
   end
 
-  def pre_curation_uploads_fast
-    s3_resources = s3_query_service.client_s3_files.sort_by(&:filename)
-    UploadsProxy.new(model: self, values: s3_resources)
+  # Accesses the S3 file uploads for Works in pre-curation/preapproved states
+  # @return [Array<S3File>]
+  def pre_curation_uploads
+    values = client_s3_files.sort_by(&:filename)
+
+    UploadsProxy.new(model: self, values: values)
   end
-  alias pre_curation_uploads pre_curation_uploads_fast
-
-  # Deprecate
-  def purge_pre_curation_uploads
-    pre_curation_uploads.each do |s3_file|
-      s3_query_service.delete_s3_object(s3_file.key, bucket: bucket_name)
-    end
-
-    reload
-    pre_curation_uploads
-  end
-
-  def uploads
-    return post_curation_uploads if approved?
-
-    pre_curation_uploads_fast
-  end
-
-  # Returns the list of files for the work with some basic information about each of them.
-  # This method is much faster than `uploads` because it does not return the actual S3File
-  # objects to the client, instead it returns just a few selected data elements.
-  def file_list
-    s3_files = approved? ? post_curation_uploads : pre_curation_uploads_fast
-    files_info = s3_files.map do |s3_file|
-      {
-        "safe_id": s3_file.safe_id,
-        "filename": s3_file.filename,
-        "filename_display": s3_file.filename_display,
-        "last_modified": s3_file.last_modified,
-        "last_modified_display": s3_file.last_modified_display,
-        "size": s3_file.size,
-        "display_size": s3_file.display_size,
-        "url": s3_file.url
-    }
-    end
-    files_info
-  end
-
-  # This ensures that new ActiveStorage::Attachment objects can be modified before they are persisted
-  def save_pre_curation_uploads
-    return if pre_curation_uploads.empty?
-
-    #new_attachments = pre_curation_uploads.reject(&:persisted?)
-    #return if new_attachments.empty?
-    new_attachments = pre_curation_uploads
-  end
+  alias pre_curation_uploads_fast pre_curation_uploads
+  alias s3_files pre_curation_uploads
 
   # Accesses post-curation S3 Bucket Objects
+  # @return [Array<S3File>]
   def post_curation_s3_resources
-    if approved?
-      s3_resources
-    else
-      []
-    end
+    return [] unless approved?
+
+    s3_resources
   end
 
   # Returns the files in post-curation for the work
@@ -483,15 +446,51 @@ class Work < ApplicationRecord
     end
   end
 
-  def s3_files
-    pre_curation_uploads_fast
+  def uploads
+    return post_curation_uploads if approved?
+
+    pre_curation_uploads
+  end
+
+  # Returns the list of files for the work with some basic information about each of them.
+  # This method is much faster than `uploads` because it does not return the actual S3File
+  # objects to the client, instead it returns just a few selected data elements.
+  def file_list
+    uploads.map do |s3_file|
+      {
+        "safe_id": s3_file.safe_id,
+        "filename": s3_file.filename,
+        "filename_display": s3_file.filename_display,
+        "last_modified": s3_file.last_modified,
+        "last_modified_display": s3_file.last_modified_display,
+        "size": s3_file.size,
+        "display_size": s3_file.display_size,
+        "url": s3_file.url
+      }
+    end
+  end
+
+  def save_pre_curation_uploads
+    return if !awaiting_approval? || pre_curation_uploads.empty?
+
+    pre_curation_uploads.each do |file|
+      if file.is_a?(IO)
+        AttachFileToWorkJob.perform_later(work_id: id, user_id: created_by_user_id, file_path: file.path, file_name: file.original_filename, size: file.size)
+      end
+    end
+  end
+
+  # S3QueryService object associated with this Work
+  # @return [S3QueryService]
+  def s3_query_service
+    @s3_query_service ||= S3QueryService.new(self, !approved?)
   end
 
   def s3_client
     s3_query_service.client
   end
 
-  delegate :bucket_name, to: :s3_query_service
+  delegate :bucket_name, :client_s3_files, to: :s3_query_service
 
   # Generates the S3 Object key
   # @return [String]
@@ -541,14 +540,16 @@ class Work < ApplicationRecord
     s3_query_service.file_count
   end
 
-  delegate :ark, :doi, :resource_type, :resource_type=, :resource_type_general, :resource_type_general=,
-           :to_xml, to: :resource
-
-  # S3QueryService object associated with this Work
-  # @return [S3QueryService]
-  def s3_query_service
-    @s3_query_service ||= S3QueryService.new(self, !approved?)
-  end
+  delegate(
+    :ark,
+    :doi,
+    :resource_type,
+    :resource_type=,
+    :resource_type_general,
+    :resource_type_general=,
+    :to_xml,
+    to: :resource
+  )
 
   def past_snapshots
     UploadSnapshot.where(work: self)
@@ -574,10 +575,6 @@ class Work < ApplicationRecord
       new_snapshot.save!
       WorkActivity.add_work_activity(id, work_changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES)
     end
-  end
-
-  def self.presenter_class
-    WorkPresenter
   end
 
   def presenter
@@ -736,18 +733,13 @@ class Work < ApplicationRecord
       data_profile = s3_query_service.data_profile
       data_profile.fetch(:objects, [])
     end
-    alias pre_curation_s3_resources s3_resources
 
+    # Determine if an S3File has been persisted
+    # @param s3_file [S3File]
+    # @return [Boolean]
     def s3_object_persisted?(s3_file)
       uploads_keys = uploads.map(&:key)
       uploads_keys.include?(s3_file.key)
-    end
-
-    def add_pre_curation_s3_object(s3_file)
-      return if s3_object_persisted?(s3_file)
-
-      persisted = s3_file.to_blob
-      pre_curation_uploads.attach(persisted)
     end
 
     def publish_precurated_files

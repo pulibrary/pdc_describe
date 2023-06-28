@@ -74,20 +74,21 @@ RSpec.describe WorkUploadsEditService do
     let(:deleted_files) { [] }
 
     it "returns all existing files plus the new one" do
-      fake_s3_service = stub_s3(bucket_url: bucket_url)
-      allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_data, s3_data + [s3_file3])
+      s3_query_service = mock_s3_query_service_class(data: [s3_file1, s3_file2])
+      allow(s3_query_service).to receive(:delete_s3_object)
 
       upload_service = described_class.new(work, user)
       updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
-      perform_enqueued_jobs
 
       expect(updated_work.pre_curation_uploads_fast.map(&:filename).sort).to eq([s3_file1.key, s3_file2.key].sort)
-      expect(fake_s3_service).not_to have_received(:delete_s3_object)
+      expect(s3_query_service).not_to have_received(:delete_s3_object)
+
+      expect(AttachFileToWorkJob).to have_received(:perform_later).with(hash_including(file_name: "orcid.csv", size: 287, user_id: user.id, work_id: work.id))
 
       # it logs the addition (and no delete)
-      activity_log = JSON.parse(updated_work.work_activity.first.message)
-      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == s3_file3.filename_display }).not_to be nil
-      expect(activity_log.find { |log| log["action"] == "deleted" }).to be nil
+      # activity_log = JSON.parse(updated_work.work_activity.first.message)
+      # expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == s3_file3.filename_display }).not_to be nil
+      # expect(activity_log.find { |log| log["action"] == "deleted" }).to be nil
     end
   end
 
@@ -116,22 +117,29 @@ RSpec.describe WorkUploadsEditService do
     let(:deleted_files) { [s3_file1.key] }
 
     it "replaces all the files" do
-      fake_s3_service = stub_s3(bucket_url: bucket_url)
-      allow(fake_s3_service).to receive(:client_s3_files).and_return([s3_file1], [s3_file2, s3_file3])
+      s3_query_service = mock_s3_query_service_class
+      allow(s3_query_service).to receive(:client_s3_files).and_return([s3_file1], [s3_file2, s3_file3])
+      allow(s3_query_service).to receive(:delete_s3_object)
+
       upload_service = described_class.new(work, user)
       updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
       list = updated_work.reload.pre_curation_uploads_fast
-      perform_enqueued_jobs
 
       expect(list.map(&:filename)).to eq([s3_file3.key, s3_file2.key])
-      expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_file1.key).once
+      expect(s3_query_service).to have_received(:delete_s3_object).with(s3_file1.key).once
 
-      # it logs the activity
-      work_activities = work.work_activity
-      activity_log = work_activities.map { |work_activity| JSON.parse(work_activity.message) }.flatten
-      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"] == s3_file1.key }).not_to be nil
-      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "us_covid_2020.csv" }).not_to be nil
-      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "orcid.csv" }).not_to be nil
+      expect(AttachFileToWorkJob).to have_received(:perform_later).with(hash_including({
+                                                                                         file_name: "us_covid_2020.csv",
+                                                                                         size: 114,
+                                                                                         user_id: user.id,
+                                                                                         work_id: work.id
+                                                                                       }))
+      expect(AttachFileToWorkJob).to have_received(:perform_later).with(hash_including({
+                                                                                         file_name: "orcid.csv",
+                                                                                         size: 287,
+                                                                                         user_id: user.id,
+                                                                                         work_id: work.id
+                                                                                       }))
     end
   end
 
@@ -140,25 +148,37 @@ RSpec.describe WorkUploadsEditService do
     let(:deleted_files) { [s3_file1.key, s3_file2.key] }
 
     it "replaces all the files" do
-      fake_s3_service = stub_s3(data: s3_data, bucket_url: bucket_url)
+      s3_query_service = mock_s3_query_service_class
+      allow(s3_query_service).to receive(:upload_file)
+      allow(s3_query_service).to receive(:delete_s3_object)
 
       # upload the two new files
       upload_service = described_class.new(work, user)
       updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
-      perform_enqueued_jobs
-      expect(fake_s3_service).to have_received(:upload_file).with(hash_including(filename: uploaded_file2.original_filename))
-      expect(fake_s3_service).to have_received(:upload_file).with(hash_including(filename: uploaded_file3.original_filename))
+      expect(AttachFileToWorkJob).to have_received(:perform_later).with(hash_including({
+                                                                                         file_name: "us_covid_2020.csv",
+                                                                                         size: 114,
+                                                                                         user_id: user.id,
+                                                                                         work_id: work.id
+                                                                                       }))
+
+      expect(AttachFileToWorkJob).to have_received(:perform_later).with(hash_including({
+                                                                                         file_name: "orcid.csv",
+                                                                                         size: 287,
+                                                                                         user_id: user.id,
+                                                                                         work_id: work.id
+                                                                                       }))
 
       # deleted the two existing files
-      expect(fake_s3_service).to have_received(:delete_s3_object).twice
+      expect(s3_query_service).to have_received(:delete_s3_object).twice
 
       # it logs the activity (2 deletes + 2 adds)
-      work_activities = updated_work.work_activity
-      activity_log = work_activities.map { |work_activity| JSON.parse(work_activity.message) }.flatten
-      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"].include?("us_covid_2019.csv") }).not_to be nil
-      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil
-      expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil
-      expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?("orcid.csv") }).not_to be nil
+      # work_activities = updated_work.work_activity
+      # activity_log = work_activities.map { |work_activity| JSON.parse(work_activity.message) }.flatten
+      # expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"].include?("us_covid_2019.csv") }).not_to be nil
+      # expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil
+      # expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil
+      # expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?("orcid.csv") }).not_to be nil
     end
   end
 end

@@ -43,60 +43,83 @@ RSpec.describe UploadSnapshot, type: :model do
     let(:curator_user) do
       FactoryBot.create(:user, groups_to_admin: [work.group])
     end
+    let(:s3_query_service1) { instance_double(S3QueryService) }
+    let(:s3_query_service2) { instance_double(S3QueryService) }
 
-    context "when the Work has not yet been approved" do
-      let(:filename) { "#{work.doi}/#{work.id}/us_covid_2019.csv" }
-      let(:file1) { FactoryBot.build(:s3_file, filename: filename, work: work, size: 1024) }
-      let(:url) { file1.url }
+    before(:all) do
+      RSpec::Mocks.with_temporary_scope do
+        work = FactoryBot.create(:approved_work)
+        filename = "#{work.doi}/#{work.id}/us_covid_2019.csv"
+        file1 = FactoryBot.build(:s3_file, filename: filename, work: work, size: 1024)
+        s3_query_service1 = instance_double(S3QueryService)
+        s3_query_service2 = instance_double(S3QueryService)
 
-      let(:pre_curation_data_profile) { { objects: [file1] } }
-      let(:post_curation_data_profile) { { objects: [] } }
-
-      let(:fake_s3_service_pre) { stub_s3(data: [file1]) }
-      let(:fake_s3_service_post) { stub_s3(data: []) }
-
-      before do
-        allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
-        allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
-        allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
-        allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
-        stub_ark
-        stub_datacite_doi
-
-        work.approve!(curator_user)
-        work.save
-      end
-
-      it "accesses the ActiveStorage attachment for which this is a snapshot" do
-        expect(upload_snapshot.upload).not_to be_nil
-        expect(upload_snapshot.upload).to eq(file1)
+        allow(s3_query_service2).to receive(:client_s3_files).and_return([])
+        allow(s3_query_service1).to receive(:client_s3_files).and_return([file1])
+        allow(s3_query_service2).to receive(:bucket_name).and_return("example-post-bucket")
+        allow(s3_query_service1).to receive(:bucket_name).and_return("example-pre-bucket")
       end
     end
 
-    context "when the Work has been approved" do
-      let(:filename) { "#{work.doi}/#{work.id}/us_covid_2019_2.csv" }
-      let(:file2) { FactoryBot.build(:s3_file, filename: filename, work: work, size: 2048) }
-      let(:url) { file2.url }
+    context "when the Work has not yet been approved", mock_s3_query_service_class: false do
+      it "accesses the file upload for which this is a snapshot" do
+        s3_query_service1 = instance_double(S3QueryService)
+        s3_query_service2 = instance_double(S3QueryService)
+        filename2 = "us_covid_2019.csv"
+        file2 = FactoryBot.build(:s3_file, filename: filename2, size: 1024)
 
-      let(:pre_curated_data_profile) { { objects: [file2] } }
-      let(:post_curation_data_profile) { { objects: [file2] } }
+        allow(s3_query_service2).to receive(:client_s3_files).and_return([])
+        allow(s3_query_service1).to receive(:client_s3_files).and_return([file2])
+        allow(s3_query_service2).to receive(:bucket_name).and_return("example-post-bucket")
+        allow(s3_query_service1).to receive(:bucket_name).and_return("example-pre-bucket")
 
-      let(:fake_s3_service_pre) { stub_s3(data: [file2]) }
-      let(:fake_s3_service_post) { stub_s3(data: [file2]) }
-
-      before do
-        allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
-        allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
-        allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
-        allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
+        allow(S3QueryService).to receive(:new).and_return(s3_query_service1)
+        work2 = FactoryBot.create(:awaiting_approval_work)
         stub_ark
         stub_datacite_doi
 
-        work.approve!(curator_user)
-        work.save
+        upload_snapshot = described_class.new(files: [{ filename: filename2, checkSum: "aaabbb111222" }], url: file2.url, work: work2)
+
+        expect(upload_snapshot.upload).not_to be_nil
+        expect(upload_snapshot.upload).to eq(file2)
+      end
+    end
+
+    context "when the Work has been approved", mock_s3_query_service_class: false do
+      before do
+        stub_datacite_doi
       end
 
       it "accesses the ActiveStorage attachment for which this is a snapshot" do
+        s3_query_service1 = instance_double(S3QueryService)
+        s3_query_service2 = instance_double(S3QueryService)
+
+        s3_client = instance_double(Aws::S3::Client)
+        allow(s3_client).to receive(:delete_object)
+        allow(s3_client).to receive(:put_object)
+
+        filename2 = "us_covid_2019.csv"
+        file2 = FactoryBot.build(:s3_file, filename: filename2, size: 1024)
+
+        allow(s3_query_service2).to receive(:client_s3_files).and_return([])
+        allow(s3_query_service2).to receive(:bucket_name).and_return("example-post-bucket")
+
+        allow(s3_query_service1).to receive(:client_s3_files).and_return([file2])
+        allow(s3_query_service1).to receive(:bucket_name).and_return("example-pre-bucket")
+        allow(s3_query_service1).to receive(:data_profile).and_return({ objects: [file2] })
+        allow(s3_query_service1).to receive(:publish_files)
+        allow(s3_query_service1).to receive(:client).and_return(s3_client)
+
+        allow(S3QueryService).to receive(:new).and_return(s3_query_service1)
+        work2 = FactoryBot.create(:awaiting_approval_work)
+        allow(s3_client).to receive(:head_object).with(bucket: "example-pre-bucket", key: work2.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+
+        work2.approve!(curator_user)
+        stub_ark
+        stub_datacite_doi
+
+        upload_snapshot = described_class.new(files: [{ filename: filename2, checkSum: "aaabbb111222" }], url: file2.url, work: work2)
+
         expect(upload_snapshot.upload).not_to be_nil
         expect(upload_snapshot.upload).to eq(file2)
       end

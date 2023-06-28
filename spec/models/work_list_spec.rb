@@ -50,6 +50,10 @@ RSpec.describe WorkList, type: :model do
 
   describe "#completed_works" do
     before do
+      allow(S3QueryService).to receive(:new).and_return(mock_s3_query_service)
+    end
+
+    before do
       FactoryBot.create(:approved_work, created_by_user_id: user.id)
       FactoryBot.create(:awaiting_approval_work, created_by_user_id: user.id)
       FactoryBot.create(:draft_work, created_by_user_id: user.id)
@@ -75,8 +79,9 @@ RSpec.describe WorkList, type: :model do
     end
   end
 
-  describe "#withdrawn_works" do
+  describe "#withdrawn_works", mock_s3_query_service: false do
     before do
+      allow(S3QueryService).to receive(:new).and_return(mock_s3_query_service)
       work = FactoryBot.create(:approved_work, created_by_user_id: user.id)
       work.withdraw!(user)
       FactoryBot.create(:awaiting_approval_work, created_by_user_id: user.id)
