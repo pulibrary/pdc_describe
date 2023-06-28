@@ -89,8 +89,7 @@ RSpec.describe S3QueryService do
     expect(data_profile[:objects]).to be_instance_of(Array)
     expect(data_profile[:ok]).to eq true
     # Why would this be 4?
-    # expect(data_profile[:objects].count).to eq 4
-    expect(data_profile[:objects].count).to eq 2
+    expect(data_profile[:objects].count).to eq 4
     expect(data_profile[:objects].first.filename).to match(/README/)
     expect(data_profile[:objects][1].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
     # Why would these be counted twice?
@@ -445,8 +444,7 @@ RSpec.describe S3QueryService do
 
     it "it retrieves the files for the work" do
       files = subject.client_s3_files
-      # expect(files.count).to eq 4
-      expect(files.count).to eq 2
+      expect(files.count).to eq 4
       expect(files.first.filename).to match(/README/)
       expect(files[1].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
       # expect(files[2].filename).to match(/README/)
@@ -457,8 +455,7 @@ RSpec.describe S3QueryService do
 
     it "it retrieves the files for a bucket and prefix" do
       files = subject.client_s3_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix")
-      # expect(files.count).to eq 4
-      expect(files.count).to eq 2
+      expect(files.count).to eq 4
       expect(files.first.filename).to match(/README/)
       expect(files[1].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
       # expect(files[2].filename).to match(/README/)
@@ -469,8 +466,7 @@ RSpec.describe S3QueryService do
 
     it "retrieves the directories if requested" do
       files = subject.client_s3_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix", ignore_directories: false)
-      # expect(files.count).to eq 6
-      expect(files.count).to eq 3
+      expect(files.count).to eq 6
       expect(files.first.filename).to match(/README/)
       expect(files[1].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
       expect(files[2].filename).to match(/directory/)
