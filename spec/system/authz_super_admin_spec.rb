@@ -31,7 +31,7 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
       click_on "Curator Controlled"
       expect(page).to have_content "Research Data"
       click_on "Save Work"
-      path = Rails.root.join("spec", "fixtures", "files", "orcid.csv")
+      path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
       attach_file(path) do
         page.find("#patch_readme_file").click
       end

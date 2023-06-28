@@ -2,7 +2,7 @@
   <h1><%= t('works.form.file_upload.heading', work_title: @work.title) %></h1>
   <%= render "wizard_progress", wizard_step: 2 %>
   <%= form_with(model: @work, scope: :patch, url: work_readme_uploaded_path(id: @work.id)) do |f| %>
-    
+
     <h2>All submissions must include a README file. READMEs:</h2>
     <ul>
       <li>Are necessary so others can understand and use your data/code;</li>
@@ -20,7 +20,8 @@
       <% if @readme.present? %>
         <p><%= @readme %> was previously uploaded.  You will replace it if you select a different file. </p>
       <% end %>
-      <%= f.file_field(:readme_file, multiple: false) %>
+      <!-- See https://stackoverflow.com/a/11834872/446681 for info on the `accept` attribute -->
+      <%= f.file_field(:readme_file, multiple: false, accept: '.txt,.md') %>
     </div>
 
     <div class="actions">
