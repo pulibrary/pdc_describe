@@ -3,7 +3,7 @@ require "rails_helper"
 
 RSpec.describe Group, type: :model do
   it "creates default groups only when needed" do
-    described_class.delete_all
+    # described_class.delete_all
     expect(described_class.count).to be 0
 
     described_class.create_defaults
@@ -18,7 +18,7 @@ RSpec.describe Group, type: :model do
   end
 
   it "creates defaults when not defined" do
-    described_class.delete_all
+    # described_class.delete_all
     expect(described_class.count).to be 0
     expect(described_class.default).to_not be nil
 

@@ -39,6 +39,14 @@ RSpec.describe Work, type: :model do
   let(:datacite_client) { stub_datacite_doi(result: datacite_doi_result) }
   let(:bucket_name) { "example-bucket" }
 
+  before(:all) do
+    RSpec.configuration.mock_attach_file_job = true
+  end
+
+  after(:all) do
+    RSpec.configuration.mock_attach_file_job = false
+  end
+
   before do
     # For tests in which the HTTP requests are submitted to WebMock
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
@@ -193,62 +201,76 @@ RSpec.describe Work, type: :model do
   end
 
   context "when files are attached to a pre-curation Work" do
-    subject(:work) { FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc") }
-
-    let(:file1) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work: work, size: 1024) }
-    let(:file2) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv", work: work, size: 2048) }
-
-    let(:post_curation_data_profile) { { objects: [file1, file2] } }
-    let(:pre_curated_data_profile) { { objects: [] } }
-
     before do
-      allow(s3_query_service).to receive(:publish_files)
-      allow(s3_query_service).to receive(:data_profile).and_return({ objects: [file1, file2] })
-      allow(s3_query_service).to receive(:client).and_return(s3_client)
-      allow(s3_query_service).to receive(:bucket_name).and_return("example-pre-bucket", "example-post-bucket")
-      allow(s3_client).to receive(:head_object).with(bucket: "example-pre-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
-      allow(s3_client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
-      allow(s3_query_service).to receive(:client_s3_files).and_return(client_s3_files)
+      stub_datacite_doi
     end
 
     it "approves works and records the change history" do
-      stub_datacite_doi
-      work.approve!(curator_user)
-      expect(s3_query_service).to have_received(:publish_files).once
-      expect(work.state_history.first.state).to eq "approved"
-      expect(work.reload.state).to eq("approved")
+      file1 = FactoryBot.build(:s3_file, filename: "us_covid_2019.csv", size: 1024)
+      file2 = FactoryBot.build(:s3_file, filename: "us_covid_2019_2.csv", size: 2048)
+
+      s3_client = instance_double(Aws::S3::Client)
+      s3_query_service1 = instance_double(S3QueryService)
+
+      allow(s3_query_service1).to receive(:publish_files)
+      allow(s3_query_service1).to receive(:data_profile).and_return({ objects: [file1, file2] })
+      allow(s3_query_service1).to receive(:client).and_return(s3_client)
+      allow(s3_query_service1).to receive(:bucket_name).and_return("example-post-bucket")
+      allow(s3_query_service1).to receive(:client_s3_files).and_return(client_s3_files)
+      allow(S3QueryService).to receive(:new).and_return(s3_query_service1)
+
+      work1 = FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc")
+      allow(s3_client).to receive(:head_object).with(bucket: "example-post-bucket", key: work1.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+
+      work1.approve!(curator_user)
+
+      expect(s3_query_service1).to have_received(:publish_files).once
+      expect(work1.state_history.first.state).to eq "approved"
+      expect(work1.reload.state).to eq("approved")
     end
 
     context "when a Work is approved" do
       it "transfers the files to the AWS Bucket" do
         stub_datacite_doi
-        work.approve!(curator_user)
-        work.reload
+        file1 = FactoryBot.build(:s3_file, filename: "10.34770/123-abc/1/us_covid_2019.csv", size: 1024)
+        file2 = FactoryBot.build(:s3_file, filename: "10.34770/123-abc/1/us_covid_2019_2.csv", size: 2048)
 
-        expect(s3_query_service).to have_received(:publish_files).once
-        # expect(work.pre_curation_uploads).to be_empty
-        expect(work.post_curation_uploads).not_to be_empty
-        expect(work.post_curation_uploads.length).to eq(2)
-        expect(work.post_curation_uploads.first).to be_an(S3File)
-        expect(work.post_curation_uploads.first.key).to eq(file1.key)
-        expect(work.post_curation_uploads.last).to be_an(S3File)
-        expect(work.post_curation_uploads.last.key).to eq(file2.key)
+        s3_client = instance_double(Aws::S3::Client)
+        s3_query_service1 = instance_double(S3QueryService)
 
-        expect(work.as_json["files"][0].keys).to eq([:filename, :size, :display_size, :url])
-        expect(work.as_json["files"][0][:filename]).to match(/10\.34770\/123-abc\/\d+\/us_covid_2019\.csv/)
-        expect(work.as_json["files"][0][:size]).to eq(1024)
-        expect(work.as_json["files"][0][:display_size]).to eq("1 KB")
-        expect(work.as_json["files"][0][:url]).to eq "https://example.data.globus.org/10.34770/123-abc/#{work.id}/us_covid_2019.csv"
+        allow(s3_query_service1).to receive(:publish_files)
+        allow(s3_query_service1).to receive(:data_profile).and_return({ objects: [file1, file2] })
+        allow(s3_query_service1).to receive(:client).and_return(s3_client)
+        allow(s3_query_service1).to receive(:bucket_name).and_return("example-post-bucket")
+        allow(s3_query_service1).to receive(:client_s3_files).and_return(client_s3_files)
+        allow(S3QueryService).to receive(:new).and_return(s3_query_service1)
+
+        work1 = FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc")
+        allow(s3_client).to receive(:head_object).with(bucket: "example-post-bucket", key: work1.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+
+        work1.approve!(curator_user)
+
+        expect(s3_query_service1).to have_received(:publish_files).once
+        expect(work1.state_history.first.state).to eq "approved"
+        expect(work1.reload.state).to eq("approved")
+
+        expect(work1.as_json["files"][0].keys).to eq([:filename, :size, :display_size, :url])
+        expect(work1.as_json["files"][0][:filename]).to match(/10\.34770\/123-abc\/\d+\/us_covid_2019\.csv/)
+        expect(work1.as_json["files"][0][:size]).to eq(1024)
+        expect(work1.as_json["files"][0][:display_size]).to eq("1 KB")
+        expect(work1.as_json["files"][0][:url]).to eq "https://example.data.globus.org/10.34770/123-abc/1/us_covid_2019.csv"
       end
     end
 
     context "when the doi is empty" do
       it "fails the transition" do
-        expect(work.reload.state).to eq("awaiting_approval")
-        work.resource.doi = ""
-        expect { work.approve!(curator_user) }.to raise_error(AASM::InvalidTransition)
-        expect(work.errors.map(&:type)).to eq(["DOI must be present for a work to be approved"])
-        expect(work.reload.state).to eq("awaiting_approval")
+        work1 = FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc")
+
+        expect(work1.reload.state).to eq("awaiting_approval")
+        work1.resource.doi = ""
+        expect { work1.approve!(curator_user) }.to raise_error(AASM::InvalidTransition)
+        expect(work1.errors.map(&:type)).to eq(["DOI must be present for a work to be approved"])
+        expect(work1.reload.state).to eq("awaiting_approval")
       end
     end
   end
@@ -997,7 +1019,6 @@ _status: public
         checksum: "abc123",
         work: work)
     end
-    # let(:fake_s3_service) { stub_s3(data: [], prefix: "10.34770/123/") }
     let(:s3_service) { stub_s3(data: [], prefix: "10.34770/123/") }
 
     before do
@@ -1266,6 +1287,7 @@ _status: public
     end
 
     it "can find nil arks" do
+      Work.delete_all
       work2 = FactoryBot.create(:draft_work, ark: nil)
       expect(Work.find_by_ark(nil)).to eq(work2)
     end

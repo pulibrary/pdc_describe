@@ -27,15 +27,18 @@ RSpec.describe "RSS feed of approved works, for harvesting and indexing", type: 
 </ListBucketResult>
 XML
   end
+  let(:datacite_body) { datacite_register_body(prefix: "10.34770") }
 
   before do
-    stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+    stub_datacite(host: "api.datacite.org", body: datacite_body)
+    stub_s3(data: [s3_file1])
+    work1
+    work2
 
     allow(work1).to receive(:publish_doi).and_return(true)
     allow(work2).to receive(:publish_doi).and_return(true)
     allow(work1).to receive(:publish_precurated_files).and_return(true)
     allow(work2).to receive(:publish_precurated_files).and_return(true)
-    stub_s3(data: [s3_file1])
 
     # Works 1 & 2 are approved, so they should show up in the RSS feed
     work1.complete_submission!(admin)

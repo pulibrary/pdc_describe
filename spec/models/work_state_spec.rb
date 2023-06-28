@@ -3,40 +3,81 @@ require "rails_helper"
 
 RSpec.describe "Work state transions", type: :model do
   let(:curator_user) { FactoryBot.create :user, groups_to_admin: [work.group] }
+  let(:user) { work.created_by_user }
+  let(:data) { [] }
 
-  {
-    none_work: :draft!,
-    draft_work: :complete_submission!
-  }.each do |fixture, method_sym|
-    [true, false].each do |creator_is_admin|
-      context "a #{fixture} and creator #{creator_is_admin ? 'is' : 'not'} admin" do
-        let(:work) { FactoryBot.create(fixture) }
-        it "Creates work activity notifications for the curator & the creator after #{method_sym}" do
-          user = work.created_by_user
-          if creator_is_admin
-            user.add_role(:group_admin, work.group)
-          else
-            curator_user # make sure the curator exists
-          end
-          expect do
-            work.send(method_sym, user)
-          end.to change { WorkActivity.count }.by(2)
-                                              .and change { WorkActivityNotification.count }.by(creator_is_admin ? 1 : 2)
-        end
+  before do
+    mock_s3_query_service_class(data: data)
+  end
+
+  context "when a none work is in the draft state" do
+    let(:work) { FactoryBot.create(:none_work) }
+
+    context "when the user is an admin" do
+      before do
+        user.add_role(:group_admin, work.group)
       end
+
+      it "creates work activity notifications for the curator and the creator after advancing to the draft state" do
+        expect do
+          work.draft!(user)
+        end.to change {
+          WorkActivity.count
+        }.by(2).and change { WorkActivityNotification.count }.by(1)
+      end
+    end
+
+    it "Creates work activity notifications for the curator and the creator after advancing to the draft state" do
+      curator_user # make sure the curator exists
+
+      expect do
+        work.draft!(user)
+      end.to change {
+        WorkActivity.count
+      }.by(2).and change { WorkActivityNotification.count }.by(2)
+    end
+  end
+
+  context "when a draft work is completed" do
+    let(:work) { FactoryBot.create(:draft_work) }
+
+    context "when the user is an admin" do
+      before do
+        user.add_role(:group_admin, work.group)
+      end
+
+      it "creates work activity notifications for the curator and the creator after advancing to the draft state" do
+        expect do
+          work.complete_submission!(user)
+        end.to change {
+          WorkActivity.count
+        }.by(2).and change { WorkActivityNotification.count }.by(1)
+      end
+    end
+
+    it "Creates work activity notifications for the curator and the creator after advancing to the draft state" do
+      curator_user # make sure the curator exists
+
+      expect do
+        work.complete_submission!(user)
+      end.to change {
+        WorkActivity.count
+      }.by(2).and change { WorkActivityNotification.count }.by(2)
     end
   end
 
   context "a completed work" do
     let(:work) { FactoryBot.create(:awaiting_approval_work) }
+    let(:data) { [FactoryBot.build(:s3_file)] }
 
-    it "Creates a work activity notification for the curator & the user when approved" do
+    it "creates a work activity notification for the curator and the user when approved" do
       allow(work).to receive(:publish)
-      stub_s3 data: [FactoryBot.build(:s3_file)]
+
       expect do
         work.approve!(curator_user)
-      end.to change { WorkActivity.count }.by(2)
-         .and change { WorkActivityNotification.count }.by(2)
+      end.to change {
+        WorkActivity.count
+      }.by(2).and change { WorkActivityNotification.count }.by(2)
     end
   end
 end
