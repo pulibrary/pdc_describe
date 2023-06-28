@@ -193,7 +193,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       end
       # ...and we expect and error message to be displayed and the button to continue to remain disabled
       expect(page).to have_content("You must select a file that includes the word README in the name")
-      expect(page).to have_button('Continue', disabled: true)
+      expect(page).to have_button("Continue", disabled: true)
     end
   end
 end

@@ -15,7 +15,7 @@ export default class ReadmeFileUpload {
       this.error_element.innerText = 'You must select a README file';
     } else {
       const filename = this.upload_element[0].files[0].name.toLowerCase();
-      if (filename.includes("readme") == true) {
+      if (filename.includes('readme') === true) {
         this.save_element.disabled = false;
         this.error_element.innerText = '';
       } else {
