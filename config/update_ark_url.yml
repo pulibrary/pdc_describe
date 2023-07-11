@@ -1,6 +1,6 @@
 ---
 production:
-  false
+  true
 staging:
   false
 development:
