@@ -174,10 +174,11 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
 
       sign_in curator
 
+      s3_file = FactoryBot.build(:s3_file)
+      mock_s3_query_service_class(prefix: nil, data: [s3_file])
       work.save!
       work.reload
 
-      stub_s3 data: [FactoryBot.build(:s3_file)]
       allow(Work).to receive(:find).with(work.id).and_return(work)
       allow(Work).to receive(:find).with(work.id.to_s).and_return(work)
       allow(work).to receive(:publish_precurated_files).and_return(true)
@@ -197,7 +198,11 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
     end
 
     context "Approving a work with a DOI we own do not own, but also has an ARK" do
-      let(:work) { FactoryBot.create :awaiting_approval_work, doi: "10.99999/abc-123", ark: "ark:/88435/dsp01d791sj97j" }
+      let(:work1) { FactoryBot.create :awaiting_approval_work, doi: "10.99999/abc-123", ark: "ark:/88435/dsp01d791sj97j" }
+      let(:work) { work1 }
+
+      before do
+      end
 
       it "updates the ARK url when approved" do
         expect(datacite_stub).not_to have_received("update")
