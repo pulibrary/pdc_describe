@@ -70,7 +70,7 @@
   background-color: #d9d9d9ff;
   width: 80px;
   height: 15px;
-  display:block;
+  display: block;
   border-radius: 5px;
 }
 
@@ -78,7 +78,7 @@
   background-color: #467dd1ff;
   width: 80px;
   height: 15px;
-  display:block;
+  display: block;
   border-radius: 5px;
 }
 
@@ -118,12 +118,12 @@
 }
 
 .file-deleted-icon {
-  color:#f94a4a;
+  color: #f94a4a;
   font-size: 18px;
 }
 
 .file-added-icon {
-  color:#27c0fb;
+  color: #27c0fb;
   font-size: 18px;
 }
 
@@ -139,10 +139,10 @@ input[readonly] {
   // but we need to make sure this is preserved when rendered.
   white-space: pre-wrap;
   del {
-    background-color: #EE9090;
+    background-color: #ee9090;
   }
   ins {
-    background-color: #90EE90;
+    background-color: #90ee90;
   }
 }
 
@@ -162,12 +162,12 @@ details {
     list-style-type: none;
 
     &::after {
-      content: '?';
+      content: "?";
       font-weight: bold;
-      padding: 0rem .25rem;
+      padding: 0rem 0.25rem;
       background-color: #0d6efd;
       color: #fff;
-      border-radius: .25rem;
+      border-radius: 0.25rem;
       border: 0;
       margin-left: 0.5rem;
     }
@@ -176,7 +176,7 @@ details {
   summary.show-changes {
     font-weight: normal;
     &::after {
-      content: 'Show Changes';
+      content: "Show Changes";
     }
   }
 }
@@ -198,7 +198,7 @@ details {
 
 .search-form > form {
   margin-bottom: -20px;
-  & > input[type=text] {
+  & > input[type="text"] {
     width: 300px;
   }
 }
@@ -228,9 +228,9 @@ ul.beads {
     list-style: none;
   }
   li::before {
-      content: "⦁";
-      margin-left: -1em;
-      font-size: 150%;
+    content: "⦁";
+    margin-left: -1em;
+    font-size: 150%;
   }
 }
 
@@ -239,7 +239,7 @@ ul.no-beads {
   li {
     list-style: none;
     border: 1px solid #dddcdc;
-    border-radius: .25rem;
+    border-radius: 0.25rem;
     margin-bottom: 5px;
     padding: 5px;
   }
