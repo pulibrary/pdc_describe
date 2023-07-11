@@ -580,7 +580,7 @@ class Work < ApplicationRecord
       # Set this value in config/update_ark_url.yml
       if Rails.configuration.update_ark_url
         if ark.present?
-          Ark.update(ark, url)
+          Ark.update(ark, doi_attribute_url)
         end
       end
     end
