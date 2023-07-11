@@ -18,6 +18,7 @@
 @import "components/footer.scss";
 @import "components/works.scss";
 @import "components/users.scss";
+@import "components/nav.scss";
 
 .hidden {
   display: none;
@@ -66,7 +67,7 @@
 }
 
 .wizard-step-bar {
-  background-color: #f6d69e;
+  background-color: #d9d9d9ff;
   width: 80px;
   height: 15px;
   display:block;
@@ -74,7 +75,7 @@
 }
 
 .wizard-step-bar-active {
-  background-color: #c28f36;
+  background-color: #467dd1ff;
   width: 80px;
   height: 15px;
   display:block;
@@ -263,5 +264,5 @@ th {
 }
 
 .file-upload {
-  margin-bottom: 1em;
+  margin-bottom: 3.1em;
 }

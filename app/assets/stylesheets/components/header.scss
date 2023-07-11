@@ -17,9 +17,19 @@ header {
     border-color: #914810;
   }
 
-  .btn-primary:hover {
-    background-color: #914810;
-    border-color: #914810;
+  .about, .groups {
+    background-color: #999999ff;
+    border-color: #686868;
+  }
+
+  .how-to-submit {
+    background-color: #666666ff;
+    border-color: #686868;
+  }
+
+  .log-in, .log-out, .current-user {
+    background-color: #467dd1ff;
+    border-color: #3864a7;
   }
 
   .menu {
