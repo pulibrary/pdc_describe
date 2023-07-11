@@ -114,3 +114,11 @@ Once the tunnel is open you can see the mail that has been sent on [staging1 her
 
 ### Mail on Production
 Emails on production are sent via [Pony Express](https://github.com/pulibrary/pul-it-handbook/blob/f54dfdc7ada1ff993a721f6edb4aa1707bb3a3a5/services/smtp-mail-server.md).
+
+### Admin users in Production
+To add a new user as an admin (e.g., so they can migrate data from DataSpace), use the rails console on the production system:
+```
+irb(main):010:0> user = User.find_by(uid: 'hb0344')
+irb(main):015:0> user.add_role(:group_admin, Group.plasma_laboratory)
+irb(main):016:0> user.add_role(:group_admin, Group.research_data)
+```
