@@ -6,14 +6,14 @@
         <%= render 'shared/admin_actions' %>
       <% end %>
       <nav id="menu" class="col-sm" role="menu">
-        <%= link_to "About","#{root_url}about", :class => "btn btn-primary", :role => "menuitem" %>
-        <%= link_to "How to Submit", "#{root_url}how-to-submit", :class => "btn btn-primary", :role => "menuitem" %>
+        <%= link_to "About","#{root_url}about", :class => "btn btn-primary about", :role => "menuitem" %>
+        <%= link_to "How to Submit", "#{root_url}how-to-submit", :class => "btn btn-primary how-to-submit", :role => "menuitem" %>
       </nav>
       <nav id="user-actions" class="col-sm">
         <% if current_user %>
         <%= render 'shared/user_actions' %>
         <% else %>
-        <%= button_to "Log In", user_cas_omniauth_authorize_path, class: "btn btn-primary" %>
+        <%= button_to "Log In", user_cas_omniauth_authorize_path, class: "btn btn-primary log-in" %>
         <% end %>
       </nav>
     </div>
