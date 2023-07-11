@@ -119,7 +119,7 @@ RSpec.describe S3QueryService do
     let(:work) { FactoryBot.create(:draft_work, doi: doi) }
     let(:fake_aws_client) { double(Aws::S3::Client) }
     let(:fake_multi) { instance_double(Aws::S3::Types::CreateMultipartUploadOutput, key: "abc", upload_id: "upload id", bucket: "bucket") }
-    let(:fake_parts) { instance_double(Aws::S3::Types::CopyPartResult, etag: "etag123abc") }
+    let(:fake_parts) { instance_double(Aws::S3::Types::CopyPartResult, etag: "etag123abc", checksum_sha256: "sha256abc123") }
     let(:fake_upload) { instance_double(Aws::S3::Types::UploadPartCopyOutput, copy_part_result: fake_parts) }
     let(:fake_s3_resp) { double(Aws::S3::Types::ListObjectsV2Output) }
 
@@ -151,9 +151,9 @@ RSpec.describe S3QueryService do
         fake_s3_resp.stub(:to_h).and_return(s3_hash, empty_s3_hash)
         perform_enqueued_jobs
         expect(subject.client).to have_received(:create_multipart_upload)
-          .with({ bucket: "example-bucket-post", key: s3_key1 })
+          .with({ bucket: "example-bucket-post", key: s3_key1, checksum_algorithm: "SHA256" })
         expect(subject.client).to have_received(:create_multipart_upload)
-          .with({ bucket: "example-bucket-post", key: s3_key2 })
+          .with({ bucket: "example-bucket-post", key: s3_key2, checksum_algorithm: "SHA256" })
         expect(subject.client).to have_received(:upload_part_copy)
           .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key1}",
                   copy_source_range: "bytes=0-5368709119", key: "abc", part_number: 1, upload_id: "upload id" })
@@ -167,11 +167,11 @@ RSpec.describe S3QueryService do
           .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key2}",
                   copy_source_range: "bytes=5368709120-5368709127", key: "abc", part_number: 2, upload_id: "upload id" })
         expect(subject.client).to have_received(:complete_multipart_upload)
-          .with({ bucket: "example-bucket-post", key: s3_key1, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1 }, { etag: "etag123abc", part_number: 2 }] },
-                  upload_id: "upload id" })
+          .with({ bucket: "example-bucket-post", key: s3_key1, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1, checksum_sha256: "sha256abc123" },
+                                                                                           { etag: "etag123abc", part_number: 2, checksum_sha256: "sha256abc123" }] }, upload_id: "upload id" })
         expect(subject.client).to have_received(:complete_multipart_upload)
-          .with({ bucket: "example-bucket-post", key: s3_key2, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1 }, { etag: "etag123abc", part_number: 2 }] },
-                  upload_id: "upload id" })
+          .with({ bucket: "example-bucket-post", key: s3_key2, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1, checksum_sha256: "sha256abc123" },
+                                                                                           { etag: "etag123abc", part_number: 2, checksum_sha256: "sha256abc123" }] }, upload_id: "upload id" })
         expect(subject.client).to have_received(:head_object)
           .with({ bucket: "example-bucket-post", key: s3_key1 })
         expect(subject.client).to have_received(:head_object)
@@ -196,9 +196,9 @@ RSpec.describe S3QueryService do
           expect(subject.publish_files).to be_truthy
           expect { perform_enqueued_jobs }.to raise_error(/File check was not valid/)
           expect(subject.client).to have_received(:create_multipart_upload)
-            .with({ bucket: "example-bucket-post", key: s3_key1 })
+            .with({ bucket: "example-bucket-post", key: s3_key1, checksum_algorithm: "SHA256" })
           expect(subject.client).to have_received(:create_multipart_upload)
-            .with({ bucket: "example-bucket-post", key: s3_key2 })
+            .with({ bucket: "example-bucket-post", key: s3_key2, checksum_algorithm: "SHA256" })
           expect(subject.client).to have_received(:head_object)
             .with({ bucket: "example-bucket-post", key: s3_key1 })
           expect(subject.client).to have_received(:head_object)
@@ -220,9 +220,9 @@ RSpec.describe S3QueryService do
           expect { perform_enqueued_jobs }.to raise_error(/File check was not valid/)
 
           expect(subject.client).to have_received(:create_multipart_upload)
-            .with({ bucket: "example-bucket-post", key: s3_key1 })
+            .with({ bucket: "example-bucket-post", key: s3_key1, checksum_algorithm: "SHA256" })
           expect(subject.client).to have_received(:create_multipart_upload)
-            .with({ bucket: "example-bucket-post", key: s3_key2 })
+            .with({ bucket: "example-bucket-post", key: s3_key2, checksum_algorithm: "SHA256" })
           expect(subject.client).to have_received(:head_object)
             .with({ bucket: "example-bucket-post", key: s3_key1 })
           expect(subject.client).to have_received(:head_object)

@@ -176,12 +176,12 @@ class S3QueryService
     if size > part_size
       copy_multi_part(source_key:, target_bucket:, target_key:, size:)
     else
-      client.copy_object(copy_source: source_key, bucket: target_bucket, key: target_key)
+      client.copy_object(copy_source: source_key, bucket: target_bucket, key: target_key, checksum_algorithm: "SHA256")
     end
   end
 
   def copy_multi_part(source_key:, target_bucket:, target_key:, size:)
-    multi = client.create_multipart_upload(bucket: target_bucket, key: target_key)
+    multi = client.create_multipart_upload(bucket: target_bucket, key: target_key, checksum_algorithm: "SHA256")
     part_num = 0
     start_byte = 0
     parts = []
@@ -190,7 +190,7 @@ class S3QueryService
       end_byte = [start_byte + part_size, size].min - 1
       resp = client.upload_part_copy(bucket: target_bucket, copy_source: source_key, key: multi.key, part_number: part_num,
                                      upload_id: multi.upload_id, copy_source_range: "bytes=#{start_byte}-#{end_byte}")
-      parts << { etag: resp.copy_part_result.etag, part_number: part_num }
+      parts << { etag: resp.copy_part_result.etag, part_number: part_num, checksum_sha256: resp.copy_part_result.checksum_sha256 }
       start_byte = end_byte + 1
     end
     client.complete_multipart_upload(bucket: target_bucket, key: target_key, upload_id: multi.upload_id, multipart_upload: { parts: parts })
