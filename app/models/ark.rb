@@ -30,8 +30,12 @@ class Ark
     identifier = Ezid::Identifier.find(ezid)
     if identifier.target != new_url
       identifier.target = new_url
-      identifier.save!
+      identifier.save
     end
+  rescue StandardError => error
+    message = "Unable to update EZID #{ezid}: #{error.class}: #{error.message}"
+    Rails.logger.error(message)
+    Honeybadger.notify(message)
   end
 
   # Determines whether or not a given EZID string is a valid ARK
