@@ -154,7 +154,7 @@ RSpec.describe WorkUploadsEditService do
 
       # upload the two new files
       upload_service = described_class.new(work, user)
-      updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
+      upload_service.update_precurated_file_list(added_files, deleted_files)
       expect(AttachFileToWorkJob).to have_received(:perform_later).with(hash_including({
                                                                                          file_name: "us_covid_2020.csv",
                                                                                          size: 114,
