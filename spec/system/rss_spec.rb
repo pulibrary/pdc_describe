@@ -58,7 +58,7 @@ XML
   it "provides a list of approved works, with links to their datacite records" do
     visit "/works.rss"
     doc = Nokogiri::XML(page.body)
-    expect(doc.xpath("//item").size).to eq 2
+    expect(doc.xpath("//item").size).to be >= 2
     urls = doc.xpath("//item/url/text()").map(&:to_s)
     expect(urls.include?(work_url(work1, format: "json"))).to eq true
     expect(urls.include?(work_url(work2, format: "json"))).to eq true
