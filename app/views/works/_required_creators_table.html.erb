@@ -16,9 +16,9 @@
   <table id="creators-table">
     <thead>
       <tr class="header-row">
-        <th>ORCID</th>
         <th>Given name<span class="required-field" title="Given name for your submission must be indicated">*</span></th>
         <th>Family name<span class="required-field" title="Family name for your submission must be indicated">*</span></th>
+        <th>ORCID</th>
         <th>Affiliation</th>
         <th>ROR</th>
         <th>&nbsp;</th> <!-- move icon-->
@@ -34,15 +34,15 @@
       <% creators.each do |creator| %>
         <tr class="creators-table-row">
         <td>
-          <input name="creators[][orcid]" value="<%= creator&.orcid %>" class="orcid-entry-creator"  placeholder="0000-0000-0000-0000" />
-        </td>
-        <td>
           <span class="hidden given-name-required-message"><i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a given name</span>
           <input name="creators[][given_name]" value="<%= creator&.given_name %>" class="given-entry-creator" />
         </td>
         <td class="creators-table-row-family-name">
           <span class="hidden family-name-required-message"><i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a family name</span>
           <input name="creators[][family_name]" value="<%= creator&.family_name %>" class="family-entry-creator" />
+        </td>
+        <td>
+          <input name="creators[][orcid]" value="<%= creator&.orcid %>" class="orcid-entry-creator"  placeholder="0000-0000-0000-0000" />
         </td>
         <td class="creators-table-row-affiliation">
           <input name="creators[][affiliation]" value="<%= creator&.affiliation %>" class="affiliation-entry-creator ror-output" />
