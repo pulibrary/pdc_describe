@@ -178,7 +178,7 @@ RSpec.describe "Creating and updating works", type: :system do
       expect(page).to have_field("creators[][affiliation]", with: "National Science Foundation")
 
       creator_text = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
-      expect(creator_text).to eq("#{creator.given_name} #{creator.family_name}    Sally Smith National Science Foundation https://ror.org/021nxhr62")
+      expect(creator_text).to eq("#{creator.given_name} #{creator.family_name}    Sally Smith  National Science Foundation https://ror.org/021nxhr62")
 
       # drag the first creator to the second creator
       source = page.all(".bi-arrow-down-up")[0].native
@@ -194,7 +194,7 @@ RSpec.describe "Creating and updating works", type: :system do
         builder.drag_and_drop(target, source).perform
         creator_text_after = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
       end
-      expect(creator_text_after).to eq("Sally Smith National Science Foundation https://ror.org/021nxhr62  #{creator.given_name} #{creator.family_name}")
+      expect(creator_text_after).to eq("Sally Smith  National Science Foundation https://ror.org/021nxhr62 #{creator.given_name} #{creator.family_name}")
       click_on "Save Work"
       draft_work.reload
       expect(draft_work.resource.creators.last.given_name).to eq(creator.given_name)
