@@ -25,4 +25,5 @@ module ApplicationHelper
     return nil if doi_value.blank?
     "https://doi.org/#{doi_value}"
   end
+
 end
