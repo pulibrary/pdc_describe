@@ -45,6 +45,20 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     end
   end
 
+  it "foo" do
+    sign_in user
+    visit work_path(work)
+
+    expect(page).to have_css(".dataTables_length")
+    expect(page).to have_css(".dataTables_filter")
+    page.driver.go_back
+    page.driver.go_forward
+    expect(page).to have_css(".dataTables_length")
+    expect(page).to have_css(".dataTables_filter")
+    page.driver.go_back
+    page.driver.go_forward
+  end
+
   it "copies DOI to the clipboard" do
     sign_in user
     visit work_path(work)
