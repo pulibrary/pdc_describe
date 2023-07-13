@@ -9,7 +9,7 @@ class WorkDecorator
     @work = work
     @current_user = current_user
     @changes =  WorkActivity.changes_for_work(work.id)
-    @messages = WorkActivity.messages_for_work(work.id)
+    @messages = WorkActivity.messages_for_work(work.id).order(created_at: :desc)
     @can_curate = current_user&.can_admin?(group)
   end
 

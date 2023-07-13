@@ -429,9 +429,13 @@ RSpec.describe Work, type: :model do
         .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
         .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
       expect(WorkActivity.where(activity_type: "SYSTEM").first.message).to eq("marked as Draft")
-      user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
-      expect(user_notification).to include("@#{curator_user.uid}")
+      notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last
+      user_notification = notification.message
+      expect(user_notification).to include("@#{curator_user.default_group.code}")
       expect(user_notification).to include("@#{user.uid}")
+      notifications = WorkActivityNotification.where(work_activity_id: notification.id)
+      expect(notifications.first.user_id).to eq(curator_user.id)
+      expect(notifications.last.user_id).to eq(draft_work.created_by_user_id)
       expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(draft_work))
     end
 
@@ -538,8 +542,12 @@ RSpec.describe Work, type: :model do
         .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
         .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
       expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Awaiting Approval")
-      curator_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
-      expect(curator_notification).to include("@#{curator.uid}")
+      notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last
+      curator_notification = notification.message
+      expect(curator_notification).to include("@#{Group.research_data.code}")
+      notifications = WorkActivityNotification.where(work_activity_id: notification.id)
+      expect(notifications.first.user_id).to eq(curator.id)
+      expect(notifications.last.user_id).to eq(awaiting_approval_work.created_by_user_id)
       expect(curator_notification). to include(Rails.application.routes.url_helpers.work_url(awaiting_approval_work))
     end
   end
@@ -613,10 +621,14 @@ RSpec.describe Work, type: :model do
         .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
         .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
       expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Approved")
-      user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
-      expect(user_notification).to include("@#{curator_user.uid}")
+      notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last
+      user_notification = notification.message
+      expect(user_notification).to include("@#{curator_user.default_group.code}")
       expect(user_notification).to include("@#{approved_work.created_by_user.uid}")
       expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(approved_work))
+      notifications = WorkActivityNotification.where(work_activity_id: notification.id)
+      expect(notifications.first.user_id).to eq(curator_user.id)
+      expect(notifications.last.user_id).to eq(approved_work.created_by_user_id)
     end
 
     it "publishes the doi" do
