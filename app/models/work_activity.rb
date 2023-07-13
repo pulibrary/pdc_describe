@@ -54,9 +54,20 @@ class WorkActivity < ApplicationRecord
     users_referenced.each do |uid|
       user_id = User.where(uid: uid).first&.id
       if user_id.nil?
-        Rails.logger.info("Message #{id} for work #{work_id} referenced an non-existing user: #{uid}")
+        notify_group(uid)
       else
         WorkActivityNotification.create(work_activity_id: id, user_id: user_id)
+      end
+    end
+  end
+
+  def notify_group(groupid)
+    group = Group.where(code: groupid).first
+    if group.nil?
+      Rails.logger.info("Message #{id} for work #{work_id} referenced an non-existing user: #{groupid}")
+    else
+      group.administrators.each do |admin|
+        WorkActivityNotification.create(work_activity_id: id, user_id: admin.id)
       end
     end
   end
@@ -217,18 +228,23 @@ class WorkActivity < ApplicationRecord
       # convert user references to user links
       text = @work_activity.message.gsub(USER_REFERENCE) do |at_uid|
         uid = at_uid[1..-1]
-        user_info = UNKNOWN_USER
 
         if uid
-          user = User.find_by(uid: uid)
-          user_info = if user
-                        user.given_name_safe
-                      else
-                        uid
-                      end
+          group = Group.find_by(code: uid)
+          if group
+            "<a class='message-user-link' title='#{group.title}' href='#{@work_activity.group_path(group)}'>#{group.title}</a>"
+          else
+            user = User.find_by(uid: uid)
+            user_info = if user
+                          user.given_name_safe
+                        else
+                          uid
+                        end
+            "<a class='message-user-link' title='#{user_info}' href='#{@work_activity.users_path}/#{uid}'>#{at_uid}</a>"
+          end
+        else
+          UNKNOWN_USER
         end
-
-        "<a class='message-user-link' title='#{user_info}' href='#{@work_activity.users_path}/#{uid}'>#{at_uid}</a>"
       end
 
       # allow ``` for code blocks (Kramdown only supports ~~~)

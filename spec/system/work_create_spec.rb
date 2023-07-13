@@ -140,12 +140,14 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
         expect(page).to have_content "2"
       end
 
-      visit(work_path(Work.last))
+      work = Work.last
+      visit(work_path(work))
 
       has_been_created_message = "#{title} has been created"
       within("ul.work-messages") do
         expect(page).to have_content(has_been_created_message)
         expect(page).to have_content("#{title} is ready for review")
+        expect(page).to have_content(work.group.title)
       end
 
       click_on "Hide Messages"
