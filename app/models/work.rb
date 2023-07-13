@@ -120,7 +120,6 @@ class Work < ApplicationRecord
   before_save do |work|
     # Ensure that the metadata JSONB postgres field is persisted properly
     work.metadata = JSON.parse(work.resource.to_json)
-    work.save_pre_curation_uploads
   end
 
   after_save do |work|
@@ -406,16 +405,6 @@ class Work < ApplicationRecord
   # Fetches the data from S3 directly bypassing ActiveStorage
   def pre_curation_uploads_fast
     s3_query_service.client_s3_files.sort_by(&:filename)
-  end
-
-  # This ensures that new ActiveStorage::Attachment objects can be modified before they are persisted
-  def save_pre_curation_uploads
-    return if pre_curation_uploads.empty?
-
-    new_attachments = pre_curation_uploads.reject(&:persisted?)
-    return if new_attachments.empty?
-
-    save_new_attachments(new_attachments: new_attachments)
   end
 
   # Accesses post-curation S3 Bucket Objects
