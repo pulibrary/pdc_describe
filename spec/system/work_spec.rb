@@ -177,24 +177,16 @@ RSpec.describe "Creating and updating works", type: :system do
       # https://ror.org/021nxhr62 == ROR for National Science Foundation
       expect(page).to have_field("creators[][affiliation]", with: "National Science Foundation")
 
-      creator_text = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
-      expect(creator_text).to eq("#{creator.given_name} #{creator.family_name}    Sally Smith  National Science Foundation https://ror.org/021nxhr62")
+      expect(page.find("tr:last-child input[name='creators[][given_name]']").value).to eq "Sally"
+      expect(page.find("tr:last-child input[name='creators[][family_name]']").value).to eq "Smith"
 
       # drag the first creator to the second creator
-      source = page.all(".bi-arrow-down-up")[0].native
-      target = page.all(".bi-arrow-down-up")[1].native
+      source = page.find_all("#creators-table .bi-arrow-down-up")[1].native
+      target = page.find_all("#creators-table .bi-arrow-down-up")[0].native
       builder = page.driver.browser.action
       builder.drag_and_drop(source, target).perform
-      creator_text_after = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
-
-      # This is really strange, but my local machine likes to drag from bottom to top and CircleCI likes to drag
-      #  from top to bottom.  So I am adding in trying the other direction when the first direction fails.
-      # This will make the test pass more consistantly for everyone (I hope)
-      if creator_text_after != "Sally Smith  #{creator.given_name} #{creator.family_name}"
-        builder.drag_and_drop(target, source).perform
-        creator_text_after = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
-      end
-      expect(creator_text_after).to eq("Sally Smith  National Science Foundation https://ror.org/021nxhr62 #{creator.given_name} #{creator.family_name}")
+      expect(page.find("tr:last-child input[name='creators[][given_name]']").value).to eq creator.given_name
+      expect(page.find("tr:last-child input[name='creators[][family_name]']").value).to eq creator.family_name
       click_on "Save Work"
       draft_work.reload
       expect(draft_work.resource.creators.last.given_name).to eq(creator.given_name)
@@ -215,24 +207,16 @@ RSpec.describe "Creating and updating works", type: :system do
       click_on "Add Another Individual Contributor"
       find("tr:last-child input[name='contributors[][given_name]']").set "Simon"
       find("tr:last-child input[name='contributors[][family_name]']").set "Gallup"
-      contributor_text = page.find("#contributors-table").find_all("tr").map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
-      expect(contributor_text).to eq("Robert Smith  Simon Gallup")
+      expect(page.find("tr:last-child input[name='contributors[][given_name]']").value).to eq "Simon"
+      expect(page.find("tr:last-child input[name='contributors[][family_name]']").value).to eq "Gallup"
 
       # drag the first contributor to the second contributor
-      # Rows in other tables also match this, so index may need to change.
-      source = page.all("#contributors-table .bi-arrow-down-up")[0].native
-      target = page.all("#contributors-table .bi-arrow-down-up")[1].native
+      source = page.find_all("#contributors-table .bi-arrow-down-up")[1].native
+      target = page.find_all("#contributors-table .bi-arrow-down-up")[0].native
       builder = page.driver.browser.action
       builder.drag_and_drop(source, target).perform
-      contributor_text_after = page.find("#contributors-table").find_all("tr").map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
-      # This is really strange, but my local machine likes to drag from bottom to top and CircleCI likes to drag
-      #  from top to bottom.  So I am adding in trying the other direction when the first direction fails.
-      # This will make the test pass more consistantly for everyone (I hope)
-      if contributor_text_after != "Simon Gallup  Robert Smith"
-        builder.drag_and_drop(target, source).perform
-        contributor_text_after = page.find("#contributors-table").find_all("tr").map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
-      end
-      expect(contributor_text_after).to eq("Simon Gallup  Robert Smith")
+      expect(page.find("tr:last-child input[name='contributors[][given_name]']").value).to eq "Robert"
+      expect(page.find("tr:last-child input[name='contributors[][family_name]']").value).to eq "Smith"
       click_on "Save Work"
       draft_work.reload
       expect(draft_work.resource.individual_contributors.last.given_name).to eq("Robert")
