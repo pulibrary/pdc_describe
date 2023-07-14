@@ -305,7 +305,7 @@ class WorksController < ApplicationController
   private
 
     def work_params
-      params[:work] || params
+      params[:work] || {}
     end
 
     def patch_params

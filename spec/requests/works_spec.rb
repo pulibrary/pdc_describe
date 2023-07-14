@@ -87,7 +87,7 @@ RSpec.describe "/works", type: :request do
           {
             "title_main" => "test dataset updated",
             "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }],
-            "pre_curation_uploads_added" => uploaded_files
+            work: { "pre_curation_uploads_added" => uploaded_files }
           }
         end
 
