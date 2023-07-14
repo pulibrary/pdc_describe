@@ -75,7 +75,7 @@ class S3QueryService
   # Public signed URL to fetch this file from the S3 (valid for a limited time)
   def file_url(key)
     signer = Aws::S3::Presigner.new(client: client)
-    signer.presigned_url(:get_object, bucket: bucket_name, key: key)
+    signer.presigned_url(:get_object_attributes, bucket: bucket_name, key: key)
   end
 
   # There is probably a better way to fetch the current ActiveStorage configuration but we have
@@ -100,15 +100,37 @@ class S3QueryService
     @client ||= Aws::S3::Client.new(region: region, credentials: credentials)
   end
 
+  # required, accepts ETag, Checksum, ObjectParts, StorageClass, ObjectSize
+  def self.object_attributes
+    [
+      "ETag",
+      "Checksum",
+      "ObjectParts",
+      "StorageClass",
+      "ObjectSize"
+    ]
+  end
+
+  def get_s3_object_attributes(key:)
+    response = client.get_object_attributes({
+      bucket: bucket_name,
+      key: key,
+      object_attributes: self.class.object_attributes
+    })
+    response.to_h
+  end
+
   def get_s3_object(key:)
+    object_attributes = get_s3_object_attributes(key: key)
+
     response = client.get_object({
-                                   bucket: bucket_name,
-                                   key: key
-                                 })
+      bucket: bucket_name,
+      key: key
+    })
     object = response.to_h
     return if object.empty?
 
-    object
+    object.merge(object_attributes)
   end
 
   def find_s3_file(filename:)

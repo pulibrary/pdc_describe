@@ -12,12 +12,13 @@ RSpec.describe S3QueryService do
   let(:s3_last_modified2) { Time.parse("2022-04-21T18:30:07.000Z") }
   let(:s3_size1) { 5_368_709_122 }
   let(:s3_size2) { 5_368_709_128 }
+  let(:s3_etag1) { "008eec11c39e7038409739c0160a793a" }
   let(:s3_hash) do
     {
       is_truncated: false,
       contents: [
         {
-          etag: "\"008eec11c39e7038409739c0160a793a\"",
+          etag: "\"#{s3_etag1}\"",
           key: s3_key1,
           last_modified: s3_last_modified1,
           size: s3_size1,
@@ -50,6 +51,53 @@ RSpec.describe S3QueryService do
   # DOI for Shakespeare and Company Project Dataset: Lending Library Members, Books, Events
   # https://dataspace.princeton.edu/handle/88435/dsp01zc77st047
   let(:doi) { "10.34770/pe9w-x904" }
+
+  let(:s3_attributes_response_body) do
+    <<-XML
+<?xml version="1.0" encoding="UTF-8"?>
+<GetObjectAttributesOutput>
+  <ETag>#{s3_etag1}</ETag>
+  <Checksum>
+    <ChecksumCRC32>string</ChecksumCRC32>
+    <ChecksumCRC32C>string</ChecksumCRC32C>
+    <ChecksumSHA1>string</ChecksumSHA1>
+    <ChecksumSHA256>string</ChecksumSHA256>
+  </Checksum>
+  <ObjectParts>
+    <IsTruncated>boolean</IsTruncated>
+    <MaxParts>integer</MaxParts>
+    <NextPartNumberMarker>integer</NextPartNumberMarker>
+    <PartNumberMarker>integer</PartNumberMarker>
+    <Part>
+      <ChecksumCRC32>string</ChecksumCRC32>
+      <ChecksumCRC32C>string</ChecksumCRC32C>
+      <ChecksumSHA1>string</ChecksumSHA1>
+      <ChecksumSHA256>string</ChecksumSHA256>
+      <PartNumber>integer</PartNumber>
+      <Size>integer</Size>
+    </Part>
+    <PartsCount>integer</PartsCount>
+  </ObjectParts>
+  <StorageClass>string</StorageClass>
+  <ObjectSize>long</ObjectSize>
+</GetObjectAttributesOutput>
+XML
+  end
+  let(:s3_attributes_response_headers) do
+    {
+      'Accept-Ranges': "bytes",
+      'Content-Length': s3_attributes_response_body.length,
+      'Content-Type': "text/plain",
+      'ETag': "6805f2cfc46c0f04559748bb039d69ae",
+      'Last-Modified': Time.parse("Thu, 15 Dec 2016 01:19:41 GMT")
+    }
+  end
+  let(:s3_object_response_body) do
+    "test_content"
+  end
+  let(:s3_object_response_headers) do
+    response_headers
+  end
 
   it "knows the name of its s3 bucket" do
     expect(subject.bucket_name).to eq "example-bucket"
@@ -324,7 +372,8 @@ RSpec.describe S3QueryService do
     let(:s3_object) { s3_query_service.get_s3_object(key: key) }
 
     before do
-      stub_request(:get, "https://example-bucket.s3.amazonaws.com/test_key").to_return(status: 200, body: "test_content", headers: response_headers)
+      stub_request(:get, "https://example-bucket.s3.amazonaws.com/test_key?attributes").to_return(status: 200, body: s3_attributes_response_body, headers: s3_attributes_response_headers)
+      stub_request(:get, "https://example-bucket.s3.amazonaws.com/test_key").to_return(status: 200, body: s3_object_response_body, headers: s3_object_response_headers)
     end
 
     it "retrieves the S3 Object from the HTTP API" do
@@ -364,14 +413,18 @@ RSpec.describe S3QueryService do
     let(:s3_file) { s3_query_service.find_s3_file(filename: filename) }
 
     it "retrieves the S3File from the AWS Bucket" do
-      stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt").to_return(status: 200, body: "test_content", headers: response_headers)
+      stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt").to_return(status: 200, body: s3_object_response_body, headers: s3_object_response_headers)
+      stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt?attributes").to_return(status: 200, body: s3_attributes_response_body,
+                                                                                                                                headers: s3_attributes_response_headers)
+
       expect(s3_file).not_to be nil
 
       expect(s3_file.filename).to eq("10.34770/pe9w-x904/#{work.id}/test.txt")
       expect(s3_file.last_modified).to be_a(Time)
       expect(s3_file.size).to eq(12)
-      expect(s3_file.checksum).to eq("6805f2cfc46c0f04559748bb039d69ae")
+      expect(s3_file.checksum).to eq(s3_etag1)
       assert_requested(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt")
+      assert_requested(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt?attributes")
     end
   end
 
@@ -379,12 +432,15 @@ RSpec.describe S3QueryService do
     subject(:s3_query_service) { described_class.new(work) }
 
     let(:signer) { instance_double(Aws::S3::Presigner) }
+    let(:object_attributes) do
+      {}
+    end
 
     it "creates a presigned url" do
       allow(Aws::S3::Presigner).to receive(:new).and_return(signer)
       allow(signer).to receive(:presigned_url).and_return("aws_url")
       expect(s3_query_service.file_url("test_key")).to eq("aws_url")
-      expect(signer).to have_received(:presigned_url).with(:get_object, { bucket: "example-bucket", key: "test_key" }).once
+      expect(signer).to have_received(:presigned_url).with(:get_object_attributes, { bucket: "example-bucket", key: "test_key" }).once
     end
   end
 
