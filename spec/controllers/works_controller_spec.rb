@@ -368,33 +368,7 @@ RSpec.describe WorksController do
         "https://example-bucket.s3.amazonaws.com/"
       end
 
-      let(:deleted_uploads) do
-        # "1" indicates that the file has been deleted
-        {
-          work.pre_curation_uploads.first.key => "1",
-          work.pre_curation_uploads[1].key => "0",
-          work.pre_curation_uploads.last.key => "1"
-        }
-      end
-
-      let(:params) do
-        {
-          "title_main" => "test dataset updated",
-          "description" => "a new description",
-          "group_id" => work.group.id,
-          "commit" => "update dataset",
-          "controller" => "works",
-          "action" => "update",
-          "id" => work.id.to_s,
-          "publisher" => "princeton university",
-          "publication_year" => "2022",
-          "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" },
-                         { "orcid" => "", "given_name" => "Ada", "family_name" => "Lovelace" }],
-          "deleted_uploads" => deleted_uploads
-        }
-      end
-
-      # Notice that we do NOT pass "deleted_uploads" on purpose
+      # Notice that we do NOT pass deleted_files_count on purpose
       let(:params_no_delete) do
         {
           "title_main" => "test dataset updated",
@@ -410,6 +384,11 @@ RSpec.describe WorksController do
                          { "orcid" => "", "given_name" => "Ada", "family_name" => "Lovelace" }],
           "rights_identifier" => "CC BY"
         }.with_indifferent_access
+      end
+      let(:params) do
+        params_no_delete.merge({ "work[deleted_files_count]" => "2",
+                                 "work[deleted_file_1]" => work.pre_curation_uploads.first.key,
+                                 "work[deleted_file_2]" => work.pre_curation_uploads.last.key })
       end
 
       before do
@@ -442,6 +421,9 @@ RSpec.describe WorksController do
 
           expect(saved_work.pre_curation_uploads[0].blob.filename.to_s).to eq("us_covid_2019.csv")
           expect(ActiveStorage::PurgeJob).not_to have_received(:new)
+          expect(fake_s3_service).to have_received(:delete_s3_object).with(work.pre_curation_uploads.first.key)
+          expect(fake_s3_service).to have_received(:delete_s3_object).with(work.pre_curation_uploads.last.key)
+          expect(fake_s3_service).not_to have_received(:delete_s3_object).with(work.pre_curation_uploads[1].key)
         end
       end
 
@@ -457,13 +439,10 @@ RSpec.describe WorksController do
         let(:bucket_url) do
           "https://example-bucket.s3.amazonaws.com/"
         end
-        let(:deleted_uploads) do
-          # "1" indicates that the file has been delete
-          {
-            work.post_curation_uploads.first.key => "1",
-            work.post_curation_uploads[1].key => "0",
-            work.post_curation_uploads.last.key => "1"
-          }
+        let(:params) do
+          params_no_delete.merge({ "work[deleted_files_count]" => "2",
+                                   "work[deleted_file_1]" => work.post_curation_uploads.first.key,
+                                   "work[deleted_file_2]" => work.post_curation_uploads.last.key })
         end
         let(:s3_client) { instance_double(Aws::S3::Client) }
         let(:s3_object) { double }
