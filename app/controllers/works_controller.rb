@@ -359,7 +359,7 @@ class WorksController < ApplicationController
       @wizard_mode = wizard_mode?
       upload_service = WorkUploadsEditService.new(@work, current_user)
       if @work.approved?
-        upload_keys = work_params[:deleted_uploads] || []
+        upload_keys = deleted_files_param || []
         deleted_uploads = upload_service.find_post_curation_uploads(upload_keys: upload_keys)
 
         return head(:forbidden) unless deleted_uploads.empty?
