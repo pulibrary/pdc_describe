@@ -463,7 +463,6 @@ class Work < ApplicationRecord
     force_post_curation = args.any? {|arg| arg[:force_post_curation] == true }
     # Pre-curation files are not accessible externally,
     # so we are not interested in listing them in JSON.
-    # (The items in pre_curation_uploads also have different properties.)
     files = post_curation_uploads(force_post_curation:).map do |upload|
       {
         "filename": upload.filename,
@@ -729,13 +728,6 @@ class Work < ApplicationRecord
     def s3_object_persisted?(s3_file)
       uploads_keys = uploads.map(&:key)
       uploads_keys.include?(s3_file.key)
-    end
-
-    def add_pre_curation_s3_object(s3_file)
-      return if s3_object_persisted?(s3_file)
-
-      persisted = s3_file.to_blob
-      pre_curation_uploads.attach(persisted)
     end
 
     def publish_precurated_files
