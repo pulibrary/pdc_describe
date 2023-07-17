@@ -37,7 +37,6 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
       let(:upload_s3_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work }
 
       before do
-        # work.pre_curation_uploads.attach(upload_file)
         work.state = "draft"
         work.save
         work.reload
@@ -47,16 +46,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         allow(fake_s3_service).to receive(:file_url).with(upload_s3_file.key).and_return("https://example-bucket.s3.amazonaws.com/#{file1.key}")
       end
 
-      after do
-        work.pre_curation_uploads.map(&:purge)
-        work.save
-        work.reload
-      end
-
       it "renders S3 Bucket Objects and file uploads on the show page", js: true do
-        work.pre_curation_uploads.attach(upload_file)
-
-        expect(work.pre_curation_uploads.length).to eq(1)
         visit work_path(work)
         expect(page).to have_content work.title
         expect(page).to have_content upload_file_name
@@ -66,9 +56,6 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
       end
 
       it "renders S3 Bucket Objects and file uploads on the edit page", js: true do
-        work.pre_curation_uploads.attach(upload_file)
-
-        expect(work.pre_curation_uploads.length).to eq(1)
         visit work_path(work)
         expect(work.reload.pre_curation_uploads_fast.length).to eq(3)
         visit edit_work_path(work) # can not click Edit link becuase wizard does not show files
@@ -81,8 +68,6 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
       context "when files are deleted from a Work" do
         before do
           allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_data)
-          attachments = work.pre_curation_uploads.select { |e| e.filename.to_s == upload_file_name }
-          attachments.each(&:purge)
           work.save
           work.reload
         end
@@ -115,17 +100,12 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         let(:work) { approved_work } # make sure the id in the file key matches the work
 
         before do
-          # approved_work.pre_curation_uploads.attach(upload_file)
-          # approved_work.save
-          # approved_work.reload
           allow(fake_s3_service).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
           approved_work.state = "approved"
           approved_work.save
         end
 
         it "renders S3 Bucket Objects and file uploads on the show page", js: true do
-          approved_work.pre_curation_uploads.attach(upload_file)
-
           visit work_path(approved_work)
           expect(page).to have_content approved_work.title
 
@@ -134,8 +114,6 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         end
 
         it "renders S3 Bucket Objects and file uploads on the edit page", js: true do
-          approved_work.pre_curation_uploads.attach(upload_file)
-
           visit work_path(approved_work)
           click_on "Edit"
 
@@ -145,15 +123,12 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
 
         context "when files are deleted from a Work" do
           before do
-            attachments = approved_work.pre_curation_uploads.select { |e| e.filename.to_s == upload_file_name }
-            attachments.each(&:purge)
             approved_work.save
             approved_work.reload
           end
 
           it "renders only the S3 Bucket Objects on the show page", js: true do
             visit work_path(approved_work)
-            expect(approved_work.reload.pre_curation_uploads.length).to eq(0)
 
             expect(page).to have_content approved_work.title
             expect(page).to have_content filename1
@@ -162,7 +137,6 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
 
           it "renders only the S3 Bucket Objects on the edit page", js: true do
             visit work_path(approved_work)
-            expect(approved_work.reload.pre_curation_uploads.length).to eq(0)
             click_on "Edit"
 
             expect(page).not_to have_content upload_file_name
