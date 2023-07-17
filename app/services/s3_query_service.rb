@@ -19,7 +19,7 @@ class S3QueryService
     configuration.post_curation
   end
 
-  attr_reader :part_size
+  attr_reader :part_size, :last_response
 
   ##
   # @param [Work] model
@@ -30,6 +30,7 @@ class S3QueryService
     @doi = model.doi
     @pre_curation = pre_curation
     @part_size = 5_368_709_120 # 5GB is the maximum part size for AWS
+    @last_response = nil
   end
 
   def config
@@ -213,7 +214,7 @@ class S3QueryService
     # upload file from io in a single request, may not exceed 5GB
     md5_digest ||= md5(io: io)
     key = "#{prefix}#{filename}"
-    client.put_object(bucket: bucket_name, key: key, body: io, content_md5: md5_digest)
+    @last_response = client.put_object(bucket: bucket_name, key: key, body: io, content_md5: md5_digest)
     key
   rescue Aws::S3::Errors::SignatureDoesNotMatch => e
     Honeybadger.notify("Error Uploading file #{filename} for object: #{s3_address} Signature did not match! error: #{e}")
