@@ -723,10 +723,8 @@ RSpec.describe WorksController do
         {
           "_method" => "patch",
           "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
-          "work" => {
-            "patch" => {
-              "pre_curation_uploads" => [uploaded_file]
-            }
+          "patch" => {
+            "pre_curation_uploads" => [uploaded_file]
           },
           "commit" => "Continue",
           "controller" => "works",
@@ -776,10 +774,8 @@ RSpec.describe WorksController do
         {
           "_method" => "patch",
           "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
-          "work" => {
-            "patch" => {
-              "pre_curation_uploads" => [uploaded_file]
-            }
+          "patch" => {
+            "pre_curation_uploads" => [uploaded_file]
           },
           "commit" => "Continue",
           "controller" => "works",
