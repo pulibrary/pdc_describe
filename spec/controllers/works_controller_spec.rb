@@ -210,6 +210,7 @@ RSpec.describe WorksController do
       before do
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
         allow(fake_s3_service).to receive(:client_s3_files).and_return([file1])
+        allow(AttachFileToWorkJob).to receive(:perform_later)
       end
 
       it "handles the update page" do
@@ -225,16 +226,22 @@ RSpec.describe WorksController do
           "publication_year" => "2022",
           creators: [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" },
                      { "orcid" => "", "given_name" => "Ada", "family_name" => "Lovelace" }],
-          "pre_curation_uploads_added" => uploaded_file
+          work: { "pre_curation_uploads_added" => uploaded_file }
         }
         sign_in user
-        expect(work.pre_curation_uploads).to be_empty
         post :update, params: params
 
         saved_work = Work.find(work.id)
 
         expect(saved_work.pre_curation_uploads_fast).not_to be_empty
         expect(fake_s3_service).not_to have_received(:delete_s3_object)
+        expect(AttachFileToWorkJob).to have_received(:perform_later).with(
+          user_id: user.id,
+          work_id: work.id,
+          size: 92,
+          file_name: "us_covid_2019.csv",
+          file_path: anything
+        )
       end
     end
 
@@ -266,6 +273,7 @@ RSpec.describe WorksController do
         # This is utilized for active record to send the file to S3
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
         allow(fake_s3_service).to receive(:client_s3_files).and_return([file1, file2])
+        allow(AttachFileToWorkJob).to receive(:perform_later)
       end
 
       it "handles the update page" do
@@ -281,16 +289,29 @@ RSpec.describe WorksController do
           "publication_year" => "2022",
           "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" },
                          { "orcid" => "", "given_name" => "Ada", "family_name" => "Lovelace" }],
-          "pre_curation_uploads_added" => uploaded_files
+          work: { "pre_curation_uploads_added" => uploaded_files }
         }
         sign_in user
-        expect(work.pre_curation_uploads).to be_empty
         post :update, params: params
 
         saved_work = Work.find(work.id)
 
         expect(saved_work.pre_curation_uploads_fast).not_to be_empty
         expect(fake_s3_service).not_to have_received(:delete_s3_object)
+        expect(AttachFileToWorkJob).to have_received(:perform_later).with(
+          user_id: user.id,
+          work_id: work.id,
+          size: 92,
+          file_name: "us_covid_2019.csv",
+          file_path: anything
+        )
+        expect(AttachFileToWorkJob).to have_received(:perform_later).with(
+          user_id: user.id,
+          work_id: work.id,
+          size: 114,
+          file_name: "us_covid_2020.csv",
+          file_path: anything
+        )
       end
     end
 
@@ -335,7 +356,7 @@ RSpec.describe WorksController do
         allow(fake_s3_service).to receive(:client_s3_files).and_return([file1, file2])
 
         params = base_params.clone
-        params["pre_curation_uploads_added"] = [uploaded_file1, uploaded_file2]
+        params[:work] = { pre_curation_uploads_added: [uploaded_file1, uploaded_file2] }
         sign_in user
         post :update, params: params
       end
@@ -344,9 +365,9 @@ RSpec.describe WorksController do
         expect(work.pre_curation_uploads_fast.count).to eq 2
 
         params = base_params.clone
-        params["pre_curation_uploads_added"] = [uploaded_file2]
-        params["work[deleted_files_count]"] = "1"
-        params["work[deleted_file_1]"] = uploaded_file2.original_filename
+        params[:work] = { pre_curation_uploads_added: [uploaded_file2],
+                          deleted_files_count: "1",
+                          deleted_file_1: uploaded_file2.original_filename }
         post :update, params: params
 
         saved_work = Work.find(work.id)
@@ -356,13 +377,9 @@ RSpec.describe WorksController do
     end
 
     context "when only some file uploads are deleted for an existing Work with uploads" do
-      let(:uploaded_file1) do
-        fixture_file_upload("us_covid_2019.csv", "text/csv")
-      end
-
-      let(:uploaded_file2) do
-        fixture_file_upload("us_covid_2020.csv", "text/csv")
-      end
+      let(:s3_file1) { FactoryBot.build :s3_file, filename: "us_covid_2020.csv", work: work }
+      let(:s3_file2) { FactoryBot.build :s3_file, filename: "us_covid_2021.csv", work: work }
+      let(:s3_file3) { FactoryBot.build :s3_file, filename: "us_covid_2022.csv", work: work }
 
       let(:bucket_url) do
         "https://example-bucket.s3.amazonaws.com/"
@@ -387,8 +404,8 @@ RSpec.describe WorksController do
       end
       let(:params) do
         params_no_delete.merge({ "work[deleted_files_count]" => "2",
-                                 "work[deleted_file_1]" => work.pre_curation_uploads.first.key,
-                                 "work[deleted_file_2]" => work.pre_curation_uploads.last.key })
+                                 "work[deleted_file_1]" => s3_file1.key,
+                                 "work[deleted_file_2]" => s3_file3.key })
       end
 
       before do
@@ -397,18 +414,12 @@ RSpec.describe WorksController do
       end
 
       context "when the Work has not been curated" do
-        let(:file1) { FactoryBot.build :s3_file, filename: "SCoData_combined_v1_2020-07_README.txt", work: work }
-
         let(:fake_s3_service) { stub_s3 }
         before do
-          allow(fake_s3_service).to receive(:client_s3_files).and_return([file1, file1, file1], [file1])
-          work.pre_curation_uploads.attach(uploaded_file1)
-          work.pre_curation_uploads.attach(uploaded_file1)
-          work.pre_curation_uploads.attach(uploaded_file1)
+          allow(fake_s3_service).to receive(:client_s3_files).and_return([s3_file1, s3_file2, s3_file3], [s3_file2])
         end
 
         it "handles the update page" do
-          expect(work.pre_curation_uploads.length).to eq(3)
           expect(work.pre_curation_uploads_fast.length).to eq(3)
 
           sign_in user
@@ -416,14 +427,12 @@ RSpec.describe WorksController do
 
           saved_work = Work.find(work.id)
 
-          expect(saved_work.pre_curation_uploads).not_to be_empty
           expect(saved_work.pre_curation_uploads_fast.length).to eq(1)
 
-          expect(saved_work.pre_curation_uploads[0].blob.filename.to_s).to eq("us_covid_2019.csv")
           expect(ActiveStorage::PurgeJob).not_to have_received(:new)
-          expect(fake_s3_service).to have_received(:delete_s3_object).with(work.pre_curation_uploads.first.key)
-          expect(fake_s3_service).to have_received(:delete_s3_object).with(work.pre_curation_uploads.last.key)
-          expect(fake_s3_service).not_to have_received(:delete_s3_object).with(work.pre_curation_uploads[1].key)
+          expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_file1.key)
+          expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_file3.key)
+          expect(fake_s3_service).not_to have_received(:delete_s3_object).with(s3_file2.key)
         end
       end
 
@@ -444,6 +453,7 @@ RSpec.describe WorksController do
                                    "work[deleted_file_1]" => work.post_curation_uploads.first.key,
                                    "work[deleted_file_2]" => work.post_curation_uploads.last.key })
         end
+
         let(:s3_client) { instance_double(Aws::S3::Client) }
         let(:s3_object) { double }
         let(:uploaded_file) { fixture_file_upload("us_covid_2019.csv", "text/csv") }
@@ -508,7 +518,7 @@ RSpec.describe WorksController do
           "publisher" => "princeton university",
           "publication_year" => "2022",
           "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }],
-          "pre_curation_uploads_added" => [uploaded_file1]
+          work: { "pre_curation_uploads_added" => [uploaded_file1] }
         }
       end
       let(:fake_s3_service) { stub_s3(data: [file1]) }
@@ -562,10 +572,12 @@ RSpec.describe WorksController do
           "publication_year" => "2022",
           "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" },
                          { "orcid" => "", "given_name" => "Ada", "family_name" => "Lovelace" }],
-          "pre_curation_uploads_added" => uploaded_files,
-          "work[deleted_files_count]" => "2",
-          "work[deleted_file_1]" => uploaded_file1.original_filename,
-          "work[deleted_file_2]" => uploaded_file2.original_filename
+          work: {
+            "pre_curation_uploads_added" => uploaded_files,
+            "deleted_files_count" => "2",
+            "deleted_file_1" => uploaded_file1.original_filename,
+            "deleted_file_2" => uploaded_file2.original_filename
+          }
         }
       end
       let(:fake_s3_service) { stub_s3(data: [file1, file2]) }
@@ -574,18 +586,12 @@ RSpec.describe WorksController do
         fake_s3_service
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
         stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
-
-        work.pre_curation_uploads.attach(uploaded_file1)
-        work.pre_curation_uploads.attach(uploaded_file2)
-        work.reload
+        allow(AttachFileToWorkJob).to receive(:perform_later)
 
         sign_in user
       end
 
       it "handles the update page" do
-        expect(work.pre_curation_uploads).not_to be_empty
-        expect(work.pre_curation_uploads.first).to be_an(ActiveStorage::Attachment)
-
         post :update, params: request_params
 
         saved_work = Work.find(work.id)
@@ -598,6 +604,14 @@ RSpec.describe WorksController do
 
         # original copies of the files get deleted
         expect(fake_s3_service).to have_received(:delete_s3_object).twice
+        expect(AttachFileToWorkJob).to have_received(:perform_later).with(
+          user_id: user.id, work_id: work.id, size: 114,
+          file_name: uploaded_files.first.original_filename, file_path: anything
+        )
+        expect(AttachFileToWorkJob).to have_received(:perform_later).with(
+          user_id: user.id, work_id: work.id, size: 92,
+          file_name: uploaded_files.last.original_filename, file_path: anything
+        )
       end
     end
 
@@ -752,8 +766,7 @@ RSpec.describe WorksController do
 
         it "does not update the work" do
           expect(response).to redirect_to(work_review_path)
-          reloaded = work.reload
-          expect(reloaded.pre_curation_uploads).to be_empty
+          expect(fake_s3_service).not_to have_received(:upload_file)
         end
       end
     end
@@ -793,7 +806,6 @@ RSpec.describe WorksController do
         allow(persisted).to receive(:to_s).and_return(work.id)
         allow(persisted).to receive(:doi).and_return(work.doi)
         allow(persisted).to receive(:s3_query_service).and_return(nil)
-        allow(persisted).to receive(:pre_curation_uploads).and_return([])
         allow(persisted).to receive(:changes).and_raise("Error!")
 
         post :file_uploaded, params: params
