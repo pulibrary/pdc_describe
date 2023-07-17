@@ -168,7 +168,7 @@ class WorksController < ApplicationController
 
   def file_uploaded
     @work = Work.find(params[:id])
-    files = work_params.dig("patch", "pre_curation_uploads") || []
+    files = pre_curation_uploads_param || []
     if files.count > 0
       upload_service = WorkUploadsEditService.new(@work, current_user)
       @work = upload_service.update_precurated_file_list(files, [])
@@ -305,7 +305,7 @@ class WorksController < ApplicationController
   private
 
     def work_params
-      params[:work] || params
+      params[:work] || {}
     end
 
     def patch_params
