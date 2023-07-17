@@ -120,7 +120,6 @@ class Work < ApplicationRecord
   before_save do |work|
     # Ensure that the metadata JSONB postgres field is persisted properly
     work.metadata = JSON.parse(work.resource.to_json)
-    work.save_pre_curation_uploads
   end
 
   after_save do |work|
@@ -408,16 +407,6 @@ class Work < ApplicationRecord
     s3_query_service.client_s3_files.sort_by(&:filename)
   end
 
-  # This ensures that new ActiveStorage::Attachment objects can be modified before they are persisted
-  def save_pre_curation_uploads
-    return if pre_curation_uploads.empty?
-
-    new_attachments = pre_curation_uploads.reject(&:persisted?)
-    return if new_attachments.empty?
-
-    save_new_attachments(new_attachments: new_attachments)
-  end
-
   # Accesses post-curation S3 Bucket Objects
   def post_curation_s3_resources
     if approved?
@@ -474,7 +463,6 @@ class Work < ApplicationRecord
     force_post_curation = args.any? {|arg| arg[:force_post_curation] == true }
     # Pre-curation files are not accessible externally,
     # so we are not interested in listing them in JSON.
-    # (The items in pre_curation_uploads also have different properties.)
     files = post_curation_uploads(force_post_curation:).map do |upload|
       {
         "filename": upload.filename,
@@ -740,13 +728,6 @@ class Work < ApplicationRecord
     def s3_object_persisted?(s3_file)
       uploads_keys = uploads.map(&:key)
       uploads_keys.include?(s3_file.key)
-    end
-
-    def add_pre_curation_s3_object(s3_file)
-      return if s3_object_persisted?(s3_file)
-
-      persisted = s3_file.to_blob
-      pre_curation_uploads.attach(persisted)
     end
 
     def publish_precurated_files

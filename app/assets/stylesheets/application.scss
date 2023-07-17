@@ -32,6 +32,10 @@
   color: #d71616;
 }
 
+.required-field-star {
+  font-size: 1.5em;
+}
+
 .wizard-area {
   max-width: 960px; /* does this value need bang important too? */
 }
@@ -273,6 +277,10 @@ th {
 
 .actions .btn-primary {
   background-color: #467dd1ff;
+}
+
+.submit-ordered-list {
+  padding: 0em 3em;
 }
 
 .primary-detail {

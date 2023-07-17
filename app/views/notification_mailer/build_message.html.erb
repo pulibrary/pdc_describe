@@ -7,13 +7,13 @@
     <section>
       <p>
         <span>Hello <%= @user.given_name %>,</span>
-        <span>This message is to notify you of a new notification for your account with PDC Describe:</span>
-        <span><%= @message_html %></span>
+        <p>You have a new notification for your account with PDC Describe:</p>
+        <p><%= @message_html.html_safe %></p>
       </p>
     </section>
     <section>
       <p>
-        <span>To view the notification, please browse to <%= @url %>.</span>
+        <span>To view the notification, please browse <a href='<%= @url %>'>here<a>.</span>
         <span>Thank you very much for your support and time.</span>
       </p>
     </section>

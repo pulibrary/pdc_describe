@@ -42,7 +42,28 @@
     //   AJAX loading: https://datatables.net/manual/ajax
     //   Column display configuration: https://datatables.net/examples/advanced_init/column_render.html
     //   Row Id: https://datatables.net/reference/option/rowId
-    var filesTable = $('#files-table').DataTable({
+    let $fileTable = $('#files-table');
+    let fileTable;
+
+    const $filesTableWrapper = $('#files-table_wrapper');
+    const filesTableLength = $('#files-table_length');
+    if (filesTableLength.length > 0) {
+      if (DataTable.isDataTable($fileTable)) {
+        fileTable = $fileTable.dataTable();
+
+        const fileTableApi = fileTable.api();
+        fileTableApi.destroy();
+      } else {
+        $fileTable = $fileTable.detach();
+
+        const $cardBody = $('.files.card-body');
+        $cardBody.append($fileTable);
+      }
+
+      $filesTableWrapper.remove();
+    }
+
+    filesTable = $fileTable.DataTable({
       select: true,
       ajax: {
         url: fileListUrl,
