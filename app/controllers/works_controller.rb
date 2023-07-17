@@ -284,7 +284,7 @@ class WorksController < ApplicationController
 
   def readme_select
     @work = Work.find(params[:id])
-    readme = Readme.new(@work)
+    readme = Readme.new(@work, current_user)
     @readme = readme.file_name
     @wizard = true
   end
@@ -292,7 +292,7 @@ class WorksController < ApplicationController
   def readme_uploaded
     @work = Work.find(params[:id])
     @wizard = true
-    readme = Readme.new(@work)
+    readme = Readme.new(@work, current_user)
     readme_error = readme.attach(readme_file_param)
     if readme_error.nil?
       redirect_to work_attachment_select_url(@work)

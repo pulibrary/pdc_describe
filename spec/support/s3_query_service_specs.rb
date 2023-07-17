@@ -24,6 +24,7 @@ def mock_methods(fake_s3_query, data)
   allow(fake_s3_query).to receive(:publish_files).and_return([])
   allow(fake_s3_query).to receive(:upload_file).and_return(true)
   allow(fake_s3_query).to receive(:md5).and_return(nil)
+  allow(fake_s3_query).to receive(:last_response).and_return Aws::S3::Types::PutObjectOutput.new(etag: "\"abc123\"")
 end
 
 def mock_bucket(bucket_url)
