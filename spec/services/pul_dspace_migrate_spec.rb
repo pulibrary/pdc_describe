@@ -4,8 +4,9 @@ require "rails_helper"
 RSpec.describe PULDspaceMigrate, type: :model do
   include ActiveJob::TestHelper
 
-  subject(:subject) { described_class.new(work) }
+  subject(:subject) { described_class.new(work, user) }
   let(:work) { FactoryBot.create :draft_work }
+  let(:user) { FactoryBot.create :user }
 
   describe "#migrate" do
     it "does nothing" do
@@ -64,6 +65,7 @@ RSpec.describe PULDspaceMigrate, type: :model do
         allow(fake_s3_service).to receive(:copy_file).with(hash_including(target_key: /globus_SCoData_combined_v1_2020-07_README.txt/))
                                                      .and_return(fake_completion)
       end
+
       it "migrates the content from dspace and aws" do
         expect(UploadSnapshot.all.count).to eq(0)
         FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
@@ -77,6 +79,10 @@ RSpec.describe PULDspaceMigrate, type: :model do
         expect(subject.migration_message).to eq("Migration for 5 files and 1 directory")
 
         expect(work.reload.resource.migrated).to be_truthy
+
+        work_activity = WorkActivity.last
+        expect(work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"Migration for 5 files and 1 directory\",\"file_count\":5,\"directory_count\":1}")
+
         expect(enqueued_jobs.size).to eq(3)
         expect(MigrationUploadSnapshot.last.files).to eq([{ "checksum" => "AI7sEcOecDhAlznAFgp5Og==", "filename" => "abc/123/data_space_SCoData_combined_v1_2020-07_README.txt",
                                                             "migrate_status" => "complete" },
@@ -150,6 +156,53 @@ RSpec.describe PULDspaceMigrate, type: :model do
                                                               "migrate_status" => "complete" },
                                                             { "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
           expect(MigrationUploadSnapshot.last.migration_complete?).to be_truthy
+          work_activity = WorkActivity.last
+          expect(work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"4 files and 1 directory have migrated from Dataspace.\"}")
+          expect(work_activity.activity_type).to eq(WorkActivity::MIGRATION_COMPLETE)
+        end
+      end
+
+      context "no files in aws" do
+        let(:fake_s3_service) { stub_s3(prefix: "abc/123/") }
+
+        before do
+          allow(fake_s3_service).to receive(:upload_file).with(hash_including(filename: /SCoData_combined_v1_2020-07_README/))
+                                                         .and_return("abc/123/SCoData_combined_v1_2020-07_README.txt")
+        end
+
+        it "migrates the content from dspace only" do
+          expect(UploadSnapshot.all.count).to eq(0)
+          FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
+          subject.migrate
+          expect(subject.file_keys).to eq(["abc/123/SCoData_combined_v1_2020-07_README.txt",
+                                           "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
+                                           "abc/123/license.txt"])
+          expect(subject.directory_keys).to eq([])
+          expect(subject.migration_message).to eq("Migration for 3 files and 0 directories")
+
+          expect(work.reload.resource.migrated).to be_truthy
+          expect(enqueued_jobs.size).to eq(0)
+          expect(MigrationUploadSnapshot.last.files).to eq([{ "checksum" => "AI7sEcOecDhAlznAFgp5Og==", "filename" => "abc/123/SCoData_combined_v1_2020-07_README.txt",
+                                                              "migrate_status" => "complete" },
+                                                            { "checksum" => "e9PUM5wDTrxmO5kGV3FGiA==", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
+                                                              "migrate_status" => "complete" },
+                                                            { "checksum" => "HiBNrT6eHi5mYO75wzRn6Q==", "filename" => "abc/123/license.txt", "migrate_status" => "complete" },
+                                                            { "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
+          expect(UploadSnapshot.all.count).to eq(2)
+          expect(MigrationUploadSnapshot.last.files).to eq([{ "checksum" => "AI7sEcOecDhAlznAFgp5Og==", "filename" => "abc/123/SCoData_combined_v1_2020-07_README.txt",
+                                                              "migrate_status" => "complete" },
+                                                            { "checksum" => "e9PUM5wDTrxmO5kGV3FGiA==", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
+                                                              "migrate_status" => "complete" },
+                                                            { "checksum" => "HiBNrT6eHi5mYO75wzRn6Q==", "filename" => "abc/123/license.txt", "migrate_status" => "complete" },
+                                                            { "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
+          expect(MigrationUploadSnapshot.last.migration_complete?).to be_truthy
+          start_work_activity = WorkActivity.first
+          finish_work_activity = WorkActivity.last
+          expect(start_work_activity.message)
+            .to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"Migration for 3 files and 0 directories\",\"file_count\":3,\"directory_count\":0}")
+          expect(start_work_activity.activity_type).to eq(WorkActivity::MIGRATION_START)
+          expect(finish_work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"3 files and 0 directories have migrated from Dataspace.\"}")
+          expect(finish_work_activity.activity_type).to eq(WorkActivity::MIGRATION_COMPLETE)
         end
       end
 

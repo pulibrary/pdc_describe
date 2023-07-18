@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 class PULDspaceMigrate
-  attr_reader :work, :ark, :file_keys, :directory_keys,
+  attr_reader :work, :ark, :file_keys, :directory_keys, :current_user,
               :aws_connector, :migration_snapshot, :dspace_files, :aws_files_and_directories
 
   delegate :doi, to: :dspace_connector
 
-  def initialize(work)
+  def initialize(work, current_user)
     @work = work
     @ark = work.ark&.gsub("ark:/", "")
     @file_keys = []
@@ -14,6 +14,7 @@ class PULDspaceMigrate
     @migration_snapshot = nil
     @aws_files_and_directories = nil
     @dspace_files = []
+    @current_user = current_user
   end
 
   def migrate
@@ -27,6 +28,7 @@ class PULDspaceMigrate
     # so do that now. Do it before copying the aws files so the MigrationUploadSnapshot will exist
     # already when the DspaceFileCopyJob is started, and it will update correctly.
     generate_migration_snapshot if work.skip_dataspace_migration?
+
     aws_copy(aws_files_and_directories)
   end
 
@@ -34,10 +36,10 @@ class PULDspaceMigrate
     @dspace_connector ||= PULDspaceConnector.new(work)
   end
 
-  def migration_message
+  def migration_message(input_file_keys = file_keys, input_directory_keys = directory_keys)
     message = []
     message << "DSpace migration skipped for #{work.ark}. Only migrating files from AWS/Globus." if work.skip_dataspace_migration?
-    message << "Migration for #{file_keys.count} #{'file'.pluralize(file_keys.count)} and #{directory_keys.count} #{'directory'.pluralize(directory_keys.count)}"
+    message << "Migration for #{input_file_keys.count} #{'file'.pluralize(input_file_keys.count)} and #{input_directory_keys.count} #{'directory'.pluralize(input_directory_keys.count)}"
     message.join(" ")
   end
 
@@ -49,6 +51,11 @@ class PULDspaceMigrate
       last_snapshot = work.upload_snapshots.first
       snapshot.store_files(files, pre_existing_files: last_snapshot&.files)
       snapshot.save!
+      directories = aws_files_and_directories.select(&:directory?)
+      WorkActivity.add_work_activity(work.id, { migration_id: snapshot.id,
+                                                message: migration_message(files, directories), file_count: files.count,
+                                                directory_count: directories.count }.to_json,
+                                      current_user.id, activity_type: WorkActivity::MIGRATION_START)
       @migration_snapshot = snapshot
     end
 
