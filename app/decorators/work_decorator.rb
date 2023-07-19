@@ -13,16 +13,20 @@ class WorkDecorator
     @can_curate = current_user&.can_admin?(group)
   end
 
+  def current_user_is_admin?
+    current_user.has_role?(:group_admin, group)
+  end
+
   def show_approve_button?
-    work.awaiting_approval? && current_user.has_role?(:group_admin, group)
+    work.awaiting_approval? && current_user_is_admin?
   end
 
   def show_complete_button?
-    draft? && work.created_by_user_id == current_user.id
+    draft? && (work.created_by_user_id == current_user.id || current_user_is_admin?)
   end
 
   def show_migrate_button?
-    draft? && migrated && current_user.has_role?(:group_admin, group)
+    draft? && migrated && current_user_is_admin?
   end
 
   def wizard_mode?
