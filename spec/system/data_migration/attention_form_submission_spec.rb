@@ -28,7 +28,7 @@ RSpec.describe "Form submission for migrating attention", type: :system, mock_ez
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifiers"
       find("tr:last-child input[name='creators[][orcid]']").set "0000-0002-4080-5386"
       find("tr:last-child input[name='creators[][given_name]']").set "Andrew"
       find("tr:last-child input[name='creators[][family_name]']").set "Wilterson"

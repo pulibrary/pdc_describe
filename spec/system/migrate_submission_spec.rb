@@ -62,7 +62,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "creators[][given_name]", with: "Samantha"
       fill_in "creators[][family_name]", with: "Abrams"
       fill_in "description", with: description
-      select "GNU General Public License", from: "rights_identifier"
+      select "GNU General Public License", from: "rights_identifiers"
       click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
@@ -87,7 +87,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "creators[][given_name]", with: "Samantha"
       fill_in "creators[][family_name]", with: "Abrams"
       fill_in "description", with: description
-      select "GNU General Public License", from: "rights_identifier"
+      select "GNU General Public License", from: "rights_identifiers"
       click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
@@ -122,7 +122,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "creators[][given_name]", with: "Samantha"
       fill_in "creators[][family_name]", with: "Abrams"
       fill_in "description", with: description
-      select "GNU General Public License", from: "rights_identifier"
+      select "GNU General Public License", from: "rights_identifiers"
       click_on "Curator Controlled"
       fill_in "doi", with: "abc123"
       click_on "Create"

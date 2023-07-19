@@ -27,7 +27,7 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
       fill_in "creators[][family_name]", with: FFaker::Name.last_name
       click_on "Create New"
       fill_in "description", with: FFaker::Lorem.paragraph
-      select "GNU General Public License", from: "rights_identifier"
+      select "GNU General Public License", from: "rights_identifiers"
       click_on "Curator Controlled"
       expect(page).to have_content "Research Data"
       click_on "Save Work"

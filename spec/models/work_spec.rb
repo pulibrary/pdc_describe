@@ -51,7 +51,7 @@ RSpec.describe Work, type: :model do
             "publication_year" => nil,
             "ark" => nil,
             "doi" => nil,
-            "rights" => nil,
+            "rights_many" => [],
             "version_number" => nil,
             "related_objects" => [],
             "keywords" => [],
@@ -903,11 +903,13 @@ RSpec.describe Work, type: :model do
         "publication_year": 2022,
         "ark": "new-ark",
         "doi": "new-doi",
-        "rights": {
-          "identifier": "CC BY",
-          "uri": "https://creativecommons.org/licenses/by/4.0/",
-          "name": "Creative Commons Attribution 4.0 International"
-        },
+        "rights_many": [
+          {
+            "identifier": "CC BY",
+            "uri": "https://creativecommons.org/licenses/by/4.0/",
+            "name": "Creative Commons Attribution 4.0 International"
+          }
+        ],
         "version_number": "1",
         "related_objects": [],
         "keywords": [],

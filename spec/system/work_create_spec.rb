@@ -84,7 +84,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Save Work"
       expect(page).to have_content("Must provide a description")
       fill_in "description", with: description
-      select "GNU General Public License", from: "rights_identifier"
+      select "GNU General Public License", from: "rights_identifiers"
       click_on "Curator Controlled"
       fill_in "publication_year", with: issue_date
       click_on "Additional Metadata"
