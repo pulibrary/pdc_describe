@@ -748,9 +748,6 @@ class Work < ApplicationRecord
     def latest_snapshot
       upload_snapshot = upload_snapshots.first
       upload_snapshot ||= UploadSnapshot.new(work: self, files: [])
-
-      # return the migration snapshot if this is one, otherwise utilize the upload snapshot
-      MigrationUploadSnapshot.from_upload_snapshot(upload_snapshot)
     end
 
     def snapshot_deletions(work_changes, s3_filenames, upload_snapshot)
