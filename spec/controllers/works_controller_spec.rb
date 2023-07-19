@@ -399,7 +399,7 @@ RSpec.describe WorksController do
           "publication_year" => "2022",
           "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" },
                          { "orcid" => "", "given_name" => "Ada", "family_name" => "Lovelace" }],
-          "rights_identifier" => "CC BY"
+          "rights_identifiers" => ["CC BY"]
         }.with_indifferent_access
       end
       let(:params) do
@@ -1208,7 +1208,7 @@ RSpec.describe WorksController do
         new_title_count: "1",
         "creators" => [{ "orcid" => "", "given_name" => "Toni", "family_name" => "Morrison" },
                        { "orcid" => "1234-1234-1234-1234", "given_name" => "Sonia", "family_name" => "Sotomayor" }],
-        rights_identifier: "CC BY",
+        rights_identifiers: ["CC BY"],
         description: "a new description"
       }
     end
