@@ -41,11 +41,9 @@ class FormToResourceService
       end
 
       def add_rights(params, resource)
-        byebug
         resource.rights_many = (params["rights_identifiers"] || []).map do |rights_id|
           PDCMetadata::Rights.find(rights_id)
         end.compact
-        resource.rights = resource.rights_many.first
       end
 
       def add_additional_metadata(params, resource)

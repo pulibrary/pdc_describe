@@ -28,7 +28,8 @@
 <!-- Rights Management field -->
 <div class="field">
   <details>
-    <summary>Rights<span class="required-field required-field-star">*</span><br />Please specify the applicable license governing the use and reproduction of this deposit.</summary>
+    <summary>Rights<span class="required-field required-field-star">*</span> Please specify the applicable license(s) governing the use and reproduction of this deposit.</summary>
+    You can select more than one license.
     <ul>
       <li>Help with <a href="https://creativecommons.org/about/cclicenses/">Creative Commons Licenses</a> (recommended for data)</li>
       <li>Information about <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU License</a> for software and code</li>
@@ -38,8 +39,7 @@
   </details>
   <select id="rights_identifiers" name="rights_identifiers[]" class="input-text-long" multiple>
     <% ::PDCMetadata::Rights.all.each do |rights| %>
-      <!-- TODO: default to CC BY -->
-      <% if @work.resource.rights_many.index { |r| r.identifier == rights.identifier } != nil %>
+      <% if @work.has_rights?(rights.identifier) || (@work.resource.rights_many.count == 0 && rights.identifier == "CC BY") %>
         <option value="<%=rights.identifier%>" selected><%= rights.name %></option>
       <% else %>
         <option value="<%=rights.identifier%>"><%= rights.name %></option>
