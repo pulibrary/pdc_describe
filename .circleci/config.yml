@@ -23,7 +23,7 @@ commands:
           paths:
             - ~/.cache/yarn
 orbs:
-  browser-tools: circleci/browser-tools@1.4.2
+  browser-tools: circleci/browser-tools@1.4.3
 jobs:
   build:
     working_directory: ~/rails_template
