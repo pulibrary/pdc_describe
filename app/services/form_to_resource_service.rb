@@ -13,9 +13,9 @@ class FormToResourceService
       resource.description = params["description"]
       resource.publisher = params["publisher"] if params["publisher"].present?
       resource.publication_year = params["publication_year"] if params["publication_year"].present?
-      resource.rights = PDCMetadata::Rights.find(params["rights_identifier"])
       resource.keywords = (params["keywords"] || "").split(",").map(&:strip)
 
+      add_rights(params, resource)
       add_additional_metadata(params, resource)
       add_curator_controlled(params, resource)
       add_titles(params, resource)
@@ -38,6 +38,14 @@ class FormToResourceService
         resource.migrated = work.resource.migrated
         resource.collection_tags = work.resource.collection_tags || []
         resource
+      end
+
+      def add_rights(params, resource)
+        byebug
+        resource.rights_many = (params["rights_identifiers"] || []).map do |rights_id|
+          PDCMetadata::Rights.find(rights_id)
+        end.compact
+        resource.rights = resource.rights_many.first
       end
 
       def add_additional_metadata(params, resource)

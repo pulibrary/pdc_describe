@@ -162,9 +162,13 @@
         </dd>
       <% end %>
 
-      <% if @work.resource.rights.present? %>
+      <% if @work.resource.rights_many.present? %>
         <dt>Rights</dt>
-        <dd><%= @work.resource.rights.name %> (<%= link_to(@work.resource.rights.identifier, @work.resource.rights.uri, {target: "_blank"}) %>)</dd>
+        <dd>
+          <% @work.resource.rights_many.each do |rights| %>
+            <%= rights.name %> (<%= link_to(rights.identifier, rights.uri, {target: "_blank"}) %>)<br/>
+          <% end %>
+        </dd>
       <% end %>
 
       <dt>Publisher</dt>
