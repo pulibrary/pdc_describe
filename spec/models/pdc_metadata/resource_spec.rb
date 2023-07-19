@@ -153,7 +153,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
         "collection_tags" => ["ABC", "123"],
         "keywords" => ["red", "yellow", "green"],
         "related_objects" => [],
-        "rights_many" => [{"identifier"=>"CC BY", "name"=>"Creative Commons Attribution 4.0 International", "uri"=>"https://creativecommons.org/licenses/by/4.0/"}],
+        "rights_many" => [{ "identifier" => "CC BY", "name" => "Creative Commons Attribution 4.0 International", "uri" => "https://creativecommons.org/licenses/by/4.0/" }],
         "version_number" => 1,
         "funders" => [{
           "ror" => nil,
