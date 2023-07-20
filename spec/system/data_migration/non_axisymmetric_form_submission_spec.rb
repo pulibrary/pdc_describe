@@ -12,7 +12,7 @@ File name: SourceData.xlsx Description: source data for the 8 figures in the mai
   let(:ark) { "ark:/88435/dsp01sx61dq46q" }
   let(:group) { "Princeton Plasma Physics Lab (PPPL)" }
   let(:publisher) { "Princeton University" }
-  let(:doi) { "10.11578/1888278" }
+  let(:doi) { "10.11578/1888269" }
   let(:related_identifier) { "10.1038/s41467-022-32278-0" }
   let(:related_identifier_type) { "DOI" }
   let(:relation_type) { "IsCitedBy" }

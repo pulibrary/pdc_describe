@@ -11,12 +11,12 @@ RSpec.describe "Form submission for migrating fusion energy", type: :system, moc
   let(:collection_tags) { ["Plasma Science & Technology"] }
   let(:group) { "Princeton Plasma Physics Lab (PPPL)" }
   let(:publisher) { "Princeton University" }
-  let(:doi) { "10.5281/zenodo.7507006" }
+  let(:doi) { "10.34770/tbd" }
   let(:keywords) { "fusion, economics, cost, value, tokamak, power plant" }
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.5281"))
-    stub_request(:get, "https://handle.stage.datacite.org/10.5281/zenodo.7507006")
+    stub_request(:get, "https://handle.stage.datacite.org/10.34770/tbd")
       .to_return(status: 200, body: "", headers: {})
     stub_s3
   end
