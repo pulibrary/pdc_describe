@@ -51,7 +51,7 @@ RSpec.describe Work, type: :model do
             "publication_year" => nil,
             "ark" => nil,
             "doi" => nil,
-            "rights" => nil,
+            "rights_many" => [],
             "version_number" => nil,
             "related_objects" => [],
             "keywords" => [],
@@ -153,6 +153,15 @@ RSpec.describe Work, type: :model do
       expect(work.resource.related_objects.first.related_identifier).to eq "https://www.biorxiv.org/content/10.1101/545517v1"
       expect(work.resource.related_objects.first.related_identifier_type).to eq "arXiv"
       expect(work.resource.related_objects.first.relation_type).to eq "IsCitedBy"
+    end
+  end
+
+  describe "#has_rights?" do
+    subject(:work) { FactoryBot.create(:draft_work) }
+
+    it "detects licenses on a work" do
+      expect(subject.has_rights?("CC BY")).to be true
+      expect(subject.has_rights?("MIT")).to be false
     end
   end
 
@@ -903,11 +912,13 @@ RSpec.describe Work, type: :model do
         "publication_year": 2022,
         "ark": "new-ark",
         "doi": "new-doi",
-        "rights": {
-          "identifier": "CC BY",
-          "uri": "https://creativecommons.org/licenses/by/4.0/",
-          "name": "Creative Commons Attribution 4.0 International"
-        },
+        "rights_many": [
+          {
+            "identifier": "CC BY",
+            "uri": "https://creativecommons.org/licenses/by/4.0/",
+            "name": "Creative Commons Attribution 4.0 International"
+          }
+        ],
         "version_number": "1",
         "related_objects": [],
         "keywords": [],

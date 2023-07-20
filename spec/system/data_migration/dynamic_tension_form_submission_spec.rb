@@ -25,7 +25,7 @@ RSpec.describe "Form submission for migrating dynamic-tension", type: :system, m
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifiers"
       find("tr:last-child input[name='creators[][orcid]']").set "0000-0003-4539-8406"
       find("tr:last-child input[name='creators[][given_name]']").set "Clayton"
       find("tr:last-child input[name='creators[][family_name]']").set "Myers"
