@@ -544,6 +544,10 @@ class Work < ApplicationRecord
     Rails.configuration.manual_dataspace_migration[:arks].include? resource.ark
   end
 
+  def has_rights?(rights_id)
+    resource.rights_many.index { |rights| rights.identifier == rights_id } != nil
+  end
+
   protected
 
     # This must be protected, NOT private for ActiveRecord to work properly with this attribute.
@@ -639,7 +643,7 @@ class Work < ApplicationRecord
       errors.add(:base, "Must provide a description") if resource.description.blank?
       errors.add(:base, "Must indicate the Publisher") if resource.publisher.blank?
       errors.add(:base, "Must indicate the Publication Year") if resource.publication_year.blank?
-      errors.add(:base, "Must indicate a Rights statement") if resource.rights.nil?
+      errors.add(:base, "Must indicate at least one Rights statement") if resource.rights_many.count == 0
       errors.add(:base, "Must provide a Version number") if resource.version_number.blank?
       validate_creators
       validate_related_objects
