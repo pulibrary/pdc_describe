@@ -10,7 +10,7 @@ RSpec.describe "Form submission for ion orbital", type: :system, mock_ezid_api: 
   let(:ark) { "ark:/88435/dsp01r494vp42z" }
   let(:group) { "Princeton Plasma Physics Lab (PPPL)" }
   let(:publisher) { "Princeton University" }
-  let(:doi) { "10.11578/1888260" }
+  let(:doi) { "10.34770/tbd" }
   let(:related_identifier) { "10.1088/1741-4326/acc815" }
   let(:related_identifier_type) { "DOI" }
   let(:relation_type) { "IsCitedBy" }
