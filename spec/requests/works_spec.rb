@@ -114,16 +114,17 @@ RSpec.describe "/works", type: :request do
           get work_url(work)
 
           expect(response.code).to eq "200"
+          background_snapshot = BackgroundUploadSnapshot.last
+          expect(background_snapshot.work).to eq(work)
+          expect(background_snapshot.files.map { |file| file["user_id"] }.uniq).to eq([user.id])
           expect(AttachFileToWorkJob).to have_received(:perform_later).with(
-            user_id: user.id,
-            work_id: work.id,
+            background_upload_snapshot_id: background_snapshot.id,
             size: 92,
             file_name: "us_covid_2019.csv",
             file_path: anything
           )
           expect(AttachFileToWorkJob).to have_received(:perform_later).with(
-            user_id: user.id,
-            work_id: work.id,
+            background_upload_snapshot_id: background_snapshot.id,
             size: 114,
             file_name: "us_covid_2020.csv",
             file_path: anything
