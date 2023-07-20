@@ -156,6 +156,15 @@ RSpec.describe Work, type: :model do
     end
   end
 
+  describe "#has_rights?" do
+    subject(:work) { FactoryBot.create(:draft_work) }
+
+    it "detects licenses on a work" do
+      expect(subject.has_rights?("CC BY")).to be true
+      expect(subject.has_rights?("MIT")).to be false
+    end
+  end
+
   context "when files are attached to a pre-curation Work" do
     subject(:work) { FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc") }
 
