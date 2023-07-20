@@ -28,7 +28,7 @@ Piano Bar: Earthworks—omni-directionals. This microphone system suspends omnid
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifiers"
       find("tr:last-child input[name='creators[][orcid]']").set ""
       find("tr:last-child input[name='creators[][given_name]']").set "Matthew"
       find("tr:last-child input[name='creators[][family_name]']").set "Wang"

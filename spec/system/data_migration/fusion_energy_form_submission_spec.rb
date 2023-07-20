@@ -26,7 +26,7 @@ RSpec.describe "Form submission for migrating fusion energy", type: :system, moc
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifiers"
       find("tr:last-child input[name='creators[][orcid]']").set "0000-0001-9636-8181"
       find("tr:last-child input[name='creators[][given_name]']").set "Jacob A."
       find("tr:last-child input[name='creators[][family_name]']").set "Schwartz"

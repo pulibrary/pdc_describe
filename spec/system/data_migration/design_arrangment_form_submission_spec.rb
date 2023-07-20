@@ -28,7 +28,7 @@ Consult the file README.txt for a more detailed description of the contents."
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifiers"
       find("tr:last-child input[name='creators[][orcid]']").set "0000-0002-1104-4434"
       find("tr:last-child input[name='creators[][given_name]']").set "Kenneth"
       find("tr:last-child input[name='creators[][family_name]']").set "Hammond"
