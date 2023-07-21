@@ -31,8 +31,8 @@ For example, assuming that this is the DOI for the object that needs to be recre
 1. Download all of the files within the folder associated with the object, including the contents of the `princeton_data_commons` folder, which should contain three files as noted in the example directory structure aboveabove.
 1. Repopulate the metadata field values in the PDC Describe interface using the contents of `metadata.json`.  This file contains non-markdown formatting information such as line breaks that do not belong in the `datacite.xml` file.
    * Notice that this process can be quite involved *if* the `metadata.json` file was created with a version of PDC Describe that does not have the same structure as the current version of the metadata. For example if the `metadata.json` was created without mandatory fields that have been added recently the process to recreate the object in PDC Describe from the metadata file will need to account for this somehow.
-2. Upload all of the object's files downloaded to PDC Describe and complete the ingest process.  This will mint a new DOI.
-3. Rename the `provenance.json` file that you downloaded from the backup to `provenance_$DATE.json` where `$DATE` equals the date of the recreation being performed, and upload this to the new object's `princeton_data_commons` folder, to preserve previous provenance activity.
+1. Upload all of the object's files downloaded to PDC Describe and complete the ingest process.  This will mint a new DOI.
+1. Rename the `provenance.json` file that you downloaded from the backup to `provenance_$DATE.json` where `$DATE` equals the date of the recreation being performed, and upload this to the new object's `princeton_data_commons` folder, to preserve previous provenance activity.
 
 ### Future improvements
 
