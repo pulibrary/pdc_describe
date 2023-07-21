@@ -44,6 +44,8 @@ en:
         heading: "Uncurated Files"
       post_curation:
         heading: "Curated Files"
+    download:
+      privs: "You do not have permission to download this file."
     form:
       curator_controlled: "Curator Controlled"
       file_upload:
