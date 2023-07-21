@@ -5,6 +5,8 @@
 # with our AWS credentials, but allows the bucket and path to be configurable.
 class WorkPreservationService
 
+  PRESERVATION_DIRECTORY = "princeton_data_commons".freeze
+
   # @param work_id [Integer] The ID of the work to preserve.
   # @param bucket_name [String] The AWS S3 bucket name where the work will be preserved.
   #    If the bucket name is "localhost" the preservation files will be saved to disk on the localhost.
@@ -26,6 +28,21 @@ class WorkPreservationService
     target_location
   end
 
+  def preservation_metadata
+    # Always use the post-curation file list
+    metadata = JSON.parse(@work.to_json(force_post_curation: true))
+    # Make sure we don't include the preservation files as part of
+    # the work's preservation metadata.
+    metadata["files"] = metadata["files"].map do |file|
+      if file["filename"].include?("/#{PRESERVATION_DIRECTORY}/")
+        nil
+      else
+        file
+      end
+    end.compact
+    metadata.to_json
+  end
+
   private
 
     def is_local?
@@ -41,8 +58,7 @@ class WorkPreservationService
     end
 
     def metadata_io
-      # Always use the post-curation file list
-      StringIO.new(@work.to_json(force_post_curation: true))
+      StringIO.new(preservation_metadata)
     end
 
     def datacite_io
@@ -54,7 +70,7 @@ class WorkPreservationService
     end
 
     def preservation_directory
-      Pathname.new(@path).join("princeton_data_commons/")
+      Pathname.new(@path).join("#{PRESERVATION_DIRECTORY}/")
     end
 
     def s3_client
