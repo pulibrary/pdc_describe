@@ -11,6 +11,14 @@ PDC Describe's preservation strategy for MVP release should allow for the follow
 * Objects can be retrieved from S3 using the DOI to determine location.
 * DataCite XML, object metadata from Rails as JSON, and provenance metadata as JSON are exported to a sidecar directory called `princeton_data_commons` within the DOI directory for the object in S3.
 
+### Note on `princeton_data_commons`
+
+This directory and these files are created in the application when the object is approved and completed.  To test this functionality or to recreate these files for a specific work, a rake task is also available, example syntax below:
+
+```bash
+$ bundle exec rake works:preserve["424","pdc-describe-staging-postcuration","10.80021/1tzs-ph44/424"]
+```
+
 ### Example Backup Directory Structure:
 
 For example, assuming that this is the DOI for the object that needs to be recreated, `10.80021/1tzs-ph44`:
