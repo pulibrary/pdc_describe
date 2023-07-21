@@ -12,7 +12,7 @@ File name: SourceData.xlsx Description: source data for the 8 figures in the mai
   let(:ark) { "ark:/88435/dsp01sx61dq46q" }
   let(:group) { "Princeton Plasma Physics Lab (PPPL)" }
   let(:publisher) { "Princeton University" }
-  let(:doi) { "10.11578/1888278" }
+  let(:doi) { "10.11578/1888269" }
   let(:related_identifier) { "10.1038/s41467-022-32278-0" }
   let(:related_identifier_type) { "DOI" }
   let(:relation_type) { "IsCitedBy" }
@@ -30,7 +30,7 @@ File name: SourceData.xlsx Description: source data for the 8 figures in the mai
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifiers"
       find("tr:last-child input[name='creators[][orcid]']").set "0000-0002-6572-4902"
       find("tr:last-child input[name='creators[][given_name]']").set "Yin"
       find("tr:last-child input[name='creators[][family_name]']").set "Wang"

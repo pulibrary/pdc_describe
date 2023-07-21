@@ -65,9 +65,9 @@ RSpec.describe "Creating and updating works", type: :system do
     user = work.created_by_user
     sign_in user
     visit edit_work_path(work)
-    select "GNU General Public License", from: "rights_identifier"
+    select "GNU General Public License", from: "rights_identifiers"
     click_on "Save Work"
-    expect(work.reload.resource.rights.identifier).to eq "GPLv3"
+    expect(work.reload.resource.rights_many.first.identifier).to eq "GPLv3"
   end
 
   it "Renders ResourceType and GeneralType", js: true do

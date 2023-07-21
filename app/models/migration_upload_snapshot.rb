@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 class MigrationUploadSnapshot < UploadSnapshot
-  def self.from_upload_snapshot(upload_snapshot)
-    return upload_snapshot if upload_snapshot.files.empty? || upload_snapshot.files.first["migrate_status"].blank?
-    find(upload_snapshot.id)
-  end
-
   def store_files(s3_files, pre_existing_files: [])
     self.files = s3_files.map { |file| { "filename" => file.filename_display, "checksum" => file.checksum, "migrate_status" => "started" } }
     files.concat pre_existing_files if pre_existing_files.present?

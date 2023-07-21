@@ -215,12 +215,10 @@ module PDCSerialization
 
         def rights_from_work_resource(resource)
           rights = []
-          if resource.rights.present?
-            rights << ::Datacite::Mapping::Rights.new(
-              value: resource.rights.name,
-              uri: resource.rights.uri,
-              identifier: resource.rights.identifier
-            )
+          if resource.rights_many.present?
+            resource.rights_many.each do |r|
+              rights << ::Datacite::Mapping::Rights.new(value: r.name, uri: r.uri, identifier: r.identifier)
+            end
           end
           rights
         end
