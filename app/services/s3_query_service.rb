@@ -75,7 +75,7 @@ class S3QueryService
   # Public signed URL to fetch this file from the S3 (valid for a limited time)
   def file_url(key)
     signer = Aws::S3::Presigner.new(client: client)
-    signer.presigned_url(:get_object_attributes, bucket: bucket_name, key: key)
+    signer.presigned_url(:get_object, bucket: bucket_name, key: key)
   end
 
   # There is probably a better way to fetch the current ActiveStorage configuration but we have
@@ -133,13 +133,17 @@ class S3QueryService
     object.merge(object_attributes)
   end
 
-  def find_s3_file(filename:)
-    s3_object_key = "#{prefix}#{filename}"
+  def build_s3_object_key(filename:)
+    "#{prefix}#{filename}"
+  end
 
-    object = get_s3_object(key: s3_object_key)
+  def find_s3_file(filename:)
+    s3_object_key = build_s3_object_key(filename: filename)
+
+    object = get_s3_object_attributes(key: s3_object_key)
     return if object.nil?
 
-    S3File.new(work: model, filename: s3_object_key, last_modified: object[:last_modified], size: object[:content_length], checksum: object[:etag])
+    S3File.new(work: model, filename: s3_object_key, last_modified: object[:last_modified], size: object[:object_size], checksum: object[:etag])
   end
 
   # Retrieve the S3 resources uploaded to the S3 Bucket

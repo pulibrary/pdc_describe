@@ -79,7 +79,7 @@ RSpec.describe S3QueryService do
     <PartsCount>integer</PartsCount>
   </ObjectParts>
   <StorageClass>string</StorageClass>
-  <ObjectSize>long</ObjectSize>
+  <ObjectSize>12</ObjectSize>
 </GetObjectAttributesOutput>
 XML
   end
@@ -412,18 +412,26 @@ XML
     let(:filename) { "test.txt" }
     let(:s3_file) { s3_query_service.find_s3_file(filename: filename) }
 
+    before do
+      stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt").to_return(
+        headers: s3_object_response_headers,
+        status: 200,
+        body: s3_object_response_body
+      )
+
+      stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt?attributes").to_return(
+        headers: s3_attributes_response_headers,
+        status: 200, body: s3_attributes_response_body
+      )
+    end
+
     it "retrieves the S3File from the AWS Bucket" do
-      stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt").to_return(status: 200, body: s3_object_response_body, headers: s3_object_response_headers)
-      stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt?attributes").to_return(status: 200, body: s3_attributes_response_body,
-                                                                                                                                headers: s3_attributes_response_headers)
-
       expect(s3_file).not_to be nil
-
       expect(s3_file.filename).to eq("10.34770/pe9w-x904/#{work.id}/test.txt")
       expect(s3_file.last_modified).to be_a(Time)
       expect(s3_file.size).to eq(12)
       expect(s3_file.checksum).to eq(s3_etag1)
-      assert_requested(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt")
+
       assert_requested(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt?attributes")
     end
   end
@@ -440,7 +448,7 @@ XML
       allow(Aws::S3::Presigner).to receive(:new).and_return(signer)
       allow(signer).to receive(:presigned_url).and_return("aws_url")
       expect(s3_query_service.file_url("test_key")).to eq("aws_url")
-      expect(signer).to have_received(:presigned_url).with(:get_object_attributes, { bucket: "example-bucket", key: "test_key" }).once
+      expect(signer).to have_received(:presigned_url).with(:get_object, { bucket: "example-bucket", key: "test_key" }).once
     end
   end
 
