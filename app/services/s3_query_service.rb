@@ -121,8 +121,6 @@ class S3QueryService
   end
 
   def get_s3_object(key:)
-    object_attributes = get_s3_object_attributes(key: key)
-
     response = client.get_object({
       bucket: bucket_name,
       key: key
@@ -130,7 +128,7 @@ class S3QueryService
     object = response.to_h
     return if object.empty?
 
-    object.merge(object_attributes)
+    object
   end
 
   def build_s3_object_key(filename:)
