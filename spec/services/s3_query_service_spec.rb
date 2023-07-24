@@ -179,7 +179,7 @@ XML
       work
 
       allow(S3QueryService).to receive(:new).and_return(subject)
-      subject.stub(:client).and_return(fake_aws_client)
+      allow(subject).to receive(:client).and_return(fake_aws_client)
       fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
       fake_s3_resp.stub(:to_h).and_return(s3_hash)
       fake_completion = instance_double(Seahorse::Client::Response, "successful?": true)
@@ -330,6 +330,30 @@ XML
       it "returns only the files" do
         expect(subject.file_count).to eq(2)
       end
+
+      context "when an error is encountered" do
+        subject(:s3_query_service) { described_class.new(work) }
+        let(:file_count) { s3_query_service.file_count }
+        let(:client) { instance_double(Aws::S3::Client) }
+        let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
+        let(:service_error_message) { "test AWS service error" }
+        let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
+        let(:prefix) { "#{work.doi}/#{work.id}/" }
+
+        before do
+          allow(Rails.logger).to receive(:error)
+          # This needs to be disabled to override the mock set for previous cases
+          allow(subject).to receive(:client).and_call_original
+          allow(Aws::S3::Client).to receive(:new).and_return(client)
+          allow(client).to receive(:list_objects_v2).and_raise(service_error)
+        end
+
+        it "logs the error" do
+          s3_query_service = described_class.new(work)
+          expect(s3_query_service.file_count).to eq(0)
+          expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting AWS S3 Objects from the bucket example-bucket with the prefix #{prefix}: test AWS service error")
+        end
+      end
     end
   end
 
@@ -381,6 +405,31 @@ XML
       bytestream = s3_object[:body]
       expect(bytestream.read).to eq("test_content")
     end
+
+    context "when an error is encountered" do
+      subject(:s3_query_service) { described_class.new(work) }
+      let(:file_count) { s3_query_service.file_count }
+      let(:client) { instance_double(Aws::S3::Client) }
+      let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
+      let(:service_error_message) { "test AWS service error" }
+      let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
+      let(:prefix) { "#{work.doi}/#{work.id}/" }
+
+      before do
+        allow(Rails.logger).to receive(:error)
+        # This needs to be disabled to override the mock set for previous cases
+        allow(subject).to receive(:client).and_call_original
+        allow(Aws::S3::Client).to receive(:new).and_return(client)
+        allow(client).to receive(:get_object).and_raise(service_error)
+      end
+
+      it "logs the error" do
+        s3_query_service = described_class.new(work)
+        retrieved = s3_query_service.get_s3_object(key: key)
+        expect(retrieved).to be nil
+        expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting the AWS S3 Object test_key: test AWS service error")
+      end
+    end
   end
 
   describe "#delete_s3_object" do
@@ -404,6 +453,29 @@ XML
     it "retrieves the S3 Object from the HTTP API" do
       s3_query_service.delete_s3_object(s3_file.key)
       assert_requested(:delete, "https://example-bucket.s3.amazonaws.com/test_key")
+    end
+
+    context "when an error is encountered" do
+      subject(:s3_query_service) { described_class.new(work) }
+      let(:client) { instance_double(Aws::S3::Client) }
+      let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
+      let(:service_error_message) { "test AWS service error" }
+      let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
+      let(:prefix) { "#{work.doi}/#{work.id}/" }
+
+      before do
+        allow(Rails.logger).to receive(:error)
+        # This needs to be disabled to override the mock set for previous cases
+        allow(subject).to receive(:client).and_call_original
+        allow(Aws::S3::Client).to receive(:new).and_return(client)
+        allow(client).to receive(:delete_object).and_raise(service_error)
+      end
+
+      it "logs the error" do
+        s3_query_service = described_class.new(work)
+        s3_query_service.delete_s3_object(s3_file.key)
+        expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to delete the AWS S3 Object test_key in the bucket example-bucket: test AWS service error")
+      end
     end
   end
 
@@ -463,6 +535,31 @@ XML
       s3_query_service.create_directory
       assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}", headers: { "Content-Length" => 0 })
     end
+
+    context "when an error is encountered" do
+      subject(:s3_query_service) { described_class.new(work) }
+      let(:client) { instance_double(Aws::S3::Client) }
+      let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
+      let(:service_error_message) { "test AWS service error" }
+      let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
+      let(:prefix) { "#{work.doi}/#{work.id}/" }
+
+      before do
+        allow(Rails.logger).to receive(:error)
+        # This needs to be disabled to override the mock set for previous cases
+        allow(subject).to receive(:client).and_call_original
+        allow(Aws::S3::Client).to receive(:new).and_return(client)
+        allow(client).to receive(:put_object).and_raise(service_error)
+      end
+
+      it "logs the error" do
+        s3_query_service = described_class.new(work)
+        s3_query_service.create_directory
+        # rubocop:disable Layout/LineLength
+        expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to create the AWS S3 directory Object in the bucket example-bucket with the key #{prefix}: test AWS service error")
+        # rubocop:enable Layout/LineLength
+      end
+    end
   end
 
   describe "#upload_file" do
@@ -487,6 +584,33 @@ XML
       it "detects the upload error" do
         expect(s3_query_service.upload_file(io: file, filename: filename)).to be_falsey
         assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}", headers: { "Content-Length" => 2852 })
+      end
+    end
+
+    context "when an error is encountered" do
+      subject(:s3_query_service) { described_class.new(work) }
+      let(:file_count) { s3_query_service.file_count }
+      let(:client) { instance_double(Aws::S3::Client) }
+      let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
+      let(:service_error_message) { "test AWS service error" }
+      let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
+      let(:prefix) { "#{work.doi}/#{work.id}/" }
+
+      before do
+        allow(Rails.logger).to receive(:error)
+        # This needs to be disabled to override the mock set for previous cases
+        allow(subject).to receive(:client).and_call_original
+        allow(Aws::S3::Client).to receive(:new).and_return(client)
+        allow(client).to receive(:put_object).and_raise(service_error)
+      end
+
+      it "logs the error" do
+        s3_query_service = described_class.new(work)
+        result = s3_query_service.upload_file(io: file, filename: filename)
+        expect(result).to be nil
+        # rubocop:disable Layout/LineLength
+        expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to create the AWS S3 Object in the bucket example-bucket with the key #{prefix}README.txt: test AWS service error")
+        # rubocop:enable Layout/LineLength
       end
     end
   end
@@ -551,6 +675,32 @@ XML
     it "copies the directory calling copy_object" do
       expect(subject.copy_directory(target_bucket: "example-bucket-post", source_key: "source-key", target_key: "other-bucket/target-key")).to eq(fake_completion)
       expect(subject.client).to have_received(:copy_object).with(bucket: "example-bucket-post", copy_source: "source-key", key: "other-bucket/target-key")
+    end
+
+    context "when an error is encountered" do
+      subject(:s3_query_service) { described_class.new(work) }
+      let(:file_count) { s3_query_service.file_count }
+      let(:client) { instance_double(Aws::S3::Client) }
+      let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
+      let(:service_error_message) { "test AWS service error" }
+      let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
+      let(:prefix) { "#{work.doi}/#{work.id}/" }
+
+      before do
+        allow(Rails.logger).to receive(:error)
+        # This needs to be disabled to override the mock set for previous cases
+        allow(subject).to receive(:client).and_call_original
+        allow(Aws::S3::Client).to receive(:new).and_return(client)
+        allow(client).to receive(:copy_object).and_raise(service_error)
+      end
+
+      it "logs the error" do
+        s3_query_service = described_class.new(work)
+        s3_query_service.copy_directory(target_bucket: "example-bucket-post", source_key: "source-key", target_key: "other-bucket/target-key")
+        # rubocop:disable Layout/LineLength
+        expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to copy the AWS S3 directory Object from source-key to other-bucket/target-key in the bucket example-bucket-post: test AWS service error")
+        # rubocop:enable Layout/LineLength
+      end
     end
   end
 end

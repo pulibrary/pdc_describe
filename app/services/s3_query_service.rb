@@ -129,6 +129,8 @@ class S3QueryService
     return if object.empty?
 
     object
+  rescue Aws::Errors::ServiceError => aws_service_error
+    Rails.logger.error("An error was encountered when requesting the AWS S3 Object #{key}: #{aws_service_error}")
   end
 
   def build_s3_object_key(filename:)
@@ -162,6 +164,9 @@ class S3QueryService
 
   def file_count
     client_s3_files.count
+  rescue Aws::Errors::ServiceError => aws_service_error
+    Rails.logger.error("An error was encountered when requesting AWS S3 Objects from the bucket #{self.bucket_name} with the prefix #{self.prefix}: #{aws_service_error}")
+    0
   end
 
   ##
@@ -203,6 +208,8 @@ class S3QueryService
     else
       client.copy_object(copy_source: source_key, bucket: target_bucket, key: target_key, checksum_algorithm: "SHA256")
     end
+  rescue Aws::Errors::ServiceError => aws_service_error
+    Rails.logger.error("An error was encountered when requesting to copy AWS S3 Object from #{source_key} to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}")
   end
 
   def copy_multi_part(source_key:, target_bucket:, target_key:, size:)
@@ -219,19 +226,27 @@ class S3QueryService
       start_byte = end_byte + 1
     end
     client.complete_multipart_upload(bucket: target_bucket, key: target_key, upload_id: multi.upload_id, multipart_upload: { parts: parts })
+  rescue Aws::Errors::ServiceError => aws_service_error
+    Rails.logger.error("An error was encountered when requesting to multipart copy AWS S3 Object from #{source_key} to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}")
   end
 
   def copy_directory(source_key:, target_bucket:, target_key:)
     client.copy_object(copy_source: source_key, bucket: target_bucket, key: target_key)
+  rescue Aws::Errors::ServiceError => aws_service_error
+    Rails.logger.error("An error was encountered when requesting to copy the AWS S3 directory Object from #{source_key} to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}")
   end
 
   def delete_s3_object(s3_file_key, bucket: bucket_name)
     resp = client.delete_object({ bucket: bucket, key: s3_file_key })
     resp.to_h
+  rescue Aws::Errors::ServiceError => aws_service_error
+    Rails.logger.error("An error was encountered when requesting to delete the AWS S3 Object #{s3_file_key} in the bucket #{bucket_name}: #{aws_service_error}")
   end
 
   def create_directory
     client.put_object({ bucket: bucket_name, key: prefix, content_length: 0 })
+  rescue Aws::Errors::ServiceError => aws_service_error
+    Rails.logger.error("An error was encountered when requesting to create the AWS S3 directory Object in the bucket #{bucket_name} with the key #{prefix}: #{aws_service_error}")
   end
 
   def upload_file(io:, filename:, md5_digest: nil)
@@ -243,10 +258,14 @@ class S3QueryService
   rescue Aws::S3::Errors::SignatureDoesNotMatch => e
     Honeybadger.notify("Error Uploading file #{filename} for object: #{s3_address} Signature did not match! error: #{e}")
     false
+  rescue Aws::Errors::ServiceError => aws_service_error
+    Rails.logger.error("An error was encountered when requesting to create the AWS S3 Object in the bucket #{bucket_name} with the key #{key}: #{aws_service_error}")
   end
 
   def check_file(bucket:, key:)
     client.head_object({ bucket: bucket, key: key })
+  rescue Aws::Errors::ServiceError => aws_service_error
+    Rails.logger.error("An error was encountered when requesting to check the status of the AWS S3 Object in the bucket #{bucket} with the key #{key}: #{aws_service_error}")
   end
 
   def md5(io:)
@@ -287,6 +306,9 @@ class S3QueryService
         objects += parse_objects(resp_hash, ignore_directories: ignore_directories)
       end
       objects
+    rescue Aws::Errors::ServiceError => aws_service_error
+      Rails.logger.error("An error was encountered when requesting to list the AWS S3 Objects in the bucket #{bucket_name} with the key #{prefix}: #{aws_service_error}")
+      []
     end
 end
 # rubocop:enable Metrics/ClassLength
