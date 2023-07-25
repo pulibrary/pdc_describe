@@ -235,9 +235,11 @@ RSpec.describe WorksController do
 
         expect(saved_work.pre_curation_uploads_fast).not_to be_empty
         expect(fake_s3_service).not_to have_received(:delete_s3_object)
+        background_snapshot = BackgroundUploadSnapshot.last
+        expect(background_snapshot.work).to eq(work)
+        expect(background_snapshot.files.map { |file| file["user_id"] }.uniq).to eq([user.id])
         expect(AttachFileToWorkJob).to have_received(:perform_later).with(
-          user_id: user.id,
-          work_id: work.id,
+          background_upload_snapshot_id: background_snapshot.id,
           size: 92,
           file_name: "us_covid_2019.csv",
           file_path: anything
@@ -298,16 +300,17 @@ RSpec.describe WorksController do
 
         expect(saved_work.pre_curation_uploads_fast).not_to be_empty
         expect(fake_s3_service).not_to have_received(:delete_s3_object)
+        background_snapshot = BackgroundUploadSnapshot.last
+        expect(background_snapshot.work).to eq(work)
+        expect(background_snapshot.files.map { |file| file["user_id"] }.uniq).to eq([user.id])
         expect(AttachFileToWorkJob).to have_received(:perform_later).with(
-          user_id: user.id,
-          work_id: work.id,
+          background_upload_snapshot_id: background_snapshot.id,
           size: 92,
           file_name: "us_covid_2019.csv",
           file_path: anything
         )
         expect(AttachFileToWorkJob).to have_received(:perform_later).with(
-          user_id: user.id,
-          work_id: work.id,
+          background_upload_snapshot_id: background_snapshot.id,
           size: 114,
           file_name: "us_covid_2020.csv",
           file_path: anything
@@ -604,12 +607,15 @@ RSpec.describe WorksController do
 
         # original copies of the files get deleted
         expect(fake_s3_service).to have_received(:delete_s3_object).twice
+        background_snapshot = BackgroundUploadSnapshot.last
+        expect(background_snapshot.work).to eq(work)
+        expect(background_snapshot.files.map { |file| file["user_id"] }.uniq).to eq([user.id])
         expect(AttachFileToWorkJob).to have_received(:perform_later).with(
-          user_id: user.id, work_id: work.id, size: 114,
+          background_upload_snapshot_id: background_snapshot.id, size: 114,
           file_name: uploaded_files.first.original_filename, file_path: anything
         )
         expect(AttachFileToWorkJob).to have_received(:perform_later).with(
-          user_id: user.id, work_id: work.id, size: 92,
+          background_upload_snapshot_id: background_snapshot.id, size: 92,
           file_name: uploaded_files.last.original_filename, file_path: anything
         )
       end
@@ -789,7 +795,7 @@ RSpec.describe WorksController do
       end
 
       let(:persisted) do
-        instance_double(Work)
+        instance_double(Work, id: work.id, upload_snapshots: [], to_s: work.id, doi: work.doi, s3_query_service: nil)
       end
 
       before do
@@ -798,10 +804,6 @@ RSpec.describe WorksController do
 
         allow(Rails.logger).to receive(:error)
         allow(Work).to receive(:find).and_return(persisted)
-        allow(persisted).to receive(:id).and_return(work.id)
-        allow(persisted).to receive(:to_s).and_return(work.id)
-        allow(persisted).to receive(:doi).and_return(work.doi)
-        allow(persisted).to receive(:s3_query_service).and_return(nil)
         allow(persisted).to receive(:changes).and_raise("Error!")
 
         post :file_uploaded, params: params

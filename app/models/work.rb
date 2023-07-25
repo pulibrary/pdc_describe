@@ -436,7 +436,7 @@ class Work < ApplicationRecord
     s3_query_service.client
   end
 
-  delegate :bucket_name, to: :s3_query_service
+  delegate :bucket_name, :prefix, to: :s3_query_service
 
   # Generates the S3 Object key
   # @return [String]
