@@ -100,24 +100,48 @@ class S3QueryService
     @client ||= Aws::S3::Client.new(region: region, credentials: credentials)
   end
 
+  # required, accepts ETag, Checksum, ObjectParts, StorageClass, ObjectSize
+  def self.object_attributes
+    [
+      "ETag",
+      "Checksum",
+      "ObjectParts",
+      "StorageClass",
+      "ObjectSize"
+    ]
+  end
+
+  def get_s3_object_attributes(key:)
+    response = client.get_object_attributes({
+      bucket: bucket_name,
+      key: key,
+      object_attributes: self.class.object_attributes
+    })
+    response.to_h
+  end
+
   def get_s3_object(key:)
     response = client.get_object({
-                                   bucket: bucket_name,
-                                   key: key
-                                 })
+      bucket: bucket_name,
+      key: key
+    })
     object = response.to_h
     return if object.empty?
 
     object
   end
 
-  def find_s3_file(filename:)
-    s3_object_key = "#{prefix}#{filename}"
+  def build_s3_object_key(filename:)
+    "#{prefix}#{filename}"
+  end
 
-    object = get_s3_object(key: s3_object_key)
+  def find_s3_file(filename:)
+    s3_object_key = build_s3_object_key(filename: filename)
+
+    object = get_s3_object_attributes(key: s3_object_key)
     return if object.nil?
 
-    S3File.new(work: model, filename: s3_object_key, last_modified: object[:last_modified], size: object[:content_length], checksum: object[:etag])
+    S3File.new(work: model, filename: s3_object_key, last_modified: object[:last_modified], size: object[:object_size], checksum: object[:etag])
   end
 
   # Retrieve the S3 resources uploaded to the S3 Bucket
