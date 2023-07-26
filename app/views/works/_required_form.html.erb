@@ -6,7 +6,7 @@
     This unique identifier will become searchable at the completion of this process.
   </p>
   <% if @wizard_mode %>
-    <input id="doi" name="doi" value="<%= @work.resource.doi %>" readonly/>
+    <input id="doi_read_only" name="doi_read_only" value="<%= @work.resource.doi %>" readonly/>
   <% else %>
     <p>DOI: <%= @work.resource.doi %></p>
   <% end %>
