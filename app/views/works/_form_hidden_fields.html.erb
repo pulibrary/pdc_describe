@@ -12,7 +12,7 @@
   <input type="text" id="deleted_files_count" name="work[deleted_files_count]" value="0" class="hidden" />
 
   <% if @wizard_mode || ( @work&.doi&.present? &&  @work.persisted?) %>
-    <input type="text" id="doi" name="doi" value="<%= @work&.resource&.doi %>" class="hidden" />
+    <input type="text" id="doi_read_only" name="doi_read_only" value="<%= @work&.resource&.doi %>" class="hidden" />
   <% end %>
 
   <% if @wizard_mode %>
