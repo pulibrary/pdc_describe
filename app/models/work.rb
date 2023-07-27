@@ -24,7 +24,7 @@ class Work < ApplicationRecord
 
   aasm column: :state do
     state :none, inital: true
-    state :draft, :awaiting_approval, :approved, :withdrawn, :tombstone
+    state :draft, :awaiting_approval, :approved, :withdrawn, :deletion_marker
 
     event :draft, after: :draft_doi do
       transitions from: :none, to: :draft, guard: :valid_to_draft
@@ -51,7 +51,7 @@ class Work < ApplicationRecord
     end
 
     event :remove do
-      transitions from: :withdrawn, to: :tombstone
+      transitions from: :withdrawn, to: :deletion_marker
     end
 
     after_all_events :track_state_change
