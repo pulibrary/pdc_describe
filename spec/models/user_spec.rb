@@ -185,6 +185,13 @@ RSpec.describe User, type: :model do
       user.save!
       expect(user.can_submit?(rd_group)).to be_truthy
     end
+
+    context "and admin user" do
+      it "allows the admin to choose either group" do
+        normal_user.add_role(:group_admin, pppl_group)
+        expect(normal_user.submitter_groups.count).to eq 2
+      end
+    end
   end
 
   describe "default group is set on ititalize" do
