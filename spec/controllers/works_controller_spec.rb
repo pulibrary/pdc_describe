@@ -1098,15 +1098,15 @@ RSpec.describe WorksController do
         expect(work.reload).to be_withdrawn
       end
 
-      context "a tombstoned work" do
+      context "a deletion_markerd work" do
         it "handles withdraw errors" do
           work.withdraw(user)
           work.remove!(user)
           sign_in user
           post :withdraw, params: { id: work.id }
           expect(response.status).to be 422
-          expect(work.reload).to be_tombstone
-          expect(assigns[:errors]).to eq(["Cannot Withdraw: Event 'withdraw' cannot transition from 'tombstone'."])
+          expect(work.reload).to be_deletion_marker
+          expect(assigns[:errors]).to eq(["Cannot Withdraw: Event 'withdraw' cannot transition from 'deletion_marker'."])
         end
       end
     end
