@@ -198,7 +198,7 @@ class User < ApplicationRecord
     @submitter_groups = if super_admin?
                           Group.all.to_a
                         else
-                          Group.with_role(:submitter, self)
+                          (Group.with_role(:submitter, self) + Group.with_role(:group_admin, self)).uniq
                         end
   end
 
