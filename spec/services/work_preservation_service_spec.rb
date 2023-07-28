@@ -4,7 +4,7 @@ require "rails_helper"
 RSpec.describe WorkPreservationService do
   describe "preserve in S3" do
     let(:approved_work) { FactoryBot.create :approved_work, doi: "10.34770/pe9w-x904" }
-    let(:bucket_name) { approved_work.s3_query_service.bucket_name }
+    # let(:bucket_name) { approved_work.s3_query_service.bucket_name }
     let(:path) { approved_work.s3_query_service.prefix }
     let(:preservation_directory) { path + "/princeton_data_commons/" }
     let(:file1) { FactoryBot.build :s3_file, filename: "#{approved_work.doi}/#{approved_work.id}/anyfile1.txt", last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
@@ -23,12 +23,12 @@ RSpec.describe WorkPreservationService do
     end
 
     it "preserves a work to the indicated location in S3" do
-      subject = described_class.new(work_id: approved_work.id, bucket_name: bucket_name, path: path)
-      expect(subject.preserve!).to eq "s3://example-bucket/#{preservation_directory}"
+      subject = described_class.new(work_id: approved_work.id, path: path)
+      expect(subject.preserve!).to eq "s3://example-bucket-preservation/#{preservation_directory}"
     end
 
     it "excludes the preservation files from the preservation metadata" do
-      subject = described_class.new(work_id: approved_work.id, bucket_name: bucket_name, path: path)
+      subject = described_class.new(work_id: approved_work.id, path: path)
       metadata = JSON.parse(subject.preservation_metadata)
       expect(metadata["files"].any? { |file| file["filename"] == file1.filename }).to be true
       expect(metadata["files"].any? { |file| file["filename"] == file2.filename }).to be true
@@ -46,7 +46,7 @@ RSpec.describe WorkPreservationService do
     end
 
     it "preserves a work locally" do
-      subject = described_class.new(work_id: approved_work.id, bucket_name: "localhost", path: local_path)
+      subject = described_class.new(work_id: approved_work.id, path: local_path, localhost: true)
       location = subject.preserve!
       expect(location.start_with?("file:///")).to be true
       expect(location.end_with?("#{local_path}/princeton_data_commons/")).to be true

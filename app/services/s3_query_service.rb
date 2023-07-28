@@ -19,31 +19,44 @@ class S3QueryService
     configuration.post_curation
   end
 
+  def self.preservation_config
+    configuration.preservation
+  end
+
   attr_reader :part_size, :last_response
 
   ##
   # @param [Work] model
-  # @param [Boolean] pre_curation
+  # @param [Boolean] pre_curation True to use pre_curation S3 buckets, false to use post_curation S3 buckets.
+  # @param [Boolean] preservation True to use our preservation buckets in AWS S3
+  #                               (when true it takes precedence over the pre_curation parameter)
   # @example S3QueryService.new(Work.find(1), true)
-  def initialize(model, pre_curation = true)
+  def initialize(model, pre_curation = true, preservation = nil)
     @model = model
     @doi = model.doi
     @pre_curation = pre_curation
+    @preservation = (preservation == true)
     @part_size = 5_368_709_120 # 5GB is the maximum part size for AWS
     @last_response = nil
   end
 
   def config
-    return self.class.post_curation_config if post_curation?
-
-    self.class.pre_curation_config
+    if @preservation
+      self.class.preservation_config
+    elsif post_curation?
+      self.class.post_curation_config
+    else
+      self.class.pre_curation_config
+    end
   end
 
   def pre_curation?
+    return false if @preservation
     @pre_curation
   end
 
   def post_curation?
+    return false if @preservation
     !pre_curation?
   end
 
@@ -276,14 +289,6 @@ class S3QueryService
   end
 
   private
-
-    def model_uploads
-      if pre_curation?
-        client_s3_files
-      else
-        []
-      end
-    end
 
     def parse_objects(resp, ignore_directories: true)
       objects = []

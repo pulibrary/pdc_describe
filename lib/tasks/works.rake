@@ -93,12 +93,19 @@ namespace :works do
     end
   end
 
-  desc "Creates the preservation objects for a given work and saves them in the indicated bucket and path"
-  task :preserve, [:work_id, :bucket_name, :path] => :environment do |_, args|
+  desc "Creates the preservation objects for a given work and saves them in the preservation bucket configured"
+  task :preserve, [:work_id, :path] => :environment do |_, args|
     work_id = args[:work_id].to_i
-    bucket_name = args[:bucket_name] # e.g. "pdc-describe-staging-postcuration"
     path = args[:path] # e.g. "10.34770/xy123/10"
-    work_preservation = WorkPreservationService.new(work_id: work_id, bucket_name: bucket_name, path: path)
+    work_preservation = WorkPreservationService.new(work_id: work_id, path: path)
+    puts work_preservation.preserve!
+  end
+
+  desc "Creates the preservation objects for a given work and saves them locally on disk"
+  task :preserve_local, [:work_id, :path] => :environment do |_, args|
+    work_id = args[:work_id].to_i
+    path = args[:path] # e.g. "10.34770/xy123/10"
+    work_preservation = WorkPreservationService.new(work_id: work_id, path: path, localhost: true)
     puts work_preservation.preserve!
   end
 end

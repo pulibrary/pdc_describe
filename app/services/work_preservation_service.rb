@@ -2,19 +2,19 @@
 
 # A service to create and store the preservation data for a given work.
 # Currently it assumes this data will be stored in an AWS S3 bucket accessible
-# with our AWS credentials, but allows the bucket and path to be configurable.
+# with our AWS credentials, but the path to be configurable.
 class WorkPreservationService
 
   PRESERVATION_DIRECTORY = "princeton_data_commons".freeze
 
   # @param work_id [Integer] The ID of the work to preserve.
-  # @param bucket_name [String] The AWS S3 bucket name where the work will be preserved.
-  #    If the bucket name is "localhost" the preservation files will be saved to disk on the localhost.
   # @param path [String] The path where the work will be preserved.
-  def initialize(work_id:, bucket_name:, path:)
+  # @param localhost [Bool] Set to true to preserve the files locally, i.e. not in AWS
+  def initialize(work_id:, path:, localhost: false)
     @work = Work.find(work_id)
-    @bucket_name = bucket_name
     @path = path
+    @localhost = localhost
+    @s3_query_service = nil
   end
 
   # Creates and stores the preservation files for the work.
@@ -46,14 +46,14 @@ class WorkPreservationService
   private
 
     def is_local?
-      @bucket_name == "localhost"
+      @localhost
     end
 
     def target_location
       if is_local?
         "file://" + File.join(Dir.pwd,preservation_directory)
       else
-        "s3://#{@bucket_name}/#{preservation_directory}"
+        "s3://#{bucket_name}/#{preservation_directory}"
       end
     end
 
@@ -73,15 +73,19 @@ class WorkPreservationService
       Pathname.new(@path).join("#{PRESERVATION_DIRECTORY}/")
     end
 
-    def s3_client
-      @work.s3_query_service.client
+    def s3_query_service
+      @s3_query_service ||= S3QueryService.new(@work, false, true)
+    end
+
+    def bucket_name
+      s3_query_service.bucket_name
     end
 
     def create_preservation_directory
       if is_local?
         FileUtils.mkdir_p preservation_directory.to_s
       else
-        s3_client.put_object({ bucket: @bucket_name, key: preservation_directory.to_s, content_length: 0 })
+        s3_query_service.client.put_object({ bucket: bucket_name, key: preservation_directory.to_s, content_length: 0 })
       end
     end
 
@@ -96,7 +100,7 @@ class WorkPreservationService
     def upload_file(io:, filename:)
       md5_digest = @work.s3_query_service.md5(io:)
       key = preservation_directory.join(filename).to_s
-      s3_client.put_object(bucket: @bucket_name, key: key, body: io, content_md5: md5_digest)
+      s3_query_service.client.put_object(bucket: bucket_name, key: key, body: io, content_md5: md5_digest)
       key
     end
 
