@@ -682,6 +682,20 @@ RSpec.describe Work, type: :model do
       expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(1)
     end
 
+    it "captures a timeout and retries" do
+      fake_datacite = stub_datacite_doi
+      allow(fake_datacite).to receive(:update) do
+        if @called.nil?
+          @called = true
+          raise Faraday::ConnectionFailed, "execution expired"
+        else
+          Success("It worked")
+        end
+      end
+      expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(0)
+      expect(fake_datacite).to have_received(:update).exactly(2).times
+    end
+
     it "transitions from approved to withdrawn" do
       stub_datacite_doi
       approved_work.withdraw!(user)
@@ -720,9 +734,9 @@ RSpec.describe Work, type: :model do
       expect(withdrawn_work.reload.state).to eq("draft")
     end
 
-    it "transitions from withdrawn to tombstone" do
+    it "transitions from withdrawn to deletion_marker" do
       withdrawn_work.remove!(user)
-      expect(withdrawn_work.reload.state).to eq("tombstone")
+      expect(withdrawn_work.reload.state).to eq("deletion_marker")
     end
 
     it "can not transition from withdrawn to approved" do
@@ -746,19 +760,19 @@ RSpec.describe Work, type: :model do
       work
     end
 
-    it "is tombstoned" do
-      expect(removed_work.reload.state).to eq("tombstone")
+    it "is deletion_markerd" do
+      expect(removed_work.reload.state).to eq("deletion_marker")
     end
 
-    it "can not transition from tombstone to approved" do
+    it "can not transition from deletion_marker to approved" do
       expect { removed_work.approve!(user) }.to raise_error AASM::InvalidTransition
     end
 
-    it "can not transition from tombstone to awaiting_approval" do
+    it "can not transition from deletion_marker to awaiting_approval" do
       expect { removed_work.complete_submission!(user) }.to raise_error AASM::InvalidTransition
     end
 
-    it "can not transition from tombstone to draft" do
+    it "can not transition from deletion_marker to draft" do
       expect { removed_work.draft!(user) }.to raise_error AASM::InvalidTransition
     end
   end
