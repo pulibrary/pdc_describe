@@ -681,6 +681,9 @@ class Work < ApplicationRecord
       elsif ark.blank? # we can not update the url anywhere
         Honeybadger.notify("Publishing for a DOI we do not own and no ARK is present: #{doi}")
       end
+    rescue Faraday::ConnectionFailed
+      sleep 1
+      retry
     end
 
     def doi_attribute_url
