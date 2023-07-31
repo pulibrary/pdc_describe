@@ -91,21 +91,25 @@ class WorkActivity < ApplicationRecord
     CHANGE_LOG_ACTIVITY_TYPES.include? activity_type
   end
 
-  def to_html
-    klass = if activity_type == CHANGES
-              MetadataChanges
-            elsif activity_type == FILE_CHANGES
-              FileChanges
-            elsif activity_type == MIGRATION_COMPLETE
-              Migration
-            elsif CHANGE_LOG_ACTIVITY_TYPES.include?(activity_type)
-              OtherLogEvent
-            else
-              Message
-            end
-    renderer = klass.new(self)
-    renderer.to_html
+  def renderer
+    @renderer ||= begin
+                    klass = if activity_type == CHANGES
+                              MetadataChanges
+                            elsif activity_type == FILE_CHANGES
+                              FileChanges
+                            elsif activity_type == MIGRATION_COMPLETE
+                              Migration
+                            elsif CHANGE_LOG_ACTIVITY_TYPES.include?(activity_type)
+                              OtherLogEvent
+                            else
+                              Message
+                            end
+                    klass.new(self)
+
+                  end
   end
+
+  delegate :to_html, to: :renderer
 
   class Renderer
     def initialize(work_activity)
@@ -114,6 +118,7 @@ class WorkActivity < ApplicationRecord
 
     UNKNOWN_USER = "Unknown user outside the system"
     DATE_TIME_FORMAT = "%B %d, %Y %H:%M"
+    SORTABLE_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M"
 
     def to_html
       title_html + "<span class='message-html'>#{body_html.chomp}</span>"
@@ -123,6 +128,10 @@ class WorkActivity < ApplicationRecord
       return UNKNOWN_USER unless @work_activity.created_by_user
 
       @work_activity.created_by_user.given_name_safe
+    end
+
+    def created_sortable_html
+      @work_activity.created_at.time.strftime(SORTABLE_DATE_TIME_FORMAT)
     end
 
     def created_updated_html
