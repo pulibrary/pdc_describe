@@ -19,7 +19,7 @@ RSpec.describe WorkPreservationService do
     let(:files) { [file1, file2, preservation_file1] }
 
     before do
-      stub_s3(data: files)
+      stub_s3(data: files, bucket_name: "example-bucket-preservation")
     end
 
     it "preserves a work to the indicated location in S3" do
