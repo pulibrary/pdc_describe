@@ -682,6 +682,20 @@ RSpec.describe Work, type: :model do
       expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(1)
     end
 
+    it "captures a timeout and retries" do
+      fake_datacite = stub_datacite_doi
+      allow(fake_datacite).to receive(:update) do
+        if @called.nil?
+          @called = true
+          raise Faraday::ConnectionFailed, "execution expired"
+        else
+          Success("It worked")
+        end
+      end
+      expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(0)
+      expect(fake_datacite).to have_received(:update).exactly(2).times
+    end
+
     it "transitions from approved to withdrawn" do
       stub_datacite_doi
       approved_work.withdraw!(user)
