@@ -22,7 +22,7 @@ class ApprovedFileMoveJob < ApplicationJob
       # delete the source directory...
       service.delete_s3_object(work.s3_object_key, bucket: source_bucket)
 
-      # ...and create the preservation files in the preservation bucket
+      # ...and create the preservation files
       work_preservation = WorkPreservationService.new(work_id: work_id, path: "#{work.doi}/#{work.id}")
       work_preservation.preserve!
     end

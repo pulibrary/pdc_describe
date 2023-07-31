@@ -4,8 +4,6 @@ require "rails_helper"
 RSpec.describe WorkPreservationService do
   describe "preserve in S3" do
     let(:approved_work) { FactoryBot.create :approved_work, doi: "10.34770/pe9w-x904" }
-    # let(:bucket_name) { approved_work.s3_query_service.bucket_name }
-    let(:path) { approved_work.s3_query_service.prefix }
     let(:preservation_directory) { path + "/princeton_data_commons/" }
     let(:file1) { FactoryBot.build :s3_file, filename: "#{approved_work.doi}/#{approved_work.id}/anyfile1.txt", last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
     let(:file2) { FactoryBot.build :s3_file, filename: "#{approved_work.doi}/#{approved_work.id}/folder1/anyfile2.txt", last_modified: Time.parse("2022-04-21T18:29:40.000Z") }

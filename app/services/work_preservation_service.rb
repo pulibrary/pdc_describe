@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 # A service to create and store the preservation data for a given work.
-# Currently it assumes this data will be stored in an AWS S3 bucket accessible
-# with our AWS credentials, but the path to be configurable.
+# Currently it assumes this data will be stored in an AWS S3 bucket accessible with our AWS credentials.
+# This preservation bucket is configured in our s3.yml file and we store it in a different availability region
+# to make sure the data is properly distributed.
 class WorkPreservationService
 
   PRESERVATION_DIRECTORY = "princeton_data_commons".freeze
