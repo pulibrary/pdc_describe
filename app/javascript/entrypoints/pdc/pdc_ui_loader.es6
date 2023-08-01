@@ -25,5 +25,9 @@ export default class PdcUiLoader {
     (new WorkOrcid('.orcid-entry-contributor', 'contributors[][given_name]', 'contributors[][family_name]')).attach_validation();
     (new WorkRoR(pdc.ror_url)).attach_query();
     (new EditTableActions()).attach_actions();
+    const datasetOptions = {
+      searching: false, paging: true, info: false, order: [],
+    };
+    $('#user-notification-table').DataTable(datasetOptions);
   }
 }
