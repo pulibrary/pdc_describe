@@ -15,7 +15,7 @@ RSpec.describe PULDspaceConnector, type: :model do
 
   describe "#download_bitstreams" do
     it "finds no bitstreams" do
-      expect(dspace_data.download_bitstreams).to be_empty
+      expect(dspace_data.download_bitstreams(dspace_data.list_bitsteams)).to be_empty
     end
   end
 
@@ -56,7 +56,7 @@ RSpec.describe PULDspaceConnector, type: :model do
 
     it "downloads the bitstreams" do
       allow(Honeybadger).to receive(:notify)
-      expect(dspace_data.download_bitstreams.count).to eq(3)
+      expect(dspace_data.download_bitstreams(dspace_data.list_bitsteams).count).to eq(3)
       expect(Honeybadger).not_to have_received(:notify)
     end
 
@@ -66,7 +66,7 @@ RSpec.describe PULDspaceConnector, type: :model do
 
       it "downloads the bitstreams" do
         allow(Honeybadger).to receive(:notify)
-        expect(dspace_data.download_bitstreams.count).to eq(3)
+        expect(dspace_data.download_bitstreams(dspace_data.list_bitsteams).count).to eq(3)
         expect(Honeybadger).to have_received(:notify).with(/Mismatching checksum .* for work: #{work.id} doi: #{work.doi} ark: #{work.ark}/)
       end
     end

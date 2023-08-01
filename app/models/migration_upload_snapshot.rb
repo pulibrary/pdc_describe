@@ -5,18 +5,29 @@ class MigrationUploadSnapshot < UploadSnapshot
     files.concat pre_existing_files if pre_existing_files.present?
   end
 
-  def mark_complete(s3_file)
-    index = files.index { |file| file["filename"] == s3_file.filename && file["migrate_status"] == "started" }
-    if index.nil?
-      Honeybadger.notify("Migrated a file that was not part of the orginal Migration: #{id} for work #{work_id}: #{s3_file.filename}")
-    else
-      files[index]["migrate_status"] = "complete"
+  def mark_error(s3_file, error_message)
+    index = find_file(s3_file.filename_display)
+    if index.present?
+      files[index]["migrate_status"] = "error"
+      files[index]["migrate_error"] = error_message
     end
-    finalize_migration if migration_complete?
+  end
+
+  def mark_complete(s3_file)
+    index = find_file(s3_file.filename)
+    if index.present?
+      files[index]["migrate_status"] = "complete"
+      finalize_migration if migration_complete?
+    end
   end
 
   def migration_complete?
     files.select { |file| file.keys.include?("migrate_status") }.map { |file| file["migrate_status"] }.uniq == ["complete"]
+  end
+
+  def migration_complete_with_errors?
+    return false if migration_complete?
+    !files.select { |file| file.keys.include?("migrate_status") }.map { |file| file["migrate_status"] }.uniq.include?("started")
   end
 
   def existing_files
@@ -37,4 +48,14 @@ class MigrationUploadSnapshot < UploadSnapshot
                                                 migration.created_by_user_id, activity_type: WorkActivity::MIGRATION_COMPLETE)
     end
   end
+
+  private
+
+    def find_file(filename)
+      index = files.index { |file| file["filename"] == filename && file["migrate_status"] == "started" }
+      if index.nil?
+        Honeybadger.notify("Migrated a file that was not part of the orginal Migration: #{id} for work #{work_id}: #{filename}")
+      end
+      index
+    end
 end

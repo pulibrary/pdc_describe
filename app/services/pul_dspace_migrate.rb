@@ -72,12 +72,13 @@ class PULDspaceMigrate
         end
       end
       @dspace_files = dspace_files - files_to_remove
+      @dspace_files.each { |file| file_keys << file.filename_display }
       dspace_files + aws_files_only
     end
 
     def dpsace_update_display_to_final_key
       dspace_files.each do |s3_file|
-        s3_file.filename_display = work.s3_query_service.prefix + File.basename(s3_file.filename)
+        s3_file.filename_display = work.s3_query_service.prefix + s3_file.filename_display
       end
     end
 
@@ -99,32 +100,10 @@ class PULDspaceMigrate
 
     def migrate_dspace
       return if work.skip_dataspace_migration?
-      @dspace_files = dspace_connector.download_bitstreams
-      if dspace_files.any?(nil)
-        bitstreams = dspace_connector.bitstreams
-        error_files = dspace_files.zip(bitstreams).select { |values| values.first.nil? }.map(&:last)
-        error_names = error_files.map { |bitstream| bitstream["name"] }.join(", ")
-        raise "Error downloading file(s) #{error_names}"
-      end
+      @dspace_files = dspace_connector.list_bitsteams
       generate_migration_snapshot
-      errors = upload_dspace_files(dspace_files)
-      if errors.count > 0
-        raise "Error uploading file(s):\n #{errors.join("\n")}" if errors.count > 0
-      end
-
-      dspace_files.each { |file| File.delete(file.filename) }
-    end
-
-    def upload_dspace_files(dspace_files)
-      results = aws_connector.upload_to_s3(dspace_files)
-      error_results = results.select { |result| result[:error].present? }
-      good_results = results.select { |result| result[:key].present? }
-      good_results.each do |result|
-        @migration_snapshot&.mark_complete(result[:file])
-        file_keys << result[:key]
-      end
-      @migration_snapshot&.save
-      error_results.map { |result| result[:error] }
+      dspace_files_json = "[#{dspace_files.map(&:to_json).join(',')}]"
+      DspaceBitstreamCopyJob.perform_later(dspace_files_json: dspace_files_json, work_id: work.id, migration_snapshot_id: migration_snapshot.id)
     end
 
     def aws_copy(files)
