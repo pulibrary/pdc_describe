@@ -4,8 +4,8 @@ class WorkDownloaderController < ApplicationController
     work = Work.find(params[:id])
     if current_user && work.editable_by?(current_user)
       file_name = params[:filename]
-      pre_curation = !work.approved?
-      service = S3QueryService.new(work, pre_curation)
+      mode = work.approved? ? "postcuration" : "precuration"
+      service = S3QueryService.new(work, mode)
       redirect_to service.file_url(file_name)
     else
       Honeybadger.notify("Can not download work: #{work.id} is not editable by #{current_user}")

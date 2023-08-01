@@ -420,7 +420,7 @@ class Work < ApplicationRecord
   def post_curation_uploads(force_post_curation: false)
     if force_post_curation
       # Always use the post-curation data regardless of the work's status
-      post_curation_s3_query_service = S3QueryService.new(self, false)
+      post_curation_s3_query_service = S3QueryService.new(self, "postcuration")
       post_curation_s3_query_service.data_profile.fetch(:objects, [])
     else
       # Return the list based of files honoring the work status
@@ -491,7 +491,8 @@ class Work < ApplicationRecord
   # S3QueryService object associated with this Work
   # @return [S3QueryService]
   def s3_query_service
-    @s3_query_service ||= S3QueryService.new(self, !approved?)
+    mode = approved? ? "postcuration" : "precuration"
+    @s3_query_service ||= S3QueryService.new(self, mode)
   end
 
   def past_snapshots
@@ -743,7 +744,7 @@ class Work < ApplicationRecord
 
       # We need to explicitly access to post-curation services here.
       # Lets explicitly create it so the state of the work does not have any impact.
-      s3_post_curation_query_service = S3QueryService.new(self, false)
+      s3_post_curation_query_service = S3QueryService.new(self, "postcuration")
 
       s3_dir = find_post_curation_s3_dir(bucket_name: s3_post_curation_query_service.bucket_name)
       raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{s3_object_key}") unless s3_dir.nil?

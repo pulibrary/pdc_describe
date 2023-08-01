@@ -170,6 +170,7 @@ XML
     let(:fake_parts) { instance_double(Aws::S3::Types::CopyPartResult, etag: "etag123abc", checksum_sha256: "sha256abc123") }
     let(:fake_upload) { instance_double(Aws::S3::Types::UploadPartCopyOutput, copy_part_result: fake_parts) }
     let(:fake_s3_resp) { double(Aws::S3::Types::ListObjectsV2Output) }
+    let(:preservation_service) { instance_double(WorkPreservationService) }
 
     before do
       Group.create_defaults
@@ -191,10 +192,13 @@ XML
       allow(subject.client).to receive(:head_object).and_return(true)
       allow(subject.client).to receive(:complete_multipart_upload).and_return(fake_completion)
       allow(subject.client).to receive(:put_object).and_return(nil)
+
+      allow(WorkPreservationService).to receive(:new).and_return(preservation_service)
+      allow(preservation_service).to receive(:preserve!)
     end
 
     describe "#publish_files" do
-      it "calls moves the files calling create_multipart_upload, head_object, and delete_object twice, once for each file, and create the preservation folder" do
+      it "calls moves the files calling create_multipart_upload, head_object, and delete_object twice, once for each file, and called the preservation service" do
         expect(subject.publish_files).to be_truthy
         fake_s3_resp.stub(:to_h).and_return(s3_hash, empty_s3_hash)
         perform_enqueued_jobs
@@ -230,13 +234,7 @@ XML
           .with({ bucket: "example-bucket", key: s3_key2 })
         expect(subject.client).to have_received(:delete_object)
           .with({ bucket: "example-bucket", key: work.s3_object_key })
-        # Creates the PDC preservation folder and its files
-        expect(subject.client).to have_received(:put_object)
-          .with({ bucket: "example-bucket-post", key: "10.34770/pe9w-x904/#{work.id}/princeton_data_commons/", content_length: 0 })
-        expect(subject.client).to have_received(:put_object)
-          .with(hash_including(bucket: "example-bucket-post", key: "10.34770/pe9w-x904/#{work.id}/princeton_data_commons/datacite.xml"))
-        expect(subject.client).to have_received(:put_object)
-          .with(hash_including(bucket: "example-bucket-post", key: "10.34770/pe9w-x904/#{work.id}/princeton_data_commons/metadata.json"))
+        expect(preservation_service).to have_received(:preserve!)
       end
       context "the copy fails for some reason" do
         it "Does not delete anything and returns the missing file" do
@@ -358,7 +356,7 @@ XML
   end
 
   context "post curated" do
-    let(:subject) { described_class.new(work, false) }
+    let(:subject) { described_class.new(work, "postcuration") }
 
     it "keeps precurated and post curated items separate" do
       fake_aws_client = double(Aws::S3::Client)
