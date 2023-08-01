@@ -7,6 +7,10 @@ require "aws-sdk-s3"
 class S3QueryService
   attr_reader :model
 
+  PRECURATION = "precuration".freeze
+  POSTCURATION = "postcuration".freeze
+  PRESERVATION = "preservation".freeze
+
   def self.configuration
     Rails.configuration.s3
   end
@@ -27,37 +31,35 @@ class S3QueryService
 
   ##
   # @param [Work] model
-  # @param [Boolean] pre_curation True to use pre_curation S3 buckets, false to use post_curation S3 buckets.
-  # @param [Boolean] preservation True to use our preservation buckets in AWS S3
-  #                               (when true it takes precedence over the pre_curation parameter)
-  # @example S3QueryService.new(Work.find(1), true)
-  def initialize(model, pre_curation = true, preservation = nil)
+  # @param [String] mode Valid values are "precuration", "postcuration", "preservation".
+  #                      This value controlls the AWS S3 bucket used to access the files.
+  # @example S3QueryService.new(Work.find(1), "precuration")
+  def initialize(model, mode = "precuration")
     @model = model
     @doi = model.doi
-    @pre_curation = pre_curation
-    @preservation = (preservation == true)
+    @mode = mode
     @part_size = 5_368_709_120 # 5GB is the maximum part size for AWS
     @last_response = nil
   end
 
   def config
-    if @preservation
+    if @mode == PRESERVATION
       self.class.preservation_config
-    elsif post_curation?
+    elsif @mode == POSTCURATION
       self.class.post_curation_config
-    else
+    elsif @mode == PRECURATION
       self.class.pre_curation_config
+    else
+      raise ArgumentError.new("Invalid mode value: #{@mode}")
     end
   end
 
   def pre_curation?
-    return false if @preservation
-    @pre_curation
+    @mode == PRECURATION
   end
 
   def post_curation?
-    return false if @preservation
-    !pre_curation?
+    @mode == POSTCURATION
   end
 
   ##

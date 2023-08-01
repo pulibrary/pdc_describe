@@ -356,7 +356,7 @@ XML
   end
 
   context "post curated" do
-    let(:subject) { described_class.new(work, false) }
+    let(:subject) { described_class.new(work, "postcuration") }
 
     it "keeps precurated and post curated items separate" do
       fake_aws_client = double(Aws::S3::Client)

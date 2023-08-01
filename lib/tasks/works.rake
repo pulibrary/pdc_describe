@@ -35,7 +35,7 @@ namespace :works do
     end
     works = Work.where(created_by_user_id: user.id)
     works.each do |work|
-      service = S3QueryService.new(work, false)
+      service = S3QueryService.new(work, "postcuration")
       work.post_curation_uploads.each { |upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key }) }
       work.destroy
     end
@@ -51,7 +51,7 @@ namespace :works do
     work_exclusion_ids = works_str.split("+").map(&:to_i)
     works = Work.where.not(id: work_exclusion_ids)
     works.each do |work|
-      service = S3QueryService.new(work, false)
+      service = S3QueryService.new(work, "postcuration")
       work.pre_curation_uploads_fast.each { |upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key }) }
       work.post_curation_uploads.each { |upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key }) }
       work.destroy

@@ -4,7 +4,7 @@ class ApprovedFileMoveJob < ApplicationJob
 
   def perform(work_id:, source_bucket:, source_key:, target_bucket:, target_key:, size:)
     work = Work.find(work_id)
-    service = S3QueryService.new(Work.find(work_id), false)
+    service = S3QueryService.new(Work.find(work_id), "postcuration")
     key = "/#{source_bucket}/#{source_key}"
     resp = service.copy_file(source_key: key, target_bucket:, target_key:, size:)
 
