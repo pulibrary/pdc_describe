@@ -8,7 +8,7 @@ RSpec.describe UsersController do
 
   it "renders the show page" do
     sign_in user
-    get :show, params: { id: user_other.friendly_id }
+    get :show, params: { id: user.friendly_id }
     expect(response).to render_template("show")
   end
 

@@ -26,6 +26,52 @@ RSpec.describe "/users", type: :request do
       redirect_location = response.header["Location"]
       expect(redirect_location).to eq "http://www.example.com/sign_in"
     end
+
+    context "when authenticated as another user" do
+      let(:user1) { FactoryBot.create(:user) }
+      let(:user2) { FactoryBot.create(:user) }
+
+      before do
+        sign_in(user1)
+      end
+
+      it "renders a page indicating that this is forbidden" do
+        get user_url(user2)
+        expect(response.code).to eq "403"
+
+        expect(response.body).to include("Your account is not authorized to access the dashboard for this user.")
+      end
+    end
+
+    context "when authenticated as a super admin user" do
+      let(:super_admin_user) { FactoryBot.create(:super_admin_user) }
+      let(:user2) { FactoryBot.create(:user) }
+
+      before do
+        sign_in(super_admin_user)
+      end
+
+      it "renders access the dashboard of any user" do
+        get user_url(user2)
+        expect(response.code).to eq "200"
+      end
+    end
+
+    context "when authenticated as a group admin user" do
+      let(:group_admin_user) { FactoryBot.create(:princeton_submitter) }
+      let(:user2) { FactoryBot.create(:user) }
+
+      before do
+        sign_in(group_admin_user)
+      end
+
+      it "renders a page indicating that this is forbidden" do
+        get user_url(user2)
+        expect(response.code).to eq "403"
+
+        expect(response.body).to include("Your account is not authorized to access the dashboard for this user.")
+      end
+    end
   end
 
   describe "GET /edit" do
