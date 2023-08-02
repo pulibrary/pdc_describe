@@ -7,13 +7,13 @@
 
 <!-- Publisher field -->
 <div class="field">
-  Publisher:<span class="required-field">*</span><br>
+  Publisher:<span class="required-field required-field-star">*</span><br>
   <input type="text" id="publisher" name="publisher" class="input-text-long" value="<%= @work.resource.publisher %>" <%= is_group_admin ? '' : 'readonly' %> />
 </div>
 
 <!-- Publication year field -->
 <div class="field">
-  Publication Year:<span class="required-field">*</span><br>
+  Publication Year:<span class="required-field required-field-star">*</span><br>
   <input type="text" id="publication_year" name="publication_year" class="input-text-year" value="<%= @work.resource.publication_year %>" <%= is_group_admin ? '' : 'readonly' %> />
 </div>
 
@@ -36,13 +36,13 @@
 
 <!-- Resource Type -->
 <div class="field">
-  Resource Type:<span class="required-field">*</span><span class="text-muted field-hint">(please see <%= link_to("the DataCite schema documentation", "https://schema.datacite.org/meta/kernel-4.4/", target: "_blank", rel: "nofollow") %>)</span><br>
+  Resource Type:<span class="required-field required-field-star">*</span><span class="text-muted field-hint">(please see <%= link_to("the DataCite schema documentation", "https://schema.datacite.org/meta/kernel-4.4/", target: "_blank", rel: "nofollow") %>)</span><br>
   <input type="text" id="resource_type" name="resource_type" class="input-text-long" value="<%= @work.resource_type %>" <%= is_group_admin ? '' : 'readonly' %> />
 </div>
 
 <!-- Resource Type General -->
 <div class="field">
-  Resource Type General:<span class="required-field">*</span><span class="text-muted field-hint">(please see <%= link_to("the DataCite schema documentation", "https://schema.datacite.org/meta/kernel-4.4/", target: "_blank", rel: "nofollow") %> )</span><br>
+  Resource Type General:<span class="required-field required-field-star">*</span><span class="text-muted field-hint">(please see <%= link_to("the DataCite schema documentation", "https://schema.datacite.org/meta/kernel-4.4/", target: "_blank", rel: "nofollow") %> )</span><br>
   <input type="hidden" name="resource_type_general" value="<%= @work.resource_type_general %>"/> <!-- put the value in the form as disabled will not send the data back -->
   <select id="resource_type_general" name="resource_type_general" <%= is_group_admin ? '' : 'disabled' %> >
     <% Work.resource_type_general_values.each do |value| %>
@@ -53,7 +53,7 @@
 
 <!-- Version number -->
 <div class="field">
-  Version: <span class="required-field">*</span><br>
+  Version: <span class="required-field required-field-star">*</span><br>
   <input type="hidden" name="version_number" value="<%= @work.resource.version_number%>"/> <!-- put the value in the form as disabled will not send the data back -->
   <select id="version_number" name="version_number" class="input-version" <%= is_group_admin ? '' : 'disabled' %> >
     <% (1..10).each do |i| %>
@@ -64,7 +64,7 @@
 
 <!-- Group field -->
 <div class="field">
-  <%= t('works.form.group') %>: <span class="required-field">*</span><br>
+  <%= t('works.form.group') %>: <span class="required-field required-field-star">*</span><br>
   <input type="hidden" name="group_id" value="<%= @work.group_id%>"/> <!-- put the value in the form as disabled will not send the data back -->
   <select id="group_id" name="group_id" class="input-text-long"  <%= is_group_admin ? '' : 'disabled' %> >
     <% current_user.submitter_groups.each do |group| %>

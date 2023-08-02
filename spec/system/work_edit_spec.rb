@@ -270,7 +270,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
   #   end
   # end
 
-  context "as a user without curator privileges" do
+  context "as a user without group admin privileges" do
     let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
     let(:user) { work.created_by_user }
 
@@ -319,6 +319,33 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
 
       # The +1 in here is to account for the control for file list page size that DataTables adds to the file list
       expect(page.all("select[disabled]").count + 1).to eq(page.all("select").count) # all selects inputs on curator controlled metadata should be disabled
+    end
+  end
+
+  context "as a user with group admin privileges" do
+    let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+    let(:user) { FactoryBot.create :research_data_moderator }
+
+    it "renders the curator controlled metadata as read-only" do
+      sign_in user
+      visit edit_work_path(work)
+      click_on "Curator Controlled"
+
+      fill_in "publisher", with: "New Publisher"
+      fill_in "publication_year", with: "1996"
+      fill_in "doi", with: "10.34770/123"
+      fill_in "ark", with: "ark:/11111/abc12345678901"
+      fill_in "resource_type", with: "Something"
+      fill_in "collection_tags", with: "tag1, tag2"
+      click_on "Save"
+
+      work.reload
+      expect(work.resource.publisher).to eq("New Publisher")
+      expect(work.resource.publication_year).to eq("1996")
+      expect(work.doi).to eq("10.34770/123")
+      expect(work.ark).to eq("ark:/11111/abc12345678901")
+      expect(work.resource.resource_type).to eq("Something")
+      expect(work.resource.collection_tags).to eq(["tag1", "tag2"])
     end
   end
 end

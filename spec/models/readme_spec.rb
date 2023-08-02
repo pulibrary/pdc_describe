@@ -4,7 +4,7 @@ require "rails_helper"
 RSpec.describe Readme, type: :model do
   let(:work) { FactoryBot.create :draft_work }
   let(:s3_files) { [FactoryBot.build(:s3_file, work: work), FactoryBot.build(:s3_file, filename: "filename-2.txt", work: work)] }
-  let(:readme) { described_class.new(work) }
+  let(:readme) { described_class.new(work, User.find(work.created_by_user_id)) }
   let(:fake_s3_service) { stub_s3 data: s3_files }
 
   before do
@@ -34,7 +34,7 @@ RSpec.describe Readme, type: :model do
     end
 
     it "attaches the file and renames to to README" do
-      expect(readme.attach(uploaded_file)).to be_nil
+      expect { expect(readme.attach(uploaded_file)).to be_nil }.to change { UploadSnapshot.count }.by 1
       expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv")
     end
 
@@ -50,7 +50,7 @@ RSpec.describe Readme, type: :model do
         let(:s3_files) { [FactoryBot.build(:s3_file, work: work), FactoryBot.build(:s3_readme, work: work)] }
 
         it "returns no error message" do
-          expect(readme.attach(uploaded_file)).to be_nil
+          expect { expect(readme.attach(uploaded_file)).to be_nil }.to change { UploadSnapshot.count }.by 0
           expect(fake_s3_service).not_to have_received(:upload_file)
         end
       end
@@ -71,7 +71,7 @@ RSpec.describe Readme, type: :model do
       let(:s3_files) { [FactoryBot.build(:s3_file, work: work), FactoryBot.build(:s3_readme, work: work)] }
 
       it "returns no error message" do
-        expect(readme.attach(uploaded_file)).to be_nil
+        expect { expect(readme.attach(uploaded_file)).to be_nil }.to change { UploadSnapshot.count }.by 1
         expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv")
         expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_files.last.key)
       end

@@ -19,7 +19,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
     ds.description = "this is an example description"
     ds.creators = [creator1, creator2]
     ds.ark = "ark:/88435/dsp01hx11xj13h"
-    ds.rights = PDCMetadata::Rights.find("CC BY")
+    ds.rights_many = [PDCMetadata::Rights.find("CC BY")]
     ds.individual_contributors = [contributor1, contributor2]
     ds.publication_year = 2022
     ds
@@ -153,7 +153,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
         "collection_tags" => ["ABC", "123"],
         "keywords" => ["red", "yellow", "green"],
         "related_objects" => [],
-        "rights" => { "identifier" => "CC BY", "name" => "Creative Commons Attribution 4.0 International", "uri" => "https://creativecommons.org/licenses/by/4.0/" },
+        "rights_many" => [{ "identifier" => "CC BY", "name" => "Creative Commons Attribution 4.0 International", "uri" => "https://creativecommons.org/licenses/by/4.0/" }],
         "version_number" => 1,
         "funders" => [{
           "ror" => nil,

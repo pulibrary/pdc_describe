@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Activity Notifications</h1>
+<% if @user_param %>
+<h2>Showing Notifications for <%= @user_param %></h2>
+<% end %>
+
+<table id="user-notification-table">
+  <thead>
+    <tr>
+      <th>Creator</th>
+      <th>Date</th>
+      <th>Message</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @work_activity_notifications.each do |work_activity_notification| %>
+      <% renderer = work_activity_notification.work_activity.renderer %>
+      <tr>
+        <td><%= renderer.created_by_user_html.html_safe %></td>
+        <td><%= renderer.created_sortable_html.html_safe %></td>
+        <td><%= renderer.body_html.html_safe %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>

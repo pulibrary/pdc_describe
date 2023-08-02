@@ -168,7 +168,7 @@ class WorksController < ApplicationController
 
   def file_uploaded
     @work = Work.find(params[:id])
-    files = work_params.dig("patch", "pre_curation_uploads") || []
+    files = pre_curation_uploads_param || []
     if files.count > 0
       upload_service = WorkUploadsEditService.new(@work, current_user)
       @work = upload_service.update_precurated_file_list(files, [])
@@ -284,7 +284,7 @@ class WorksController < ApplicationController
 
   def readme_select
     @work = Work.find(params[:id])
-    readme = Readme.new(@work)
+    readme = Readme.new(@work, current_user)
     @readme = readme.file_name
     @wizard = true
   end
@@ -292,7 +292,7 @@ class WorksController < ApplicationController
   def readme_uploaded
     @work = Work.find(params[:id])
     @wizard = true
-    readme = Readme.new(@work)
+    readme = Readme.new(@work, current_user)
     readme_error = readme.attach(readme_file_param)
     if readme_error.nil?
       redirect_to work_attachment_select_url(@work)
@@ -305,7 +305,7 @@ class WorksController < ApplicationController
   private
 
     def work_params
-      params[:work] || params
+      params[:work] || {}
     end
 
     def patch_params
@@ -359,7 +359,7 @@ class WorksController < ApplicationController
       @wizard_mode = wizard_mode?
       upload_service = WorkUploadsEditService.new(@work, current_user)
       if @work.approved?
-        upload_keys = work_params[:deleted_uploads] || []
+        upload_keys = deleted_files_param || []
         deleted_uploads = upload_service.find_post_curation_uploads(upload_keys: upload_keys)
 
         return head(:forbidden) unless deleted_uploads.empty?

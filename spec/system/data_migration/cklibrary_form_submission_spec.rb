@@ -27,7 +27,7 @@ RSpec.describe "Form submission for migrating cklibrary", type: :system, mock_ez
       click_on "btn-add-title"
       fill_in "new_title_1", with: alternative_title
       fill_in "description", with: description
-      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifiers"
       find("tr:last-child input[name='creators[][orcid]']").set ""
       find("tr:last-child input[name='creators[][given_name]']").set "Robert"
       find("tr:last-child input[name='creators[][family_name]']").set "Leach"

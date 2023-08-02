@@ -1,7 +1,13 @@
 <!-- Render the main title (notice that we don't display a dropdown for this title) -->
 <div class="field">
   <%= render partial: "required_form_field_details", locals: { name: "title", display_name: "Title", 
-                                                       field_detail: "Provide an informative and distinctive title for the item as a whole &mdash; not identical to that of a corresponding paper.",
+                                                      primary_detail: "Provide an informative and distinctive title for the item as a whole - not identical to that of a corresponding paper.",
+                                                       field_detail: "Tips
+                                                       <ul> 
+                                                         <li>Keywords included in the title can help others to discover your work.</li>
+                                                         <li>In most cases, titles should avoid using acronyms or abbreviations that create a barrier to understanding content outside of your research group or area.</li>
+                                                         <li>Please do not use the name of your file for the title.</li>
+                                                       </ul>",
                                                       }
   %>
   <input type="text" id="title_main" name="title_main" class="input-text-long"

@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 class PULDspaceMigrate
-  attr_reader :work, :ark, :file_keys, :directory_keys,
+  attr_reader :work, :ark, :file_keys, :directory_keys, :current_user,
               :aws_connector, :migration_snapshot, :dspace_files, :aws_files_and_directories
 
   delegate :doi, to: :dspace_connector
 
-  def initialize(work)
+  def initialize(work, current_user)
     @work = work
     @ark = work.ark&.gsub("ark:/", "")
     @file_keys = []
@@ -14,6 +14,7 @@ class PULDspaceMigrate
     @migration_snapshot = nil
     @aws_files_and_directories = nil
     @dspace_files = []
+    @current_user = current_user
   end
 
   def migrate
@@ -27,6 +28,7 @@ class PULDspaceMigrate
     # so do that now. Do it before copying the aws files so the MigrationUploadSnapshot will exist
     # already when the DspaceFileCopyJob is started, and it will update correctly.
     generate_migration_snapshot if work.skip_dataspace_migration?
+
     aws_copy(aws_files_and_directories)
   end
 
@@ -34,10 +36,10 @@ class PULDspaceMigrate
     @dspace_connector ||= PULDspaceConnector.new(work)
   end
 
-  def migration_message
+  def migration_message(input_file_keys = file_keys, input_directory_keys = directory_keys)
     message = []
     message << "DSpace migration skipped for #{work.ark}. Only migrating files from AWS/Globus." if work.skip_dataspace_migration?
-    message << "Migration for #{file_keys.count} #{'file'.pluralize(file_keys.count)} and #{directory_keys.count} #{'directory'.pluralize(directory_keys.count)}"
+    message << "Migration for #{input_file_keys.count} #{'file'.pluralize(input_file_keys.count)} and #{input_directory_keys.count} #{'directory'.pluralize(input_directory_keys.count)}"
     message.join(" ")
   end
 
@@ -49,6 +51,11 @@ class PULDspaceMigrate
       last_snapshot = work.upload_snapshots.first
       snapshot.store_files(files, pre_existing_files: last_snapshot&.files)
       snapshot.save!
+      directories = aws_files_and_directories.select(&:directory?)
+      WorkActivity.add_work_activity(work.id, { migration_id: snapshot.id,
+                                                message: migration_message(files, directories), file_count: files.count,
+                                                directory_count: directories.count }.to_json,
+                                      current_user.id, activity_type: WorkActivity::MIGRATION_START)
       @migration_snapshot = snapshot
     end
 
@@ -65,12 +72,13 @@ class PULDspaceMigrate
         end
       end
       @dspace_files = dspace_files - files_to_remove
+      @dspace_files.each { |file| file_keys << file.filename_display }
       dspace_files + aws_files_only
     end
 
     def dpsace_update_display_to_final_key
       dspace_files.each do |s3_file|
-        s3_file.filename_display = work.s3_query_service.prefix + File.basename(s3_file.filename)
+        s3_file.filename_display = work.s3_query_service.prefix + s3_file.filename_display
       end
     end
 
@@ -92,32 +100,10 @@ class PULDspaceMigrate
 
     def migrate_dspace
       return if work.skip_dataspace_migration?
-      @dspace_files = dspace_connector.download_bitstreams
-      if dspace_files.any?(nil)
-        bitstreams = dspace_connector.bitstreams
-        error_files = dspace_files.zip(bitstreams).select { |values| values.first.nil? }.map(&:last)
-        error_names = error_files.map { |bitstream| bitstream["name"] }.join(", ")
-        raise "Error downloading file(s) #{error_names}"
-      end
+      @dspace_files = dspace_connector.list_bitsteams
       generate_migration_snapshot
-      errors = upload_dspace_files(dspace_files)
-      if errors.count > 0
-        raise "Error uploading file(s):\n #{errors.join("\n")}" if errors.count > 0
-      end
-
-      dspace_files.each { |file| File.delete(file.filename) }
-    end
-
-    def upload_dspace_files(dspace_files)
-      results = aws_connector.upload_to_s3(dspace_files)
-      error_results = results.select { |result| result[:error].present? }
-      good_results = results.select { |result| result[:key].present? }
-      good_results.each do |result|
-        @migration_snapshot&.mark_complete(result[:file])
-        file_keys << result[:key]
-      end
-      @migration_snapshot&.save
-      error_results.map { |result| result[:error] }
+      dspace_files_json = "[#{dspace_files.map(&:to_json).join(',')}]"
+      DspaceBitstreamCopyJob.perform_later(dspace_files_json: dspace_files_json, work_id: work.id, migration_snapshot_id: migration_snapshot.id)
     end
 
     def aws_copy(files)

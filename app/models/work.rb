@@ -24,7 +24,7 @@ class Work < ApplicationRecord
 
   aasm column: :state do
     state :none, inital: true
-    state :draft, :awaiting_approval, :approved, :withdrawn, :tombstone
+    state :draft, :awaiting_approval, :approved, :withdrawn, :deletion_marker
 
     event :draft, after: :draft_doi do
       transitions from: :none, to: :draft, guard: :valid_to_draft
@@ -51,7 +51,7 @@ class Work < ApplicationRecord
     end
 
     event :remove do
-      transitions from: :withdrawn, to: :tombstone
+      transitions from: :withdrawn, to: :deletion_marker
     end
 
     after_all_events :track_state_change
@@ -120,7 +120,6 @@ class Work < ApplicationRecord
   before_save do |work|
     # Ensure that the metadata JSONB postgres field is persisted properly
     work.metadata = JSON.parse(work.resource.to_json)
-    work.save_pre_curation_uploads
   end
 
   after_save do |work|
@@ -408,16 +407,6 @@ class Work < ApplicationRecord
     s3_query_service.client_s3_files.sort_by(&:filename)
   end
 
-  # This ensures that new ActiveStorage::Attachment objects can be modified before they are persisted
-  def save_pre_curation_uploads
-    return if pre_curation_uploads.empty?
-
-    new_attachments = pre_curation_uploads.reject(&:persisted?)
-    return if new_attachments.empty?
-
-    save_new_attachments(new_attachments: new_attachments)
-  end
-
   # Accesses post-curation S3 Bucket Objects
   def post_curation_s3_resources
     if approved?
@@ -431,7 +420,7 @@ class Work < ApplicationRecord
   def post_curation_uploads(force_post_curation: false)
     if force_post_curation
       # Always use the post-curation data regardless of the work's status
-      post_curation_s3_query_service = S3QueryService.new(self, false)
+      post_curation_s3_query_service = S3QueryService.new(self, "postcuration")
       post_curation_s3_query_service.data_profile.fetch(:objects, [])
     else
       # Return the list based of files honoring the work status
@@ -447,7 +436,7 @@ class Work < ApplicationRecord
     s3_query_service.client
   end
 
-  delegate :bucket_name, to: :s3_query_service
+  delegate :bucket_name, :prefix, to: :s3_query_service
 
   # Generates the S3 Object key
   # @return [String]
@@ -474,7 +463,6 @@ class Work < ApplicationRecord
     force_post_curation = args.any? {|arg| arg[:force_post_curation] == true }
     # Pre-curation files are not accessible externally,
     # so we are not interested in listing them in JSON.
-    # (The items in pre_curation_uploads also have different properties.)
     files = post_curation_uploads(force_post_curation:).map do |upload|
       {
         "filename": upload.filename,
@@ -503,7 +491,8 @@ class Work < ApplicationRecord
   # S3QueryService object associated with this Work
   # @return [S3QueryService]
   def s3_query_service
-    @s3_query_service ||= S3QueryService.new(self, !approved?)
+    mode = approved? ? "postcuration" : "precuration"
+    @s3_query_service ||= S3QueryService.new(self, mode)
   end
 
   def past_snapshots
@@ -556,6 +545,10 @@ class Work < ApplicationRecord
     Rails.configuration.manual_dataspace_migration[:arks].include? resource.ark
   end
 
+  def has_rights?(rights_id)
+    resource.rights_many.index { |rights| rights.identifier == rights_id } != nil
+  end
+
   protected
 
     # This must be protected, NOT private for ActiveRecord to work properly with this attribute.
@@ -580,7 +573,7 @@ class Work < ApplicationRecord
       # Set this value in config/update_ark_url.yml
       if Rails.configuration.update_ark_url
         if ark.present?
-          Ark.update(ark, url)
+          Ark.update(ark, doi_attribute_url)
         end
       end
     end
@@ -651,7 +644,7 @@ class Work < ApplicationRecord
       errors.add(:base, "Must provide a description") if resource.description.blank?
       errors.add(:base, "Must indicate the Publisher") if resource.publisher.blank?
       errors.add(:base, "Must indicate the Publication Year") if resource.publication_year.blank?
-      errors.add(:base, "Must indicate a Rights statement") if resource.rights.nil?
+      errors.add(:base, "Must indicate at least one Rights statement") if resource.rights_many.count == 0
       errors.add(:base, "Must provide a Version number") if resource.version_number.blank?
       validate_creators
       validate_related_objects
@@ -689,6 +682,9 @@ class Work < ApplicationRecord
       elsif ark.blank? # we can not update the url anywhere
         Honeybadger.notify("Publishing for a DOI we do not own and no ARK is present: #{doi}")
       end
+    rescue Faraday::ConnectionFailed
+      sleep 1
+      retry
     end
 
     def doi_attribute_url
@@ -742,20 +738,13 @@ class Work < ApplicationRecord
       uploads_keys.include?(s3_file.key)
     end
 
-    def add_pre_curation_s3_object(s3_file)
-      return if s3_object_persisted?(s3_file)
-
-      persisted = s3_file.to_blob
-      pre_curation_uploads.attach(persisted)
-    end
-
     def publish_precurated_files
       # An error is raised if there are no files to be moved
       raise(StandardError, "Attempting to publish a Work without attached uploads for #{s3_object_key}") if pre_curation_uploads_fast.empty? && post_curation_uploads.empty?
 
       # We need to explicitly access to post-curation services here.
       # Lets explicitly create it so the state of the work does not have any impact.
-      s3_post_curation_query_service = S3QueryService.new(self, false)
+      s3_post_curation_query_service = S3QueryService.new(self, "postcuration")
 
       s3_dir = find_post_curation_s3_dir(bucket_name: s3_post_curation_query_service.bucket_name)
       raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{s3_object_key}") unless s3_dir.nil?
@@ -767,9 +756,6 @@ class Work < ApplicationRecord
     def latest_snapshot
       upload_snapshot = upload_snapshots.first
       upload_snapshot ||= UploadSnapshot.new(work: self, files: [])
-
-      # return the migration snapshot if this is one, otherwise utilize the upload snapshot
-      MigrationUploadSnapshot.from_upload_snapshot(upload_snapshot)
     end
 
     def snapshot_deletions(work_changes, s3_filenames, upload_snapshot)

@@ -78,7 +78,8 @@ RSpec.describe WorkUploadsEditService do
       allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_data, s3_data + [s3_file3])
 
       upload_service = described_class.new(work, user)
-      updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
+      updated_work = nil
+      expect { updated_work = upload_service.update_precurated_file_list(added_files, deleted_files) }.to change { BackgroundUploadSnapshot.count }.by 1
       perform_enqueued_jobs
 
       expect(updated_work.pre_curation_uploads_fast.map(&:filename).sort).to eq([s3_file1.key, s3_file2.key].sort)
@@ -86,7 +87,7 @@ RSpec.describe WorkUploadsEditService do
 
       # it logs the addition (and no delete)
       activity_log = JSON.parse(updated_work.work_activity.first.message)
-      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == s3_file3.filename_display }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?(s3_file3.filename_display) }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "deleted" }).to be nil
     end
   end
@@ -100,7 +101,8 @@ RSpec.describe WorkUploadsEditService do
       allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_data, [s3_file2])
 
       upload_service = described_class.new(work, user)
-      updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
+      updated_work = nil
+      expect { updated_work = upload_service.update_precurated_file_list(added_files, deleted_files) }.to change { BackgroundUploadSnapshot.count }.by 0
       expect(updated_work.pre_curation_uploads_fast.map(&:filename)).to eq([s3_file2.key])
       expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_file1.key).once
 
@@ -128,10 +130,11 @@ RSpec.describe WorkUploadsEditService do
 
       # it logs the activity
       work_activities = work.work_activity
+      expect(work_activities.count).to eq(2) # one for the deletes and one for the adds
       activity_log = work_activities.map { |work_activity| JSON.parse(work_activity.message) }.flatten
-      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"] == s3_file1.key }).not_to be nil
-      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "us_covid_2020.csv" }).not_to be nil
-      expect(activity_log.find { |log| log["action"] == "added" && log["filename"] == "orcid.csv" }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"].include?(s3_file1.key) }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?("orcid.csv") }).not_to be nil
     end
   end
 
@@ -154,6 +157,7 @@ RSpec.describe WorkUploadsEditService do
 
       # it logs the activity (2 deletes + 2 adds)
       work_activities = updated_work.work_activity
+      expect(work_activities.count).to eq(2) # one for the deletes and one for the adds
       activity_log = work_activities.map { |work_activity| JSON.parse(work_activity.message) }.flatten
       expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"].include?("us_covid_2019.csv") }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil

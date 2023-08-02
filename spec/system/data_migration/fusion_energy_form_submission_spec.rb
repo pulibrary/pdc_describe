@@ -11,12 +11,11 @@ RSpec.describe "Form submission for migrating fusion energy", type: :system, moc
   let(:collection_tags) { ["Plasma Science & Technology"] }
   let(:group) { "Princeton Plasma Physics Lab (PPPL)" }
   let(:publisher) { "Princeton University" }
-  let(:doi) { "10.5281/zenodo.7507006" }
+  let(:doi) { "10.34770/f8em-3c49" }
   let(:keywords) { "fusion, economics, cost, value, tokamak, power plant" }
 
   before do
-    stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.5281"))
-    stub_request(:get, "https://handle.stage.datacite.org/10.5281/zenodo.7507006")
+    stub_request(:get, "https://handle.stage.datacite.org/10.34770/f8em-3c49")
       .to_return(status: 200, body: "", headers: {})
     stub_s3
   end
@@ -26,7 +25,7 @@ RSpec.describe "Form submission for migrating fusion energy", type: :system, moc
       visit "/works/new"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifiers"
       find("tr:last-child input[name='creators[][orcid]']").set "0000-0001-9636-8181"
       find("tr:last-child input[name='creators[][given_name]']").set "Jacob A."
       find("tr:last-child input[name='creators[][family_name]']").set "Schwartz"

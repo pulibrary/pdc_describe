@@ -35,6 +35,18 @@ describe WorkActivity, type: :model do
         expect(Rails.logger).to have_received(:info).with("Message #{work_activity.id} for work #{work.id} referenced an non-existing user: invalid").at_least(1).time
       end
     end
+
+    context "when a curator group is specified" do
+      let(:group) { Group.research_data }
+      let(:message) { "test message for @#{group.code}" }
+      it "create WorkActivityNotifications for each curator " do
+        FactoryBot.create :research_data_moderator
+        FactoryBot.create :research_data_moderator
+        FactoryBot.create :research_data_moderator
+        work_activity
+        expect { work_activity.notify_users }.to change { WorkActivityNotification.count }.by group.administrators.count
+      end
+    end
   end
 
   describe "#destroy" do

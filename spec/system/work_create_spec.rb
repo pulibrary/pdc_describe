@@ -84,7 +84,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Save Work"
       expect(page).to have_content("Must provide a description")
       fill_in "description", with: description
-      select "GNU General Public License", from: "rights_identifier"
+      select "GNU General Public License", from: "rights_identifiers"
       click_on "Curator Controlled"
       fill_in "publication_year", with: issue_date
       click_on "Additional Metadata"
@@ -140,12 +140,14 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
         expect(page).to have_content "2"
       end
 
-      visit(work_path(Work.last))
+      work = Work.last
+      visit(work_path(work))
 
       has_been_created_message = "#{title} has been created"
       within("ul.work-messages") do
         expect(page).to have_content(has_been_created_message)
         expect(page).to have_content("#{title} is ready for review")
+        expect(page).to have_content(work.group.title)
       end
 
       click_on "Hide Messages"

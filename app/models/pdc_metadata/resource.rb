@@ -10,7 +10,7 @@ module PDCMetadata
   # rubocop:disable Metrics/ClassLength
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
-      :description, :doi, :ark, :rights, :version_number, :collection_tags, :keywords, :related_objects,
+      :description, :doi, :ark, :rights_many, :version_number, :collection_tags, :keywords, :related_objects,
       :funders, :organizational_contributors, :domains, :migrated, :communities, :subcommunities
 
     # rubocop:disable Metrics/MethodLength
@@ -26,7 +26,7 @@ module PDCMetadata
       @publication_year = Time.zone.today.year
       @ark = nil
       @doi = doi
-      @rights = nil
+      @rights_many = []
       @version_number = "1"
       @related_objects = []
       @keywords = []
@@ -106,15 +106,23 @@ module PDCMetadata
 
       private
 
-        def rights(form_rights)
-          PDCMetadata::Rights.find(form_rights["identifier"]) if form_rights
+        def rights(rights_info)
+          return if rights_info.nil?
+          PDCMetadata::Rights.find(rights_info["identifier"])
         end
 
         def set_basics(resource, hash)
           resource.description = hash["description"]
           resource.publisher = hash["publisher"]
           resource.publication_year = hash["publication_year"]
-          resource.rights = rights(hash["rights"])
+
+          resource.rights_many = (hash["rights_many"] || []).map { |rights_info| rights(rights_info) }.compact
+          if resource.rights_many.count == 0 && hash["rights"]
+            # Special case to handle works created with a single-value `rights` field
+            # instead of the new multi-value `rights_many` field.
+            resource.rights_many = [rights(hash["rights"])].compact
+          end
+
           resource.domains = hash["domains"] || []
           resource.migrated = hash["migrated"] || false
         end

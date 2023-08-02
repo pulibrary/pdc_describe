@@ -7,30 +7,11 @@ RSpec.describe MigrationUploadSnapshot, type: :model do
   let(:s3_file1) { FactoryBot.build :s3_file, filename: "fileone", checksum: "aaabbb111222" }
   let(:s3_file2) { FactoryBot.build :s3_file, filename: "filetwo", checksum: "dddeee111222" }
 
-  describe "#from_upload_snapshot" do
-    let(:upload_snapshot) do
-      UploadSnapshot.create(files: [{ "filename" => "fileone", "checksum" => "aaabbb111222", "migrate_status" => "started" }],
-                            url: "example.com", work: work)
-    end
-    it "converts the class" do
-      migration = described_class.from_upload_snapshot(upload_snapshot)
-      expect(migration).not_to be_nil
-      expect(migration.migration_complete?).to be_falsey
-    end
-
-    context "no files in migration" do
-      let(:upload_snapshot) { UploadSnapshot.new(files: [], url: "example.com", work: work) }
-      it "returns the upload snapshot passed in" do
-        expect(described_class.from_upload_snapshot(upload_snapshot)).to eq(upload_snapshot)
-      end
-    end
-
-    context "an upload with no migration information" do
-      let(:upload_snapshot) { UploadSnapshot.new(files: [{ filename: "abc123.xml", checkSum: "aaabbb111222" }], url: "example.com", work: work) }
-
-      it "returns nil" do
-        expect(described_class.from_upload_snapshot(upload_snapshot)).to eq(upload_snapshot)
-      end
+  describe "#count" do
+    it "only counts the migrations" do
+      migration_upload_snapshot
+      UploadSnapshot.create(files: [], url: "example", work: work)
+      expect(MigrationUploadSnapshot.count).to eq(1)
     end
   end
 

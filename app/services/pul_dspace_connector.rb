@@ -31,11 +31,27 @@ class PULDspaceConnector
                   end
   end
 
-  def download_bitstreams
-    bitstreams.map do |bitstream|
-      filename = download_bitstream(bitstream["retrieveLink"], bitstream["name"])
-      if checksum_file(filename, bitstream)
-        S3File.new(filename: filename, checksum: bitstream["checkSum"]["base64"], last_modified: DateTime.now, size: -1, work: work)
+  def list_bitsteams
+    @list_bitsteams ||=
+      bitstreams.map do |bitstream|
+        path = File.join(Rails.configuration.dspace.download_file_path, "dspace_download", work.id.to_s)
+        filename = File.join(path, bitstream["name"])
+        if bitstream["checkSum"]["checkSumAlgorithm"] != "MD5"
+          Honeybadger.notify("Unknown checksum algorithm #{bitstream['checkSum']['checkSumAlgorithm']} #{filename} #{bitstream}")
+        end
+
+        S3File.new(filename_display: bitstream["name"], checksum: base64digest(bitstream["checkSum"]["value"]), last_modified: DateTime.now,
+                   size: -1, work: work, url: bitstream["retrieveLink"], filename: filename)
+      end
+  end
+
+  def download_bitstreams(bitstream_list)
+    bitstream_list.map do |file|
+      filename = download_bitstream(file.url, file.filename)
+      if checksum_file(filename, file.checksum)
+        file
+      else
+        { file: file, error: "Checsum Missmatch" }
       end
     end
   end
@@ -65,10 +81,9 @@ class PULDspaceConnector
       JSON.parse(response.body)
     end
 
-    def download_bitstream(retrieval_path, name)
+    def download_bitstream(retrieval_path, filename)
       url = "#{Rails.configuration.dspace.base_url}#{retrieval_path}"
       path = File.join(Rails.configuration.dspace.download_file_path, "dspace_download", work.id.to_s)
-      filename = File.join(path, name)
       FileUtils.mkdir_p path
       download_file(url, filename)
       filename
@@ -87,15 +102,11 @@ class PULDspaceConnector
       end
     end
 
-    # rubocop:disable Metrics/MethodLength
-    def checksum_file(filename, bitstream)
-      checksum_class = Digest.const_get(bitstream["checkSum"]["checkSumAlgorithm"])
-      checksum = checksum_class.file(filename)
-      hexdigest = checksum.hexdigest
+    def checksum_file(filename, original_checksum)
+      checksum = Digest::MD5.file(filename)
       base64 = checksum.base64digest
-      bitstream["checkSum"]["base64"] = base64
-      if hexdigest != bitstream["checkSum"]["value"]
-        msg = "Mismatching checksum #{filename} #{bitstream} for work: #{work.id} doi: #{work.doi} ark: #{work.ark}"
+      if base64 != original_checksum
+        msg = "Mismatching checksum #{filename} #{original_checksum} for work: #{work.id} doi: #{work.doi} ark: #{work.ark}"
         Rails.logger.error msg
         Honeybadger.notify(msg)
         false
@@ -103,11 +114,11 @@ class PULDspaceConnector
         Rails.logger.debug "Matching checksums for #{filename}"
         true
       end
-    rescue NameError
-      Honeybadger.notify("Unknown checksum algorithm #{bitstream['checkSum']['checkSumAlgorithm']} #{filename} #{bitstream}")
-      false
     end
-    # rubocop:enable Metrics/MethodLength
+
+    def base64digest(hexdigest)
+      [[hexdigest].pack("H*")].pack("m0")
+    end
 
     def request_http(url)
       uri = URI(url)
