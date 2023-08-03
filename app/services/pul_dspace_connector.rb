@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 class PULDspaceConnector
-  attr_reader :work, :ark
+  attr_reader :work, :ark, :download_base
 
   def initialize(work)
     @work = work
     @ark = work.ark&.gsub("ark:/", "")
+    @download_base = "#{Rails.configuration.dspace.base_url.gsub('rest/', '')}bitstream/#{ark}"
   end
 
   def id
@@ -41,7 +42,7 @@ class PULDspaceConnector
         end
 
         S3File.new(filename_display: bitstream["name"], checksum: base64digest(bitstream["checkSum"]["value"]), last_modified: DateTime.now,
-                   size: -1, work: work, url: bitstream["retrieveLink"], filename: filename)
+                   size: -1, work: work, url: "#{download_base}/#{bitstream['sequenceId']}", filename: filename)
       end
   end
 
@@ -81,24 +82,17 @@ class PULDspaceConnector
       JSON.parse(response.body)
     end
 
-    def download_bitstream(retrieval_path, filename)
-      url = "#{Rails.configuration.dspace.base_url}#{retrieval_path}"
+    def download_bitstream(retrieval_url, filename)
       path = File.join(Rails.configuration.dspace.download_file_path, "dspace_download", work.id.to_s)
       FileUtils.mkdir_p path
-      download_file(url, filename)
+      download_file(retrieval_url, filename)
       filename
     end
 
     def download_file(url, filename)
-      http = request_http(url)
-      uri = URI(url)
-      req = Net::HTTP::Get.new uri.path
-      http.request req do |response|
-        io = File.open(filename, "w")
-        response.read_body do |chunk|
-          io.write chunk.force_encoding("UTF-8")
-        end
-        io.close
+      stdout_and_stderr_str, status = Open3.capture2e("wget -c '#{url}' -O #{filename}")
+      unless status.success?
+        Honeybadger.notify("Error dowloading file #{url} for work id #{work.id} to #{filename}! Error: #{stdout_and_stderr_str}")
       end
     end
 
