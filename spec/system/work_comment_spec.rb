@@ -26,11 +26,11 @@ RSpec.describe "Commenting on works sends emails or not", type: :system, js: tru
       user2.disable_messages_from(group: work.group)
     end
 
-    it "Allows the user to comment and tag a curator and not send an email" do
+    it "Allows the user to comment and tag a curator and it sends an email becuase it is a direct message" do
       fill_in "new-message", with: message
       expect { click_on "Message" }
         .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
-        .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(0).times
+        .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(1).times
       expect(page).to have_content message
     end
   end
@@ -52,11 +52,11 @@ RSpec.describe "Commenting on works sends emails or not", type: :system, js: tru
         user2.disable_messages_from(group: work.group)
       end
 
-      it "Allows the user to comment and tag a curator and send an email" do
+      it "Allows the user to comment and tag a curator and it sends an email becuase it is a direct message" do
         fill_in "new-message", with: message
         expect { click_on "Message" }
           .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
-          .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(0).times
+          .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(1).times
         expect(page).to have_content message
       end
     end

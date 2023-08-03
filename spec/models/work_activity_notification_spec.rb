@@ -30,6 +30,24 @@ describe WorkActivityNotification, type: :model do
         described_class.create(user: user, work_activity: work_activity)
         expect(message_delivery).not_to have_received(:deliver_later)
       end
+
+      context "a messge notification" do
+        let(:work_activity) { FactoryBot.create(:work_activity_message, work: work, message: "direct message to @#{user.uid}") }
+
+        it "does enqueue an e-mail message to be delivered for the notification" do
+          described_class.create(user: user, work_activity: work_activity)
+          expect(message_delivery).to have_received(:deliver_later)
+        end
+      end
+
+      context "a messge notification without an @" do
+        let(:work_activity) { FactoryBot.create(:work_activity_message, work: work) }
+
+        it "does not enqueue an e-mail message to be delivered for the notification" do
+          described_class.create(user: user, work_activity: work_activity)
+          expect(message_delivery).not_to have_received(:deliver_later)
+        end
+      end
     end
 
     context "when e-mail notifications are disabled for the user" do
@@ -38,6 +56,24 @@ describe WorkActivityNotification, type: :model do
       it "does not enqueue any e-mail messages" do
         described_class.create(user: user, work_activity: work_activity)
         expect(message_delivery).not_to have_received(:deliver_later)
+      end
+
+      context "a messge notification" do
+        let(:work_activity) { FactoryBot.create(:work_activity_message, work: work, message: "direct message to @#{user.uid}") }
+
+        it "does enqueue an e-mail message to be delivered for the notification" do
+          described_class.create(user: user, work_activity: work_activity)
+          expect(message_delivery).to have_received(:deliver_later)
+        end
+      end
+
+      context "a messge notification without an @" do
+        let(:work_activity) { FactoryBot.create(:work_activity_message, work: work) }
+
+        it "does not enqueue an e-mail message to be delivered for the notification" do
+          described_class.create(user: user, work_activity: work_activity)
+          expect(message_delivery).not_to have_received(:deliver_later)
+        end
       end
     end
   end
