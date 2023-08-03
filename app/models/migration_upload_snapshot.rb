@@ -21,6 +21,12 @@ class MigrationUploadSnapshot < UploadSnapshot
     end
   end
 
+  def complete?(s3_file)
+    index = find_file(s3_file.filename)
+    return false if index.nil?
+    files[index]["migrate_status"] == "complete" && files[index]["checksum"] == s3_file.checksum
+  end
+
   def migration_complete?
     files.select { |file| file.keys.include?("migrate_status") }.map { |file| file["migrate_status"] }.uniq == ["complete"]
   end
