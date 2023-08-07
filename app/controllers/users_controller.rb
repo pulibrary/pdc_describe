@@ -20,6 +20,8 @@ class UsersController < ApplicationController
     @search_terms = params["q"].presence
     @can_edit = can_edit?
     @my_dashboard = current_user.id == @user.id
+    render "forbidden", status: :forbidden if !current_user.super_admin? && !@my_dashboard
+
     @unfinished_works = WorkList.unfinished_works(@user, @search_terms)
     @completed_works = WorkList.completed_works(@user, @search_terms)
     @withdrawn_works = WorkList.withdrawn_works(@user, @search_terms)

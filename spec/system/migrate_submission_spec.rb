@@ -62,7 +62,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "creators[][given_name]", with: "Samantha"
       fill_in "creators[][family_name]", with: "Abrams"
       fill_in "description", with: description
-      select "GNU General Public License", from: "rights_identifier"
+      select "GNU General Public License", from: "rights_identifiers"
       click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
@@ -81,13 +81,13 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       sign_in user
       visit user_path(user)
       click_on(user.uid)
-      expect(page).to have_link("Create Dataset")
-      click_on "Create Dataset"
+      expect(page).to have_link("Migrate Dataset")
+      click_on "Migrate Dataset"
       fill_in "title_main", with: title
       fill_in "creators[][given_name]", with: "Samantha"
       fill_in "creators[][family_name]", with: "Abrams"
       fill_in "description", with: description
-      select "GNU General Public License", from: "rights_identifier"
+      select "GNU General Public License", from: "rights_identifiers"
       click_on "Curator Controlled"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
@@ -122,7 +122,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "creators[][given_name]", with: "Samantha"
       fill_in "creators[][family_name]", with: "Abrams"
       fill_in "description", with: description
-      select "GNU General Public License", from: "rights_identifier"
+      select "GNU General Public License", from: "rights_identifiers"
       click_on "Curator Controlled"
       fill_in "doi", with: "abc123"
       click_on "Create"
@@ -225,9 +225,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
     let(:handle_body) { File.read(Rails.root.join("spec", "fixtures", "files", "dspace_handle.json")) }
     let(:bitsreams_body) { File.read(Rails.root.join("spec", "fixtures", "files", "dspace_bitstreams_response.json")) }
     let(:metadata_body) { File.read(Rails.root.join("spec", "fixtures", "files", "dspace_metadata_response.json")) }
-    let(:bitsream1_body) { File.read(Rails.root.join("spec", "fixtures", "files", "bitstreams", "SCoData_combined_v1_2020-07_README.txt")) }
-    let(:bitsream2_body) { File.read(Rails.root.join("spec", "fixtures", "files", "bitstreams", "SCoData_combined_v1_2020-07_datapackage.json")) }
-    let(:bitsream3_body) { File.read(Rails.root.join("spec", "fixtures", "files", "bitstreams", "license.txt")) }
+    let(:process_status) { instance_double Process::Status, "success?": true }
 
     before do
       stub_request(:get, "https://dataspace.example.com/rest/handle/88435/dsp01zc77st047")
@@ -236,18 +234,24 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
         .to_return(status: 200, body: bitsreams_body, headers: {})
       stub_request(:get, "https://dataspace.example.com/rest/items/104718/metadata")
         .to_return(status: 200, body: metadata_body, headers: {})
-      stub_request(:get, "https://dataspace.example.com/rest//bitstreams/145784/retrieve")
-        .to_return(status: 200, body: bitsream1_body, headers: {})
-      stub_request(:get, "https://dataspace.example.com/rest//bitstreams/145785/retrieve")
-        .to_return(status: 200, body: bitsream2_body, headers: {})
-      stub_request(:get, "https://dataspace.example.com/rest//bitstreams/145762/retrieve")
-        .to_return(status: 200, body: bitsream3_body, headers: {})
+      allow(Open3).to receive(:capture2e).and_return(["", process_status])
+      FileUtils.mkdir_p("/tmp/dspace_download/#{work.id}")
+      FileUtils.cp(Rails.root.join("spec", "fixtures", "files", "bitstreams", "SCoData_combined_v1_2020-07_README.txt"),
+        "/tmp/dspace_download/#{work.id}/SCoData_combined_v1_2020-07_README.txt")
+      FileUtils.cp(Rails.root.join("spec", "fixtures", "files", "bitstreams", "SCoData_combined_v1_2020-07_datapackage.json"),
+        "/tmp/dspace_download/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json")
+      FileUtils.cp(Rails.root.join("spec", "fixtures", "files", "bitstreams", "license.txt"),
+        "/tmp/dspace_download/#{work.id}/license.txt")
 
       work.resource.migrated = true
       work.draft!(user)
       work.save
       fake_completion = instance_double(Seahorse::Client::Response, "successful?": true)
       allow(fake_s3_service).to receive(:copy_file).and_return(fake_completion)
+    end
+
+    after do
+      FileUtils.rm_r("/tmp/dspace_download/#{work.id}")
     end
 
     it "allows the user to click migrate and the migration gets run" do

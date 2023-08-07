@@ -6,6 +6,9 @@ production:
   post_curation:
     bucket: <%= ENV['AWS_S3_POST_CURATE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_POST_CURATE_REGION'] || 'us-east-1' %>
+  preservation:
+    bucket: <%= ENV['AWS_S3_PRESERVATION_BUCKET'] || 'example-bucket' %>
+    region: <%= ENV['AWS_S3_PRESERVATION_REGION'] || 'us-west-1' %>
   dspace:
     bucket: <%= ENV['AWS_S3_DSPACE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_DSPACE_REGION'] || 'us-east-1' %>
@@ -16,6 +19,9 @@ staging:
   post_curation:
     bucket: <%= ENV['AWS_S3_POST_CURATE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_POST_CURATE_REGION'] || 'us-east-1' %>
+  preservation:
+    bucket: <%= ENV['AWS_S3_PRESERVATION_BUCKET'] || 'example-bucket' %>
+    region: <%= ENV['AWS_S3_PRESERVATION_REGION'] || 'us-west-1' %>
   dspace:
     bucket: <%= ENV['AWS_S3_DSPACE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_DSPACE_REGION'] || 'us-east-1' %>
@@ -26,6 +32,9 @@ development:
   post_curation:
     bucket: <%= ENV['AWS_S3_POST_CURATE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_POST_CURATE_REGION'] || 'us-east-1' %>
+  preservation:
+    bucket: <%= ENV['AWS_S3_PRESERVATION_BUCKET'] || 'example-bucket' %>
+    region: <%= ENV['AWS_S3_PRESERVATION_REGION'] || 'us-west-1' %>
   dspace:
     bucket: <%= ENV['AWS_S3_DSPACE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_DSPACE_REGION'] || 'us-east-1' %>
@@ -36,6 +45,9 @@ test:
   post_curation:
     bucket: 'example-bucket-post'
     region: 'us-east-1'
+  preservation:
+    bucket: 'example-bucket-preservation'
+    region: 'us-west-1'
   dspace:
     bucket: 'example-bucket-dspace'
     region: 'us-east-1'

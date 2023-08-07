@@ -3,7 +3,7 @@
     No messages
   <% end %>
   <ul class="no-beads work-messages">
-    <% @work_decorator.messages.sort_by(&:created_at).reverse.each do |activity| %>
+    <% @work_decorator.messages.each do |activity| %>
       <li class="activity-history-item">
         <%= activity.to_html.html_safe %>
       </li>

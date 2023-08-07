@@ -67,8 +67,7 @@
         <% if @work.persisted? %>
           <%= form.submit "Save Work", class: "btn btn-primary wizard-next-button", id: "btn-submit" %>
         <% else %>
-          <%= form.submit "Create", class: "btn btn-primary wizard-next-button", id: "btn-submit", name: "submit" %>
-          <%= form.submit "Migrate", class: "btn btn-secondary migrate-button", id: "btn-submit", name: "submit" %>
+          <%= form.submit (migrating? ? "Migrate" : "Create"), class: "btn btn-primary wizard-next-button", id: "btn-submit", name: "submit" %>
         <% end %>
       </div>
 

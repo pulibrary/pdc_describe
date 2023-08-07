@@ -25,8 +25,10 @@ RSpec.describe WorkMigrationController do
       post :migrate, params: { id: work.id }
       expect(response).to redirect_to work_path(work)
       expect(flash[:notice]).to eq("Migration for 3 files was queued for processing")
-      expect(work.work_activity.count).to eq(1)
-      expect(work.work_activity.first.message).to eq("{\"migration_id\":null,\"message\":\"Migration for 3 files was queued for processing\",\"file_count\":2,\"directory_count\":2}")
+      # Since we are mocking the PULDspaceMigrate class and the work activity was moved into the class for better timing,
+      #  the work activity count is now zero
+      expect(work.work_activity.count).to eq(0)
+      expect(fake_dpsace_data).to have_received(:migrate)
     end
   end
 

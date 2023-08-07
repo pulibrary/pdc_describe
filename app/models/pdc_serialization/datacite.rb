@@ -215,26 +215,24 @@ module PDCSerialization
 
         def rights_from_work_resource(resource)
           rights = []
-          if resource.rights.present?
-            rights << ::Datacite::Mapping::Rights.new(
-              value: resource.rights.name,
-              uri: resource.rights.uri,
-              identifier: resource.rights.identifier
-            )
+          if resource.rights_many.present?
+            resource.rights_many.each do |r|
+              rights << ::Datacite::Mapping::Rights.new(value: r.name, uri: r.uri, identifier: r.identifier)
+            end
           end
           rights
         end
 
         def funding_references_from_work_resource(resource)
+          type_ror = ::Datacite::Mapping::FunderIdentifierType::ROR
           resource.funders.map do |funder|
-            award = ::Datacite::Mapping::AwardNumber.new(uri: funder.award_uri, value: funder.award_number)
-            if funder.ror.present?
-              type = ::Datacite::Mapping::FunderIdentifierType::ROR
-              funder_identifier = ::Datacite::Mapping::FunderIdentifier.new(type: type, value: funder.ror)
-              ::Datacite::Mapping::FundingReference.new(name: funder.funder_name, award_number: award, identifier: funder_identifier)
-            else
-              ::Datacite::Mapping::FundingReference.new(name: funder.funder_name, award_number: award)
-            end
+            award = if funder.award_number.present?
+                      ::Datacite::Mapping::AwardNumber.new(uri: funder.award_uri, value: funder.award_number)
+                    end
+            funder_identifier = if funder.ror.present?
+                                  ::Datacite::Mapping::FunderIdentifier.new(type: type_ror, value: funder.ror)
+                                end
+            ::Datacite::Mapping::FundingReference.new(name: funder.funder_name, award_number: award, identifier: funder_identifier)
           end
         end
       end

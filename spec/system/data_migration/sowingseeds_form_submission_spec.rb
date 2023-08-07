@@ -30,7 +30,7 @@ Download the README.txt for a detailed description of this dataset's content."
       stub_s3
       sign_in user
       # we need to use the wizard because this work does not have a doi and it needs one to be registered
-      visit "/works/new"
+      visit "/works/new?migrate=true"
       fill_in "title_main", with: title
       find("tr:last-child input[name='creators[][orcid]']").set ""
       find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
@@ -60,7 +60,7 @@ Download the README.txt for a detailed description of this dataset's content."
       find("tr:last-child input[name='creators[][given_name]']").set "Stefanie"
       find("tr:last-child input[name='creators[][family_name]']").set "Ramsay"
       fill_in "description", with: description
-      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifiers"
       # TODO: We should also test that the files are saved
       # See https://github.com/pulibrary/pdc_describe/issues/1041
       page.attach_file("work[pre_curation_uploads_added][]", [file1, file2], make_visible: true)

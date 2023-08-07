@@ -51,7 +51,7 @@ RSpec.describe Work, type: :model do
             "publication_year" => nil,
             "ark" => nil,
             "doi" => nil,
-            "rights" => nil,
+            "rights_many" => [],
             "version_number" => nil,
             "related_objects" => [],
             "keywords" => [],
@@ -153,6 +153,15 @@ RSpec.describe Work, type: :model do
       expect(work.resource.related_objects.first.related_identifier).to eq "https://www.biorxiv.org/content/10.1101/545517v1"
       expect(work.resource.related_objects.first.related_identifier_type).to eq "arXiv"
       expect(work.resource.related_objects.first.relation_type).to eq "IsCitedBy"
+    end
+  end
+
+  describe "#has_rights?" do
+    subject(:work) { FactoryBot.create(:draft_work) }
+
+    it "detects licenses on a work" do
+      expect(subject.has_rights?("CC BY")).to be true
+      expect(subject.has_rights?("MIT")).to be false
     end
   end
 
@@ -429,9 +438,13 @@ RSpec.describe Work, type: :model do
         .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
         .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
       expect(WorkActivity.where(activity_type: "SYSTEM").first.message).to eq("marked as Draft")
-      user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
-      expect(user_notification).to include("@#{curator_user.uid}")
+      notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last
+      user_notification = notification.message
+      expect(user_notification).to include("@#{curator_user.default_group.code}")
       expect(user_notification).to include("@#{user.uid}")
+      notifications = WorkActivityNotification.where(work_activity_id: notification.id)
+      expect(notifications.first.user_id).to eq(curator_user.id)
+      expect(notifications.last.user_id).to eq(draft_work.created_by_user_id)
       expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(draft_work))
     end
 
@@ -538,8 +551,12 @@ RSpec.describe Work, type: :model do
         .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
         .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
       expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Awaiting Approval")
-      curator_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
-      expect(curator_notification).to include("@#{curator.uid}")
+      notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last
+      curator_notification = notification.message
+      expect(curator_notification).to include("@#{Group.research_data.code}")
+      notifications = WorkActivityNotification.where(work_activity_id: notification.id)
+      expect(notifications.first.user_id).to eq(curator.id)
+      expect(notifications.last.user_id).to eq(awaiting_approval_work.created_by_user_id)
       expect(curator_notification). to include(Rails.application.routes.url_helpers.work_url(awaiting_approval_work))
     end
   end
@@ -613,10 +630,14 @@ RSpec.describe Work, type: :model do
         .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
         .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
       expect(WorkActivity.where(activity_type: WorkActivity::SYSTEM).first.message).to eq("marked as Approved")
-      user_notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last.message
-      expect(user_notification).to include("@#{curator_user.uid}")
+      notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last
+      user_notification = notification.message
+      expect(user_notification).to include("@#{curator_user.default_group.code}")
       expect(user_notification).to include("@#{approved_work.created_by_user.uid}")
       expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(approved_work))
+      notifications = WorkActivityNotification.where(work_activity_id: notification.id)
+      expect(notifications.first.user_id).to eq(curator_user.id)
+      expect(notifications.last.user_id).to eq(approved_work.created_by_user_id)
     end
 
     it "publishes the doi" do
@@ -661,6 +682,20 @@ RSpec.describe Work, type: :model do
       expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(1)
     end
 
+    it "captures a timeout and retries" do
+      fake_datacite = stub_datacite_doi
+      allow(fake_datacite).to receive(:update) do
+        if @called.nil?
+          @called = true
+          raise Faraday::ConnectionFailed, "execution expired"
+        else
+          Success("It worked")
+        end
+      end
+      expect { approved_work }.to change { WorkActivity.where(activity_type: WorkActivity::DATACITE_ERROR).count }.by(0)
+      expect(fake_datacite).to have_received(:update).exactly(2).times
+    end
+
     it "transitions from approved to withdrawn" do
       stub_datacite_doi
       approved_work.withdraw!(user)
@@ -699,9 +734,9 @@ RSpec.describe Work, type: :model do
       expect(withdrawn_work.reload.state).to eq("draft")
     end
 
-    it "transitions from withdrawn to tombstone" do
+    it "transitions from withdrawn to deletion_marker" do
       withdrawn_work.remove!(user)
-      expect(withdrawn_work.reload.state).to eq("tombstone")
+      expect(withdrawn_work.reload.state).to eq("deletion_marker")
     end
 
     it "can not transition from withdrawn to approved" do
@@ -725,19 +760,19 @@ RSpec.describe Work, type: :model do
       work
     end
 
-    it "is tombstoned" do
-      expect(removed_work.reload.state).to eq("tombstone")
+    it "is deletion_markerd" do
+      expect(removed_work.reload.state).to eq("deletion_marker")
     end
 
-    it "can not transition from tombstone to approved" do
+    it "can not transition from deletion_marker to approved" do
       expect { removed_work.approve!(user) }.to raise_error AASM::InvalidTransition
     end
 
-    it "can not transition from tombstone to awaiting_approval" do
+    it "can not transition from deletion_marker to awaiting_approval" do
       expect { removed_work.complete_submission!(user) }.to raise_error AASM::InvalidTransition
     end
 
-    it "can not transition from tombstone to draft" do
+    it "can not transition from deletion_marker to draft" do
       expect { removed_work.draft!(user) }.to raise_error AASM::InvalidTransition
     end
   end
@@ -891,11 +926,13 @@ RSpec.describe Work, type: :model do
         "publication_year": 2022,
         "ark": "new-ark",
         "doi": "new-doi",
-        "rights": {
-          "identifier": "CC BY",
-          "uri": "https://creativecommons.org/licenses/by/4.0/",
-          "name": "Creative Commons Attribution 4.0 International"
-        },
+        "rights_many": [
+          {
+            "identifier": "CC BY",
+            "uri": "https://creativecommons.org/licenses/by/4.0/",
+            "name": "Creative Commons Attribution 4.0 International"
+          }
+        ],
         "version_number": "1",
         "related_objects": [],
         "keywords": [],

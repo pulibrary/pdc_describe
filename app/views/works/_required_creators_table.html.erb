@@ -1,8 +1,21 @@
 <!-- Creators section -->
 <div class="field">
   <%= render partial: "required_form_field_details", locals: { name: "creators", display_name: "Creator(s)", 
-                                                              field_detail: "Enter the full names of all persons primarily responsible for creating this item.
-                                                              At least one creator must be provided.",
+                                                              primary_detail: "Enter (at minimum) the given name (i.e, first name) and family name (i.e., last name) of all
+                                                              persons primarily responsible for creating this item. At least one creator must be provided.",
+                                                              field_detail: "
+                                                              <ul>
+                                                              <li> We recommend entering an ORCID ID. You may <a href=\"https://orcid.org/orcid-search/search\">look up an ORCID ID here</a>.
+                                                              <li>ROR is a persistent identifier for research organizations. <a href=\"https://ror.org/search\">You may look up a ROR here</a>.
+                                                              <li>Affiliation regards the research organization. Filling in the ROR will auto-populate the
+                                                              Affiliation field.
+                                                              <li>Popular RORs for this service include:</li>
+                                                              <ul>
+                                                                <li>Princeton University: <a href=\"https://ror.org/00hx57361\">https://ror.org/00hx57361</a></li>
+                                                                <li>Princeton Plasma Physics Laboratory: <a href=\"https://ror.org/03vn1ts68\">https://ror.org/03vn1ts68</a></li>
+                                                                <li>Geophysical Fluid Dynamics Laboratory: <a href=\"https://ror.org/03vmn1898\">https://ror.org/03vmn1898</a></li>
+                                                              </ul>
+                                                              </ul>",
                                                               field_error: "Must provide at least one creator"
                                                               }
   %>
@@ -16,9 +29,9 @@
   <table id="creators-table">
     <thead>
       <tr class="header-row">
+        <th>Given name<span class="required-field required-field-star" title="Given name for your submission must be indicated">*</span></th>
+        <th>Family name<span class="required-field required-field-star" title="Family name for your submission must be indicated">*</span></th>
         <th>ORCID</th>
-        <th>Given name<span class="required-field" title="Given name for your submission must be indicated">*</span></th>
-        <th>Family name<span class="required-field" title="Family name for your submission must be indicated">*</span></th>
         <th>Affiliation</th>
         <th>ROR</th>
         <th>&nbsp;</th> <!-- move icon-->
@@ -34,15 +47,15 @@
       <% creators.each do |creator| %>
         <tr class="creators-table-row">
         <td>
-          <input name="creators[][orcid]" value="<%= creator&.orcid %>" class="orcid-entry-creator"  placeholder="0000-0000-0000-0000" />
-        </td>
-        <td>
           <span class="hidden given-name-required-message"><i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a given name</span>
           <input name="creators[][given_name]" value="<%= creator&.given_name %>" class="given-entry-creator" />
         </td>
         <td class="creators-table-row-family-name">
           <span class="hidden family-name-required-message"><i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a family name</span>
           <input name="creators[][family_name]" value="<%= creator&.family_name %>" class="family-entry-creator" />
+        </td>
+        <td>
+          <input name="creators[][orcid]" value="<%= creator&.orcid %>" class="orcid-entry-creator"  placeholder="0000-0000-0000-0000" />
         </td>
         <td class="creators-table-row-affiliation">
           <input name="creators[][affiliation]" value="<%= creator&.affiliation %>" class="affiliation-entry-creator ror-output" />

@@ -27,10 +27,10 @@ Source data for Figure 2, Figure 4, Figure 5 and Figure 7 of the article Observa
   context "migrate record from dataspace" do
     it "produces and saves a valid datacite record" do
       sign_in user
-      visit "/works/new"
+      visit "/works/new?migrate=true"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifiers"
       find("tr:last-child input[name='creators[][orcid]']").set "0000-0002-6572-4902"
       find("tr:last-child input[name='creators[][given_name]']").set "Yin"
       find("tr:last-child input[name='creators[][family_name]']").set "Wang"

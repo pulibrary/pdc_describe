@@ -12,12 +12,13 @@ RSpec.describe S3QueryService do
   let(:s3_last_modified2) { Time.parse("2022-04-21T18:30:07.000Z") }
   let(:s3_size1) { 5_368_709_122 }
   let(:s3_size2) { 5_368_709_128 }
+  let(:s3_etag1) { "008eec11c39e7038409739c0160a793a" }
   let(:s3_hash) do
     {
       is_truncated: false,
       contents: [
         {
-          etag: "\"008eec11c39e7038409739c0160a793a\"",
+          etag: "\"#{s3_etag1}\"",
           key: s3_key1,
           last_modified: s3_last_modified1,
           size: s3_size1,
@@ -50,6 +51,53 @@ RSpec.describe S3QueryService do
   # DOI for Shakespeare and Company Project Dataset: Lending Library Members, Books, Events
   # https://dataspace.princeton.edu/handle/88435/dsp01zc77st047
   let(:doi) { "10.34770/pe9w-x904" }
+
+  let(:s3_attributes_response_body) do
+    <<-XML
+<?xml version="1.0" encoding="UTF-8"?>
+<GetObjectAttributesOutput>
+  <ETag>#{s3_etag1}</ETag>
+  <Checksum>
+    <ChecksumCRC32>string</ChecksumCRC32>
+    <ChecksumCRC32C>string</ChecksumCRC32C>
+    <ChecksumSHA1>string</ChecksumSHA1>
+    <ChecksumSHA256>string</ChecksumSHA256>
+  </Checksum>
+  <ObjectParts>
+    <IsTruncated>boolean</IsTruncated>
+    <MaxParts>integer</MaxParts>
+    <NextPartNumberMarker>integer</NextPartNumberMarker>
+    <PartNumberMarker>integer</PartNumberMarker>
+    <Part>
+      <ChecksumCRC32>string</ChecksumCRC32>
+      <ChecksumCRC32C>string</ChecksumCRC32C>
+      <ChecksumSHA1>string</ChecksumSHA1>
+      <ChecksumSHA256>string</ChecksumSHA256>
+      <PartNumber>integer</PartNumber>
+      <Size>integer</Size>
+    </Part>
+    <PartsCount>integer</PartsCount>
+  </ObjectParts>
+  <StorageClass>string</StorageClass>
+  <ObjectSize>12</ObjectSize>
+</GetObjectAttributesOutput>
+XML
+  end
+  let(:s3_attributes_response_headers) do
+    {
+      'Accept-Ranges': "bytes",
+      'Content-Length': s3_attributes_response_body.length,
+      'Content-Type': "text/plain",
+      'ETag': "6805f2cfc46c0f04559748bb039d69ae",
+      'Last-Modified': Time.parse("Thu, 15 Dec 2016 01:19:41 GMT")
+    }
+  end
+  let(:s3_object_response_body) do
+    "test_content"
+  end
+  let(:s3_object_response_headers) do
+    response_headers
+  end
 
   it "knows the name of its s3 bucket" do
     expect(subject.bucket_name).to eq "example-bucket"
@@ -119,9 +167,10 @@ RSpec.describe S3QueryService do
     let(:work) { FactoryBot.create(:draft_work, doi: doi) }
     let(:fake_aws_client) { double(Aws::S3::Client) }
     let(:fake_multi) { instance_double(Aws::S3::Types::CreateMultipartUploadOutput, key: "abc", upload_id: "upload id", bucket: "bucket") }
-    let(:fake_parts) { instance_double(Aws::S3::Types::CopyPartResult, etag: "etag123abc") }
+    let(:fake_parts) { instance_double(Aws::S3::Types::CopyPartResult, etag: "etag123abc", checksum_sha256: "sha256abc123") }
     let(:fake_upload) { instance_double(Aws::S3::Types::UploadPartCopyOutput, copy_part_result: fake_parts) }
     let(:fake_s3_resp) { double(Aws::S3::Types::ListObjectsV2Output) }
+    let(:preservation_service) { instance_double(WorkPreservationService) }
 
     before do
       Group.create_defaults
@@ -131,7 +180,7 @@ RSpec.describe S3QueryService do
       work
 
       allow(S3QueryService).to receive(:new).and_return(subject)
-      subject.stub(:client).and_return(fake_aws_client)
+      allow(subject).to receive(:client).and_return(fake_aws_client)
       fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
       fake_s3_resp.stub(:to_h).and_return(s3_hash)
       fake_completion = instance_double(Seahorse::Client::Response, "successful?": true)
@@ -143,17 +192,20 @@ RSpec.describe S3QueryService do
       allow(subject.client).to receive(:head_object).and_return(true)
       allow(subject.client).to receive(:complete_multipart_upload).and_return(fake_completion)
       allow(subject.client).to receive(:put_object).and_return(nil)
+
+      allow(WorkPreservationService).to receive(:new).and_return(preservation_service)
+      allow(preservation_service).to receive(:preserve!)
     end
 
     describe "#publish_files" do
-      it "calls moves the files calling create_multipart_upload, head_object, and delete_object twice, once for each file, and create the preservation folder" do
+      it "calls moves the files calling create_multipart_upload, head_object, and delete_object twice, once for each file, and called the preservation service" do
         expect(subject.publish_files).to be_truthy
         fake_s3_resp.stub(:to_h).and_return(s3_hash, empty_s3_hash)
         perform_enqueued_jobs
         expect(subject.client).to have_received(:create_multipart_upload)
-          .with({ bucket: "example-bucket-post", key: s3_key1 })
+          .with({ bucket: "example-bucket-post", key: s3_key1, checksum_algorithm: "SHA256" })
         expect(subject.client).to have_received(:create_multipart_upload)
-          .with({ bucket: "example-bucket-post", key: s3_key2 })
+          .with({ bucket: "example-bucket-post", key: s3_key2, checksum_algorithm: "SHA256" })
         expect(subject.client).to have_received(:upload_part_copy)
           .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key1}",
                   copy_source_range: "bytes=0-5368709119", key: "abc", part_number: 1, upload_id: "upload id" })
@@ -167,11 +219,11 @@ RSpec.describe S3QueryService do
           .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key2}",
                   copy_source_range: "bytes=5368709120-5368709127", key: "abc", part_number: 2, upload_id: "upload id" })
         expect(subject.client).to have_received(:complete_multipart_upload)
-          .with({ bucket: "example-bucket-post", key: s3_key1, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1 }, { etag: "etag123abc", part_number: 2 }] },
-                  upload_id: "upload id" })
+          .with({ bucket: "example-bucket-post", key: s3_key1, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1, checksum_sha256: "sha256abc123" },
+                                                                                           { etag: "etag123abc", part_number: 2, checksum_sha256: "sha256abc123" }] }, upload_id: "upload id" })
         expect(subject.client).to have_received(:complete_multipart_upload)
-          .with({ bucket: "example-bucket-post", key: s3_key2, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1 }, { etag: "etag123abc", part_number: 2 }] },
-                  upload_id: "upload id" })
+          .with({ bucket: "example-bucket-post", key: s3_key2, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1, checksum_sha256: "sha256abc123" },
+                                                                                           { etag: "etag123abc", part_number: 2, checksum_sha256: "sha256abc123" }] }, upload_id: "upload id" })
         expect(subject.client).to have_received(:head_object)
           .with({ bucket: "example-bucket-post", key: s3_key1 })
         expect(subject.client).to have_received(:head_object)
@@ -182,13 +234,7 @@ RSpec.describe S3QueryService do
           .with({ bucket: "example-bucket", key: s3_key2 })
         expect(subject.client).to have_received(:delete_object)
           .with({ bucket: "example-bucket", key: work.s3_object_key })
-        # Creates the PDC preservation folder and its files
-        expect(subject.client).to have_received(:put_object)
-          .with({ bucket: "example-bucket-post", key: "10.34770/pe9w-x904/#{work.id}/princeton_data_commons/", content_length: 0 })
-        expect(subject.client).to have_received(:put_object)
-          .with(hash_including(bucket: "example-bucket-post", key: "10.34770/pe9w-x904/#{work.id}/princeton_data_commons/datacite.xml"))
-        expect(subject.client).to have_received(:put_object)
-          .with(hash_including(bucket: "example-bucket-post", key: "10.34770/pe9w-x904/#{work.id}/princeton_data_commons/metadata.json"))
+        expect(preservation_service).to have_received(:preserve!)
       end
       context "the copy fails for some reason" do
         it "Does not delete anything and returns the missing file" do
@@ -196,9 +242,9 @@ RSpec.describe S3QueryService do
           expect(subject.publish_files).to be_truthy
           expect { perform_enqueued_jobs }.to raise_error(/File check was not valid/)
           expect(subject.client).to have_received(:create_multipart_upload)
-            .with({ bucket: "example-bucket-post", key: s3_key1 })
+            .with({ bucket: "example-bucket-post", key: s3_key1, checksum_algorithm: "SHA256" })
           expect(subject.client).to have_received(:create_multipart_upload)
-            .with({ bucket: "example-bucket-post", key: s3_key2 })
+            .with({ bucket: "example-bucket-post", key: s3_key2, checksum_algorithm: "SHA256" })
           expect(subject.client).to have_received(:head_object)
             .with({ bucket: "example-bucket-post", key: s3_key1 })
           expect(subject.client).to have_received(:head_object)
@@ -220,9 +266,9 @@ RSpec.describe S3QueryService do
           expect { perform_enqueued_jobs }.to raise_error(/File check was not valid/)
 
           expect(subject.client).to have_received(:create_multipart_upload)
-            .with({ bucket: "example-bucket-post", key: s3_key1 })
+            .with({ bucket: "example-bucket-post", key: s3_key1, checksum_algorithm: "SHA256" })
           expect(subject.client).to have_received(:create_multipart_upload)
-            .with({ bucket: "example-bucket-post", key: s3_key2 })
+            .with({ bucket: "example-bucket-post", key: s3_key2, checksum_algorithm: "SHA256" })
           expect(subject.client).to have_received(:head_object)
             .with({ bucket: "example-bucket-post", key: s3_key1 })
           expect(subject.client).to have_received(:head_object)
@@ -282,11 +328,35 @@ RSpec.describe S3QueryService do
       it "returns only the files" do
         expect(subject.file_count).to eq(2)
       end
+
+      context "when an error is encountered" do
+        subject(:s3_query_service) { described_class.new(work) }
+        let(:file_count) { s3_query_service.file_count }
+        let(:client) { instance_double(Aws::S3::Client) }
+        let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
+        let(:service_error_message) { "test AWS service error" }
+        let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
+        let(:prefix) { "#{work.doi}/#{work.id}/" }
+
+        before do
+          allow(Rails.logger).to receive(:error)
+          # This needs to be disabled to override the mock set for previous cases
+          allow(subject).to receive(:client).and_call_original
+          allow(Aws::S3::Client).to receive(:new).and_return(client)
+          allow(client).to receive(:list_objects_v2).and_raise(service_error)
+        end
+
+        it "logs the error" do
+          s3_query_service = described_class.new(work)
+          expect(s3_query_service.file_count).to eq(0)
+          expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting AWS S3 Objects from the bucket example-bucket with the prefix #{prefix}: test AWS service error")
+        end
+      end
     end
   end
 
   context "post curated" do
-    let(:subject) { described_class.new(work, false) }
+    let(:subject) { described_class.new(work, "postcuration") }
 
     it "keeps precurated and post curated items separate" do
       fake_aws_client = double(Aws::S3::Client)
@@ -324,13 +394,39 @@ RSpec.describe S3QueryService do
     let(:s3_object) { s3_query_service.get_s3_object(key: key) }
 
     before do
-      stub_request(:get, "https://example-bucket.s3.amazonaws.com/test_key").to_return(status: 200, body: "test_content", headers: response_headers)
+      stub_request(:get, "https://example-bucket.s3.amazonaws.com/test_key?attributes").to_return(status: 200, body: s3_attributes_response_body, headers: s3_attributes_response_headers)
+      stub_request(:get, "https://example-bucket.s3.amazonaws.com/test_key").to_return(status: 200, body: s3_object_response_body, headers: s3_object_response_headers)
     end
 
     it "retrieves the S3 Object from the HTTP API" do
       expect(s3_object).not_to be nil
       bytestream = s3_object[:body]
       expect(bytestream.read).to eq("test_content")
+    end
+
+    context "when an error is encountered" do
+      subject(:s3_query_service) { described_class.new(work) }
+      let(:file_count) { s3_query_service.file_count }
+      let(:client) { instance_double(Aws::S3::Client) }
+      let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
+      let(:service_error_message) { "test AWS service error" }
+      let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
+      let(:prefix) { "#{work.doi}/#{work.id}/" }
+
+      before do
+        allow(Rails.logger).to receive(:error)
+        # This needs to be disabled to override the mock set for previous cases
+        allow(subject).to receive(:client).and_call_original
+        allow(Aws::S3::Client).to receive(:new).and_return(client)
+        allow(client).to receive(:get_object).and_raise(service_error)
+      end
+
+      it "logs the error" do
+        s3_query_service = described_class.new(work)
+        retrieved = s3_query_service.get_s3_object(key: key)
+        expect(retrieved).to be nil
+        expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting the AWS S3 Object test_key: test AWS service error")
+      end
     end
   end
 
@@ -356,6 +452,29 @@ RSpec.describe S3QueryService do
       s3_query_service.delete_s3_object(s3_file.key)
       assert_requested(:delete, "https://example-bucket.s3.amazonaws.com/test_key")
     end
+
+    context "when an error is encountered" do
+      subject(:s3_query_service) { described_class.new(work) }
+      let(:client) { instance_double(Aws::S3::Client) }
+      let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
+      let(:service_error_message) { "test AWS service error" }
+      let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
+      let(:prefix) { "#{work.doi}/#{work.id}/" }
+
+      before do
+        allow(Rails.logger).to receive(:error)
+        # This needs to be disabled to override the mock set for previous cases
+        allow(subject).to receive(:client).and_call_original
+        allow(Aws::S3::Client).to receive(:new).and_return(client)
+        allow(client).to receive(:delete_object).and_raise(service_error)
+      end
+
+      it "logs the error" do
+        s3_query_service = described_class.new(work)
+        s3_query_service.delete_s3_object(s3_file.key)
+        expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to delete the AWS S3 Object test_key in the bucket example-bucket: test AWS service error")
+      end
+    end
   end
 
   describe "#find_s3_file" do
@@ -363,15 +482,27 @@ RSpec.describe S3QueryService do
     let(:filename) { "test.txt" }
     let(:s3_file) { s3_query_service.find_s3_file(filename: filename) }
 
-    it "retrieves the S3File from the AWS Bucket" do
-      stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt").to_return(status: 200, body: "test_content", headers: response_headers)
-      expect(s3_file).not_to be nil
+    before do
+      stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt").to_return(
+        headers: s3_object_response_headers,
+        status: 200,
+        body: s3_object_response_body
+      )
 
+      stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt?attributes").to_return(
+        headers: s3_attributes_response_headers,
+        status: 200, body: s3_attributes_response_body
+      )
+    end
+
+    it "retrieves the S3File from the AWS Bucket" do
+      expect(s3_file).not_to be nil
       expect(s3_file.filename).to eq("10.34770/pe9w-x904/#{work.id}/test.txt")
       expect(s3_file.last_modified).to be_a(Time)
       expect(s3_file.size).to eq(12)
-      expect(s3_file.checksum).to eq("6805f2cfc46c0f04559748bb039d69ae")
-      assert_requested(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt")
+      expect(s3_file.checksum).to eq(s3_etag1)
+
+      assert_requested(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt?attributes")
     end
   end
 
@@ -379,6 +510,9 @@ RSpec.describe S3QueryService do
     subject(:s3_query_service) { described_class.new(work) }
 
     let(:signer) { instance_double(Aws::S3::Presigner) }
+    let(:object_attributes) do
+      {}
+    end
 
     it "creates a presigned url" do
       allow(Aws::S3::Presigner).to receive(:new).and_return(signer)
@@ -398,6 +532,31 @@ RSpec.describe S3QueryService do
     it "creates a directory" do
       s3_query_service.create_directory
       assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}", headers: { "Content-Length" => 0 })
+    end
+
+    context "when an error is encountered" do
+      subject(:s3_query_service) { described_class.new(work) }
+      let(:client) { instance_double(Aws::S3::Client) }
+      let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
+      let(:service_error_message) { "test AWS service error" }
+      let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
+      let(:prefix) { "#{work.doi}/#{work.id}/" }
+
+      before do
+        allow(Rails.logger).to receive(:error)
+        # This needs to be disabled to override the mock set for previous cases
+        allow(subject).to receive(:client).and_call_original
+        allow(Aws::S3::Client).to receive(:new).and_return(client)
+        allow(client).to receive(:put_object).and_raise(service_error)
+      end
+
+      it "logs the error" do
+        s3_query_service = described_class.new(work)
+        s3_query_service.create_directory
+        # rubocop:disable Layout/LineLength
+        expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to create the AWS S3 directory Object in the bucket example-bucket with the key #{prefix}: test AWS service error")
+        # rubocop:enable Layout/LineLength
+      end
     end
   end
 
@@ -423,6 +582,33 @@ RSpec.describe S3QueryService do
       it "detects the upload error" do
         expect(s3_query_service.upload_file(io: file, filename: filename)).to be_falsey
         assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}", headers: { "Content-Length" => 2852 })
+      end
+    end
+
+    context "when an error is encountered" do
+      subject(:s3_query_service) { described_class.new(work) }
+      let(:file_count) { s3_query_service.file_count }
+      let(:client) { instance_double(Aws::S3::Client) }
+      let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
+      let(:service_error_message) { "test AWS service error" }
+      let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
+      let(:prefix) { "#{work.doi}/#{work.id}/" }
+
+      before do
+        allow(Rails.logger).to receive(:error)
+        # This needs to be disabled to override the mock set for previous cases
+        allow(subject).to receive(:client).and_call_original
+        allow(Aws::S3::Client).to receive(:new).and_return(client)
+        allow(client).to receive(:put_object).and_raise(service_error)
+      end
+
+      it "logs the error" do
+        s3_query_service = described_class.new(work)
+        result = s3_query_service.upload_file(io: file, filename: filename)
+        expect(result).to be false
+        # rubocop:disable Layout/LineLength
+        expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to create the AWS S3 Object in the bucket example-bucket with the key #{prefix}README.txt: test AWS service error")
+        # rubocop:enable Layout/LineLength
       end
     end
   end
@@ -487,6 +673,32 @@ RSpec.describe S3QueryService do
     it "copies the directory calling copy_object" do
       expect(subject.copy_directory(target_bucket: "example-bucket-post", source_key: "source-key", target_key: "other-bucket/target-key")).to eq(fake_completion)
       expect(subject.client).to have_received(:copy_object).with(bucket: "example-bucket-post", copy_source: "source-key", key: "other-bucket/target-key")
+    end
+
+    context "when an error is encountered" do
+      subject(:s3_query_service) { described_class.new(work) }
+      let(:file_count) { s3_query_service.file_count }
+      let(:client) { instance_double(Aws::S3::Client) }
+      let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
+      let(:service_error_message) { "test AWS service error" }
+      let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
+      let(:prefix) { "#{work.doi}/#{work.id}/" }
+
+      before do
+        allow(Rails.logger).to receive(:error)
+        # This needs to be disabled to override the mock set for previous cases
+        allow(subject).to receive(:client).and_call_original
+        allow(Aws::S3::Client).to receive(:new).and_return(client)
+        allow(client).to receive(:copy_object).and_raise(service_error)
+      end
+
+      it "logs the error" do
+        s3_query_service = described_class.new(work)
+        s3_query_service.copy_directory(target_bucket: "example-bucket-post", source_key: "source-key", target_key: "other-bucket/target-key")
+        # rubocop:disable Layout/LineLength
+        expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to copy the AWS S3 directory Object from source-key to other-bucket/target-key in the bucket example-bucket-post: test AWS service error")
+        # rubocop:enable Layout/LineLength
+      end
     end
   end
 end

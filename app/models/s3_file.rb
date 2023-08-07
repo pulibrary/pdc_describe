@@ -7,16 +7,27 @@ class S3File
   alias key filename
   alias id filename
 
-  def initialize(filename:, last_modified:, size:, checksum:, work:)
+  def self.from_json(json_string)
+    json = if json_string.is_a? String
+             JSON.parse(json_string)
+           else
+             json_string
+           end
+
+    new(filename: json["filename"], last_modified: DateTime.parse(json["last_modified"]), size: json["size"],
+        checksum: json["checksum"], work: Work.find(json["work_id"]), filename_display: json["filename_display"], url: json["url"])
+  end
+
+  def initialize(filename:, last_modified:, size:, checksum:, work:, filename_display: nil, url: nil)
     @safe_id = filename_as_id(filename)
     @filename = filename
-    @filename_display = filename_short(work, filename)
+    @filename_display = filename_display || filename_short(work, filename)
     @last_modified = last_modified
     @last_modified_display = last_modified.in_time_zone.strftime("%m/%d/%Y %I:%M %p") # mm/dd/YYYY HH:MM AM
     @size = size
     @display_size = number_to_human_size(size)
     @checksum = checksum.delete('"')
-    @url = work_download_path(work, filename: filename)
+    @url = url || work_download_path(work, filename: filename)
     @work = work
   end
 
@@ -79,6 +90,13 @@ class S3File
     return [] if persisted.blank?
 
     persisted
+  end
+
+  def to_json
+    {
+      filename: filename, last_modified: last_modified, size: size,
+      checksum: checksum, work_id: @work.id, filename_display: filename_display, url: url
+    }.to_json
   end
 
   private
