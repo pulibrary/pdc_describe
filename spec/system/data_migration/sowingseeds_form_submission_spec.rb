@@ -30,7 +30,7 @@ Download the README.txt for a detailed description of this dataset's content."
       stub_s3
       sign_in user
       # we need to use the wizard because this work does not have a doi and it needs one to be registered
-      visit "/works/new"
+      visit "/works/new?migrate=true"
       fill_in "title_main", with: title
       find("tr:last-child input[name='creators[][orcid]']").set ""
       find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
