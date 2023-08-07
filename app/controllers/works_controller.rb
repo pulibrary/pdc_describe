@@ -41,7 +41,7 @@ class WorksController < ApplicationController
   def create
     @work = Work.new(created_by_user_id: current_user.id, group_id: params_group_id, user_entered_doi: params["doi"].present?)
     @work.resource = FormToResourceService.convert(params, @work)
-    @work.resource.migrated = (params[:submit] == "Migrate")
+    @work.resource.migrated = migrated?
     if @work.valid?
       @work.draft!(current_user)
       upload_service = WorkUploadsEditService.new(@work, current_user)
@@ -302,6 +302,13 @@ class WorksController < ApplicationController
     end
   end
 
+  def migrating?
+    return false unless @work&.resource && params.key?(:migrate)
+
+    params[:migrate]
+  end
+  helper_method :migrating?
+
   private
 
     def work_params
@@ -414,6 +421,12 @@ class WorksController < ApplicationController
         end
         group_id
       end
+    end
+
+    def migrated?
+      return false unless params.key?(:submit)
+
+      params[:submit] == "Migrate"
     end
 end
 # rubocop:enable Metrics/ClassLength

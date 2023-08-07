@@ -28,7 +28,7 @@ Please consult the file README.txt for a description of the archive contents."
   context "migrate record from dataspace" do
     it "produces and saves a valid datacite record" do
       sign_in user
-      visit "/works/new"
+      visit "/works/new?migrate=true"
       fill_in "title_main", with: title
       fill_in "description", with: description
       select "Creative Commons Attribution 4.0 International", from: "rights_identifiers"

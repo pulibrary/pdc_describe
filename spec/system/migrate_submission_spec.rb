@@ -81,8 +81,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       sign_in user
       visit user_path(user)
       click_on(user.uid)
-      expect(page).to have_link("Create Dataset")
-      click_on "Create Dataset"
+      expect(page).to have_link("Migrate Dataset")
+      click_on "Migrate Dataset"
       fill_in "title_main", with: title
       fill_in "creators[][given_name]", with: "Samantha"
       fill_in "creators[][family_name]", with: "Abrams"
