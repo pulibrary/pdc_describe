@@ -605,7 +605,7 @@ XML
       it "logs the error" do
         s3_query_service = described_class.new(work)
         result = s3_query_service.upload_file(io: file, filename: filename)
-        expect(result).to be nil
+        expect(result).to be false
         # rubocop:disable Layout/LineLength
         expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to create the AWS S3 Object in the bucket example-bucket with the key #{prefix}README.txt: test AWS service error")
         # rubocop:enable Layout/LineLength

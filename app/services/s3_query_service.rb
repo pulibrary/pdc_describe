@@ -275,6 +275,7 @@ class S3QueryService
     false
   rescue Aws::Errors::ServiceError => aws_service_error
     Rails.logger.error("An error was encountered when requesting to create the AWS S3 Object in the bucket #{bucket_name} with the key #{key}: #{aws_service_error}")
+    false
   end
 
   def check_file(bucket:, key:)
