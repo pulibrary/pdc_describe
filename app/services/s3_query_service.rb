@@ -264,11 +264,15 @@ class S3QueryService
     Rails.logger.error("An error was encountered when requesting to create the AWS S3 directory Object in the bucket #{bucket_name} with the key #{prefix}: #{aws_service_error}")
   end
 
-  def upload_file(io:, filename:, md5_digest: nil)
+  def upload_file(io:, filename:, size:, md5_digest: nil)
     # upload file from io in a single request, may not exceed 5GB
-    md5_digest ||= md5(io: io)
     key = "#{prefix}#{filename}"
-    @last_response = client.put_object(bucket: bucket_name, key: key, body: io, content_md5: md5_digest)
+    if size > part_size
+      upload_multipart_file(target_bucket: bucket_name, target_key: key, size: size, io: io)
+    else
+      md5_digest ||= md5(io: io)
+      @last_response = client.put_object(bucket: bucket_name, key: key, body: io, content_md5: md5_digest)
+    end
     key
   rescue Aws::S3::Errors::SignatureDoesNotMatch => e
     Honeybadger.notify("Error Uploading file #{filename} for object: #{s3_address} Signature did not match! error: #{e}")
@@ -318,5 +322,27 @@ class S3QueryService
       Rails.logger.error("An error was encountered when requesting to list the AWS S3 Objects in the bucket #{bucket_name} with the key #{prefix}: #{aws_service_error}")
       []
     end
-end
+
+    def upload_multipart_file(target_bucket:, target_key:, size:, io: )
+      multi = client.create_multipart_upload(bucket: target_bucket, key: target_key)
+      part_num = 0
+      start_byte = 0
+      parts = []
+      while start_byte < size
+        part_num += 1
+        Tempfile.open('mutlipart-upload') do |file|
+          IO.copy_stream(io, file, part_size)
+          file.rewind
+          checksum = md5(io: file)
+          resp = client.upload_part(body: file, bucket: target_bucket, key: multi.key, part_number: part_num, upload_id: multi.upload_id, content_md5: checksum)
+          parts << { etag: resp.etag, part_number: part_num }
+        end
+        start_byte += part_size
+      end
+      @last_response = client.complete_multipart_upload(bucket: target_bucket, key: target_key, upload_id: multi.upload_id, multipart_upload: { parts: parts })
+    rescue Aws::Errors::ServiceError => aws_service_error
+      Rails.logger.error("An error was encountered when requesting to multipart upload to AWS S3 Object to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}")
+    end
+  
+  end
 # rubocop:enable Metrics/ClassLength

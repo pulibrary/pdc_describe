@@ -35,7 +35,7 @@ RSpec.describe Readme, type: :model do
 
     it "attaches the file and renames to to README" do
       expect { expect(readme.attach(uploaded_file)).to be_nil }.to change { UploadSnapshot.count }.by 1
-      expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv")
+      expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv", size: 287)
     end
 
     context "when no uploaded file is sent" do
@@ -63,7 +63,7 @@ RSpec.describe Readme, type: :model do
 
       it "returns an error message" do
         expect(readme.attach(uploaded_file)).to eq("An error uploading your README was encountered.  Please try again.")
-        expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv")
+        expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv", size: 287)
       end
     end
 
@@ -72,7 +72,7 @@ RSpec.describe Readme, type: :model do
 
       it "returns no error message" do
         expect { expect(readme.attach(uploaded_file)).to be_nil }.to change { UploadSnapshot.count }.by 1
-        expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv")
+        expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv", size: 287)
         expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_files.last.key)
       end
     end

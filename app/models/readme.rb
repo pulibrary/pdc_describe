@@ -15,7 +15,8 @@ class Readme
 
     extension = File.extname(readme_file_param.original_filename)
     readme_name = "README#{extension}"
-    key = work.s3_query_service.upload_file(io: readme_file_param.to_io, filename: readme_name)
+    size = readme_file_param.size
+    key = work.s3_query_service.upload_file(io: readme_file_param.to_io, filename: readme_name, size: size)
     if key
       log_change(key)
       nil
