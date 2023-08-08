@@ -16,14 +16,18 @@ RSpec.describe Ark, type: :model, mock_ezid_api: true do
     let(:old_target) { "https://dataspace.princeton.edu/handle/88435/dsp01qb98mj541" }
     let(:new_target) { "https://dataspace.princeton.edu/handle/88435/dsp01qb98mj541-new" }
 
-    it "makes the call to EZID" do
-      described_class.update(ark, new_target)
-      expect(@identifier).to have_received(:save!)
+    before do
+      allow(@identifier).to receive(:save)
     end
 
-    it "does not make the call to EZID" do
+    it "makes the call to EZID when the target is changing" do
+      described_class.update(ark, new_target)
+      expect(@identifier).to have_received(:save)
+    end
+
+    it "does not make the call to EZID when the target is not changing" do
       described_class.update(ark, old_target)
-      expect(@identifier).to_not have_received(:save!)
+      expect(@identifier).to_not have_received(:save)
     end
   end
 
