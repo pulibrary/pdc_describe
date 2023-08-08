@@ -25,10 +25,10 @@ This data set includes the data visualized in figures 2-7 in Electromagnetic tot
   context "migrate record from dataspace" do
     it "produces and saves a valid datacite record" do
       sign_in user
-      visit "/works/new"
+      visit "/works/new?migrate=true"
       fill_in "title_main", with: title
       fill_in "description", with: description
-      select "Creative Commons Attribution 4.0 International", from: "rights_identifier"
+      select "Creative Commons Attribution 4.0 International", from: "rights_identifiers"
       find("tr:last-child input[name='creators[][orcid]']").set "0000-0002-4624-3150"
       find("tr:last-child input[name='creators[][given_name]']").set "Robert"
       find("tr:last-child input[name='creators[][family_name]']").set "Hager"

@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 class Readme
-  attr_reader :work
+  attr_reader :work, :current_user
 
-  def initialize(work)
+  def initialize(work, current_user)
     @work = work
+    @current_user = current_user
   end
 
   def attach(readme_file_param)
@@ -13,7 +14,10 @@ class Readme
     remove_old_readme
 
     extension = File.extname(readme_file_param.original_filename)
-    if work.s3_query_service.upload_file(io: readme_file_param.to_io, filename: "README#{extension}")
+    readme_name = "README#{extension}"
+    key = work.s3_query_service.upload_file(io: readme_file_param.to_io, filename: readme_name)
+    if key
+      log_change(key)
       nil
     else
       "An error uploading your README was encountered.  Please try again."
@@ -43,5 +47,12 @@ class Readme
         return if blank?
 
         work.s3_query_service.delete_s3_object(work.pre_curation_uploads_fast[s3_readme_idx].key)
+      end
+
+      def log_change(key)
+        last_response = work.s3_query_service.last_response
+        UploadSnapshot.create(work: work, files: [{ "filename" => key, "checksum" => last_response.etag.delete('"') }])
+        work.track_change(:added, key)
+        work.log_file_changes(current_user.id)
       end
 end

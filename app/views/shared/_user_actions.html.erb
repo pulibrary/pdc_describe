@@ -7,7 +7,9 @@
     <%= link_to "My Profile", edit_user_path(current_user), class: "dropdown-item my-profile", role: "menuitem" %>
     <% if current_user.moderator? %>
       <%= link_to "Create Dataset", new_work_path, class: "dropdown-item", role: "menuitem" %>
+      <%= link_to "Migrate Dataset", new_work_path(migrate: true), class: "dropdown-item", role: "menuitem" %>
     <% end %>
+    <%= link_to "Notifications", work_activity_notifications_path, class: "dropdown-item my-profile", role: "menuitem" %>
     <%= link_to "Log Out", main_app.destroy_user_session_path, class: 'dropdown-item log-out', role: "menuitem" %>
   </div>
 </div>

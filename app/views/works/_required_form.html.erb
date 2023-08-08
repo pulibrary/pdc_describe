@@ -6,7 +6,7 @@
     This unique identifier will become searchable at the completion of this process.
   </p>
   <% if @wizard_mode %>
-    <input id="doi" name="doi" value="<%= @work.resource.doi %>" readonly/>
+    <input id="doi_read_only" name="doi_read_only" value="<%= @work.resource.doi %>" readonly/>
   <% else %>
     <p>DOI: <%= @work.resource.doi %></p>
   <% end %>
@@ -17,7 +17,8 @@
 <!-- Description (one for now)-->
 <div class="field">
   <%= render partial: "required_form_field_details", locals: { name: "description", display_name: "Description",
-                                                       field_detail: "Please enter a brief summary of this item specifically - not identical to the abstract of a corresponding paper. The focus should be on the nature of the materials constituting the item (scope, purpose, methods, etc.), as opposed to substantive claims made in related publications.",
+                                                       primary_detail: "Please enter a brief summary of this deposit specifically - not identical to the abstract of a corresponding paper.",
+                                                       field_detail: "The description should provide a comprehensive summary describing the contents of this deposit. Provide details that explain the contents of your deposit; such as how it was created, what it was created for, the nature of the materials constituting the item (scope, purpose, methods, etc.), as opposed to substantive claims made in related publications.",
                                                       }
   %>
   <textarea type="text" id="description" name="description" class="input-text-long"
@@ -27,15 +28,22 @@
 <!-- Rights Management field -->
 <div class="field">
   <details>
-    <summary>Rights<span class="required-field">*</span></summary>
-    Please specify any applicable licenses or other terms governing the use and reproduction of this item (e.g., CC BY 4.0 International, or MIT License).
-    <%= link_to("Guidance on picking a license", "https://ufal.github.io/public-license-selector/", {target: "_blank"}) %>.
+    <summary>Rights<span class="required-field required-field-star">*</span> Please specify the applicable license(s) governing the use and reproduction of this deposit.</summary>
+    You can select more than one license.
+    <ul>
+      <li>Help with <a href="https://creativecommons.org/about/cclicenses/">Creative Commons Licenses</a> (recommended for data)</li>
+      <li>Information about <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU License</a> for software and code</li>
+      <li>Information about <a href="https://opensource.org/license/mit/">MIT License</a> for software and code</li>
+      <li>Please contact <a href="mailto:PRDS@princeton.edu">PRDS@princeton.edu</a> if you would like to add another license or need assistance to complete this information.</li>
+    </ul>
   </details>
-  <select id="rights_identifier" name="rights_identifier" class="input-text-long" >
+  <select id="rights_identifiers" name="rights_identifiers[]" class="input-text-long" multiple>
     <% ::PDCMetadata::Rights.all.each do |rights| %>
-      <option value="<%=rights.identifier%>"
-        <%= @work.resource.rights&.identifier == rights.identifier || (@work.resource.rights&.identifier.nil? && rights.identifier == "CC BY") ? "selected" : "" %>
-      ><%=rights.name%></option>
+      <% if @work.has_rights?(rights.identifier) || (@work.resource.rights_many.count == 0 && rights.identifier == "CC BY") %>
+        <option value="<%=rights.identifier%>" selected><%= rights.name %></option>
+      <% else %>
+        <option value="<%=rights.identifier%>"><%= rights.name %></option>
+      <% end %>
     <% end %>
   </select>
 </div>

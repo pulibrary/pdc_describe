@@ -1,13 +1,32 @@
-# These users are given a little form below the change log that lets them add back-dated free-text messages.
+# These users are given a form below the change log that lets them add back-dated free-text messages.
 development:
-  - cm7575 # Chuck McCallum
+  - bs3097
+  - cac9
+  - hc8719
   - hh4079
+  - jrg5
+  - kl37
 
 staging:
+  - bs3097
+  - cac9
+  - hc8719
   - hh4079
+  - jrg5
+  - kl37
 
 test:
+  - bs3097
+  - cac9
+  - hc8719
   - hh4079
+  - jrg5
+  - kl37
 
 production:
+  - bs3097
+  - cac9
+  - hc8719
   - hh4079
+  - jrg5
+  - kl37

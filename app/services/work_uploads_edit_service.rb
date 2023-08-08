@@ -27,16 +27,26 @@ class WorkUploadsEditService
   private
 
     def delete_uploads(deleted_files)
+      return if deleted_files.empty?
+
       deleted_files.each do |filename|
         s3_service.delete_s3_object(filename)
         work.track_change(:deleted, filename)
-        work.log_file_changes(@current_user.id)
       end
+      work.log_file_changes(@current_user.id)
     end
 
     def add_uploads(added_files)
+      return if added_files.empty?
+
+      last_snapshot = work.upload_snapshots.first
+      snapshot = BackgroundUploadSnapshot.new(work: work)
+      snapshot.store_files(added_files, pre_existing_files: last_snapshot&.files, current_user: @current_user)
+      snapshot.save
       added_files.map do |file|
-        AttachFileToWorkJob.perform_later(work_id: work.id, user_id: @current_user.id, file_path: file.path, file_name: file.original_filename, size: file.size)
+        new_path = "/tmp/#{file.original_filename}"
+        FileUtils.mv(file.path, new_path)
+        AttachFileToWorkJob.perform_later(file_path: new_path, file_name: file.original_filename, size: file.size, background_upload_snapshot_id: snapshot.id)
       end
     end
 end

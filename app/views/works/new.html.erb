@@ -24,7 +24,7 @@
 </style>
 
 <div class="wizard-area">
-  <h1>Create a Dataset</h1>
+  <h1><%= migrating? ? "Migrate" : "Create" %> a Dataset</h1>
   <%= render 'form' %>
 </div>
 

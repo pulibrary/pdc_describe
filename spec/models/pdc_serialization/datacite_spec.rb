@@ -44,6 +44,26 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
     end
   end
 
+  describe "funder information" do
+    let(:work) { FactoryBot.create(:draft_work) }
+
+    it "serializes correctly a funder with basic information" do
+      funder_basic = PDCMetadata::Funder.new(nil, "Some Org", nil, nil)
+      work.resource.funders << funder_basic
+      datacite_serialization = described_class.new_from_work(work)
+      expect(datacite_serialization.to_xml.include?("<funderName>Some Org</funderName>")).to be true
+    end
+
+    it "serializes correctly a funder with all their information" do
+      funder_complete = PDCMetadata::Funder.new("https://ror.org/00hx57361", "Princeton University", "123", "http://pul-award/123")
+      work.resource.funders << funder_complete
+      datacite_serialization = described_class.new_from_work(work)
+      expect(datacite_serialization.to_xml.include?("<funderName>Princeton University</funderName>")).to be true
+      expect(datacite_serialization.to_xml.include?("<funderIdentifier funderIdentifierType='ROR'>https://ror.org/00hx57361</funderIdentifier>")).to be true
+      expect(datacite_serialization.to_xml.include?("<awardNumber awardURI='http://pul-award/123'>123</awardNumber>")).to be true
+    end
+  end
+
   context "create a datacite record through a form submission" do
     let(:doi) { "https://doi.org/10.34770/pe9w-x904" }
     let(:work_resource) do

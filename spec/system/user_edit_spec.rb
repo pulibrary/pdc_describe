@@ -18,17 +18,16 @@ RSpec.describe "Editing users", type: :system do
     end
   end
 
-  describe "Non-admin users cannot edit others people data" do
+  describe "Non-admin users cannot access others people data" do
     before { sign_in user }
 
     let(:user) { FactoryBot.create :princeton_submitter }
     let(:user_other) { FactoryBot.create :user }
     let(:orcid) { "1234-5678-1234-5678" }
 
-    it "allows an admin to edit other users ORCID", js: true do
+    it "renders a 403 forbidden page" do
       visit user_path(user_other)
-      expect(page).to have_content user_other.given_name
-      expect(page).to_not have_content "Edit"
+      expect(page.status_code).to eq(403)
     end
   end
 

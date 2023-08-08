@@ -38,3 +38,50 @@ These will need to be kept updated with changes to the UI, changes to the metada
 
   The work should now be visible in the application.
 3. The works will be in a draft state. If you are testing the migration process, at this point you should attach the payload files and mark the record "ready for review." Then our QA checkers in RDOS and PPPL should be able to review them.
+
+## Reloading a Single work
+
+The process for reloading a single work is similar to the process for loading all the data.  The large difference is you need to remove the offending work prior to reloading the work.
+
+1. Update the test to produce the corrected json
+
+1. Run the test with `DATA_MIGRATION=true` to generate a new json file
+
+   ```
+   DATA_MIGRATION=true bundle exec rspec spec/system/data_migration/<updated test>
+   ```
+
+1. scp the file to the server `<server>` like `pdc-describe-staging1.princeton.edu`
+
+   ```
+   scp tmp/data_migration/<output file>.json deploy@<system>:/tmp
+   ```
+
+1. The reset of the instructions are on the server, so SSH on to it
+
+   ```
+   ssh deploy@<system>
+   ```
+
+1. Move the file to it's own directory
+
+   ```
+   mkdir /tmp/<new-dir>
+   mv /tmp/<output file>.json /tmp/<new-dir>
+   ```
+
+1. Destroy the offending work.  This assumes you have the `<id>` of the work in the system
+
+   ```
+   cd /opt/pdc_describe/current
+   bundle exec rails c
+     work = Work.find(<id>)
+     work.destroy
+   end
+   ```
+
+1. Reload the offending work
+
+   ```
+   bundle exec rake works:import_works\[/tmp/<new-dir>,<your uid>]
+   ```

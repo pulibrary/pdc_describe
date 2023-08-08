@@ -4,7 +4,7 @@ class ApprovedFileMoveJob < ApplicationJob
 
   def perform(work_id:, source_bucket:, source_key:, target_bucket:, target_key:, size:)
     work = Work.find(work_id)
-    service = S3QueryService.new(Work.find(work_id), false)
+    service = S3QueryService.new(Work.find(work_id), "postcuration")
     key = "/#{source_bucket}/#{source_key}"
     resp = service.copy_file(source_key: key, target_bucket:, target_key:, size:)
 
@@ -22,8 +22,8 @@ class ApprovedFileMoveJob < ApplicationJob
       # delete the source directory...
       service.delete_s3_object(work.s3_object_key, bucket: source_bucket)
 
-      # ...and create the preservation files in the target bucket
-      work_preservation = WorkPreservationService.new(work_id: work_id, bucket_name: target_bucket, path: "#{work.doi}/#{work.id}")
+      # ...and create the preservation files
+      work_preservation = WorkPreservationService.new(work_id: work_id, path: "#{work.doi}/#{work.id}")
       work_preservation.preserve!
     end
   end
