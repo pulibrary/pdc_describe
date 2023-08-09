@@ -47,14 +47,47 @@ RSpec.describe "Editing users", type: :system do
       visit edit_user_path(user)
       expect(page).to have_field("user_given_name", with: user.given_name)
       expect(page).to have_content "My Profile Settings"
+      expect(page).to have_checked_field "user_email_messages_enabled"
       expect(page).to have_checked_field "group_messaging_#{pppl_group.id}"
       expect(page).to have_checked_field "group_messaging_#{rd_group.id}"
       expect(page).not_to have_field "group_messaging_#{random_group.id}"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_Spherical Torus"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_Advanced Projects"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_ITER and Tokamaks"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_Theory"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_NSTX-U"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_NSTX"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_Plasma Science & Technology"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_Theory and Computation"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_Stellarators"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_PPPL Collaborations"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_MAST-U"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_Other Projects"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_System Studies"
       uncheck "group_messaging_#{pppl_group.id}"
       click_on "Update"
       visit edit_user_path(user)
+      expect(page).to have_checked_field "user_email_messages_enabled"
       expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}"
       expect(page).to have_checked_field "group_messaging_#{rd_group.id}"
+      expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}_MAST-U"
+      expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}_Other Projects"
+      check "group_messaging_#{pppl_group.id}_MAST-U"
+      click_on "Update"
+      visit edit_user_path(user)
+      expect(page).to have_checked_field "user_email_messages_enabled"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}"
+      expect(page).to have_checked_field "group_messaging_#{rd_group.id}"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_MAST-U"
+      expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}_Other Projects"
+      uncheck "user_email_messages_enabled"
+      click_on "Update"
+      visit edit_user_path(user)
+      expect(page).to have_unchecked_field "user_email_messages_enabled"
+      expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}"
+      expect(page).to have_unchecked_field "group_messaging_#{rd_group.id}"
+      expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}_MAST-U"
+      expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}_Other Projects"
     end
 
     context "User is super admin" do

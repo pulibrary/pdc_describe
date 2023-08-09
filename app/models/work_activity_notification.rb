@@ -5,14 +5,10 @@ class WorkActivityNotification < ApplicationRecord
   belongs_to :user
 
   after_create do
-    if user.email_messages_enabled? || direct_message?
-      work = work_activity.work
-      if work.group&.messages_enabled_for?(user: user) || direct_message?
-
-        mailer = NotificationMailer.with(user: user, work_activity: work_activity)
-        message = mailer.build_message
-        message.deliver_later
-      end
+    if send_message?
+      mailer = NotificationMailer.with(user: user, work_activity: work_activity)
+      message = mailer.build_message
+      message.deliver_later
     end
   end
 
@@ -20,5 +16,26 @@ class WorkActivityNotification < ApplicationRecord
 
     def direct_message?
       @direct_message ||= work_activity.activity_type == WorkActivity::MESSAGE && work_activity.message.include?("@#{user.uid}")
+    end
+
+    def send_message?
+      return true if direct_message? # always send a direct message
+      return false unless user.email_messages_enabled? # do not send message if all emails are disabled
+      work = work_activity.work
+
+      if work.resource.subcommunities.count > 1
+        subcommunities_can_send = work.resource.subcommunities.map { |subcommunity| send_message_for_community?(subcommunity) }
+        subcommunities_can_send.any?
+      else
+        send_message_for_community?(work.resource.subcommunities.first)
+      end
+    end
+
+    def send_message_for_community?(subcommunity)
+      group.messages_enabled_for?(user: user, subcommunity: subcommunity)
+    end
+
+    def group
+      @group ||= work_activity.work.group
     end
 end

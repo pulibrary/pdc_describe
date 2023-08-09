@@ -41,18 +41,18 @@ class Group < ApplicationRecord
 
   # Permit a User to receive notification messages for members of this Group
   # @param user [User]
-  def enable_messages_for(user:)
+  def enable_messages_for(user:, subcommunity: nil)
     raise(ArgumentError, "User #{user.uid} is not an administrator or submitter for this group #{title}") unless user.can_admin?(self) || user.can_submit?(self)
-    group = GroupOption.find_or_initialize_by(option_type: GroupOption::EMAIL_MESSAGES, user: user, group: self)
+    group = GroupOption.find_or_initialize_by(option_type: GroupOption::EMAIL_MESSAGES, user: user, group: self, subcommunity: subcommunity)
     group.enabled = true
     group.save
   end
 
   # Disable a User from receiving notification messages for members of this Group
   # @param user [User]
-  def disable_messages_for(user:)
+  def disable_messages_for(user:, subcommunity: nil)
     raise(ArgumentError, "User #{user.uid} is not an administrator or submitter for this group #{title}") unless user.can_admin?(self) || user.can_submit?(self)
-    group = GroupOption.find_or_initialize_by(option_type: GroupOption::EMAIL_MESSAGES, user: user, group: self)
+    group = GroupOption.find_or_initialize_by(option_type: GroupOption::EMAIL_MESSAGES, user: user, group: self, subcommunity: subcommunity)
     group.enabled = false
     group.save
   end
@@ -60,8 +60,8 @@ class Group < ApplicationRecord
   # Returns true if a given user has notification e-mails enabled for this Group
   # @param user [User]
   # @return [Boolean]
-  def messages_enabled_for?(user:)
-    group_option = group_messaging_options.find_by(user: user, group: self)
+  def messages_enabled_for?(user:, subcommunity: nil)
+    group_option = group_messaging_options.find_by(user: user, group: self, subcommunity: subcommunity)
     group_option ||= GroupOption.new(enabled: true)
     group_option.enabled
   end

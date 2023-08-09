@@ -95,13 +95,14 @@ class UsersController < ApplicationController
         extracted = user_params.extract!(:groups_with_messaging)
         groups_with_messaging = extracted[:groups_with_messaging]
 
-        groups_with_messaging.each_pair do |group_id, param|
+        groups_with_messaging.each_pair do |id, param|
+          group_id, subcommunity = id.split("_")
           selected_group = Group.find_by(id: group_id)
 
           if parameter_enables_messaging?(param)
-            selected_group.enable_messages_for(user: @user)
+            selected_group.enable_messages_for(user: @user, subcommunity: subcommunity)
           else
-            selected_group.disable_messages_for(user: @user)
+            selected_group.disable_messages_for(user: @user, subcommunity: subcommunity)
           end
         end
       end

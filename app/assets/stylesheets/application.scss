@@ -283,3 +283,26 @@ th {
 .submit-ordered-list {
   padding: 0em 3em;
 }
+
+div.form-subcommunities {
+  display: grid;
+
+  @media all and (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+
+  @media all and (max-width: 765px) and (min-width: 481px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media all and (min-width: 765px) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+}
+
+div.form-subcommunities .form-check{
+  padding: 0em 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
