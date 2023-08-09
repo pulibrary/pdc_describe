@@ -17,6 +17,7 @@ class MigrationUploadSnapshot < UploadSnapshot
     index = find_file(s3_file.filename)
     if index.present?
       files[index]["migrate_status"] = "complete"
+      files[index].delete("migrate_error")
       finalize_migration if migration_complete?
     end
   end
@@ -58,7 +59,7 @@ class MigrationUploadSnapshot < UploadSnapshot
   private
 
     def find_file(filename)
-      index = files.index { |file| file["filename"] == filename && file["migrate_status"] == "started" }
+      index = files.index { |file| file["filename"] == filename && (file["migrate_status"] == "started" || file["migrate_status"] == "error") }
       if index.nil?
         Honeybadger.notify("Migrated a file that was not part of the orginal Migration: #{id} for work #{work_id}: #{filename}")
       end
