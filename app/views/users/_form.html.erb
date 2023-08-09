@@ -4,7 +4,7 @@
       <fieldset>
         <legend><%= t("users.form.email_messages") %></legend>
         <div class="form-check ">
-          <%= form.check_box(:email_messages_enabled, class: ["form-check-input"]) %>
+          <%= form.check_box(:email_messages_enabled, class: ["form-check-input","form-email-all"]) %>
           <%= label_tag(:email_messages_enabled, t("users.form.email_messages_enabled"), class: ["form-check-label"]) %>
         </div>
       </fieldset>
@@ -15,8 +15,17 @@
           <% @user.submitter_or_admin_groups.each do |group| %>
             <legend><%= group.title %></legend>
             <div class="form-check">
-              <%= form.check_box("[groups_with_messaging][#{group.id}]", { id: "group_messaging_#{group.id}", checked: group.messages_enabled_for?(user: user), class: ["form-check-input"] }) %>
+              <%= form.check_box("[groups_with_messaging][#{group.id}]", { id: "group_messaging_#{group.id}", checked: group.messages_enabled_for?(user: user), class: ["form-check-input", "form-group-check"] }) %>
               <%= form.label("[groups_with_messaging][#{group.id}]", t("users.form.email_messages_enabled"), class: ["form-check-label"]) %>
+
+              <div class="form-subcommunities">
+              <% group.subcommunities.each do |subcommunity| %>
+                <div class="form-check">
+                  <%= form.check_box("[groups_with_messaging][#{group.id}_#{subcommunity}]", { id: "group_messaging_#{group.id}_#{subcommunity}", checked: group.messages_enabled_for?(user: user, subcommunity: subcommunity), class: ["form-check-input", "form-subcommunity-check"] }) %>
+                  <%= form.label("[groups_with_messaging][#{group.id}_#{subcommunity}]", subcommunity, class: ["form-check-label"]) %>
+                </div>
+              <% end %>
+              </div>
             </div>
           <% end %>
         </fieldset>
