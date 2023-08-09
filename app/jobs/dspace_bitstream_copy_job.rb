@@ -53,46 +53,4 @@ class DspaceBitstreamCopyJob < ApplicationJob
         migration_snapshot.save!
       end
     end
-
-    def download_bitstream(retrieval_path, filename)
-      url = "#{Rails.configuration.dspace.base_url}#{retrieval_path}"
-      path = File.join(Rails.configuration.dspace.download_file_path, "dspace_download", work.id.to_s)
-      FileUtils.mkdir_p path
-      download_file(url, filename)
-      filename
-    end
-
-    def download_file(url, filename)
-      http = request_http(url)
-      uri = URI(url)
-      req = Net::HTTP::Get.new uri.path
-      http.request req do |response|
-        io = File.open(filename, "w")
-        response.read_body do |chunk|
-          io.write chunk.force_encoding("UTF-8")
-        end
-        io.close
-      end
-    end
-
-    def checksum_file(filename, original_checksum)
-      checksum = Digest::MD5.file(filename)
-      base64 = checksum.base64digest
-      if base64 != original_checksum
-        msg = "Mismatching checksum #{filename} #{original_checksum} for work: #{work.id} doi: #{work.doi} ark: #{work.ark}"
-        Rails.logger.error msg
-        Honeybadger.notify(msg)
-        false
-      else
-        Rails.logger.debug "Matching checksums for #{filename}"
-        true
-      end
-    end
-
-    def request_http(url)
-      uri = URI(url)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-      http
-    end
 end

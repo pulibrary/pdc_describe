@@ -11,7 +11,7 @@ class AttachFileToWorkJob < ApplicationJob
     @background_upload_snapshot_id = background_upload_snapshot_id
 
     File.open(file_path) do |file|
-      unless work.s3_query_service.upload_file(io: file.to_io, filename: file_name)
+      unless work.s3_query_service.upload_file(io: file.to_io, filename: file_name, size: @size)
         raise "An error uploading #{file_name} was encountered for work #{work}"
       end
     end
