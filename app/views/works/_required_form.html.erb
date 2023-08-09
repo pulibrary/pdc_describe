@@ -5,10 +5,10 @@
     but you can provide this DOI to a publisher now.
     This unique identifier will become searchable at the completion of this process.
   </p>
-  <% if @wizard_mode %>
+  <% if @wizard_mode || !doi_mutable? %>
     <input id="doi_read_only" name="doi_read_only" value="<%= @work.resource.doi %>" readonly/>
   <% else %>
-    <p>DOI: <%= @work.resource.doi %></p>
+    <p id="doi">DOI: <%= @work.resource.doi %></p>
   <% end %>
 </div>
 

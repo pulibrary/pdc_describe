@@ -309,6 +309,13 @@ class WorksController < ApplicationController
   end
   helper_method :migrating?
 
+  def doi_mutable?
+    return true unless !@work.nil? && @work.persisted?
+
+    !@work.approved?
+  end
+  helper_method :doi_mutable?
+
   private
 
     def work_params
