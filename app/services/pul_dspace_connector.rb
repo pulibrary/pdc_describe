@@ -90,7 +90,7 @@ class PULDspaceConnector
     end
 
     def download_file(url, filename)
-      stdout_and_stderr_str, status = Open3.capture2e("wget -c '#{url}' -O #{filename}")
+      stdout_and_stderr_str, status = Open3.capture2e("wget -c '#{url}' -O '#{filename}'")
       unless status.success?
         Honeybadger.notify("Error dowloading file #{url} for work id #{work.id} to #{filename}! Error: #{stdout_and_stderr_str}")
       end
