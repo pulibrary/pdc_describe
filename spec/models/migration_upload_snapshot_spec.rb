@@ -72,6 +72,28 @@ activity_type: WorkActivity::MIGRATION_START)
       end
     end
 
+    context "when a snapshot has an error" do
+      before do
+        migration_upload_snapshot.store_files([s3_file1, s3_file2])
+        migration_upload_snapshot.mark_error(s3_file1, "an error")
+      end
+      it "can be completed" do
+        expect(work.work_activity.count).to eq(0)
+        migration_upload_snapshot.mark_complete(s3_file2)
+        expect(work.work_activity.count).to eq(0)
+        expect(migration_upload_snapshot.files).to eq([{ "filename" => "fileone", "checksum" => "aaabbb111222", "migrate_status" => "error", "migrate_error" => "an error" },
+                                                       { "filename" => "filetwo", "checksum" => "dddeee111222", "migrate_status" => "complete" }])
+        expect(migration_upload_snapshot.migration_complete?).to be_falsey
+        migration_upload_snapshot.mark_complete(s3_file1)
+        expect(migration_upload_snapshot.migration_complete?).to be_truthy
+        expect(migration_upload_snapshot.existing_files).to eq([{ "filename" => "fileone", "checksum" => "aaabbb111222", "migrate_status" => "complete" },
+                                                                { "filename" => "filetwo", "checksum" => "dddeee111222", "migrate_status" => "complete" }])
+        expect(work.work_activity.count).to eq(1)
+        expect(work.work_activity.first.message).to eq("{\"migration_id\":123,\"message\":\"Migration from Dataspace is complete.\"}")
+        expect(work.work_activity.first.created_by_user_id).to eq(nil)
+      end
+    end
+
     context "two version of the same file" do
       let(:s3_file3) { FactoryBot.build :s3_file, filename: "filetwo", checksum: "dddeee1112223" }
 
