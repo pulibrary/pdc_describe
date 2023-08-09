@@ -22,7 +22,7 @@ class UploadSnapshot < ApplicationRecord
   end
 
   def index(s3_file)
-    files.index { |file| file["filename"] == s3_file.filename && file["checksum"] == s3_file.checksum }
+    files.index { |file| file["filename"] == s3_file.filename && checksum_compare(file["checksum"], s3_file.checksum) }
   end
 
   def match?(s3_file)
@@ -41,5 +41,25 @@ class UploadSnapshot < ApplicationRecord
 
     def uploads
       work.uploads
+    end
+
+    # Compares two checksums. Accounts for the case in which one of them is
+    # a plain MD5 value and the other has been encoded with base64.
+    # See also
+    #   https://ruby-doc.org/core-2.7.0/Array.html#method-i-pack
+    #   https://ruby-doc.org/core-2.7.0/String.html#method-i-unpack
+    def checksum_compare(checksum1, checksum2)
+      if checksum1 == checksum2
+        true
+      elsif checksum1.length < checksum2.length
+        # Decode the first one and then compare
+        checksum1.unpack("m0").first.unpack("H*").first == checksum2
+      else
+        # Decode the second one and then compare
+        checksum1 == checksum2.unpack("m0").first.unpack("H*").first
+      end
+    rescue ArgumentError
+      # One of the values was not properly encoded
+      false
     end
 end

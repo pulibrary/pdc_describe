@@ -156,6 +156,30 @@ RSpec.describe UploadSnapshot, type: :model do
     end
   end
 
+  describe "checksum compare" do
+    let(:file1_base64) { { filename: "fileone", checksum: "98691a716ece23a77735f37b5a421253" } }
+    let(:file2_md5) { { filename: "filetwo", checksum: "mGkacW7OI6d3NfN7WkISUw==" } }
+    subject(:upload_snapshot) { described_class.new(files: [file1_base64, file2_md5], url: url, work: work) }
+
+    it "matches identical checksums" do
+      s3_file = FactoryBot.build :s3_file, filename: "fileone", checksum: "98691a716ece23a77735f37b5a421253"
+      expect(upload_snapshot.match?(s3_file)).to be true
+    end
+
+    it "detects differences" do
+      s3_file = FactoryBot.build :s3_file, filename: "fileone", checksum: "xx691a716ece23a77735f37b5a421253"
+      expect(upload_snapshot.match?(s3_file)).to be false
+    end
+
+    it "matches encoded checksums" do
+      s3_file = FactoryBot.build :s3_file, filename: "fileone", checksum: "mGkacW7OI6d3NfN7WkISUw=="
+      expect(upload_snapshot.match?(s3_file)).to be true
+
+      s3_file = FactoryBot.build :s3_file, filename: "filetwo", checksum: "98691a716ece23a77735f37b5a421253"
+      expect(upload_snapshot.match?(s3_file)).to be true
+    end
+  end
+
   describe "#store_files" do
     let(:s3_file1) { FactoryBot.build :s3_file, filename: "fileone", checksum: "aaabbb111222" }
     let(:s3_file2) { FactoryBot.build :s3_file, filename: "filetwo", checksum: "dddeee111222" }
