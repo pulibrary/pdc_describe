@@ -168,6 +168,33 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
     end
   end
 
+  context "when there is an error minting the DOI" do
+    let(:data_cite_failure) { double }
+    let(:data_cite_response) { double }
+    let(:data_cite_connection) { instance_double(Datacite::Client) }
+
+    before do
+      allow(data_cite_failure).to receive(:reason_phrase).and_return("test-reason-phrase")
+      allow(data_cite_failure).to receive(:status).and_return("test-status")
+      allow(data_cite_response).to receive(:failure).and_return(data_cite_failure)
+      allow(data_cite_response).to receive(:success?).and_return(false)
+      allow(data_cite_connection).to receive(:autogenerate_doi).and_return(data_cite_response)
+      allow(Datacite::Client).to receive(:new).and_return(data_cite_connection)
+    end
+
+    it "flashes the error and redirects to the new submission", js: true do
+      sign_in user
+      visit new_work_path(params: { migrate: true })
+      fill_in "title_main", with: title
+      fill_in "description", with: description
+      click_on "Add me as a Creator"
+      click_on "Migrate"
+
+      expect(page).to have_content "Failed to create a new Dataset: Error generating DOI"
+      expect(page.current_url).to include(new_work_path(params: { migrate: true }))
+    end
+  end
+
   context "invalid readme" do
     it "prevents the user from continuing when the readme file is not valid", js: true do
       sign_in user
