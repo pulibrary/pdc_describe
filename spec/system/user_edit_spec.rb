@@ -47,32 +47,41 @@ RSpec.describe "Editing users", type: :system do
       visit edit_user_path(user)
       expect(page).to have_field("user_given_name", with: user.given_name)
       expect(page).to have_content "My Profile Settings"
-      expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}"
       expect(page).to have_checked_field "group_messaging_#{rd_group.id}"
       expect(page).not_to have_field "group_messaging_#{random_group.id}"
-      check "group_messaging_#{pppl_group.id}"
+      uncheck "group_messaging_#{pppl_group.id}"
       click_on "Update"
       visit edit_user_path(user)
-      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}"
+      expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}"
       expect(page).to have_checked_field "group_messaging_#{rd_group.id}"
     end
 
     context "User is super admin" do
       let(:user) { FactoryBot.create :super_admin_user }
 
-      it "shows the form with all the collections and only the default group is checked" do
+      it "shows the form with all the collections and all the groups are checked" do
         visit edit_user_path(user)
         expect(page).to have_field("user_given_name", with: user.given_name)
         expect(page).to have_content "My Profile Settings"
-        expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}"
+        expect(page).to have_checked_field "group_messaging_#{pppl_group.id}"
         expect(page).to have_checked_field "group_messaging_#{rd_group.id}"
-        expect(page).to have_unchecked_field "group_messaging_#{random_group.id}"
+        expect(page).to have_checked_field "group_messaging_#{random_group.id}"
         uncheck "group_messaging_#{rd_group.id}"
+        uncheck "group_messaging_#{pppl_group.id}"
+        uncheck "group_messaging_#{random_group.id}"
         click_on "Update"
         visit edit_user_path(user)
         expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}"
         expect(page).to have_unchecked_field "group_messaging_#{rd_group.id}"
         expect(page).to have_unchecked_field "group_messaging_#{random_group.id}"
+        check "group_messaging_#{rd_group.id}"
+        check "group_messaging_#{random_group.id}"
+        click_on "Update"
+        visit edit_user_path(user)
+        expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}"
+        expect(page).to have_checked_field "group_messaging_#{rd_group.id}"
+        expect(page).to have_checked_field "group_messaging_#{random_group.id}"
       end
     end
   end
