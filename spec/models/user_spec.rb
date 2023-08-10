@@ -39,7 +39,7 @@ RSpec.describe User, type: :model do
       user = described_class.from_cas(access_token)
       expect(user).to be_a described_class
       expect(user.default_group.id).to eq Group.default.id
-      expect(user.messages_enabled_from?(group: user.default_group)).to be_truthy
+      expect(user.default_group.messages_enabled_for?(user: user)).to be_truthy
     end
 
     it "sets the proper default group for a PPPL user" do
@@ -47,7 +47,7 @@ RSpec.describe User, type: :model do
       pppl_user = described_class.from_cas(access_token_pppl)
       expect(pppl_user).to be_a described_class
       expect(pppl_user.default_group.id).to eq pppl_group.id
-      expect(pppl_user.messages_enabled_from?(group: pppl_user.default_group)).to be_truthy
+      expect(pppl_user.default_group.messages_enabled_for?(user: pppl_user)).to be_truthy
     end
 
     it "sets the CAS info on new" do
@@ -247,100 +247,6 @@ RSpec.describe User, type: :model do
       expect(user).not_to be_super_admin
       User.update_super_admins
       expect(user).to be_super_admin
-    end
-  end
-
-  describe "#disable_messages_from" do
-    let(:group) { Group.default }
-    let(:user) { described_class.create(uid: "test") }
-
-    context "when the user is a super admin" do
-      let(:user) { described_class.new_super_admin("test-admin") }
-
-      it "disables and enables email messages for notifications from a group" do
-        initial_state = user.messages_enabled_from?(group: group)
-        expect(initial_state).to be true
-
-        user.disable_messages_from(group: group)
-        user.save!
-        user.reload
-
-        disabled_state = user.messages_enabled_from?(group: group)
-        expect(disabled_state).to be false
-
-        user.enable_messages_from(group: group)
-        user.save!
-        user.reload
-
-        enabled_state = user.messages_enabled_from?(group: group)
-        expect(enabled_state).to be true
-      end
-    end
-
-    context "when the user is an administrator for a group" do
-      before do
-        user.add_role(:group_admin, group)
-        user.save!
-      end
-
-      it "disables and enables email messages for notifications from a group" do
-        initial_state = user.messages_enabled_from?(group: group)
-        expect(initial_state).to be true
-
-        user.disable_messages_from(group: group)
-        user.save!
-        user.reload
-
-        disabled_state = user.messages_enabled_from?(group: group)
-        expect(disabled_state).to be false
-
-        user.enable_messages_from(group: group)
-        user.save!
-        user.reload
-
-        enabled_state = user.messages_enabled_from?(group: group)
-        expect(enabled_state).to be true
-      end
-    end
-
-    context "The user can deposit into the group" do
-      before do
-        user.add_role :submitter, group
-      end
-
-      it "disables and enables email messages for notifications from a group" do
-        initial_state = user.messages_enabled_from?(group: group)
-        expect(initial_state).to be true
-
-        user.disable_messages_from(group: group)
-        user.save!
-        user.reload
-
-        disabled_state = user.messages_enabled_from?(group: group)
-        expect(disabled_state).to be false
-
-        user.enable_messages_from(group: group)
-        user.save!
-        user.reload
-
-        enabled_state = user.messages_enabled_from?(group: group)
-        expect(enabled_state).to be true
-      end
-    end
-
-    it "raises an ArgumentError" do
-      state = user.messages_enabled_from?(group: group)
-      expect(state).to be true
-
-      state = user.messages_enabled_from?(group: pppl_group)
-      expect(state).to be false
-
-      expect do
-        user.disable_messages_from(group: pppl_group)
-      end .to raise_error(ArgumentError, "User #{user.uid} is not an administrator or depositor for the group #{pppl_group.title}")
-      expect do
-        user.enable_messages_from(group: pppl_group)
-      end .to raise_error(ArgumentError, "User #{user.uid} is not an administrator or depositor for the group #{pppl_group.title}")
     end
   end
 

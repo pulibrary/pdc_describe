@@ -99,9 +99,9 @@ class UsersController < ApplicationController
           selected_group = Group.find_by(id: group_id)
 
           if parameter_enables_messaging?(param)
-            @user.enable_messages_from(group: selected_group)
+            selected_group.enable_messages_for(user: @user)
           else
-            @user.disable_messages_from(group: selected_group)
+            selected_group.disable_messages_for(user: @user)
           end
         end
       end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_07_19_173219) do
+ActiveRecord::Schema.define(version: 2023_08_10_125820) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -48,6 +48,8 @@ ActiveRecord::Schema.define(version: 2023_07_19_173219) do
     t.integer "option_value"
     t.bigint "group_id"
     t.bigint "user_id"
+    t.boolean "enabled", default: true
+    t.string "subcommunity"
     t.index ["group_id"], name: "index_group_options_on_group_id"
     t.index ["user_id"], name: "index_group_options_on_user_id"
   end

@@ -23,7 +23,7 @@ describe WorkActivityNotification, type: :model do
 
     context "when e-mail notifications are disabled for the Group" do
       before do
-        user.disable_messages_from(group: group)
+        group.disable_messages_for(user: user)
       end
 
       it "does not enqueue an e-mail message to be delivered for the notification" do
