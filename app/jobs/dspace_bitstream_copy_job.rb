@@ -26,6 +26,7 @@ class DspaceBitstreamCopyJob < ApplicationJob
         if result[:error].present?
           migration_snapshot.mark_error(result[:file], result[:error])
         else
+          # update the checksum here
           migration_snapshot.mark_complete(result[:file])
         end
       end

@@ -227,6 +227,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
     let(:bitsreams_body) { File.read(Rails.root.join("spec", "fixtures", "files", "dspace_bitstreams_response.json")) }
     let(:metadata_body) { File.read(Rails.root.join("spec", "fixtures", "files", "dspace_metadata_response.json")) }
     let(:process_status) { instance_double Process::Status, "success?": true }
+    let(:etag) { "test-etag" }
 
     before do
       stub_request(:get, "https://dataspace.example.com/rest/handle/88435/dsp01zc77st047")
@@ -249,6 +250,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       work.save
       fake_completion = instance_double(Seahorse::Client::Response, "successful?": true)
       allow(fake_s3_service).to receive(:copy_file).and_return(fake_completion)
+      allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return({ etag: etag })
     end
 
     after do
@@ -266,6 +268,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       expect(activity.activity_type).to eq(WorkActivity::MIGRATION_START)
       expect(activity.created_by_user_id).to eq(user.id)
       expect(page).to have_content("Migration for 4 files and 1 directory")
+
       perform_enqueued_jobs
       end_activities = WorkActivity.activities_for_work(work.id, WorkActivity::MIGRATION_COMPLETE)
       expect(end_activities.count).to eq(1)
