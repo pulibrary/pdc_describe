@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require "rails_helper"
+require "sidekiq/testing/inline"
 
 RSpec.describe DspaceFileCopyJob, type: :job do
   include ActiveJob::TestHelper
@@ -32,6 +33,19 @@ RSpec.describe DspaceFileCopyJob, type: :job do
       expect(fake_s3_service).to have_received(:copy_file).with(source_key: "example-bucket-dspace/10-34770/ackh-7y71/dir/",
                                                                 target_bucket: "work-bucket",
                                                                 target_key: "abc/123/#{work.id}/dir/", size: 0)
+    end
+  end
+
+  context "" do
+    subject(:job) { described_class.perform_now(s3_file_json: s3_file.to_json, work_id: work.id, migration_snapshot_id: migration_snapshot.id) }
+    let(:s3_file) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/dir/", size: 0, filename_display: "abc/123/#{work.id}/dir/" }
+
+    it "copies directory" do
+      job = described_class.new(s3_file_json: s3_file.to_json, work_id: work.id, migration_snapshot_id: migration_snapshot.id)
+      job.perform(s3_file_json: s3_file.to_json, work_id: work.id, migration_snapshot_id: migration_snapshot.id)
+
+      ActiveJob::Base.queue_adapter.enqueue(job)
+      perform_enqueued_jobs
     end
   end
 

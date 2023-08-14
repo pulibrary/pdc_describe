@@ -52,6 +52,10 @@ RSpec.describe PULDspaceMigrate, type: :model do
       let(:s3_directory) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/test_directory_key", size: 0 }
       let(:fake_s3_service) { stub_s3(data: [s3_file, s3_file2, s3_directory], prefix: "abc/123/") }
       let(:fake_completion) { instance_double(Seahorse::Client::Response, "successful?": true) }
+      let(:etag1) { "AI7sEcOecDhAlznAFgp5Og==" }
+      let(:etag2) { "e9PUM5wDTrxmO5kGV3FGiA==" }
+      let(:etag3) { "HiBNrT6eHi5mYO75wzRn6Q==" }
+      let(:etag4) { "abc123" }
 
       before do
         allow(fake_s3_service).to receive(:upload_file).with(hash_including(filename: /data_space_SCoData_combined_v1_2020-07_README/))
@@ -74,6 +78,14 @@ RSpec.describe PULDspaceMigrate, type: :model do
         expect(UploadSnapshot.all.count).to eq(0)
         FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
         subject.migrate
+
+        allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return(
+          { etag: etag1 },
+          { etag: etag2 },
+          { etag: etag3 },
+          { etag: etag4 }
+        )
+
         expect(subject.file_keys).to eq(["abc/123/data_space_SCoData_combined_v1_2020-07_README.txt",
                                          "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
                                          "abc/123/license.txt",
@@ -132,6 +144,14 @@ RSpec.describe PULDspaceMigrate, type: :model do
         it "migrates the content from dspace and aws skipping the same file" do
           expect(UploadSnapshot.all.count).to eq(0)
           FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
+
+          allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return(
+            { etag: etag2 },
+            { etag: etag3 },
+            { etag: etag4 },
+            { etag: etag1 }
+          )
+
           subject.migrate
           expect(subject.file_keys).to eq(["abc/123/SCoData_combined_v1_2020-07_datapackage.json",
                                            "abc/123/license.txt",
@@ -177,6 +197,14 @@ RSpec.describe PULDspaceMigrate, type: :model do
         it "migrates the content from dspace only" do
           expect(UploadSnapshot.all.count).to eq(0)
           FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
+
+          allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return(
+            { etag: etag1 },
+            { etag: etag2 },
+            { etag: etag3 },
+            { etag: etag4 }
+          )
+
           subject.migrate
           expect(subject.file_keys).to eq(["abc/123/SCoData_combined_v1_2020-07_README.txt",
                                            "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
@@ -221,6 +249,14 @@ RSpec.describe PULDspaceMigrate, type: :model do
 
         it "downloads the bitstreams" do
           allow(Honeybadger).to receive(:notify)
+          allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return(
+            { etag: etag2 },
+            { etag: etag3 },
+            { etag: etag4 },
+            { etag: etag4 },
+            { etag: etag1 }
+          )
+
           subject.migrate
           perform_enqueued_jobs
           expect(Honeybadger).to have_received(:notify).with(/Mismatching checksum .* for work: #{work.id} doi: #{work.doi} ark: #{work.ark}/)
@@ -244,6 +280,14 @@ RSpec.describe PULDspaceMigrate, type: :model do
         it "migrates the content from dspace and aws" do
           expect(UploadSnapshot.all.count).to eq(0)
           FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
+          allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return(
+            { etag: etag2 },
+            { etag: etag3 },
+            { etag: etag4 },
+            { etag: etag4 },
+            { etag: etag1 }
+          )
+
           subject.migrate
           expect(subject.file_keys).to eq(["abc/123/data_space_SCoData_combined_v1_2020-07_README.txt",
                                            "abc/123/SCoData_combined_v1_2020-07_datapackage.json",

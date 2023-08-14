@@ -18,6 +18,13 @@ class MigrationUploadSnapshot < UploadSnapshot
     if index.present?
       files[index]["migrate_status"] = "complete"
       files[index].delete("migrate_error")
+
+      # Retrieve the checksum from AWS, as this often differs from what is migrated from DSpace
+      # Please see https://github.com/pulibrary/pdc_describe/issues/1413
+      updated = s3_file.s3_query_service.get_s3_object_attributes(key: s3_file.filename)
+      updated_checksum = updated[:etag]
+
+      files[index]["checksum"] = updated_checksum
       finalize_migration if migration_complete?
     end
   end
