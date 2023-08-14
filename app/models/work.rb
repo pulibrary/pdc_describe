@@ -508,9 +508,9 @@ class Work < ApplicationRecord
 
     upload_snapshot = latest_snapshot
 
-    snapshot_deletions(work_changes, s3_filenames, upload_snapshot)
+    upload_snapshot.snapshot_deletions(work_changes, s3_filenames)
 
-    snapshot_modifications(work_changes, s3_files, upload_snapshot)
+    upload_snapshot.snapshot_modifications(work_changes, s3_files)
 
     # Create WorkActivity models with the set of changes
     unless work_changes.empty?
@@ -748,27 +748,6 @@ class Work < ApplicationRecord
     def latest_snapshot
       upload_snapshot = upload_snapshots.first
       upload_snapshot ||= UploadSnapshot.new(work: self, files: [])
-    end
-
-    def snapshot_deletions(work_changes, s3_filenames, upload_snapshot)
-      upload_snapshot.existing_files.each do |file|
-        filename = file["filename"]
-        unless s3_filenames.include?(filename)
-          work_changes << { action: "removed", filename: filename, checksum: file["checksum"] }
-        end
-      end
-    end
-
-    def snapshot_modifications(work_changes, s3_files, upload_snapshot)
-      # check for modifications
-      s3_files.each do |s3_file|
-        next if upload_snapshot.match?(s3_file)
-        work_changes << if upload_snapshot.include?(s3_file)
-                          { action: "replaced", filename: s3_file.filename, checksum: s3_file.checksum }
-                        else
-                          { action: "added", filename: s3_file.filename, checksum: s3_file.checksum }
-                        end
-      end
     end
 end
 # rubocop:enable Metrics/ClassLength
