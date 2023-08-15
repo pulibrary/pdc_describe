@@ -1,19 +1,19 @@
 <!-- Creators section -->
 <div class="field">
-  <%= render partial: "required_form_field_details", locals: { name: "creators", display_name: "Creator(s)", 
+  <%= render partial: "required_form_field_details", locals: { name: "creators", display_name: "Creator(s)",
                                                               primary_detail: "Enter (at minimum) the given name (i.e, first name) and family name (i.e., last name) of all
                                                               persons primarily responsible for creating this item. At least one creator must be provided.",
                                                               field_detail: "
                                                               <ul>
-                                                              <li> We recommend entering an ORCID ID. You may <a href=\"https://orcid.org/orcid-search/search\">look up an ORCID ID here</a>.
-                                                              <li>ROR is a persistent identifier for research organizations. <a href=\"https://ror.org/search\">You may look up a ROR here</a>.
+                                                              <li> We recommend entering an ORCID ID. You may <a href=\"https://orcid.org/orcid-search/search\" target=\"_blank\">look up an ORCID ID here</a>.
+                                                              <li>ROR is a persistent identifier for research organizations. <a href=\"https://ror.org/search\" target=\"_blank\">You may look up a ROR here</a>.
                                                               <li>Affiliation regards the research organization. Filling in the ROR will auto-populate the
                                                               Affiliation field.
                                                               <li>Popular RORs for this service include:</li>
                                                               <ul>
-                                                                <li>Princeton University: <a href=\"https://ror.org/00hx57361\">https://ror.org/00hx57361</a></li>
-                                                                <li>Princeton Plasma Physics Laboratory: <a href=\"https://ror.org/03vn1ts68\">https://ror.org/03vn1ts68</a></li>
-                                                                <li>Geophysical Fluid Dynamics Laboratory: <a href=\"https://ror.org/03vmn1898\">https://ror.org/03vmn1898</a></li>
+                                                                <li>Princeton University: <a href=\"https://ror.org/00hx57361\" target=\"_blank\">https://ror.org/00hx57361</a></li>
+                                                                <li>Princeton Plasma Physics Laboratory: <a href=\"https://ror.org/03vn1ts68\" target=\"_blank\">https://ror.org/03vn1ts68</a></li>
+                                                                <li>Geophysical Fluid Dynamics Laboratory: <a href=\"https://ror.org/03vmn1898\ target=\"_blank\">https://ror.org/03vmn1898</a></li>
                                                               </ul>
                                                               </ul>",
                                                               field_error: "Must provide at least one creator"
@@ -39,10 +39,10 @@
       </tr>
     </thead>
     <tbody class="sortable">
-      <% creators = if @work.nil? || @work.resource.creators.empty? 
+      <% creators = if @work.nil? || @work.resource.creators.empty?
                       [nil]
                     else
-                      @work.resource.creators 
+                      @work.resource.creators
                     end %>
       <% creators.each do |creator| %>
         <tr class="creators-table-row">
