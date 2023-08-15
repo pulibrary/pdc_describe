@@ -222,36 +222,13 @@ class User < ApplicationRecord
   def assign_default_role
     @just_created = true
     add_role(:submitter, default_group) unless has_role?(:submitter, default_group)
-    enable_messages_from(group: default_group)
+    default_group.enable_messages_for(user: self)
   end
 
   # Returns true if the user has notification e-mails enabled
   # @return [Boolean]
   def email_messages_enabled?
     email_messages_enabled
-  end
-
-  # Permit this user to receive notification messages for members of a given Group
-  # @param group [Group]
-  def enable_messages_from(group:)
-    raise(ArgumentError, "User #{uid} is not an administrator or depositor for the group #{group.title}") unless can_admin?(group) || can_submit?(group)
-    group_messaging_options << GroupOption.new(option_type: GroupOption::EMAIL_MESSAGES, user: self, group: group)
-  end
-
-  # Disable this user from receiving notification messages for members of a given Group
-  # @param group [Group]
-  def disable_messages_from(group:)
-    raise(ArgumentError, "User #{uid} is not an administrator or depositor for the group #{group.title}") unless can_admin?(group) || can_submit?(group)
-    groups_with_messaging.destroy(group)
-  end
-
-  # Returns true if the user has notification e-mails enabled for a given group
-  # @param group [Group]
-  # @return [Boolean]
-  def messages_enabled_from?(group:)
-    found = group_messaging_options.find_by(group: group)
-
-    !found.nil?
   end
 end
 # rubocop:enable Metrics/ClassLength

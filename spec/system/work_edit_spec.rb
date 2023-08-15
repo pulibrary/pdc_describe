@@ -271,54 +271,69 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
   # end
 
   context "as a user without group admin privileges" do
-    let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+    let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work, state: state) }
     let(:user) { work.created_by_user }
 
-    it "renders the curator controlled metadata as read-only" do
+    before do
       sign_in user
       visit edit_work_path(work)
-      click_on "Curator Controlled"
+    end
 
-      publisher_element = page.find("#publisher")
-      expect(publisher_element.tag_name).to eq("input")
-      expect(publisher_element["readonly"]).to eq("true")
+    context "when the Work has not yet been approved" do
+      let(:state) { :draft }
 
-      publication_year_element = page.find("#publication_year")
-      expect(publication_year_element.tag_name).to eq("input")
-      expect(publication_year_element["readonly"]).to eq("true")
+      it "renders the curator controlled metadata as read-only" do
+        click_on "Curator Controlled"
 
-      doi_element = page.find("#doi")
-      expect(doi_element.tag_name).to eq("input")
-      expect(doi_element["readonly"]).to eq("true")
+        publisher_element = page.find("#publisher")
+        expect(publisher_element.tag_name).to eq("input")
+        expect(publisher_element["readonly"]).to eq("true")
 
-      ark_element = page.find("#ark")
-      expect(ark_element.tag_name).to eq("input")
-      expect(ark_element["readonly"]).to eq("true")
+        publication_year_element = page.find("#publication_year")
+        expect(publication_year_element.tag_name).to eq("input")
+        expect(publication_year_element["readonly"]).to eq("true")
 
-      resource_type_element = page.find("#resource_type")
-      expect(resource_type_element.tag_name).to eq("input")
-      expect(resource_type_element["readonly"]).to eq("true")
+        doi_element = page.find("#doi")
+        expect(doi_element.tag_name).to eq("input")
+        expect(doi_element["readonly"]).to eq("true")
 
-      resource_type_general_element = page.find("#resource_type_general")
-      expect(resource_type_general_element.tag_name).to eq("select")
-      expect(resource_type_general_element["disabled"]).to eq("true")
+        ark_element = page.find("#ark")
+        expect(ark_element.tag_name).to eq("input")
+        expect(ark_element["readonly"]).to eq("true")
 
-      version_number_element = page.find("#version_number")
-      expect(version_number_element.tag_name).to eq("select")
-      expect(version_number_element["disabled"]).to eq("true")
+        resource_type_element = page.find("#resource_type")
+        expect(resource_type_element.tag_name).to eq("input")
+        expect(resource_type_element["readonly"]).to eq("true")
 
-      group_id_element = page.find("#group_id")
-      expect(group_id_element.tag_name).to eq("select")
-      expect(group_id_element["disabled"]).to eq("true")
+        resource_type_general_element = page.find("#resource_type_general")
+        expect(resource_type_general_element.tag_name).to eq("select")
+        expect(resource_type_general_element["disabled"]).to eq("true")
 
-      collection_tags_element = page.find("#collection_tags")
-      expect(collection_tags_element.tag_name).to eq("input")
-      expect(collection_tags_element["readonly"]).to eq("true")
+        version_number_element = page.find("#version_number")
+        expect(version_number_element.tag_name).to eq("select")
+        expect(version_number_element["disabled"]).to eq("true")
 
-      expect(page.all("input[type=text][readonly]").count).to eq(page.all("input[type=text]").count) # all inputs on curator controlled metadata should be readonly
+        group_id_element = page.find("#group_id")
+        expect(group_id_element.tag_name).to eq("select")
+        expect(group_id_element["disabled"]).to eq("true")
 
-      # The +1 in here is to account for the control for file list page size that DataTables adds to the file list
-      expect(page.all("select[disabled]").count + 1).to eq(page.all("select").count) # all selects inputs on curator controlled metadata should be disabled
+        collection_tags_element = page.find("#collection_tags")
+        expect(collection_tags_element.tag_name).to eq("input")
+        expect(collection_tags_element["readonly"]).to eq("true")
+
+        expect(page.all("input[type=text][readonly]").count).to eq(page.all("input[type=text]").count) # all inputs on curator controlled metadata should be readonly
+
+        # The +1 in here is to account for the control for file list page size that DataTables adds to the file list
+        expect(page.all("select[disabled]").count + 1).to eq(page.all("select").count) # all selects inputs on curator controlled metadata should be disabled
+      end
+    end
+
+    context "when the Work has been approved" do
+      let(:state) { :approved }
+
+      it "renders an error message on the edit page" do
+        expect(page).to have_content("This work has been approved. Edits are no longer available.")
+      end
     end
   end
 
@@ -346,6 +361,50 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       expect(work.ark).to eq("ark:/11111/abc12345678901")
       expect(work.resource.resource_type).to eq("Something")
       expect(work.resource.collection_tags).to eq(["tag1", "tag2"])
+    end
+  end
+
+  context "when the Work has been approved" do
+    context "as a user with super admin privileges" do
+      let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work, state: :approved) }
+      let(:user) { FactoryBot.create :super_admin_user }
+
+      before do
+        sign_in user
+        visit edit_work_path(work)
+      end
+
+      it "renders the DOI as read-only" do
+        # disabled: true and readonly: true fail to find the proper HTML element through Capybara
+        expect(page).to have_field("doi", visible: false)
+      end
+
+      it "renders the DOI in the curator controlled metadata as read-only" do
+        click_on "Curator Controlled"
+
+        doi_element = page.find("#doi")
+        expect(doi_element.tag_name).to eq("input")
+        expect(doi_element["readonly"]).to eq("true")
+      end
+    end
+  end
+
+  context "when the Work has not been approved" do
+    context "as a user with super admin privileges" do
+      let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work, state: :draft) }
+      let(:user) { FactoryBot.create :super_admin_user }
+
+      before do
+        sign_in user
+        visit edit_work_path(work)
+      end
+
+      it "renders the DOI as read-only" do
+        # disabled: true and readonly: true fail to find the proper HTML element through Capybara
+        doi_element = page.find("#doi")
+        expect(doi_element).not_to be nil
+        expect(doi_element.tag_name).to eq("p")
+      end
     end
   end
 end

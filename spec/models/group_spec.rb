@@ -27,6 +27,17 @@ RSpec.describe Group, type: :model do
     expect(described_class.default_for_department("41000")).to_not be nil
   end
 
+  it "sorts alphabetically communities and subcommunities" do
+    described_class.create_defaults
+    group_rd = described_class.where(code: "RD").first
+    expect(group_rd.communities.first).to eq "Astrophysical Sciences"
+    expect(group_rd.communities.last).to eq "Princeton School of Public and International Affairs"
+
+    group_pppl = described_class.where(code: "PPPL").first
+    expect(group_pppl.subcommunities.first).to eq "Advanced Projects"
+    expect(group_pppl.subcommunities.last).to eq "Theory and Computation"
+  end
+
   describe ".default_for_department" do
     subject(:group) { described_class.default_for_department(department_number) }
 
@@ -63,23 +74,14 @@ RSpec.describe Group, type: :model do
       let(:user) { User.new_super_admin("test-admin") }
 
       it "disables email messages for notifications for a User" do
-        # Initially messages are disabled for the user
+        # Initially messages are enabled for the user
         state = group.messages_enabled_for?(user: user)
-        expect(state).to be false
+        expect(state).to be true
 
-        group.enable_messages_for(user: user)
-        group.save!
-        group.reload
-
-        # After enabling messages for the user, that they are enabled is verified
-        enabled_state = group.messages_enabled_for?(user: user)
-        expect(enabled_state).to be true
-
+        # After disabling messages for the user, that they are disabled is verified
         group.disable_messages_for(user: user)
         group.save!
         group.reload
-
-        # After disabling messages for the user, that they are disabled is verified
         disabled_state = group.messages_enabled_for?(user: user)
         expect(disabled_state).to be false
       end
@@ -92,17 +94,9 @@ RSpec.describe Group, type: :model do
       end
 
       it "disables email messages for notifications for a User" do
-        # Initially messages are disabled for the user
+        # Initially messages are enabled for the user
         state = group.messages_enabled_for?(user: user)
-        expect(state).to be false
-
-        group.enable_messages_for(user: user)
-        group.save!
-        group.reload
-
-        # After enabling messages for the user, that they are enabled is verified
-        enabled_state = group.messages_enabled_for?(user: user)
-        expect(enabled_state).to be true
+        expect(state).to be true
 
         group.disable_messages_for(user: user)
         group.save!
@@ -116,9 +110,9 @@ RSpec.describe Group, type: :model do
 
     it "raises an ArgumentError" do
       state = group.messages_enabled_for?(user: user)
-      expect(state).to be false
+      expect(state).to be true
 
-      expect { group.disable_messages_for(user: user) }.to raise_error(ArgumentError, "User #{user.uid} is not an administrator for this group #{group.title}")
+      expect { group.disable_messages_for(user: user) }.to raise_error(ArgumentError, "User #{user.uid} is not an administrator or submitter for this group #{group.title}")
     end
   end
 end

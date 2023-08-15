@@ -570,8 +570,36 @@ XML
     end
 
     it "uploads the readme" do
-      expect(s3_query_service.upload_file(io: file, filename: filename)).to eq("10.34770/pe9w-x904/#{work.id}/README.txt")
+      expect(s3_query_service.upload_file(io: file, filename: filename, size: 2852)).to eq("10.34770/pe9w-x904/#{work.id}/README.txt")
       assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}", headers: { "Content-Length" => 2852 })
+    end
+
+    context "when the file is large" do
+      let(:fake_aws_client) { double(Aws::S3::Client) }
+      let(:fake_multi) { instance_double(Aws::S3::Types::CreateMultipartUploadOutput, key: "abc", upload_id: "upload id", bucket: "bucket") }
+      let(:fake_upload) { instance_double(Aws::S3::Types::UploadPartOutput, etag: "etag123abc") }
+      let(:fake_completion) { instance_double(Seahorse::Client::Response, "successful?": true) }
+      let(:key) { "10.34770/pe9w-x904/#{work.id}/README.txt" }
+
+      before do
+        s3_query_service.stub(:client).and_return(fake_aws_client)
+        allow(s3_query_service.client).to receive(:create_multipart_upload).and_return(fake_multi)
+        allow(s3_query_service.client).to receive(:upload_part).and_return(fake_upload)
+        allow(s3_query_service.client).to receive(:complete_multipart_upload).and_return(fake_completion)
+      end
+
+      it "uploads the large file" do
+        expect(s3_query_service.upload_file(io: file, filename: filename, size: 6_000_000_000)).to eq(key)
+        expect(s3_query_service.client).to have_received(:create_multipart_upload)
+          .with({ bucket: "example-bucket", key: key })
+        expect(subject.client).to have_received(:upload_part)
+          .with(hash_including(bucket: "example-bucket", key: "abc", part_number: 1, upload_id: "upload id"))
+        expect(subject.client).to have_received(:upload_part)
+          .with(hash_including(bucket: "example-bucket", key: "abc", part_number: 2, upload_id: "upload id"))
+        expect(subject.client).to have_received(:complete_multipart_upload)
+          .with({ bucket: "example-bucket", key: key, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1 },
+                                                                                  { etag: "etag123abc", part_number: 2 }] }, upload_id: "upload id" })
+      end
     end
 
     context "when checksum does not match" do
@@ -580,7 +608,7 @@ XML
       end
 
       it "detects the upload error" do
-        expect(s3_query_service.upload_file(io: file, filename: filename)).to be_falsey
+        expect(s3_query_service.upload_file(io: file, filename: filename, size: 2852)).to be_falsey
         assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}", headers: { "Content-Length" => 2852 })
       end
     end
@@ -604,7 +632,7 @@ XML
 
       it "logs the error" do
         s3_query_service = described_class.new(work)
-        result = s3_query_service.upload_file(io: file, filename: filename)
+        result = s3_query_service.upload_file(io: file, filename: filename, size: 2852)
         expect(result).to be false
         # rubocop:disable Layout/LineLength
         expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to create the AWS S3 Object in the bucket example-bucket with the key #{prefix}README.txt: test AWS service error")

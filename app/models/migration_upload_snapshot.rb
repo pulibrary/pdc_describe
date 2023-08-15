@@ -17,6 +17,14 @@ class MigrationUploadSnapshot < UploadSnapshot
     index = find_file(s3_file.filename)
     if index.present?
       files[index]["migrate_status"] = "complete"
+      files[index].delete("migrate_error")
+
+      # Retrieve the checksum from AWS, as this often differs from what is migrated from DSpace
+      # Please see https://github.com/pulibrary/pdc_describe/issues/1413
+      updated = s3_file.s3_query_service.get_s3_object_attributes(key: s3_file.filename)
+      updated_checksum = updated[:etag]
+
+      files[index]["checksum"] = updated_checksum
       finalize_migration if migration_complete?
     end
   end
@@ -58,7 +66,7 @@ class MigrationUploadSnapshot < UploadSnapshot
   private
 
     def find_file(filename)
-      index = files.index { |file| file["filename"] == filename && file["migrate_status"] == "started" }
+      index = files.index { |file| file["filename"] == filename && (file["migrate_status"] == "started" || file["migrate_status"] == "error") }
       if index.nil?
         Honeybadger.notify("Migrated a file that was not part of the orginal Migration: #{id} for work #{work_id}: #{filename}")
       end

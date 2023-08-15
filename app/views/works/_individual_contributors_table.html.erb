@@ -3,7 +3,7 @@
   <details>
     <summary>Additional Individual Contributors<br />Enter (at minimum) the given name (i.e, first name) and family name (i.e., last name) of persons who are not authors but have contributed to creating this item.</summary>
     <ul>
-      <li>We recommend entering an ORCID ID. <%= link_to("You may look up an ORCID ID here.", "https://orcid.org/orcid-search/search") %></li>
+      <li>We recommend entering an ORCID ID. <%= link_to("You may look up an ORCID ID here.", "https://orcid.org/orcid-search/search", target: "_blank") %></li>
     </ul>
   </details>
 
@@ -19,10 +19,10 @@
       </tr>
     </thead>
     <tbody class="sortable">
-      <% contributors = if @work.nil? || @work.resource.individual_contributors.empty? 
+      <% contributors = if @work.nil? || @work.resource.individual_contributors.empty?
                       [nil]
                     else
-                      @work.resource.individual_contributors 
+                      @work.resource.individual_contributors
                     end %>
       <% skipped_roles = ['DISTRIBUTOR', 'FUNDER', 'HOSTING_INSTITUTION', 'REGISTRATION_AGENCY', 'REGISTRATION_AUTHORITY', 'RESEARCH GROUP'] %>
       <% contributors.each do |contributor| %>

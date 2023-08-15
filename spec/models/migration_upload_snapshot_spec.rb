@@ -26,6 +26,54 @@ RSpec.describe MigrationUploadSnapshot, type: :model do
   end
 
   describe "#mark_complete" do
+    let(:s3_etag) { "008eec11c39e7038409739c0160a793a" }
+    let(:s3_attributes_response_body) do
+      <<-XML
+<?xml version="1.0" encoding="UTF-8"?>
+<GetObjectAttributesOutput>
+  <ETag>#{s3_etag}</ETag>
+  <Checksum>
+    <ChecksumCRC32>string</ChecksumCRC32>
+    <ChecksumCRC32C>string</ChecksumCRC32C>
+    <ChecksumSHA1>string</ChecksumSHA1>
+    <ChecksumSHA256>string</ChecksumSHA256>
+  </Checksum>
+  <ObjectParts>
+    <IsTruncated>boolean</IsTruncated>
+    <MaxParts>integer</MaxParts>
+    <NextPartNumberMarker>integer</NextPartNumberMarker>
+    <PartNumberMarker>integer</PartNumberMarker>
+    <Part>
+      <ChecksumCRC32>string</ChecksumCRC32>
+      <ChecksumCRC32C>string</ChecksumCRC32C>
+      <ChecksumSHA1>string</ChecksumSHA1>
+      <ChecksumSHA256>string</ChecksumSHA256>
+      <PartNumber>integer</PartNumber>
+      <Size>integer</Size>
+    </Part>
+    <PartsCount>integer</PartsCount>
+  </ObjectParts>
+  <StorageClass>string</StorageClass>
+  <ObjectSize>12</ObjectSize>
+</GetObjectAttributesOutput>
+XML
+    end
+    let(:s3_attributes_response_headers) do
+      {
+        'Accept-Ranges': "bytes",
+        'Content-Length': s3_attributes_response_body.length,
+        'Content-Type': "text/plain",
+        'ETag': "6805f2cfc46c0f04559748bb039d69ae",
+        'Last-Modified': Time.parse("Thu, 15 Dec 2016 01:19:41 GMT")
+      }
+    end
+
+    before do
+      stub_request(:get, "https://example-bucket.s3.amazonaws.com/filetwo?attributes").to_return(status: 200, headers: s3_attributes_response_headers, body: s3_attributes_response_body)
+      stub_request(:get, "https://example-bucket.s3.amazonaws.com/fileone?attributes").to_return(status: 200, headers: s3_attributes_response_headers, body: s3_attributes_response_body)
+      stub_request(:get, "https://example-bucket.s3.amazonaws.com/aws4_request?attributes").to_return(status: 200, body: {}.to_json)
+    end
+
     it "changes the status" do
       allow(Honeybadger).to receive(:notify)
       migration_upload_snapshot.store_files([s3_file1, s3_file2])
@@ -33,13 +81,13 @@ RSpec.describe MigrationUploadSnapshot, type: :model do
       migration_upload_snapshot.mark_complete(s3_file2)
       expect(work.work_activity.count).to eq(0)
       expect(migration_upload_snapshot.files).to eq([{ "filename" => "fileone", "checksum" => "aaabbb111222", "migrate_status" => "started" },
-                                                     { "filename" => "filetwo", "checksum" => "dddeee111222", "migrate_status" => "complete" }])
+                                                     { "filename" => "filetwo", "checksum" => s3_etag, "migrate_status" => "complete" }])
       expect(migration_upload_snapshot.migration_complete?).to be_falsey
-      expect(migration_upload_snapshot.existing_files).to eq([{ "filename" => "filetwo", "checksum" => "dddeee111222", "migrate_status" => "complete" }])
+      expect(migration_upload_snapshot.existing_files).to eq([{ "filename" => "filetwo", "checksum" => s3_etag, "migrate_status" => "complete" }])
       migration_upload_snapshot.mark_complete(s3_file1)
       expect(migration_upload_snapshot.migration_complete?).to be_truthy
-      expect(migration_upload_snapshot.existing_files).to eq([{ "filename" => "fileone", "checksum" => "aaabbb111222", "migrate_status" => "complete" },
-                                                              { "filename" => "filetwo", "checksum" => "dddeee111222", "migrate_status" => "complete" }])
+      expect(migration_upload_snapshot.existing_files).to eq([{ "filename" => "fileone", "checksum" => s3_etag, "migrate_status" => "complete" },
+                                                              { "filename" => "filetwo", "checksum" => s3_etag, "migrate_status" => "complete" }])
       expect(work.work_activity.count).to eq(1)
       expect(work.work_activity.first.message).to eq("{\"migration_id\":123,\"message\":\"Migration from Dataspace is complete.\"}")
       expect(work.work_activity.first.created_by_user_id).to eq(nil)
@@ -58,17 +106,39 @@ activity_type: WorkActivity::MIGRATION_START)
         migration_upload_snapshot.mark_complete(s3_file2)
         expect(work.work_activity.count).to eq(1)
         expect(migration_upload_snapshot.files).to eq([{ "filename" => "fileone", "checksum" => "aaabbb111222", "migrate_status" => "started" },
-                                                       { "filename" => "filetwo", "checksum" => "dddeee111222", "migrate_status" => "complete" }])
+                                                       { "filename" => "filetwo", "checksum" => s3_etag, "migrate_status" => "complete" }])
         expect(migration_upload_snapshot.migration_complete?).to be_falsey
-        expect(migration_upload_snapshot.existing_files).to eq([{ "filename" => "filetwo", "checksum" => "dddeee111222", "migrate_status" => "complete" }])
+        expect(migration_upload_snapshot.existing_files).to eq([{ "filename" => "filetwo", "checksum" => s3_etag, "migrate_status" => "complete" }])
         migration_upload_snapshot.mark_complete(s3_file1)
         expect(migration_upload_snapshot.migration_complete?).to be_truthy
-        expect(migration_upload_snapshot.existing_files).to eq([{ "filename" => "fileone", "checksum" => "aaabbb111222", "migrate_status" => "complete" },
-                                                                { "filename" => "filetwo", "checksum" => "dddeee111222", "migrate_status" => "complete" }])
+        expect(migration_upload_snapshot.existing_files).to eq([{ "filename" => "fileone", "checksum" => s3_etag, "migrate_status" => "complete" },
+                                                                { "filename" => "filetwo", "checksum" => s3_etag, "migrate_status" => "complete" }])
         expect(work.work_activity.count).to eq(2)
         expect(work.work_activity.first.message).to eq("{\"migration_id\":123,\"message\":\"2 files and 1 directory have migrated from Dataspace.\"}")
         expect(work.work_activity.first.created_by_user_id).to eq(work.created_by_user_id)
         expect(Honeybadger).not_to have_received(:notify)
+      end
+    end
+
+    context "when a snapshot has an error" do
+      before do
+        migration_upload_snapshot.store_files([s3_file1, s3_file2])
+        migration_upload_snapshot.mark_error(s3_file1, "an error")
+      end
+      it "can be completed" do
+        expect(work.work_activity.count).to eq(0)
+        migration_upload_snapshot.mark_complete(s3_file2)
+        expect(work.work_activity.count).to eq(0)
+        expect(migration_upload_snapshot.files).to eq([{ "filename" => "fileone", "checksum" => "aaabbb111222", "migrate_status" => "error", "migrate_error" => "an error" },
+                                                       { "filename" => "filetwo", "checksum" => s3_etag, "migrate_status" => "complete" }])
+        expect(migration_upload_snapshot.migration_complete?).to be_falsey
+        migration_upload_snapshot.mark_complete(s3_file1)
+        expect(migration_upload_snapshot.migration_complete?).to be_truthy
+        expect(migration_upload_snapshot.existing_files).to eq([{ "filename" => "fileone", "checksum" => s3_etag, "migrate_status" => "complete" },
+                                                                { "filename" => "filetwo", "checksum" => s3_etag, "migrate_status" => "complete" }])
+        expect(work.work_activity.count).to eq(1)
+        expect(work.work_activity.first.message).to eq("{\"migration_id\":123,\"message\":\"Migration from Dataspace is complete.\"}")
+        expect(work.work_activity.first.created_by_user_id).to eq(nil)
       end
     end
 

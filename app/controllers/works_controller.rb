@@ -303,11 +303,18 @@ class WorksController < ApplicationController
   end
 
   def migrating?
-    return false unless @work&.resource && params.key?(:migrate)
+    return @work.resource.migrated if @work&.resource && !params.key?(:migrate)
 
     params[:migrate]
   end
   helper_method :migrating?
+
+  def doi_mutable?
+    return true unless !@work.nil? && @work.persisted?
+
+    !@work.approved?
+  end
+  helper_method :doi_mutable?
 
   private
 
@@ -333,6 +340,9 @@ class WorksController < ApplicationController
       patch_params[:readme_file]
     end
 
+    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/BlockNesting
     def rescue_aasm_error
       yield
     rescue AASM::InvalidTransition => error
@@ -343,7 +353,25 @@ class WorksController < ApplicationController
       Honeybadger.notify("Invalid #{@work.current_transition}: #{error.message} errors: #{message}")
       @errors = ["Cannot #{@work.current_transition}: #{message}"]
       render error_action, status: :unprocessable_entity
+    rescue StandardError => generic_error
+      if action_name == "create"
+        if @work.persisted?
+          Honeybadger.notify("Failed to create the new Dataset #{@work.id}: #{generic_error.message}")
+          redirect_to edit_work_url(id: @work.id), notice: "Failed to create the new Dataset #{@work.id}: #{generic_error.message}", params: params
+        else
+          Honeybadger.notify("Failed to create a new Dataset #{@work.id}: #{generic_error.message}")
+          new_params = {}
+          new_params[:wizard] = wizard_mode? if wizard_mode?
+          new_params[:migrate] = migrating? if migrating?
+          redirect_to new_work_url(params: new_params), notice: "Failed to create a new Dataset: #{generic_error.message}", params: new_params
+        end
+      else
+        redirect_to root_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."
+      end
     end
+    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/BlockNesting
 
     def error_action
       if action_name == "create"

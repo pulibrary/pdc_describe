@@ -23,7 +23,7 @@ RSpec.describe "Commenting on works sends emails or not", type: :system, js: tru
 
   context "when the user has emails disabled" do
     before do
-      user2.disable_messages_from(group: work.group)
+      work.group.disable_messages_for(user: user2)
     end
 
     it "Allows the user to comment and tag a curator and it sends an email becuase it is a direct message" do
@@ -49,7 +49,7 @@ RSpec.describe "Commenting on works sends emails or not", type: :system, js: tru
 
     context "when the curator has emails disabled" do
       before do
-        user2.disable_messages_from(group: work.group)
+        work.group.disable_messages_for(user: user2)
       end
 
       it "Allows the user to comment and tag a curator and it sends an email becuase it is a direct message" do

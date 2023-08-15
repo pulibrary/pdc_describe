@@ -24,11 +24,6 @@ class PULDspaceMigrate
     @aws_files_and_directories = aws_connector.aws_files
     migrate_dspace
 
-    # If we didn't migrate anything from DataSpace then we didn't generate the migration snapshot,
-    # so do that now. Do it before copying the aws files so the MigrationUploadSnapshot will exist
-    # already when the DspaceFileCopyJob is started, and it will update correctly.
-    generate_migration_snapshot if work.skip_dataspace_migration?
-
     aws_copy(aws_files_and_directories)
   end
 
@@ -38,7 +33,6 @@ class PULDspaceMigrate
 
   def migration_message(input_file_keys = file_keys, input_directory_keys = directory_keys)
     message = []
-    message << "DSpace migration skipped for #{work.ark}. Only migrating files from AWS/Globus." if work.skip_dataspace_migration?
     message << "Migration for #{input_file_keys.count} #{'file'.pluralize(input_file_keys.count)} and #{input_directory_keys.count} #{'directory'.pluralize(input_directory_keys.count)}"
     message.join(" ")
   end
@@ -99,7 +93,6 @@ class PULDspaceMigrate
     end
 
     def migrate_dspace
-      return if work.skip_dataspace_migration?
       @dspace_files = dspace_connector.list_bitsteams
       generate_migration_snapshot
       dspace_files_json = "[#{dspace_files.map(&:to_json).join(',')}]"
