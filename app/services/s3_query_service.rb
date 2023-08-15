@@ -204,14 +204,16 @@ class S3QueryService
   # Copies the existing files from the pre-curation bucket to the post-curation bucket.
   # Notice that the copy process happens at AWS (i.e. the files are not downloaded and re-uploaded).
   # Returns an array with the files that were copied.
-  def publish_files
+  def publish_files(current_user)
     source_bucket = S3QueryService.pre_curation_config[:bucket]
     target_bucket = S3QueryService.post_curation_config[:bucket]
     files = client_s3_files(reload: true, bucket_name: source_bucket)
-
+    snapshot = ApprovedUploadSnapshot.new(work: model)
+    snapshot.store_files(files, current_user: current_user)
+    snapshot.save
     files.each do |file|
       ApprovedFileMoveJob.perform_later(work_id: model.id, source_bucket: source_bucket, source_key: file.key, target_bucket: target_bucket,
-                target_key: file.key, size: file.size)
+                target_key: file.key, size: file.size, snapshot_id: snapshot.id)
     end
     true
   end

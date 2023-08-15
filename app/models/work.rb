@@ -555,7 +555,7 @@ class Work < ApplicationRecord
     def publish(user)
       publish_doi(user)
       update_ark_information
-      publish_precurated_files
+      publish_precurated_files(user)
       save!
     end
 
@@ -730,7 +730,7 @@ class Work < ApplicationRecord
       uploads_keys.include?(s3_file.key)
     end
 
-    def publish_precurated_files
+    def publish_precurated_files(user)
       # An error is raised if there are no files to be moved
       raise(StandardError, "Attempting to publish a Work without attached uploads for #{s3_object_key}") if pre_curation_uploads_fast.empty? && post_curation_uploads.empty?
 
@@ -742,7 +742,7 @@ class Work < ApplicationRecord
       raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{s3_object_key}") unless s3_dir.nil?
 
       # Copy the pre-curation S3 Objects to the post-curation S3 Bucket...
-      s3_query_service.publish_files
+      s3_query_service.publish_files(user)
     end
 
     def latest_snapshot
