@@ -18,6 +18,7 @@ class AttachFileToWorkJob < ApplicationJob
     File.delete(file_path)
 
     background_upload_snapshot.with_lock do
+      background_upload_snapshot.reload
       background_upload_snapshot.mark_complete(file_name, work.s3_query_service.last_response.etag.delete('"'))
       background_upload_snapshot.save!
     end
