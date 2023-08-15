@@ -160,7 +160,7 @@ class Group < ApplicationRecord
     else
       ["Princeton Neuroscience Institute", "Department of Geosciences", "Mechanical and Aerospace Engineering",
        "Astrophysical Sciences", "Civil and Environmental Engineering", "Chemical and Biological Engineering",
-       "Digital Humanities", "Music and Arts", "Princeton School of Public and International Affairs"]
+       "Digital Humanities", "Music and Arts", "Princeton School of Public and International Affairs"].sort
     end
   end
 
@@ -182,7 +182,7 @@ class Group < ApplicationRecord
       values << "Other Projects"
       values << "System Studies"
     end
-    values
+    values.sort
   end
   # rubocop:enable Metrics/MethodLength
 

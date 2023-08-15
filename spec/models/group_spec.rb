@@ -27,6 +27,17 @@ RSpec.describe Group, type: :model do
     expect(described_class.default_for_department("41000")).to_not be nil
   end
 
+  it "sorts alphabetically communities and subcommunities" do
+    described_class.create_defaults
+    group_rd = described_class.where(code: "RD").first
+    expect(group_rd.communities.first).to eq "Astrophysical Sciences"
+    expect(group_rd.communities.last).to eq "Princeton School of Public and International Affairs"
+
+    group_pppl = described_class.where(code: "PPPL").first
+    expect(group_pppl.subcommunities.first).to eq "Advanced Projects"
+    expect(group_pppl.subcommunities.last).to eq "Theory and Computation"
+  end
+
   describe ".default_for_department" do
     subject(:group) { described_class.default_for_department(department_number) }
 
