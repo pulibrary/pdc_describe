@@ -36,49 +36,83 @@ Our migration process will be as follows:
 
 
 1. Check in with the migration team and agree on which collection is currently being migrated. Ensure the `Migration in progress` column is set to `Yes` for the collection in progress.
-1. Indicate on the [individual item tracking sheet](https://docs.google.com/spreadsheets/d/148EHw1FuYhd4kqov5UA04cpSekMGGlAy3zakBwuowFo/edit#gid=684248489) that you are taking a particular item, so we don't get two people trying to migrate the same item. Put your netid in the `curator` column of the spreadsheet. You can also make that row in the spreadsheet a different color. 
-1. Authenticate into PDC Describe and click the button with your Name or NetID on it in the top right corner. This will reveal a "Create Dataset" menu item.
+1. Indicate on the [individual item tracking sheet](https://docs.google.com/spreadsheets/d/148EHw1FuYhd4kqov5UA04cpSekMGGlAy3zakBwuowFo/edit#gid=684248489) that you are taking a particular item, so we don't get two people trying to migrate the same item. Put your netid in the `migrator` column of the spreadsheet. You can also make that row in the spreadsheet a different color. 
+1. Authenticate into PDC Describe and click the button with your Name or NetID on it in the top right corner. This will reveal a "Migrate Dataset" menu item.
      * Migration *must* happen via this menu item instead of via the wizard used for new deposits. Using this menu item is the only way to reach an interface that will let you enter an existing DOI (instead of minting a new one) and is the only way to record that a dataset is the result of a migration.
 2.  Re-describe the data set, referring to the metadata in DataSpace (get the url for an item from the spreadsheet). Note that your job is to *re-describe* the item. The metadata in DataSpace is often incomplete and sometimes wrong. Use your best judgement as a data curator. 
 
 ### Checklist of migration tasks:
 
-#### DOIs
+## Required Metadata
 
-If a work already has a DOI, it is important that we NOT register a new one. 
-
-<img src="images/enter_existing_doi.png"
-     alt="Screenshot of Create Dataset menu item"
-     style="margin-left: 10px; height: 200px" />
-
-1. If there is an existing DOI, enter it on the `Curator Controlled` tab. If this work is from PPPL, it likely has an existing DOI that is not in DataSpace. Go to the [osti website](https://www.osti.gov) to find it. Make sure to record the DOI for the Dataset, *not* the DOI for the publication.
-1.  You can also record the associated publication if you want to, as a "Related Object"
-2. Not every items in DataSpace will have a DOI. If you do not enter an existing DOI, the system will record a new one.  
-
-#### Creators
-1. Enter the creators of the work in publication order. Author order matters. 
-2. Enter an ORCID identifier for every creator you can find. There is [a spreadsheet of ORCIDs for PPPL](https://docs.google.com/spreadsheets/d/1U6AuWCLogVGBcNXmH4p6o8ZQc2nleyt0s0TedOpNkC0/edit#gid=0) researchers. If you cannot find an ORCID for a creator on a PPPL dataset, enter their name on [the second tab of the spreadsheet](https://docs.google.com/spreadsheets/d/1U6AuWCLogVGBcNXmH4p6o8ZQc2nleyt0s0TedOpNkC0/edit#gid=1142499854) and someome from PPPL will help you track it down.
+#### Title
+Enter the title as it is in DataSpace
 
 #### Description
 1. All variations on description are going into the same field. We are not going to distinguish between `abstract` and `description`, or other kinds of descriptive text.
 2. Remove all references to `Globus` from the description field. These will not be necessary in the new system, and they are not actually a description of this dataset. 
 
-#### Funders
+#### Rights
+Use the default value, "Creative Commons Attribution 4.0 International"
+
+#### Creators
+1. Enter the creators of the work in publication order. Author order matters. 
+2. Enter an ORCID identifier for every creator you can find. There is [a spreadsheet of ORCIDs for PPPL](https://docs.google.com/spreadsheets/d/1U6AuWCLogVGBcNXmH4p6o8ZQc2nleyt0s0TedOpNkC0/edit#gid=0) researchers. If the ORCID is not on the spreadsheet, do not try to track it down. 
+3. Be sure the name is recorded as it is on the DataSpace record. Do not update it to match the official name in ORCID. 
+
+## Additional Metadata
+
+#### Keywords
+If they exist in the DataSpace record, copy them here.
+
+#### Funding Reference
 1. Where possible, identify the funders of the work that created this dataset, along with the Award Number and Award URI if known.
 2. In DataSpace, funders are often found listed as a `Contributor`. Sometimes they can also be found in the README file if that exists. 
 3. Where possible, record the Research Organization Registry (ROR) identifier for an organization. Consult [https://ror.org/](https://ror.org/).
+4. Every PPPL item should include ROR https://ror.org/01bj3aw27 (US Department of Energy), with award number DE-AC02-09CH11466
 
-#### Other contributors
-1. Where possible, enter other contributors with their ORCIDs and RORs, if you can find them.
+#### Related Objects
+If there is a related object referenced in the DataSpace record, enter it here.
 
-#### Collection
-1. Works from PPPL should go into the `Princeton Plasma Physics` group. For PPPL items, also record the subcollection.
-2. Everything else goes into the PRDS group.
+#### Additional Individual Contributors
+Enter any other individual contributors as they exist on the DataSpace record.
+
+#### Additional Organizational Contributors
+Enter any other organizational contributors as they exist on the DataSpace record.
+
+#### Domains
+All PPPL works should go under "Natural Sciences". For other works, look at what DataSpace collection the work is coming from and consult [this mapping](https://github.com/pulibrary/pdc_discovery/blob/8c0482bc35006fd1d74a1cac34c2039d1eb7f0db/lib/traject/domain.rb#L23-L47) to determine which domain it belongs in.
+
+#### Communities
+If there are any communities recorded on the DataSpace record, enter them here.
+
+## Curator Controlled
+
+#### Publisher
+For PPPL items, the publisher should be "Princeton Plasma Physics Laboratory, Princeton University." For all other items, the publisher should be "Princeton University"
+
+#### Publication Year
+Record the publication year as recorded in DataSpace
+
+#### DOIs
+
+If a work already has a DOI, it is important that we NOT register a new one. 
+
+1. If there is an existing DOI, enter it here. If this work is from PPPL, it likely has an existing DOI that is not in DataSpace. These should be pre-populated in the migration spreadsheet.
+2. Not every items in DataSpace will have a DOI. If you do not enter an existing DOI, the system will mint a new one.  
 
 #### ARK
 1. The ARK is the unique identifier from DataSpace that will allow us to migrate the data payload. Make sure to enter the ARK exactly how it appears in DataSpace. 
-#### Click Migrate not Save 
-  To mark that this is a migrated work click the `Migrate` button on the Create Data form.  This marks the item as a migration item and enables the `Migrate Dataspace Files` button on the work show page.
+
+#### Resource Type 
+This will almost always be DataSet.
+
+#### Group
+2. Works from PPPL should go into the `Princeton Plasma Physics Lab` group. For PPPL items, also record the subcollections. Note that many PPPL items might belong to more than one subcollection.
+3. Everything else goes into the PRDS group.
+
+#### Click Migrate
+When you are done re-describing the work, click the "Migrate" button at the bottom of the screen.
   
 #### Migrate the data
 1. Once your metadata is complete, you can click the "Migrate Dataspace Files" button on the work show page and the data from this work will be automatically moved from DataSpace to PDC Describe pre-curation. In some cases this might take a long time. You may need to put the work down for a day and come back to it after the migration process is complete.  
@@ -100,5 +134,4 @@ If a work already has a DOI, it is important that we NOT register a new one.
 3. We will backup and then disable the collections that have been migrated, and direct all new deposits for a migrated collection to use PDC Describe
 
 ## Consequences
-
-1. We are making every effort to comply with Core Trust Seal best practices during this data migration. We are recording the identity of the person who is redescribing the work, and the identity, timestamp, and checksum values for the data that is migrated. 
+We are making every effort to comply with Core Trust Seal best practices during this data migration. We are recording the identity of the person who is redescribing the work, and the identity, timestamp, and checksum values for the data that is migrated. 
