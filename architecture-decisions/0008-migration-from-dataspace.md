@@ -24,7 +24,7 @@ Our migration process will be as follows:
 ### Tracking of migration process
 1. Tracking will happen in the [DataSpace Collections Migration Tracking Spreadsheet](https://docs.google.com/spreadsheets/d/148EHw1FuYhd4kqov5UA04cpSekMGGlAy3zakBwuowFo/edit#gid=0)
 1. Tracking on a per-collection basis will happen in the first tab, labeled "Collections"
-   * Note that the spreadsheet indicates an order in which we'd like to migrate collections
+   1. Migrate PPPL collections first
 2. Tracking on a per-item basis will happen on [the second tab](https://docs.google.com/spreadsheets/d/148EHw1FuYhd4kqov5UA04cpSekMGGlAy3zakBwuowFo/edit#gid=684248489) of the same spreadhsheet
 3. When the migration is complete, we will archive any spreadsheets used during the migration in this code repo, in case they are needed for future reference.
 
