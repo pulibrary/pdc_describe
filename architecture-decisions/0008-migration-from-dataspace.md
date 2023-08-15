@@ -96,7 +96,7 @@ If a work already has a DOI, it is important that we NOT register a new one.
 2. Not every items in DataSpace will have a DOI. If you do not enter an existing DOI, the system will mint a new one.  
 
 #### ARK
-1. The ARK is the unique identifier from DataSpace that will allow us to migrate the data payload. Make sure to enter the ARK exactly how it appears in DataSpace. 
+The ARK is the unique identifier from DataSpace that will allow us to migrate the data payload. Make sure to enter the ARK exactly how it appears in DataSpace. 
 
 #### Resource Type 
 This will almost always be DataSet.
