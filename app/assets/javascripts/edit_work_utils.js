@@ -116,7 +116,7 @@ $(() => {
   });
 
   // Drop the "http..."" portion of the URL if the user enters the full URL of a DOI
-  // http://doi.org/10.34880/8kyd-5v18 => 10.34880/8kyd-5v18
+  // https://doi.org/10.34880/8kyd-5v18 => 10.34880/8kyd-5v18
   $('#doi').on('input', (event) => {
     const prefix = 'https://doi.org/';
     const target = event.currentTarget;
