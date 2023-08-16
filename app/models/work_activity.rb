@@ -118,6 +118,7 @@ class WorkActivity < ApplicationRecord
 
     UNKNOWN_USER = "Unknown user outside the system"
     DATE_TIME_FORMAT = "%B %d, %Y %H:%M"
+    DATE_FORMAT = "%B %d, %Y"
     SORTABLE_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M"
 
     def to_html
@@ -137,7 +138,9 @@ class WorkActivity < ApplicationRecord
     def created_updated_html
       created = @work_activity.created_at.time.strftime(DATE_TIME_FORMAT)
       updated = @work_activity.updated_at.time.strftime(DATE_TIME_FORMAT)
-      if created == updated
+      created_date = @work_activity.created_at.time.strftime(DATE_FORMAT)
+      updated_date = @work_activity.updated_at.time.strftime(DATE_FORMAT)
+      if created_date == updated_date
         created
       else
         "#{created} (backdated event created #{updated})"
