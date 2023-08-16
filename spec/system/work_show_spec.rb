@@ -62,7 +62,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
   it "shows the PDC Discovery URL" do
     sign_in user
     visit work_path(work)
-    expect(page).to have_link("https://datacommons.princeton.edu/discovery/doi/10.34770/r2dz-ys12")
+    expect(page).to have_link("https://datacommons.princeton.edu/discovery/catalog/doi-10-34770-r2dz-ys12")
   end
 
   it "copies DOI to the clipboard" do

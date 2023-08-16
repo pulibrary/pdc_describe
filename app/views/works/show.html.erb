@@ -200,7 +200,7 @@
       <% if @work.resource.doi %>
         <dt>Discovery URL</dt>
         <dd>
-          <%= link_to(@work.doi_attribute_url, @work.doi_attribute_url) %>
+          <%= link_to(@work.pdc_discovery_url, @work.pdc_discovery_url) %>
         </dd>
       <% end %>
 
