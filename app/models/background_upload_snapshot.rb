@@ -42,6 +42,10 @@ class BackgroundUploadSnapshot < UploadSnapshot
   end
 
   def prefix_filename(filename)
-    "#{work.prefix}#{filename}"
+    if filename.include?(work.prefix)
+      filename
+    else
+      "#{work.prefix}#{filename}"
+    end
   end
 end
