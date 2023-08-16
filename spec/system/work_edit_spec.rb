@@ -401,7 +401,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
 
       it "renders the DOI as read-only" do
         # disabled: true and readonly: true fail to find the proper HTML element through Capybara
-        doi_element = page.find("#doi")
+        doi_element = page.find("#doi_text")
         expect(doi_element).not_to be nil
         expect(doi_element.tag_name).to eq("p")
       end

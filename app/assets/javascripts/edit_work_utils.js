@@ -115,6 +115,17 @@ $(() => {
     }
   });
 
+  // Drop the "http..."" portion of the URL if the user enters the full URL of a DOI
+  // https://doi.org/10.34880/8kyd-5v18 => 10.34880/8kyd-5v18
+  $('#doi').on('input', (event) => {
+    const prefix = 'https://doi.org/';
+    const target = event.currentTarget;
+    const doi = target.value.trim();
+    if (doi.startsWith(prefix)) {
+      target.value = doi.replace(prefix, '');
+    }
+  });
+
   // Allows the multi-fields to be reordered via drag and drop.
   // The `cancel` property "prevents sorting if you start on elements matching the selector"
   // https://api.jqueryui.com/sortable/#method-cancel
