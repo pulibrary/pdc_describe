@@ -81,8 +81,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       sign_in user
       visit user_path(user)
       click_on(user.uid)
-      expect(page).to have_link("Migrate Dataset")
-      click_on "Migrate Dataset"
+      expect(page).to have_link("Migrate PRDS Dataset")
+      click_on "Migrate PRDS Dataset"
       fill_in "title_main", with: title
       fill_in "creators[][given_name]", with: "Samantha"
       fill_in "creators[][family_name]", with: "Abrams"
@@ -97,6 +97,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       expect(resource.creators.last.given_name).to have_content("Samantha")
       expect(resource.creators.last.family_name).to have_content("Abrams")
       expect(resource.migrated).to be_truthy
+      expect(Work.last.group).to eq(Group.research_data)
       expect(page).to have_button("Migrate Dataspace Files")
       click_on "Complete"
       expect(page).to have_content "awaiting_approval"
