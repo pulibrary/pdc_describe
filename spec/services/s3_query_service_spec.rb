@@ -6,8 +6,8 @@ RSpec.describe S3QueryService do
 
   let(:work) { FactoryBot.create :draft_work, doi: doi }
   let(:subject) { described_class.new(work) }
-  let(:s3_key1) { "10-34770/pe9w-x904/SCoData_combined_v1_2020-07_README.txt" }
-  let(:s3_key2) { "10-34770/pe9w-x904/SCoData_combined_v1_2020-07_datapackage.json" }
+  let(:s3_key1) { "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_README.txt" }
+  let(:s3_key2) { "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json" }
   let(:s3_last_modified1) { Time.parse("2022-04-21T18:29:40.000Z") }
   let(:s3_last_modified2) { Time.parse("2022-04-21T18:30:07.000Z") }
   let(:s3_size1) { 5_368_709_122 }
@@ -183,7 +183,12 @@ XML
       allow(subject).to receive(:client).and_return(fake_aws_client)
       fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
       fake_s3_resp.stub(:to_h).and_return(s3_hash)
-      fake_completion = instance_double(Seahorse::Client::Response, "successful?": true)
+      fake_copy_object_result = instance_double(Aws::S3::Types::CopyObjectResult, etag: "\"abc123etagetag\"")
+      fake_copy = instance_double(Aws::S3::Types::CopyObjectOutput, copy_object_result: fake_copy_object_result)
+      fake_http_resp = instance_double(Seahorse::Client::Http::Response, status_code: 200, on_error: nil)
+      fake_http_req = instance_double(Seahorse::Client::Http::Request)
+      fake_request_context = instance_double(Seahorse::Client::RequestContext, http_response: fake_http_resp, http_request: fake_http_req)
+      fake_completion = Seahorse::Client::Response.new(context: fake_request_context, data: fake_copy)
       fake_delete = instance_double(Aws::S3::Types::DeleteObjectOutput, "to_h": {})
 
       allow(subject.client).to receive(:create_multipart_upload).and_return(fake_multi)
@@ -199,8 +204,17 @@ XML
 
     describe "#publish_files" do
       it "calls moves the files calling create_multipart_upload, head_object, and delete_object twice, once for each file, and called the preservation service" do
-        expect(subject.publish_files).to be_truthy
+        expect do
+          expect(subject.publish_files(user)).to be_truthy
+        end.to change { work.upload_snapshots.count }.by 1
         fake_s3_resp.stub(:to_h).and_return(s3_hash, empty_s3_hash)
+        snapshot = work.upload_snapshots.first
+        expect(snapshot.files).to eq([
+                                       { "filename" => "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_README.txt", "snapshot_id" => snapshot.id, "upload_status" => "started",
+                                         "user_id" => user.id, "checksum" => "008eec11c39e7038409739c0160a793a" },
+                                       { "filename" => "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json", "snapshot_id" => snapshot.id, "upload_status" => "started",
+                                         "user_id" => user.id, "checksum" => "7bd3d4339c034ebc663b990657714688" }
+                                     ])
         perform_enqueued_jobs
         expect(subject.client).to have_received(:create_multipart_upload)
           .with({ bucket: "example-bucket-post", key: s3_key1, checksum_algorithm: "SHA256" })
@@ -235,11 +249,17 @@ XML
         expect(subject.client).to have_received(:delete_object)
           .with({ bucket: "example-bucket", key: work.s3_object_key })
         expect(preservation_service).to have_received(:preserve!)
+        expect(snapshot.reload.files).to eq([
+                                              { "checksum" => "abc123etagetag", "filename" => "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_README.txt", "snapshot_id" => snapshot.id,
+                                                "upload_status" => "complete", "user_id" => user.id },
+                                              { "checksum" => "abc123etagetag", "filename" => "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json",
+                                                "snapshot_id" => snapshot.id, "upload_status" => "complete", "user_id" => user.id }
+                                            ])
       end
       context "the copy fails for some reason" do
         it "Does not delete anything and returns the missing file" do
           allow(subject.client).to receive(:head_object).and_return(true, false)
-          expect(subject.publish_files).to be_truthy
+          expect(subject.publish_files(user)).to be_truthy
           expect { perform_enqueued_jobs }.to raise_error(/File check was not valid/)
           expect(subject.client).to have_received(:create_multipart_upload)
             .with({ bucket: "example-bucket-post", key: s3_key1, checksum_algorithm: "SHA256" })
@@ -259,7 +279,7 @@ XML
 
         it "Does not delete anything and returns both missing files" do
           allow(subject.client).to receive(:head_object).and_return(false)
-          expect(subject.publish_files).to be_truthy
+          expect(subject.publish_files(user)).to be_truthy
 
           # both jobs create an exception
           expect { perform_enqueued_jobs }.to raise_error(/File check was not valid/)
