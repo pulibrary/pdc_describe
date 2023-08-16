@@ -32,7 +32,8 @@ class WorksController < ApplicationController
 
   # Renders the "step 0" information page before creating a new dataset
   def new
-    @work = Work.new(created_by_user_id: current_user.id, group: current_user.default_group)
+    group = Group.find_by(code: params[:group_code]) || current_user.default_group
+    @work = Work.new(created_by_user_id: current_user.id, group: group)
     if wizard_mode?
       render "new_submission"
     end

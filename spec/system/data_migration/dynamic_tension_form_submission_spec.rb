@@ -22,7 +22,10 @@ RSpec.describe "Form submission for migrating dynamic-tension", type: :system, m
   context "migrate record from dataspace" do
     it "produces and saves a valid datacite record" do
       sign_in user
-      visit "/works/new?migrate=true"
+      visit "/"
+      click_on(user.uid)
+      expect(page).to have_link("Migrate PPPL Dataset")
+      click_on "Migrate PPPL Dataset"
       fill_in "title_main", with: title
       fill_in "description", with: description
       select "Creative Commons Attribution 4.0 International", from: "rights_identifiers"
@@ -76,6 +79,7 @@ RSpec.describe "Form submission for migrating dynamic-tension", type: :system, m
       expect(page).to have_button("Migrate Dataspace Files")
       expect(page).to have_content "marked as Draft"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
+      expect(page).to have_content "Princeton Plasma Physics Lab (PPPL)"
       click_on "Complete"
       expect(page).to have_content "awaiting_approval"
       dynamic_tension_work = Work.last

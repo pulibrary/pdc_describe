@@ -31,8 +31,8 @@ Our migration process will be as follows:
 ### Migration of an individual item
 1. Check in with the migration team and agree on which collection is currently being migrated. Ensure the `Migration in progress` column is set to `Yes` for the collection in progress.
 2. Indicate on the [individual item tracking sheet](https://docs.google.com/spreadsheets/d/148EHw1FuYhd4kqov5UA04cpSekMGGlAy3zakBwuowFo/edit#gid=684248489) that you are taking a particular item, so we don't get two people trying to migrate the same item. Put your netid in the `migrator` column of the spreadsheet. You can also make that row in the spreadsheet a different color. 
-3. Authenticate into PDC Describe and click the button with your Name or NetID on it in the top right corner. This will reveal a "Migrate Dataset" menu item.
-     * Migration *must* happen via this menu item instead of via the wizard used for new deposits. Using this menu item is the only way to reach an interface that will let you enter an existing DOI (instead of minting a new one) and is the only way to record that a dataset is the result of a migration.
+3. Authenticate into PDC Describe and click the button with your Name or NetID on it in the top right corner. This will reveal "Migrate PPPL Dataset" and/or "Migrate PRDS Dataset" menu items.
+     * Migration *must* happen via these menu items instead of via the wizard used for new deposits. Using these menu items is the only way to reach an interface that will let you enter an existing DOI (instead of minting a new one) and is the only way to record that a dataset is the result of a migration.
 4.  Re-describe the data set, referring to the metadata in DataSpace (get the url for an item from the spreadsheet). Note that your job is to *re-describe* the item. The metadata in DataSpace is often incomplete and sometimes wrong. Use your best judgement as a data curator. 
 
 ### Checklist of migration tasks:
