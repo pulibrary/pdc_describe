@@ -197,6 +197,13 @@
         <dd><%= link_to(@work.resource.ark, ark_url(@work.resource.ark)) %></dd>
       <% end %>
 
+      <% if @work.resource.doi %>
+        <dt>Discovery URL</dt>
+        <dd>
+          <%= link_to(@work.doi_attribute_url, @work.doi_attribute_url) %>
+        </dd>
+      <% end %>
+
       <% if @work.resource.individual_contributors.count > 0 %>
         <dt>Individual Contributors</dt>
         <dd>
