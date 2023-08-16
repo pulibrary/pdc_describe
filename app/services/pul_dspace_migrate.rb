@@ -55,8 +55,8 @@ class PULDspaceMigrate
 
     def remove_overlap_and_combine
       dpsace_update_display_to_final_key
+      aws_update_display_to_final_key(aws_files_and_directories)
       aws_files_only = aws_files_and_directories.reject(&:directory?)
-      aws_update_display_to_final_key(aws_files_only)
       aws_file_names = aws_files_only.map(&:filename_display)
       files_to_remove = []
       dspace_files.each do |s3_file|
