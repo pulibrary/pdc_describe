@@ -17,6 +17,8 @@ We have approximately 370 research data sets in a legacy DSpace application, bra
 5. The objects have not been curated according to our current data curation standards
 6. The actual data for the objects can be either in DataSpace or in a Globus instance, or sometimes in both places. 
 
+This document incorporates [migration requirements from PPPL](https://docs.google.com/document/d/1MgjwkeSZZaSJd6jnWGlJdGoX-2vmmDgOM4xD-CH37Cw/edit#heading=h.utxq5j20ujv1).
+
 ## Decisions
 
 Our migration process will be as follows:
@@ -79,6 +81,19 @@ All PPPL works should go under "Natural Sciences". For other works, look at what
 
 #### Communities
 If there are any communities recorded on the DataSpace record, enter them here.
+
+#### Subcommunities
+These are particularly important for PPPL. Note that there can be more than one for a record, because in DataSpace these values are nested. In the screenshot below, for example, both "Advanced Projects" and "Stellerators" should be recorded.
+<img src="images/nested_pppl_collections.png"
+     alt="Screenshot of nested PPPL collections"
+     style="margin-left: 10px; height: 100px" />
+
+To select more than one option from the subcommunities form, hold down your command button and click on the options you want.
+<img src="images/multiselect.png"
+     alt="Screenshot of subcommunities form element with multiple options selected"
+     style="margin-left: 10px; height: 100px" />
+
+
 
 ## Curator Controlled
 
