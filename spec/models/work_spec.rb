@@ -104,6 +104,13 @@ RSpec.describe Work, type: :model do
     expect { work.state = "sorry" }.to raise_error(StandardError, /Invalid state 'sorry'/)
   end
 
+  it "calculates the urls that PDC discovery will use" do
+    # this is the actual PDC Discovery URL
+    expect(work.pdc_discovery_url).to eq "https://datacommons.princeton.edu/discovery/catalog/doi-10-34770-123-abc"
+    # this also works, but will cause PDC Discovery to search by the DOI
+    expect(work.doi_attribute_url).to eq "https://datacommons.princeton.edu/discovery/doi/10.34770/123-abc"
+  end
+
   describe "#editable_by?" do
     subject(:work) { FactoryBot.create(:tokamak_work) }
     let(:submitter) { work.created_by_user }

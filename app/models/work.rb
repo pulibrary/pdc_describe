@@ -541,6 +541,13 @@ class Work < ApplicationRecord
     resource.rights_many.index { |rights| rights.identifier == rights_id } != nil
   end
 
+  # This is the solr id / work show page in PDC Discovery
+  def pdc_discovery_url
+    "https://datacommons.princeton.edu/discovery/catalog/doi-#{doi.tr('/', '-').tr('.', '-')}"
+  end
+
+  # This is the url that should be used for ARK and DOI redirection. It will search the
+  # index for the DOI and redirect the use appropriately.
   def doi_attribute_url
     "https://datacommons.princeton.edu/discovery/doi/#{doi}"
   end
