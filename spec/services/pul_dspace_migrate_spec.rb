@@ -89,12 +89,14 @@ RSpec.describe PULDspaceMigrate, type: :model do
                                          "abc/123/test_key",
                                          "abc/123/globus_SCoData_combined_v1_2020-07_README.txt"])
         expect(subject.directory_keys).to eq(["10-34770/ackh-7y71/test_directory_key"])
-        expect(subject.migration_message).to eq("Migration for 4 files and 1 directory")
+        expect(subject.migration_message).to eq("Migration for 4 files and 1 directory is running in the background. Depending on the file sizes this may take some time.")
 
         expect(work.reload.resource.migrated).to be_truthy
 
         work_activity = WorkActivity.last
-        expect(work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"Migration for 4 files and 1 directory\",\"file_count\":4,\"directory_count\":1}")
+        # rubocop:disable Layout/LineLength
+        expect(work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"Migration for 4 files and 1 directory is running in the background. Depending on the file sizes this may take some time.\",\"file_count\":4,\"directory_count\":1}")
+        # rubocop:enable Layout/LineLength
 
         expect(enqueued_jobs.size).to eq(4)
         directory_json = JSON.parse(enqueued_jobs.last[:args][0]["s3_file_json"])
@@ -142,7 +144,7 @@ RSpec.describe PULDspaceMigrate, type: :model do
                                            "abc/123/test_key",
                                            "abc/123/SCoData_combined_v1_2020-07_README.txt"])
           expect(subject.directory_keys).to eq(["10-34770/ackh-7y71/test_directory_key"])
-          expect(subject.migration_message).to eq("Migration for 3 files and 1 directory")
+          expect(subject.migration_message).to eq("Migration for 3 files and 1 directory is running in the background. Depending on the file sizes this may take some time.")
 
           expect(work.reload.resource.migrated).to be_truthy
           expect(enqueued_jobs.size).to eq(4)
@@ -190,7 +192,7 @@ RSpec.describe PULDspaceMigrate, type: :model do
           expect(subject.file_keys).to eq(["abc/123/SCoData_combined_v1_2020-07_README.txt",
                                            "abc/123/SCoData_combined_v1_2020-07_datapackage.json"])
           expect(subject.directory_keys).to eq([])
-          expect(subject.migration_message).to eq("Migration for 2 files and 0 directories")
+          expect(subject.migration_message).to eq("Migration for 2 files and 0 directories is running in the background. Depending on the file sizes this may take some time.")
 
           expect(work.reload.resource.migrated).to be_truthy
           expect(enqueued_jobs.size).to eq(1)
@@ -210,8 +212,9 @@ RSpec.describe PULDspaceMigrate, type: :model do
           expect(MigrationUploadSnapshot.last.migration_complete?).to be_truthy
           start_work_activity = WorkActivity.first
           finish_work_activity = WorkActivity.last
-          expect(start_work_activity.message)
-            .to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"Migration for 2 files and 0 directories\",\"file_count\":2,\"directory_count\":0}")
+          # rubocop:disable Layout/LineLength
+          expect(start_work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"Migration for 2 files and 0 directories is running in the background. Depending on the file sizes this may take some time.\",\"file_count\":2,\"directory_count\":0}")
+          # rubocop:enable Layout/LineLength
           expect(start_work_activity.activity_type).to eq(WorkActivity::MIGRATION_START)
           expect(finish_work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"2 files and 0 directories have migrated from Dataspace.\"}")
           expect(finish_work_activity.activity_type).to eq(WorkActivity::MIGRATION_COMPLETE)
@@ -269,12 +272,14 @@ RSpec.describe PULDspaceMigrate, type: :model do
                                            "abc/123/test_key",
                                            "abc/123/globus_SCoData_combined_v1_2020-07_README.txt"])
           expect(subject.directory_keys).to eq(["10-34770/ackh-7y71/test_directory_key"])
-          expect(subject.migration_message).to eq("Migration for 4 files and 1 directory")
+          expect(subject.migration_message).to eq("Migration for 4 files and 1 directory is running in the background. Depending on the file sizes this may take some time.")
 
           expect(work.reload.resource.migrated).to be_truthy
 
           work_activity = WorkActivity.last
-          expect(work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"Migration for 4 files and 1 directory\",\"file_count\":4,\"directory_count\":1}")
+          # rubocop:disable Layout/LineLength
+          expect(work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"Migration for 4 files and 1 directory is running in the background. Depending on the file sizes this may take some time.\",\"file_count\":4,\"directory_count\":1}")
+          # rubocop:enable Layout/LineLength
 
           expect(enqueued_jobs.size).to eq(4)
           expect(MigrationUploadSnapshot.last.files).to eq([{ "checksum" => "AI7sEcOecDhAlznAFgp5Og==", "filename" => "abc/123/data_space_SCoData_combined_v1_2020-07_README.txt",

@@ -33,7 +33,9 @@ class PULDspaceMigrate
 
   def migration_message(input_file_keys = file_keys, input_directory_keys = directory_keys)
     message = []
-    message << "Migration for #{input_file_keys.count} #{'file'.pluralize(input_file_keys.count)} and #{input_directory_keys.count} #{'directory'.pluralize(input_directory_keys.count)}"
+    # rubocop:disable Layout/LineLength
+    message << "Migration for #{input_file_keys.count} #{'file'.pluralize(input_file_keys.count)} and #{input_directory_keys.count} #{'directory'.pluralize(input_directory_keys.count)} is running in the background. Depending on the file sizes this may take some time."
+    # rubocop:enable Layout/LineLength
     message.join(" ")
   end
 
