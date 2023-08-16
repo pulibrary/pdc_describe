@@ -508,9 +508,9 @@ class Work < ApplicationRecord
 
     upload_snapshot = latest_snapshot
 
-    snapshot_deletions(work_changes, s3_filenames, upload_snapshot)
+    upload_snapshot.snapshot_deletions(work_changes, s3_filenames)
 
-    snapshot_modifications(work_changes, s3_files, upload_snapshot)
+    upload_snapshot.snapshot_modifications(work_changes, s3_files)
 
     # Create WorkActivity models with the set of changes
     unless work_changes.empty?
@@ -559,7 +559,7 @@ class Work < ApplicationRecord
     def publish(user)
       publish_doi(user)
       update_ark_information
-      publish_precurated_files
+      publish_precurated_files(user)
       save!
     end
 
@@ -730,7 +730,7 @@ class Work < ApplicationRecord
       uploads_keys.include?(s3_file.key)
     end
 
-    def publish_precurated_files
+    def publish_precurated_files(user)
       # An error is raised if there are no files to be moved
       raise(StandardError, "Attempting to publish a Work without attached uploads for #{s3_object_key}") if pre_curation_uploads_fast.empty? && post_curation_uploads.empty?
 
@@ -742,33 +742,12 @@ class Work < ApplicationRecord
       raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{s3_object_key}") unless s3_dir.nil?
 
       # Copy the pre-curation S3 Objects to the post-curation S3 Bucket...
-      s3_query_service.publish_files
+      s3_query_service.publish_files(user)
     end
 
     def latest_snapshot
       upload_snapshot = upload_snapshots.first
       upload_snapshot ||= UploadSnapshot.new(work: self, files: [])
-    end
-
-    def snapshot_deletions(work_changes, s3_filenames, upload_snapshot)
-      upload_snapshot.existing_files.each do |file|
-        filename = file["filename"]
-        unless s3_filenames.include?(filename)
-          work_changes << { action: "removed", filename: filename, checksum: file["checksum"] }
-        end
-      end
-    end
-
-    def snapshot_modifications(work_changes, s3_files, upload_snapshot)
-      # check for modifications
-      s3_files.each do |s3_file|
-        next if upload_snapshot.match?(s3_file)
-        work_changes << if upload_snapshot.include?(s3_file)
-                          { action: "replaced", filename: s3_file.filename, checksum: s3_file.checksum }
-                        else
-                          { action: "added", filename: s3_file.filename, checksum: s3_file.checksum }
-                        end
-      end
     end
 end
 # rubocop:enable Metrics/ClassLength

@@ -15,12 +15,14 @@ describe "/", type: :system do
     sign_in super_admin_user
     visit "/"
     expect(page).to have_tag("nav", with: { id: "admin-actions" })
+    expect(page).to have_tag("span", with: { id: "admin-badge" })
   end
 
   it "renders the homepage with admin menu for moderators" do
     sign_in research_data_moderator
     visit "/"
     expect(page).to have_tag("nav", with: { id: "admin-actions" })
+    expect(page).to have_tag("span", with: { id: "moderator-badge" })
   end
 
   it "renders the homepage with out the admin menu for non-admin users" do
