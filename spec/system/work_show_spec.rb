@@ -45,7 +45,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     end
   end
 
-  it "foo" do
+  it "uses datatables for easy navigation" do
     sign_in user
     visit work_path(work)
 
@@ -57,6 +57,12 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     expect(page).to have_css(".dataTables_filter")
     page.driver.go_back
     page.driver.go_forward
+  end
+
+  it "shows the PDC Discovery URL" do
+    sign_in user
+    visit work_path(work)
+    expect(page).to have_link("https://datacommons.princeton.edu/discovery/doi/10.34770/r2dz-ys12")
   end
 
   it "copies DOI to the clipboard" do

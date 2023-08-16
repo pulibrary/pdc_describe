@@ -1004,6 +1004,7 @@ RSpec.describe WorksController do
         expect(response.status).to be 302
         expect(response.location).to eq "http://test.host/works/#{work.id}"
         expect(work.reload).to be_approved
+        expect(controller.flash[:notice]).to eq("Your files are being moved to the post-curation bucket in the background. Depending on the file sizes this may take some time.")
       end
 
       context "invalid response from doi publish" do

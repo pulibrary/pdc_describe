@@ -541,6 +541,10 @@ class Work < ApplicationRecord
     resource.rights_many.index { |rights| rights.identifier == rights_id } != nil
   end
 
+  def doi_attribute_url
+    "https://datacommons.princeton.edu/discovery/doi/#{doi}"
+  end
+
   protected
 
     # This must be protected, NOT private for ActiveRecord to work properly with this attribute.
@@ -677,10 +681,6 @@ class Work < ApplicationRecord
     rescue Faraday::ConnectionFailed
       sleep 1
       retry
-    end
-
-    def doi_attribute_url
-      "https://datacommons.princeton.edu/discovery/doi/#{doi}"
     end
 
     def doi_attribute_resource
