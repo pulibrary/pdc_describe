@@ -94,4 +94,18 @@ describe WorkActivity, type: :model do
       end
     end
   end
+
+  context "backdated activities" do
+    it "renders backdated on back dated activities" do
+      described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::NOTIFICATION, created_at: "2023-08-14")
+      renderd_html = described_class.activities_for_work(work, [WorkActivity::NOTIFICATION]).first.to_html
+      expect(renderd_html.include?("backdated")).to be true
+    end
+
+    it "does not render backdated activities by default" do
+      described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::NOTIFICATION)
+      renderd_html = described_class.activities_for_work(work, [WorkActivity::NOTIFICATION]).first.to_html
+      expect(renderd_html.include?("backdated")).to be false
+    end
+  end
 end
