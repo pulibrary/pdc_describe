@@ -100,6 +100,8 @@ RSpec.describe PULDspaceMigrate, type: :model do
         expect(work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"Migration for 5 files and 1 directory\",\"file_count\":5,\"directory_count\":1}")
 
         expect(enqueued_jobs.size).to eq(4)
+        directory_json = JSON.parse(enqueued_jobs.last[:args][0]["s3_file_json"])
+        expect(directory_json["filename_display"]).to eq("abc/123/test_directory_key")
         expect(MigrationUploadSnapshot.last.files).to eq([{ "checksum" => "AI7sEcOecDhAlznAFgp5Og==", "filename" => "abc/123/data_space_SCoData_combined_v1_2020-07_README.txt",
                                                             "migrate_status" => "started" },
                                                           { "checksum" => "e9PUM5wDTrxmO5kGV3FGiA==", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
