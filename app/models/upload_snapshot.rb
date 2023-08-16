@@ -5,6 +5,27 @@ class UploadSnapshot < ApplicationRecord
 
   alias_attribute :existing_files, :files
 
+  def snapshot_deletions(work_changes, s3_filenames)
+    existing_files.each do |file|
+      filename = file["filename"]
+      unless s3_filenames.include?(filename)
+        work_changes << { action: "removed", filename: filename, checksum: file["checksum"] }
+      end
+    end
+  end
+
+  def snapshot_modifications(work_changes, s3_files)
+    # check for modifications
+    s3_files.each do |s3_file|
+      next if match?(s3_file)
+      work_changes << if include?(s3_file)
+                        { action: "replaced", filename: s3_file.filename, checksum: s3_file.checksum }
+                      else
+                        { action: "added", filename: s3_file.filename, checksum: s3_file.checksum }
+                      end
+    end
+  end
+
   def upload
     @upload ||= uploads.find { |s3_file| filenames.include?(s3_file.filename) }
   end
