@@ -22,7 +22,7 @@ RSpec.describe PDCMetadata::Creator, type: :model do
     end
 
     it "strips spaces from names" do
-      new_person = described_class.new_person(nil, " Hernandez ", orcid)
+      new_person = described_class.new_person("Saul", " Hernandez ", orcid)
       expect(new_person.given_name).to eq "Saul"
       expect(new_person.family_name).to eq "Hernandez"
       expect(new_person.value).to eq "Hernandez, Saul"
