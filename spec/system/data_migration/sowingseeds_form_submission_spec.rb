@@ -73,7 +73,7 @@ Download the README.txt for a detailed description of this dataset's content."
       click_on "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It"
 
       # the work has been submitted and is awaiting_approval
-      expect(page).to have_content "awaiting_approval"
+      expect(page).to have_content "Awaiting Approval"
       expect(page).to have_content "Creative Commons Attribution 4.0 International"
       sowingseeds_work = Work.last
       expect(sowingseeds_work.title).to eq title
