@@ -46,7 +46,7 @@ class PULDspaceConnector
 
   def list_bitsteams
     @list_bitsteams ||=
-      bitstreams.map do |bitstream|
+      original_bitstreams.map do |bitstream|
         path = File.join(Rails.configuration.dspace.download_file_path, "dspace_download", work.id.to_s)
         filename = File.join(path, bitstream["name"])
         if bitstream["checkSum"]["checkSumAlgorithm"] != "MD5"
@@ -131,5 +131,9 @@ class PULDspaceConnector
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
       http
+    end
+
+    def original_bitstreams
+      bitstreams.select { |bitstream| bitstream["bundleName"] == "ORIGINAL" }
     end
 end

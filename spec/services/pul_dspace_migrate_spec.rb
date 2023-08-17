@@ -54,8 +54,7 @@ RSpec.describe PULDspaceMigrate, type: :model do
       let(:fake_completion) { instance_double(Seahorse::Client::Response, "successful?": true) }
       let(:etag1) { "AI7sEcOecDhAlznAFgp5Og==" }
       let(:etag2) { "e9PUM5wDTrxmO5kGV3FGiA==" }
-      let(:etag3) { "HiBNrT6eHi5mYO75wzRn6Q==" }
-      let(:etag4) { "abc123" }
+      let(:etag3) { "abc123" }
 
       before do
         allow(fake_s3_service).to receive(:upload_file).with(hash_including(filename: /data_space_SCoData_combined_v1_2020-07_README/))
@@ -82,22 +81,20 @@ RSpec.describe PULDspaceMigrate, type: :model do
         allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return(
           { etag: etag1 },
           { etag: etag2 },
-          { etag: etag3 },
-          { etag: etag4 }
+          { etag: etag3 }
         )
 
         expect(subject.file_keys).to eq(["abc/123/data_space_SCoData_combined_v1_2020-07_README.txt",
                                          "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
-                                         "abc/123/license.txt",
                                          "abc/123/test_key",
                                          "abc/123/globus_SCoData_combined_v1_2020-07_README.txt"])
         expect(subject.directory_keys).to eq(["10-34770/ackh-7y71/test_directory_key"])
-        expect(subject.migration_message).to eq("Migration for 5 files and 1 directory")
+        expect(subject.migration_message).to eq("Migration for 4 files and 1 directory")
 
         expect(work.reload.resource.migrated).to be_truthy
 
         work_activity = WorkActivity.last
-        expect(work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"Migration for 5 files and 1 directory\",\"file_count\":5,\"directory_count\":1}")
+        expect(work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"Migration for 4 files and 1 directory\",\"file_count\":4,\"directory_count\":1}")
 
         expect(enqueued_jobs.size).to eq(4)
         directory_json = JSON.parse(enqueued_jobs.last[:args][0]["s3_file_json"])
@@ -106,7 +103,6 @@ RSpec.describe PULDspaceMigrate, type: :model do
                                                             "migrate_status" => "started" },
                                                           { "checksum" => "e9PUM5wDTrxmO5kGV3FGiA==", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
                                                             "migrate_status" => "started" },
-                                                          { "checksum" => "HiBNrT6eHi5mYO75wzRn6Q==", "filename" => "abc/123/license.txt", "migrate_status" => "started" },
                                                           { "checksum" => "abc123", "filename" => "abc/123/test_key", "migrate_status" => "started" },
                                                           { "checksum" => "abc123", "filename" => "abc/123/globus_SCoData_combined_v1_2020-07_README.txt", "migrate_status" => "started" },
                                                           { "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
@@ -117,7 +113,6 @@ RSpec.describe PULDspaceMigrate, type: :model do
                                                             "migrate_status" => "complete" },
                                                           { "checksum" => "e9PUM5wDTrxmO5kGV3FGiA==", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
                                                             "migrate_status" => "complete" },
-                                                          { "checksum" => "HiBNrT6eHi5mYO75wzRn6Q==", "filename" => "abc/123/license.txt", "migrate_status" => "complete" },
                                                           { "checksum" => "abc123", "filename" => "abc/123/test_key", "migrate_status" => "complete" },
                                                           { "checksum" => "abc123", "filename" => "abc/123/globus_SCoData_combined_v1_2020-07_README.txt", "migrate_status" => "complete" },
                                                           { "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
@@ -139,23 +134,20 @@ RSpec.describe PULDspaceMigrate, type: :model do
           allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return(
             { etag: etag2 },
             { etag: etag3 },
-            { etag: etag4 },
             { etag: etag1 }
           )
 
           subject.migrate
           expect(subject.file_keys).to eq(["abc/123/SCoData_combined_v1_2020-07_datapackage.json",
-                                           "abc/123/license.txt",
                                            "abc/123/test_key",
                                            "abc/123/SCoData_combined_v1_2020-07_README.txt"])
           expect(subject.directory_keys).to eq(["10-34770/ackh-7y71/test_directory_key"])
-          expect(subject.migration_message).to eq("Migration for 4 files and 1 directory")
+          expect(subject.migration_message).to eq("Migration for 3 files and 1 directory")
 
           expect(work.reload.resource.migrated).to be_truthy
           expect(enqueued_jobs.size).to eq(4)
           expect(MigrationUploadSnapshot.last.files).to eq([{ "checksum" => "e9PUM5wDTrxmO5kGV3FGiA==", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
                                                               "migrate_status" => "started" },
-                                                            { "checksum" => "HiBNrT6eHi5mYO75wzRn6Q==", "filename" => "abc/123/license.txt", "migrate_status" => "started" },
                                                             { "checksum" => "abc123", "filename" => "abc/123/test_key", "migrate_status" => "started" },
                                                             { "checksum" => "AI7sEcOecDhAlznAFgp5Og==", "filename" => "abc/123/SCoData_combined_v1_2020-07_README.txt",
                                                               "migrate_status" => "started" },
@@ -165,14 +157,13 @@ RSpec.describe PULDspaceMigrate, type: :model do
           expect(UploadSnapshot.all.count).to eq(2)
           expect(MigrationUploadSnapshot.last.files).to eq([{ "checksum" => "e9PUM5wDTrxmO5kGV3FGiA==", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
                                                               "migrate_status" => "complete" },
-                                                            { "checksum" => "HiBNrT6eHi5mYO75wzRn6Q==", "filename" => "abc/123/license.txt", "migrate_status" => "complete" },
                                                             { "checksum" => "abc123", "filename" => "abc/123/test_key", "migrate_status" => "complete" },
                                                             { "checksum" => "AI7sEcOecDhAlznAFgp5Og==", "filename" => "abc/123/SCoData_combined_v1_2020-07_README.txt",
                                                               "migrate_status" => "complete" },
                                                             { "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
           expect(MigrationUploadSnapshot.last.migration_complete?).to be_truthy
           work_activity = WorkActivity.last
-          expect(work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"4 files and 1 directory have migrated from Dataspace.\"}")
+          expect(work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"3 files and 1 directory have migrated from Dataspace.\"}")
           expect(work_activity.activity_type).to eq(WorkActivity::MIGRATION_COMPLETE)
         end
       end
@@ -192,16 +183,14 @@ RSpec.describe PULDspaceMigrate, type: :model do
           allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return(
             { etag: etag1 },
             { etag: etag2 },
-            { etag: etag3 },
-            { etag: etag4 }
+            { etag: etag3 }
           )
 
           subject.migrate
           expect(subject.file_keys).to eq(["abc/123/SCoData_combined_v1_2020-07_README.txt",
-                                           "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
-                                           "abc/123/license.txt"])
+                                           "abc/123/SCoData_combined_v1_2020-07_datapackage.json"])
           expect(subject.directory_keys).to eq([])
-          expect(subject.migration_message).to eq("Migration for 3 files and 0 directories")
+          expect(subject.migration_message).to eq("Migration for 2 files and 0 directories")
 
           expect(work.reload.resource.migrated).to be_truthy
           expect(enqueued_jobs.size).to eq(1)
@@ -209,7 +198,6 @@ RSpec.describe PULDspaceMigrate, type: :model do
                                                               "migrate_status" => "started" },
                                                             { "checksum" => "e9PUM5wDTrxmO5kGV3FGiA==", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
                                                               "migrate_status" => "started" },
-                                                            { "checksum" => "HiBNrT6eHi5mYO75wzRn6Q==", "filename" => "abc/123/license.txt", "migrate_status" => "started" },
                                                             { "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
           perform_enqueued_jobs
           expect(enqueued_jobs.size).to eq(0)
@@ -218,15 +206,14 @@ RSpec.describe PULDspaceMigrate, type: :model do
                                                               "migrate_status" => "complete" },
                                                             { "checksum" => "e9PUM5wDTrxmO5kGV3FGiA==", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
                                                               "migrate_status" => "complete" },
-                                                            { "checksum" => "HiBNrT6eHi5mYO75wzRn6Q==", "filename" => "abc/123/license.txt", "migrate_status" => "complete" },
                                                             { "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
           expect(MigrationUploadSnapshot.last.migration_complete?).to be_truthy
           start_work_activity = WorkActivity.first
           finish_work_activity = WorkActivity.last
           expect(start_work_activity.message)
-            .to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"Migration for 3 files and 0 directories\",\"file_count\":3,\"directory_count\":0}")
+            .to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"Migration for 2 files and 0 directories\",\"file_count\":2,\"directory_count\":0}")
           expect(start_work_activity.activity_type).to eq(WorkActivity::MIGRATION_START)
-          expect(finish_work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"3 files and 0 directories have migrated from Dataspace.\"}")
+          expect(finish_work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"2 files and 0 directories have migrated from Dataspace.\"}")
           expect(finish_work_activity.activity_type).to eq(WorkActivity::MIGRATION_COMPLETE)
         end
       end
@@ -243,8 +230,7 @@ RSpec.describe PULDspaceMigrate, type: :model do
           allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return(
             { etag: etag2 },
             { etag: etag3 },
-            { etag: etag4 },
-            { etag: etag4 },
+            { etag: etag3 },
             { etag: etag1 }
           )
 
@@ -256,7 +242,6 @@ RSpec.describe PULDspaceMigrate, type: :model do
                                                               "migrate_status" => "error", "migrate_error" => "Checsum Missmatch" },
                                                             { "checksum" => "e9PUM5wDTrxmO5kGV3FGiA==", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
                                                               "migrate_status" => "complete" },
-                                                            { "checksum" => "HiBNrT6eHi5mYO75wzRn6Q==", "filename" => "abc/123/license.txt", "migrate_status" => "complete" },
                                                             { "checksum" => "abc123", "filename" => "abc/123/test_key", "migrate_status" => "complete" },
                                                             { "checksum" => "abc123", "filename" => "abc/123/globus_SCoData_combined_v1_2020-07_README.txt", "migrate_status" => "complete" }])
           expect(MigrationUploadSnapshot.last.migration_complete?).to be_falsey
@@ -274,31 +259,28 @@ RSpec.describe PULDspaceMigrate, type: :model do
           allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return(
             { etag: etag2 },
             { etag: etag3 },
-            { etag: etag4 },
-            { etag: etag4 },
+            { etag: etag3 },
             { etag: etag1 }
           )
 
           subject.migrate
           expect(subject.file_keys).to eq(["abc/123/data_space_SCoData_combined_v1_2020-07_README.txt",
                                            "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
-                                           "abc/123/license.txt",
                                            "abc/123/test_key",
                                            "abc/123/globus_SCoData_combined_v1_2020-07_README.txt"])
           expect(subject.directory_keys).to eq(["10-34770/ackh-7y71/test_directory_key"])
-          expect(subject.migration_message).to eq("Migration for 5 files and 1 directory")
+          expect(subject.migration_message).to eq("Migration for 4 files and 1 directory")
 
           expect(work.reload.resource.migrated).to be_truthy
 
           work_activity = WorkActivity.last
-          expect(work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"Migration for 5 files and 1 directory\",\"file_count\":5,\"directory_count\":1}")
+          expect(work_activity.message).to eq("{\"migration_id\":#{MigrationUploadSnapshot.last.id},\"message\":\"Migration for 4 files and 1 directory\",\"file_count\":4,\"directory_count\":1}")
 
           expect(enqueued_jobs.size).to eq(4)
           expect(MigrationUploadSnapshot.last.files).to eq([{ "checksum" => "AI7sEcOecDhAlznAFgp5Og==", "filename" => "abc/123/data_space_SCoData_combined_v1_2020-07_README.txt",
                                                               "migrate_status" => "started" },
                                                             { "checksum" => "e9PUM5wDTrxmO5kGV3FGiA==", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
                                                               "migrate_status" => "started" },
-                                                            { "checksum" => "HiBNrT6eHi5mYO75wzRn6Q==", "filename" => "abc/123/license.txt", "migrate_status" => "started" },
                                                             { "checksum" => "abc123", "filename" => "abc/123/test_key", "migrate_status" => "started" },
                                                             { "checksum" => "abc123", "filename" => "abc/123/globus_SCoData_combined_v1_2020-07_README.txt", "migrate_status" => "started" },
                                                             { "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
@@ -310,7 +292,6 @@ RSpec.describe PULDspaceMigrate, type: :model do
                                                               "migrate_error" => "An error uploading /tmp/dspace_download/#{work.id}/SCoData_combined_v1_2020-07_README.txt.  Please try again." },
                                                             { "checksum" => "e9PUM5wDTrxmO5kGV3FGiA==", "filename" => "abc/123/SCoData_combined_v1_2020-07_datapackage.json",
                                                               "migrate_status" => "complete" },
-                                                            { "checksum" => "HiBNrT6eHi5mYO75wzRn6Q==", "filename" => "abc/123/license.txt", "migrate_status" => "complete" },
                                                             { "checksum" => "abc123", "filename" => "abc/123/test_key", "migrate_status" => "complete" },
                                                             { "checksum" => "abc123", "filename" => "abc/123/globus_SCoData_combined_v1_2020-07_README.txt", "migrate_status" => "complete" },
                                                             { "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
