@@ -18,6 +18,7 @@ RSpec.describe WorksController do
   let(:resource) { FactoryBot.build :resource }
   let(:work) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
   let(:user) { work.created_by_user }
+  let(:pppl_user) { FactoryBot.create(:pppl_submitter) }
 
   let(:uploaded_file) { fixture_file_upload("us_covid_2019.csv", "text/csv") }
 
@@ -1476,6 +1477,22 @@ RSpec.describe WorksController do
       expect(work.title).to eq("test dataset updated")
       expect(work.resource.description).to eq("a new description")
       expect(work.group).to eq(group)
+    end
+
+    it "defaults the right values for a PPPL work" do
+      params = {
+        "title_main" => "test dataset updated",
+        "description" => "a new description",
+        "commit" => "Update Dataset",
+        "publication_year" => "2022",
+        "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }],
+        "resource_type" => "Dataset",
+        "resource_type_general" => "Dataset"
+      }
+      sign_in pppl_user
+      post :create, params: params
+      work = Work.last
+      expect(work.resource.publisher).to eq "Princeton Plasma Physics Laboratory"
     end
 
     context "when the group is empty" do
