@@ -186,6 +186,14 @@ class Group < ApplicationRecord
   end
   # rubocop:enable Metrics/MethodLength
 
+  def publisher
+    if code == "PPPL"
+      "Princeton Plasma Physics Laboratory"
+    else
+      "Princeton University"
+    end
+  end
+
   def default_community
     return communities.first if code == "PPPL"
   end

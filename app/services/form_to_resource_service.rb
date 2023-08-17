@@ -37,6 +37,7 @@ class FormToResourceService
         resource.ark = work.ark
         resource.migrated = work.resource.migrated
         resource.collection_tags = work.resource.collection_tags || []
+        resource.publisher = work.group.publisher
         resource
       end
 
