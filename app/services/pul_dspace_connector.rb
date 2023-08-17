@@ -2,6 +2,8 @@
 class PULDspaceConnector
   attr_reader :work, :ark, :download_base
 
+  DSPACE_PAGE_SIZE = 20
+
   def initialize(work)
     @work = work
     @ark = work.ark&.gsub("ark:/", "")
@@ -16,7 +18,17 @@ class PULDspaceConnector
   end
 
   def bitstreams
-    @bitstreams ||= get_data("items/#{id}/bitstreams")
+    @bitstreams ||= begin
+                      data = []
+                      # handle pages if needed
+                      # this is a inelegant way to get all the files, but I am not seeing a count anywhere
+                      loop do
+                        new_data = get_data("items/#{id}/bitstreams?offset=#{data.length}&limit=#{DSPACE_PAGE_SIZE}")
+                        data.concat(new_data) unless new_data.empty?
+                        break if new_data.count < DSPACE_PAGE_SIZE
+                      end
+                      data
+                    end
   end
 
   def metadata
@@ -73,7 +85,7 @@ class PULDspaceConnector
       url = "#{Rails.configuration.dspace.base_url}#{url_path}"
       uri = URI(url)
       http = request_http(url)
-      req = Net::HTTP::Get.new uri.path
+      req = Net::HTTP::Get.new uri
       response = http.request req
       if response.code != "200"
         Honeybadger.notify("Error retreiving dspace data from #{url} #{response.code} #{response.body}")
