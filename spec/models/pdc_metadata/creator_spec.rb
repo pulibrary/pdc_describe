@@ -20,6 +20,13 @@ RSpec.describe PDCMetadata::Creator, type: :model do
       expect(new_person.affiliations.map(&:identifier)).to eq(["http://example.com"])
       expect(new_person.affiliations.map(&:scheme)).to eq(["ROR"])
     end
+
+    it "strips spaces from names" do
+      new_person = described_class.new_person("Saul", " Hernandez ", orcid)
+      expect(new_person.given_name).to eq "Saul"
+      expect(new_person.family_name).to eq "Hernandez"
+      expect(new_person.value).to eq "Hernandez, Saul"
+    end
   end
 
   it "allows affilitation to be set" do
