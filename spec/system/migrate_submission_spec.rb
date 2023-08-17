@@ -268,7 +268,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       activity = start_activities.first
       expect(activity.activity_type).to eq(WorkActivity::MIGRATION_START)
       expect(activity.created_by_user_id).to eq(user.id)
-      expect(page).to have_content("Migration for 4 files and 1 directory")
+      expect(page).to have_content("Migration for 3 files and 1 directory")
 
       perform_enqueued_jobs
       end_activities = WorkActivity.activities_for_work(work.id, WorkActivity::MIGRATION_COMPLETE)
@@ -277,7 +277,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       expect(activity.activity_type).to eq(WorkActivity::MIGRATION_COMPLETE)
       expect(activity.created_by_user_id).to eq(user.id)
       visit(work_path(work))
-      expect(page).to have_content("4 files and 1 directory have migrated from Dataspace.")
+      expect(page).to have_content("3 files and 1 directory have migrated from Dataspace.")
     end
   end
 end

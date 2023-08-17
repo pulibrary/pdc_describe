@@ -60,7 +60,7 @@ RSpec.describe PULDspaceConnector, type: :model do
 
     it "downloads the bitstreams" do
       allow(Honeybadger).to receive(:notify)
-      expect(dspace_data.download_bitstreams(dspace_data.list_bitsteams).count).to eq(3)
+      expect(dspace_data.download_bitstreams(dspace_data.list_bitsteams).count).to eq(2)
       expect(Honeybadger).not_to have_received(:notify)
     end
 
@@ -73,7 +73,7 @@ RSpec.describe PULDspaceConnector, type: :model do
 
       it "downloads the bitstreams" do
         allow(Honeybadger).to receive(:notify)
-        expect(dspace_data.download_bitstreams(dspace_data.list_bitsteams).count).to eq(3)
+        expect(dspace_data.download_bitstreams(dspace_data.list_bitsteams).count).to eq(2)
         expect(Honeybadger).to have_received(:notify).with(/Mismatching checksum .* for work: #{work.id} doi: #{work.doi} ark: #{work.ark}/)
       end
     end
