@@ -44,16 +44,30 @@ describe ResourceCompareService do
     compare = described_class.new(work1.resource, work2.resource)
     differences = compare.differences[:creators]
     expect(differences).to eq [{ action: :changed,
-                                 from: "Kotin, Joshua | 1 | ",
-                                 to: "Kotin, Joshua | 1 | \nSmith, Robert | 2 | " }]
+                                 from: "Kotin, Joshua | 1 |  |  | ",
+                                 to: "Kotin, Joshua | 1 |  |  | \nSmith, Robert | 2 |  |  | " }]
 
     work3 = FactoryBot.create(:shakespeare_and_company_work)
     work3.resource.creators = [creator_other]
     compare = described_class.new(work2.resource, work3.resource)
     differences = compare.differences[:creators]
     expect(differences).to eq [{ action: :changed,
-                                 from: "Kotin, Joshua | 1 | \nSmith, Robert | 2 | ",
-                                 to: "Smith, Robert | 2 | " }]
+                                 from: "Kotin, Joshua | 1 |  |  | \nSmith, Robert | 2 |  |  | ",
+                                 to: "Smith, Robert | 2 |  |  | " }]
+  end
+
+  it "detects changes in ROR" do
+    work1 = FactoryBot.build(:shakespeare_and_company_work)
+    work2 = FactoryBot.build(:shakespeare_and_company_work)
+    creator = work2.resource.creators.first
+    creator.affiliations << PDCMetadata::Affiliation.new_affiliation(value: "Princeton Plasma Physics Laboratory", ror: "https://ror.org/03vn1ts68")
+    work2.resource.creators = [creator]
+
+    compare = described_class.new(work1.resource, work2.resource)
+    differences = compare.differences[:creators]
+    expect(differences).to eq [{ action: :changed,
+                                 from: "Kotin, Joshua | 1 |  |  | ",
+                                 to: "Kotin, Joshua | 1 |  | [ROR:Princeton Plasma Physics Laboratory()](https://ror.org/03vn1ts68) | " }]
   end
 
   describe "checking every field" do
@@ -88,7 +102,7 @@ describe ResourceCompareService do
       rights_many: [{ action: :changed, from: "Creative Commons Attribution 4.0 International", to: "" }],
       titles: [{ action: :changed, from: "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events ()", to: "new title ()" }],
       collection_tags: [{ action: :changed, from: "", to: "fake" }],
-      creators: [{ action: :changed, from: "Kotin, Joshua | 1 | ", to: "" }],
+      creators: [{ action: :changed, from: "Kotin, Joshua | 1 |  |  | ", to: "" }],
       domains: [{ action: :changed, from: "", to: "Humanities" }],
       migrated: [{ action: :changed, from: "false", to: "" }]
     }
