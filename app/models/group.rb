@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
 class Group < ApplicationRecord
   resourcify
 
@@ -198,3 +199,4 @@ class Group < ApplicationRecord
     return communities.first if code == "PPPL"
   end
 end
+# rubocop:enable Metrics/ClassLength
