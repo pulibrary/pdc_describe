@@ -41,11 +41,11 @@ module PDCMetadata
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(value: nil, name_type: nil, given_name: nil, family_name: nil, identifier: nil, sequence: 0, affiliations: [])
-      @value = value
-      @name_type = name_type
-      @given_name = given_name
-      @family_name = family_name
-      @identifier = identifier
+      @value = value&.strip
+      @name_type = name_type&.strip
+      @given_name = given_name&.strip
+      @family_name = family_name&.strip
+      @identifier = identifier&.strip
       @affiliations = affiliations
       @sequence = sequence
     end
@@ -83,7 +83,7 @@ module PDCMetadata
     end
 
     def self.new_person(given_name, family_name, orcid_id = nil, sequence = 0, ror: nil, affiliation: nil)
-      full_name = "#{family_name}, #{given_name}"
+      full_name = "#{family_name&.strip}, #{given_name&.strip}"
       creator = Creator.new(value: full_name, name_type: "Personal", given_name: given_name, family_name: family_name, sequence: sequence)
       if orcid_id.present?
         creator.identifier = NameIdentifier.new_orcid(orcid_id.strip)
