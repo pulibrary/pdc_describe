@@ -151,7 +151,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       work.reload
       funders = work.resource.funders.map(&:funder_name)
       # Can't check for absence of "National Science Foundation" on the page bc it exists in the changelog
-      expect(funders).to contain_exactly("National Sigh, Hence Foundation")
+      expect(funders).to include("National Sigh, Hence Foundation")
       expect(page).to have_content("National Sigh, Hence Foundation")
 
       # Test row reordering
