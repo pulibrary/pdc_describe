@@ -3,7 +3,7 @@
   <% if person.type.present? %>
     (<%= person.type.titleize %>)
   <% end %>
-<% end.strip %>
+<% end.strip.html_safe %>
 
 <span class="author-name">
   <% if person.orcid.present? %>
