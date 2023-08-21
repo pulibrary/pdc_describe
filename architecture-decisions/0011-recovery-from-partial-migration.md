@@ -3,12 +3,7 @@ Sometimes our automated migration of files from DataSpace fails, and the work is
 
 1. Mark the line in the migration spreadsheet where the failure occurred and open a bug ticket for the failure. Figure out why it failed, and try to migrate that same data in the staging. 
 2. Once it's fixed, deploy the new version of the software. 
-3. Remove the partially migrated files from the pre-curation bucket using the aws command line. 
-   
-   ```
-   # BE VERY CAREFUL HERE.[1]
-   aws s3 rm --recursive s3://pdc-describe-prod-precuration/DOI_OF_THE_OBJECT
-   ```
+3. Remove the partially migrated files from the pre-curation bucket using the aws web UI. BE VERY CAREFUL HERE.[1]
 4. The work must be in `draft` state in order to migrate files. If you no longer have a `Migrate Dataspace Files` button you probably need to transition the work state. Open a rails console on the production server and do this:
    ```
    work = Work.find(WORK_ID); work.state = "draft"; work.save
