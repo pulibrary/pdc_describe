@@ -68,7 +68,7 @@ module PDCMetadata
     end
 
     def compare_value
-      "#{value} | #{sequence} | #{type}"
+      "#{value} | #{sequence} | #{type} | #{affiliations.map(&:compare_value).join(',')} | #{orcid_url}"
     end
 
     def affiliation
