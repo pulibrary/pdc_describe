@@ -23,6 +23,10 @@ module PDCMetadata
       }
     end
 
+    def compare_value
+      "[#{scheme}:#{value}(#{scheme_uri})](#{identifier})"
+    end
+
     def self.new_affiliation(value:, ror: nil)
       scheme = nil
       identifier = nil
