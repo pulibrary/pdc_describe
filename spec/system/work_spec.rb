@@ -98,6 +98,17 @@ RSpec.describe "Creating and updating works", type: :system do
     expect(page.html.include?("Gallup, Simon")).to be true
   end
 
+  it "Encodes creators names properly", js: true do
+    # Use a lastname with an apostrophe
+    resource = FactoryBot.build(:resource)
+    resource.creators << PDCMetadata::Creator.new_person("Hugh", "O'Neill")
+    work = FactoryBot.create(:draft_work, resource: resource)
+
+    sign_in user
+    visit work_path(work)
+    expect(page.html.include?("O'Neill, Hugh")).to be true
+  end
+
   it "Renders organizational contributors", js: true do
     resource = FactoryBot.build(:resource)
     resource.organizational_contributors = []
