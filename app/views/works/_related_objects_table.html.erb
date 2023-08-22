@@ -39,7 +39,7 @@
             <td>
               <select name="related_objects[][relation_type]">
                 <option value="" <%= related_object&.relation_type == '' ? 'selected' : ''%> ></option>
-                <% Datacite::Mapping::RelationType.to_a.map do |type| %>
+                <% Datacite::Mapping::RelationType.to_a.sort_by(&:value).map do |type| %>
                   <option value="<%= type.value %>" <%= related_object&.relation_type == type.value ? 'selected' : ''%>><%= type.value %></option>
                 <% end %>
               </select>
