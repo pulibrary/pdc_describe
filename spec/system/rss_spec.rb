@@ -31,10 +31,8 @@ XML
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
 
-    allow(work1).to receive(:publish_doi).and_return(true)
-    allow(work2).to receive(:publish_doi).and_return(true)
-    allow(work1).to receive(:publish_precurated_files).and_return(true)
-    allow(work2).to receive(:publish_precurated_files).and_return(true)
+    allow(work1).to receive(:publish).and_return(true)
+    allow(work2).to receive(:publish).and_return(true)
     stub_s3(data: [s3_file1])
 
     # Works 1 & 2 are approved, so they should show up in the RSS feed
