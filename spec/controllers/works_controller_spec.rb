@@ -1492,7 +1492,7 @@ RSpec.describe WorksController do
       sign_in pppl_user
       post :create, params: params
       work = Work.last
-      expect(work.resource.publisher).to eq "Princeton Plasma Physics Laboratory"
+      expect(work.resource.publisher).to eq "Princeton Plasma Physics Laboratory, Princeton University"
     end
 
     context "when the group is empty" do
