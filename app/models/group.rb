@@ -189,7 +189,7 @@ class Group < ApplicationRecord
 
   def publisher
     if code == "PPPL"
-      "Princeton Plasma Physics Laboratory"
+      "Princeton Plasma Physics Laboratory, Princeton University"
     else
       "Princeton University"
     end
