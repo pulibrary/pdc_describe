@@ -23,7 +23,7 @@
       </tr>
     </thead>
     <tbody class="sortable">
-      <% (@work.resource.organizational_contributors + [nil]).each do |contributor| %>
+      <% @form_resource_decorator.organizational_contributors.each do |contributor| %>
         <tr>
           <td>
             <input name="organizational_contributors[][ror]" value="<%= contributor&.ror %>" placeholder="https://ror.org/........" pattern="https://ror.org/0[a-z|0-9]{6}[0-9]{2}" class="ror-input" />

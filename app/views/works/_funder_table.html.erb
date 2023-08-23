@@ -23,7 +23,7 @@
       </tr>
     </thead>
     <tbody class="sortable">
-      <% (@work.resource.funders + [nil]).each do |funder| %>
+      <% @form_resource_decorator.funders.each do |funder| %>
         <tr>
           <td>
             <input name="funders[][funder_name]" value="<%= funder&.funder_name %>" class="ror-output" />

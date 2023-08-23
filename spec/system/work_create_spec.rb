@@ -120,6 +120,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       find("tr:last-child input[name='contributors[][family_name]']").set "Turing"
       find("tr:last-child select[name='contributors[][role]']").find(:option, "Editor").select_option
       roles = find("tr:last-child select[name='contributors[][role]']").find_all("option").map(&:text)
+      expect(page).to have_field(name: "funders[][funder_name]", with: "")
+      expect(page).to have_field(name: "funders[][ror]", with: "")
       expect(roles).to include("Contact Person") # Individual roles included
       expect(roles).not_to include("Hosting Institution") # Organizational roles excluded
       click_on "Save Work"
