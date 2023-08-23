@@ -35,7 +35,7 @@
             <input name="funders[][award_uri]" value="<%= funder&.award_uri %>" />
           </td>
           <td>
-            <input name="funders[][ror]" value="<%= funder&.ror %>" placeholder="https://ror.org/........" pattern="https://ror.org/0[a-z|0-9]{6}[0-9]{2}" class="ror-input" />
+            <input name="funders[][ror]" value="<%= funder&.ror %>" placeholder="https://ror.org/........" pattern="https://ror.org/0[a-z0-9]{6}[0-9]{2}" class="ror-input" />
           </td>
           <%= render(partial: 'works/row_controls') %>
         </tr>
