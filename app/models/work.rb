@@ -106,13 +106,6 @@ class Work < ApplicationRecord
     end
 
     delegate :resource_type_general_values, to: PDCMetadata::Resource
-
-    # Determines whether or not a test DOI should be referenced
-    # (this avoids requests to the DOI API endpoint for non-production deployments)
-    # @return [Boolean]
-    def publish_test_doi?
-      (Rails.env.development? || Rails.env.test?) && Rails.configuration.datacite.user.blank?
-    end
   end
 
   include Rails.application.routes.url_helpers
@@ -234,17 +227,7 @@ class Work < ApplicationRecord
 
   def draft_doi
     return if resource.doi.present?
-    resource.doi = if self.class.publish_test_doi?
-                     Rails.logger.info "Using hard-coded test DOI during development."
-                     "10.34770/tbd"
-                   else
-                     result = data_cite_connection.autogenerate_doi(prefix: Rails.configuration.datacite.prefix)
-                     if result.success?
-                       result.success.doi
-                     else
-                       raise("Error generating DOI. #{result.failure.status} / #{result.failure.reason_phrase}")
-                     end
-                   end
+    resource.doi = datacite_service.draft_doi
     save!
   end
 
@@ -319,15 +302,6 @@ class Work < ApplicationRecord
                 "Set curator to @#{new_curator.uid}"
               end
     WorkActivity.add_work_activity(id, message, current_user.id, activity_type: WorkActivity::SYSTEM)
-  end
-
-  def curator_or_current_uid(user)
-    persisted = if curator.nil?
-                  user
-                else
-                  curator
-                end
-    persisted.uid
   end
 
   def add_message(message, current_user_id)
@@ -437,6 +411,7 @@ class Work < ApplicationRecord
   end
 
   delegate :bucket_name, :prefix, to: :s3_query_service
+  delegate :doi_attribute_url, :curator_or_current_uid, to: :datacite_service
 
   # Generates the S3 Object key
   # @return [String]
@@ -546,12 +521,6 @@ class Work < ApplicationRecord
     "https://datacommons.princeton.edu/discovery/catalog/doi-#{doi.tr('/', '-').tr('.', '-')}"
   end
 
-  # This is the url that should be used for ARK and DOI redirection. It will search the
-  # index for the DOI and redirect the use appropriately.
-  def doi_attribute_url
-    "https://datacommons.princeton.edu/discovery/doi/#{doi}"
-  end
-
   protected
 
     # This must be protected, NOT private for ActiveRecord to work properly with this attribute.
@@ -564,7 +533,7 @@ class Work < ApplicationRecord
   private
 
     def publish(user)
-      publish_doi(user)
+      datacite_service.publish_doi(user)
       update_ark_information
       publish_precurated_files(user)
       save!
@@ -576,7 +545,7 @@ class Work < ApplicationRecord
       # Set this value in config/update_ark_url.yml
       if Rails.configuration.update_ark_url
         if ark.present?
-          Ark.update(ark, doi_attribute_url)
+          Ark.update(ark, datacite_service.doi_attribute_url)
         end
       end
     end
@@ -614,11 +583,6 @@ class Work < ApplicationRecord
       WorkStateTransitionNotification.new(self, user.id).send
     end
 
-    def data_cite_connection
-      @data_cite_connection ||= Datacite::Client.new(username: Rails.configuration.datacite.user,
-                                                     password: Rails.configuration.datacite.password,
-                                                     host: Rails.configuration.datacite.host)
-    end
 
     def validate_ark
       return if ark.blank?
@@ -672,41 +636,6 @@ class Work < ApplicationRecord
       errors.add(:base, "Related Objects are invalid: #{invalid.map(&:errors).join(', ')}") if invalid.count.positive?
     end
 
-    def publish_doi(user)
-      return Rails.logger.info("Publishing hard-coded test DOI during development.") if self.class.publish_test_doi?
-
-      if doi&.starts_with?(Rails.configuration.datacite.prefix)
-        result = data_cite_connection.update(id: doi, attributes: doi_attributes)
-        if result.failure?
-          resolved_user = curator_or_current_uid(user)
-          message = "@#{resolved_user} Error publishing DOI. #{result.failure.status} / #{result.failure.reason_phrase}"
-          WorkActivity.add_work_activity(id, message, user.id, activity_type: WorkActivity::DATACITE_ERROR)
-        end
-      elsif ark.blank? # we can not update the url anywhere
-        Honeybadger.notify("Publishing for a DOI we do not own and no ARK is present: #{doi}")
-      end
-    rescue Faraday::ConnectionFailed
-      sleep 1
-      retry
-    end
-
-    def doi_attribute_resource
-      PDCMetadata::Resource.new_from_jsonb(metadata)
-    end
-
-    def doi_attribute_xml
-      unencoded = doi_attribute_resource.to_xml
-      Base64.encode64(unencoded)
-    end
-
-    def doi_attributes
-      {
-        "event" => "publish",
-        "xml" => doi_attribute_xml,
-        "url" => doi_attribute_url
-      }
-    end
-
     # This needs to be called #before_save
     # This ensures that new ActiveStorage::Attachment objects are persisted with custom keys (which are generated from the file name and DOI)
     # @param new_attachments [Array<ActiveStorage::Attachment>]
@@ -755,6 +684,10 @@ class Work < ApplicationRecord
     def latest_snapshot
       upload_snapshot = upload_snapshots.first
       upload_snapshot ||= UploadSnapshot.new(work: self, files: [])
+    end
+
+    def datacite_service
+      @datacite_service ||= PULDatacite.new(self)
     end
 end
 # rubocop:enable Metrics/ClassLength
