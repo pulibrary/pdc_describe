@@ -39,12 +39,7 @@
       </tr>
     </thead>
     <tbody class="sortable">
-      <% creators = if @work.nil? || @work.resource.creators.empty?
-                      [nil]
-                    else
-                      @work.resource.creators
-                    end %>
-      <% creators.each do |creator| %>
+      <% @form_resource_decorator.creators.each do |creator| %>
         <tr class="creators-table-row">
         <td>
           <span class="hidden given-name-required-message"><i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a given name</span>

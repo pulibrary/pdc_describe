@@ -34,6 +34,7 @@ class WorksController < ApplicationController
   def new
     group = Group.find_by(code: params[:group_code]) || current_user.default_group
     @work = Work.new(created_by_user_id: current_user.id, group: group)
+    @form_resource_decorator = FormResourceDecorator.new(@work.resource, current_user)
     if wizard_mode?
       render "new_submission"
     end
@@ -49,6 +50,7 @@ class WorksController < ApplicationController
       upload_service.update_precurated_file_list(added_files_param, deleted_files_param)
       redirect_to work_url(@work), notice: "Work was successfully created."
     else
+      @form_resource_decorator = FormResourceDecorator.new(@work.resource, current_user)
       render :new, status: :unprocessable_entity
     end
   end
@@ -114,6 +116,7 @@ class WorksController < ApplicationController
       else
         @uploads = @work.uploads
         @wizard_mode = wizard_mode?
+        @form_resource_decorator = FormResourceDecorator.new(@work.resource, current_user)
         render "edit"
       end
     else
@@ -359,12 +362,14 @@ class WorksController < ApplicationController
       if action_name == "create"
         if @work.persisted?
           Honeybadger.notify("Failed to create the new Dataset #{@work.id}: #{generic_error.message}")
+          @form_resource_decorator = FormResourceDecorator.new(@work.resource, current_user)
           redirect_to edit_work_url(id: @work.id), notice: "Failed to create the new Dataset #{@work.id}: #{generic_error.message}", params: params
         else
           Honeybadger.notify("Failed to create a new Dataset #{@work.id}: #{generic_error.message}")
           new_params = {}
           new_params[:wizard] = wizard_mode? if wizard_mode?
           new_params[:migrate] = migrating? if migrating?
+          @form_resource_decorator = FormResourceDecorator.new(@work.resource, current_user)
           redirect_to new_work_url(params: new_params), notice: "Failed to create a new Dataset: #{generic_error.message}", params: new_params
         end
       else
@@ -376,6 +381,7 @@ class WorksController < ApplicationController
     # rubocop:enable Metrics/BlockNesting
 
     def error_action
+      @form_resource_decorator = FormResourceDecorator.new(@work.resource, current_user)
       if action_name == "create"
         :new
       elsif action_name == "validate"

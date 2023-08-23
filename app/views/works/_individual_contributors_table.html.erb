@@ -19,13 +19,8 @@
       </tr>
     </thead>
     <tbody class="sortable">
-      <% contributors = if @work.nil? || @work.resource.individual_contributors.empty?
-                      [nil]
-                    else
-                      @work.resource.individual_contributors
-                    end %>
       <% skipped_roles = ['DISTRIBUTOR', 'FUNDER', 'HOSTING_INSTITUTION', 'REGISTRATION_AGENCY', 'REGISTRATION_AUTHORITY', 'RESEARCH GROUP'] %>
-      <% contributors.each do |contributor| %>
+      <% @form_resource_decorator.individual_contributors.each do |contributor| %>
         <tr class="contributors-table-row">
           <td>
             <input name="contributors[][orcid]" value="<%= contributor&.orcid %>" class="orcid-entry-contributor"  placeholder="0000-0000-0000-0000" />
@@ -39,8 +34,7 @@
           <td>
             <select name="contributors[][role]">
               <option value="" <%= contributor&.type == '' ? 'selected' : ''%> ></option>
-              <% Datacite::Mapping::ContributorType.to_a.map do |role| %>
-                <% next if skipped_roles.include?(role.key.to_s) %>
+              <% @form_resource_decorator.contributor_types.each do |role| %>
                 <option value="<%= role.key %>" <%= contributor&.type == role.key ? 'selected' : ''%>><%= role.value.titleize %></option>
               <% end %>
             </select>
