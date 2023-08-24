@@ -92,7 +92,7 @@ end
 group :test do
   gem "axe-core-rspec"
   # Adds support for Capybara system testing and selenium driver
-  gem "capybara", ">= 3.26"
+  gem "capybara"
   gem "coveralls_reborn", "~> 0.24", require: false
   gem "database_cleaner-active_record"
   gem "selenium-webdriver"
@@ -101,8 +101,6 @@ group :test do
   gem "rails-controller-testing"
   gem "rspec-html-matchers"
   gem "sinatra"
-  # Easy installation and use of web drivers to run system tests with browsers
-  gem "webdrivers"
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
