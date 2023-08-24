@@ -2,7 +2,6 @@
 
 RSpec.configure do |config|
   config.before(:each, type: :system) do
-    Webdrivers::Chromedriver.required_version = "114.0.5735.90"
     driven_by(:rack_test)
   end
 
