@@ -5,6 +5,7 @@ class FormResourceDecorator
   SKIPPED_ROLES = ["DISTRIBUTOR", "FUNDER", "HOSTING_INSTITUTION", "REGISTRATION_AGENCY", "REGISTRATION_AUTHORITY", "RESEARCH GROUP"].freeze
   PPPL_FUNDER_NAME = "United States Department of Energy"
   PPPL_FUNDER_ROR = "https://ror.org/01bj3aw27"
+  PPPL_FUNDER_AWARD_NUMBER = "DE-AC02-09CH11466"
 
   def initialize(work, current_user)
     @resource = work.resource
@@ -15,7 +16,7 @@ class FormResourceDecorator
   def funders
     @funders ||= begin
                    empty_row = if pppl? && resource.funders.empty?
-                                 PDCMetadata::Funder.new(PPPL_FUNDER_ROR, PPPL_FUNDER_NAME, nil, nil)
+                                 PDCMetadata::Funder.new(PPPL_FUNDER_ROR, PPPL_FUNDER_NAME, PPPL_FUNDER_AWARD_NUMBER, nil)
                                end
                    resource.funders + [empty_row]
                  end

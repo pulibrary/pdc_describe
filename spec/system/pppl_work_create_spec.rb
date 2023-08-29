@@ -38,6 +38,7 @@ RSpec.describe "Form submission for a PPPL dataset", type: :system do
       select "NSTX", from: "subcommunities"
       expect(page).to have_field(name: "funders[][funder_name]", with: "United States Department of Energy")
       expect(page).to have_field(name: "funders[][ror]", with: "https://ror.org/01bj3aw27")
+      expect(page).to have_field(name: "funders[][award_number]", with: "DE-AC02-09CH11466")
       click_on "Curator Controlled"
       expect(page).to have_field("publisher", with: "Princeton Plasma Physics Laboratory, Princeton University")
       click_on "Save Work"
