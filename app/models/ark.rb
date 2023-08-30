@@ -25,7 +25,7 @@ class Ark
     nil
   end
 
-  def self.update(ezid, new_url)
+  def self.update(ezid, new_url, command_line: false)
     return if ezid.start_with?(EZID_TEST_SHOULDER)
     identifier = Ezid::Identifier.find(ezid)
     if identifier.target != new_url
@@ -34,6 +34,7 @@ class Ark
     end
   rescue StandardError => error
     message = "Unable to update EZID #{ezid}: #{error.class}: #{error.message}"
+    puts message if command_line
     Rails.logger.error(message)
     Honeybadger.notify(message)
   end
