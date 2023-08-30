@@ -63,6 +63,10 @@ Style/IfUnlessModifier:
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
+Rails/Output:
+  Exclude:
+    - app/models/ark.rb
+
 Rails/UnknownEnv:
   Enabled: false
 
