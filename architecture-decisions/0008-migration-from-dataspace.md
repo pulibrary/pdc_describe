@@ -137,6 +137,15 @@ When you are done re-describing the work, click the "Migrate" button at the bott
 1. When the migration of a work is finished, put its PDC Describe id into the tracking spreadsheet, and turn that row in the spreadsheet green.
 2. When all of the works for a particular collection are finished, indicate this in the collection tracking spreadsheet. 
 
+### When a collection is done
+1. Mark the collection done in the spreadsheet
+2. Update the DataSpace collection ARK like this:
+   ```
+   EZID_USER=xxxxx EZID_PASSWORD=xxxxx be rake dspace:update_ark\["ark:/88435/dsp01k643b3527","https://datacommons.princeton.edu/discovery/\?f%5Bcommunities_ssim%5D%5B%5D\=Princeton+Plasma+Physics+Laboratory\&f%5Bsubcommunities_ssim%5D%5B%5D\=Advanced+Projects"]
+   ```
+3. Check that the collection ark has been redirected by visiting http://arks.princeton.edu/ark:/YOUR/ARK, e.g., http://arks.princeton.edu/ark:/88435/dsp01k643b3527
+4. Mark the collection ark as updated on the migration spreadsheet
+
 ## After the migration
 1. We will take a second pass to ensure that there were no new works added to DataSpace after we started the migration
 2. We will archive the spreadsheets used in the migration process
