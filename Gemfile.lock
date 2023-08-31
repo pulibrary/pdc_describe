@@ -223,7 +223,7 @@ GEM
       tilt
     hashdiff (1.0.1)
     hashie (3.6.0)
-    honeybadger (4.12.1)
+    honeybadger (5.2.1)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
@@ -563,7 +563,7 @@ DEPENDENCIES
   ffaker
   foreman
   friendly_id (~> 5.4.0)
-  honeybadger (~> 4.0)
+  honeybadger
   io-wait (= 0.2.1)
   jbuilder (~> 2.7)
   kramdown
