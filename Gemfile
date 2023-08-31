@@ -10,7 +10,7 @@ gem "ddtrace", require: "ddtrace/auto_instrument"
 gem "dogstatsd-ruby"
 gem "factory_bot_rails", require: false
 gem "ffaker"
-gem "honeybadger", "~> 4.0"
+gem "honeybadger"
 gem "io-wait", "0.2.1"
 gem "net-ftp"
 gem "net-imap"
