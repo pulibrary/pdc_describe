@@ -25,12 +25,19 @@ class Ark
     nil
   end
 
+  # Update the ARK to point to a new target.
+  # Sometimes we get an error:
+  # Net::HTTPServerException: 400 "Bad Request"
+  # If that happens, try again, up to 5 times, sleep 3 seconds between retries.
+  # If it still fails, send the error to honeybadger.
   def self.update(ezid, new_url, command_line: false)
     return if ezid.start_with?(EZID_TEST_SHOULDER)
-    identifier = Ezid::Identifier.find(ezid)
-    if identifier.target != new_url
-      identifier.target = new_url
-      identifier.save
+    Retryable.retryable(tries: 5, sleep: 3, on: [Net::HTTPServerException]) do
+      identifier = Ezid::Identifier.find(ezid)
+      if identifier.target != new_url
+        identifier.target = new_url
+        identifier.save
+      end
     end
   rescue StandardError => error
     message = "Unable to update EZID #{ezid}: #{error.class}: #{error.message}"
