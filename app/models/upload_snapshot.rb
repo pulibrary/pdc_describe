@@ -72,6 +72,8 @@ class UploadSnapshot < ApplicationRecord
     def checksum_compare(checksum1, checksum2)
       if checksum1 == checksum2
         true
+      elsif checksum1.nil? || checksum2.nil?
+        false
       elsif checksum1.length < checksum2.length
         # Decode the first one and then compare
         checksum1.unpack("m0").first.unpack("H*").first == checksum2
