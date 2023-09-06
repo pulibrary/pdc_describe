@@ -178,6 +178,12 @@ RSpec.describe UploadSnapshot, type: :model do
       s3_file = FactoryBot.build :s3_file, filename: "filetwo", checksum: "98691a716ece23a77735f37b5a421253"
       expect(upload_snapshot.match?(s3_file)).to be true
     end
+
+    it "does not cause issues when the checksum is nil" do
+      s3_file = FactoryBot.build :s3_file, filename: "fileone"
+      s3_file.checksum = nil
+      expect(upload_snapshot.match?(s3_file)).to be false
+    end
   end
 
   describe "#store_files" do
