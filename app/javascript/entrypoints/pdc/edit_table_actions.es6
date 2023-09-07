@@ -19,6 +19,8 @@ export default class EditTableActions {
 
     $('.btn-add-user-creator').on('click', (event) => {
       this.create_user_row(event.target);
+      const button = event.target;
+      button.disabled = true;
       return false;
     });
 
