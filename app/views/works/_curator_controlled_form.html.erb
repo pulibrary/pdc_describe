@@ -73,6 +73,12 @@
   </select>
 </div>
 
+<!-- Date field (for setting an embargo on the Work) -->
+<div class="field">
+  <label class="form-label" for="start"><%= t('works.form.embargo_date') %><span class="text-muted field-hint">: (date until which the work is embargoed)</span></label>
+  <input class="form-control form-control__date" type="date" id="embargo-date" name="embargo-date" min="2018-01-01" />
+</div>
+
 <!-- Collection Tags field -->
 <div class="field">
   <%= t('works.form.collection_tags') %>: <span class="text-muted field-hint">(enter tags that identify the collect in a comma separated list, e.g. Humanities, Life Sciences)</span><br>

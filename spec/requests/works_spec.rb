@@ -65,6 +65,11 @@ RSpec.describe "/works", type: :request do
         stub_s3
       end
 
+      context "when an embargo date is specified" do
+        it "updates the embargo date" do
+        end
+      end
+
       context "when files are added to the Work" do
         let(:work) { FactoryBot.create(:tokamak_work, group: group, created_by_user_id: user.id, state: "draft") }
 
@@ -183,6 +188,46 @@ RSpec.describe "/works", type: :request do
 
           expect(response.code).to eq "200"
           expect(response.body).to include("Files Replaced: 1")
+        end
+      end
+
+      context "when an embargo date is specified" do
+        let(:embargo_date_param) { "2023-09-06" }
+        let(:params) do
+          {
+            "title_main" => "test dataset updated",
+            "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }],
+            "embargo-date" => embargo_date_param
+          }
+        end
+        let(:embargo_date) { Date.parse(embargo_date_param) }
+
+        before do
+          stub_ark
+        end
+
+        it "updates the embargo date" do
+          patch work_url(work), params: params
+          work.reload
+
+          expect(work.embargo_date).not_to be nil
+          expect(work.embargo_date).to eq(embargo_date)
+        end
+
+        context "when an invalid embargo date is specified" do
+          let(:embargo_date_param) { "invalid" }
+
+          before do
+            allow(Rails.logger).to receive(:error)
+          end
+
+          it "sets the embargo date to nil and logs an error" do
+            patch work_url(work), params: params
+            work.reload
+
+            expect(work.embargo_date).to be nil
+            expect(Rails.logger).to have_received(:error).with("Failed to parse the embargo date invalid for Work #{work.id}").at_least(:once)
+          end
         end
       end
     end

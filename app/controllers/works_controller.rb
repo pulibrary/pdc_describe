@@ -413,9 +413,23 @@ class WorksController < ApplicationController
       process_updates
     end
 
+    def embargo_date_param
+      params["embargo-date"]
+    end
+
+    def embargo_date
+      return nil if embargo_date_param.blank?
+
+      Date.parse(embargo_date_param)
+    rescue Date::Error
+      Rails.logger.error("Failed to parse the embargo date #{embargo_date_param} for Work #{@work.id}")
+      nil
+    end
+
     def update_params
       {
         group_id: params_group_id,
+        embargo_date: embargo_date,
         resource: FormToResourceService.convert(params, @work)
       }
     end
