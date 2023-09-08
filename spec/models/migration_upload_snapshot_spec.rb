@@ -79,12 +79,16 @@ XML
       migration_upload_snapshot.store_files([s3_file1, s3_file2])
       expect(work.work_activity.count).to eq(0)
       migration_upload_snapshot.mark_complete(s3_file2)
+      s3_file2.checksum = migration_upload_snapshot.files[1]["checksum"]
+      expect(migration_upload_snapshot.complete?(s3_file2)).to be_truthy
       expect(work.work_activity.count).to eq(0)
       expect(migration_upload_snapshot.files).to eq([{ "filename" => "fileone", "checksum" => "aaabbb111222", "migrate_status" => "started" },
                                                      { "filename" => "filetwo", "checksum" => s3_etag, "migrate_status" => "complete" }])
       expect(migration_upload_snapshot.migration_complete?).to be_falsey
       expect(migration_upload_snapshot.existing_files).to eq([{ "filename" => "filetwo", "checksum" => s3_etag, "migrate_status" => "complete" }])
       migration_upload_snapshot.mark_complete(s3_file1)
+      s3_file1.checksum = migration_upload_snapshot.files[0]["checksum"]
+      expect(migration_upload_snapshot.complete?(s3_file1)).to be_truthy
       expect(migration_upload_snapshot.migration_complete?).to be_truthy
       expect(migration_upload_snapshot.existing_files).to eq([{ "filename" => "fileone", "checksum" => s3_etag, "migrate_status" => "complete" },
                                                               { "filename" => "filetwo", "checksum" => s3_etag, "migrate_status" => "complete" }])

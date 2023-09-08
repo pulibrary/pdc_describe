@@ -16,7 +16,7 @@ class DspaceBitstreamCopyJob < ApplicationJob
     def migrate_file(dspace_file, migration_snapshot_id)
       # Allow a restart if there is an error with one file
       snapshot = MigrationUploadSnapshot.find(migration_snapshot_id)
-      return if snapshot.complete?(dspace_file)
+      return if file_complete?(snapshot, dspace_file)
 
       downloaded_file = download_dspace_file(dspace_file, migration_snapshot_id)
       return if downloaded_file.nil?
@@ -53,5 +53,11 @@ class DspaceBitstreamCopyJob < ApplicationJob
         yield migration_snapshot
         migration_snapshot.save!
       end
+    end
+
+    def file_complete?(migratoion_snapshot, dspace_file)
+      s3_file = dspace_file.clone
+      s3_file.filename = s3_file.filename_display
+      migratoion_snapshot.complete?(s3_file)
     end
 end
