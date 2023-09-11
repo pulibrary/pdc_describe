@@ -66,6 +66,7 @@ Style/StringLiterals:
 Rails/Output:
   Exclude:
     - app/models/ark.rb
+    - app/services/work_update_metadata_service.rb
 
 Rails/UnknownEnv:
   Enabled: false
