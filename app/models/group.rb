@@ -175,7 +175,7 @@ class Group < ApplicationRecord
       values << "Theory"
       values << "NSTX-U"
       values << "NSTX"
-      values << "Plasma Science & Technology"
+      values << "Discovery Plasma Science"
       values << "Theory and Computation"
       values << "Stellarators"
       values << "PPPL Collaborations"
