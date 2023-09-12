@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "byebug"
-
 namespace :metadata do
   # command line syntax: bundle exec rake metadata:update_pppl_subcommunities\["netid"\]
   desc "Update renamed PPPL subcommunities"
