@@ -57,7 +57,7 @@ RSpec.describe "Editing users", type: :system do
       expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_Theory"
       expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_NSTX-U"
       expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_NSTX"
-      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_Plasma Science & Technology"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_Discovery Plasma Science"
       expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_Theory and Computation"
       expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_Stellarators"
       expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_PPPL Collaborations"

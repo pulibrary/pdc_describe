@@ -8,7 +8,7 @@ RSpec.describe "Form submission for migrating fusion energy", type: :system, moc
     "Fusion could be a part of future decarbonized electricity systems, but it will need to compete with other technologies. In particular, pulsed tokamaks plants have a unique operational mode, and evaluating which characteristics make them economically competitive can help select between design pathways. Using a capacity expansion and operations model, we determined cost thresholds for pulsed tokamaks to reach a range of penetration levels in a future decarbonized US Eastern Interconnection. The required capital cost to reach a fusion capacity of 100 GW varied from $3000 to $7200/kW, and the equilibrium penetration increases rapidly with decreasing cost. The value per unit power capacity depends on the variable operational cost and on cost of its competition, particularly fission, much more than on the pulse cycle parameters. These findings can therefore provide initial cost targets for fusion more generally in the United States."
   end
   let(:ark) { "ark:/88435/dsp012j62s808w" }
-  let(:collection_tags) { ["Plasma Science & Technology"] }
+  let(:collection_tags) { ["Discovery Plasma Science"] }
   let(:group) { "Princeton Plasma Physics Lab (PPPL)" }
   let(:publisher) { "Princeton University" }
   let(:doi) { "10.34770/f8em-3c49" }
@@ -23,6 +23,8 @@ RSpec.describe "Form submission for migrating fusion energy", type: :system, moc
     it "produces and saves a valid datacite record" do
       sign_in user
       visit "/works/new?migrate=true"
+
+      ## Required Metadata Tab
       fill_in "title_main", with: title
       fill_in "description", with: description
       select "Creative Commons Attribution 4.0 International", from: "rights_identifiers"
@@ -42,13 +44,19 @@ RSpec.describe "Form submission for migrating fusion energy", type: :system, moc
       find("tr:last-child input[name='creators[][given_name]']").set "Jesse D."
       find("tr:last-child input[name='creators[][family_name]']").set "Jenkins"
 
+      ## Additional Metadata Tab
       click_on "Additional Metadata"
 
-      ## Funder Information
+      # Funder Information
       # https://ror.org/01bj3aw27 == ROR for United States Department of Energy
       page.find(:xpath, "//table[@id='funding']//tr[1]//input[@name='funders[][ror]']").set "https://ror.org/01bj3aw27"
       page.find(:xpath, "//table[@id='funding']//tr[1]//input[@name='funders[][award_number]']").set "DE-AC02-09CH11466"
 
+      select "Natural Sciences", from: "domains"
+      select "Princeton Plasma Physics Laboratory", from: "communities"
+      select "Discovery Plasma Science", from: "subcommunities"
+
+      ## Curator Controlled Tab
       click_on "Curator Controlled"
       fill_in "publisher", with: publisher
       fill_in "publication_year", with: 2022

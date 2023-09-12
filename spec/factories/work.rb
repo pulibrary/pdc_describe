@@ -98,6 +98,17 @@ FactoryBot.define do
       created_by_user_id { FactoryBot.create(:pppl_submitter).id }
     end
 
+    factory :pppl_work_with_department_name_change do
+      group { Group.plasma_laboratory }
+      state { "awaiting_approval" }
+      resource do
+        json_from_spec = File.read(Rails.root.join("spec", "fixtures", "rename_pppl_dept1.json"))
+        resource = JSON.parse(json_from_spec)["resource"]
+        PDCMetadata::Resource.new_from_jsonb(resource)
+      end
+      created_by_user_id { FactoryBot.create(:pppl_submitter).id }
+    end
+
     factory :sowing_the_seeds_work do
       title { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
       group { Group.research_data }
