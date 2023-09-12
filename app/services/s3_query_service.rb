@@ -226,7 +226,9 @@ class S3QueryService
       client.copy_object(copy_source: source_key, bucket: target_bucket, key: target_key, checksum_algorithm: "SHA256")
     end
   rescue Aws::Errors::ServiceError => aws_service_error
-    Rails.logger.error("An error was encountered when requesting to copy AWS S3 Object from #{source_key} to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}")
+    message = "An error was encountered when requesting to copy AWS S3 Object from #{source_key} to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}"
+    Rails.logger.error(message)
+    raise aws_service_error
   end
 
   def copy_multi_part(source_key:, target_bucket:, target_key:, size:)
@@ -244,7 +246,9 @@ class S3QueryService
     end
     client.complete_multipart_upload(bucket: target_bucket, key: target_key, upload_id: multi.upload_id, multipart_upload: { parts: parts })
   rescue Aws::Errors::ServiceError => aws_service_error
-    Rails.logger.error("An error was encountered when requesting to multipart copy AWS S3 Object from #{source_key} to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}")
+    message = "An error was encountered when requesting to multipart copy AWS S3 Object from #{source_key} to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}"
+    Rails.logger.error(message)
+    raise aws_service_error
   end
 
   def copy_directory(source_key:, target_bucket:, target_key:)
