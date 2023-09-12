@@ -11,7 +11,6 @@
 
 import Rails from '@rails/ujs';
 import Turbolinks from 'turbolinks';
-import ActiveStorage from '@rails/activestorage';
 // Provides @mention functionality in textboxes (adds to jQuery UI autocomplete)
 import './vendor/jquery-ui-triggeredAutocomplete';
 
@@ -42,7 +41,6 @@ if (typeof (window._rails_loaded) === 'undefined' || window._rails_loaded == nul
   Rails.start();
 }
 Turbolinks.start();
-ActiveStorage.start();
 
 function ready() {
   const loader = new PdcUiLoader();
