@@ -50,6 +50,62 @@ RSpec.describe "/works", type: :request do
           expect { get work_url(work) }.to raise_error(Work::InvalidGroupError, "The Work test-id does not belong to any Group")
         end
       end
+
+      context "when the Work is under active embargo" do
+        let(:embargo_date) { Time.zone.today + 1.year }
+        let(:work) do
+          FactoryBot.create(:tokamak_work, state: :approved, embargo_date: embargo_date)
+        end
+
+        before do
+          stub_ark
+        end
+
+        it "will show the work page displaying the work metadata" do
+          get work_url(work)
+
+          expect(response.code).to eq "200"
+          expect(response.body).to include("Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas")
+        end
+      end
+    end
+
+    context "when the Work is under active embargo" do
+      let(:embargo_date) { Time.zone.today + 1.year }
+      let(:work) do
+        FactoryBot.create(:tokamak_work, state: :approved, embargo_date: embargo_date)
+      end
+
+      before do
+        stub_ark
+      end
+
+      it "will redirect the client to the authentication page" do
+        get work_url(work)
+
+        expect(response.code).to eq "302"
+        redirect_location = response.header["Location"]
+        expect(redirect_location).to eq "http://www.example.com/sign_in"
+      end
+    end
+
+    context "when the Work is under an expired embargo" do
+      let(:embargo_date) { Time.zone.today - 1.year }
+      let(:work) do
+        FactoryBot.create(:tokamak_work, state: :approved, embargo_date: embargo_date)
+      end
+
+      before do
+        stub_ark
+        stub_s3
+      end
+
+      it "will show the work page displaying the work metadata" do
+        get work_url(work), params: { format: :json }
+
+        expect(response.code).to eq "200"
+        expect(response.body).to include("Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas")
+      end
     end
   end
 
@@ -63,11 +119,6 @@ RSpec.describe "/works", type: :request do
       before do
         sign_in(user)
         stub_s3
-      end
-
-      context "when an embargo date is specified" do
-        it "updates the embargo date" do
-        end
       end
 
       context "when files are added to the Work" do

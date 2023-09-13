@@ -11,14 +11,52 @@ class WorksController < ApplicationController
   skip_before_action :authenticate_user!
   before_action :authenticate_user!, unless: :public_request?
 
+  # Extract the Work ID parameter
+  # @return [String]
+  def work_id_param
+    params[:id]
+  end
+
+  # Find the Work requested by ID
+  # @return [Work]
+  def work
+    Work.find(work_id_param)
+  end
+
+  # Determine whether or not the request is for the :index action in the RSS
+  # response format
+  # This is to enable PDC Discovery to index approved content via the RSS feed
+  def rss_index_request?
+    action_name == "index" && request.format.symbol == :rss
+  end
+
+  # Determine whether or not the request is for the :show action in the JSON
+  # response format
+  # @return [Boolean]
+  def json_show_request?
+    action_name == "show" && request.format.symbol == :json
+  end
+
+  # Determine whether or not the requested Work has been approved
+  # @return [Boolean]
+  def work_approved?
+    work&.state == "approved"
+  end
+
+  # Determine whether or not the requested Work is under embargo
+  # @return [Boolean]
+  def work_embargoed?
+    work&.embargoed?
+  end
+
   ##
   # Public requests are requests that do not require authentication.
   # This is to enable PDC Discovery to index approved content via the RSS feed and
   # .json calls to individual works without needing to log in as a user.
   # Note that only approved works can be fetched for indexing.
   def public_request?
-    return true if action_name == "index" && request.format.symbol == :rss
-    return true if action_name == "show" && request.format.symbol == :json && Work.find(params[:id]).state == "approved"
+    return true if rss_index_request?
+    return true if json_show_request? && work_approved? && !work_embargoed?
     false
   end
 
