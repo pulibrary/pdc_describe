@@ -371,7 +371,7 @@ class Work < ApplicationRecord
         "size": s3_file.size,
         "display_size": s3_file.display_size,
         "url": s3_file.url
-    }
+      }
     end
     files_info
   end
@@ -434,25 +434,21 @@ class Work < ApplicationRecord
     nil
   end
 
+  # Generates the JSON serialized expression of the Work
+  # @param args [Array<Hash>]
+  # @option args [Boolean] :force_post_curation Force the request of AWS S3
+  #   Resources, clearing the in-memory cache
+  # @return [String]
   def as_json(*args)
-    force_post_curation = args.any? {|arg| arg[:force_post_curation] == true }
-    # Pre-curation files are not accessible externally,
-    # so we are not interested in listing them in JSON.
-    files = post_curation_uploads(force_post_curation:).map do |upload|
-      {
-        "filename": upload.filename,
-        "size": upload.size,
-        "display_size": upload.display_size,
-        "url": upload.globus_url
-      }
-    end
+    files = files_as_json(*args)
 
     # to_json returns a string of serialized JSON.
     # as_json returns the corresponding hash.
     {
       "resource" => resource.as_json,
       "files" => files,
-      "group" => group.as_json.except("id")
+      "group" => group.as_json.except("id"),
+      "embargo_date" => embargo_date_as_json
     }
   end
 
@@ -512,9 +508,11 @@ class Work < ApplicationRecord
     changes << { action: action, filename: filename }
   end
 
+  # rubocop:disable Naming/PredicateName
   def has_rights?(rights_id)
     resource.rights_many.index { |rights| rights.identifier == rights_id } != nil
   end
+  # rubocop:enable Naming/PredicateName
 
   # This is the solr id / work show page in PDC Discovery
   def pdc_discovery_url
@@ -591,7 +589,6 @@ class Work < ApplicationRecord
       WorkActivity.add_work_activity(id, "marked as #{state.to_s.titleize}", user.id, activity_type: WorkActivity::SYSTEM)
       WorkStateTransitionNotification.new(self, user.id).send
     end
-
 
     def validate_ark
       return if ark.blank?
@@ -691,12 +688,41 @@ class Work < ApplicationRecord
     end
 
     def latest_snapshot
-      upload_snapshot = upload_snapshots.first
-      upload_snapshot ||= UploadSnapshot.new(work: self, files: [])
+      return upload_snapshots.first unless upload_snapshots.empty?
+
+      UploadSnapshot.new(work: self, files: [])
     end
 
     def datacite_service
       @datacite_service ||= PULDatacite.new(self)
+    end
+
+    def files_as_json(*args)
+      return [] if embargoed?
+
+      force_post_curation = args.any? { |arg| arg[:force_post_curation] == true }
+
+      # Pre-curation files are not accessible externally,
+      # so we are not interested in listing them in JSON.
+      post_curation_uploads(force_post_curation: force_post_curation).map do |upload|
+        {
+          "filename": upload.filename,
+          "size": upload.size,
+          "display_size": upload.display_size,
+          "url": upload.globus_url
+        }
+      end
+    end
+
+    def embargo_date_as_json
+      if embargo_date.present?
+        embargo_datetime = embargo_date.to_datetime
+        embargo_date_iso8601 = embargo_datetime.iso8601
+        # Apache Solr timestamps require the following format:
+        # 1972-05-20T17:33:18Z
+        # https://solr.apache.org/guide/solr/latest/indexing-guide/date-formatting-math.html
+        embargo_date_iso8601.gsub(/\+.+$/, "Z")
+      end
     end
 end
 # rubocop:enable Metrics/ClassLength
