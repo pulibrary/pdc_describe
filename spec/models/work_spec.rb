@@ -32,11 +32,12 @@ RSpec.describe Work, type: :model do
   end
 
   context "fixed time" do
+    let(:embargo_date) { Date.parse("2023-09-14") }
     before do
       allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
     end
     it "captures everything needed for PDC Describe in JSON" do
-      work = Work.new(group: group, resource: FactoryBot.build(:tokamak_work))
+      work = Work.new(group: group, resource: FactoryBot.build(:tokamak_work), embargo_date: embargo_date)
       expect(JSON.parse(work.to_json)).to eq(
         {
           "resource" => {
@@ -69,7 +70,8 @@ RSpec.describe Work, type: :model do
             "code" => "RD",
             "created_at" => "2021-12-31T19:00:00.000-05:00",
             "updated_at" => "2021-12-31T19:00:00.000-05:00"
-          }
+          },
+          "embargo_date" => "2023-09-14T00:00:00+00:00"
         }
       )
     end

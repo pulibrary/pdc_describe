@@ -447,12 +447,20 @@ class Work < ApplicationRecord
       }
     end
 
+    embargo_date_json = if embargo_date.present?
+                          embargo_datetime = embargo_date.to_datetime
+                          embargo_datetime.to_s
+                        else
+                          nil
+                        end
+
     # to_json returns a string of serialized JSON.
     # as_json returns the corresponding hash.
     {
       "resource" => resource.as_json,
       "files" => files,
-      "group" => group.as_json.except("id")
+      "group" => group.as_json.except("id"),
+      "embargo_date" => embargo_date_json
     }
   end
 
