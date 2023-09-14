@@ -8,4 +8,10 @@
       margin-left: 0.2rem;
     }
   }
+
+  .form-control {
+    &__date {
+      width: max-content;
+    }
+  }
 }

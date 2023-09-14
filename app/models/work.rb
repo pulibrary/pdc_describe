@@ -521,6 +521,15 @@ class Work < ApplicationRecord
     "https://datacommons.princeton.edu/discovery/catalog/doi-#{doi.tr('/', '-').tr('.', '-')}"
   end
 
+  # Determine whether or not the Work is under active embargo
+  # @return [Boolean]
+  def embargoed?
+    return false if embargo_date.blank?
+
+    current_date = Time.zone.now
+    embargo_date >= current_date
+  end
+
   protected
 
     # This must be protected, NOT private for ActiveRecord to work properly with this attribute.
