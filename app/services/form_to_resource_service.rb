@@ -8,8 +8,6 @@ class FormToResourceService
     #
     # @return [PDCMetadata::Resource] Fully formed resource containing updates from the user
     #
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/AbcSize
     def convert(params, work)
       resource = reset_resource_to_work(work)
 
@@ -30,8 +28,6 @@ class FormToResourceService
 
       resource
     end
-    # rubocop:enable Metrics/AbcSize
-    # rubocop:enable Metrics/MethodLength
 
     private
 
