@@ -449,7 +449,11 @@ class Work < ApplicationRecord
 
     embargo_date_json = if embargo_date.present?
                           embargo_datetime = embargo_date.to_datetime
-                          embargo_datetime.to_s
+                          embargo_date_iso8601 = embargo_datetime.iso8601
+                          # Apache Solr timestamps require the following format:
+                          # 1972-05-20T17:33:18Z
+                          # https://solr.apache.org/guide/solr/latest/indexing-guide/date-formatting-math.html
+                          embargo_date_iso8601.gsub(/\+.+$/, "Z")
                         else
                           nil
                         end

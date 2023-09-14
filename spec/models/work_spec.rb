@@ -71,7 +71,7 @@ RSpec.describe Work, type: :model do
             "created_at" => "2021-12-31T19:00:00.000-05:00",
             "updated_at" => "2021-12-31T19:00:00.000-05:00"
           },
-          "embargo_date" => "2023-09-14T00:00:00+00:00"
+          "embargo_date" => "2023-09-14T00:00:00Z"
         }
       )
     end
