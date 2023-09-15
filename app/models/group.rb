@@ -183,7 +183,7 @@ class Group < ApplicationRecord
       values << "Other Projects"
       values << "System Studies"
       values << "Applied Materials and Sustainability Sciences"
-      
+
     end
     values.sort
   end
