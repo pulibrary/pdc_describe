@@ -6,6 +6,8 @@ development:
   - hh4079
   - jrg5
   - kl37
+  - fn8243
+  - cl7359
 
 staging:
   - bs3097
@@ -14,6 +16,8 @@ staging:
   - hh4079
   - jrg5
   - kl37
+  - fn8243
+  - cl7359
 
 test:
   - bs3097
@@ -22,6 +26,8 @@ test:
   - hh4079
   - jrg5
   - kl37
+  - fn8243
+  - cl7359
 
 production:
   - bs3097
@@ -30,3 +36,5 @@ production:
   - hh4079
   - jrg5
   - kl37
+  - fn8243
+  - cl7359
