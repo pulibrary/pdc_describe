@@ -65,6 +65,7 @@ Consult the file README.txt for a more detailed description of the contents."
       find("tr:last-child input[name='creators[][family_name]']").set "Zarnstorff"
 
       click_on "Additional Metadata"
+      expect(page).to have_content "Applied Materials and Sustainability Sciences"
       fill_in "keywords", with: keywords
 
       ## Funder Information
