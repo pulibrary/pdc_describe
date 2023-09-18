@@ -64,6 +64,7 @@ RSpec.describe "Editing users", type: :system do
       expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_MAST-U"
       expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_Other Projects"
       expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_System Studies"
+      expect(page).to have_checked_field "group_messaging_#{pppl_group.id}_Applied Materials and Sustainability Sciences"
       uncheck "group_messaging_#{pppl_group.id}"
       click_on "Update"
       visit edit_user_path(user)
