@@ -123,3 +123,11 @@ irb(main):010:0> user = User.find_by(uid: 'hb0344')
 irb(main):015:0> user.add_role(:group_admin, Group.plasma_laboratory)
 irb(main):016:0> user.add_role(:group_admin, Group.research_data)
 ```
+
+### PPPL submitters
+To allow a user to submit to the PPPL communities and subcommunities, that user's default Group must be set to the Princeton Plasma Physics Lab.  To do this, use the Rails console: 
+```
+irb(main):011:0> user = User.find_by(uid: 'hb0344')
+irb(main):012:0> user.default_group_id = Group.plasma_laboratory.id
+irb(main):013:0> user.save!
+```
