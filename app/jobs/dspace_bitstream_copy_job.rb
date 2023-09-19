@@ -8,7 +8,7 @@ class DspaceBitstreamCopyJob < ApplicationJob
 
     dspace_files.each do |dspace_file|
       # Rename files so they are S3 safe
-      dspace_file.filename_display = FileRenameService.new(filename: dspace_file.filename_display)
+      dspace_file.filename_display = FileRenameService.new(filename: dspace_file.filename_display).new_filename
       migrate_file(dspace_file, migration_snapshot_id)
     end
   end
