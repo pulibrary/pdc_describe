@@ -8,7 +8,7 @@ class WorkActivityNotification < ApplicationRecord
     if send_message?
       mailer = NotificationMailer.with(user: user, work_activity: work_activity)
       message = mailer.build_message
-      message.deliver_later(wait: 10.seconds)
+      # message.deliver_later(wait: 10.seconds)
     end
   end
 
