@@ -14,7 +14,7 @@ class FileRenameService
   # This service will only attempt to fix the most likely problems. For example, we will not try to
   # handle "ASCII character ranges 00–1F hex (0–31 decimal) and 7F (127 decimal)"
   ILLEGAL_CHARACTERS = [
-    "&", "$", "@", "=", ";", "/", ":", "+", " ", ",", "?", "\\", "{", "}", "^", "%", "`", "[", "]", "'", '"', ">", "<", "~", "#", "|"
+    "&", "$", "@", "=", ";", ":", "+", " ", ",", "?", "\\", "{", "}", "^", "%", "`", "[", "]", "'", '"', ">", "<", "~", "#", "|"
   ].freeze
 
   attr_reader :original_filename
