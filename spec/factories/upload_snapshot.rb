@@ -5,6 +5,7 @@ FactoryBot.define do
     url { "https://localhost.localdomain/file.txt" }
     version { 1 }
     work { FactoryBot.create(:approved_work) }
+    files { [] }
 
     factory :upload_snapshot_with_illegal_characters do
       files do

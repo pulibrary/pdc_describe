@@ -8,8 +8,11 @@ RSpec.describe FileRenameService do
     expect(FileRenameService::ILLEGAL_CHARACTERS).to be_instance_of Array
   end
 
+  # Expect this to be called from DspaceBitstreamCopyJob, 
+  # at which point the files will already be assigned S3 addresses that include
+  # the DOI and the PDC identifier, and we don't want to lose those
   context "a file with S3 illegal characters" do
-    let(:filename) { "Dry He 2mm 10kV le=0.8mJ RH 50%.csv" }
+    let(:filename) { "10.80021/4dy5-dh78/473/Dry He 2mm 10kV le=0.8mJ RH 50%.csv" }
     let(:subject) { described_class.new(filename: filename) }
 
     it "knows the original filename" do
@@ -21,7 +24,7 @@ RSpec.describe FileRenameService do
     end
 
     it "knows the new filename" do
-      expect(subject.new_filename).to eq "Dry_He_2mm_10kV_le_0.8mJ_RH_50_.csv"
+      expect(subject.new_filename).to eq "10.80021/4dy5-dh78/473/Dry_He_2mm_10kV_le_0.8mJ_RH_50_.csv"
     end
   end
 

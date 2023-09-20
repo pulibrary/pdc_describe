@@ -34,12 +34,21 @@ class FileRenameService
     false
   end
 
-  # Replace every instance of an illegal character with an underscore
+  # Replace every instance of an illegal character with an underscore, but preserve
+  # the expected directory structure
   def new_filename
     nf = @original_filename.dup
+    # nf_split = nf.split("/")
+    # doi_prefix = nf_split[0]
+    # doi_suffix = nf_split[1]
+    # pdc_id = nf_split[2]
+    # Anything after the prefixes we want to preserve, put it back together for
+    # character substitution
+    # bare_filename = nf_split[3..].join("/")
     ILLEGAL_CHARACTERS.each do |char|
       nf.gsub!(char, "_")
     end
+    # "#{doi_prefix}/#{doi_suffix}/#{pdc_id}/#{bare_filename}"
     nf
   end
 end

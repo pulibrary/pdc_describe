@@ -30,6 +30,7 @@ class MigrationUploadSnapshot < UploadSnapshot
   end
 
   def complete?(s3_file)
+    byebug
     index = find_complete_file(s3_file.filename, s3_file.checksum)
     !index.nil?
   end

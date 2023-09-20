@@ -76,6 +76,7 @@ RSpec.describe PULDspaceMigrate, type: :model do
       it "migrates the content from dspace and aws" do
         expect(UploadSnapshot.all.count).to eq(0)
         FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
+        byebug
         subject.migrate
 
         allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return(
