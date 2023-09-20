@@ -57,9 +57,9 @@ class DspaceBitstreamCopyJob < ApplicationJob
       end
     end
 
-    def file_complete?(migratoion_snapshot, dspace_file)
+    def file_complete?(migration_snapshot, dspace_file)
       s3_file = dspace_file.clone
       s3_file.filename = s3_file.filename_display
-      migratoion_snapshot.complete?(s3_file)
+      migration_snapshot.complete?(s3_file)
     end
 end
