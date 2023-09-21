@@ -21,7 +21,7 @@ RSpec.describe FileRenameService do
     end
 
     it "knows the new filename" do
-      expect(subject.new_filename).to eq "10.80021/4dy5-dh78/473/Dry_He_2mm_10kV_le_0.8mJ_RH_50_.csv"
+      expect(subject.new_filename(2)).to eq "10.80021/4dy5-dh78/473/Dry He 2mm 10kV le_0.8mJ RH 50_(2).csv"
     end
   end
 
