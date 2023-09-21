@@ -15,13 +15,12 @@
     <%= form_with url: add_provenance_note_path(@work) do |f| %>
       <div class="field">
       <details>
-<summary>
+<summary class="remove-see-more">
  <!--field name -->
-   Date <br>
-  <span class="primary-detail">
-     <!--todo show help text here-->
-     The date in the change history your note should be given. Format as "YYY-MM-DD".
-    Leave blank to use the current date and time.
+  Date
+  <span class="summary-detail">
+   The date in the change history your note should be given. Format as "YYY-MM-DD".
+   Leave blank to use the current date and time.
   </span>
 </summary>
 </details>
@@ -32,9 +31,11 @@
       
       <div class="field">
         <details>
-          <summary>
-          Note <br>
+          <summary  class="remove-see-more">
+          Note 
+          <span class="summary-detail">
           The note to add to the change history. Markdown can be used. 
+          </span>
           </summary>
         </details>
         <input id="new-provenance-note" name="new-provenance-note">
