@@ -33,14 +33,20 @@ class FileRenameMappingService
   # The key of the hash is the original filename.
   # The value of the hash is the re-named file with an index number appended.
   def rename_files
-    rename_index = 1
-    renamed_files = {}
-    @files.each do |file|
-      next unless file.needs_rename?
-      renamed_files[file.original_filename] = file.new_filename(rename_index)
-      rename_index += 1
+    @upload_snapshot.with_lock do
+      @upload_snapshot.reload
+      rename_index = 1
+      renamed_files = {}
+      @files.each do |file|
+        next unless file.needs_rename?
+        renamed_files[file.original_filename] = file.new_filename(rename_index)
+        # Also update the filename in the MigrationSnapshot
+        @upload_snapshot.rename_file(file.original_filename, file.new_filename(rename_index))
+        rename_index += 1
+      end
+      @upload_snapshot.save
+      renamed_files
     end
-    renamed_files
   end
 
   # A rename is needed if any of the original filenames need renaming

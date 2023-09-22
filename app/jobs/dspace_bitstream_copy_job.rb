@@ -78,13 +78,14 @@ class DspaceBitstreamCopyJob < ApplicationJob
       return unless frms.rename_needed?
 
       filename = "renamed_files.txt"
-      require 'tempfile'
-      tempfile = Tempfile.new("#{@work.doi}_renamed_files.txt")
-      tempfile.write frms.renaming_document
-      io = File.open(tempfile)
-      size = File.size(tempfile)
-      checksum = Digest::MD5.file(tempfile)
+      io = StringIO.new
+      io.write frms.renaming_document
+      io.rewind
+      size = io.size
+      checksum = Digest::MD5.new
+      checksum.update(io.read)
       base64 = checksum.base64digest
+      io.rewind
       @work.s3_query_service.upload_file(io: io, filename: filename, size: size, md5_digest: base64)
     end
 end
