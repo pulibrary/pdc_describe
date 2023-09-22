@@ -9,21 +9,18 @@
 #     and what they were renamed to, along with a timestamp
 # 5.  This files_renamed.txt file gets added to the dataset as a payload file, akin to a README.txt or license.txt
 class FileRenameMappingService
-  attr_reader :upload_snapshot, :files, :renamed_files
+  attr_reader :upload_snapshot, :files, :renamed_files, :original_filenames
 
   def initialize(upload_snapshot:)
     @upload_snapshot = upload_snapshot
+    @original_filenames = @upload_snapshot.files.map { |a| a["filename"] }
     @files = parse_files_to_rename
     @renamed_files = rename_files
   end
 
-  def original_filenames
-    @upload_snapshot.files.map { |a| a["filename"] }
-  end
-
   def parse_files_to_rename
     files = []
-    original_filenames.each do |original_filename|
+    @original_filenames.each do |original_filename|
       files << FileRenameService.new(filename: original_filename)
     end
     files
@@ -39,9 +36,10 @@ class FileRenameMappingService
       renamed_files = {}
       @files.each do |file|
         next unless file.needs_rename?
-        renamed_files[file.original_filename] = file.new_filename(rename_index)
+        new_filename = file.new_filename(rename_index)
+        renamed_files[file.original_filename] = new_filename
         # Also update the filename in the MigrationSnapshot
-        @upload_snapshot.rename_file(file.original_filename, file.new_filename(rename_index))
+        @upload_snapshot.rename(file.original_filename, new_filename)
         rename_index += 1
       end
       @upload_snapshot.save

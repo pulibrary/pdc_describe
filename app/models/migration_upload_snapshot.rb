@@ -18,7 +18,6 @@ class MigrationUploadSnapshot < UploadSnapshot
     index = find_file(old_filename)
     files[index]["original_filename"] = old_filename
     files[index]["filename"] = new_filename
-
   end
 
   def mark_complete(s3_file)

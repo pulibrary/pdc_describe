@@ -2,11 +2,10 @@
 require "rails_helper"
 
 RSpec.describe FileRenameMappingService do
-  let(:upload_snapshot) { FactoryBot.build(:upload_snapshot_with_illegal_characters) }
+  let(:upload_snapshot) { FactoryBot.create(:migration_upload_snapshot_with_illegal_characters) }
   let(:subject) { described_class.new(upload_snapshot: upload_snapshot) }
-  let(:file_needing_rename ) { upload_snapshot.files.last["filename"] }
-  let(:file_not_needing_rename ) { upload_snapshot.files.first["filename"] }
-
+  let(:file_needing_rename) { "10.34770/tbd/4/Dry He 2mm 20kV le=0.8mJ RH 50%.csv" }
+  let(:file_not_needing_rename) { "10.34770/tbd/4/laser width.xlsx" }
 
   it "has an upload snapshot" do
     expect(subject.upload_snapshot).to eq upload_snapshot

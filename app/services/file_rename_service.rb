@@ -37,7 +37,7 @@ class FileRenameService
   end
 
   # Replace every instance of an illegal character with an underscore.
-  # Append an index number in parentheses just before the file extension, 
+  # Append an index number in parentheses just before the file extension,
   # so we avoid ever accidentally naming two files identically and causing
   # one to over-write the other.
   def new_filename(index)

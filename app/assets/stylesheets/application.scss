@@ -184,6 +184,16 @@ details {
       content: "Show Changes";
     }
   }
+
+  summary.remove-see-more {
+    &::after {
+      display: none;
+    }
+  }
+  summary .summary-detail {
+    font-weight: normal;
+    display: block;
+  }
 }
 
 .copy-doi-label-normal {
