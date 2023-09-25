@@ -19,7 +19,7 @@ RSpec.describe WorkList, type: :model do
   # Please see spec/support/ezid_specs.rb
   let(:ezid) { @ezid }
   let(:identifier) { @identifier }
-  let(:attachment_url) { /#{Regexp.escape("https://example-bucket.s3.amazonaws.com/")}/ }
+  let(:attachment_url) { /#{Regexp.escape('https://example-bucket.s3.amazonaws.com/')}/ }
 
   describe "#unfinished_works" do
     before do

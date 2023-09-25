@@ -198,7 +198,7 @@ class Group < ApplicationRecord
   end
 
   def default_community
-    return communities.first if code == "PPPL"
+    communities.first if code == "PPPL"
   end
 end
 # rubocop:enable Metrics/ClassLength

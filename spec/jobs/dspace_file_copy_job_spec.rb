@@ -14,7 +14,7 @@ RSpec.describe DspaceFileCopyJob, type: :job do
   before do
     allow(Work).to receive(:find).and_return(work)
 
-    fake_completion =  instance_double(Seahorse::Client::Response, "successful?": true)
+    fake_completion = instance_double(Seahorse::Client::Response, "successful?": true)
     allow(fake_s3_service).to receive(:copy_file).and_return(fake_completion)
     allow(work).to receive(:s3_query_service).and_return(fake_s3_service)
   end

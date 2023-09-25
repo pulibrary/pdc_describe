@@ -235,7 +235,7 @@ module PDCSerialization
             ::Datacite::Mapping::FundingReference.new(name: funder.funder_name, award_number: award, identifier: funder_identifier)
           end
         end
-      end
+    end
   end
   # rubocop:enable Metrics/ClassLength
 end

@@ -10,7 +10,7 @@ RSpec.describe WorksController do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
 
-    stub_request(:get, /#{Regexp.escape("https://example-bucket.s3.amazonaws.com/us_covid_20")}.*\.csv/).to_return(status: 200, body: "", headers: {})
+    stub_request(:get, /#{Regexp.escape('https://example-bucket.s3.amazonaws.com/us_covid_20')}.*\.csv/).to_return(status: 200, body: "", headers: {})
   end
 
   let(:group) { Group.first }

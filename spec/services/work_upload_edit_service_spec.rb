@@ -49,8 +49,8 @@ RSpec.describe WorkUploadsEditService do
   let(:s3_data) { [s3_file1, s3_file2] }
 
   before do
-    stub_request(:get, /#{Regexp.escape("https://example-bucket.s3.amazonaws.com/us_covid")}.+\.csv/).to_return(status: 200, body: "", headers: {})
-    stub_request(:get, /#{Regexp.escape("https://example-bucket.s3.amazonaws.com/orcid")}*+\.csv/).to_return(status: 200, body: "", headers: {})
+    stub_request(:get, /#{Regexp.escape('https://example-bucket.s3.amazonaws.com/us_covid')}.+\.csv/).to_return(status: 200, body: "", headers: {})
+    stub_request(:get, /#{Regexp.escape('https://example-bucket.s3.amazonaws.com/orcid')}*+\.csv/).to_return(status: 200, body: "", headers: {})
   end
 
   context "When no uploads changes are requested" do

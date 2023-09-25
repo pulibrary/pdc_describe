@@ -459,9 +459,9 @@ class WorksController < ApplicationController
       return nil if embargo_date_param.blank?
 
       Date.parse(embargo_date_param)
-    rescue Date::Error
+    rescue Date::Error => e
       Rails.logger.error("Failed to parse the embargo date #{embargo_date_param} for Work #{@work.id}")
-      nil
+      raise e
     end
 
     def update_params

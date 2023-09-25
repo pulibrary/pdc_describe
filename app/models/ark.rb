@@ -21,8 +21,9 @@ class Ark
   def self.find(ezid)
     Ezid::Identifier.find(format_ark(ezid))
   rescue StandardError => error
-    Rails.logger.error("Failed to find the EZID #{ezid}: #{error.class}: #{error.message}")
-    nil
+    message = "Failed to find the EZID #{ezid}: #{error.class}: #{error.message}"
+    Rails.logger.error(message)
+    raise error
   end
 
   # Update the ARK to point to a new target.
