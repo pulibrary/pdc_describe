@@ -32,11 +32,12 @@ RSpec.describe Work, type: :model do
   end
 
   context "fixed time" do
+    let(:embargo_date) { Date.parse("2023-09-14") }
     before do
       allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
     end
     it "captures everything needed for PDC Describe in JSON" do
-      work = Work.new(group: group, resource: FactoryBot.build(:tokamak_work))
+      work = Work.new(group: group, embargo_date: embargo_date, resource: FactoryBot.build(:tokamak_work))
       expect(JSON.parse(work.to_json)).to eq(
         {
           "resource" => {
@@ -69,7 +70,8 @@ RSpec.describe Work, type: :model do
             "code" => "RD",
             "created_at" => "2021-12-31T19:00:00.000-05:00",
             "updated_at" => "2021-12-31T19:00:00.000-05:00"
-          }
+          },
+          "embargo_date" => "2023-09-14T00:00:00Z"
         }
       )
     end
@@ -206,6 +208,71 @@ RSpec.describe Work, type: :model do
         expect(work.as_json["files"][0][:size]).to eq(1024)
         expect(work.as_json["files"][0][:display_size]).to eq("1 KB")
         expect(work.as_json["files"][0][:url]).to eq "https://example.data.globus.org/10.34770/123-abc/#{work.id}/us_covid_2019.csv"
+      end
+
+      context "when the Work is under active embargo" do
+        subject(:work) { FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc", embargo_date: embargo_date) }
+
+        let(:embargo_date) { Date.parse("2033-09-14") }
+        let(:json) { JSON.parse(work.to_json) }
+        let(:uploaded_file) do
+          fixture_file_upload("us_covid_2019.csv", "text/csv")
+        end
+        let(:uploaded_file2) do
+          fixture_file_upload("us_covid_2019.csv", "text/csv")
+        end
+
+        before do
+          stub_request(:put, /#{attachment_url}/).with(
+            body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
+          ).to_return(status: 200)
+
+          stub_datacite_doi
+          work.approve!(curator_user)
+          work.reload
+        end
+
+        it "serializes the embargo date in JSON" do
+          expect(json).to include("embargo_date")
+          expect(json["embargo_date"]).to eq("2033-09-14T00:00:00Z")
+        end
+
+        it "does not serialize the files in JSON" do
+          expect(work.post_curation_uploads).not_to be_empty
+
+          expect(json).to include("files")
+          expect(json["files"]).to be_empty
+        end
+      end
+
+      context "when the Work is under an expired embargo" do
+        subject(:work) { FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc", embargo_date: embargo_date) }
+
+        let(:embargo_date) { Date.parse("2023-09-14") }
+        let(:json) { JSON.parse(work.to_json) }
+        let(:uploaded_file) do
+          fixture_file_upload("us_covid_2019.csv", "text/csv")
+        end
+        let(:uploaded_file2) do
+          fixture_file_upload("us_covid_2019.csv", "text/csv")
+        end
+
+        before do
+          stub_request(:put, /#{attachment_url}/).with(
+            body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
+          ).to_return(status: 200)
+
+          stub_datacite_doi
+          work.approve!(curator_user)
+          work.reload
+        end
+
+        it "does serialize the files in JSON" do
+          expect(work.post_curation_uploads).not_to be_empty
+
+          expect(json).to include("files")
+          expect(json["files"]).not_to be_empty
+        end
       end
     end
 

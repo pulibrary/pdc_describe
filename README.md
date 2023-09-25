@@ -104,14 +104,13 @@ Background jobs in staging and production are run via [sidekiq](https://sidekiq.
 Mailcatcher is a gem that can also be installed locally.  See the [mailcatcher documentation](https://mailcatcher.me/) for how to run it on your machine.
 
 ### Mail on Staging
-To See mail that has been sent on the staging server you must ssh tunnel into the server.  Since there are two staging servers, the mail could have been sent on either machine. You may have to check both and will need two terminals.
+To See mail that has been sent on the staging server you can utilize capistrano to open up both mailcatcher consoles in your browser.
 
-* terminal 1
-`ssh -L 1082:localhost:1080 pulsys@pdc-describe-staging1`
-* terminal 2
-`ssh -L 1083:localhost:1080 pulsys@pdc-describe-staging2`
+```
+cap staging  mailcatcher:console
+```
 
-Once the tunnel is open you can see the mail that has been sent on [staging1 here](http://localhost:1082/) and on [staging 2 here](http://localhost:1083/)
+Look in your default browser for the consoles
 
 ### Mail on Production
 Emails on production are sent via [Pony Express](https://github.com/pulibrary/pul-it-handbook/blob/f54dfdc7ada1ff993a721f6edb4aa1707bb3a3a5/services/smtp-mail-server.md).
