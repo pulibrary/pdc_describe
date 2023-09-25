@@ -13,6 +13,13 @@ class MigrationUploadSnapshot < UploadSnapshot
     end
   end
 
+  # Rename a file
+  def rename(old_filename, new_filename)
+    index = find_file(old_filename)
+    files[index]["original_filename"] = old_filename
+    files[index]["filename"] = new_filename
+  end
+
   def mark_complete(s3_file)
     index = find_file(s3_file.filename)
     if index.present?
