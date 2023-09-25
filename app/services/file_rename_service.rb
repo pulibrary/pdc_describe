@@ -13,8 +13,10 @@ class FileRenameService
   # https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html
   # This service will only attempt to fix the most likely problems. For example, we will not try to
   # handle "ASCII character ranges 00–1F hex (0–31 decimal) and 7F (127 decimal)"
+  # Note that we do not rename for a single space, but we do for two spaces together, because according to S3 docs:
+  # "Significant sequences of spaces might be lost in some uses (especially multiple spaces)"
   ILLEGAL_CHARACTERS = [
-    "&", "$", "@", "=", ";", "/", ":", "+", " ", ",", "?", "\\", "{", "}", "^", "%", "`", "[", "]", "'", '"', ">", "<", "~", "#", "|"
+    "&", "$", "@", "=", ";", ":", "+", "  ", ",", "?", "\\", "{", "}", "^", "%", "`", "[", "]", "'", '"', ">", "<", "~", "#", "|"
   ].freeze
 
   attr_reader :original_filename
@@ -34,12 +36,17 @@ class FileRenameService
     false
   end
 
-  # Replace every instance of an illegal character with an underscore
-  def new_filename
+  # Replace every instance of an illegal character with an underscore.
+  # Append an index number in parentheses just before the file extension,
+  # so we avoid ever accidentally naming two files identically and causing
+  # one to over-write the other.
+  def new_filename(index)
     nf = @original_filename.dup
     ILLEGAL_CHARACTERS.each do |char|
       nf.gsub!(char, "_")
     end
-    nf
+    split = nf.split(".")
+    split[-2] = "#{split[-2]}(#{index})"
+    split.join(".")
   end
 end
