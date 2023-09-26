@@ -86,6 +86,6 @@ class DspaceBitstreamCopyJob < ApplicationJob
       checksum.update(io.read)
       base64 = checksum.base64digest
       io.rewind
-      @work.s3_query_service.upload_file(io: io, filename: filename, size: size, md5_digest: base64)
+      @work.s3_query_service.upload_file(io:, filename:, size:, md5_digest: base64)
     end
 end

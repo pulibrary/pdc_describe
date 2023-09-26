@@ -24,6 +24,6 @@ FactoryBot.define do
       related_identifier_type { "ISBN" }
     end
 
-    initialize_with { new(related_identifier: related_identifier, related_identifier_type: related_identifier_type, relation_type: relation_type) }
+    initialize_with { new(related_identifier:, related_identifier_type:, relation_type:) }
   end
 end

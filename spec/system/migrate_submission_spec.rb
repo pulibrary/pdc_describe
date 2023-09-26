@@ -251,7 +251,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       work.save
       fake_completion = instance_double(Seahorse::Client::Response, "successful?": true)
       allow(fake_s3_service).to receive(:copy_file).and_return(fake_completion)
-      allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return({ etag: etag })
+      allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return({ etag: })
     end
 
     after do

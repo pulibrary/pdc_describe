@@ -14,7 +14,7 @@ module DiffTools
       new_value = new_value.to_s.split(/\b/)
       @changes = ::Diff::LCS.sdiff(old_value, new_value).chunk(&:action).map do |action, changes|
         {
-          action: action,
+          action:,
           old: changes.map(&:old_element).join,
           new: changes.map(&:new_element).join
         }

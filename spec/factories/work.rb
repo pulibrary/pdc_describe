@@ -10,28 +10,28 @@ FactoryBot.define do
       group { Group.research_data }
       state { "none" }
       created_by_user_id { FactoryBot.create(:user).id }
-      resource { FactoryBot.build :resource, doi: doi }
+      resource { FactoryBot.build :resource, doi: }
     end
 
     factory :draft_work do
       group { Group.research_data }
       state { "draft" }
       created_by_user_id { FactoryBot.create(:user).id }
-      resource { FactoryBot.build :resource, doi: doi, ark: ark }
+      resource { FactoryBot.build :resource, doi:, ark: }
     end
 
     factory :awaiting_approval_work do
       group { Group.research_data }
       state { "awaiting_approval" }
       created_by_user_id { FactoryBot.create(:user).id }
-      resource { FactoryBot.build :resource, doi: doi, ark: ark }
+      resource { FactoryBot.build :resource, doi:, ark: }
     end
 
     factory :approved_work do
       group { Group.research_data }
       state { "approved" }
       created_by_user_id { FactoryBot.create(:user).id }
-      resource { FactoryBot.build :resource, doi: doi, ark: ark }
+      resource { FactoryBot.build :resource, doi:, ark: }
     end
 
     factory :shakespeare_and_company_work do

@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe BackgroundUploadSnapshot, type: :model do
-  subject(:background_upload_snapshot) { described_class.create(files: [], url: "example.com", work: work, id: 123) }
+  subject(:background_upload_snapshot) { described_class.create(files: [], url: "example.com", work:, id: 123) }
   let(:work) { FactoryBot.create(:approved_work) }
   let(:uploaded_file1) { fixture_file_upload("us_covid_2019.csv", "text/csv") }
   let(:uploaded_file2) { fixture_file_upload("us_covid_2020.csv", "text/csv") }
@@ -10,7 +10,7 @@ RSpec.describe BackgroundUploadSnapshot, type: :model do
   describe "#count" do
     it "only counts the bacground uploads" do
       background_upload_snapshot
-      UploadSnapshot.create(files: [], url: "example", work: work)
+      UploadSnapshot.create(files: [], url: "example", work:)
       expect(BackgroundUploadSnapshot.count).to eq(1)
     end
   end

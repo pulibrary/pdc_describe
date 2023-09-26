@@ -63,9 +63,9 @@ RSpec.describe PULDspaceAwsConnector, type: :model do
       it "uploads the bitstreams passed" do
         fake_s3_service
         results = dspace_data.upload_to_s3([file1, file2, file3])
-        errors = results.map { |result| result[:error] }
+        errors = results.pluck(:error)
         expect(errors).to eq [nil, nil, nil]
-        keys = results.map { |result| result[:key] }
+        keys = results.pluck(:key)
         expect(keys).to eq ["key1", "key2", "key3"]
         expect(fake_s3_service).to have_received(:upload_file).exactly(3).times
       end
@@ -77,9 +77,9 @@ RSpec.describe PULDspaceAwsConnector, type: :model do
 
         it "returns an error" do
           results = dspace_data.upload_to_s3([file1, file2, file3])
-          errors = results.map { |result| result[:error] }
+          errors = results.pluck(:error)
           expect(errors).to eq [nil, "An error uploading #{file2.filename}.  Please try again.", nil]
-          keys = results.map { |result| result[:key] }
+          keys = results.pluck(:key)
           expect(keys).to eq ["key1", nil, "key2"]
           expect(fake_s3_service).to have_received(:upload_file).exactly(3).times
         end

@@ -12,12 +12,12 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
     let(:resource_type) { "Dataset" }
     let(:skeleton_datacite_xml) do
       described_class.skeleton_datacite_xml(
-      identifier: identifier,
-      title: title,
-      creator: creator,
-      publisher: publisher,
-      publication_year: publication_year,
-      resource_type: resource_type
+      identifier:,
+      title:,
+      creator:,
+      publisher:,
+      publication_year:,
+      resource_type:
     )
     end
     let(:parsed_xml) { Datacite::Mapping::Resource.parse_xml(skeleton_datacite_xml) }

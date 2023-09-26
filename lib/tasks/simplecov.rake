@@ -11,6 +11,6 @@ namespace :simplecov do
                          first_arg = args.extras.first
                          first_arg.to_f
                        end
-    SimpleCovHelper.report_coverage(minimum_coverage: minimum_coverage)
+    SimpleCovHelper.report_coverage(minimum_coverage:)
   end
 end

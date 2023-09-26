@@ -57,7 +57,7 @@ RSpec.describe ApplicationHelper do
   describe "#pre_curation_uploads_file_name" do
     let(:file) { double }
     let(:input) { "a" * 100 }
-    let(:output) { test_controller.pre_curation_uploads_file_name(file: file) }
+    let(:output) { test_controller.pre_curation_uploads_file_name(file:) }
 
     before do
       allow(file).to receive(:filename).and_return(input)

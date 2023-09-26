@@ -2,11 +2,11 @@
 require "rails_helper"
 
 RSpec.describe WorkPresenter do
-  subject(:work_presenter) { described_class.new(work: work) }
+  subject(:work_presenter) { described_class.new(work:) }
 
   let(:description) { "This tests the link http://library.princeton.edu. It also has a summary." }
-  let(:resource) { FactoryBot.build(:resource, doi: "10.34770/123-abc", description: description) }
-  let(:work) { FactoryBot.create(:draft_work, resource: resource) }
+  let(:resource) { FactoryBot.build(:resource, doi: "10.34770/123-abc", description:) }
+  let(:work) { FactoryBot.create(:draft_work, resource:) }
 
   describe "#description" do
     it "autolinks URLs within the description metadata" do

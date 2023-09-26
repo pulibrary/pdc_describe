@@ -10,9 +10,9 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
 
-  let(:contents1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work: work }
-  let(:contents2) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2020.csv", work: work }
-  let(:contents3) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/orcid.csv", work: work }
+  let(:contents1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work: }
+  let(:contents2) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2020.csv", work: }
+  let(:contents3) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/orcid.csv", work: }
 
   let(:s3_hash) { [contents1, contents2] }
   let(:s3_hash_after_delete) { [contents2] }
@@ -271,7 +271,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
   # end
 
   context "as a user without group admin privileges" do
-    let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work, state: state) }
+    let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work, state:) }
     let(:user) { work.created_by_user }
 
     before do

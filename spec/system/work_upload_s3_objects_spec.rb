@@ -7,8 +7,8 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
     let(:user) { FactoryBot.create :princeton_submitter }
     let(:work) { FactoryBot.create(:shakespeare_and_company_work, created_by_user_id: user.id) }
     let(:s3_query_service_double) { instance_double(S3QueryService, client_s3_files: s3_data) }
-    let(:file1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt", work: work }
-    let(:file2) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json", work: work }
+    let(:file1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt", work: }
+    let(:file2) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json", work: }
     let(:fake_s3_service) { stub_s3 }
     let(:filename1) { file1.filename.split("/").last }
     let(:filename2) { file2.filename.split("/").last }
@@ -34,7 +34,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
       let(:upload_file) do
         fixture_file_upload(upload_file_name, "text/csv")
       end
-      let(:upload_s3_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work }
+      let(:upload_s3_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: }
 
       before do
         work.state = "draft"

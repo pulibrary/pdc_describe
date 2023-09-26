@@ -2,10 +2,10 @@
 require "rails_helper"
 
 describe NotificationMailer, type: :mailer do
-  subject(:notification_mailer) { NotificationMailer.with(user: user, work_activity: work_activity) }
+  subject(:notification_mailer) { NotificationMailer.with(user:, work_activity:) }
 
   let(:work) { FactoryBot.create(:work, group: Group.default) }
-  let(:work_activity) { FactoryBot.create(:work_activity, work: work) }
+  let(:work_activity) { FactoryBot.create(:work_activity, work:) }
   let(:user) { work_activity.created_by_user }
 
   describe "#build_message" do
@@ -32,7 +32,7 @@ describe NotificationMailer, type: :mailer do
     end
 
     context "when the mesage has markdown" do
-      let(:work_activity) { FactoryBot.create(:work_activity, work: work, message: "I like to send [links](https://www.google.com)") }
+      let(:work_activity) { FactoryBot.create(:work_activity, work:, message: "I like to send [links](https://www.google.com)") }
       it "generates the e-mail message" do
         expect(message_delivery).to be_a(ActionMailer::Parameterized::MessageDelivery)
         expect(message_delivery.message).to be_a(Mail::Message)

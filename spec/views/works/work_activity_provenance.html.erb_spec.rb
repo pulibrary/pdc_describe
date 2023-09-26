@@ -17,7 +17,7 @@ describe "Change History, AKA Provenance" do
 
   it "handles no activity" do
     assign(:work_decorator, work_decorator)
-    render(partial: partial, locals: { can_add_provenance_note: false })
+    render(partial:, locals: { can_add_provenance_note: false })
     expect(rendered).to include("No activity")
   end
 
@@ -25,35 +25,35 @@ describe "Change History, AKA Provenance" do
     WorkActivity.add_work_activity(work.id, JSON.dump({ a_field: [{ action: "changed", from: "old", to: "new" }] }), user.id,
                                    activity_type: WorkActivity::CHANGES)
     assign(:work_decorator, work_decorator)
-    render(partial: partial, locals: { can_add_provenance_note: false })
+    render(partial:, locals: { can_add_provenance_note: false })
     expect(rendered).to include("<del>old</del><ins>new</ins>")
   end
 
   it "handles file changes" do
     WorkActivity.add_work_activity(work.id, { action: "added" }.to_json, user.id, activity_type: WorkActivity::FILE_CHANGES)
     assign(:work_decorator, work_decorator)
-    render(partial: partial, locals: { can_add_provenance_note: false })
+    render(partial:, locals: { can_add_provenance_note: false })
     expect(rendered).to include("Files Added:")
   end
 
   it "handles prov note" do
     WorkActivity.add_work_activity(work.id, "note!", user.id, activity_type: WorkActivity::PROVENANCE_NOTES)
     assign(:work_decorator, work_decorator)
-    render(partial: partial, locals: { can_add_provenance_note: false })
+    render(partial:, locals: { can_add_provenance_note: false })
     expect(rendered).to include("note!")
   end
 
   it "handles error" do
     WorkActivity.add_work_activity(work.id, "error!", user.id, activity_type: WorkActivity::DATACITE_ERROR)
     assign(:work_decorator, work_decorator)
-    render(partial: partial, locals: { can_add_provenance_note: false })
+    render(partial:, locals: { can_add_provenance_note: false })
     expect(rendered).to include("error!")
   end
 
   it "handles backdated prov note" do
     older
     assign(:work_decorator, work_decorator)
-    render(partial: partial, locals: { can_add_provenance_note: false })
+    render(partial:, locals: { can_add_provenance_note: false })
     expect(rendered).to include("January 01, 2021 00:00 (backdated event created")
   end
 
@@ -61,7 +61,7 @@ describe "Change History, AKA Provenance" do
     older
     newer
     assign(:work_decorator, work_decorator)
-    render(partial: partial, locals: { can_add_provenance_note: false })
+    render(partial:, locals: { can_add_provenance_note: false })
     expect(rendered).to match(/older.*newer/m)
   end
 
@@ -69,7 +69,7 @@ describe "Change History, AKA Provenance" do
     newer
     older
     assign(:work_decorator, work_decorator)
-    render(partial: partial, locals: { can_add_provenance_note: false })
+    render(partial:, locals: { can_add_provenance_note: false })
     expect(rendered).to match(/older.*newer/m)
   end
 end

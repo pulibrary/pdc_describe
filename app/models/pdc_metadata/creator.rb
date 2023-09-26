@@ -84,12 +84,12 @@ module PDCMetadata
 
     def self.new_person(given_name, family_name, orcid_id = nil, sequence = 0, ror: nil, affiliation: nil)
       full_name = "#{family_name&.strip}, #{given_name&.strip}"
-      creator = Creator.new(value: full_name, name_type: "Personal", given_name: given_name, family_name: family_name, sequence: sequence)
+      creator = Creator.new(value: full_name, name_type: "Personal", given_name:, family_name:, sequence:)
       if orcid_id.present?
         creator.identifier = NameIdentifier.new_orcid(orcid_id.strip)
       end
       if affiliation.present? || ror.present?
-        creator.affiliations << Affiliation.new_affiliation(value: affiliation, ror: ror)
+        creator.affiliations << Affiliation.new_affiliation(value: affiliation, ror:)
       end
       creator
     end
@@ -101,7 +101,7 @@ module PDCMetadata
     end
 
     def self.new_organization(value, ror = nil)
-      creator = Creator.new(value: value, name_type: "Organizational")
+      creator = Creator.new(value:, name_type: "Organizational")
       if ror.present?
         creator.identifier = NameIdentifier.new_ror(ror.strip)
       end

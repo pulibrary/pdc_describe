@@ -66,9 +66,9 @@ class User < ApplicationRecord
 
   # Creates a new user by uid. If the user already exists it returns the existing user.
   def self.new_for_uid(uid)
-    user = User.find_by(uid: uid)
+    user = User.find_by(uid:)
     if user.nil?
-      user = User.new(uid: uid, email: "#{uid}@princeton.edu")
+      user = User.new(uid:, email: "#{uid}@princeton.edu")
       user.save!
     end
     user
@@ -89,11 +89,11 @@ class User < ApplicationRecord
     family_name = csv_params["Last Name"]
     full_name = "#{given_name} #{family_name}"
     orcid = csv_params["ORCID ID"]
-    user = User.where(email: email).first_or_create
+    user = User.where(email:).first_or_create
     params_hash = {
-      email: email,
-      uid: uid,
-      orcid: orcid,
+      email:,
+      uid:,
+      orcid:,
       full_name: (full_name if user.full_name.blank?),
       family_name: (family_name if user.family_name.blank?),
       given_name: (given_name if user.given_name.blank?)

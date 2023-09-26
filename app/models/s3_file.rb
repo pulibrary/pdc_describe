@@ -27,7 +27,7 @@ class S3File
     @size = size
     @display_size = number_to_human_size(size)
     @checksum = checksum.delete('"')
-    @url = url || work_download_path(work, filename: filename)
+    @url = url || work_download_path(work, filename:)
     @work = work
   end
 
@@ -50,7 +50,7 @@ class S3File
 
   def create_blob(key: nil)
     key ||= filename
-    params = { filename: filename, content_type: "", byte_size: size, checksum: checksum }
+    params = { filename:, content_type: "", byte_size: size, checksum: }
 
     blob = ActiveStorage::Blob.create_before_direct_upload!(**params)
     blob.key = key
@@ -77,7 +77,7 @@ class S3File
   # Create a new snapshot of the current upload
   # @return [UploadSnapshot]
   def create_snapshot
-    created = UploadSnapshot.create(url: url, work: @work, files: [{ filename: filename, checksum: checksum }])
+    created = UploadSnapshot.create(url:, work: @work, files: [{ filename:, checksum: }])
 
     created.upload = self
     created.save
@@ -86,7 +86,7 @@ class S3File
 
   # @return [UploadSnapshot]
   def snapshots
-    persisted = UploadSnapshot.where(key: key, url: url, work: @work)
+    persisted = UploadSnapshot.where(key:, url:, work: @work)
     return [] if persisted.blank?
 
     persisted
@@ -94,8 +94,8 @@ class S3File
 
   def to_json
     {
-      filename: filename, last_modified: last_modified, size: size,
-      checksum: checksum, work_id: @work.id, filename_display: filename_display, url: url
+      filename:, last_modified:, size:,
+      checksum:, work_id: @work.id, filename_display:, url:
     }.to_json
   end
 

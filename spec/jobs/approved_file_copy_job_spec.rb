@@ -14,9 +14,9 @@ RSpec.describe ApprovedFileMoveJob, type: :job do
 
   let(:user) { FactoryBot.create :user }
 
-  let(:s3_file) { FactoryBot.build :s3_file, work: work, filename: "#{work.prefix}/test_key" }
+  let(:s3_file) { FactoryBot.build :s3_file, work:, filename: "#{work.prefix}/test_key" }
   let(:approved_upload_snapshot) do
-    snapshot = ApprovedUploadSnapshot.new(work: work)
+    snapshot = ApprovedUploadSnapshot.new(work:)
     snapshot.store_files([s3_file], current_user: user)
     snapshot.save!
     snapshot

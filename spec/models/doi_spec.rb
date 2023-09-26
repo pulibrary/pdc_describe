@@ -60,13 +60,13 @@ RSpec.describe "DOI", type: :model do
 
   describe "SPIKE" do
     it "mints a new DOI" do
-      stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: prefix))
+      stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix:))
       #
       # Comment out the above stub and uncomment the below code to send a real request and create an DOI
       # you must have the datacite host, user name, and password in your environment
       #
       # WebMock.enable_net_connect!
-      result = client.autogenerate_doi(prefix: prefix)
+      result = client.autogenerate_doi(prefix:)
       doi = result.either(
               ->(response) { response.doi },
               ->(response) { raise("Something went wrong", response.status) }
@@ -77,7 +77,7 @@ RSpec.describe "DOI", type: :model do
     it "registers an existing DOI" do
       body = datacite_update_body(attributes: minimum_register_attributes)
 
-      stub_datacite_update(doi: doi, body: body, fixture: "doi_register_response.json", host: "api.datacite.org")
+      stub_datacite_update(doi:, body:, fixture: "doi_register_response.json", host: "api.datacite.org")
       #
       # Comment out the above stub and uncomment the below code to send a real request to register a DOI
       # you must have the datacite host, user name, and password in your environment
@@ -99,7 +99,7 @@ RSpec.describe "DOI", type: :model do
       update_attributes = { "titles" => [{ "title" => "testing doi update" }] }
       body = datacite_update_body(attributes: update_attributes)
 
-      stub_datacite_update(doi: doi, body: body, fixture: "doi_update_response.json", host: "api.datacite.org")
+      stub_datacite_update(doi:, body:, fixture: "doi_update_response.json", host: "api.datacite.org")
       #
       # Comment out the above stub and uncomment the below code to send a real request and update a DOI's title
       # you must have the datacite host, user name, and password in your environment
@@ -117,7 +117,7 @@ RSpec.describe "DOI", type: :model do
     end
 
     it "publishes an existing DOI" do
-      stub_datacite_update(doi: doi, body: datacite_update_body(attributes: minimum_publish_attributes), fixture: "doi_publish_response.json", host: "api.datacite.org")
+      stub_datacite_update(doi:, body: datacite_update_body(attributes: minimum_publish_attributes), fixture: "doi_publish_response.json", host: "api.datacite.org")
       #
       # Comment out the above stub and uncomment the below code to send a real request and publish a DOI
       # you must have the datacite host, user name, and password in your environment
@@ -136,7 +136,7 @@ RSpec.describe "DOI", type: :model do
     end
 
     it "publishes an existing DOI with xml" do
-      stub_datacite_update(doi: doi, body: datacite_update_body(attributes: minimum_xml_publish_attributes), fixture: "doi_publish_response.json", host: "api.datacite.org")
+      stub_datacite_update(doi:, body: datacite_update_body(attributes: minimum_xml_publish_attributes), fixture: "doi_publish_response.json", host: "api.datacite.org")
       #
       # Comment out the above stub and uncomment the below code to send a real request and publish a DOI
       # you must have the datacite host, user name, and password in your environment

@@ -16,10 +16,10 @@ module PDCMetadata
 
     def datacite_attributes
       {
-        value: value,
-        identifier: identifier,
+        value:,
+        identifier:,
         identifier_scheme: scheme,
-        scheme_uri: scheme_uri
+        scheme_uri:
       }
     end
 
@@ -34,7 +34,7 @@ module PDCMetadata
         scheme = "ROR"
         identifier = ror
       end
-      new(value: value, scheme: scheme, identifier: identifier, scheme_uri: nil)
+      new(value:, scheme:, identifier:, scheme_uri: nil)
     end
   end
 end

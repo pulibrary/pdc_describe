@@ -39,7 +39,7 @@ RSpec.describe User, type: :model do
       user = described_class.from_cas(access_token)
       expect(user).to be_a described_class
       expect(user.default_group.id).to eq Group.default.id
-      expect(user.default_group.messages_enabled_for?(user: user)).to be_truthy
+      expect(user.default_group.messages_enabled_for?(user:)).to be_truthy
     end
 
     it "sets the proper default group for a PPPL user" do
@@ -219,7 +219,7 @@ RSpec.describe User, type: :model do
     end
 
     context "with an existing ORCID" do
-      let(:normal_user) { described_class.new(orcid: orcid) }
+      let(:normal_user) { described_class.new(orcid:) }
 
       it "accesses an existing ORCID for a given User" do
         expect(normal_user.orcid).to eq(orcid)

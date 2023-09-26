@@ -47,7 +47,7 @@ class MigrationUploadSnapshot < UploadSnapshot
 
   def migration_complete_with_errors?
     return false if migration_complete?
-    !files.select { |file| file.keys.include?("migrate_status") }.map { |file| file["migrate_status"] }.uniq.include?("started")
+    files.select { |file| file.keys.include?("migrate_status") }.map { |file| file["migrate_status"] }.uniq.exclude?("started")
   end
 
   def existing_files
@@ -64,7 +64,7 @@ class MigrationUploadSnapshot < UploadSnapshot
       migration = migration_start.first
       data = JSON.parse(migration.message)
       message = "#{data['file_count']} #{'file'.pluralize(data['file_count'])} and #{data['directory_count']} #{'directory'.pluralize(data['directory_count'])} have migrated from Dataspace."
-      WorkActivity.add_work_activity(work.id, { migration_id: id, message: message }.to_json,
+      WorkActivity.add_work_activity(work.id, { migration_id: id, message: }.to_json,
                                                 migration.created_by_user_id, activity_type: WorkActivity::MIGRATION_COMPLETE)
     end
   end
