@@ -344,12 +344,6 @@ class WorksController < ApplicationController
       work&.state == "approved"
     end
 
-    # Determine whether or not the requested Work is under embargo
-    # @return [Boolean]
-    def work_embargoed?
-      work&.embargoed?
-    end
-
     ##
     # Public requests are requests that do not require authentication.
     # This is to enable PDC Discovery to index approved content via the RSS feed
@@ -357,7 +351,7 @@ class WorksController < ApplicationController
     # Note that only approved works can be fetched for indexing.
     def public_request?
       return true if rss_index_request?
-      return true if json_show_request? && work_approved? && !work_embargoed?
+      return true if json_show_request? && work_approved?
       false
     end
 
