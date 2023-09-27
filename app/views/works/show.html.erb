@@ -96,6 +96,11 @@
 <div class="row">
   <div class="col-8" data-class="col-12" id="left-of-messages">
     <h1><%= @work.title %></h1>
+    <% if @work.embargoed? %>
+      <heading class="embargo-heading">
+        <span class="badge"><%= t('works.embargo.heading', embargo_date: @work.embargo_date) %></span>
+      </heading>
+    <% end %>
 
     <dl>
 

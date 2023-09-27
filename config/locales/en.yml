@@ -73,6 +73,8 @@ en:
     uneditable:
       approved: "This work has been approved.  Edits are no longer available."
       privs: "You do not have permission to edit this work."
+    embargo:
+      heading: "File(s) associated with this object are embargoed until %{embargo_date}."
   groups:
     form:
       heading: "Editing Group"

@@ -76,7 +76,7 @@
 <!-- Date field (for setting an embargo on the Work) -->
 <div class="field">
   <label class="form-label" for="start"><%= t('works.form.embargo_date') %><span class="text-muted field-hint">: (date until which the work is embargoed)</span></label>
-  <input class="form-control form-control__date" type="date" id="embargo-date" name="embargo-date" min="2018-01-01" />
+  <input class="form-control form-control__date" type="date" id="embargo-date" name="embargo-date" min="<%= (Time.zone.now.to_date + 1) %>" value="<%= @work.embargo_date %>" />
 </div>
 
 <!-- Collection Tags field -->
