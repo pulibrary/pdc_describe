@@ -43,7 +43,7 @@ RSpec.describe "Creating and updating works", type: :system do
 
   it "Renders ORCID links for creators", js: true do
     resource = FactoryBot.build(:resource, creators: [PDCMetadata::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")])
-    work = FactoryBot.create(:draft_work, resource: resource)
+    work = FactoryBot.create(:draft_work, resource:)
 
     sign_in user
     visit work_path(work)
@@ -61,7 +61,7 @@ RSpec.describe "Creating and updating works", type: :system do
 
   it "Handles Rights field", js: true do
     resource = FactoryBot.build(:resource, creators: [PDCMetadata::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")])
-    work = FactoryBot.create(:draft_work, resource: resource)
+    work = FactoryBot.create(:draft_work, resource:)
     user = work.created_by_user
     sign_in user
     visit edit_work_path(work)
@@ -72,7 +72,7 @@ RSpec.describe "Creating and updating works", type: :system do
 
   it "Renders ResourceType and GeneralType", js: true do
     resource = FactoryBot.build(:resource)
-    work = FactoryBot.create(:draft_work, resource: resource)
+    work = FactoryBot.create(:draft_work, resource:)
 
     sign_in user
     visit work_path(work)
@@ -90,7 +90,7 @@ RSpec.describe "Creating and updating works", type: :system do
     resource.individual_contributors = []
     resource.individual_contributors << PDCMetadata::Creator.new_individual_contributor("Robert", "Smith", "1234-1234-1234-1234", "ProjectLeader", 1)
     resource.individual_contributors << PDCMetadata::Creator.new_individual_contributor("Simon", "Gallup", nil, "Other", 2)
-    work = FactoryBot.create(:draft_work, resource: resource)
+    work = FactoryBot.create(:draft_work, resource:)
 
     sign_in user
     visit work_path(work)
@@ -102,7 +102,7 @@ RSpec.describe "Creating and updating works", type: :system do
     # Use a lastname with an apostrophe
     resource = FactoryBot.build(:resource)
     resource.creators << PDCMetadata::Creator.new_person("Hugh", "O'Neill")
-    work = FactoryBot.create(:draft_work, resource: resource)
+    work = FactoryBot.create(:draft_work, resource:)
 
     sign_in user
     visit work_path(work)
@@ -113,7 +113,7 @@ RSpec.describe "Creating and updating works", type: :system do
     resource = FactoryBot.build(:resource)
     resource.organizational_contributors = []
     resource.organizational_contributors << PDCMetadata::Creator.new_organizational_contributor("Fellowship of The Ring", "https://ror.org/012345678", "Other")
-    work = FactoryBot.create(:draft_work, resource: resource)
+    work = FactoryBot.create(:draft_work, resource:)
 
     sign_in user
     visit work_path(work)
@@ -262,9 +262,9 @@ RSpec.describe "Creating and updating works", type: :system do
 
     let(:s3_query_service_double) { instance_double(S3QueryService) }
 
-    let(:file1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2020.csv", work: work }
+    let(:file1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2020.csv", work: }
 
-    let(:file2) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work: work }
+    let(:file2) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work: }
 
     let(:s3_data) { [file1, file2] }
 

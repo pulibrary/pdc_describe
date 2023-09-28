@@ -21,10 +21,10 @@ end
 def stub_datacite(host: "api.datacite.org", body: datacite_register_body, fixture: "doi_response.json")
   response = File.read(Pathname.new(fixture_path).join(fixture).to_s)
 
-  datacite_env(user: "foo", password: "bar", host: host)
+  datacite_env(user: "foo", password: "bar", host:)
   stub_request(:post, "https://#{host}/dois")
     .with(
-    body: body,
+    body:,
     headers: {
       "Accept" => "*/*",
       "Accept-Encoding" => "gzip;q=1.0,deflate;q=0.6,identity;q=0.3",
@@ -38,10 +38,10 @@ end
 
 def stub_datacite_update(doi:, body:, fixture:, host: "api.datacite.org")
   response = File.read(Pathname.new(fixture_path).join(fixture).to_s)
-  datacite_env(user: "foo", password: "bar", host: host)
+  datacite_env(user: "foo", password: "bar", host:)
   stub_request(:put, "https://#{host}/dois/#{doi}")
     .with(
-           body: body,
+           body:,
            headers: {
              "Accept" => "*/*",
              "Accept-Encoding" => "gzip;q=1.0,deflate;q=0.6,identity;q=0.3",

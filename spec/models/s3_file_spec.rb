@@ -2,14 +2,14 @@
 require "rails_helper"
 
 RSpec.describe S3File, type: :model do
-  subject(:s3_file) { described_class.new(filename: filename, last_modified: last_modified, size: size, checksum: checksum, work: work) }
+  subject(:s3_file) { described_class.new(filename:, last_modified:, size:, checksum:, work:) }
 
   let(:work) { FactoryBot.create(:draft_work, doi: "10.99999/123-abc") }
   let(:filename) { "#{work.doi}/#{work.id}/filename [with spaces] wéî®∂ chars.txt" }
   let(:last_modified) { Time.parse("2022-04-21T18:29:40.000Z") }
   let(:size) { 10_759 }
   let(:checksum) { "abc123" }
-  let(:query_service) { instance_double(S3QueryService, class: S3QueryService, bucket_name: bucket_name) }
+  let(:query_service) { instance_double(S3QueryService, class: S3QueryService, bucket_name:) }
   let(:bucket_name) { "test-bucket" }
 
   it "can take S3 file data at creation time" do
@@ -89,7 +89,7 @@ RSpec.describe S3File, type: :model do
         last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
         size: 12_739,
         checksum: "abc567",
-        work: work
+        work:
       )
     end
     let(:s3_client) { instance_double(Aws::S3::Client) }

@@ -22,12 +22,12 @@ RSpec.describe WorkPreservationService do
     end
 
     it "preserves a work to the indicated location in S3" do
-      subject = described_class.new(work_id: approved_work.id, path: path)
+      subject = described_class.new(work_id: approved_work.id, path:)
       expect(subject.preserve!).to eq "s3://example-bucket-preservation/#{preservation_directory}"
     end
 
     it "excludes the preservation files from the preservation metadata" do
-      subject = described_class.new(work_id: approved_work.id, path: path)
+      subject = described_class.new(work_id: approved_work.id, path:)
       metadata = JSON.parse(subject.preservation_metadata)
       expect(metadata["files"].any? { |file| file["filename"] == file1.filename }).to be true
       expect(metadata["files"].any? { |file| file["filename"] == file2.filename }).to be true

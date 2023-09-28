@@ -19,7 +19,7 @@ class ApprovedFileMoveJob < ApplicationJob
     etag = if resp.respond_to? :copy_object_result
              resp.copy_object_result.etag
            else
-            resp.etag
+             resp.etag
            end.delete('"')
     snapshot.with_lock do
       snapshot.reload
@@ -33,7 +33,7 @@ class ApprovedFileMoveJob < ApplicationJob
       service.delete_s3_object(work.s3_object_key, bucket: source_bucket)
 
       # ...and create the preservation files
-      work_preservation = WorkPreservationService.new(work_id: work_id, path: "#{work.doi}/#{work.id}")
+      work_preservation = WorkPreservationService.new(work_id:, path: "#{work.doi}/#{work.id}")
       work_preservation.preserve!
     end
   end

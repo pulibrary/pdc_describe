@@ -3,7 +3,7 @@ require "rails_helper"
 
 RSpec.describe Readme, type: :model do
   let(:work) { FactoryBot.create :draft_work }
-  let(:s3_files) { [FactoryBot.build(:s3_file, work: work), FactoryBot.build(:s3_file, filename: "filename-2.txt", work: work)] }
+  let(:s3_files) { [FactoryBot.build(:s3_file, work:), FactoryBot.build(:s3_file, filename: "filename-2.txt", work:)] }
   let(:readme) { described_class.new(work, User.find(work.created_by_user_id)) }
   let(:fake_s3_service) { stub_s3 data: s3_files }
 
@@ -17,7 +17,7 @@ RSpec.describe Readme, type: :model do
     end
 
     context "with a readme present" do
-      let(:s3_files) { [FactoryBot.build(:s3_file, work: work), FactoryBot.build(:s3_readme, work: work)] }
+      let(:s3_files) { [FactoryBot.build(:s3_file, work:), FactoryBot.build(:s3_readme, work:)] }
       it "Does not find a readme" do
         expect(readme.blank?).to be_falsey
       end
@@ -47,7 +47,7 @@ RSpec.describe Readme, type: :model do
       end
 
       context "when a readme is already present" do
-        let(:s3_files) { [FactoryBot.build(:s3_file, work: work), FactoryBot.build(:s3_readme, work: work)] }
+        let(:s3_files) { [FactoryBot.build(:s3_file, work:), FactoryBot.build(:s3_readme, work:)] }
 
         it "returns no error message" do
           expect { expect(readme.attach(uploaded_file)).to be_nil }.to change { UploadSnapshot.count }.by 0
@@ -68,7 +68,7 @@ RSpec.describe Readme, type: :model do
     end
 
     context "there is an existing readme that should be replaced" do
-      let(:s3_files) { [FactoryBot.build(:s3_file, work: work), FactoryBot.build(:s3_readme, work: work)] }
+      let(:s3_files) { [FactoryBot.build(:s3_file, work:), FactoryBot.build(:s3_readme, work:)] }
 
       it "returns no error message" do
         expect { expect(readme.attach(uploaded_file)).to be_nil }.to change { UploadSnapshot.count }.by 1

@@ -52,7 +52,7 @@ RSpec.describe "Form submission for a PPPL dataset", type: :system do
 
       # Make sure the readme is in S3 so when I hit the back button we do not error
       work = Work.last
-      stub_s3 data: [FactoryBot.build(:s3_readme, work: work)]
+      stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
 
       click_on "Back"
       expect(page).to have_content("Please upload the README")

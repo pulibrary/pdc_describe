@@ -5,7 +5,7 @@ RSpec.describe "Home Page", type: :request do
   describe "GET /" do
     context "Authenticated user" do
       let(:email) { "pul123@princeton.edu" }
-      let(:user) { FactoryBot.create :user, email: email, uid: "pul123", given_name: "Toni", full_name: "Toni Morrison" }
+      let(:user) { FactoryBot.create :user, email:, uid: "pul123", given_name: "Toni", full_name: "Toni Morrison" }
       before do
         sign_in user
       end

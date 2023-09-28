@@ -6,7 +6,7 @@ class WorkActivityNotification < ApplicationRecord
 
   after_create do
     if send_message?
-      mailer = NotificationMailer.with(user: user, work_activity: work_activity)
+      mailer = NotificationMailer.with(user:, work_activity:)
       message = mailer.build_message
       message.deliver_later(wait: 10.seconds) unless Rails.env.development?
     end
@@ -32,7 +32,7 @@ class WorkActivityNotification < ApplicationRecord
     end
 
     def send_message_for_community?(subcommunity)
-      group.messages_enabled_for?(user: user, subcommunity: subcommunity)
+      group.messages_enabled_for?(user:, subcommunity:)
     end
 
     def group

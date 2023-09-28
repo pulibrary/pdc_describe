@@ -5,8 +5,7 @@
 # This preservation bucket is configured in our s3.yml file and we store it in a different availability region
 # to make sure the data is properly distributed.
 class WorkPreservationService
-
-  PRESERVATION_DIRECTORY = "princeton_data_commons".freeze
+  PRESERVATION_DIRECTORY = "princeton_data_commons"
 
   # @param work_id [Integer] The ID of the work to preserve.
   # @param path [String] The path where the work will be preserved.
@@ -46,13 +45,13 @@ class WorkPreservationService
 
   private
 
-    def is_local?
+    def local?
       @localhost
     end
 
     def target_location
-      if is_local?
-        "file://" + File.join(Dir.pwd,preservation_directory)
+      if local?
+        "file://" + File.join(Dir.pwd, preservation_directory)
       else
         "s3://#{bucket_name}/#{preservation_directory}"
       end
@@ -83,7 +82,7 @@ class WorkPreservationService
     end
 
     def create_preservation_directory
-      if is_local?
+      if local?
         FileUtils.mkdir_p preservation_directory.to_s
       else
         s3_query_service.client.put_object({ bucket: bucket_name, key: preservation_directory.to_s, content_length: 0 })
@@ -91,7 +90,7 @@ class WorkPreservationService
     end
 
     def preserve_file(io:, filename:)
-      if is_local?
+      if local?
         save_local_file(io:, filename:)
       else
         upload_file(io:, filename:)
@@ -101,13 +100,13 @@ class WorkPreservationService
     def upload_file(io:, filename:)
       md5_digest = @work.s3_query_service.md5(io:)
       key = preservation_directory.join(filename).to_s
-      s3_query_service.client.put_object(bucket: bucket_name, key: key, body: io, content_md5: md5_digest)
+      s3_query_service.client.put_object(bucket: bucket_name, key:, body: io, content_md5: md5_digest)
       key
     end
 
     def save_local_file(io:, filename:)
       full_filename = preservation_directory.join(filename).to_s
-      File.open(full_filename, 'w') do |file|
+      File.open(full_filename, "w") do |file|
         file.puts(io.read)
       end
       full_filename

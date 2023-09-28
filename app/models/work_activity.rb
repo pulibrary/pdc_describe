@@ -17,7 +17,7 @@ class WorkActivity < ApplicationRecord
   SYSTEM = "SYSTEM"
   CHANGE_LOG_ACTIVITY_TYPES = [CHANGES, FILE_CHANGES, PROVENANCE_NOTES, SYSTEM, DATACITE_ERROR, MIGRATION_COMPLETE].freeze
 
-  USER_REFERENCE = /@[\w]*/.freeze # e.g. @xy123
+  USER_REFERENCE = /@[\w]*/ # e.g. @xy123
 
   include Rails.application.routes.url_helpers
 
@@ -26,11 +26,11 @@ class WorkActivity < ApplicationRecord
 
   def self.add_work_activity(work_id, message, user_id, activity_type:, created_at: nil)
     activity = WorkActivity.new(
-      work_id: work_id,
-      activity_type: activity_type,
-      message: message,
+      work_id:,
+      activity_type:,
+      message:,
       created_by_user_id: user_id,
-      created_at: created_at # If nil, will be set by activerecord at save.
+      created_at: # If nil, will be set by activerecord at save.
     )
     activity.save!
     activity.notify_users
@@ -38,7 +38,7 @@ class WorkActivity < ApplicationRecord
   end
 
   def self.activities_for_work(work_id, activity_types)
-    where(work_id: work_id, activity_type: activity_types)
+    where(work_id:, activity_type: activity_types)
   end
 
   def self.messages_for_work(work_id)
@@ -52,11 +52,11 @@ class WorkActivity < ApplicationRecord
   # Log notifications for each of the users references on the activity
   def notify_users
     users_referenced.each do |uid|
-      user_id = User.where(uid: uid).first&.id
+      user_id = User.where(uid:).first&.id
       if user_id.nil?
         notify_group(uid)
       else
-        WorkActivityNotification.create(work_activity_id: id, user_id: user_id)
+        WorkActivityNotification.create(work_activity_id: id, user_id:)
       end
     end
   end
@@ -246,7 +246,7 @@ class WorkActivity < ApplicationRecord
           if group
             "<a class='message-user-link' title='#{group.title}' href='#{@work_activity.group_path(group)}'>#{group.title}</a>"
           else
-            user = User.find_by(uid: uid)
+            user = User.find_by(uid:)
             user_info = if user
                           user.given_name_safe
                         else

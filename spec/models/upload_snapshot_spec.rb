@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe UploadSnapshot, type: :model do
-  subject(:upload_snapshot) { described_class.new(files: [{ filename: filename, checkSum: "aaabbb111222" }], url: url, work: work) }
+  subject(:upload_snapshot) { described_class.new(files: [{ filename:, checkSum: "aaabbb111222" }], url:, work:) }
 
   let(:filename) { "us_covid_2019.csv" }
   let(:url) { "http://localhost.localdomain/us_covid_2019.csv" }
@@ -46,7 +46,7 @@ RSpec.describe UploadSnapshot, type: :model do
 
     context "when the Work has not yet been approved" do
       let(:filename) { "#{work.doi}/#{work.id}/us_covid_2019.csv" }
-      let(:file1) { FactoryBot.build(:s3_file, filename: filename, work: work, size: 1024) }
+      let(:file1) { FactoryBot.build(:s3_file, filename:, work:, size: 1024) }
       let(:url) { file1.url }
 
       let(:pre_curation_data_profile) { { objects: [file1] } }
@@ -75,7 +75,7 @@ RSpec.describe UploadSnapshot, type: :model do
 
     context "when the Work has been approved" do
       let(:filename) { "#{work.doi}/#{work.id}/us_covid_2019_2.csv" }
-      let(:file2) { FactoryBot.build(:s3_file, filename: filename, work: work, size: 2048) }
+      let(:file2) { FactoryBot.build(:s3_file, filename:, work:, size: 2048) }
       let(:url) { file2.url }
 
       let(:pre_curated_data_profile) { { objects: [file2] } }
@@ -110,7 +110,7 @@ RSpec.describe UploadSnapshot, type: :model do
   end
 
   describe "#include?" do
-    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url: url, work: work) }
+    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url:, work:) }
 
     let(:s3_file) { FactoryBot.build :s3_file, filename: "fileone" }
     let(:other_file) { FactoryBot.build :s3_file, filename: "other" }
@@ -121,11 +121,11 @@ RSpec.describe UploadSnapshot, type: :model do
   end
 
   describe "#index" do
-    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url: url, work: work) }
+    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url:, work:) }
 
     let(:s3_file) { FactoryBot.build :s3_file, filename: "filetwo", checksum: "aaabbb111222" }
     let(:other_file) { FactoryBot.build :s3_file, filename: "other" }
-    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url: url, work: work) }
+    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url:, work:) }
 
     it "lists filenames associated with the snapshot" do
       expect(upload_snapshot.index(s3_file)).to eq(1)
@@ -139,11 +139,11 @@ RSpec.describe UploadSnapshot, type: :model do
   end
 
   describe "#match?" do
-    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url: url, work: work) }
+    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url:, work:) }
 
     let(:s3_file) { FactoryBot.build :s3_file, filename: "filetwo", checksum: "aaabbb111222" }
     let(:other_file) { FactoryBot.build :s3_file, filename: "other" }
-    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url: url, work: work) }
+    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url:, work:) }
 
     it "lists filenames associated with the snapshot" do
       expect(upload_snapshot.match?(s3_file)).to be_truthy
@@ -159,7 +159,7 @@ RSpec.describe UploadSnapshot, type: :model do
   describe "checksum compare" do
     let(:file1_base64) { { filename: "fileone", checksum: "98691a716ece23a77735f37b5a421253" } }
     let(:file2_md5) { { filename: "filetwo", checksum: "mGkacW7OI6d3NfN7WkISUw==" } }
-    subject(:upload_snapshot) { described_class.new(files: [file1_base64, file2_md5], url: url, work: work) }
+    subject(:upload_snapshot) { described_class.new(files: [file1_base64, file2_md5], url:, work:) }
 
     it "matches identical checksums" do
       s3_file = FactoryBot.build :s3_file, filename: "fileone", checksum: "98691a716ece23a77735f37b5a421253"
@@ -198,7 +198,7 @@ RSpec.describe UploadSnapshot, type: :model do
 
   describe "#find_by_filename" do
     subject(:upload_snapshot) do
-      described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url: url, work: work)
+      described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url:, work:)
     end
 
     let(:s3_file) { FactoryBot.build :s3_file, filename: "fileone" }

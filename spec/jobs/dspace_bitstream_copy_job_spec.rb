@@ -18,7 +18,7 @@ RSpec.describe DspaceBitstreamCopyJob, type: :job do
   subject(:job) { described_class.perform_later(dspace_files_json: s3_files_json, work_id: work.id, migration_snapshot_id: migration_snapshot.id) }
   let(:work) { FactoryBot.create :draft_work }
   let(:migration_snapshot) do
-    MigrationUploadSnapshot.create(files: [{ "checksum" => "/HFvG2uRk/3BBDRsYqfKaA==", "filename" => "10.34770/tbd/#{work.id}/README.txt", "migrate_status" => "started" }], work: work,
+    MigrationUploadSnapshot.create(files: [{ "checksum" => "/HFvG2uRk/3BBDRsYqfKaA==", "filename" => "10.34770/tbd/#{work.id}/README.txt", "migrate_status" => "started" }], work:,
                                    url: "example.com")
   end
   let(:fake_s3_service) { instance_double(S3QueryService, bucket_name: "work-bucket", prefix: "abc/123/#{work.id}/") }
@@ -34,7 +34,7 @@ RSpec.describe DspaceBitstreamCopyJob, type: :job do
     work_activity
     allow(Work).to receive(:find).and_return(work)
     allow(fake_s3_service).to receive(:upload_file).and_return(true)
-    allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return({ etag: etag })
+    allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return({ etag: })
     allow(work).to receive(:s3_query_service).and_return(fake_s3_service)
     allow(s3_aws_file).to receive(:s3_query_service).and_return(fake_s3_service)
     allow(Honeybadger).to receive(:notify)
@@ -51,7 +51,7 @@ RSpec.describe DspaceBitstreamCopyJob, type: :job do
 
   context "when the file has already been migrated" do
     let(:migration_snapshot) do
-      MigrationUploadSnapshot.create(files: [{ "checksum" => "/HFvG2uRk/3BBDRsYqfKaA==", "filename" => "10.34770/tbd/#{work.id}/README.txt", "migrate_status" => "complete" }], work: work,
+      MigrationUploadSnapshot.create(files: [{ "checksum" => "/HFvG2uRk/3BBDRsYqfKaA==", "filename" => "10.34770/tbd/#{work.id}/README.txt", "migrate_status" => "complete" }], work:,
                                      url: "example.com")
     end
 

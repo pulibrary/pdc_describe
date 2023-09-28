@@ -21,7 +21,7 @@ class VersionFooter
   # Returns a hash with version information.
   def self.info
     reset! if stale?
-    { sha: git_sha, branch: branch, version: version, stale: stale?, tagged_release: tagged_release? }
+    { sha: git_sha, branch:, version:, stale: stale?, tagged_release: tagged_release? }
   end
 
   def self.reset!

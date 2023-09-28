@@ -30,13 +30,13 @@ class WorkList
         search_context = search_terms_where_clause(search_terms)
 
         # The user's own works (if any) by state and search terms
-        works = search_context.where(created_by_user_id: user, state: state).to_a
+        works = search_context.where(created_by_user_id: user, state:).to_a
 
         if user.admin_groups.count > 0
           # The works that match the given state, in all the groups the user can admin
           # (regardless of who created those works)
           user.admin_groups.each do |group|
-            works += search_context.where(group_id: group.id, state: state)
+            works += search_context.where(group_id: group.id, state:)
           end
         end
 
@@ -54,7 +54,7 @@ class WorkList
       def works_mentioned_by_user_state(user, state, search_context)
         search_context.joins(:work_activity)
                       .joins('INNER JOIN "work_activity_notifications" ON "work_activities"."id" = "work_activity_notifications"."work_activity_id"')
-                      .where(state: state)
+                      .where(state:)
                       .where('"work_activity_notifications"."user_id" = ?', user.id)
       end
   end

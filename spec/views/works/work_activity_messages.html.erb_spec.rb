@@ -18,7 +18,7 @@ describe "Messages" do
   it "handles no messages" do
     assign(:work, work)
     assign(:work_decorator, work_decorator)
-    render(partial: partial)
+    render(partial:)
     expect(rendered).to include("No messages")
   end
 
@@ -26,7 +26,7 @@ describe "Messages" do
     assign(:work, work)
     WorkActivity.add_work_activity(work.id, "message!", nil, activity_type: WorkActivity::MESSAGE)
     assign(:work_decorator, work_decorator)
-    render(partial: partial)
+    render(partial:)
     expect(rendered).to include("Unknown user outside the system")
   end
 
@@ -35,7 +35,7 @@ describe "Messages" do
     assign(:work, work)
     WorkActivity.add_work_activity(work.id, "message!", user.id, activity_type: WorkActivity::MESSAGE)
     assign(:work_decorator, work_decorator)
-    render(partial: partial)
+    render(partial:)
     expect(rendered).to include("submission note!")
   end
 
@@ -43,7 +43,7 @@ describe "Messages" do
     assign(:work, work)
     WorkActivity.add_work_activity(work.id, "message!", user.id, activity_type: WorkActivity::MESSAGE)
     assign(:work_decorator, work_decorator)
-    render(partial: partial)
+    render(partial:)
     expect(rendered).to include("message!")
     expect(rendered).to include("(@#{user.uid})")
   end
@@ -52,7 +52,7 @@ describe "Messages" do
     assign(:work, work)
     WorkActivity.add_work_activity(work.id, "notification!", user.id, activity_type: WorkActivity::NOTIFICATION)
     assign(:work_decorator, work_decorator)
-    render(partial: partial)
+    render(partial:)
     expect(rendered).to include("notification!")
     expect(rendered).to include("(@#{user.uid})")
   end
@@ -62,7 +62,7 @@ describe "Messages" do
     newer
     older
     assign(:work_decorator, work_decorator)
-    render(partial: partial)
+    render(partial:)
     expect(rendered).to match(/newer.*older/m)
   end
 
@@ -71,7 +71,7 @@ describe "Messages" do
     older
     newer
     assign(:work_decorator, work_decorator)
-    render(partial: partial)
+    render(partial:)
     expect(rendered).to match(/newer.*older/m)
   end
 end

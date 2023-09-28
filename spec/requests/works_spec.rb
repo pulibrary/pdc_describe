@@ -54,7 +54,7 @@ RSpec.describe "/works", type: :request do
       context "when the Work is under active embargo" do
         let(:embargo_date) { Time.zone.today + 1.year }
         let(:work) do
-          FactoryBot.create(:tokamak_work, state: :approved, embargo_date: embargo_date)
+          FactoryBot.create(:tokamak_work, state: :approved, embargo_date:)
         end
 
         before do
@@ -73,7 +73,7 @@ RSpec.describe "/works", type: :request do
     context "when the Work is under active embargo" do
       let(:embargo_date) { Time.zone.today + 1.year }
       let(:work) do
-        FactoryBot.create(:tokamak_work, state: :approved, embargo_date: embargo_date)
+        FactoryBot.create(:tokamak_work, state: :approved, embargo_date:)
       end
 
       before do
@@ -92,7 +92,7 @@ RSpec.describe "/works", type: :request do
     context "when the Work is under an expired embargo" do
       let(:embargo_date) { Time.zone.today - 1.year }
       let(:work) do
-        FactoryBot.create(:tokamak_work, state: :approved, embargo_date: embargo_date)
+        FactoryBot.create(:tokamak_work, state: :approved, embargo_date:)
       end
 
       before do
@@ -112,7 +112,7 @@ RSpec.describe "/works", type: :request do
   describe "POST /work" do
     let(:group) { Group.plasma_laboratory }
     let(:work) do
-      FactoryBot.create(:tokamak_work, group: group, created_by_user_id: user.id, state: "draft")
+      FactoryBot.create(:tokamak_work, group:, created_by_user_id: user.id, state: "draft")
     end
 
     context "when authenticated" do
@@ -122,7 +122,7 @@ RSpec.describe "/works", type: :request do
       end
 
       context "when files are added to the Work" do
-        let(:work) { FactoryBot.create(:tokamak_work, group: group, created_by_user_id: user.id, state: "draft") }
+        let(:work) { FactoryBot.create(:tokamak_work, group:, created_by_user_id: user.id, state: "draft") }
 
         let(:uploaded_file1) do
           fixture_file_upload("us_covid_2019.csv", "text/csv")
@@ -189,7 +189,7 @@ RSpec.describe "/works", type: :request do
       end
 
       context "when the files are updated before viewing the Work", js: true do
-        let(:work) { FactoryBot.create(:tokamak_work, group: group, created_by_user_id: user.id, state: "draft") }
+        let(:work) { FactoryBot.create(:tokamak_work, group:, created_by_user_id: user.id, state: "draft") }
 
         let(:uploaded_file1) do
           fixture_file_upload("us_covid_2019.csv", "text/csv")
@@ -218,8 +218,8 @@ RSpec.describe "/works", type: :request do
         end
 
         let(:fake_s3_service) { stub_s3 }
-        let(:file1) { FactoryBot.build :s3_file, work: work, filename: uploaded_file1.path, checksum: "222333", last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
-        let(:file_before) { FactoryBot.build :s3_file, work: work, filename: uploaded_file1.path, checksum: "1111", last_modified: Time.parse("2022-04-21T19:29:40.000Z") }
+        let(:file1) { FactoryBot.build :s3_file, work:, filename: uploaded_file1.path, checksum: "222333", last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
+        let(:file_before) { FactoryBot.build :s3_file, work:, filename: uploaded_file1.path, checksum: "1111", last_modified: Time.parse("2022-04-21T19:29:40.000Z") }
 
         before do
           stub_ark

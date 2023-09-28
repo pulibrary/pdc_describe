@@ -16,9 +16,9 @@ class PULDspaceAwsConnector
       match_dspace_file.filename = dspace_file.filename_display
       io = File.open(filename)
       size = File.size(filename)
-      key = work.s3_query_service.upload_file(io: io, filename: basename, md5_digest: dspace_file.checksum, size: size)
+      key = work.s3_query_service.upload_file(io:, filename: basename, md5_digest: dspace_file.checksum, size:)
       if key
-        { key: key, file: match_dspace_file, error: nil }
+        { key:, file: match_dspace_file, error: nil }
       else
         { key: nil, file: match_dspace_file, error: "An error uploading #{filename}.  Please try again." }
       end

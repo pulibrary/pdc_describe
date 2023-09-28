@@ -26,21 +26,21 @@ RSpec.describe WorkUploadsEditService do
 
   let(:s3_query_service_double) { instance_double(S3QueryService) }
   let(:s3_file1) do
-    FactoryBot.build(:s3_file, work: work,
+    FactoryBot.build(:s3_file, work:,
                                filename: "#{work.doi}/#{work.id}/us_covid_2019.csv",
                                last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
                                size: 10_759,
                                checksum: "abc123")
   end
   let(:s3_file2) do
-    FactoryBot.build(:s3_file, work: work,
+    FactoryBot.build(:s3_file, work:,
                                filename: "#{work.doi}/#{work.id}/us_covid_2020.csv",
                                last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
                                size: 12_739,
                                checksum: "abc567")
   end
   let(:s3_file3) do
-    FactoryBot.build(:s3_file, work: work,
+    FactoryBot.build(:s3_file, work:,
                                filename: "#{work.doi}/#{work.id}/orcid.csv",
                                last_modified: Time.parse("2022-04-21T18:30:07.000Z"),
                                size: 12_739,
@@ -58,7 +58,7 @@ RSpec.describe WorkUploadsEditService do
     let(:deleted_files) { [] }
 
     it "returns all existing files" do
-      fake_s3_service = stub_s3(data: s3_data, bucket_url: bucket_url)
+      fake_s3_service = stub_s3(data: s3_data, bucket_url:)
 
       upload_service = described_class.new(work, user)
       updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
@@ -74,7 +74,7 @@ RSpec.describe WorkUploadsEditService do
     let(:deleted_files) { [] }
 
     it "returns all existing files plus the new one" do
-      fake_s3_service = stub_s3(bucket_url: bucket_url)
+      fake_s3_service = stub_s3(bucket_url:)
       allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_data, s3_data + [s3_file3])
 
       upload_service = described_class.new(work, user)
@@ -97,7 +97,7 @@ RSpec.describe WorkUploadsEditService do
     let(:deleted_files) { [s3_data[0].filename] }
 
     it "returns all existing files except the deleted one" do
-      fake_s3_service = stub_s3(bucket_url: bucket_url)
+      fake_s3_service = stub_s3(bucket_url:)
       allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_data, [s3_file2])
 
       upload_service = described_class.new(work, user)
@@ -118,7 +118,7 @@ RSpec.describe WorkUploadsEditService do
     let(:deleted_files) { [s3_file1.key] }
 
     it "replaces all the files" do
-      fake_s3_service = stub_s3(bucket_url: bucket_url)
+      fake_s3_service = stub_s3(bucket_url:)
       allow(fake_s3_service).to receive(:client_s3_files).and_return([s3_file1], [s3_file2, s3_file3])
       upload_service = described_class.new(work, user)
       updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
@@ -143,7 +143,7 @@ RSpec.describe WorkUploadsEditService do
     let(:deleted_files) { [s3_file1.key, s3_file2.key] }
 
     it "replaces all the files" do
-      fake_s3_service = stub_s3(data: s3_data, bucket_url: bucket_url)
+      fake_s3_service = stub_s3(data: s3_data, bucket_url:)
 
       # upload the two new files
       upload_service = described_class.new(work, user)

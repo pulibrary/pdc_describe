@@ -81,7 +81,7 @@ class FormToResourceService
 
       def new_title(title, title_type)
         return if title.blank?
-        PDCMetadata::Title.new(title: title, title_type: title_type)
+        PDCMetadata::Title.new(title:, title_type:)
       end
 
       # Related Objects:
@@ -95,7 +95,7 @@ class FormToResourceService
 
       def new_related_object(related_identifier, related_identifier_type, relation_type)
         return if related_identifier.blank? && related_identifier_type.blank? && relation_type.blank?
-        PDCMetadata::RelatedObject.new(related_identifier: related_identifier, related_identifier_type: related_identifier_type, relation_type: relation_type)
+        PDCMetadata::RelatedObject.new(related_identifier:, related_identifier_type:, relation_type:)
       end
 
       # Creators:
@@ -108,7 +108,7 @@ class FormToResourceService
 
       def new_creator(given_name, family_name, orcid, sequence, affiliation, ror)
         return if family_name.blank? && given_name.blank? && orcid.blank?
-        PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence, affiliation: affiliation, ror: ror)
+        PDCMetadata::Creator.new_person(given_name, family_name, orcid, sequence, affiliation:, ror:)
       end
 
       # Individual Contributors:

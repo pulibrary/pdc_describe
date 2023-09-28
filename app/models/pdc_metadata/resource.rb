@@ -16,7 +16,7 @@ module PDCMetadata
     # rubocop:disable Metrics/MethodLength
     def initialize(doi: nil, title: nil, resource_type: nil, resource_type_general: nil, creators: [], description: nil)
       @titles = []
-      @titles << PDCMetadata::Title.new(title: title) unless title.nil?
+      @titles << PDCMetadata::Title.new(title:) unless title.nil?
       @description = description
       @collection_tags = []
       @creators = creators

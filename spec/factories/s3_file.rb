@@ -8,8 +8,8 @@ FactoryBot.define do
     checksum { "abc123" }
     work { FactoryBot.create :draft_work }
     initialize_with do
-      new(filename: filename, last_modified: last_modified, size: size,
-          checksum: checksum, work: work)
+      new(filename:, last_modified:, size:,
+          checksum:, work:)
     end
 
     factory :s3_readme do

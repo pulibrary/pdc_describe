@@ -7,9 +7,9 @@ require "aws-sdk-s3"
 class S3QueryService
   attr_reader :model
 
-  PRECURATION = "precuration".freeze
-  POSTCURATION = "postcuration".freeze
-  PRESERVATION = "preservation".freeze
+  PRECURATION = "precuration"
+  POSTCURATION = "postcuration"
+  PRESERVATION = "preservation"
 
   def self.configuration
     Rails.configuration.s3
@@ -50,7 +50,7 @@ class S3QueryService
     elsif @mode == PRECURATION
       self.class.pre_curation_config
     else
-      raise ArgumentError.new("Invalid mode value: #{@mode}")
+      raise ArgumentError, "Invalid mode value: #{@mode}"
     end
   end
 
@@ -89,8 +89,8 @@ class S3QueryService
   ##
   # Public signed URL to fetch this file from the S3 (valid for a limited time)
   def file_url(key)
-    signer = Aws::S3::Presigner.new(client: client)
-    signer.presigned_url(:get_object, bucket: bucket_name, key: key)
+    signer = Aws::S3::Presigner.new(client:)
+    signer.presigned_url(:get_object, bucket: bucket_name, key:)
   end
 
   # There is probably a better way to fetch the current ActiveStorage configuration but we have
@@ -112,7 +112,7 @@ class S3QueryService
   end
 
   def client
-    @client ||= Aws::S3::Client.new(region: region, credentials: credentials)
+    @client ||= Aws::S3::Client.new(region:, credentials:)
   end
 
   # required, accepts ETag, Checksum, ObjectParts, StorageClass, ObjectSize
@@ -128,18 +128,18 @@ class S3QueryService
 
   def get_s3_object_attributes(key:)
     response = client.get_object_attributes({
-      bucket: bucket_name,
-      key: key,
-      object_attributes: self.class.object_attributes
-    })
+                                              bucket: bucket_name,
+                                              key:,
+                                              object_attributes: self.class.object_attributes
+                                            })
     response.to_h
   end
 
   def get_s3_object(key:)
     response = client.get_object({
-      bucket: bucket_name,
-      key: key
-    })
+                                   bucket: bucket_name,
+                                   key:
+                                 })
     object = response.to_h
     return if object.empty?
 
@@ -153,7 +153,7 @@ class S3QueryService
   end
 
   def find_s3_file(filename:)
-    s3_object_key = build_s3_object_key(filename: filename)
+    s3_object_key = build_s3_object_key(filename:)
 
     object = get_s3_object_attributes(key: s3_object_key)
     return if object.nil?
@@ -167,10 +167,10 @@ class S3QueryService
     @client_s3_files = nil if reload # force a reload
     @client_s3_files ||= begin
       start = Time.zone.now
-      resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix })
+      resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: })
       resp_hash = resp.to_h
-      objects = parse_objects(resp_hash, ignore_directories: ignore_directories)
-      objects += parse_continuation(resp_hash, bucket_name: bucket_name, prefix: prefix, ignore_directories: ignore_directories)
+      objects = parse_objects(resp_hash, ignore_directories:)
+      objects += parse_continuation(resp_hash, bucket_name:, prefix:, ignore_directories:)
       elapsed = Time.zone.now - start
       Rails.logger.info("Loading S3 objects. Bucket: #{bucket_name}. Prefix: #{prefix}. Elapsed: #{elapsed} seconds")
       objects
@@ -180,7 +180,7 @@ class S3QueryService
   def file_count
     client_s3_files.count
   rescue Aws::Errors::ServiceError => aws_service_error
-    Rails.logger.error("An error was encountered when requesting AWS S3 Objects from the bucket #{self.bucket_name} with the prefix #{self.prefix}: #{aws_service_error}")
+    Rails.logger.error("An error was encountered when requesting AWS S3 Objects from the bucket #{bucket_name} with the prefix #{prefix}: #{aws_service_error}")
     0
   end
 
@@ -209,11 +209,11 @@ class S3QueryService
     target_bucket = S3QueryService.post_curation_config[:bucket]
     files = client_s3_files(reload: true, bucket_name: source_bucket)
     snapshot = ApprovedUploadSnapshot.new(work: model)
-    snapshot.store_files(files, current_user: current_user)
+    snapshot.store_files(files, current_user:)
     snapshot.save
     files.each do |file|
-      ApprovedFileMoveJob.perform_later(work_id: model.id, source_bucket: source_bucket, source_key: file.key, target_bucket: target_bucket,
-                target_key: file.key, size: file.size, snapshot_id: snapshot.id)
+      ApprovedFileMoveJob.perform_later(work_id: model.id, source_bucket:, source_key: file.key, target_bucket:,
+                                        target_key: file.key, size: file.size, snapshot_id: snapshot.id)
     end
     true
   end
@@ -244,7 +244,7 @@ class S3QueryService
       parts << { etag: resp.copy_part_result.etag, part_number: part_num, checksum_sha256: resp.copy_part_result.checksum_sha256 }
       start_byte = end_byte + 1
     end
-    client.complete_multipart_upload(bucket: target_bucket, key: target_key, upload_id: multi.upload_id, multipart_upload: { parts: parts })
+    client.complete_multipart_upload(bucket: target_bucket, key: target_key, upload_id: multi.upload_id, multipart_upload: { parts: })
   rescue Aws::Errors::ServiceError => aws_service_error
     message = "An error was encountered when requesting to multipart copy AWS S3 Object from #{source_key} to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}"
     Rails.logger.error(message)
@@ -258,7 +258,7 @@ class S3QueryService
   end
 
   def delete_s3_object(s3_file_key, bucket: bucket_name)
-    resp = client.delete_object({ bucket: bucket, key: s3_file_key })
+    resp = client.delete_object({ bucket:, key: s3_file_key })
     resp.to_h
   rescue Aws::Errors::ServiceError => aws_service_error
     Rails.logger.error("An error was encountered when requesting to delete the AWS S3 Object #{s3_file_key} in the bucket #{bucket_name}: #{aws_service_error}")
@@ -274,10 +274,10 @@ class S3QueryService
     # upload file from io in a single request, may not exceed 5GB
     key = "#{prefix}#{filename}"
     if size > part_size
-      upload_multipart_file(target_bucket: bucket_name, target_key: key, size: size, io: io)
+      upload_multipart_file(target_bucket: bucket_name, target_key: key, size:, io:)
     else
-      md5_digest ||= md5(io: io)
-      @last_response = client.put_object(bucket: bucket_name, key: key, body: io, content_md5: md5_digest)
+      md5_digest ||= md5(io:)
+      @last_response = client.put_object(bucket: bucket_name, key:, body: io, content_md5: md5_digest)
     end
     key
   rescue Aws::S3::Errors::SignatureDoesNotMatch => e
@@ -289,7 +289,7 @@ class S3QueryService
   end
 
   def check_file(bucket:, key:)
-    client.head_object({ bucket: bucket, key: key })
+    client.head_object({ bucket:, key: })
   rescue Aws::Errors::ServiceError => aws_service_error
     Rails.logger.error("An error was encountered when requesting to check the status of the AWS S3 Object in the bucket #{bucket} with the key #{key}: #{aws_service_error}")
   end
@@ -319,9 +319,9 @@ class S3QueryService
       objects = []
       while resp_hash[:is_truncated]
         token = resp_hash[:next_continuation_token]
-        resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: prefix, continuation_token: token })
+        resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix:, continuation_token: token })
         resp_hash = resp.to_h
-        objects += parse_objects(resp_hash, ignore_directories: ignore_directories)
+        objects += parse_objects(resp_hash, ignore_directories:)
       end
       objects
     rescue Aws::Errors::ServiceError => aws_service_error
@@ -329,14 +329,14 @@ class S3QueryService
       []
     end
 
-    def upload_multipart_file(target_bucket:, target_key:, size:, io: )
+    def upload_multipart_file(target_bucket:, target_key:, size:, io:)
       multi = client.create_multipart_upload(bucket: target_bucket, key: target_key)
       part_num = 0
       start_byte = 0
       parts = []
       while start_byte < size
         part_num += 1
-        Tempfile.open('mutlipart-upload') do |file|
+        Tempfile.open("mutlipart-upload") do |file|
           IO.copy_stream(io, file, part_size)
           file.rewind
           checksum = md5(io: file)
@@ -345,10 +345,9 @@ class S3QueryService
         end
         start_byte += part_size
       end
-      @last_response = client.complete_multipart_upload(bucket: target_bucket, key: target_key, upload_id: multi.upload_id, multipart_upload: { parts: parts })
+      @last_response = client.complete_multipart_upload(bucket: target_bucket, key: target_key, upload_id: multi.upload_id, multipart_upload: { parts: })
     rescue Aws::Errors::ServiceError => aws_service_error
       Rails.logger.error("An error was encountered when requesting to multipart upload to AWS S3 Object to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}")
     end
-  
-  end
+end
 # rubocop:enable Metrics/ClassLength

@@ -60,7 +60,7 @@ class Ark
   end
 
   def self.valid_shoulder?(ezid)
-    !ezid.include?(self::EZID_TEST_SHOULDER)
+    ezid.exclude?(self::EZID_TEST_SHOULDER)
   end
 
   def initialize(ezid)

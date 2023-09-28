@@ -13,7 +13,7 @@ FactoryBot.define do
     publication_year { "2020" }
     description { FFaker::Book.description }
     creators { [PDCMetadata::Creator.new_person(FFaker::Name.first_name, FFaker::Name.last_name)] }
-    titles { [PDCMetadata::Title.new(title: title)] }
+    titles { [PDCMetadata::Title.new(title:)] }
     rights_many { [PDCMetadata::Rights.find("CC BY")] }
     version_number { "1" }
   end

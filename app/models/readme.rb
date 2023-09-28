@@ -16,7 +16,7 @@ class Readme
     extension = File.extname(readme_file_param.original_filename)
     readme_name = "README#{extension}"
     size = readme_file_param.size
-    key = work.s3_query_service.upload_file(io: readme_file_param.to_io, filename: readme_name, size: size)
+    key = work.s3_query_service.upload_file(io: readme_file_param.to_io, filename: readme_name, size:)
     if key
       log_change(key)
       nil
@@ -52,7 +52,7 @@ class Readme
 
       def log_change(key)
         last_response = work.s3_query_service.last_response
-        UploadSnapshot.create(work: work, files: [{ "filename" => key, "checksum" => last_response.etag.delete('"') }])
+        UploadSnapshot.create(work:, files: [{ "filename" => key, "checksum" => last_response.etag.delete('"') }])
         work.track_change(:added, key)
         work.log_file_changes(current_user.id)
       end

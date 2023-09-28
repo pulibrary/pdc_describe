@@ -96,13 +96,13 @@ class Work < ApplicationRecord
     def find_by_doi(doi)
       prefix = "10.34770/"
       doi = "#{prefix}#{doi}" unless doi.blank? || doi.start_with?(prefix)
-      Work.find_by!("metadata @> ?", JSON.dump(doi: doi))
+      Work.find_by!("metadata @> ?", JSON.dump(doi:))
     end
 
     def find_by_ark(ark)
       prefix = "ark:/"
       ark = "#{prefix}#{ark}" unless ark.blank? || ark.start_with?(prefix)
-      Work.find_by!("metadata @> ?", JSON.dump(ark: ark))
+      Work.find_by!("metadata @> ?", JSON.dump(ark:))
     end
 
     delegate :resource_type_general_values, to: PDCMetadata::Resource
@@ -328,7 +328,7 @@ class Work < ApplicationRecord
 
   def new_notification_count_for_user(user_id)
     WorkActivityNotification.joins(:work_activity)
-                            .where(user_id: user_id, read_at: nil)
+                            .where(user_id:, read_at: nil)
                             .where(work_activity: { work_id: id })
                             .count
   end
@@ -338,7 +338,7 @@ class Work < ApplicationRecord
   # notifications as read.
   def mark_new_notifications_as_read(user_id)
     activities.each do |activity|
-      unread_notifications = WorkActivityNotification.where(user_id: user_id, work_activity_id: activity.id, read_at: nil)
+      unread_notifications = WorkActivityNotification.where(user_id:, work_activity_id: activity.id, read_at: nil)
       unread_notifications.each do |notification|
         notification.read_at = Time.now.utc
         notification.save
@@ -505,7 +505,7 @@ class Work < ApplicationRecord
   end
 
   def track_change(action, filename)
-    changes << { action: action, filename: filename }
+    changes << { action:, filename: }
   end
 
   # rubocop:disable Naming/PredicateName
@@ -584,7 +584,7 @@ class Work < ApplicationRecord
     end
 
     def track_state_change(user, state = aasm.to_state)
-      uw = UserWork.new(user_id: user.id, work_id: id, state: state)
+      uw = UserWork.new(user_id: user.id, work_id: id, state:)
       uw.save!
       WorkActivity.add_work_activity(id, "marked as #{state.to_s.titleize}", user.id, activity_type: WorkActivity::SYSTEM)
       WorkStateTransitionNotification.new(self, user.id).send
@@ -704,7 +704,7 @@ class Work < ApplicationRecord
 
       # Pre-curation files are not accessible externally,
       # so we are not interested in listing them in JSON.
-      post_curation_uploads(force_post_curation: force_post_curation).map do |upload|
+      post_curation_uploads(force_post_curation:).map do |upload|
         {
           "filename": upload.filename,
           "size": upload.size,
