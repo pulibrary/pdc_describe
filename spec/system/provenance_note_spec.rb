@@ -10,6 +10,7 @@ RSpec.describe "Adding a Provenance note", type: :system, js: true do
       visit work_path(work)
       expect(page).to have_content(work.title)
       expect(page).not_to have_button("Add Provenance Note")
+      expect(page).not_to have_form(add_provenance_note_path(work), :post)
     end
   end
 
