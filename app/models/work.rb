@@ -309,6 +309,7 @@ class Work < ApplicationRecord
   end
 
   def add_provenance_note(date, note, current_user_id)
+    # TODO: make changes here
     WorkActivity.add_work_activity(id, note, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES, created_at: date)
   end
 

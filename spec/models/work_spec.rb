@@ -1242,4 +1242,15 @@ RSpec.describe Work, type: :model do
       end
     end
   end
+  describe "#add_provenance_note" do
+    let(:work) { FactoryBot.create(:draft_work) }
+    it "adds a provenance note" do
+      expect { work.add_provenance_note(DateTime.now, "adding a note", user.id) }.to change { WorkActivity.count }.by 1
+      work_activity = WorkActivity.last
+      expect(work_activity.work).to eq(work)
+    end
+    it "adds a provenance note with a type" do
+      pending "add note with a  type"
+    end
+  end
 end
