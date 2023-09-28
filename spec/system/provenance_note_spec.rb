@@ -2,7 +2,6 @@
 require "rails_helper"
 
 RSpec.describe "Adding a Provenance note", type: :system, js: true do
-
   context "A user that does not have permissions to edit the provenance" do
     let(:any_user) { FactoryBot.create(:user) }
     let(:work) { FactoryBot.create(:draft_work, created_by_user_id: any_user.id) }
