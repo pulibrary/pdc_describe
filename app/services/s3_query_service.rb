@@ -182,7 +182,7 @@ class S3QueryService
   def file_count
     client_s3_files.count
   rescue Aws::Errors::ServiceError => aws_service_error
-    message = "An error was encountered when requesting AWS S3 Objects from the bucket #{self.bucket_name} with the prefix #{self.prefix}: #{aws_service_error}"
+    message = "An error was encountered when requesting AWS S3 Objects from the bucket #{bucket_name} with the prefix #{prefix}: #{aws_service_error}"
     Rails.logger.error(message)
     raise aws_service_error
   end
@@ -257,7 +257,7 @@ class S3QueryService
   def copy_directory(source_key:, target_bucket:, target_key:)
     client.copy_object(copy_source: source_key, bucket: target_bucket, key: target_key)
   rescue Aws::Errors::ServiceError => aws_service_error
-    "An error was encountered when requesting to copy the AWS S3 directory Object from #{source_key} to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}"
+    message = "An error was encountered when requesting to copy the AWS S3 directory Object from #{source_key} to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}"
     Rails.logger.error(message)
     raise aws_service_error
   end
