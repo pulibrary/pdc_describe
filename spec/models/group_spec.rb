@@ -75,14 +75,14 @@ RSpec.describe Group, type: :model do
 
       it "disables email messages for notifications for a User" do
         # Initially messages are enabled for the user
-        state = group.messages_enabled_for?(user: user)
+        state = group.messages_enabled_for?(user:)
         expect(state).to be true
 
         # After disabling messages for the user, that they are disabled is verified
-        group.disable_messages_for(user: user)
+        group.disable_messages_for(user:)
         group.save!
         group.reload
-        disabled_state = group.messages_enabled_for?(user: user)
+        disabled_state = group.messages_enabled_for?(user:)
         expect(disabled_state).to be false
       end
     end
@@ -95,24 +95,24 @@ RSpec.describe Group, type: :model do
 
       it "disables email messages for notifications for a User" do
         # Initially messages are enabled for the user
-        state = group.messages_enabled_for?(user: user)
+        state = group.messages_enabled_for?(user:)
         expect(state).to be true
 
-        group.disable_messages_for(user: user)
+        group.disable_messages_for(user:)
         group.save!
         group.reload
 
         # After disabling messages for the user, that they are disabled is verified
-        disabled_state = group.messages_enabled_for?(user: user)
+        disabled_state = group.messages_enabled_for?(user:)
         expect(disabled_state).to be false
       end
     end
 
     it "raises an ArgumentError" do
-      state = group.messages_enabled_for?(user: user)
+      state = group.messages_enabled_for?(user:)
       expect(state).to be true
 
-      expect { group.disable_messages_for(user: user) }.to raise_error(ArgumentError, "User #{user.uid} is not an administrator or submitter for this group #{group.title}")
+      expect { group.disable_messages_for(user:) }.to raise_error(ArgumentError, "User #{user.uid} is not an administrator or submitter for this group #{group.title}")
     end
   end
 end

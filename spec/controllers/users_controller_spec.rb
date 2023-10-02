@@ -51,10 +51,10 @@ RSpec.describe UsersController do
       {
         id: user.friendly_id,
         user: {
-          email: email,
+          email:,
           email_messages_enabled: true
         },
-        format: format
+        format:
       }
     end
 
@@ -66,7 +66,7 @@ RSpec.describe UsersController do
           before do
             sign_in user
             allow_any_instance_of(User).to receive(:update).and_return(false)
-            patch :update, params: params
+            patch :update, params:
           end
 
           it "renders the edit view with a 422 response status code" do
@@ -82,7 +82,7 @@ RSpec.describe UsersController do
 
             sign_in user
 
-            patch :update, params: params
+            patch :update, params:
           end
 
           it "updates the user" do
@@ -101,7 +101,7 @@ RSpec.describe UsersController do
           before do
             sign_in user
             allow_any_instance_of(User).to receive(:update).and_return(false)
-            patch :update, params: params
+            patch :update, params:
           end
 
           it "renders JSON-serialized error messages with a 422 response status code" do
@@ -116,7 +116,7 @@ RSpec.describe UsersController do
       before do
         allow(Rails.logger).to receive(:warn)
         sign_in user_other
-        patch :update, params: params
+        patch :update, params:
       end
 
       it "renders the edit view with a 422 response status code" do

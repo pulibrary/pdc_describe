@@ -29,7 +29,7 @@ class DspaceFileCopyJob < ApplicationJob
       migration_snapshot = MigrationUploadSnapshot.find(migration_snapshot_id)
       migration_snapshot.with_lock do
         migration_snapshot.reload
-        migration_snapshot.mark_complete(S3File.new(filename: s3_key, last_modified: DateTime.now, size: s3_size, checksum: "", work: work))
+        migration_snapshot.mark_complete(S3File.new(filename: s3_key, last_modified: DateTime.now, size: s3_size, checksum: "", work:))
         migration_snapshot.save!
       end
     end

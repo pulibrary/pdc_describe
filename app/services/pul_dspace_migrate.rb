@@ -43,7 +43,7 @@ class PULDspaceMigrate
 
     def generate_migration_snapshot
       files = remove_overlap_and_combine
-      snapshot = MigrationUploadSnapshot.new(work: work, url: work.s3_query_service.prefix)
+      snapshot = MigrationUploadSnapshot.new(work:, url: work.s3_query_service.prefix)
       last_snapshot = work.upload_snapshots.first
       snapshot.store_files(files, pre_existing_files: last_snapshot&.files)
       snapshot.save!
@@ -98,7 +98,7 @@ class PULDspaceMigrate
       @dspace_files = dspace_connector.list_bitsteams
       generate_migration_snapshot
       dspace_files_json = "[#{dspace_files.map(&:to_json).join(',')}]"
-      DspaceBitstreamCopyJob.perform_later(dspace_files_json: dspace_files_json, work_id: work.id, migration_snapshot_id: migration_snapshot.id)
+      DspaceBitstreamCopyJob.perform_later(dspace_files_json:, work_id: work.id, migration_snapshot_id: migration_snapshot.id)
     end
 
     def aws_copy(files)

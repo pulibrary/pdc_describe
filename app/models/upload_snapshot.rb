@@ -9,7 +9,7 @@ class UploadSnapshot < ApplicationRecord
     existing_files.each do |file|
       filename = file["filename"]
       unless s3_filenames.include?(filename)
-        work_changes << { action: "removed", filename: filename, checksum: file["checksum"] }
+        work_changes << { action: "removed", filename:, checksum: file["checksum"] }
       end
     end
   end
@@ -55,7 +55,7 @@ class UploadSnapshot < ApplicationRecord
   end
 
   def self.find_by_filename(work_id:, filename:)
-    find_by("work_id = ? AND files @> ?", work_id, JSON.dump([{ filename: filename }]))
+    find_by("work_id = ? AND files @> ?", work_id, JSON.dump([{ filename: }]))
   end
 
   private

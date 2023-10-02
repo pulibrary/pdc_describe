@@ -35,8 +35,8 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
 
   context "when the description metadata contains URLs" do
     let(:description) { "This tests the link http://something.unusual.edu. It also has a summary." }
-    let(:resource) { FactoryBot.build(:resource, doi: "10.34770/123-abc", description: description) }
-    let(:work) { FactoryBot.create(:tokamak_work, resource: resource) }
+    let(:resource) { FactoryBot.build(:resource, doi: "10.34770/123-abc", description:) }
+    let(:work) { FactoryBot.create(:tokamak_work, resource:) }
 
     it "will render the URLs using HTML markup" do
       sign_in user

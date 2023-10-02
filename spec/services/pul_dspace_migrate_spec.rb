@@ -75,7 +75,7 @@ RSpec.describe PULDspaceMigrate, type: :model do
 
       it "migrates the content from dspace and aws" do
         expect(UploadSnapshot.all.count).to eq(0)
-        FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
+        FactoryBot.create(:upload_snapshot, work:, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
         subject.migrate
 
         allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return(
@@ -131,7 +131,7 @@ RSpec.describe PULDspaceMigrate, type: :model do
 
         it "migrates the content from dspace and aws skipping the same file" do
           expect(UploadSnapshot.all.count).to eq(0)
-          FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
+          FactoryBot.create(:upload_snapshot, work:, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
 
           allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return(
             { etag: etag2 },
@@ -180,7 +180,7 @@ RSpec.describe PULDspaceMigrate, type: :model do
 
         it "migrates the content from dspace only" do
           expect(UploadSnapshot.all.count).to eq(0)
-          FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
+          FactoryBot.create(:upload_snapshot, work:, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
 
           allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return(
             { etag: etag1 },
@@ -258,7 +258,7 @@ RSpec.describe PULDspaceMigrate, type: :model do
         end
         it "migrates the content from dspace and aws" do
           expect(UploadSnapshot.all.count).to eq(0)
-          FactoryBot.create(:upload_snapshot, work: work, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
+          FactoryBot.create(:upload_snapshot, work:, files: [{ "checksum" => "abc123", "filename" => "abc/123/test_exist_key" }])
           allow(fake_s3_service).to receive(:get_s3_object_attributes).and_return(
             { etag: etag2 },
             { etag: etag3 },

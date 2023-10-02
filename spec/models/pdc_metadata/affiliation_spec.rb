@@ -4,10 +4,10 @@ require "rails_helper"
 describe PDCMetadata::Affiliation, type: :model do
   subject(:affiliation) do
     described_class.new(
-      value: value,
-      identifier: identifier,
-      scheme: scheme,
-      scheme_uri: scheme_uri
+      value:,
+      identifier:,
+      scheme:,
+      scheme_uri:
     )
   end
 

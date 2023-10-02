@@ -54,7 +54,7 @@ class PULDspaceConnector
         end
 
         S3File.new(filename_display: bitstream["name"], checksum: base64digest(bitstream["checkSum"]["value"]), last_modified: DateTime.now,
-                   size: -1, work: work, url: "#{download_base}/#{bitstream['sequenceId']}", filename: filename)
+                   size: -1, work:, url: "#{download_base}/#{bitstream['sequenceId']}", filename:)
       end
   end
 
@@ -64,7 +64,7 @@ class PULDspaceConnector
       if checksum_file(filename, file.checksum)
         file
       else
-        { file: file, error: "Checsum Missmatch" }
+        { file:, error: "Checsum Missmatch" }
       end
     end
   end
@@ -117,7 +117,7 @@ class PULDspaceConnector
         Honeybadger.notify(msg)
         false
       else
-        Rails.logger.debug "Matching checksums for #{filename}"
+        Rails.logger.debug { "Matching checksums for #{filename}" }
         true
       end
     end

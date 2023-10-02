@@ -4,7 +4,7 @@ require "rails_helper"
 RSpec.describe S3QueryService do
   include ActiveJob::TestHelper
 
-  let(:work) { FactoryBot.create :draft_work, doi: doi }
+  let(:work) { FactoryBot.create :draft_work, doi: }
   let(:subject) { described_class.new(work) }
   let(:s3_key1) { "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_README.txt" }
   let(:s3_key2) { "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json" }
@@ -164,7 +164,7 @@ XML
 
   context "with persisted Works" do
     let(:user) { FactoryBot.create(:user) }
-    let(:work) { FactoryBot.create(:draft_work, doi: doi) }
+    let(:work) { FactoryBot.create(:draft_work, doi:) }
     let(:fake_aws_client) { double(Aws::S3::Client) }
     let(:fake_multi) { instance_double(Aws::S3::Types::CreateMultipartUploadOutput, key: "abc", upload_id: "upload id", bucket: "bucket") }
     let(:fake_parts) { instance_double(Aws::S3::Types::CopyPartResult, etag: "etag123abc", checksum_sha256: "sha256abc123") }
@@ -386,7 +386,7 @@ XML
       fake_s3_resp.stub(:to_h).and_return(s3_hash)
 
       blob = ActiveStorage::Blob.new(filename: s3_key1, key: s3_key1, content_type: "", byte_size: 100, checksum: "abc123")
-      work.pre_curation_uploads << ActiveStorage::Attachment.new(blob: blob, name: :pre_curation_uploads)
+      work.pre_curation_uploads << ActiveStorage::Attachment.new(blob:, name: :pre_curation_uploads)
 
       data_profile = subject.data_profile
       expect(data_profile[:objects]).to be_instance_of(Array)
@@ -411,7 +411,7 @@ XML
   describe "#get_s3_object" do
     subject(:s3_query_service) { described_class.new(work) }
     let(:key) { "test_key" }
-    let(:s3_object) { s3_query_service.get_s3_object(key: key) }
+    let(:s3_object) { s3_query_service.get_s3_object(key:) }
 
     before do
       stub_request(:get, "https://example-bucket.s3.amazonaws.com/test_key?attributes").to_return(status: 200, body: s3_attributes_response_body, headers: s3_attributes_response_headers)
@@ -443,7 +443,7 @@ XML
 
       it "logs the error" do
         s3_query_service = described_class.new(work)
-        retrieved = s3_query_service.get_s3_object(key: key)
+        retrieved = s3_query_service.get_s3_object(key:)
         expect(retrieved).to be nil
         expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting the AWS S3 Object test_key: test AWS service error")
       end
@@ -500,7 +500,7 @@ XML
   describe "#find_s3_file" do
     subject(:s3_query_service) { described_class.new(work) }
     let(:filename) { "test.txt" }
-    let(:s3_file) { s3_query_service.find_s3_file(filename: filename) }
+    let(:s3_file) { s3_query_service.find_s3_file(filename:) }
 
     before do
       stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt").to_return(
@@ -590,7 +590,7 @@ XML
     end
 
     it "uploads the readme" do
-      expect(s3_query_service.upload_file(io: file, filename: filename, size: 2852)).to eq("10.34770/pe9w-x904/#{work.id}/README.txt")
+      expect(s3_query_service.upload_file(io: file, filename:, size: 2852)).to eq("10.34770/pe9w-x904/#{work.id}/README.txt")
       assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}", headers: { "Content-Length" => 2852 })
     end
 
@@ -609,16 +609,16 @@ XML
       end
 
       it "uploads the large file" do
-        expect(s3_query_service.upload_file(io: file, filename: filename, size: 6_000_000_000)).to eq(key)
+        expect(s3_query_service.upload_file(io: file, filename:, size: 6_000_000_000)).to eq(key)
         expect(s3_query_service.client).to have_received(:create_multipart_upload)
-          .with({ bucket: "example-bucket", key: key })
+          .with({ bucket: "example-bucket", key: })
         expect(subject.client).to have_received(:upload_part)
           .with(hash_including(bucket: "example-bucket", key: "abc", part_number: 1, upload_id: "upload id"))
         expect(subject.client).to have_received(:upload_part)
           .with(hash_including(bucket: "example-bucket", key: "abc", part_number: 2, upload_id: "upload id"))
         expect(subject.client).to have_received(:complete_multipart_upload)
-          .with({ bucket: "example-bucket", key: key, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1 },
-                                                                                  { etag: "etag123abc", part_number: 2 }] }, upload_id: "upload id" })
+          .with({ bucket: "example-bucket", key:, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1 },
+                                                                              { etag: "etag123abc", part_number: 2 }] }, upload_id: "upload id" })
       end
     end
 
@@ -628,7 +628,7 @@ XML
       end
 
       it "detects the upload error" do
-        expect(s3_query_service.upload_file(io: file, filename: filename, size: 2852)).to be_falsey
+        expect(s3_query_service.upload_file(io: file, filename:, size: 2852)).to be_falsey
         assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}", headers: { "Content-Length" => 2852 })
       end
     end
@@ -652,7 +652,7 @@ XML
 
       it "logs the error" do
         s3_query_service = described_class.new(work)
-        result = s3_query_service.upload_file(io: file, filename: filename, size: 2852)
+        result = s3_query_service.upload_file(io: file, filename:, size: 2852)
         expect(result).to be false
         # rubocop:disable Layout/LineLength
         expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to create the AWS S3 Object in the bucket example-bucket with the key #{prefix}README.txt: test AWS service error")

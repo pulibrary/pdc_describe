@@ -1,5 +1,22 @@
 @import "components/works/_form.scss";
 
+.embargo {
+  &-heading {
+    display: inline-block;
+    margin-top: 0.4rem;
+    margin-bottom: 0.4rem;
+    text-align: center;
+
+    .badge {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+      background-color: #ffecbd;
+      color: #705000;
+      border-color: transparent;
+    }
+  }
+}
+
 .uploads {
   .h2 {
     font-weight: 600;

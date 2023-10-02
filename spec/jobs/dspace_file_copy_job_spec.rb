@@ -9,7 +9,7 @@ RSpec.describe DspaceFileCopyJob, type: :job do
   subject(:job) { described_class.perform_later(s3_file_json: s3_file.to_json, work_id: work.id, migration_snapshot_id: migration_snapshot.id) }
   let(:work) { FactoryBot.create :draft_work }
   let(:fake_s3_service) { instance_double(S3QueryService, bucket_name: "work-bucket", prefix: "abc/123/#{work.id}/") }
-  let(:migration_snapshot) { MigrationUploadSnapshot.create(files: [s3_file], work: work, url: "example.com") }
+  let(:migration_snapshot) { MigrationUploadSnapshot.create(files: [s3_file], work:, url: "example.com") }
 
   before do
     allow(Work).to receive(:find).and_return(work)

@@ -103,7 +103,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Continue"
 
       # Make sure the readme is in S3 so when I hit the back button we do not error
-      stub_s3 data: [FactoryBot.build(:s3_readme, work: work)]
+      stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
 
       click_on "Back"
       expect(page).to have_content("Please upload the README")

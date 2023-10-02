@@ -40,7 +40,7 @@ class WorkUploadsEditService
       return if added_files.empty?
 
       last_snapshot = work.upload_snapshots.first
-      snapshot = BackgroundUploadSnapshot.new(work: work)
+      snapshot = BackgroundUploadSnapshot.new(work:)
       snapshot.store_files(added_files, pre_existing_files: last_snapshot&.files, current_user: @current_user)
       snapshot.save
       added_files.map do |file|

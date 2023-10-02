@@ -10,7 +10,7 @@ RSpec.describe FileRenameService do
 
   context "a file with S3 illegal characters" do
     let(:filename) { "10.80021/4dy5-dh78/473/Dry He 2mm 10kV le=0.8mJ RH 50%.csv" }
-    let(:subject) { described_class.new(filename: filename) }
+    let(:subject) { described_class.new(filename:) }
 
     it "knows the original filename" do
       expect(subject.original_filename).to eq filename
@@ -27,7 +27,7 @@ RSpec.describe FileRenameService do
 
   context "a file without S3 illegal characters" do
     let(:filename) { "a_totally_legal_filename.csv" }
-    let(:subject) { described_class.new(filename: filename) }
+    let(:subject) { described_class.new(filename:) }
 
     it "knows the file doesn't need renaming" do
       expect(subject.needs_rename?).to eq false

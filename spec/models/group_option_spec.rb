@@ -9,7 +9,7 @@ describe GroupOption, type: :model do
   end
 
   describe ".find_option_type_label" do
-    subject(:group_option) { described_class.create(option_type: described_class::EMAIL_MESSAGES, group: group, user: user) }
+    subject(:group_option) { described_class.create(option_type: described_class::EMAIL_MESSAGES, group:, user:) }
     let(:group) { FactoryBot.create(:group) }
     let(:user) { FactoryBot.create(:user) }
     let(:label) do
@@ -22,7 +22,7 @@ describe GroupOption, type: :model do
   end
 
   describe "#option_type_label" do
-    subject(:group_option) { described_class.create(option_type: described_class::EMAIL_MESSAGES, group: group, user: user) }
+    subject(:group_option) { described_class.create(option_type: described_class::EMAIL_MESSAGES, group:, user:) }
     let(:group) { FactoryBot.create(:group) }
     let(:user) { FactoryBot.create(:user) }
     let(:label) { group_option.option_type_label }

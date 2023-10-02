@@ -73,7 +73,7 @@ namespace :works do
     Dir.glob(path).each do |file_name|
       hash = JSON.parse(File.read(file_name))
       resource = PDCMetadata::Resource.new_from_jsonb(hash["resource"])
-      work = Work.new(resource: resource)
+      work = Work.new(resource:)
       work.group = Group.where(code: hash["group"]["code"]).first
       work.created_by_user_id = approver.id
       work.draft!(approver)
@@ -97,7 +97,7 @@ namespace :works do
   task :preserve, [:work_id, :path] => :environment do |_, args|
     work_id = args[:work_id].to_i
     path = args[:path] # e.g. "10.34770/xy123/10"
-    work_preservation = WorkPreservationService.new(work_id: work_id, path: path)
+    work_preservation = WorkPreservationService.new(work_id:, path:)
     puts work_preservation.preserve!
   end
 
@@ -105,7 +105,7 @@ namespace :works do
   task :preserve_local, [:work_id, :path] => :environment do |_, args|
     work_id = args[:work_id].to_i
     path = args[:path] # e.g. "10.34770/xy123/10"
-    work_preservation = WorkPreservationService.new(work_id: work_id, path: path, localhost: true)
+    work_preservation = WorkPreservationService.new(work_id:, path:, localhost: true)
     puts work_preservation.preserve!
   end
 end

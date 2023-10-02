@@ -25,7 +25,7 @@ RSpec.describe Work, type: :model do
   let(:uploaded_file) do
     fixture_file_upload("us_covid_2019.csv", "text/csv")
   end
-  let(:s3_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work }
+  let(:s3_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: }
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
@@ -37,7 +37,7 @@ RSpec.describe Work, type: :model do
       allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
     end
     it "captures everything needed for PDC Describe in JSON" do
-      work = Work.new(group: group, embargo_date: embargo_date, resource: FactoryBot.build(:tokamak_work))
+      work = Work.new(group:, embargo_date:, resource: FactoryBot.build(:tokamak_work))
       expect(JSON.parse(work.to_json)).to eq(
         {
           "resource" => {
@@ -85,14 +85,14 @@ RSpec.describe Work, type: :model do
   end
 
   it "drafts a doi only once" do
-    work = Work.new(group: group, resource: FactoryBot.build(:resource, doi: ""))
+    work = Work.new(group:, resource: FactoryBot.build(:resource, doi: ""))
     work.draft_doi
     work.draft_doi # Doing this multiple times on purpose to make sure the api is only called once
     expect(a_request(:post, "https://#{Rails.configuration.datacite.host}/dois")).to have_been_made.once
   end
 
   it "prevents datasets with no users" do
-    work = Work.new(group: group, resource: PDCMetadata::Resource.new)
+    work = Work.new(group:, resource: PDCMetadata::Resource.new)
     expect { work.draft! }.to raise_error AASM::InvalidTransition
   end
 
@@ -164,8 +164,8 @@ RSpec.describe Work, type: :model do
   context "when files are attached to a pre-curation Work" do
     subject(:work) { FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc") }
 
-    let(:file1) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work: work, size: 1024) }
-    let(:file2) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv", work: work, size: 2048) }
+    let(:file1) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work:, size: 1024) }
+    let(:file2) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv", work:, size: 2048) }
 
     let(:post_curation_data_profile) { { objects: [file1, file2] } }
     let(:pre_curated_data_profile) { { objects: [] } }
@@ -211,7 +211,7 @@ RSpec.describe Work, type: :model do
       end
 
       context "when the Work is under active embargo" do
-        subject(:work) { FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc", embargo_date: embargo_date) }
+        subject(:work) { FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc", embargo_date:) }
 
         let(:embargo_date) { Date.parse("2033-09-14") }
         let(:json) { JSON.parse(work.to_json) }
@@ -246,7 +246,7 @@ RSpec.describe Work, type: :model do
       end
 
       context "when the Work is under an expired embargo" do
-        subject(:work) { FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc", embargo_date: embargo_date) }
+        subject(:work) { FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc", embargo_date:) }
 
         let(:embargo_date) { Date.parse("2023-09-14") }
         let(:json) { JSON.parse(work.to_json) }
@@ -476,7 +476,7 @@ RSpec.describe Work, type: :model do
 
   describe "#draft" do
     let(:draft_work) do
-      work = Work.new(group: group, resource: FactoryBot.build(:resource), created_by_user_id: user.id)
+      work = Work.new(group:, resource: FactoryBot.build(:resource), created_by_user_id: user.id)
       work.draft!(user)
       work = Work.find(work.id)
       work
@@ -839,7 +839,7 @@ RSpec.describe Work, type: :model do
   end
 
   describe "states" do
-    let(:work) { Work.new(group: group, resource: FactoryBot.build(:resource)) }
+    let(:work) { Work.new(group:, resource: FactoryBot.build(:resource)) }
     it "initally is none" do
       expect(work.none?).to be_truthy
       expect(work.state).to eq("none")
@@ -873,7 +873,7 @@ RSpec.describe Work, type: :model do
                           last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
                           size: 10_759,
                           checksum: "abc123",
-                          work: work)
+                          work:)
       end
       let(:file2) do
         FactoryBot.build(:s3_file,
@@ -913,7 +913,7 @@ RSpec.describe Work, type: :model do
         last_modified: Time.parse("2022-04-21T18:29:40.000Z"),
         size: 10_759,
         checksum: "abc123",
-        work: work)
+        work:)
     end
 
     before do
@@ -1094,8 +1094,8 @@ RSpec.describe Work, type: :model do
   end
 
   describe "#upload_snapshots" do
-    let(:upload_snapshot1) { FactoryBot.create(:upload_snapshot, work: work) }
-    let(:upload_snapshot2) { FactoryBot.create(:upload_snapshot, work: work) }
+    let(:upload_snapshot1) { FactoryBot.create(:upload_snapshot, work:) }
+    let(:upload_snapshot2) { FactoryBot.create(:upload_snapshot, work:) }
 
     before do
       upload_snapshot1
@@ -1111,8 +1111,8 @@ RSpec.describe Work, type: :model do
   end
 
   describe "#destroy" do
-    let(:upload_snapshot1) { FactoryBot.create(:upload_snapshot, work: work) }
-    let(:upload_snapshot2) { FactoryBot.create(:upload_snapshot, work: work) }
+    let(:upload_snapshot1) { FactoryBot.create(:upload_snapshot, work:) }
+    let(:upload_snapshot2) { FactoryBot.create(:upload_snapshot, work:) }
 
     before do
       upload_snapshot1

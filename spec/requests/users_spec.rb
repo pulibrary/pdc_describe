@@ -136,14 +136,14 @@ RSpec.describe "/users", type: :request do
       end
 
       it "updates the notification settings for multiple groups" do
-        expect(group1.messages_enabled_for?(user: user)).to be true
-        expect(group2.messages_enabled_for?(user: user)).to be true
+        expect(group1.messages_enabled_for?(user:)).to be true
+        expect(group2.messages_enabled_for?(user:)).to be true
 
         patch user_url(user), params: { user: updated_attributes2 }
         user.reload
 
-        expect(group1.messages_enabled_for?(user: user)).to be false
-        expect(group2.messages_enabled_for?(user: user)).to be false
+        expect(group1.messages_enabled_for?(user:)).to be false
+        expect(group2.messages_enabled_for?(user:)).to be false
       end
     end
 

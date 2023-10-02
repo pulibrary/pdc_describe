@@ -22,7 +22,7 @@ class WorksController < ApplicationController
   # Renders the "step 0" information page before creating a new dataset
   def new
     group = Group.find_by(code: params[:group_code]) || current_user.default_group
-    @work = Work.new(created_by_user_id: current_user.id, group: group)
+    @work = Work.new(created_by_user_id: current_user.id, group:)
     @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
     if wizard_mode?
       render "new_submission"
@@ -344,12 +344,6 @@ class WorksController < ApplicationController
       work&.state == "approved"
     end
 
-    # Determine whether or not the requested Work is under embargo
-    # @return [Boolean]
-    def work_embargoed?
-      work&.embargoed?
-    end
-
     ##
     # Public requests are requests that do not require authentication.
     # This is to enable PDC Discovery to index approved content via the RSS feed
@@ -357,7 +351,7 @@ class WorksController < ApplicationController
     # Note that only approved works can be fetched for indexing.
     def public_request?
       return true if rss_index_request?
-      return true if json_show_request? && work_approved? && !work_embargoed?
+      return true if json_show_request? && work_approved?
       false
     end
 
@@ -401,7 +395,7 @@ class WorksController < ApplicationController
         if @work.persisted?
           Honeybadger.notify("Failed to create the new Dataset #{@work.id}: #{generic_error.message}")
           @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
-          redirect_to edit_work_url(id: @work.id), notice: "Failed to create the new Dataset #{@work.id}: #{generic_error.message}", params: params
+          redirect_to edit_work_url(id: @work.id), notice: "Failed to create the new Dataset #{@work.id}: #{generic_error.message}", params:
         else
           Honeybadger.notify("Failed to create a new Dataset #{@work.id}: #{generic_error.message}")
           new_params = {}
@@ -441,7 +435,7 @@ class WorksController < ApplicationController
       upload_service = WorkUploadsEditService.new(@work, current_user)
       if @work.approved?
         upload_keys = deleted_files_param || []
-        deleted_uploads = upload_service.find_post_curation_uploads(upload_keys: upload_keys)
+        deleted_uploads = upload_service.find_post_curation_uploads(upload_keys:)
 
         return head(:forbidden) unless deleted_uploads.empty?
       else
@@ -467,7 +461,7 @@ class WorksController < ApplicationController
     def update_params
       {
         group_id: params_group_id,
-        embargo_date: embargo_date,
+        embargo_date:,
         resource: FormToResourceService.convert(params, @work)
       }
     end

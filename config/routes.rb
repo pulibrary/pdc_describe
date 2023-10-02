@@ -51,8 +51,8 @@ Rails.application.routes.draw do
   get "works/:id/download", controller: "work_downloader", action: "download", as: :work_download
   post "works/:id/migrate_content", controller: "work_migration", action: "migrate", as: :work_migrate_content
   resources :works
-  match "/doi/*doi", via: :get, to: "works#resolve_doi", as: :resolve_doi, format: false
-  match "/ark/*ark", via: :get, to: "works#resolve_ark", as: :resolve_ark, format: false
+  get "/doi/*doi", to: "works#resolve_doi", as: :resolve_doi, format: false
+  get "/ark/*ark", to: "works#resolve_ark", as: :resolve_ark, format: false
 
   get "upload-snapshots/:work_id", to: "upload_snapshots#edit", as: :edit_upload_snapshot
   get "upload-snapshots/:id/download", to: "upload_snapshots#download", as: :download_upload_snapshot

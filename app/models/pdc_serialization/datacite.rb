@@ -69,7 +69,7 @@ module PDCSerialization
         creators: [] << ::Datacite::Mapping::Creator.new(name: creator),
         titles: [] << ::Datacite::Mapping::Title.new(value: title),
         publisher: ::Datacite::Mapping::Publisher.new(value: publisher),
-        publication_year: publication_year,
+        publication_year:,
         resource_type: datacite_resource_type(resource_type)
       )
       mapping.write_xml

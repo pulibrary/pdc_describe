@@ -362,7 +362,7 @@ RSpec.describe WorksController do
         params = base_params.clone
         params[:work] = { pre_curation_uploads_added: [uploaded_file1, uploaded_file2] }
         sign_in user
-        post :update, params: params
+        post :update, params:
       end
 
       it "handles the update page" do
@@ -381,9 +381,9 @@ RSpec.describe WorksController do
     end
 
     context "when only some file uploads are deleted for an existing Work with uploads" do
-      let(:s3_file1) { FactoryBot.build :s3_file, filename: "us_covid_2020.csv", work: work }
-      let(:s3_file2) { FactoryBot.build :s3_file, filename: "us_covid_2021.csv", work: work }
-      let(:s3_file3) { FactoryBot.build :s3_file, filename: "us_covid_2022.csv", work: work }
+      let(:s3_file1) { FactoryBot.build :s3_file, filename: "us_covid_2020.csv", work: }
+      let(:s3_file2) { FactoryBot.build :s3_file, filename: "us_covid_2021.csv", work: }
+      let(:s3_file3) { FactoryBot.build :s3_file, filename: "us_covid_2022.csv", work: }
 
       let(:bucket_url) do
         "https://example-bucket.s3.amazonaws.com/"
@@ -446,8 +446,8 @@ RSpec.describe WorksController do
           FactoryBot.create :user, groups_to_admin: [work.group]
         end
         let(:s3_query_service_double) { instance_double(S3QueryService) }
-        let(:file1) { FactoryBot.build :s3_file, filename: "SCoData_combined_v1_2020-07_README.txt", work: work }
-        let(:file2) { FactoryBot.build :s3_file, filename: "SCoData_combined_v1_2020-07_datapackage.json", work: work }
+        let(:file1) { FactoryBot.build :s3_file, filename: "SCoData_combined_v1_2020-07_README.txt", work: }
+        let(:file2) { FactoryBot.build :s3_file, filename: "SCoData_combined_v1_2020-07_datapackage.json", work: }
         let(:s3_data) { [file1, file2] }
         let(:bucket_url) do
           "https://example-bucket.s3.amazonaws.com/"
@@ -505,7 +505,7 @@ RSpec.describe WorksController do
         fixture_file_upload("us_covid_2019.csv", "text/csv")
       end
 
-      let(:file1) { FactoryBot.build :s3_file, filename: uploaded_file1.path, work: work }
+      let(:file1) { FactoryBot.build :s3_file, filename: uploaded_file1.path, work: }
 
       let(:bucket_url) do
         "https://example-bucket.s3.amazonaws.com/"
@@ -556,8 +556,8 @@ RSpec.describe WorksController do
         ]
       end
 
-      let(:file1) { FactoryBot.build :s3_file, filename: uploaded_file1.path, work: work }
-      let(:file2) { FactoryBot.build :s3_file, filename: uploaded_file2.path, work: work }
+      let(:file1) { FactoryBot.build :s3_file, filename: uploaded_file1.path, work: }
+      let(:file2) { FactoryBot.build :s3_file, filename: uploaded_file2.path, work: }
 
       let(:bucket_url) do
         "https://example-bucket.s3.amazonaws.com/"
@@ -657,7 +657,7 @@ RSpec.describe WorksController do
       before do
         allow(Readme).to receive(:new).and_return(fake_readme)
         sign_in user
-        post :readme_uploaded, params: params
+        post :readme_uploaded, params:
       end
 
       it "redirects to file-upload" do
@@ -688,7 +688,7 @@ RSpec.describe WorksController do
       before do
         fake_s3_service
         sign_in user
-        post :attachment_selected, params: { id: work.id, attachment_type: attachment_type }
+        post :attachment_selected, params: { id: work.id, attachment_type: }
       end
 
       it "redirects to file-upload" do
@@ -807,7 +807,7 @@ RSpec.describe WorksController do
         allow(Work).to receive(:find).and_return(persisted)
         allow(persisted).to receive(:changes).and_raise("Error!")
 
-        post :file_uploaded, params: params
+        post :file_uploaded, params:
       end
 
       it "does not update the work and renders an error messages" do
@@ -841,7 +841,7 @@ RSpec.describe WorksController do
     describe "#show" do
       before do
         sign_in user
-        stub_s3 data: data
+        stub_s3 data:
       end
 
       let(:data) { [] }
@@ -873,11 +873,11 @@ RSpec.describe WorksController do
         sign_in user
       end
 
-      let(:file1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt", work: work }
-      let(:file2) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/something.jpg", work: work }
+      let(:file1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt", work: }
+      let(:file2) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/something.jpg", work: }
 
       let(:data) { [file1, file2] }
-      let(:fake_s3_service) { stub_s3(data: data) }
+      let(:fake_s3_service) { stub_s3(data:) }
 
       it "returns file list in JSON" do
         allow(fake_s3_service).to receive(:client_s3_files).and_return(data)
@@ -897,7 +897,7 @@ RSpec.describe WorksController do
       describe "#resolve_doi" do
         before do
           sign_in user
-          stub_s3 data: data
+          stub_s3 data:
         end
 
         let(:data) { [] }
@@ -930,7 +930,7 @@ RSpec.describe WorksController do
       describe "#resolve_ark" do
         before do
           sign_in user
-          stub_s3 data: data
+          stub_s3 data:
         end
 
         let(:data) { [] }
@@ -1229,7 +1229,7 @@ RSpec.describe WorksController do
 
         context "when the update succeeds" do
           before do
-            patch :update, params: params
+            patch :update, params:
           end
 
           it "redirects to the show page" do
@@ -1280,7 +1280,7 @@ RSpec.describe WorksController do
           before do
             allow(Work).to receive(:find).and_return(work)
             allow(work).to receive(:update).and_return(false)
-            patch :update, params: params
+            patch :update, params:
           end
 
           it "renders the edit view with a 422 response status code" do
@@ -1310,7 +1310,7 @@ RSpec.describe WorksController do
             sign_in user
             allow(Work).to receive(:find).and_return(work)
             allow_any_instance_of(Work).to receive(:update).and_return(false)
-            patch :update, params: params
+            patch :update, params:
           end
 
           it "renders JSON-serialized error messages with a 422 response status code" do
@@ -1472,7 +1472,7 @@ RSpec.describe WorksController do
         "resource_type_general" => "Dataset"
       }
       sign_in user
-      expect { post :create, params: params }.to change { Work.count }.by 1
+      expect { post :create, params: }.to change { Work.count }.by 1
       work = Work.last
       expect(work.title).to eq("test dataset updated")
       expect(work.resource.description).to eq("a new description")
@@ -1509,7 +1509,7 @@ RSpec.describe WorksController do
           "resource_type_general" => "Dataset"
         }
         sign_in user
-        expect { post :create, params: params }.to change { Work.count }.by 1
+        expect { post :create, params: }.to change { Work.count }.by 1
         work = Work.last
         expect(work.title).to eq("test dataset updated")
         expect(work.resource.description).to eq("a new description")

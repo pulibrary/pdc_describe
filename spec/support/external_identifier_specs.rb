@@ -114,5 +114,5 @@ class FakeIdentifierIntegration < Sinatra::Base
 end
 
 server = FakeIdentifierIntegration.boot
-ORCID_URL = "http://#{[server.host, server.port].join(':')}/orcid"
-ROR_URL = "http://#{[server.host, server.port].join(':')}/ror"
+ORCID_URL = "http://#{[server.host, server.port].join(':')}/orcid".freeze
+ROR_URL = "http://#{[server.host, server.port].join(':')}/ror".freeze

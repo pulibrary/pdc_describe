@@ -11,7 +11,7 @@ class SimpleCovHelper
       minimum_coverage(minimum_coverage)
     end
 
-    built = new(base_dir: base_dir)
+    built = new(base_dir:)
     built.merge_results
   end
 

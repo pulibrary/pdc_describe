@@ -35,7 +35,7 @@ RSpec.describe WorksController, type: :routing do
       let(:ark) { "ark:/88435/dsp01zc77st047" }
 
       it "routes to #resolve_ark" do
-        expect(get: "/ark/#{ark}").to route_to("works#resolve_ark", ark: ark)
+        expect(get: "/ark/#{ark}").to route_to("works#resolve_ark", ark:)
       end
     end
 
@@ -43,7 +43,7 @@ RSpec.describe WorksController, type: :routing do
       let(:doi) { "https://doi.org/10.34770/pe9w-x904" }
 
       it "routes to #resolve_doi" do
-        expect(get: "/doi/#{doi}").to route_to("works#resolve_doi", doi: doi)
+        expect(get: "/doi/#{doi}").to route_to("works#resolve_doi", doi:)
       end
     end
   end
