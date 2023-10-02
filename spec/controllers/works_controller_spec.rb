@@ -79,9 +79,11 @@ RSpec.describe WorksController do
       }
       sign_in user
       post :new_submission, params: params
-      expect(response.status).to be 422
-      expect(assigns[:errors]).to eq(["Cannot Draft: Must provide a title"])
-      expect(response).to render_template :new_submission
+      expect(response.status).to be 302
+      # rubocop:disable Layout/LineLength
+      expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Must provide a title. Please contact the PDC Describe administrators for any assistance."])
+      # rubocop:enable Layout/LineLength
+      expect(response).to redirect_to(new_work_path)
     end
 
     it "handles the update page" do
@@ -980,10 +982,12 @@ RSpec.describe WorksController do
           work.save
           sign_in user
           post :validate, params: { id: work.id }
-          expect(response).to render_template("edit")
-          expect(response.status).to be 422
+          expect(response).to redirect_to(edit_work_path(work))
+          expect(response.status).to be 302
           expect(work.reload).to be_draft
-          expect(assigns[:errors]).to eq(["Cannot Complete submission: Must provide a description"])
+          # rubocop:disable Layout/LineLength
+          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Must provide a description. Please contact the PDC Describe administrators for any assistance."])
+          # rubocop:enable Layout/LineLength
         end
       end
     end
@@ -1029,9 +1033,11 @@ RSpec.describe WorksController do
         it "handles aproval errors" do
           sign_in curator
           post :approve, params: { id: work.id }
-          expect(response.status).to be 422
+          expect(response.status).to be 302
           expect(work.reload).to be_draft
-          expect(assigns[:errors]).to eq(["Cannot Approve: Event 'approve' cannot transition from 'draft'."])
+          # rubocop:disable Layout/LineLength
+          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Event 'approve' cannot transition from 'draft'. Please contact the PDC Describe administrators for any assistance."])
+          # rubocop:enable Layout/LineLength
         end
       end
 
@@ -1041,8 +1047,10 @@ RSpec.describe WorksController do
           stub_s3 data: []
           sign_in curator
           post :approve, params: { id: work.id }
-          expect(response.status).to be 422
-          expect(assigns[:errors]).to eq(["Cannot Approve: Uploads must be present for a work to be approved"])
+          expect(response.status).to be 302
+          # rubocop:disable Layout/LineLength
+          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Uploads must be present for a work to be approved. Please contact the PDC Describe administrators for any assistance."])
+          # rubocop:enable Layout/LineLength
         end
       end
 
@@ -1054,9 +1062,11 @@ RSpec.describe WorksController do
           work.complete_submission!(user)
           stub_datacite_doi
           post :approve, params: { id: work.id }
-          expect(response.status).to be 422
+          expect(response.status).to be 302
           expect(work.reload).to be_awaiting_approval
-          expect(assigns[:errors]).to eq(["Cannot Approve: Unauthorized to Approve"])
+          # rubocop:disable Layout/LineLength
+          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Unauthorized to Approve. Please contact the PDC Describe administrators for any assistance."])
+          # rubocop:enable Layout/LineLength
         end
       end
 
@@ -1071,7 +1081,7 @@ RSpec.describe WorksController do
         end
 
         it "raises an error" do
-          expect(response.status).to be 422
+          expect(response.status).to be 302
         end
       end
 
@@ -1086,7 +1096,7 @@ RSpec.describe WorksController do
         end
 
         it "responds with a status code of 422" do
-          expect(response.status).to be 422
+          expect(response.status).to be 302
         end
       end
     end
@@ -1106,9 +1116,11 @@ RSpec.describe WorksController do
           work.remove!(user)
           sign_in user
           post :withdraw, params: { id: work.id }
-          expect(response.status).to be 422
+          expect(response.status).to be 302
           expect(work.reload).to be_deletion_marker
-          expect(assigns[:errors]).to eq(["Cannot Withdraw: Event 'withdraw' cannot transition from 'deletion_marker'."])
+          # rubocop:disable Layout/LineLength
+          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Event 'withdraw' cannot transition from 'deletion_marker'. Please contact the PDC Describe administrators for any assistance."])
+          # rubocop:enable Layout/LineLength
         end
       end
     end
@@ -1127,9 +1139,11 @@ RSpec.describe WorksController do
         it "handles resubmit errors" do
           sign_in user
           post :resubmit, params: { id: work.id }
-          expect(response.status).to be 422
+          expect(response.status).to be 302
           expect(work.reload).to be_draft
-          expect(assigns[:errors]).to eq(["Cannot Resubmit: Event 'resubmit' cannot transition from 'draft'."])
+          # rubocop:disable Layout/LineLength
+          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Event 'resubmit' cannot transition from 'draft'. Please contact the PDC Describe administrators for any assistance."])
+          # rubocop:enable Layout/LineLength
         end
       end
     end

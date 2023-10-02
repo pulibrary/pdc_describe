@@ -114,9 +114,12 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Continue"
       click_on "Complete"
       expect(page).to have_content("Related Identifier Type is missing or invalid for https://related.example.com, Relationship Type is missing or invalid for https://related.example.com")
+
+      # This test is failing
       click_on "Additional Metadata"
       find("tr:last-child select[name='related_objects[][related_identifier_type]']").find(:option, "DOI").select_option
       find("tr:last-child select[name='related_objects[][relation_type]']").find(:option, "Cites").select_option
+      page.save_screenshot
       find("tr:last-child input[name='contributors[][given_name]']").set "Alan"
       find("tr:last-child input[name='contributors[][family_name]']").set "Turing"
       find("tr:last-child select[name='contributors[][role]']").find(:option, "Editor").select_option
@@ -126,7 +129,9 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       expect(page).to have_field(name: "funders[][award_number]", with: "")
       expect(roles).to include("Contact Person") # Individual roles included
       expect(roles).not_to include("Hosting Institution") # Organizational roles excluded
+      page.save_screenshot
       click_on "Save Work"
+      page.save_screenshot
       click_on "Continue"
       expect(page).to have_content("under 100MB")
       expect(page).to have_content("more than 100MB")

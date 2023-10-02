@@ -379,8 +379,10 @@ class WorksController < ApplicationController
     end
 
     # rubocop:disable Metrics/AbcSize
-    # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/BlockNesting
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/PerceivedComplexity
     def rescue_aasm_error
       yield
     rescue AASM::InvalidTransition => error
@@ -388,9 +390,20 @@ class WorksController < ApplicationController
       if @work.errors.count > 0
         message = @work.errors.to_a.join(", ")
       end
+      message.chop! if message.last == "."
       Honeybadger.notify("Invalid #{@work.current_transition}: #{error.message} errors: #{message}")
-      @errors = ["Cannot #{@work.current_transition}: #{message}"]
-      render error_action, status: :unprocessable_entity
+      transition_error_message = "We apologize, the following errors were encountered: #{message}. Please contact the PDC Describe administrators for any assistance."
+      @errors = [transition_error_message]
+
+      if @work.persisted?
+        redirect_to edit_work_url(id: @work.id), notice: transition_error_message, params:
+      else
+        new_params = {}
+        new_params[:wizard] = wizard_mode? if wizard_mode?
+        new_params[:migrate] = migrating? if migrating?
+        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+        redirect_to new_work_url(params: new_params), notice: transition_error_message, params: new_params
+      end
     rescue StandardError => generic_error
       if action_name == "create"
         if @work.persisted?
@@ -409,9 +422,11 @@ class WorksController < ApplicationController
         redirect_to root_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."
       end
     end
-    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/PerceivedComplexity
     # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:enable Metrics/BlockNesting
+    # rubocop:enable Metrics/AbcSize
 
     def error_action
       @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
