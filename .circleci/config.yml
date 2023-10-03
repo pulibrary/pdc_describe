@@ -72,7 +72,7 @@ jobs:
     working_directory: *root
     docker:
       - *ruby_docker
-      - image: postgres:13.5-alpine
+      - image: postgres:15-alpine
         environment:
           POSTGRES_USER: rails_template_user
           POSTGRES_DB: test_db
