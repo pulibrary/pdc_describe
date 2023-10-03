@@ -77,7 +77,6 @@ jobs:
           POSTGRES_USER: rails_template_user
           POSTGRES_DB: test_db
           POSTGRES_HOST_AUTH_METHOD: trust
-    parallelism: 2
     steps:
       - attach_workspace:
           at: *root
@@ -90,9 +89,7 @@ jobs:
       - run: bundle exec rake db:migrate RAILS_ENV=test
       - run:
           name: Run Rspec
-          command: |
-            bundle exec rspec --profile 10 --format RspecJunitFormatter --out test_results/rspec.xml
-            $(circleci tests glob “spec/**/*_spec.rb” | circleci tests split --split-by=timings --timings-type=classname)
+          command: bundle exec rspec
       - persist_to_workspace:
           root: *root
           paths: 'coverage'
