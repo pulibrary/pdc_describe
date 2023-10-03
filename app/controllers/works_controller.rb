@@ -449,13 +449,14 @@ class WorksController < ApplicationController
       params["embargo-date"]
     end
 
+    # Set the embargo date. If the embargo date is invalid, set it to nil.
     def embargo_date
       return nil if embargo_date_param.blank?
 
       Date.parse(embargo_date_param)
-    rescue Date::Error => e
+    rescue Date::Error
       Rails.logger.error("Failed to parse the embargo date #{embargo_date_param} for Work #{@work.id}")
-      raise e
+      nil
     end
 
     def update_params
