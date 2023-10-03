@@ -1,5 +1,5 @@
 name: pdc-describe
 services:
   database:
-    type: postgres:13
+    type: postgres:14
     portforward: true
