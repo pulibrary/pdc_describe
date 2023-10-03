@@ -91,7 +91,7 @@ jobs:
       - run:
           name: Run Rspec
           command: |
-            bundle exec rspec --profile 10 --format RspecJunitFormatter --out test_results/rspec.xml
+            bundle exec rspec --profile 10 --format RspecJunitFormatter --out test_results/rspec.xml --format progress
             $(circleci tests glob “spec/**/*_spec.rb” | circleci tests split --split-by=timings --timings-type=classname)
       - persist_to_workspace:
           root: *root
