@@ -90,7 +90,12 @@ jobs:
       - run: bundle exec rake db:migrate RAILS_ENV=test
       - run:
           name: Run Rspec
-          command: bundle exec rspec
+          command: |
+           bundle exec rspec --profile 10
+            -format RspecJunitFormatter
+            -out test_results/rspec.xml
+            -format progress
+            $(circleci tests glob “spec/**/*_spec.rb” | circleci tests split --split-by=timings --timings-type=classname)
       - persist_to_workspace:
           root: *root
           paths: 'coverage'
