@@ -366,9 +366,9 @@ XML
           allow(client).to receive(:list_objects_v2).and_raise(service_error)
         end
 
-        it "logs the error" do
+        it "logs the error and re-raises it" do
           s3_query_service = described_class.new(work)
-          expect(s3_query_service.file_count).to eq(0)
+          expect { s3_query_service.file_count }.to raise_error(Aws::Errors::ServiceError)
           expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting AWS S3 Objects from the bucket example-bucket with the prefix #{prefix}: test AWS service error")
         end
       end
@@ -441,10 +441,9 @@ XML
         allow(client).to receive(:get_object).and_raise(service_error)
       end
 
-      it "logs the error" do
+      it "logs and re-raises the error" do
         s3_query_service = described_class.new(work)
-        retrieved = s3_query_service.get_s3_object(key:)
-        expect(retrieved).to be nil
+        expect { s3_query_service.get_s3_object(key:) }.to raise_error(Aws::Errors::ServiceError)
         expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting the AWS S3 Object test_key: test AWS service error")
       end
     end
@@ -489,9 +488,9 @@ XML
         allow(client).to receive(:delete_object).and_raise(service_error)
       end
 
-      it "logs the error" do
+      it "logs and re-raises the error" do
         s3_query_service = described_class.new(work)
-        s3_query_service.delete_s3_object(s3_file.key)
+        expect { s3_query_service.delete_s3_object(s3_file.key) }.to raise_error(Aws::Errors::ServiceError)
         expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to delete the AWS S3 Object test_key in the bucket example-bucket: test AWS service error")
       end
     end
@@ -570,9 +569,9 @@ XML
         allow(client).to receive(:put_object).and_raise(service_error)
       end
 
-      it "logs the error" do
+      it "logs and re-raises the error" do
         s3_query_service = described_class.new(work)
-        s3_query_service.create_directory
+        expect { s3_query_service.create_directory }.to raise_error(Aws::Errors::ServiceError)
         # rubocop:disable Layout/LineLength
         expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to create the AWS S3 directory Object in the bucket example-bucket with the key #{prefix}: test AWS service error")
         # rubocop:enable Layout/LineLength
@@ -650,10 +649,11 @@ XML
         allow(client).to receive(:put_object).and_raise(service_error)
       end
 
-      it "logs the error" do
+      it "logs and re-raises the error" do
         s3_query_service = described_class.new(work)
-        result = s3_query_service.upload_file(io: file, filename:, size: 2852)
-        expect(result).to be false
+        expect do
+          s3_query_service.upload_file(io: file, filename:, size: 2852)
+        end.to raise_error(Aws::Errors::ServiceError)
         # rubocop:disable Layout/LineLength
         expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to create the AWS S3 Object in the bucket example-bucket with the key #{prefix}README.txt: test AWS service error")
         # rubocop:enable Layout/LineLength
@@ -740,9 +740,11 @@ XML
         allow(client).to receive(:copy_object).and_raise(service_error)
       end
 
-      it "logs the error" do
+      it "logs and re-raises the error" do
         s3_query_service = described_class.new(work)
-        s3_query_service.copy_directory(target_bucket: "example-bucket-post", source_key: "source-key", target_key: "other-bucket/target-key")
+        expect do
+          s3_query_service.copy_directory(target_bucket: "example-bucket-post", source_key: "source-key", target_key: "other-bucket/target-key")
+        end.to raise_error(Aws::Errors::ServiceError)
         # rubocop:disable Layout/LineLength
         expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to copy the AWS S3 directory Object from source-key to other-bucket/target-key in the bucket example-bucket-post: test AWS service error")
         # rubocop:enable Layout/LineLength
