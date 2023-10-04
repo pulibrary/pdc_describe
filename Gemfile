@@ -8,9 +8,6 @@ gem "aws-sdk-s3"
 gem "datacite-mapping"
 gem "ddtrace", require: "ddtrace/auto_instrument"
 gem "dogstatsd-ruby"
-gem "factory_bot_rails", require: false
-gem "ffaker"
-gem "health-monitor-rails"
 gem "honeybadger"
 gem "io-wait", "0.2.1"
 gem "net-ftp"
@@ -40,7 +37,6 @@ gem "rspec-rails", "~> 5.0.0"
 gem "sidekiq", "~> 7.1"
 gem "simplecov", require: false
 gem "vite_rails", "3.0.12"
-gem "webmock"
 gem "whenever"
 
 # Reference: https://github.com/pulibrary/pul-the-hard-way/blob/main/services/cas.md
@@ -93,17 +89,17 @@ end
 
 group :test do
   gem "axe-core-rspec"
-  # Adds support for Capybara system testing and selenium driver
   gem "capybara"
   gem "coveralls_reborn", "~> 0.24", require: false
   gem "database_cleaner-active_record"
-  gem "selenium-webdriver"
-  # Use simplecov for coverage analysis
-  # Used for detecting what a controller rendered
+  gem "factory_bot_rails", require: false
+  gem "ffaker"
   gem "rails-controller-testing"
   gem "rspec-html-matchers"
   gem "rspec-retry"
+  gem "selenium-webdriver"
   gem "sinatra"
+  gem "webmock"
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
