@@ -101,6 +101,7 @@ group :test do
   # Used for detecting what a controller rendered
   gem "rails-controller-testing"
   gem "rspec-html-matchers"
+  gem "rspec-retry"
   gem "sinatra"
 end
 
