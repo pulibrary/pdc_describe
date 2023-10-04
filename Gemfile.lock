@@ -223,6 +223,8 @@ GEM
       tilt
     hashdiff (1.0.1)
     hashie (3.6.0)
+    health-monitor-rails (11.1.0)
+      railties (>= 6.1)
     honeybadger (5.2.1)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
@@ -569,6 +571,7 @@ DEPENDENCIES
   ffaker
   foreman
   friendly_id (~> 5.4.0)
+  health-monitor-rails
   honeybadger
   io-wait (= 0.2.1)
   jbuilder (~> 2.7)
