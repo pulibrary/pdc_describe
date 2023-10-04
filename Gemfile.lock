@@ -400,6 +400,8 @@ GEM
       rspec-expectations (~> 3.10)
       rspec-mocks (~> 3.10)
       rspec-support (~> 3.10)
+    rspec-retry (0.6.2)
+      rspec-core (> 3.3)
     rspec-support (3.11.0)
     rubocop (1.28.2)
       parallel (~> 1.10)
@@ -593,6 +595,7 @@ DEPENDENCIES
   rolify
   rspec-html-matchers
   rspec-rails (~> 5.0.0)
+  rspec-retry
   sass-rails (>= 6)
   selenium-webdriver
   sidekiq (~> 7.1)
