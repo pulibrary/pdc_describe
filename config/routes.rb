@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   resources :work_activity_notifications, only: [:index, :show]
 
   mount Sidekiq::Web => "/sidekiq" # mount Sidekiq::Web in your Rails app
+  mount HealthMonitor::Engine, at: "/"
 
   # This route is to handle user ids that are in the form abc@something.com because
   # Rails (understandably) does not like the ".com" in the URL
