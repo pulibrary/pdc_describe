@@ -28,7 +28,30 @@
           placeholder="YYYY-MM-DD"
           pattern="\d{4}-\d{2}-\d{2}">
       </div>
-      
+
+      <div class="field">
+      <details>
+        <summary  class="remove-see-more">
+        Change Label
+        <span class="summary-detail">
+        The change label applies a brief descriptor to the provenance log that labels the applied action. 
+        </span>
+        <title>Change Label</title>
+        </head>
+        <body>
+            <select id="change_label" name="change_label">
+                <option value="documentation">Documentation</option>
+                <option value="embrago">Embargo</option>
+                <option value="file_audit">File Audit</option>
+                <option value="file_format_transformation">File Format Transformation</option>
+                <option value="metadata_remediation">Metadata Remediation</option>
+                <option value="other">Other</option>
+            </select>
+        </summary>
+      </details>
+    </div>
+
+
       <div class="field">
         <details>
           <summary  class="remove-see-more">
@@ -36,6 +59,7 @@
           <span class="summary-detail">
           The note to add to the change history. Markdown can be used. 
           </span>
+          
           </summary>
         </details>
         <input id="new-provenance-note" name="new-provenance-note">
