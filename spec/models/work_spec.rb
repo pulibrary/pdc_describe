@@ -1242,4 +1242,23 @@ RSpec.describe Work, type: :model do
       end
     end
   end
+  #TO-DO get both tests passing, run rubocop, create a pr, then add change label for next ticket
+  describe "#add_provenance_note" do
+    let(:work) { FactoryBot.create(:draft_work) }
+    it "adds a provenance note" do
+      expect { work.add_provenance_note(DateTime.now, "adding a note", user.id) }.to change { WorkActivity.count }.by 1
+      work_activity = WorkActivity.last
+      expect(work_activity.work).to eq(work)
+      expect(work_activity.message).to eq("adding a note") 
+      expect(work_activity.activity_type).to eq(WorkActivity::PROVENANCE_NOTES)
+    end
+
+    it "adds a provenance note with a type" do
+      expect { work.add_provenance_note(DateTime.now, "adding a note", user.id, "change label") }.to change { WorkActivity.count }.by 1
+      work_activity = WorkActivity.last
+      expect(work_activity.work).to eq(work)
+      expect(work_activity.message).to eq("{\"note\":\"adding a note\",\"change_label\":\"change label\"}") 
+      expect(work_activity.activity_type).to eq(WorkActivity::PROVENANCE_NOTES)
+    end
+  end
 end
