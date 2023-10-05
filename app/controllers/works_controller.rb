@@ -494,7 +494,6 @@ class WorksController < ApplicationController
     def process_updates
       resource_before = @work.resource
       if @work.update(update_params)
-
         resource_compare = ResourceCompareService.new(resource_before, update_params[:resource])
         @work.log_changes(resource_compare, current_user.id)
 
@@ -504,7 +503,11 @@ class WorksController < ApplicationController
           redirect_to work_url(@work), notice: "Work was successfully updated."
         end
       else
+        # This is needed for rendering HTML views with validation errors
         @uploads = @work.uploads
+        @wizard_mode = wizard_mode?
+        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+
         render :edit, status: :unprocessable_entity
       end
     end

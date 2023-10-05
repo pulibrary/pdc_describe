@@ -126,6 +126,8 @@ class Work < ApplicationRecord
       work.validate_ids
     elsif draft?
       work.valid_to_draft
+      # There are cases where, before the README is attached, invalid metadata may be provided
+      work.validate_related_objects if work.resource.present? && !work.resource.related_objects.empty?
     else
       work.valid_to_submit
     end
@@ -529,6 +531,25 @@ class Work < ApplicationRecord
     embargo_date >= current_date
   end
 
+  # rubocop:disable Metrics/AbcSize
+  def validate_metadata
+    return if metadata.blank?
+    validate_required_metadata
+    errors.add(:base, "Must provide a description") if resource.description.blank?
+    errors.add(:base, "Must indicate the Publisher") if resource.publisher.blank?
+    errors.add(:base, "Must indicate the Publication Year") if resource.publication_year.blank?
+    errors.add(:base, "Must indicate at least one Rights statement") if resource.rights_many.count == 0
+    errors.add(:base, "Must provide a Version number") if resource.version_number.blank?
+    validate_related_objects
+  end
+  # rubocop:enable Metrics/AbcSize
+
+  def validate_related_objects
+    return if resource.related_objects.empty?
+    invalid = resource.related_objects.reject(&:valid?)
+    errors.add(:base, "Related Objects are invalid: #{invalid.map(&:errors).join(', ')}") if invalid.count.positive?
+  end
+
   protected
 
     # This must be protected, NOT private for ActiveRecord to work properly with this attribute.
@@ -611,19 +632,11 @@ class Work < ApplicationRecord
       true
     end
 
-    # rubocop:disable Metrics/AbcSize
-    def validate_metadata
+    def validate_required_metadata
       return if metadata.blank?
       errors.add(:base, "Must provide a title") if resource.main_title.blank?
-      errors.add(:base, "Must provide a description") if resource.description.blank?
-      errors.add(:base, "Must indicate the Publisher") if resource.publisher.blank?
-      errors.add(:base, "Must indicate the Publication Year") if resource.publication_year.blank?
-      errors.add(:base, "Must indicate at least one Rights statement") if resource.rights_many.count == 0
-      errors.add(:base, "Must provide a Version number") if resource.version_number.blank?
       validate_creators
-      validate_related_objects
     end
-    # rubocop:enable Metrics/AbcSize
 
     def validate_creators
       if resource.creators.count == 0
@@ -635,12 +648,6 @@ class Work < ApplicationRecord
           end
         end
       end
-    end
-
-    def validate_related_objects
-      return if resource.related_objects.empty?
-      invalid = resource.related_objects.reject(&:valid?)
-      errors.add(:base, "Related Objects are invalid: #{invalid.map(&:errors).join(', ')}") if invalid.count.positive?
     end
 
     # This needs to be called #before_save

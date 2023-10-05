@@ -6,11 +6,35 @@ FactoryBot.define do
       doi { "10.34770/#{format('%03d', rand(999))}-abc" }
       ark { nil }
     end
+
+    factory :new_work do
+      group { Group.research_data }
+      state { "none" }
+      created_by_user_id { FactoryBot.create(:user).id }
+      resource { FactoryBot.build :new_resource, doi: }
+    end
+
     factory :none_work do
       group { Group.research_data }
       state { "none" }
       created_by_user_id { FactoryBot.create(:user).id }
-      resource { FactoryBot.build :resource, doi: }
+      resource { FactoryBot.build :draft_resource, doi: }
+    end
+
+    factory :new_draft_work do
+      group { Group.research_data }
+      state { "draft" }
+      # These should only have the following:
+      # title(s)
+      # creator(s)
+      # doi
+      # publisher
+      # publication year
+      # resource_type
+      # resource type general
+      # version number
+      created_by_user_id { FactoryBot.create(:user).id }
+      resource { FactoryBot.build :draft_resource, doi:, ark: }
     end
 
     factory :draft_work do
