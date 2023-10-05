@@ -23,7 +23,7 @@ class Work < ApplicationRecord
   include AASM
 
   aasm column: :state do
-    state :none, inital: true
+    state :none, initial: true
     state :draft, :awaiting_approval, :approved, :withdrawn, :deletion_marker
 
     event :draft, after: :draft_doi do
