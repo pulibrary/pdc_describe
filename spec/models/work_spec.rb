@@ -1249,7 +1249,7 @@ RSpec.describe Work, type: :model do
       expect { work.add_provenance_note(DateTime.now, "adding a note", user.id) }.to change { WorkActivity.count }.by 1
       work_activity = WorkActivity.last
       expect(work_activity.work).to eq(work)
-      expect(work_activity.message).to eq("adding a note") 
+      expect(work_activity.message).to eq("{\"note\":\"adding a note\",\"change_label\":\"\"}") 
       expect(work_activity.activity_type).to eq(WorkActivity::PROVENANCE_NOTES)
     end
 
