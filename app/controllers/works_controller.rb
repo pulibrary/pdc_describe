@@ -250,9 +250,10 @@ class WorksController < ApplicationController
     work = Work.find(params[:id])
     if params["new-provenance-note"].present?
       new_date = params["new-provenance-date"]
+      new_label = params["change_label"]
       new_note = html_escape(params["new-provenance-note"])
 
-      work.add_provenance_note(new_date, new_note, current_user.id)
+      work.add_provenance_note(new_date, new_note, current_user.id, new_label)
     end
     redirect_to work_path(id: params[:id])
   end

@@ -37,7 +37,7 @@ describe "Change History, AKA Provenance" do
   end
 
   it "handles prov note" do
-    WorkActivity.add_work_activity(work.id, "note!", user.id, activity_type: WorkActivity::PROVENANCE_NOTES)
+    WorkActivity.add_work_activity(work.id, "{\"note\":\"note!\"}", user.id, activity_type: WorkActivity::PROVENANCE_NOTES)
     assign(:work_decorator, work_decorator)
     render(partial:, locals: { can_add_provenance_note: false })
     expect(rendered).to include("note!")

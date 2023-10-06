@@ -23,6 +23,14 @@ RSpec.describe "Adding a Provenance note", type: :system, js: true do
       expect(page).to have_content(work.title)
       expect(page).to have_button("Add Provenance Note")
       expect(page).to have_form(add_provenance_note_path(work), :post)
+      fill_in "new-provenance-date", with: "2023-01-02"
+      select "File Audit", from: "change_label"
+      fill_in "new-provenance-note", with: "test note"
+      click_on "Add Provenance Note"
+      within ".beads" do
+        expect(page).to have_content("file_audit")
+        expect(page).to have_content("test note")
+      end
     end
   end
 end

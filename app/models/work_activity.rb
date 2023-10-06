@@ -99,6 +99,8 @@ class WorkActivity < ApplicationRecord
                               FileChanges
                             elsif activity_type == MIGRATION_COMPLETE
                               Migration
+                            elsif activity_type == PROVENANCE_NOTES
+                              ProvenanceNote
                             elsif CHANGE_LOG_ACTIVITY_TYPES.include?(activity_type)
                               OtherLogEvent
                             else
@@ -285,6 +287,19 @@ class WorkActivity < ApplicationRecord
 
     def title_html
       "<span class='activity-history-title'>#{created_by_user_html} at #{created_updated_html}</span>"
+    end
+  end
+
+  class ProvenanceNote < BaseMessage
+    def body_html
+      message_hash = JSON.parse(@work_activity.message)
+      text = user_refernces(message_hash["note"])
+      message = mark_down_to_html(text)
+      change_label = message_hash["change_label"]
+      change_label ||= "Change"
+      # TODO: Make this show the change label with the note under see changes
+      # See an example on line 171 of this file or on github: https://github.com/pulibrary/pdc_describe/blob/3578f734dcee092c15a9ff1fa778f20a846b47f3/app/models/work_activity.rb#L171
+      "#{change_label}: #{message}"
     end
   end
 end

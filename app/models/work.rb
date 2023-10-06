@@ -308,8 +308,9 @@ class Work < ApplicationRecord
     WorkActivity.add_work_activity(id, message, current_user_id, activity_type: WorkActivity::MESSAGE)
   end
 
-  def add_provenance_note(date, note, current_user_id)
-    WorkActivity.add_work_activity(id, note, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES, created_at: date)
+  def add_provenance_note(date, note, current_user_id, change_label = "")
+    WorkActivity.add_work_activity(id, { note:, change_label: }.to_json, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES, created_at: date)
+    # WorkActivity.add_work_activity(id, note, current_user_id, activity_type: WorkActivity::PROVENANCE_NOTES, created_at: date)
   end
 
   def log_changes(resource_compare, current_user_id)
