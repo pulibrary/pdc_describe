@@ -235,10 +235,20 @@ class WorkActivity < ApplicationRecord
   end
 
   class BaseMessage < Renderer
-    # rubocop:disable Metrics/MethodLength
     def body_html
+      text = user_refernces(@work_activity.message)
+      mark_down_to_html(text)
+    end
+
+    def mark_down_to_html(text_in)
+      # allow ``` for code blocks (Kramdown only supports ~~~)
+      text = text_in.gsub("```", "~~~")
+      Kramdown::Document.new(text).to_html
+    end
+
+    def user_refernces(text_in)
       # convert user references to user links
-      text = @work_activity.message.gsub(USER_REFERENCE) do |at_uid|
+      text_in.gsub(USER_REFERENCE) do |at_uid|
         uid = at_uid[1..-1]
 
         if uid
@@ -258,12 +268,7 @@ class WorkActivity < ApplicationRecord
           UNKNOWN_USER
         end
       end
-
-      # allow ``` for code blocks (Kramdown only supports ~~~)
-      text = text.gsub("```", "~~~")
-      Kramdown::Document.new(text).to_html
     end
-    # rubocop:enable Metrics/MethodLength
   end
 
   class OtherLogEvent < BaseMessage
