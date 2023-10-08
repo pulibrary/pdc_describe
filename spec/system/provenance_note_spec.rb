@@ -29,7 +29,10 @@ RSpec.describe "Adding a Provenance note", type: :system, js: true do
       click_on "Add Provenance Note"
       within ".beads" do
         expect(page).to have_content("file_audit")
+        expect(page).not_to have_content("test note")
+        page.find(:css, "summary.show-changes").click
         expect(page).to have_content("test note")
+        #To-do
       end
     end
   end

@@ -298,8 +298,9 @@ class WorkActivity < ApplicationRecord
       change_label = message_hash["change_label"]
       change_label ||= "Change"
       # TODO: Make this show the change label with the note under see changes
-      # See an example on line 171 of this file or on github: https://github.com/pulibrary/pdc_describe/blob/3578f734dcee092c15a9ff1fa778f20a846b47f3/app/models/work_activity.rb#L171
-      "#{change_label}: #{message}"
+      # See an example on line 173, message goes in mapped.join, of this file or on github: https://github.com/pulibrary/pdc_describe/blob/3578f734dcee092c15a9ff1fa778f20a846b47f3/app/models/work_activity.rb#L171
+      "<details class='message-html'><summary class='show-changes'>#{change_label}</summary>#{message}</details>"
+      #"#{change_label}: #{message}"
     end
   end
 end
