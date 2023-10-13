@@ -126,8 +126,6 @@ class Work < ApplicationRecord
       work.validate_ids
     elsif draft?
       work.valid_to_draft
-      # There are cases where, before the README is attached, invalid metadata may be provided
-      work.validate_related_objects if work.resource.present? && !work.resource.related_objects.empty?
     else
       work.valid_to_submit
     end
@@ -181,6 +179,7 @@ class Work < ApplicationRecord
     errors.add(:base, "Must provide a title") if resource.main_title.blank?
     validate_ark
     validate_creators
+    validate_related_objects if resource.present? && !resource.related_objects.empty?
     errors.count == 0
   end
 
@@ -547,7 +546,13 @@ class Work < ApplicationRecord
   def validate_related_objects
     return if resource.related_objects.empty?
     invalid = resource.related_objects.reject(&:valid?)
-    errors.add(:base, "Related Objects are invalid: #{invalid.map(&:errors).join(', ')}") if invalid.count.positive?
+    if invalid.count.positive?
+      related_object_errors = "Related Objects are invalid: "
+      prev_errors = errors.to_a
+      prev_related_object_errors = prev_errors.map { |e| e.include?(related_object_errors) }.reduce(:|)
+
+      errors.add(:base, "#{related_object_errors}#{invalid.map(&:errors).join(', ')}") unless prev_related_object_errors
+    end
   end
 
   protected

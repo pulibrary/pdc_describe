@@ -47,9 +47,6 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       fill_in "title_main", with: title
 
       find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
-      # context "when the family name is not provided" do
-      # click_on "Create New"
-      # expect(page).to have_content("Must provide a family name")
 
       find("tr:last-child input[name='creators[][family_name]']").set "Abrams"
       click_on "Add Another Creator"
@@ -92,19 +89,43 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       expect(last_creator.family_name).to eq(user.family_name)
     end
 
-    context "when failing to provide the required metadata" do
-      xit "it renders a warning in response to form submissions" do
-        # click_on "Create New"
-        # expect(page).to have_content("Must provide a title")
-        # expect(page).to have_content("Must provide at least one creator")
+    context "when failing to provide the title" do
+      it "it renders a warning in response to form submissions", js: true do
+        sign_in user
+        visit new_work_path(params: { wizard: true })
+
+        fill_in "title_main", with: ""
+        click_on "Create New"
+        expect(page).to have_content("Must provide a title")
+        expect(page).to have_content("Must provide at least one creator")
       end
     end
 
-    context "when failing to provide the given name and family name for the creator" do
-      xit "it renders a warning in response to form submissions" do
-        # click_on "Create New"
-        # expect(page).to have_content("Must provide a given name")
-        # expect(page).to have_content("Must provide a family name")
+    context "when failing to provide the given name for the creator" do
+      it "renders a warning in response to form submissions", js: true do
+        sign_in user
+        visit new_work_path(params: { wizard: true })
+
+        fill_in "title_main", with: title
+
+        find("tr:last-child input[name='creators[][family_name]']").set "Abrams"
+        click_on "Add Another Creator"
+        click_on "Create New"
+        expect(page).to have_content("Must provide a family name")
+      end
+    end
+
+    context "when failing to provide the family name for the creator" do
+      it "renders a warning in response to form submissions", js: true do
+        sign_in user
+        visit new_work_path(params: { wizard: true })
+
+        fill_in "title_main", with: title
+
+        find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
+        click_on "Add Another Creator"
+        click_on "Create New"
+        expect(page).to have_content("Must provide a family name")
       end
     end
   end
@@ -120,7 +141,6 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Curator Controlled"
       fill_in "publication_year", with: issue_date
       click_on "Save Work"
-      page.save_screenshot
 
       work.reload
       expect(work.resource.description).to eq description
@@ -240,13 +260,20 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       end
 
       context "when a README has already been attached to a Work" do
-        xit "attempting to upload another README renders an error" do
-          # Make sure the readme is in S3 so when I hit the back button we do not error
-          # stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
+        let(:work) do
+          FactoryBot.create(:draft_work, created_by_user_id: user.id)
+        end
 
-          # click_on "Back"
-          # expect(page).to have_content("Please upload the README")
-          # expect(page).to have_content("README.txt was previously uploaded. You will replace it if you select a different file.")
+        before do
+          stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
+        end
+
+        it "attempting to upload another README renders an error" do
+          sign_in user
+          visit work_readme_select_path(work, params: { wizard: true })
+
+          expect(page).to have_content("Please upload the README")
+          expect(page).to have_content("README.txt was previously uploaded. You will replace it if you select a different file.")
         end
       end
     end
