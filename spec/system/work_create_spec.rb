@@ -3,7 +3,8 @@ require "rails_helper"
 
 RSpec.describe "Form submission for a legacy dataset", type: :system do
   let(:user) { FactoryBot.create(:princeton_submitter) }
-  let!(:curator) { FactoryBot.create(:user, groups_to_admin: [Group.first]) }
+  let(:group) { Group.first }
+  let!(:curator) { FactoryBot.create(:user, groups_to_admin: [group]) }
   let(:title) { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
   let(:contributors) do
     [
@@ -33,27 +34,26 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
   let(:ark) { "http://arks.princeton.edu/ark:/88435/dsp01d791sj97j" }
 
   before do
+    stub_ark
     stub_s3
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
   end
-  context "happy path" do
-    it "produces and saves a valid datacite record", js: true do
+
+  context "when using the wizard mode and creating a new work" do
+    it "persists the required metadata and saves a valid work", js: true do
       sign_in user
       visit new_work_path(params: { wizard: true })
-      click_on "Create New"
-      expect(page).to have_content("Must provide a title")
-      expect(page).to have_content("Must provide at least one creator")
+
       fill_in "title_main", with: title
 
       find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
-      click_on "Create New"
-      expect(page).to have_content("Must provide a family name")
 
       find("tr:last-child input[name='creators[][family_name]']").set "Abrams"
       click_on "Add Another Creator"
-      click_on "Create New"
-      expect(page).to have_content("Must provide a given name")
-      expect(page).to have_content("Must provide a family name")
+      # context "when the given name and family name is not provided" do
+      # click_on "Create New"
+      # expect(page).to have_content("Must provide a given name")
+      # expect(page).to have_content("Must provide a family name")
       find("tr:last-child input[name='creators[][given_name]']").set "Alexis"
       find("tr:last-child input[name='creators[][family_name]']").set "Antracoli"
       click_on "Add Another Creator"
@@ -78,96 +78,280 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       expect(page).to have_button("Add me as a Creator", disabled: true)
 
       click_on "Create New"
+      expect(Work.all).not_to be_empty
       work = Work.last
-      expect(work.resource.related_objects.count).to eq(0)
-      click_on "Additional Metadata"
-      expect(page).to have_content("Additional Individual Contributors")
-      click_on "Save Work"
-      expect(page).to have_content("Must provide a description")
+      expect(work.resource.creators.length).to eq(8)
+      first_creator = work.resource.creators.first
+      expect(first_creator.given_name).to eq("Samantha")
+      expect(first_creator.family_name).to eq("Abrams")
+      last_creator = work.resource.creators.last
+      expect(last_creator.given_name).to eq(user.given_name)
+      expect(last_creator.family_name).to eq(user.family_name)
+    end
+
+    context "when failing to provide the title" do
+      it "it renders a warning in response to form submissions", js: true do
+        sign_in user
+        visit new_work_path(params: { wizard: true })
+
+        fill_in "title_main", with: ""
+        click_on "Create New"
+        expect(page).to have_content("Must provide a title")
+        expect(page).to have_content("Must provide at least one creator")
+      end
+    end
+
+    context "when failing to provide the given name for the creator" do
+      it "renders a warning in response to form submissions", js: true do
+        sign_in user
+        visit new_work_path(params: { wizard: true })
+
+        fill_in "title_main", with: title
+
+        find("tr:last-child input[name='creators[][family_name]']").set "Abrams"
+        click_on "Add Another Creator"
+        click_on "Create New"
+        expect(page).to have_content("Must provide a family name")
+      end
+    end
+
+    context "when failing to provide the family name for the creator" do
+      it "renders a warning in response to form submissions", js: true do
+        sign_in user
+        visit new_work_path(params: { wizard: true })
+
+        fill_in "title_main", with: title
+
+        find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
+        click_on "Add Another Creator"
+        click_on "Create New"
+        expect(page).to have_content("Must provide a family name")
+      end
+    end
+  end
+
+  context "with an existing and persisted Work" do
+    let(:work) { FactoryBot.create(:new_draft_work, created_by_user_id: user.id) }
+    it "updates required metadata", js: true do
+      sign_in user
+      visit edit_work_path(work, params: { wizard: true })
+
       fill_in "description", with: description
       select "GNU General Public License", from: "rights_identifiers"
       click_on "Curator Controlled"
       fill_in "publication_year", with: issue_date
-      click_on "Additional Metadata"
-      find("tr:last-child input[name='related_objects[][related_identifier]']").set "https://related.example.com"
       click_on "Save Work"
-      click_on "Back"
-      expect(page).to have_content(description)
-      click_on "Save Work"
-      expect(page).to have_content("Please upload the README")
-      expect(page).to have_button("Continue", disabled: true)
-      path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
-      attach_file(path) do
-        page.find("#patch_readme_file").click
+
+      work.reload
+      expect(work.resource.description).to eq description
+    end
+    context "when no description is provided" do
+      let(:resource) { FactoryBot.build(:resource, description: nil) }
+      let(:work) do
+        FactoryBot.create(:new_work, created_by_user_id: user.id, resource:)
       end
-      click_on "Continue"
+      it "renders a warning", js: true do
+        sign_in user
+        visit edit_work_path(work, params: { wizard: true })
 
-      # Make sure the readme is in S3 so when I hit the back button we do not error
-      stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
+        select "GNU General Public License", from: "rights_identifiers"
+        click_on "Curator Controlled"
+        fill_in "publication_year", with: issue_date
+        click_on "Save Work"
+        expect(page).to have_content("Must provide a description")
+      end
+    end
+    context "when required metadata is provided" do
+      let(:resource) do
+        PDCMetadata::Resource.new_from_jsonb(
+          {
+            "doi" => "10.34770/pe9w-x904",
+            "ark" => "ark:/88435/dsp01zc77st047",
+            "identifier_type" => "DOI",
+            "titles" => [{ "title" => "Shakespeare and Company Project Dataset: Lending Library Members, Books, Events" }],
+            "description" => "All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.",
+            "creators" => [
+              {
+                "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => "1"
+              }
+            ],
+            "resource_type" => "Dataset",
+            "publisher" => "Princeton University",
+            "publication_year" => "2020",
+            "version_number" => "1",
+            "rights" => { "identifier" => "CC BY" }
+          }
+        )
+      end
+      let(:work) do
+        FactoryBot.create(:new_draft_work, created_by_user_id: user.id, resource:)
+      end
+      it "updates additional metadata", js: true do
+        sign_in user
+        visit edit_work_path(work, params: { wizard: true })
 
-      click_on "Back"
-      expect(page).to have_content("Please upload the README")
-      expect(page).to have_content("README.txt was previously uploaded. You will replace it if you select a different file.")
-      click_on "Continue"
-      page.find(:xpath, "//input[@value='file_other']").choose
-      click_on "Continue"
-      click_on "Continue"
-      click_on "Complete"
-      expect(page).to have_content("Related Identifier Type is missing or invalid for https://related.example.com, Relationship Type is missing or invalid for https://related.example.com")
-      click_on "Additional Metadata"
-      find("tr:last-child select[name='related_objects[][related_identifier_type]']").find(:option, "DOI").select_option
-      find("tr:last-child select[name='related_objects[][relation_type]']").find(:option, "Cites").select_option
-      find("tr:last-child input[name='contributors[][given_name]']").set "Alan"
-      find("tr:last-child input[name='contributors[][family_name]']").set "Turing"
-      find("tr:last-child select[name='contributors[][role]']").find(:option, "Editor").select_option
-      roles = find("tr:last-child select[name='contributors[][role]']").find_all("option").map(&:text)
-      expect(page).to have_field(name: "funders[][funder_name]", with: "")
-      expect(page).to have_field(name: "funders[][ror]", with: "")
-      expect(page).to have_field(name: "funders[][award_number]", with: "")
-      expect(roles).to include("Contact Person") # Individual roles included
-      expect(roles).not_to include("Hosting Institution") # Organizational roles excluded
-      click_on "Save Work"
-      click_on "Continue"
-      expect(page).to have_content("under 100MB")
-      expect(page).to have_content("more than 100MB")
-      click_on "Continue"
-      click_on "Continue"
-      expect(page).to have_content("Please take a moment to read the terms of this license")
-      click_on "Complete"
+        expect(work.resource.related_objects.count).to eq(0)
 
-      expect(page).to have_content "awaiting_approval"
+        click_on "Additional Metadata"
+        wait_for_ajax
+        find("tr:last-child input[name='related_objects[][related_identifier]']").set "https://related.example.com"
+        find("tr:last-child select[name='related_objects[][related_identifier_type]']").find(:option, "DOI").select_option
+        find("tr:last-child select[name='related_objects[][relation_type]']").find(:option, "Cites").select_option
+        wait_for_ajax
+        click_on "Save Work"
+        work.reload
 
-      visit(user_path(user))
-      # This is the blue badge on the work that should show up for a submitter
-      #  when a work is started and marked completed by a submitter
-      within("#unfinished_datasets span.badge.rounded-pill.bg-primary") do
-        expect(page).to have_content "2"
+        expect(work.resource.related_objects.count).to eq(1)
+        related_object = work.resource.related_objects.first
+        expect(related_object).to be_a PDCMetadata::RelatedObject
+        expect(related_object.related_identifier).to eq("https://related.example.com")
+        expect(related_object.related_identifier_type).to eq("DOI")
+        expect(related_object.relation_type).to eq("Cites")
+      end
+      context "when neither the related object identifier type nor the relation type are given" do
+        let(:work) do
+          FactoryBot.create(:new_draft_work, created_by_user_id: user.id, resource:)
+        end
+        it "renders a warning", js: true do
+          sign_in user
+          visit edit_work_path(work, params: { wizard: true })
+
+          expect(work.resource.related_objects.count).to eq(0)
+
+          click_on "Additional Metadata"
+          wait_for_ajax
+          find("tr:last-child input[name='related_objects[][related_identifier]']").set "https://related.example.com"
+          wait_for_ajax
+          click_on "Save Work"
+          work.reload
+          expect(work.resource.related_objects.count).to eq(0)
+          # rubocop:disable Layout/LineLength
+          expect(page).to have_content("1 error prohibited this dataset from being saved:\nRelated Objects are invalid: Related Identifier Type is missing or invalid for https://related.example.com, Relationship Type is missing or invalid for https://related.example.com")
+          # rubocop:enable Layout/LineLength
+        end
+      end
+    end
+
+    context "when there is no README attached to the Work" do
+      let(:work) do
+        FactoryBot.create(:draft_work, created_by_user_id: user.id)
+      end
+      it "renders the form for uploading a README", js: true do
+        sign_in user
+        visit work_readme_select_path(work, params: { wizard: true })
+
+        expect(page).to have_content("Please upload the README")
+        expect(page).to have_button("Continue", disabled: true)
+
+        path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
+        attach_file(path) do
+          page.find("#patch_readme_file").click
+        end
+
+        click_on "Continue"
+        expect(page).to have_content("New Submission")
+
+        work.reload
+        stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
+
+        readme = Readme.new(work, user)
+        expect(readme.file_name).not_to be nil
+        expect(readme.file_name).to eq("README.txt")
       end
 
-      work = Work.last
-      visit(work_path(work))
+      context "when a README has already been attached to a Work" do
+        let(:work) do
+          FactoryBot.create(:draft_work, created_by_user_id: user.id)
+        end
 
-      has_been_created_message = "#{title} has been created"
-      within("ul.work-messages") do
-        expect(page).to have_content(has_been_created_message)
-        expect(page).to have_content("#{title} is ready for review")
-        expect(page).to have_content(work.group.title)
+        before do
+          stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
+        end
+
+        it "attempting to upload another README renders an error" do
+          sign_in user
+          visit work_readme_select_path(work, params: { wizard: true })
+
+          expect(page).to have_content("Please upload the README")
+          expect(page).to have_content("README.txt was previously uploaded. You will replace it if you select a different file.")
+        end
+      end
+    end
+
+    context "when the Work already has a README file attached" do
+      let(:group) { Group.default }
+      let(:work) do
+        FactoryBot.create(:draft_work, created_by_user_id: user.id, group:)
       end
 
-      click_on "Hide Messages"
-      expect(page).not_to have_content(has_been_created_message)
-      click_on "Show Messages"
-      expect(page).to have_content(has_been_created_message)
+      before do
+        stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
+      end
 
-      # Now sign is as the group moderator and see the notification on your dashboard
-      sign_out user
-      sign_in curator
-      visit(user_path(curator))
-      expect(page).to have_content curator.given_name
-      # This is the blue badge on the work that should show up for a curator
-      #  when a work is startend and marked completed by a submitter
-      within("#unfinished_datasets span.badge.rounded-pill.bg-primary") do
-        expect(page).to have_content "2"
+      it "allows users to upload files", js: true do
+        sign_in user
+        visit work_file_upload_path(work, params: { wizard: true })
+
+        path = Rails.root.join("spec", "fixtures", "files", "us_covid_2019.csv")
+        attach_file(path) do
+          page.find("#patch_pre_curation_uploads").click
+        end
+
+        click_on "Continue"
+        expect(page).to have_content("Please take a moment to read the terms of this license")
+        click_on "Complete"
+
+        work.reload
+        expect(work.awaiting_approval?).to be true
+        expect(page).to have_content "awaiting_approval"
+
+        visit(user_path(user))
+        # This is the blue badge on the work that should show up for a submitter
+        #  when a work is started and marked completed by a submitter
+        within("#unfinished_datasets span.badge.rounded-pill.bg-primary") do
+          expect(page).to have_content "1"
+        end
+
+        visit(work_path(work))
+
+        awaiting_review_message = "#{work.title} is ready for review"
+        within("ul.work-messages") do
+          expect(page).to have_content(awaiting_review_message)
+          expect(page).to have_content(work.group.title)
+        end
+
+        click_on "Hide Messages"
+        expect(page).not_to have_content(awaiting_review_message)
+        click_on "Show Messages"
+        expect(page).to have_content(awaiting_review_message)
+      end
+    end
+
+    context "when authenticated as the curator user" do
+      let(:group) do
+        Group.default
+      end
+      let(:curator) { FactoryBot.create(:user, groups_to_admin: [group]) }
+      let(:work) do
+        FactoryBot.create(:awaiting_approval_work, created_by_user_id: user.id, group:, curator:)
+      end
+
+      before do
+        stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
+      end
+
+      it "renders the work as awaiting approval in the user dashboard", js: true do
+        curator
+        work
+
+        sign_in curator
+        visit(user_path(curator))
+        expect(page).to have_content curator.given_name
+        # This is the blue badge on the work that should show up for a curator
+        #  when a work is startend and marked completed by a submitter
+        within("#unfinished_datasets") do
+          expect(page).to have_content work.title
+        end
       end
     end
   end

@@ -283,4 +283,54 @@ RSpec.describe "/works", type: :request do
       end
     end
   end
+
+  describe "POST /work/:id/approve" do
+    let(:group) { Group.plasma_laboratory }
+    let(:work) do
+      FactoryBot.create(:tokamak_work, group:, created_by_user_id: user.id, state:)
+    end
+
+    context "when authenticated" do
+      before do
+        sign_in(user)
+        stub_ark
+        post approve_work_url(work)
+        stub_s3
+      end
+
+      context "when an invalid state if specified" do
+        let(:state) { "draft" }
+        it "flashes the error and redirects the client to the edit view" do
+          expect(response.status).to eq(302)
+          expect(response.code).to redirect_to("http://www.example.com/works/#{work.id}/edit")
+          follow_redirect!
+
+          expect(response.status).to eq(200)
+          # rubocop:disable Layout/LineLength
+          error_message = ERB::Util.html_escape("We apologize, the following errors were encountered: Event 'approve' cannot transition from 'draft'. Please contact the PDC Describe administrators for any assistance.")
+          # rubocop:enable Layout/LineLength
+          expect(response.body).to include(error_message)
+        end
+      end
+
+      context "when the Work has no files attached" do
+        let(:state) { "draft" }
+        let(:work) do
+          FactoryBot.create(:tokamak_work, group:, created_by_user_id: user.id, state:)
+        end
+
+        it "flashes the error and redirects the client to the edit view" do
+          expect(response.status).to eq(302)
+          expect(response.code).to redirect_to("http://www.example.com/works/#{work.id}/edit")
+          follow_redirect!
+
+          expect(response.status).to eq(200)
+          # rubocop:disable Layout/LineLength
+          error_message = ERB::Util.html_escape("We apologize, the following errors were encountered: Event 'approve' cannot transition from 'draft'. Please contact the PDC Describe administrators for any assistance.")
+          # rubocop:enable Layout/LineLength
+          expect(response.body).to include(error_message)
+        end
+      end
+    end
+  end
 end
