@@ -25,4 +25,53 @@ module ApplicationHelper
     return nil if doi_value.blank?
     "https://doi.org/#{doi_value}"
   end
+
+  # Renders citation information APA-ish and BibTeX.
+  # Notice that the only the APA style is visible, the BibTeX citataion is enabled via JavaScript.
+  def render_cite_as(work)
+    creators = work.resource.creators.map { |creator| "#{creator.family_name}, #{creator.given_name}" }
+    citation = DatasetCitation.new(creators, [work.resource.publication_year], work.resource.titles.first.title, work.resource.resource_type, work.resource.publisher, work.resource.doi)
+    return if citation.apa.nil?
+    citation_html(work, citation)
+  end
+
+  def citation_html(work, citation)
+    apa = citation.apa
+    bibtex = citation.bibtex
+    bibtex_html = html_escape(bibtex).gsub("\r\n", "<br/>").gsub("\t", "  ").gsub("  ", "&nbsp;&nbsp;")
+    bibtex_text = html_escape(bibtex).gsub("\t", "  ")
+
+    html = apa_section(apa) + "\n" + bibtex_section(work, bibtex_html, bibtex_text)
+    # rubocop:disable Rails/OutputSafety
+    html.html_safe
+    # rubocop:enable Rails/OutputSafety
+  end
+
+  def bibtex_section(work, bibtex_html, bibtex_text)
+    <<-HTML
+    <div class="citation-bibtex-container hidden-element">
+      <div class="bibtex-citation">#{bibtex_html}</div>
+      <button id="copy-bibtext-citation-button" class="copy-citation-button btn btn-sm" data-style="BibTeX" data-text="#{bibtex_text}" title="Copy BibTeX citation to the clipboard">
+        <i class="bi bi-clipboard" title="Copy BibTeX citation to the clipboard"></i>
+        <span class="copy-citation-label-normal">COPY</span>
+      </button>
+      <button id="download-bibtex" class="btn btn-sm" data-url="#{work_bibtex_url(id: work.id)}" title="Download BibTeX citation to a file">
+        <i class="bi bi-file-arrow-down" title="Download BibTeX citation to a file"></i>
+        <span class="copy-citation-label-normal">DOWNLOAD</span>
+      </button>
+    </div>
+  HTML
+  end
+
+  def apa_section(apa)
+    <<-HTML
+    <div class="citation-apa-container">
+      <div class="apa-citation">#{html_escape(apa)}</div>
+      <button id="copy-apa-citation-button" class="copy-citation-button btn btn-sm" data-style="APA" data-text="#{html_escape(apa)}" title="Copy citation to the clipboard">
+        <i class="bi bi-clipboard" title="Copy citation to the clipboard"></i>
+        <span class="copy-citation-label-normal">COPY</span>
+      </button>
+    </div>
+    HTML
+  end
 end

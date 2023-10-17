@@ -5,11 +5,21 @@ export default class CopytoClipboard {
   attach_copy() {
     // Setup the DOI's COPY button to copy the DOI URL to the clipboard
     $('#copy-doi').click(this.copy_doi.bind(this));
+    $('.copy-citation-button').on('click', (event) => {
+      this.copy_citation(event.target);
+      return false;
+    });
   }
 
   copy_doi() {
     const doi = $('#copy-doi').data('url');
     this.copyToClipboard(doi, '#copy-doi-icon', '#copy-doi-label', 'copy-doi-label-normal', 'copy-doi-label-copied');
+    return false;
+  }
+
+  copy_citation(target) {
+    const value = target.parentElement.dataset.text;
+    this.copyToClipboard(value, target.parentElement.children[0], target.parentElement.children[1], 'copy-doi-label-normal', 'copy-doi-label-copied');
     return false;
   }
 

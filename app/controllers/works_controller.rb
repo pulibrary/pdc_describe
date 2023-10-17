@@ -311,6 +311,15 @@ class WorksController < ApplicationController
   end
   helper_method :doi_mutable?
 
+  # Returns the raw BibTex citation information
+  def bibtex
+    work = Work.find(params[:id])
+    creators = work.resource.creators.map { |creator| "#{creator.family_name}, #{creator.given_name}" }
+    citation = DatasetCitation.new(creators, [work.resource.publication_year], work.resource.titles.first.title, work.resource.resource_type, work.resource.publisher, work.resource.doi)
+    bibtex = citation.bibtex
+    send_data bibtex, filename: "#{citation.bibtex_id}.bibtex", type: "text/plain", disposition: "attachment"
+  end
+
   private
 
     # Extract the Work ID parameter

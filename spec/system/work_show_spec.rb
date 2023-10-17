@@ -83,4 +83,17 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     #   RUN_IN_BROWSER=true bundle exec rspec spec/system/work_show_spec.rb
     #
   end
+
+  it "has expected citation information" do
+    sign_in user
+    visit work_path(work)
+    apa_citation = "Taylor, Jenny A, Bratton, Benjamin P, Sichel, Sophie R, Blair, Kris M, " \
+    "Jacobs, Holly M, DeMeester, Kristen E, Kuru, Erkin, Gray, Joe, Biboy, Jacob, VanNieuwenhze, " \
+    "Michael S, Vollmer, Waldemar, Grimes, Catherine L, Shaevitz, Joshua W, & Salama, Nina R. (2019). " \
+    "Distinct cytoskeletal proteins define zones of enhanced cell wall synthesis in Helicobacter pylori " \
+    "[Dataset]. Princeton University."
+    expect(page).to have_content apa_citation
+    expect(page.html.include?('<button id="show-apa-citation-button"')).to be true
+    expect(page.html.include?('<button id="show-bibtex-citation-button"')).to be true
+  end
 end

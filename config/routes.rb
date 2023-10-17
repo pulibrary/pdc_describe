@@ -51,6 +51,7 @@ Rails.application.routes.draw do
   get "works/:id/datacite/validate", to: "works#datacite_validate", as: :datacite_validate_work
   get "works/:id/download", controller: "work_downloader", action: "download", as: :work_download
   post "works/:id/migrate_content", controller: "work_migration", action: "migrate", as: :work_migrate_content
+  get "works/:id/bibtex" => "works#bibtex", as: :work_bibtex
   resources :works
   get "/doi/*doi", to: "works#resolve_doi", as: :resolve_doi, format: false
   get "/ark/*ark", to: "works#resolve_ark", as: :resolve_ark, format: false

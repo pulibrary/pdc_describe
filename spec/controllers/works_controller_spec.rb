@@ -5,12 +5,13 @@ require "rails_helper"
 RSpec.describe WorksController do
   include ActiveJob::TestHelper
   before do
+    stub_ark
     Group.create_defaults
     user
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
 
-    stub_request(:get, /#{Regexp.escape("https://example-bucket.s3.amazonaws.com/us_covid_20")}.*\.csv/).to_return(status: 200, body: "", headers: {})
+    stub_request(:get, /#{Regexp.escape('https://example-bucket.s3.amazonaws.com/us_covid_20')}.*\.csv/).to_return(status: 200, body: "", headers: {})
   end
 
   let(:group) { Group.first }
@@ -65,7 +66,7 @@ RSpec.describe WorksController do
         "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
       }
       sign_in user
-      post :new_submission, params: params
+      post(:new_submission, params:)
       expect(response.status).to be 302
       expect(response.location.start_with?("http://test.host/works/")).to be true
     end
@@ -78,7 +79,7 @@ RSpec.describe WorksController do
         "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
       }
       sign_in user
-      post :new_submission, params: params
+      post(:new_submission, params:)
       expect(response.status).to be 302
       # rubocop:disable Layout/LineLength
       expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Must provide a title. Please contact the PDC Describe administrators for any assistance."])
@@ -102,7 +103,7 @@ RSpec.describe WorksController do
         "resource_type_general" => "Dataset"
       }
       sign_in user
-      post :update, params: params
+      post(:update, params:)
       expect(response.status).to be 302
       expect(response.location).to eq "http://test.host/works/#{work.id}"
 
@@ -128,7 +129,7 @@ RSpec.describe WorksController do
           creators: [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
         }
         sign_in user
-        post :update, params: params
+        post(:update, params:)
         expect(response.status).to be 302
         expect(response.location).to eq "http://test.host/works/#{work.id}/readme-select"
         expect(ActiveStorage::PurgeJob).not_to have_received(:new)
@@ -153,7 +154,7 @@ RSpec.describe WorksController do
         "resource_type_general" => "Dataset"
       }
       sign_in user
-      post :update, params: params
+      post(:update, params:)
 
       saved_work = Work.find(work.id)
 
@@ -232,7 +233,7 @@ RSpec.describe WorksController do
           work: { "pre_curation_uploads_added" => uploaded_file }
         }
         sign_in user
-        post :update, params: params
+        post(:update, params:)
 
         saved_work = Work.find(work.id)
 
@@ -297,7 +298,7 @@ RSpec.describe WorksController do
           work: { "pre_curation_uploads_added" => uploaded_files }
         }
         sign_in user
-        post :update, params: params
+        post(:update, params:)
 
         saved_work = Work.find(work.id)
 
@@ -374,7 +375,7 @@ RSpec.describe WorksController do
         params[:work] = { pre_curation_uploads_added: [uploaded_file2],
                           deleted_files_count: "1",
                           deleted_file_1: uploaded_file2.original_filename }
-        post :update, params: params
+        post(:update, params:)
 
         saved_work = Work.find(work.id)
         expect(saved_work.pre_curation_uploads_fast.count).to eq 2
@@ -429,7 +430,7 @@ RSpec.describe WorksController do
           expect(work.pre_curation_uploads_fast.length).to eq(3)
 
           sign_in user
-          post :update, params: params
+          post(:update, params:)
 
           saved_work = Work.find(work.id)
 
@@ -484,7 +485,7 @@ RSpec.describe WorksController do
           expect(work.post_curation_uploads.length).to eq(2)
 
           sign_in user
-          post :update, params: params
+          post(:update, params:)
 
           expect(response).to have_http_status(:forbidden)
         end
@@ -749,7 +750,7 @@ RSpec.describe WorksController do
       before do
         sign_in user
         fake_s3_service # make sure the s3 service is mocked here
-        post :file_uploaded, params: params
+        post(:file_uploaded, params:)
         perform_enqueued_jobs
       end
 
@@ -1309,7 +1310,7 @@ RSpec.describe WorksController do
             allow(Honeybadger).to receive(:notify)
           end
           it "uses the updators default group" do
-            patch :update, params: params
+            patch(:update, params:)
             expect(work.reload.group).to eq(user.default_group)
             expect(Honeybadger).to have_received(:notify)
           end
@@ -1413,7 +1414,7 @@ RSpec.describe WorksController do
         allow(current_work).to receive(:change_curator).and_return(false)
         allow(current_work).to receive(:id).and_return("test_id")
         allow(Work).to receive(:find).and_return(current_work)
-        put :assign_curator, params: params
+        put(:assign_curator, params:)
 
         expect(response.code).to eq("400")
         expect(response.content_type).to eq("application/json; charset=utf-8")
@@ -1504,7 +1505,7 @@ RSpec.describe WorksController do
         "resource_type_general" => "Dataset"
       }
       sign_in pppl_user
-      post :create, params: params
+      post(:create, params:)
       work = Work.last
       expect(work.resource.publisher).to eq "Princeton Plasma Physics Laboratory, Princeton University"
     end
@@ -1529,6 +1530,24 @@ RSpec.describe WorksController do
         expect(work.resource.description).to eq("a new description")
         expect(work.group).to eq(user.default_group)
       end
+    end
+  end
+
+  context "known work" do
+    let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
+    it "check content of bibtex download" do
+      # stub_s3
+
+      sign_in(work.created_by_user)
+      get :bibtex, params: { id: work.id }
+      expect(response).to be_successful
+      expect(response.headers["Content-Type"]).to eq("text/plain")
+      expect(response.headers["Content-Disposition"]).to eq("attachment; filename=\"taylor_jenny_a_2019.bibtex\"; filename*=UTF-8''taylor_jenny_a_2019.bibtex")
+      expect(response.request.fullpath).to eq("/works/#{work.id}/bibtex")
+      # check the contents to be certain it matcehs the bibtex citation
+      creators = work.resource.creators.map { |creator| "#{creator.family_name}, #{creator.given_name}" }
+      citation = DatasetCitation.new(creators, [work.resource.publication_year], work.resource.titles.first.title, work.resource.resource_type, work.resource.publisher, work.resource.doi)
+      expect(response.body).to eq(citation.bibtex)
     end
   end
 end
