@@ -100,7 +100,7 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     if current_user && @work.editable_by?(current_user)
       if @work.approved? && !@work.administered_by?(current_user)
-        Honeybadger.notify("Can not edit work: #{@work.id} is approved but #{current_user} is not admin")
+        Honeybadger.notify("Can not edit work: #{@work.id} is approved but #{current_user.uid} is not admin")
         redirect_to root_path, notice: I18n.t("works.uneditable.approved")
       else
         @uploads = @work.uploads
@@ -109,7 +109,7 @@ class WorksController < ApplicationController
         render "edit"
       end
     else
-      Honeybadger.notify("Can not edit work: #{@work.id} is not editable by #{current_user}")
+      Honeybadger.notify("Can not edit work: #{@work.id} is not editable by #{current_user.uid}")
       redirect_to root_path, notice: I18n.t("works.uneditable.privs")
     end
   end
@@ -117,10 +117,10 @@ class WorksController < ApplicationController
   def update
     @work = Work.find(params[:id])
     if current_user.blank? || !@work.editable_by?(current_user)
-      Honeybadger.notify("Can not update work: #{@work.id} is not editable by #{current_user}")
+      Honeybadger.notify("Can not update work: #{@work.id} is not editable by #{current_user.uid}")
       redirect_to root_path, notice: I18n.t("works.uneditable.privs")
     elsif !@work.editable_in_current_state?(current_user)
-      Honeybadger.notify("Can not update work: #{@work.id} is not editable in current state by #{current_user}")
+      Honeybadger.notify("Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
       redirect_to root_path, notice: I18n.t("works.uneditable.approved")
     else
       update_work
