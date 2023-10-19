@@ -8,7 +8,7 @@ class WorkDownloaderController < ApplicationController
       service = S3QueryService.new(work, mode)
       redirect_to service.file_url(file_name)
     else
-      Honeybadger.notify("Can not download work: #{work.id} is not editable by #{current_user}")
+      Honeybadger.notify("Can not download work: #{work.id} is not editable by #{current_user.uid}")
       redirect_to root_path, notice: I18n.t("works.download.privs")
     end
   end
