@@ -2,39 +2,49 @@
 development:
   - bs3097
   - cac9
+  - cl7359
+  - fn8243
   - hc8719
   - hh4079
   - jrg5
   - kl37
-  - fn8243
-  - cl7359
 
 staging:
   - bs3097
   - cac9
+  - cl7359
+  - fn8243
+  - hb0344
   - hc8719
   - hh4079
   - jrg5
   - kl37
-  - fn8243
-  - cl7359
+  - meghant
+  - mjc12
+  - neggink
+  - sr7276
 
 test:
   - bs3097
   - cac9
+  - cl7359
+  - fn8243
   - hc8719
   - hh4079
   - jrg5
   - kl37
-  - fn8243
-  - cl7359
 
 production:
   - bs3097
   - cac9
+  - cl7359
+  - fn8243
+  - hb0344
   - hc8719
   - hh4079
   - jrg5
   - kl37
-  - fn8243
-  - cl7359
+  - meghant
+  - mjc12
+  - neggink
+  - sr7276
