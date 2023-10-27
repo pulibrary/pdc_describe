@@ -167,15 +167,14 @@ class S3QueryService
   # @return [Array<S3File>]
   def client_s3_files(reload: false, bucket_name: self.bucket_name, prefix: self.prefix, ignore_directories: true)
     @client_s3_files = nil if reload # force a reload
-    @client_s3_files ||= begin
-      start = Time.zone.now
-      resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: })
-      resp_hash = resp.to_h
-      objects = parse_objects(resp_hash, ignore_directories:)
-      objects += parse_continuation(resp_hash, bucket_name:, prefix:, ignore_directories:)
-      elapsed = Time.zone.now - start
-      Rails.logger.info("Loading S3 objects. Bucket: #{bucket_name}. Prefix: #{prefix}. Elapsed: #{elapsed} seconds")
-      objects
+    @client_s3_files ||= get_s3_objects(bucket_name:, prefix:, ignore_directories:)
+  end
+
+  def client_s3_empty_files(reload: false, bucket_name: self.bucket_name, prefix: self.prefix)
+    @client_s3_empty_files = nil if reload # force a reload
+    @client_s3_empty_files = begin
+      files_and_directories = get_s3_objects(bucket_name:, prefix:, ignore_directories: false)
+      files_and_directories.select { |object| !object.filename.ends_with?("/") && object.empty? }
     end
   end
 
@@ -314,6 +313,17 @@ class S3QueryService
   end
 
   private
+
+    def get_s3_objects(bucket_name:, prefix:, ignore_directories:)
+      start = Time.zone.now
+      resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: })
+      resp_hash = resp.to_h
+      objects = parse_objects(resp_hash, ignore_directories:)
+      objects += parse_continuation(resp_hash, bucket_name:, prefix:, ignore_directories:)
+      elapsed = Time.zone.now - start
+      Rails.logger.info("Loading S3 objects. Bucket: #{bucket_name}. Prefix: #{prefix}. Elapsed: #{elapsed} seconds")
+      objects
+    end
 
     def parse_objects(resp, ignore_directories: true)
       objects = []
