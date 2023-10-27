@@ -709,7 +709,7 @@ XML
     end
   end
 
-  describe "#client_s3_empyt_files" do
+  describe "#client_s3_empty_files" do
     let(:fake_aws_client) { double(Aws::S3::Client) }
     let(:s3_size2) { 0 }
 
