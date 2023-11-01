@@ -152,53 +152,5 @@ FactoryBot.define do
       state { "draft" }
       created_by_user_id { FactoryBot.create(:user).id }
     end
-
-    factory :attention_and_awareness_work do
-      title { "Attention and awareness in the dorsal attention network" }
-      group { Group.research_data }
-      doi { "https://doi.org/10.34770/9425-b553" }
-      ark { "ark:/88435/dsp01xp68kk27p" }
-      created_by_user_id { FactoryBot.create(:user).id }
-    end
-
-    factory :femtosecond_xray_work do
-      title { "Femtosecond X-ray Diffraction of Laser-shocked Forsterite (Mg2SiO4) to 122 GPa" }
-      group { Group.research_data }
-      doi { "https://doi.org/10.34770/gg40-tc15" }
-      ark { "ark:/88435/dsp01rj4307478" }
-      created_by_user_id { FactoryBot.create(:user).id }
-    end
-
-    factory :bitklavier_work do
-      title { "bitKlavier Grand Sample Library—Piano Bar Mic Image" }
-      group { Group.research_data }
-      doi { "https://doi.org/10.34770/r75s-9j74" }
-      ark { "ark:/88435/dsp015999n653h" }
-      created_by_user_id { FactoryBot.create(:user).id }
-    end
-
-    factory :design_and_simulation_of_the_snowflake_work do
-      title { "Design and simulation of the snowflake divertor control for NSTX-U" }
-      group { Group.research_data }
-      doi { "" } # no DOI associated with this dataset
-      ark { "ark:/88435/dsp01jm214r94t" }
-      created_by_user_id { FactoryBot.create(:user).id }
-    end
-
-    factory :whistler_wave_generation_work do
-      title { "Whistler wave generation by anisotropic tail electrons during asymmetric magnetic reconnection in space and laboratory" }
-      group { Group.research_data }
-      doi { "" } # no DOI associated with this dataset
-      ark { "ark:/88435/dsp01t148fk89s" }
-      created_by_user_id { FactoryBot.create(:user).id }
-    end
-
-    factory :supplemental_data_work do
-      title { "Supplementary data for thesis: The Evolution and Regulation of Morphological Complexity in the Vibrios" }
-      group { Group.research_data }
-      doi { "https://doi.org/10.34770/gk6n-gj34" }
-      ark { "ark:/88435/dsp01vq27zr562" }
-      created_by_user_id { FactoryBot.create(:user).id }
-    end
   end
 end
