@@ -106,14 +106,14 @@ describe ResourceCompareService do
       domains: [{ action: :changed, from: "", to: "Humanities" }],
       migrated: [{ action: :changed, from: "false", to: "" }]
     }
-    resource1 = FactoryBot.create(:shakespeare_and_company_work).resource
+    resource1 = FactoryBot.build(:shakespeare_and_company_work).resource
     accessors = resource1.accessors
     accessors.each do |accessor|
       # If a new accessor is added to the resource, but the ResourceCompareService misses it,
       # we'll still test it here, and there should be a failure.
       it "correctly compares #{accessor}" do
         setter = "#{accessor}=".to_sym
-        resource2 = FactoryBot.create(:shakespeare_and_company_work).resource
+        resource2 = FactoryBot.build(:shakespeare_and_company_work).resource
         resource2.send(setter, new_values[accessor])
         compare = described_class.new(resource1, resource2)
         expect(compare.differences[accessor]).to eq expected_diff[accessor]
