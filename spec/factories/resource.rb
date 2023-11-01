@@ -17,6 +17,10 @@ FactoryBot.define do
     titles { [PDCMetadata::Title.new(title:)] }
     rights_many { [PDCMetadata::Rights.find("CC BY")] }
     version_number { "1" }
+
+    factory :migrated_resource do
+      migrated { true }
+    end
   end
 
   factory :new_resource, class: "PDCMetadata::Resource" do

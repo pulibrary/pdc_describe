@@ -18,6 +18,9 @@ class Ark
     "ark:/#{ark}"
   end
 
+  # Find an existing ARK
+  # @param [ezid] [String] the EZID being searched for
+  # @return [Ezid::Identifier] the identifier object
   def self.find(ezid)
     Ezid::Identifier.find(format_ark(ezid))
   rescue StandardError => error

@@ -56,6 +56,10 @@ FactoryBot.define do
       state { "approved" }
       created_by_user_id { FactoryBot.create(:user).id }
       resource { FactoryBot.build :resource, doi:, ark: }
+
+      factory :migrated_and_approved_work do
+        resource { FactoryBot.build :migrated_resource, doi:, ark: }
+      end
     end
 
     factory :shakespeare_and_company_work do
@@ -131,14 +135,6 @@ FactoryBot.define do
         PDCMetadata::Resource.new_from_jsonb(resource)
       end
       created_by_user_id { FactoryBot.create(:pppl_submitter).id }
-    end
-
-    factory :sowing_the_seeds_work do
-      title { "Sowing the Seeds for More Usable Web Archives: A Usability Study of Archive-It" }
-      group { Group.research_data }
-      doi { "" } # no DOI associated with this dataset
-      ark { "ark:/88435/dsp01d791sj97j" }
-      created_by_user_id { FactoryBot.create(:user).id }
     end
 
     # json_from_spec file created from the output of
