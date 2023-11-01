@@ -209,6 +209,16 @@ class S3QueryService
   def publish_files(current_user)
     source_bucket = S3QueryService.pre_curation_config[:bucket]
     target_bucket = S3QueryService.post_curation_config[:bucket]
+    empty_files = client_s3_empty_files(reload: true, bucket_name: source_bucket)
+    # Do not move the empty files, however, ensure that it is noted that the
+    #   presence of empty files is specified in the provenance log.
+    unless empty_files.empty?
+      empty_files.each do |empty_file|
+        message = "Warning: Attempted to publish empty S3 file #{empty_file.filename}."
+        WorkActivity.add_work_activity(model.id, message, current_user.id, activity_type: WorkActivity::SYSTEM)
+      end
+    end
+
     files = client_s3_files(reload: true, bucket_name: source_bucket)
     snapshot = ApprovedUploadSnapshot.new(work: model)
     snapshot.store_files(files, current_user:)
