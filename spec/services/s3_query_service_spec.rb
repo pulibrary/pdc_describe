@@ -4,8 +4,8 @@ require "rails_helper"
 RSpec.describe S3QueryService do
   include ActiveJob::TestHelper
 
+  subject(:s3_query_service) { described_class.new(work) }
   let(:work) { FactoryBot.create :draft_work, doi: }
-  let(:subject) { described_class.new(work) }
   let(:s3_key1) { "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_README.txt" }
   let(:s3_key2) { "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json" }
   let(:s3_last_modified1) { Time.parse("2022-04-21T18:29:40.000Z") }
@@ -100,21 +100,21 @@ XML
   end
 
   it "knows the name of its s3 bucket" do
-    expect(subject.bucket_name).to eq "example-bucket"
+    expect(s3_query_service.bucket_name).to eq "example-bucket"
   end
 
   it "converts a doi to an S3 address" do
-    expect(subject.s3_address).to eq "s3://example-bucket/10.34770/pe9w-x904/#{work.id}/"
+    expect(s3_query_service.s3_address).to eq "s3://example-bucket/10.34770/pe9w-x904/#{work.id}/"
   end
 
   it "takes a DOI and returns information about that DOI in S3" do
     fake_aws_client = double(Aws::S3::Client)
-    subject.stub(:client).and_return(fake_aws_client)
+    s3_query_service.stub(:client).and_return(fake_aws_client)
     fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
     fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
     fake_s3_resp.stub(:to_h).and_return(s3_hash)
 
-    data_profile = subject.data_profile
+    data_profile = s3_query_service.data_profile
     expect(data_profile[:objects]).to be_instance_of(Array)
     expect(data_profile[:ok]).to eq true
     expect(data_profile[:objects].count).to eq 2
@@ -126,14 +126,14 @@ XML
 
   it "takes a DOI and returns information about that DOI in S3 with pagination" do
     fake_aws_client = double(Aws::S3::Client)
-    subject.stub(:client).and_return(fake_aws_client)
+    s3_query_service.stub(:client).and_return(fake_aws_client)
     fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
     fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
     s3_hash_truncated = s3_hash.clone
     s3_hash_truncated[:is_truncated] = true
     fake_s3_resp.stub(:to_h).and_return(s3_hash_truncated, s3_hash)
 
-    data_profile = subject.data_profile
+    data_profile = s3_query_service.data_profile
     expect(data_profile[:objects]).to be_instance_of(Array)
     expect(data_profile[:ok]).to eq true
     expect(data_profile[:objects].count).to eq 4
@@ -145,8 +145,8 @@ XML
 
   it "handles connecting to a bad bucket" do
     fake_aws_client = Aws::S3::Client
-    subject.stub(:client).and_return(fake_aws_client)
-    data_profile = subject.data_profile
+    s3_query_service.stub(:client).and_return(fake_aws_client)
+    data_profile = s3_query_service.data_profile
     expect(data_profile[:objects]).to be_instance_of(Array)
     expect(data_profile[:ok]).to eq false
   end
@@ -154,7 +154,7 @@ XML
   describe "#client" do
     before do
       allow(Aws::S3::Client).to receive(:new)
-      subject.client
+      s3_query_service.client
     end
 
     it "constructs the AWS S3 API client object" do
@@ -179,8 +179,8 @@ XML
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
       work
 
-      allow(S3QueryService).to receive(:new).and_return(subject)
-      allow(subject).to receive(:client).and_return(fake_aws_client)
+      allow(S3QueryService).to receive(:new).and_return(s3_query_service)
+      allow(s3_query_service).to receive(:client).and_return(fake_aws_client)
       fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
       fake_s3_resp.stub(:to_h).and_return(s3_hash)
       fake_copy_object_result = instance_double(Aws::S3::Types::CopyObjectResult, etag: "\"abc123etagetag\"")
@@ -191,12 +191,12 @@ XML
       fake_completion = Seahorse::Client::Response.new(context: fake_request_context, data: fake_copy)
       fake_delete = instance_double(Aws::S3::Types::DeleteObjectOutput, "to_h": {})
 
-      allow(subject.client).to receive(:create_multipart_upload).and_return(fake_multi)
-      allow(subject.client).to receive(:upload_part_copy).and_return(fake_upload)
-      allow(subject.client).to receive(:delete_object).and_return(fake_delete)
-      allow(subject.client).to receive(:head_object).and_return(true)
-      allow(subject.client).to receive(:complete_multipart_upload).and_return(fake_completion)
-      allow(subject.client).to receive(:put_object).and_return(nil)
+      allow(s3_query_service.client).to receive(:create_multipart_upload).and_return(fake_multi)
+      allow(s3_query_service.client).to receive(:upload_part_copy).and_return(fake_upload)
+      allow(s3_query_service.client).to receive(:delete_object).and_return(fake_delete)
+      allow(s3_query_service.client).to receive(:head_object).and_return(true)
+      allow(s3_query_service.client).to receive(:complete_multipart_upload).and_return(fake_completion)
+      allow(s3_query_service.client).to receive(:put_object).and_return(nil)
 
       allow(WorkPreservationService).to receive(:new).and_return(preservation_service)
       allow(preservation_service).to receive(:preserve!)
@@ -205,7 +205,7 @@ XML
     describe "#publish_files" do
       it "calls moves the files calling create_multipart_upload, head_object, and delete_object twice, once for each file, and called the preservation service" do
         expect do
-          expect(subject.publish_files(user)).to be_truthy
+          expect(s3_query_service.publish_files(user)).to be_truthy
         end.to change { work.upload_snapshots.count }.by 1
         fake_s3_resp.stub(:to_h).and_return(s3_hash, empty_s3_hash)
         snapshot = work.upload_snapshots.first
@@ -216,37 +216,37 @@ XML
                                          "user_id" => user.id, "checksum" => "7bd3d4339c034ebc663b990657714688" }
                                      ])
         perform_enqueued_jobs
-        expect(subject.client).to have_received(:create_multipart_upload)
+        expect(s3_query_service.client).to have_received(:create_multipart_upload)
           .with({ bucket: "example-bucket-post", key: s3_key1, checksum_algorithm: "SHA256" })
-        expect(subject.client).to have_received(:create_multipart_upload)
+        expect(s3_query_service.client).to have_received(:create_multipart_upload)
           .with({ bucket: "example-bucket-post", key: s3_key2, checksum_algorithm: "SHA256" })
-        expect(subject.client).to have_received(:upload_part_copy)
+        expect(s3_query_service.client).to have_received(:upload_part_copy)
           .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key1}",
                   copy_source_range: "bytes=0-5368709119", key: "abc", part_number: 1, upload_id: "upload id" })
-        expect(subject.client).to have_received(:upload_part_copy)
+        expect(s3_query_service.client).to have_received(:upload_part_copy)
           .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key1}",
                   copy_source_range: "bytes=5368709120-5368709121", key: "abc", part_number: 2, upload_id: "upload id" })
-        expect(subject.client).to have_received(:upload_part_copy)
+        expect(s3_query_service.client).to have_received(:upload_part_copy)
           .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key2}",
                   copy_source_range: "bytes=0-5368709119", key: "abc", part_number: 1, upload_id: "upload id" })
-        expect(subject.client).to have_received(:upload_part_copy)
+        expect(s3_query_service.client).to have_received(:upload_part_copy)
           .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key2}",
                   copy_source_range: "bytes=5368709120-5368709127", key: "abc", part_number: 2, upload_id: "upload id" })
-        expect(subject.client).to have_received(:complete_multipart_upload)
+        expect(s3_query_service.client).to have_received(:complete_multipart_upload)
           .with({ bucket: "example-bucket-post", key: s3_key1, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1, checksum_sha256: "sha256abc123" },
                                                                                            { etag: "etag123abc", part_number: 2, checksum_sha256: "sha256abc123" }] }, upload_id: "upload id" })
-        expect(subject.client).to have_received(:complete_multipart_upload)
+        expect(s3_query_service.client).to have_received(:complete_multipart_upload)
           .with({ bucket: "example-bucket-post", key: s3_key2, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1, checksum_sha256: "sha256abc123" },
                                                                                            { etag: "etag123abc", part_number: 2, checksum_sha256: "sha256abc123" }] }, upload_id: "upload id" })
-        expect(subject.client).to have_received(:head_object)
+        expect(s3_query_service.client).to have_received(:head_object)
           .with({ bucket: "example-bucket-post", key: s3_key1 })
-        expect(subject.client).to have_received(:head_object)
+        expect(s3_query_service.client).to have_received(:head_object)
           .with({ bucket: "example-bucket-post", key: s3_key2 })
-        expect(subject.client).to have_received(:delete_object)
+        expect(s3_query_service.client).to have_received(:delete_object)
           .with({ bucket: "example-bucket", key: s3_key1 })
-        expect(subject.client).to have_received(:delete_object)
+        expect(s3_query_service.client).to have_received(:delete_object)
           .with({ bucket: "example-bucket", key: s3_key2 })
-        expect(subject.client).to have_received(:delete_object)
+        expect(s3_query_service.client).to have_received(:delete_object)
           .with({ bucket: "example-bucket", key: work.s3_object_key })
         expect(preservation_service).to have_received(:preserve!)
         expect(snapshot.reload.files).to eq([
@@ -258,46 +258,46 @@ XML
       end
       context "the copy fails for some reason" do
         it "Does not delete anything and returns the missing file" do
-          allow(subject.client).to receive(:head_object).and_return(true, false)
-          expect(subject.publish_files(user)).to be_truthy
+          allow(s3_query_service.client).to receive(:head_object).and_return(true, false)
+          expect(s3_query_service.publish_files(user)).to be_truthy
           expect { perform_enqueued_jobs }.to raise_error(/File check was not valid/)
-          expect(subject.client).to have_received(:create_multipart_upload)
+          expect(s3_query_service.client).to have_received(:create_multipart_upload)
             .with({ bucket: "example-bucket-post", key: s3_key1, checksum_algorithm: "SHA256" })
-          expect(subject.client).to have_received(:create_multipart_upload)
+          expect(s3_query_service.client).to have_received(:create_multipart_upload)
             .with({ bucket: "example-bucket-post", key: s3_key2, checksum_algorithm: "SHA256" })
-          expect(subject.client).to have_received(:head_object)
+          expect(s3_query_service.client).to have_received(:head_object)
             .with({ bucket: "example-bucket-post", key: s3_key1 })
-          expect(subject.client).to have_received(:head_object)
+          expect(s3_query_service.client).to have_received(:head_object)
             .with({ bucket: "example-bucket-post", key: s3_key2 })
-          expect(subject.client).to have_received(:delete_object)
+          expect(s3_query_service.client).to have_received(:delete_object)
             .with({ bucket: "example-bucket", key: s3_key1 })
-          expect(subject.client).not_to have_received(:delete_object)
+          expect(s3_query_service.client).not_to have_received(:delete_object)
             .with({ bucket: "example-bucket", key: s3_key2 })
-          expect(subject.client).not_to have_received(:delete_object)
+          expect(s3_query_service.client).not_to have_received(:delete_object)
             .with({ bucket: "example-bucket", key: work.s3_object_key })
         end
 
         it "Does not delete anything and returns both missing files" do
-          allow(subject.client).to receive(:head_object).and_return(false)
-          expect(subject.publish_files(user)).to be_truthy
+          allow(s3_query_service.client).to receive(:head_object).and_return(false)
+          expect(s3_query_service.publish_files(user)).to be_truthy
 
           # both jobs create an exception
           expect { perform_enqueued_jobs }.to raise_error(/File check was not valid/)
           expect { perform_enqueued_jobs }.to raise_error(/File check was not valid/)
 
-          expect(subject.client).to have_received(:create_multipart_upload)
+          expect(s3_query_service.client).to have_received(:create_multipart_upload)
             .with({ bucket: "example-bucket-post", key: s3_key1, checksum_algorithm: "SHA256" })
-          expect(subject.client).to have_received(:create_multipart_upload)
+          expect(s3_query_service.client).to have_received(:create_multipart_upload)
             .with({ bucket: "example-bucket-post", key: s3_key2, checksum_algorithm: "SHA256" })
-          expect(subject.client).to have_received(:head_object)
+          expect(s3_query_service.client).to have_received(:head_object)
             .with({ bucket: "example-bucket-post", key: s3_key1 })
-          expect(subject.client).to have_received(:head_object)
+          expect(s3_query_service.client).to have_received(:head_object)
             .with({ bucket: "example-bucket-post", key: s3_key2 })
-          expect(subject.client).not_to have_received(:delete_object)
+          expect(s3_query_service.client).not_to have_received(:delete_object)
             .with({ bucket: "example-bucket", key: s3_key1 })
-          expect(subject.client).not_to have_received(:delete_object)
+          expect(s3_query_service.client).not_to have_received(:delete_object)
             .with({ bucket: "example-bucket", key: s3_key2 })
-          expect(subject.client).not_to have_received(:delete_object)
+          expect(s3_query_service.client).not_to have_received(:delete_object)
             .with({ bucket: "example-bucket", key: work.s3_object_key })
         end
       end
@@ -305,7 +305,7 @@ XML
 
     describe "#data_profile" do
       context "when an error is encountered requesting the file resources" do
-        let(:output) { subject.data_profile }
+        let(:output) { s3_query_service.data_profile }
 
         before do
           fake_aws_client.stub(:list_objects_v2).and_raise(StandardError)
@@ -320,7 +320,7 @@ XML
       end
 
       it "takes a DOI and returns information about that DOI in S3" do
-        data_profile = subject.data_profile
+        data_profile = s3_query_service.data_profile
         expect(data_profile).to be_a(Hash)
         expect(data_profile).to include(:objects)
         children = data_profile[:objects]
@@ -346,7 +346,7 @@ XML
 
     describe "#file_count" do
       it "returns only the files" do
-        expect(subject.file_count).to eq(2)
+        expect(s3_query_service.file_count).to eq(2)
       end
 
       context "when an error is encountered" do
@@ -361,7 +361,7 @@ XML
         before do
           allow(Rails.logger).to receive(:error)
           # This needs to be disabled to override the mock set for previous cases
-          allow(subject).to receive(:client).and_call_original
+          allow(s3_query_service).to receive(:client).and_call_original
           allow(Aws::S3::Client).to receive(:new).and_return(client)
           allow(client).to receive(:list_objects_v2).and_raise(service_error)
         end
@@ -376,11 +376,11 @@ XML
   end
 
   context "post curated" do
-    let(:subject) { described_class.new(work, "postcuration") }
+    let(:s3_query_service) { described_class.new(work, "postcuration") }
 
     it "keeps precurated and post curated items separate" do
       fake_aws_client = double(Aws::S3::Client)
-      subject.stub(:client).and_return(fake_aws_client)
+      s3_query_service.stub(:client).and_return(fake_aws_client)
       fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
       fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
       fake_s3_resp.stub(:to_h).and_return(s3_hash)
@@ -388,7 +388,7 @@ XML
       blob = ActiveStorage::Blob.new(filename: s3_key1, key: s3_key1, content_type: "", byte_size: 100, checksum: "abc123")
       work.pre_curation_uploads << ActiveStorage::Attachment.new(blob:, name: :pre_curation_uploads)
 
-      data_profile = subject.data_profile
+      data_profile = s3_query_service.data_profile
       expect(data_profile[:objects]).to be_instance_of(Array)
       expect(data_profile[:ok]).to eq true
       expect(data_profile[:objects].count).to eq 2
@@ -436,7 +436,7 @@ XML
       before do
         allow(Rails.logger).to receive(:error)
         # This needs to be disabled to override the mock set for previous cases
-        allow(subject).to receive(:client).and_call_original
+        allow(s3_query_service).to receive(:client).and_call_original
         allow(Aws::S3::Client).to receive(:new).and_return(client)
         allow(client).to receive(:get_object).and_raise(service_error)
       end
@@ -483,7 +483,7 @@ XML
       before do
         allow(Rails.logger).to receive(:error)
         # This needs to be disabled to override the mock set for previous cases
-        allow(subject).to receive(:client).and_call_original
+        allow(s3_query_service).to receive(:client).and_call_original
         allow(Aws::S3::Client).to receive(:new).and_return(client)
         allow(client).to receive(:delete_object).and_raise(service_error)
       end
@@ -564,7 +564,7 @@ XML
       before do
         allow(Rails.logger).to receive(:error)
         # This needs to be disabled to override the mock set for previous cases
-        allow(subject).to receive(:client).and_call_original
+        allow(s3_query_service).to receive(:client).and_call_original
         allow(Aws::S3::Client).to receive(:new).and_return(client)
         allow(client).to receive(:put_object).and_raise(service_error)
       end
@@ -611,11 +611,11 @@ XML
         expect(s3_query_service.upload_file(io: file, filename:, size: 6_000_000_000)).to eq(key)
         expect(s3_query_service.client).to have_received(:create_multipart_upload)
           .with({ bucket: "example-bucket", key: })
-        expect(subject.client).to have_received(:upload_part)
+        expect(s3_query_service.client).to have_received(:upload_part)
           .with(hash_including(bucket: "example-bucket", key: "abc", part_number: 1, upload_id: "upload id"))
-        expect(subject.client).to have_received(:upload_part)
+        expect(s3_query_service.client).to have_received(:upload_part)
           .with(hash_including(bucket: "example-bucket", key: "abc", part_number: 2, upload_id: "upload id"))
-        expect(subject.client).to have_received(:complete_multipart_upload)
+        expect(s3_query_service.client).to have_received(:complete_multipart_upload)
           .with({ bucket: "example-bucket", key:, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1 },
                                                                               { etag: "etag123abc", part_number: 2 }] }, upload_id: "upload id" })
       end
@@ -644,7 +644,7 @@ XML
       before do
         allow(Rails.logger).to receive(:error)
         # This needs to be disabled to override the mock set for previous cases
-        allow(subject).to receive(:client).and_call_original
+        allow(s3_query_service).to receive(:client).and_call_original
         allow(Aws::S3::Client).to receive(:new).and_return(client)
         allow(client).to receive(:put_object).and_raise(service_error)
       end
@@ -665,7 +665,7 @@ XML
     let(:fake_aws_client) { double(Aws::S3::Client) }
 
     before do
-      subject.stub(:client).and_return(fake_aws_client)
+      s3_query_service.stub(:client).and_return(fake_aws_client)
       fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
       fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
       s3_hash_truncated = s3_hash.clone
@@ -674,7 +674,7 @@ XML
     end
 
     it "it retrieves the files for the work" do
-      files = subject.client_s3_files
+      files = s3_query_service.client_s3_files
       expect(files.count).to eq 4
       expect(files.first.filename).to match(/README/)
       expect(files[1].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
@@ -685,7 +685,7 @@ XML
     end
 
     it "it retrieves the files for a bucket and prefix" do
-      files = subject.client_s3_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix")
+      files = s3_query_service.client_s3_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix")
       expect(files.count).to eq 4
       expect(files.first.filename).to match(/README/)
       expect(files[1].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
@@ -696,7 +696,7 @@ XML
     end
 
     it "retrieves the directories if requested" do
-      files = subject.client_s3_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix", ignore_directories: false)
+      files = s3_query_service.client_s3_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix", ignore_directories: false)
       expect(files.count).to eq 6
       expect(files.first.filename).to match(/README/)
       expect(files[1].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
@@ -714,7 +714,7 @@ XML
     let(:s3_size2) { 0 }
 
     before do
-      subject.stub(:client).and_return(fake_aws_client)
+      s3_query_service.stub(:client).and_return(fake_aws_client)
       fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
       fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
       s3_hash_truncated = s3_hash.clone
@@ -723,7 +723,7 @@ XML
     end
 
     it "it retrieves the files for the work" do
-      files = subject.client_s3_empty_files
+      files = s3_query_service.client_s3_empty_files
       expect(files.count).to eq 2
       expect(files.first.filename).to eq(s3_key2)
       expect(files[1].filename).to match(s3_key2)
@@ -732,7 +732,7 @@ XML
     end
 
     it "it retrieves the files for a bucket and prefix" do
-      files = subject.client_s3_empty_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix")
+      files = s3_query_service.client_s3_empty_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix")
       expect(files.count).to eq 2
       expect(files.first.filename).to eq(s3_key2)
       expect(files[1].filename).to eq(s3_key2)
@@ -746,13 +746,13 @@ XML
     let(:fake_completion) { instance_double(Seahorse::Client::Response, "successful?": true) }
 
     before do
-      subject.stub(:client).and_return(fake_aws_client)
+      s3_query_service.stub(:client).and_return(fake_aws_client)
       fake_aws_client.stub(:copy_object).and_return(fake_completion)
     end
 
     it "copies the directory calling copy_object" do
-      expect(subject.copy_directory(target_bucket: "example-bucket-post", source_key: "source-key", target_key: "other-bucket/target-key")).to eq(fake_completion)
-      expect(subject.client).to have_received(:copy_object).with(bucket: "example-bucket-post", copy_source: "source-key", key: "other-bucket/target-key")
+      expect(s3_query_service.copy_directory(target_bucket: "example-bucket-post", source_key: "source-key", target_key: "other-bucket/target-key")).to eq(fake_completion)
+      expect(s3_query_service.client).to have_received(:copy_object).with(bucket: "example-bucket-post", copy_source: "source-key", key: "other-bucket/target-key")
     end
 
     context "when an error is encountered" do
@@ -767,7 +767,7 @@ XML
       before do
         allow(Rails.logger).to receive(:error)
         # This needs to be disabled to override the mock set for previous cases
-        allow(subject).to receive(:client).and_call_original
+        allow(s3_query_service).to receive(:client).and_call_original
         allow(Aws::S3::Client).to receive(:new).and_return(client)
         allow(client).to receive(:copy_object).and_raise(service_error)
       end
@@ -780,6 +780,35 @@ XML
         # rubocop:disable Layout/LineLength
         expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to copy the AWS S3 directory Object from source-key to other-bucket/target-key in the bucket example-bucket-post: test AWS service error")
         # rubocop:enable Layout/LineLength
+      end
+    end
+  end
+
+  context "when there are empty files" do
+    let(:user) { FactoryBot.create(:user) }
+    let(:work) { FactoryBot.create(:draft_work, doi:) }
+    let(:s3_list_url) { "https://example-bucket.s3.amazonaws.com/?list-type=2&max-keys=1000&prefix=#{work.doi}/#{work.id}/" }
+    let(:s3_list_response_xml) do
+      path = Rails.root.join("spec", "fixtures", "s3_list_bucket_empty_result.xml")
+      File.read(path)
+    end
+
+    before do
+      work
+      stub_request(:get, s3_list_url).to_return(status: 200, body: s3_list_response_xml)
+      s3_query_service.publish_files(user)
+    end
+
+    describe "#publish_files" do
+      it "creates a work activity identifying the empty files" do
+        work.reload
+        expect(work.work_activity.length).to eq(1)
+        activity = work.work_activity.first
+        work_doi = work.doi.sub(/[^A-Za-z\d]/, "-")
+        expect(activity.message).to eq("Warning: Attempted to publish empty S3 file #{work_doi}/SCoData_combined_v1_2020-07_README.empty.txt.")
+        expect(work.uploads.length).to eq(2)
+        expect(work.uploads.first.filename).to eq("#{work_doi}/SCoData_combined_v1_2020-07_README.txt")
+        expect(work.uploads.last.filename).to eq("#{work_doi}/SCoData_combined_v1_2020-07_datapackage.json")
       end
     end
   end
