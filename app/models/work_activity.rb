@@ -170,7 +170,7 @@ class WorkActivity < ApplicationRecord
         markup = if message.is_a?(Hash)
                    message.keys.map do |field|
                      mapped = message[field].map { |value| change_value_html(value) }
-                     "<details class='message-html'><summary class='show-changes'>#{field.titleize}</summary>#{mapped.join}</details>"
+                     "<details class='message-html'><summary class='show-changes'>#{field&.titleize}</summary>#{mapped.join}</details>"
                    end
                  else
                    # For handling cases where WorkActivity#message only contains Strings, or Arrays of Strings
@@ -295,7 +295,7 @@ class WorkActivity < ApplicationRecord
       message_hash = JSON.parse(@work_activity.message)
       text = user_refernces(message_hash["note"])
       message = mark_down_to_html(text)
-      change_label = message_hash["change_label"].titleize
+      change_label = message_hash["change_label"]&.titleize
       change_label ||= "Change"
       # TODO: Make this show the change label with the note under see changes
       "<details class='message-html'><summary class='show-changes'>#{change_label}</summary>#{message}</details>"
