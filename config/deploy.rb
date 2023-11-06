@@ -12,6 +12,7 @@ set :deploy_to, "/opt/pdc_describe"
 
 # Workaround for this issue: https://github.com/capistrano/rails/issues/235
 Rake::Task["deploy:assets:backup_manifest"].clear_actions
+Rake::Task["deploy:assets:restore_manifest"].clear_actions
 
 namespace :sidekiq do
   task :restart do
@@ -59,5 +60,7 @@ namespace :mailcatcher do
     end
   end
 end
+
+before "deploy:reverted", "deploy:assets:precompile"
 
 # rubocop:enable Rails/Output
