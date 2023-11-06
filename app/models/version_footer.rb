@@ -104,7 +104,7 @@ class VersionFooter
   def self.log_line(revisions_logfile)
     log_line = `tail -1 #{revisions_logfile}`
     if log_line.include?("rolled back")
-      grep_lines = `grep #{log_line.chomp.split(" ").last} spec/fixtures/revisions_rollback.log`.split("\n")
+      grep_lines = `grep #{log_line.chomp.split(" ").last} #{revisions_logfile}`.split("\n")
       log_line = grep_lines.first
     end
     log_line
