@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 class ApprovedFileMoveJob < ApplicationJob
   queue_as :default
+  retry_on ActiveRecord::RecordNotFound
 
   def perform(work_id:, source_bucket:, source_key:, target_bucket:, target_key:, size:, snapshot_id:)
     work = Work.find(work_id)
