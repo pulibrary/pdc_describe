@@ -28,7 +28,7 @@ RSpec.describe "Adding a Provenance note", type: :system, js: true do
       fill_in "new-provenance-note", with: "test note"
       click_on "Add Provenance Note"
       within ".beads" do
-        expect(page).to have_content("file_audit")
+        expect(page).to have_content("File Audit")
         expect(page).not_to have_content("test note")
         page.find(:css, "summary.show-changes").click
         expect(page).to have_content("test note")
