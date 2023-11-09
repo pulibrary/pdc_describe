@@ -23,7 +23,7 @@ Cataloging application for PDC content and more
     1. `asdf plugin add yarn`
     1. `asdf plugin add awscli`
     1. `asdf install`
-    1. ... but because asdf is not a dependency manager, if there are errors, you may need to install other dependencies. For example: `brew install gpg`
+    1. ... but because asdf is not a dependency manager, if there are errors, you may need to install other dependencies. For example: `brew install gpg` or `brew install pkgconfig`
 1. Install language-specific dependencies
     1. `bundle install`
     1. `yarn install`
