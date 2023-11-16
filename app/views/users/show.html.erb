@@ -74,6 +74,14 @@
   <p>No works found for <i><%= @search_terms %></i></p>
 <% end %>
 
+<% if @unfinished_works.count > 0 %>
+ <h2> <%= @unfinished_works.count %> Unfinished Submissions</h2>
+<% end %>
+
+<% if @completed_works.count > 0 %>
+ <h2> <%=  @completed_works.count %> Completed Submissions</h2>
+<% end %>
+
 <script type="text/javascript">
   $(function() {
     // https://www.datatables.net/reference/option/
