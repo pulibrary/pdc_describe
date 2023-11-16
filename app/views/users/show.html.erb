@@ -55,12 +55,12 @@
 <% end %>
 
 <% if @unfinished_works.count > 0 %>
-  <h2 class="dataset-section">Unfinished Submissions</h2>
+  <h2 class="dataset-section unfinished-submission"><%= @unfinished_works.count %> Unfinished Submissions</h2>
   <%= render partial: "dataset_table", locals: {table_id: "unfinished_datasets", datasets: @unfinished_works} %>
 <% end %>
 
 <% if @completed_works.count > 0 %>
-  <h2 class="dataset-section">Completed Submissions</h2>
+  <h2 class="dataset-section completed-submission"><%=  @completed_works.count %> Completed Submissions</h2>
   <%= render partial: "dataset_table", locals: {table_id: "completed_datasets", datasets: @completed_works} %>
 <% end %>
 
@@ -72,14 +72,6 @@
 <% if @works_found == 0 && @search_terms.present? %>
   <h2 class="dataset-section-no-works">No works found</h2>
   <p>No works found for <i><%= @search_terms %></i></p>
-<% end %>
-
-<% if @unfinished_works.count > 0 %>
- <h2> <%= @unfinished_works.count %> Unfinished Submissions</h2>
-<% end %>
-
-<% if @completed_works.count > 0 %>
- <h2> <%=  @completed_works.count %> Completed Submissions</h2>
 <% end %>
 
 <script type="text/javascript">
