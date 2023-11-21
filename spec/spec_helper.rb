@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'coveralls'
-Coveralls.wear!('rails')
+require "coveralls"
+Coveralls.wear!("rails")
 
 require "factory_bot"
 FactoryBot.find_definitions
