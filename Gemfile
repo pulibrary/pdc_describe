@@ -91,7 +91,7 @@ end
 group :test do
   gem "axe-core-rspec"
   gem "capybara"
-  gem "coveralls_reborn", "~> 0.24", require: false
+  gem "coveralls_reborn", require: false
   gem "database_cleaner-active_record"
   gem "factory_bot_rails", require: false
   gem "ffaker"

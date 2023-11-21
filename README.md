@@ -4,6 +4,8 @@ Cataloging application for PDC content and more
 
 [![CircleCI](https://circleci.com/gh/pulibrary/pdc_describe/tree/main.svg?style=svg)](https://circleci.com/gh/pulibrary/pdc_describe/tree/main)
 
+[![Coverage Status](https://coveralls.io/repos/github/pulibrary/pdc_describe/badge.svg?branch=main)](https://coveralls.io/github/pulibrary/pdc_describe?branch=main)
+
 ## Dependencies
 * Ruby: 3.0.3
 * nodejs: 16.15.0
