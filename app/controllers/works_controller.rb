@@ -267,14 +267,14 @@ class WorksController < ApplicationController
   def datacite_validate
     @errors = []
     @work = Work.find(params[:id])
-    datacite_xml = Nokogiri::XML(@work.to_xml)
-    schema_location = Rails.root.join("config", "schema")
-    Dir.chdir(schema_location) do
-      xsd = Nokogiri::XML::Schema(File.read("datacite_4_4.xsd"))
-      xsd.validate(datacite_xml).each do |error|
-        @errors << error
-      end
-    end
+    datacite_serialization = work.resource.datacite_serialization
+    datacite_serialization.valid?
+    @errors = datacite_serialization.errors
+  rescue ArgumentError => error
+    argument_path = error.backtrace_locations.first.path
+    argument_file = argument_path.split("/").last
+    argument_name = argument_file.split(".").first
+    @errors << "#{argument_name.titleize}: #{error.message}"
   end
 
   def readme_select

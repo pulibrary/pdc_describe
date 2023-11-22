@@ -1549,5 +1549,28 @@ RSpec.describe WorksController do
       citation = DatasetCitation.new(creators, [work.resource.publication_year], work.resource.titles.first.title, work.resource.resource_type, work.resource.publisher, work.resource.doi)
       expect(response.body).to eq(citation.bibtex)
     end
+
+    it "validates the datacite xml" do
+      sign_in(work.created_by_user)
+      get :datacite_validate, params: { id: work.id }
+      expect(response).to be_successful
+      expect(assigns[:errors]).to eq([])
+    end
+  end
+
+  context "a work with invalid datacite xml" do
+    let(:work) do
+      work = FactoryBot.create :draft_work
+      work.resource.individual_contributors = [PDCMetadata::Creator.new_individual_contributor("Sally", "Smith", "", "", 0)]
+      work.save
+      work
+    end
+
+    it "validates the datacite xml" do
+      sign_in(work.created_by_user)
+      get :datacite_validate, params: { id: work.id }
+      expect(response).to be_successful
+      expect(assigns[:errors]).to eq(["Contributor: Type cannot be nil"])
+    end
   end
 end

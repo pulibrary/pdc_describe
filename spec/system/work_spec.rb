@@ -144,7 +144,7 @@ RSpec.describe "Creating and updating works", type: :system do
       stub_s3
       stub_ark
       sign_in user
-      allow_any_instance_of(PDCMetadata::Resource).to receive(:to_xml).and_return(invalid_xml)
+      allow_any_instance_of(PDCSerialization::Datacite).to receive(:to_xml).and_return(invalid_xml)
     end
 
     it "Validates the record and prints any errors", js: true do
