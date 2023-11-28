@@ -23,6 +23,9 @@ class ApprovedFileMoveJob < ApplicationJob
            else
              resp.etag
            end.delete('"')
+
+    # raise("Failed to resolve the ApprovedUploadSnapshot for #{@snapshot_id}") if snapshot.nil?
+
     snapshot.with_lock do
       snapshot.reload
       snapshot.mark_complete(target_key, etag)
