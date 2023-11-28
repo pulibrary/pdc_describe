@@ -64,8 +64,27 @@ RSpec.describe ApprovedFileMoveJob, type: :job do
         expect(fake_s3_service).not_to have_received(:delete_s3_object).with(work.s3_object_key, bucket: "example-bucket")
       end
     end
-  end
 
+    context "when the ApprovedUploadSnapshot cannot be found" do
+      subject(:output) do
+        described_class.perform_now(
+          work_id: work.id,
+          source_bucket: "example-bucket",
+          source_key: s3_file.key,
+          target_bucket: "example-bucket-post",
+          target_key: s3_file.key,
+          size: 200,
+          snapshot_id: "invalid"
+        )
+      end
+      let(:fake_s3_service) { stub_s3(bucket_name: "example-bucket-preservation") }
+      let(:work) { FactoryBot.create :approved_work }
+
+      it "raises an error" do
+        expect(output).to be_an(ActiveRecord::RecordNotFound)
+      end
+    end
+  end
   describe "preservation files after approval" do
     subject(:job) do
       described_class.perform_later(work_id: work.id, source_bucket: "example-bucket", source_key: s3_file.key, target_bucket: "example-bucket-post",

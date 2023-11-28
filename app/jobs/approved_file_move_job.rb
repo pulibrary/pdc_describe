@@ -4,10 +4,11 @@ class ApprovedFileMoveJob < ApplicationJob
   retry_on ActiveRecord::RecordNotFound
 
   def perform(work_id:, source_bucket:, source_key:, target_bucket:, target_key:, size:, snapshot_id:)
-    work = Work.find(work_id)
-    snapshot = ApprovedUploadSnapshot.find(snapshot_id)
-    service = S3QueryService.new(Work.find(work_id), "postcuration")
-    key = "/#{source_bucket}/#{source_key}"
+    @work_id = work_id
+    @snapshot_id = snapshot_id
+    @source_bucket = source_bucket
+    @source_key = source_key
+
     resp = service.copy_file(source_key: key, target_bucket:, target_key:, size:)
 
     unless resp.successful?
@@ -22,6 +23,9 @@ class ApprovedFileMoveJob < ApplicationJob
            else
              resp.etag
            end.delete('"')
+
+    # raise("Failed to resolve the ApprovedUploadSnapshot for #{@snapshot_id}") if snapshot.nil?
+
     snapshot.with_lock do
       snapshot.reload
       snapshot.mark_complete(target_key, etag)
@@ -34,8 +38,31 @@ class ApprovedFileMoveJob < ApplicationJob
       service.delete_s3_object(work.s3_object_key, bucket: source_bucket)
 
       # ...and create the preservation files
-      work_preservation = WorkPreservationService.new(work_id:, path: "#{work.doi}/#{work.id}")
       work_preservation.preserve!
     end
+  end
+
+  def key
+    @key ||= "/#{@source_bucket}/#{@source_key}"
+  end
+
+  def work
+    @work ||= Work.find(@work_id)
+  end
+
+  def service
+    @service ||= S3QueryService.new(work, "postcuration")
+  end
+
+  def snapshot
+    @snapshot ||= ApprovedUploadSnapshot.find(@snapshot_id)
+  end
+
+  def work_path
+    @work_path ||= "#{work.doi}/#{work.id}"
+  end
+
+  def work_preservation
+    @work_preservation ||= WorkPreservationService.new(work_id: @work_id, path: work_path)
   end
 end
