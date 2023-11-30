@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe Work, type: :model do
-  describe "#validate_ark" do
+  describe "#valid_to_draft" do
     let(:work) { FactoryBot.build(:draft_work, ark: "ark:/88435/dsp01zc77st047") }
     before do
       allow(Ark).to receive(:valid?).and_return(true)
