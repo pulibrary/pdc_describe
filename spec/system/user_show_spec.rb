@@ -96,4 +96,39 @@ RSpec.describe "User dashboard", type: :system, js: true do
       expect(page.html.include?(user_admin.uid)).to be true
     end
   end
+  describe "dashboard shows finished and unfinished work" do
+    let(:user_admin) { FactoryBot.create :super_admin_user }
+    before do
+      FactoryBot.create :draft_work
+      FactoryBot.create :approved_work
+    end
+    it "shows the number of finished and unfinished works" do
+      sign_in user_admin
+      visit user_path(user_admin)
+      within("h2.unfinished-submission") do
+        expect(page.text).to eq("1 Unfinished Submission")
+      end
+      within("h2.completed-submission") do
+        expect(page.text).to eq("1 Completed Submission")
+      end
+    end
+  end
+
+  describe "dashboard shows multiple finished and unfinished works" do
+    let(:user_admin) { FactoryBot.create :super_admin_user }
+    before do
+      2.times { FactoryBot.create :draft_work }
+      3.times { FactoryBot.create :approved_work }
+    end
+    it "shows the number of finished and unfinished works" do
+      sign_in user_admin
+      visit user_path(user_admin)
+      within("h2.unfinished-submission") do
+        expect(page.text).to eq("2 Unfinished Submissions")
+      end
+      within("h2.completed-submission") do
+        expect(page.text).to eq("3 Completed Submissions")
+      end
+    end
+  end
 end

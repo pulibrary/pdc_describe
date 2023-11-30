@@ -55,12 +55,12 @@
 <% end %>
 
 <% if @unfinished_works.count > 0 %>
-  <h2 class="dataset-section">Unfinished Submissions</h2>
+  <h2 class="dataset-section unfinished-submission"><%= pluralize(@unfinished_works.count, "Unfinished Submission")%></h2>
   <%= render partial: "dataset_table", locals: {table_id: "unfinished_datasets", datasets: @unfinished_works} %>
 <% end %>
 
 <% if @completed_works.count > 0 %>
-  <h2 class="dataset-section">Completed Submissions</h2>
+  <h2 class="dataset-section completed-submission"><%= pluralize(@completed_works.count, "Completed Submission")%></h2>
   <%= render partial: "dataset_table", locals: {table_id: "completed_datasets", datasets: @completed_works} %>
 <% end %>
 
