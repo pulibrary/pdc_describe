@@ -43,4 +43,20 @@ RSpec.describe Work, type: :model do
       end
     end
   end
+
+  context "datacite xml is invalid" do
+    let(:work) do
+      work = FactoryBot.create :draft_work
+      work.resource.individual_contributors = [PDCMetadata::Creator.new_individual_contributor("Sally", "Smith", "", "", 0)]
+      work.save
+      work
+    end
+
+    it "is not valid" do
+      validator = WorkValidator.new(work)
+      expect(validator.valid?).to be_truthy # we can still save, we just can not transition to submitted
+      expect(validator.valid_to_submit).to be_falsey
+      expect(work.errors.full_messages).to eq(["Contributor: Type cannot be nil"])
+    end
+  end
 end

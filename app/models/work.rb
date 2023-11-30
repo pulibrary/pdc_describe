@@ -20,7 +20,7 @@ class Work < ApplicationRecord
 
   alias state_history user_work
 
-  delegate :valid_to_submit, :valid_to_draft, to: :work_validator
+  delegate :valid_to_submit, :valid_to_draft, :valid_to_approve, to: :work_validator
 
   include AASM
 
@@ -143,20 +143,6 @@ class Work < ApplicationRecord
     # Force `resource` to be reloaded
     @resource = nil
     self
-  end
-
-  def valid_to_approve(user)
-    work_validator.valid_to_submit
-    if resource.doi.blank?
-      errors.add :base, "DOI must be present for a work to be approved"
-    end
-    unless user.has_role? :group_admin, group
-      errors.add :base, "Unauthorized to Approve"
-    end
-    if pre_curation_uploads_fast.empty? && post_curation_uploads.empty?
-      errors.add :base, "Uploads must be present for a work to be approved"
-    end
-    errors.count == 0
   end
 
   def title
