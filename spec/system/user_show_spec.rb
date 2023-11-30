@@ -106,10 +106,10 @@ RSpec.describe "User dashboard", type: :system, js: true do
       sign_in user_admin
       visit user_path(user_admin)
       within("h2.unfinished-submission") do
-        expect(page).to have_content "1 Unfinished Submissions"
+        expect(page.text).to eq("1 Unfinished Submission")
       end
       within("h2.completed-submission") do
-        expect(page).to have_content "1 Completed Submissions"
+        expect(page.text).to eq("1 Completed Submission")
       end
     end
   end
