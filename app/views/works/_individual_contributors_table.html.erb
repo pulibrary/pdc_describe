@@ -32,10 +32,11 @@
             <input name="contributors[][family_name]" value="<%= contributor&.family_name %>" class="family-entry-contributor" />
           </td>
           <td>
-            <select name="contributors[][role]">
+            <span class="hidden type-required-message"><i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a role</span>
+            <select name="contributors[][role]" class="type-entry-contributor">
               <option value="" <%= contributor&.type == '' ? 'selected' : ''%> ></option>
               <% @form_resource_decorator.contributor_types.each do |role| %>
-                <option value="<%= role.key %>" <%= contributor&.type == role.key ? 'selected' : ''%>><%= role.value.titleize %></option>
+                <option value="<%= role.key %>" <%= contributor&.type == role.key.to_s ? 'selected' : ''%>><%= role.value.titleize %></option>
               <% end %>
             </select>
           </td>

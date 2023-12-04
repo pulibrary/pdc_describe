@@ -326,6 +326,20 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
         # The +1 in here is to account for the control for file list page size that DataTables adds to the file list
         expect(page.all("select[disabled]").count + 1).to eq(page.all("select").count) # all selects inputs on curator controlled metadata should be disabled
       end
+
+      it "properly renders a warning in response to form submissions if contributor role is not filled out", js: true do
+        click_on "Additional Metadata"
+        find("tr:last-child input[name='contributors[][given_name]']").set "Sally"
+        find("tr:last-child input[name='contributors[][family_name]']").set "Smith"
+        click_on "Save Work"
+        expect(page).to have_content("Must provide a role")
+        find("tr:last-child select[name='contributors[][role]']").select "Contact Person"
+        click_on "Save Work"
+        expect(page).to have_content("Work was successfully updated.")
+        click_on "Edit"
+        click_on "Additional Metadata"
+        expect(find("tr:last-child select[name='contributors[][role]']").value).to eq("CONTACT_PERSON")
+      end
     end
 
     context "when the Work has been approved" do

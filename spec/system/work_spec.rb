@@ -225,9 +225,11 @@ RSpec.describe "Creating and updating works", type: :system do
       expect(page).to have_content("Additional Individual Contributors")
       find("tr:last-child input[name='contributors[][given_name]']").set "Robert"
       find("tr:last-child input[name='contributors[][family_name]']").set "Smith"
+      find("tr:last-child select[name='contributors[][role]']").select "Contact Person"
       click_on "Add Another Individual Contributor"
       find("tr:last-child input[name='contributors[][given_name]']").set "Simon"
       find("tr:last-child input[name='contributors[][family_name]']").set "Gallup"
+      find("tr:last-child select[name='contributors[][role]']").select "Contact Person"
       contributor_text = page.find("#contributors-table").find_all("tr").map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
       expect(contributor_text).to eq("Robert Smith  Simon Gallup")
 

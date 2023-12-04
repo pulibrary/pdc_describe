@@ -1,5 +1,5 @@
 /* eslint class-methods-use-this: ["error", {
-  "exceptMethods": ["hasCreators", "validCreators"] }] */
+  "exceptMethods": ["hasCreators", "hasContributors", "valid_required_field"] }] */
 
 import TableRow from './table_row.es6';
 
@@ -29,6 +29,10 @@ export default class EditRequiredFields {
       $('#creators-required-message').removeClass('hidden');
       status = false;
     } else if (!this.validCreators()) {
+      status = false;
+    }
+
+    if (this.hasContributors() && !this.validContributors()) {
       status = false;
     }
 
@@ -75,20 +79,49 @@ export default class EditRequiredFields {
     let validCreators = true;
     const rows = $('.creators-table-row');
     for (i = 0; i < rows.length; i += 1) {
-      const given = $(rows[i]).find('.given-entry-creator')[0];
-      if (given.value === '') {
-        $(rows[i]).find('.given-name-required-message').removeClass('hidden');
+      if (!this.valid_required_field(rows[i], '.given-entry-creator', '.given-name-required-message')) {
         validCreators = false;
-      } else {
-        $(rows[i]).find('.given-name-required-message').addClass('hidden');
       }
-      const family = $(rows[i]).find('.family-entry-creator')[0];
-      if (family.value === '') {
-        $(rows[i]).find('.family-name-required-message').removeClass('hidden');
+
+      if (!this.valid_required_field(rows[i], '.family-entry-creator', '.family-name-required-message')) {
         validCreators = false;
-      } else {
-        $(rows[i]).find('.family-name-required-message').addClass('hidden');
       }
+    }
+    return validCreators;
+  }
+
+  // Returns true if there is at least one creator with information
+  hasContributors() {
+    let i;
+    const rows = $('.contributors-table-row');
+    for (i = 0; i < rows.length; i += 1) {
+      if (!((new TableRow(rows[i])).is_empty())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  validContributors() {
+    let i;
+    let validContributors = true;
+    const rows = $('.contributors-table-row');
+    for (i = 0; i < rows.length; i += 1) {
+      if (!this.valid_required_field(rows[i], '.type-entry-contributor', '.type-required-message')) {
+        validContributors = false;
+      }
+    }
+    return validContributors;
+  }
+
+  valid_required_field(row, fieldClass, requiredClass) {
+    let validCreators = true;
+    const given = $(row).find(fieldClass)[0];
+    if (given.value === '') {
+      $(row).find(requiredClass).removeClass('hidden');
+      validCreators = false;
+    } else {
+      $(row).find(requiredClass).addClass('hidden');
     }
     return validCreators;
   }
