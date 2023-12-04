@@ -1255,7 +1255,7 @@ RSpec.describe WorksController do
 
         context "a submitter trying to update the curator conrolled fields" do
           before do
-            new_params = params.merge(doi: "new-doi")
+            new_params = params.merge(doi: "10.34770/new-doi")
                                .merge(ark: "new-ark")
                                .merge(collection_tags: "new-collection-tags")
                                .merge(resource_type: "digitized video")
@@ -1264,7 +1264,7 @@ RSpec.describe WorksController do
           end
 
           it "also saves the curator controlled fields", mock_ezid_api: true do
-            expect(work.reload.doi).to eq("new-doi")
+            expect(work.reload.doi).to eq("10.34770/new-doi")
             expect(work.ark).to eq("new-ark")
             expect(work.resource.collection_tags).to eq(["new-collection-tags"])
           end
@@ -1273,7 +1273,7 @@ RSpec.describe WorksController do
         context "a group admin trying to update curator controlled fields" do
           let(:user) { FactoryBot.create :research_data_moderator }
           before do
-            new_params = params.merge(doi: "new-doi")
+            new_params = params.merge(doi: "10.34770/new-doi")
                                .merge(ark: "new-ark")
                                .merge(collection_tags: "new-colletion-tag1, new-collection-tag2")
                                .merge(resource_type: "digitized video")
@@ -1283,7 +1283,7 @@ RSpec.describe WorksController do
           end
 
           it "updates the curator controlled fields", mock_ezid_api: true do
-            expect(work.reload.doi).to eq("new-doi")
+            expect(work.reload.doi).to eq("10.34770/new-doi")
             expect(work.ark).to eq("new-ark")
             expect(work.resource.collection_tags).to eq(["new-colletion-tag1", "new-collection-tag2"])
             expect(work.resource_type).to eq("digitized video")
@@ -1337,7 +1337,7 @@ RSpec.describe WorksController do
 
     context "the work is approved" do
       let(:work) { FactoryBot.create :approved_work }
-      let(:new_params) { params.merge(doi: "new-doi").merge(ark: "ark:/99999/new-ark").merge(collection_tags: "new-colletion-tag1, new-collection-tag2") }
+      let(:new_params) { params.merge(doi: "10.34770/new-doi").merge(ark: "ark:/99999/new-ark").merge(collection_tags: "new-colletion-tag1, new-collection-tag2") }
 
       context "the submitter" do
         let(:user) { work.created_by_user }
@@ -1363,7 +1363,7 @@ RSpec.describe WorksController do
           stub_s3
           sign_in user
           patch :update, params: new_params
-          expect(work.reload.doi).to eq("new-doi")
+          expect(work.reload.doi).to eq("10.34770/new-doi")
           expect(work.ark).to eq("ark:/99999/new-ark")
           expect(work.resource.collection_tags).to eq(["new-colletion-tag1", "new-collection-tag2"])
         end
@@ -1375,7 +1375,7 @@ RSpec.describe WorksController do
         it "renders the edit page on edit" do
           sign_in curator
           patch :update, params: new_params
-          expect(work.reload.doi).to eq("new-doi")
+          expect(work.reload.doi).to eq("10.34770/new-doi")
           expect(work.ark).to eq("ark:/99999/new-ark")
           expect(work.resource.collection_tags).to eq(["new-colletion-tag1", "new-collection-tag2"])
         end
@@ -1386,7 +1386,7 @@ RSpec.describe WorksController do
           stub_s3
           sign_in user
           patch :update, params: new_params
-          expect(work.reload.doi).to eq("new-doi")
+          expect(work.reload.doi).to eq("10.34770/new-doi")
           expect(work.ark).to eq("ark:/99999/new-ark")
           expect(work.resource.collection_tags).to eq(["new-colletion-tag1", "new-collection-tag2"])
         end
