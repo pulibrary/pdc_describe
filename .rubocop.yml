@@ -25,6 +25,7 @@ Layout/LineLength:
 Metrics/AbcSize:
   Exclude:
     - app/models/work_activity.rb
+    - app/jobs/approved_file_move_job.rb
 
 Metrics/BlockLength:
   Exclude:
