@@ -58,7 +58,7 @@ class WorksController < ApplicationController
   # When requested as .json, return the internal json resource
   def show
     @work = Work.find(params[:id])
-    @work.reload_snapshots
+    UpdateSnapshotJob.perform_later(work_id: @work.id, last_snapshot_id: work.upload_snapshots.first&.id)
     @work_decorator = WorkDecorator.new(@work, current_user)
 
     respond_to do |format|
