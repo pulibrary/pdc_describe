@@ -110,7 +110,7 @@ XML
   it "takes a DOI and returns information about that DOI in S3" do
     fake_aws_client = double(Aws::S3::Client)
     s3_query_service.stub(:client).and_return(fake_aws_client)
-    fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
+    fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output, is_truncated: false)
     fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
     fake_s3_resp.stub(:to_h).and_return(s3_hash)
 
@@ -127,11 +127,10 @@ XML
   it "takes a DOI and returns information about that DOI in S3 with pagination" do
     fake_aws_client = double(Aws::S3::Client)
     s3_query_service.stub(:client).and_return(fake_aws_client)
-    fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
+    fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output, next_continuation_token: "abc123")
     fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
-    s3_hash_truncated = s3_hash.clone
-    s3_hash_truncated[:is_truncated] = true
-    fake_s3_resp.stub(:to_h).and_return(s3_hash_truncated, s3_hash)
+    fake_s3_resp.stub(:is_truncated).and_return(true, false)
+    fake_s3_resp.stub(:to_h).and_return(s3_hash)
 
     data_profile = s3_query_service.data_profile
     expect(data_profile[:objects]).to be_instance_of(Array)
@@ -169,7 +168,7 @@ XML
     let(:fake_multi) { instance_double(Aws::S3::Types::CreateMultipartUploadOutput, key: "abc", upload_id: "upload id", bucket: "bucket") }
     let(:fake_parts) { instance_double(Aws::S3::Types::CopyPartResult, etag: "etag123abc", checksum_sha256: "sha256abc123") }
     let(:fake_upload) { instance_double(Aws::S3::Types::UploadPartCopyOutput, copy_part_result: fake_parts) }
-    let(:fake_s3_resp) { double(Aws::S3::Types::ListObjectsV2Output) }
+    let(:fake_s3_resp) { double(Aws::S3::Types::ListObjectsV2Output, is_truncated: false) }
     let(:preservation_service) { instance_double(WorkPreservationService) }
 
     before do
@@ -373,6 +372,28 @@ XML
         end
       end
     end
+
+    describe "#count_objects" do
+      before do
+        fake_s3_resp.stub(:key_count).and_return(s3_hash[:contents].count)
+        fake_s3_resp.stub(:is_truncated).and_return(false)
+      end
+
+      it "returns all the objects" do
+        expect(s3_query_service.count_objects).to eq(3)
+      end
+
+      context "truncated results" do
+        before do
+          fake_s3_resp.stub(:key_count).and_return(s3_hash[:contents].count)
+          fake_s3_resp.stub(:is_truncated).and_return(true, false)
+          fake_s3_resp.stub(:next_continuation_token).and_return("abc")
+        end
+        it "returns all the objects" do
+          expect(s3_query_service.count_objects).to eq(6)
+        end
+      end
+    end
   end
 
   context "post curated" do
@@ -381,7 +402,7 @@ XML
     it "keeps precurated and post curated items separate" do
       fake_aws_client = double(Aws::S3::Client)
       s3_query_service.stub(:client).and_return(fake_aws_client)
-      fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
+      fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output, is_truncated: false)
       fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
       fake_s3_resp.stub(:to_h).and_return(s3_hash)
 
@@ -666,11 +687,10 @@ XML
 
     before do
       s3_query_service.stub(:client).and_return(fake_aws_client)
-      fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
+      fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output, next_continuation_token: "abc123")
       fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
-      s3_hash_truncated = s3_hash.clone
-      s3_hash_truncated[:is_truncated] = true
-      fake_s3_resp.stub(:to_h).and_return(s3_hash_truncated, s3_hash)
+      fake_s3_resp.stub(:is_truncated).and_return(true, false, true, false)
+      fake_s3_resp.stub(:to_h).and_return(s3_hash)
     end
 
     it "it retrieves the files for the work" do
@@ -681,18 +701,31 @@ XML
       expect(files[2].filename).to match(/README/)
       expect(files[3].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
       expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "example-bucket", max_keys: 1000, prefix: "10.34770/pe9w-x904/#{work.id}/")
-      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "example-bucket", continuation_token: nil, max_keys: 1000, prefix: "10.34770/pe9w-x904/#{work.id}/")
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "example-bucket", continuation_token: "abc123", max_keys: 1000, prefix: "10.34770/pe9w-x904/#{work.id}/")
     end
 
-    it "it retrieves the files for a bucket and prefix" do
+    it "it retrieves the files for a bucket and prefix once" do
+      s3_query_service.client_s3_files(bucket_name: "other-bucket", prefix: "new-prefix")
+      files = s3_query_service.client_s3_files(bucket_name: "other-bucket", prefix: "new-prefix")
+      expect(files.count).to eq 4
+      expect(files.first.filename).to match(/README/)
+      expect(files[1].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
+      expect(files[2].filename).to match(/README/)
+      expect(files[3].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", max_keys: 1000, prefix: "new-prefix").once
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", continuation_token: "abc123", max_keys: 1000, prefix: "new-prefix").once
+    end
+
+    it "it retrieves the files for a bucket and prefix any time reload is true" do
+      s3_query_service.client_s3_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix")
       files = s3_query_service.client_s3_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix")
       expect(files.count).to eq 4
       expect(files.first.filename).to match(/README/)
       expect(files[1].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
       expect(files[2].filename).to match(/README/)
       expect(files[3].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
-      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", max_keys: 1000, prefix: "new-prefix")
-      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", continuation_token: nil, max_keys: 1000, prefix: "new-prefix")
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", max_keys: 1000, prefix: "new-prefix").twice
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", continuation_token: "abc123", max_keys: 1000, prefix: "new-prefix").twice
     end
 
     it "retrieves the directories if requested" do
@@ -705,7 +738,7 @@ XML
       expect(files[4].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
       expect(files[5].filename).to match(/directory/)
       expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", max_keys: 1000, prefix: "new-prefix")
-      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", continuation_token: nil, max_keys: 1000, prefix: "new-prefix")
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", continuation_token: "abc123", max_keys: 1000, prefix: "new-prefix")
     end
   end
 
@@ -715,11 +748,10 @@ XML
 
     before do
       s3_query_service.stub(:client).and_return(fake_aws_client)
-      fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
+      fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output, next_continuation_token: "abc123")
       fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
-      s3_hash_truncated = s3_hash.clone
-      s3_hash_truncated[:is_truncated] = true
-      fake_s3_resp.stub(:to_h).and_return(s3_hash_truncated, s3_hash)
+      fake_s3_resp.stub(:is_truncated).and_return(true, false, true, false)
+      fake_s3_resp.stub(:to_h).and_return(s3_hash)
     end
 
     it "it retrieves the files for the work" do
@@ -728,16 +760,27 @@ XML
       expect(files.first.filename).to eq(s3_key2)
       expect(files[1].filename).to match(s3_key2)
       expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "example-bucket", max_keys: 1000, prefix: "10.34770/pe9w-x904/#{work.id}/")
-      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "example-bucket", continuation_token: nil, max_keys: 1000, prefix: "10.34770/pe9w-x904/#{work.id}/")
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "example-bucket", continuation_token: "abc123", max_keys: 1000, prefix: "10.34770/pe9w-x904/#{work.id}/")
     end
 
-    it "it retrieves the files for a bucket and prefix" do
+    it "it retrieves the files for a bucket and prefix once" do
+      s3_query_service.client_s3_empty_files(bucket_name: "other-bucket", prefix: "new-prefix")
+      files = s3_query_service.client_s3_empty_files(bucket_name: "other-bucket", prefix: "new-prefix")
+      expect(files.count).to eq 2
+      expect(files.first.filename).to eq(s3_key2)
+      expect(files[1].filename).to eq(s3_key2)
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", max_keys: 1000, prefix: "new-prefix").once
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", continuation_token: "abc123", max_keys: 1000, prefix: "new-prefix").once
+    end
+
+    it "it retrieves the files for a bucket and prefix any time reload is true" do
+      s3_query_service.client_s3_empty_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix")
       files = s3_query_service.client_s3_empty_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix")
       expect(files.count).to eq 2
       expect(files.first.filename).to eq(s3_key2)
       expect(files[1].filename).to eq(s3_key2)
-      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", max_keys: 1000, prefix: "new-prefix")
-      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", continuation_token: nil, max_keys: 1000, prefix: "new-prefix")
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", max_keys: 1000, prefix: "new-prefix").twice
+      expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", continuation_token: "abc123", max_keys: 1000, prefix: "new-prefix").twice
     end
   end
 

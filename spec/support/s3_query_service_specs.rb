@@ -7,7 +7,7 @@ def stub_s3(data: [], bucket_url: nil, prefix: "10.34770/123-abc/1", bucket_name
   allow(@s3_client).to receive(:put_object)
 
   fake_s3_query = instance_double(S3QueryService, data_profile: { objects: data, ok: true }, client: @s3_client,
-                                                  client_s3_files: data, prefix:)
+                                                  client_s3_files: data, prefix:, count_objects: data.count)
   mock_methods(fake_s3_query, data, bucket_name)
   allow(S3QueryService).to receive(:new).and_return(fake_s3_query)
 

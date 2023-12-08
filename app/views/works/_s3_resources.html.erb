@@ -2,7 +2,7 @@
   <div class="lux">
     <div class="card">
       <div class="files card-body">
-        <h3><%= "#{@work.uploads.count} #{'File'.pluralize(@work.uploads.count)}"%> in
+        <h3><%= "#{@work.upload_count} #{'File'.pluralize(@work.upload_count)} or #{'Directory'.pluralize(@work.upload_count)}"%> in
           <%= @work.approved? ? "post-curation" : "pre-curation" %> storage
         </h3>
         <table id="files-table" class="table">
@@ -15,7 +15,7 @@
             </tr>
           </thead>
           <tbody>
-            <% if @work.uploads.empty? %>
+            <% if @work.upload_count.zero? %>
               <tr class="files">
                 <td><span><%= t('works.form.curation_uploads.empty') %></span></td>
                 <td><span></span></td>
