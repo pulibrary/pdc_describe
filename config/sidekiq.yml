@@ -6,4 +6,5 @@ production:
   :concurrency: 5
 :queues:
   - default
+  - low
 :max_retries: 25

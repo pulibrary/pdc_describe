@@ -2,6 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "/works", type: :request do
+  include ActiveJob::TestHelper
   let(:user) { FactoryBot.create :user }
 
   describe "GET /work" do
@@ -36,6 +37,7 @@ RSpec.describe "/works", type: :request do
           allow(stubbed).to receive(:reload_snapshots)
           stubbed_resource = instance_double(PDCMetadata::Resource)
           allow(stubbed).to receive(:resource).and_return(stubbed_resource)
+          allow(stubbed).to receive(:upload_snapshots).and_return([])
           stubbed
         end
 
@@ -235,6 +237,15 @@ RSpec.describe "/works", type: :request do
         end
 
         it "renders messages generated for the replaced files" do
+          expect { get work_url(work) }.to have_enqueued_job(UpdateSnapshotJob)
+
+          # Job gets queued so the changes are not present
+          expect(response.code).to eq "200"
+          expect(response.body).not_to include("Files Replaced: 1")
+
+          perform_enqueued_jobs
+
+          # a second get will show the updates that occured
           get work_url(work)
 
           expect(response.code).to eq "200"
