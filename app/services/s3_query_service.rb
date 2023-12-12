@@ -40,6 +40,7 @@ class S3QueryService
     @mode = mode
     @part_size = 5_368_709_120 # 5GB is the maximum part size for AWS
     @last_response = nil
+    @s3_responses = {}
   end
 
   def config
@@ -166,13 +167,19 @@ class S3QueryService
   # Retrieve the S3 resources uploaded to the S3 Bucket
   # @return [Array<S3File>]
   def client_s3_files(reload: false, bucket_name: self.bucket_name, prefix: self.prefix, ignore_directories: true)
-    @client_s3_files = nil if reload # force a reload
+    if reload # force a reload
+      @client_s3_files = nil
+      clear_s3_responses(bucket_name:, prefix:)
+    end
     @client_s3_files ||= get_s3_objects(bucket_name:, prefix:, ignore_directories:)
   end
 
   def client_s3_empty_files(reload: false, bucket_name: self.bucket_name, prefix: self.prefix)
-    @client_s3_empty_files = nil if reload # force a reload
-    @client_s3_empty_files = begin
+    if reload # force a reload
+      @client_s3_empty_files = nil
+      clear_s3_responses(bucket_name:, prefix:)
+    end
+    @client_s3_empty_files ||= begin
       files_and_directories = get_s3_objects(bucket_name:, prefix:, ignore_directories: false)
       files_and_directories.select { |object| !object.filename.ends_with?("/") && object.empty? }
     end
@@ -322,14 +329,41 @@ class S3QueryService
     md5.base64digest
   end
 
+  def count_objects(bucket_name: self.bucket_name, prefix: self.prefix)
+    responses = s3_responses(bucket_name:, prefix:)
+    responses.reduce(0) { |total, resp| total + resp.key_count }
+  end
+
   private
+
+    def clear_s3_responses(bucket_name:, prefix:)
+      key = "#{bucket_name} #{prefix}"
+      @s3_responses[key] = nil
+    end
+
+    def s3_responses(bucket_name:, prefix:)
+      key = "#{bucket_name} #{prefix}"
+      responses = @s3_responses[key]
+      if responses.nil?
+        resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: })
+        responses = [resp]
+        while resp.is_truncated
+          resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix:, continuation_token: resp.next_continuation_token })
+          responses << resp
+        end
+        @s3_responses[key] = responses
+      end
+      responses
+    end
 
     def get_s3_objects(bucket_name:, prefix:, ignore_directories:)
       start = Time.zone.now
-      resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: })
-      resp_hash = resp.to_h
-      objects = parse_objects(resp_hash, ignore_directories:)
-      objects += parse_continuation(resp_hash, bucket_name:, prefix:, ignore_directories:)
+      responses = s3_responses(bucket_name:, prefix:)
+      objects = responses.reduce([]) do |all_objects, resp|
+        resp_hash = resp.to_h
+        resp_objects = parse_objects(resp_hash, ignore_directories:)
+        all_objects + resp_objects
+      end
       elapsed = Time.zone.now - start
       Rails.logger.info("Loading S3 objects. Bucket: #{bucket_name}. Prefix: #{prefix}. Elapsed: #{elapsed} seconds")
       objects
@@ -345,21 +379,6 @@ class S3QueryService
         objects << s3_file
       end
       objects
-    end
-
-    def parse_continuation(resp_hash, bucket_name: self.bucket_name, prefix: self.prefix, ignore_directories: true)
-      objects = []
-      while resp_hash[:is_truncated]
-        token = resp_hash[:next_continuation_token]
-        resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix:, continuation_token: token })
-        resp_hash = resp.to_h
-        objects += parse_objects(resp_hash, ignore_directories:)
-      end
-      objects
-    rescue Aws::Errors::ServiceError => aws_service_error
-      message = "An error was encountered when requesting to list the AWS S3 Objects in the bucket #{bucket_name} with the key #{prefix}: #{aws_service_error}"
-      Rails.logger.error(message)
-      raise aws_service_error
     end
 
     def upload_multipart_file(target_bucket:, target_key:, size:, io:)

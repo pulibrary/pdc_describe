@@ -472,6 +472,10 @@ class Work < ApplicationRecord
     embargo_date >= current_date
   end
 
+  def upload_count
+    @upload_count ||= s3_query_service.count_objects
+  end
+
   protected
 
     def work_validator
