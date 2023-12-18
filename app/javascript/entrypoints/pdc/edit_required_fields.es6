@@ -79,12 +79,14 @@ export default class EditRequiredFields {
     let validCreators = true;
     const rows = $('.creators-table-row');
     for (i = 0; i < rows.length; i += 1) {
-      if (!this.valid_required_field(rows[i], '.given-entry-creator', '.given-name-required-message')) {
-        validCreators = false;
-      }
+      if (!(new TableRow(rows[i])).is_empty()) {
+        if (!this.valid_required_field(rows[i], '.given-entry-creator', '.given-name-required-message')) {
+          validCreators = false;
+        }
 
-      if (!this.valid_required_field(rows[i], '.family-entry-creator', '.family-name-required-message')) {
-        validCreators = false;
+        if (!this.valid_required_field(rows[i], '.family-entry-creator', '.family-name-required-message')) {
+          validCreators = false;
+        }
       }
     }
     return validCreators;
@@ -107,8 +109,10 @@ export default class EditRequiredFields {
     let validContributors = true;
     const rows = $('.contributors-table-row');
     for (i = 0; i < rows.length; i += 1) {
-      if (!this.valid_required_field(rows[i], '.type-entry-contributor', '.type-required-message')) {
-        validContributors = false;
+      if (!(new TableRow(rows[i])).is_empty()) {
+        if (!this.valid_required_field(rows[i], '.type-entry-contributor', '.type-required-message')) {
+          validContributors = false;
+        }
       }
     }
     return validContributors;
