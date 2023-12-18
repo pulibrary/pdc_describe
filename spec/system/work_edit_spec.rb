@@ -334,6 +334,8 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
         click_on "Save Work"
         expect(page).to have_content("Must provide a role")
         find("tr:last-child select[name='contributors[][role]']").select "Contact Person"
+        # make sure an empty contributor row does not stop the form submission
+        click_on "Add Another Individual Contributor"
         click_on "Save Work"
         expect(page).to have_content("Work was successfully updated.")
         click_on "Edit"

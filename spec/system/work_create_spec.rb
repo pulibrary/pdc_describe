@@ -76,7 +76,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       expect(find("tr:last-child input[name='creators[][family_name]']").value).to eq(user.family_name)
       expect(find("tr:last-child input[name='creators[][affiliation]']").value).to eq("")
       expect(page).to have_button("Add me as a Creator", disabled: true)
-
+      # make sure an empty creator row does not stop the form submission
+      click_on "Add Another Creator"
       click_on "Create New"
       expect(Work.all).not_to be_empty
       work = Work.last
@@ -111,7 +112,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
         find("tr:last-child input[name='creators[][family_name]']").set "Abrams"
         click_on "Add Another Creator"
         click_on "Create New"
-        expect(page).to have_content("Must provide a family name")
+        expect(page).to have_content("Must provide a given name")
       end
     end
 
