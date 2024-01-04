@@ -76,3 +76,37 @@
     </tfoot>
   </table>
 </div>
+
+<script>
+  /*
+   * Hook the auto complete plugin to the creator affiliation.
+   *
+   * Auto complete plugin demos https://jqueryui.com/autocomplete/
+   *    Notice that the "remote" demos which are the ones that we care DO NOT work on
+   *    this site. The non-remote demos work.
+   *
+   * Plug-in documentation: https://api.jqueryui.com/autocomplete/
+   *    The "source" property is important. See example below where we are using a source
+   *    that is a function that makes an AJAX call to ROR.
+   *
+   * https://stackoverflow.com/a/11435575/446681
+   */
+  $(function() {
+    $('.affiliation-entry-creator').autocomplete({
+        source: function (request, response) {
+          // Hard-coded to search for "Princeton" for now
+          $.getJSON("https://api.ror.org/organizations?query=Princeton", function (data) {
+            var candidates = [];
+            var i, candidate;
+            for(i = 0; i < data.items.length; i++) {
+              candidate = {key: data.items[i].id, label: data.items[i].name};
+              candidates.push(candidate);
+            }
+            response(candidates);
+          });
+        },
+        minLength: 2,
+        delay: 100
+    });
+  });
+</script>
