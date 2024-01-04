@@ -320,6 +320,14 @@ class Work < ApplicationRecord
     files_info
   end
 
+  def total_file_size
+    total_size = 0
+    file_list.each do |file|
+      total_size += file[:size]
+    end
+    total_size
+  end
+
   # Fetches the data from S3 directly bypassing ActiveStorage
   def pre_curation_uploads_fast
     s3_query_service.client_s3_files.sort_by(&:filename)
