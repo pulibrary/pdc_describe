@@ -109,6 +109,7 @@
         <dd><%= title.title %></dd>
       <% end %>
 
+
       <dt>Creators</dt>
       <dd>
         <%= safe_join(@work.resource.creators.map { |person| render("orcid_link", person: person) }, "; ") %>
@@ -285,7 +286,12 @@
         <dt>Location notes</dt>
         <dd><%= @work.location_notes %></dd>
       <% end %>
+      <dt>Total Size</dt> 
+      <dd>
+        <%= number_to_human_size(@work.total_file_size)%>
+      </dd>
     </dl>
+
 
     <div class="document-citation">
     <header>Cite as:

@@ -9,10 +9,12 @@ staging:
   - jrg5 # James Griffin
   - kl37 # Kate Lynch
   - hc8719 # Hector Correa
+  - cl7359 # Claudia Lee
 development:
   - bs3097 # Bess Sadler
   - jrg5 # James Griffin
   - kl37 # Kate Lynch
   - hc8719 # Hector Correa
+  - cl7359 # Claudia Lee
 test:
   - fake1 # Fake user for testing
