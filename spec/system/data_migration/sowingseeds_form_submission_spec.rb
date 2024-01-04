@@ -67,6 +67,7 @@ Download the README.txt for a detailed description of this dataset's content."
       click_on "Additional Metadata"
       click_on "Curator Controlled"
       fill_in "ark", with: ark
+      fill_in "publication_year", with: "2023"
       click_on "Migrate"
       expect(page).to have_button("Migrate Dataspace Files")
       click_on "Complete"
