@@ -92,21 +92,37 @@
    * https://stackoverflow.com/a/11435575/446681
    */
   $(function() {
+
+    var getDataFromROR = function(request, response) {
+      $.getJSON("https://api.ror.org/organizations?query=" + request.term, function(data) {
+        var candidates = [];
+        var i, candidate;
+        for(i = 0; i < data.items.length; i++) {
+          candidate = {key: data.items[i].id, label: data.items[i].name};
+          candidates.push(candidate);
+        }
+        response(candidates);
+      });
+    }
+
     $('.affiliation-entry-creator').autocomplete({
-        source: function (request, response) {
-          // Hard-coded to search for "Princeton" for now
-          $.getJSON("https://api.ror.org/organizations?query=Princeton", function (data) {
-            var candidates = [];
-            var i, candidate;
-            for(i = 0; i < data.items.length; i++) {
-              candidate = {key: data.items[i].id, label: data.items[i].name};
-              candidates.push(candidate);
-            }
-            response(candidates);
-          });
-        },
+        source: getDataFromROR,
         minLength: 2,
         delay: 100
     });
+
+    // function autocomplete(source) {
+    //   if (char.lenght > 2) {
+    //     request = "x";
+    //     response = "y";
+    //     source(request, response);
+    //   }
+    // }
+    //
+    // function getJSON(url, functionProcess) {
+    //   data = dataFromUrl(url);
+    //   functionProcess(data);
+    // }
+
   });
 </script>
