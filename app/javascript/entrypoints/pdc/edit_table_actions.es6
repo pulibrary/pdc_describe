@@ -36,6 +36,39 @@ export default class EditTableActions {
     const $newTr = $tbody.find('tr').last().clone();
     $newTr.find('input').val('');
     $tbody.append($newTr);
+
+    // TODO: We should only execute this code when we are adding a row that has
+    // affiliations.
+    var inputBox = $newTr.find("input.affiliation-entry-creator");
+
+    // TODO: we shouldn't duplicate this code with the one in _required_creators_table.html.erb
+    var getDataFromROR = function(request, response) {
+      // ROR API: https://ror.readme.io/docs/rest-api
+      $.getJSON("https://api.ror.org/organizations?query=" + request.term, function(data) {
+        var candidates = [];
+        var i, candidate;
+        for(i = 0; i < data.items.length; i++) {
+          candidate = {key: data.items[i].id, label: data.items[i].name};
+          candidates.push(candidate);
+        }
+        response(candidates);
+      });
+    }
+
+    // TODO: we shouldn't duplicate this code with the one in _required_creators_table.html.erb
+    $(inputBox).autocomplete({
+        source: getDataFromROR,
+        select: function(event, ui) {
+          // TODO:
+          // We should target the correct ror-input
+          // right now it changes all ror-input textboxes
+          console.log("Setting selected record");
+          $(".ror-input").prop("value",ui.item.key);
+        },
+        minLength: 2,
+        delay: 100
+    });
+
     return $newTr;
   }
 

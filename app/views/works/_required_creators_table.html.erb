@@ -94,7 +94,10 @@
   $(function() {
 
     var getDataFromROR = function(request, response) {
-      $.getJSON("https://api.ror.org/organizations?query=" + request.term, function(data) {
+      // ROR API: https://ror.readme.io/docs/rest-api
+      // https://api.ror.org/organizations?query=
+      // https://api.ror.org/organizations?query.advanced=name:Prin*
+      $.getJSON("https://api.ror.org/organizations?query.advanced=name:" + request.term + "*", function(data) {
         var candidates = [];
         var i, candidate;
         for(i = 0; i < data.items.length; i++) {
@@ -107,6 +110,12 @@
 
     $('.affiliation-entry-creator').autocomplete({
         source: getDataFromROR,
+        select: function(event, ui) {
+          // TODO:
+          // We should target the correct ror-input
+          // right now it changes all ror-input textboxes
+          $(".ror-input").prop("value",ui.item.key);
+        },
         minLength: 2,
         delay: 100
     });
