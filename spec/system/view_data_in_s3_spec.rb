@@ -54,14 +54,14 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
 
       visit work_path(work)
       # DataTables is active
-      byebug
       expect(page.has_content?(/Showing 1 to [0-9]+ of [0-9]+ entries/)).to be true
       # and file are rendered as links pointing to the download endpoint
       expect(page.body.include?("download?filename=#{file2.filename}"))
       # and we rendered the date in the display format
       expect(page.body.include?(s3_data.first.last_modified_display))
       # make sure that the README file shows first in the data table
-      expect(page.body.include?("/something_README.txt"))
+      readme_css_selector = '#files-table>tbody>tr>td>span>a[href="' + work.id.to_s + '/download?filename=10.34770/pe9w-x904/1/something_README.txt"]'
+      page.has_selector?(readme_css_selector)
     end
 
     context "when item is approved" do
