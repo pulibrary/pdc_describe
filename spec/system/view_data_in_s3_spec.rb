@@ -7,6 +7,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
     sign_in user
   end
 
+# We are adding 12 files to 
   describe "when a dataset has a DOI and its data is in S3" do
     let(:user) { FactoryBot.create :princeton_submitter }
     let(:work) { FactoryBot.create(:shakespeare_and_company_work, created_by_user_id: user.id) }
@@ -60,8 +61,8 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
       # and we rendered the date in the display format
       expect(page.body.include?(s3_data.first.last_modified_display))
       # make sure that the README file shows first in the data table
-      readme_css_selector = '#files-table>tbody>tr>td>span>a[href="' + work.id.to_s + '/download?filename=10.34770/pe9w-x904/1/something_README.txt"]'
-      page.has_selector?(readme_css_selector)
+      readme_css_selector = '#files-table>tbody>tr:first-child>td>span>a[href="' + work.id.to_s + '/download?filename=10.34770/pe9w-x904/1/test4.txt"]'
+      expect(page.has_selector?(readme_css_selector))
     end
 
     context "when item is approved" do
