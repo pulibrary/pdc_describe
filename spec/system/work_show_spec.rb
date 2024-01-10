@@ -48,9 +48,9 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
   it "uses datatables for easy navigation" do
     sign_in user
     visit work_path(work)
-
     expect(page).to have_css(".dataTables_length")
     expect(page).to have_css(".dataTables_filter")
+    # expect(page).to have_css(".dataTables_files-table[0]").to have_content("README.txt")
     page.driver.go_back
     page.driver.go_forward
     expect(page).to have_css(".dataTables_length")

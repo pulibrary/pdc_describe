@@ -11,9 +11,19 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
     let(:user) { FactoryBot.create :princeton_submitter }
     let(:work) { FactoryBot.create(:shakespeare_and_company_work, created_by_user_id: user.id) }
     let(:s3_query_service_double) { instance_double(S3QueryService) }
-    let(:file1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt", work: }
+    let(:file1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datafile.txt", work: }
     let(:file2) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json", work: }
-    let(:s3_data) { [file1, file2] }
+    let(:file3) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/something_README.txt", work: }
+    let(:file4) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/test4.txt", work: }
+    let(:file5) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/test5.json", work: }
+    let(:file6) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/test6.txt", work: }
+    let(:file7) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/test7.txt", work: }
+    let(:file8) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/test8.json", work: }
+    let(:file9) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/a_test.txt", work: }
+    let(:file10) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/b_test.txt", work: }
+    let(:file11) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/c_test.json", work: }
+    let(:file12) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/test_12.txt", work: }
+    let(:s3_data) { [file1, file2, file3, file4, file5, file6, file7, file8, file9, file10, file11, file12] }
 
     let(:bucket_url) do
       "https://example-bucket.s3.amazonaws.com/"
@@ -44,11 +54,14 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
 
       visit work_path(work)
       # DataTables is active
+      byebug
       expect(page.has_content?(/Showing 1 to [0-9]+ of [0-9]+ entries/)).to be true
       # and file are rendered as links pointing to the download endpoint
       expect(page.body.include?("download?filename=#{file2.filename}"))
       # and we rendered the date in the display format
       expect(page.body.include?(s3_data.first.last_modified_display))
+      # make sure that the README file shows first in the data table
+      expect(page.body.include?("/something_README.txt"))
     end
 
     context "when item is approved" do
