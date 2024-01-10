@@ -51,9 +51,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
       # and we rendered the date in the display format
       expect(page.body.include?(s3_data.first.last_modified_display))
       # make sure that the README file shows first in the data table
-      readme_css_selector = '#files-table>tbody>tr:first-child>td>span>a[href="' + work.id.to_s + '/download?filename=10.34770/pe9w-x904/1/something_README.txt"]'
-      output = readme_css_selector + "\r\n" + page.body
-      raise output
+      readme_css_selector = '#files-table>tbody>tr:first-child>td>span>a[href="' + work.id.to_s + '/download?filename=10.34770/pe9w-x904/' + work.id.to_s + '/something_README.txt"]'
       expect(page.has_selector?(readme_css_selector)).to be true
     end
 
