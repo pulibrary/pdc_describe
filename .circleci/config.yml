@@ -93,6 +93,7 @@ jobs:
       - store_artifacts:
           path:
             ~/rails_template/coverage
+            ~/rails_template/tmp/capybara
             ~/rails_template/tmp/screenshots
 
 workflows:
