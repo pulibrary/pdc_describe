@@ -11,9 +11,10 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
     let(:user) { FactoryBot.create :princeton_submitter }
     let(:work) { FactoryBot.create(:shakespeare_and_company_work, created_by_user_id: user.id) }
     let(:s3_query_service_double) { instance_double(S3QueryService) }
-    let(:file1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_README.txt", work: }
+    let(:file1) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datafile.txt", work: }
     let(:file2) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json", work: }
-    let(:s3_data) { [file1, file2] }
+    let(:file3) { FactoryBot.build :s3_file, filename: "#{work.doi}/#{work.id}/something_README.txt", work: }
+    let(:s3_data) { [file1, file2, file3] }
 
     let(:bucket_url) do
       "https://example-bucket.s3.amazonaws.com/"
@@ -49,6 +50,9 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
       expect(page.body.include?("download?filename=#{file2.filename}"))
       # and we rendered the date in the display format
       expect(page.body.include?(s3_data.first.last_modified_display))
+      # make sure that the README file shows first in the data table
+      readme_css_selector = '#files-table>tbody>tr:first-child>td>span>a[href="' + work.id.to_s + "/download?filename=10.34770/pe9w-x904/" + work.id.to_s + '/something_README.txt"]'
+      expect(page.has_selector?(readme_css_selector)).to be true
     end
 
     context "when item is approved" do
