@@ -41,10 +41,10 @@ RSpec.describe Work, type: :model do
       expect(JSON.parse(work.to_json)).to eq(
         {
           "resource" => {
-            "titles" => [{"title"=>"Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas", "title_type"=>nil}],
+            "titles" => [{ "title" => "Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas", "title_type" => nil }],
             "description" => "A new model for electron temperature gradient (ETG) modes is developed as a component of the Multi-Mode anomalous transport module.",
             "collection_tags" => [],
-            "creators" => [{"value"=>"Rafiq, Tariq", "name_type"=>"Personal", "given_name"=>"Tariq", "family_name"=>"Rafiq", "identifier"=>nil, "affiliations"=>[], "sequence"=>1}],
+            "creators" => [{ "value" => "Rafiq, Tariq", "name_type" => "Personal", "given_name" => "Tariq", "family_name" => "Rafiq", "identifier" => nil, "affiliations" => [], "sequence" => 1 }],
             "organizational_contributors" => [],
             "resource_type" => "Dataset",
             "resource_type_general" => nil,
@@ -52,7 +52,7 @@ RSpec.describe Work, type: :model do
             "publication_year" => "2022",
             "ark" => "ark:/88435/dsp015d86p342b",
             "doi" => "10.34770/not_yet_assigned",
-            "rights_many" => [{"identifier"=>"CC BY", "uri"=>"https://creativecommons.org/licenses/by/4.0/", "name"=>"Creative Commons Attribution 4.0 International"}],
+            "rights_many" => [{ "identifier" => "CC BY", "uri" => "https://creativecommons.org/licenses/by/4.0/", "name" => "Creative Commons Attribution 4.0 International" }],
             "version_number" => "1",
             "related_objects" => [],
             "keywords" => [],

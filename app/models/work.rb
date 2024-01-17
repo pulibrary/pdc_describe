@@ -410,7 +410,7 @@ class Work < ApplicationRecord
   # @param date [ActiveSupport::TimeWithZone]
   # @return [String]
   def format_date_for_solr(date)
-    date.strftime('%Y-%m-%dT%H:%M:%SZ')
+    date.strftime("%Y-%m-%dT%H:%M:%SZ")
   end
 
   def pre_curation_uploads_count
