@@ -400,8 +400,17 @@ class Work < ApplicationRecord
       "resource" => resource.as_json,
       "files" => files,
       "group" => group.as_json.except("id"),
-      "embargo_date" => embargo_date_as_json
+      "embargo_date" => embargo_date_as_json,
+      "created_at" => format_date_for_solr(created_at),
+      "updated_at" => format_date_for_solr(updated_at)
     }
+  end
+
+  # Format the date for Apache Solr
+  # @param date [ActiveSupport::TimeWithZone]
+  # @return [String]
+  def format_date_for_solr(date)
+    date.strftime('%Y-%m-%dT%H:%M:%SZ')
   end
 
   def pre_curation_uploads_count

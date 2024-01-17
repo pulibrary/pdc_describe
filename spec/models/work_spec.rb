@@ -33,27 +33,27 @@ RSpec.describe Work, type: :model do
 
   context "fixed time" do
     let(:embargo_date) { Date.parse("2023-09-14") }
+    let(:work) { FactoryBot.create(:tokamak_work, embargo_date:) }
     before do
       allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
     end
     it "captures everything needed for PDC Describe in JSON" do
-      work = Work.new(group:, embargo_date:, resource: FactoryBot.build(:tokamak_work))
       expect(JSON.parse(work.to_json)).to eq(
         {
           "resource" => {
-            "titles" => [],
-            "description" => nil,
+            "titles" => [{"title"=>"Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas", "title_type"=>nil}],
+            "description" => "A new model for electron temperature gradient (ETG) modes is developed as a component of the Multi-Mode anomalous transport module.",
             "collection_tags" => [],
-            "creators" => [],
+            "creators" => [{"value"=>"Rafiq, Tariq", "name_type"=>"Personal", "given_name"=>"Tariq", "family_name"=>"Rafiq", "identifier"=>nil, "affiliations"=>[], "sequence"=>1}],
             "organizational_contributors" => [],
-            "resource_type" => nil,
+            "resource_type" => "Dataset",
             "resource_type_general" => nil,
-            "publisher" => nil,
-            "publication_year" => nil,
-            "ark" => nil,
-            "doi" => nil,
-            "rights_many" => [],
-            "version_number" => nil,
+            "publisher" => "Princeton University",
+            "publication_year" => "2022",
+            "ark" => "ark:/88435/dsp015d86p342b",
+            "doi" => "10.34770/not_yet_assigned",
+            "rights_many" => [{"identifier"=>"CC BY", "uri"=>"https://creativecommons.org/licenses/by/4.0/", "name"=>"Creative Commons Attribution 4.0 International"}],
+            "version_number" => "1",
             "related_objects" => [],
             "keywords" => [],
             "contributors" => [],
@@ -65,13 +65,15 @@ RSpec.describe Work, type: :model do
           },
           "files" => [],
           "group" => {
-            "title" => "Princeton Research Data Service (PRDS)",
+            "title" => "Princeton Plasma Physics Lab (PPPL)",
             "description" => nil,
-            "code" => "RD",
+            "code" => "PPPL",
             "created_at" => "2021-12-31T19:00:00.000-05:00",
             "updated_at" => "2021-12-31T19:00:00.000-05:00"
           },
-          "embargo_date" => "2023-09-14T00:00:00Z"
+          "embargo_date" => "2023-09-14T00:00:00Z",
+          "created_at" => "2021-12-31T19:00:00Z",
+          "updated_at" => "2021-12-31T19:00:00Z"
         }
       )
     end
