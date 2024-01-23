@@ -11,7 +11,7 @@ export default class EditTableActions {
     this.familyName = $('#user_family_name').val();
   }
 
-  attach_actions() {
+  attach_actions(tableId) {
     $('.btn-add-row').on('click', (event) => {
       this.create_new_row(event.target);
       return false;
@@ -29,6 +29,13 @@ export default class EditTableActions {
       this.delete_row(event.target);
       return false;
     });
+
+    // Attach the auto complete feature to the existing rows on the table
+    const rows = $(`#${tableId} > tbody > tr`);
+    for(var i = 0; i < rows.length; i++) {
+      var $row = $(rows[i]);
+      this.setupAutoCompleteForRow($row);
+    }
   }
 
   create_new_row(button) {
@@ -36,15 +43,18 @@ export default class EditTableActions {
     const $newTr = $tbody.find('tr').last().clone();
     $newTr.find('input').val('');
     $tbody.append($newTr);
+    this.setupAutoCompleteForRow($newTr);
+    return $newTr;
+  }
 
-    // TODO: We should only execute this code when we are adding a row that has
-    // affiliations.
-    var inputBox = $newTr.find("input.affiliation-entry-creator");
+  setupAutoCompleteForRow($row) {
+    var inputBox = $row.find("input.affiliation-entry-creator");
 
-    // TODO: we shouldn't duplicate this code with the one in _required_creators_table.html.erb
     var getDataFromROR = function(request, response) {
       // ROR API: https://ror.readme.io/docs/rest-api
-      $.getJSON("https://api.ror.org/organizations?query=" + request.term, function(data) {
+      // https://api.ror.org/organizations?query=
+      // https://api.ror.org/organizations?query.advanced=name:Prin*
+      $.getJSON("https://api.ror.org/organizations?query.advanced=name:" + request.term + "*", function(data) {
         var candidates = [];
         var i, candidate;
         for(i = 0; i < data.items.length; i++) {
@@ -55,21 +65,17 @@ export default class EditTableActions {
       });
     }
 
-    // TODO: we shouldn't duplicate this code with the one in _required_creators_table.html.erb
     $(inputBox).autocomplete({
         source: getDataFromROR,
         select: function(event, ui) {
-          // TODO:
-          // We should target the correct ror-input
-          // right now it changes all ror-input textboxes
-          console.log("Setting selected record");
-          $(".ror-input").prop("value",ui.item.key);
+          // Find the ROR input box for this row
+          // and sets its ROR based on the selected organization
+          var rorInput = $(event.target).closest('tr').find('.ror-input');
+          $(rorInput).prop("value", ui.item.key);
         },
         minLength: 2,
         delay: 100
     });
-
-    return $newTr;
   }
 
   create_user_row(button) {
