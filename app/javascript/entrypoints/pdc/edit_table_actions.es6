@@ -49,7 +49,6 @@ export default class EditTableActions {
 
   setupAutoCompleteForRow($row) {
     var inputBox = $row.find("input.affiliation-entry-creator");
-
     var getDataFromROR = function(request, response) {
       // ROR API: https://ror.readme.io/docs/rest-api
       // https://api.ror.org/organizations?query=
@@ -70,7 +69,7 @@ export default class EditTableActions {
         select: function(event, ui) {
           // Find the ROR input box for this row
           // and sets its ROR based on the selected organization
-          var rorInput = $(event.target).closest('tr').find('.ror-input');
+          var rorInput = $row.find("input.ror-input");
           $(rorInput).prop("value", ui.item.key);
         },
         minLength: 2,
