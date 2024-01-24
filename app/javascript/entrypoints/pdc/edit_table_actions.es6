@@ -32,8 +32,8 @@ export default class EditTableActions {
 
     // Attach the auto complete feature to the existing rows on the table
     const rows = $(`#${tableId} > tbody > tr`);
-    for(var i = 0; i < rows.length; i++) {
-      var $row = $(rows[i]);
+    for (let i = 0; i < rows.length; i += 1) {
+      const $row = $(rows[i]);
       this.setupAutoCompleteForRow($row);
     }
   }
@@ -48,32 +48,33 @@ export default class EditTableActions {
   }
 
   setupAutoCompleteForRow($row) {
-    var inputBox = $row.find("input.affiliation-entry-creator");
-    var getDataFromROR = function(request, response) {
+    const inputBox = $row.find('input.affiliation-entry-creator');
+    const getDataFromROR = function (request, response) {
       // ROR API: https://ror.readme.io/docs/rest-api
       // https://api.ror.org/organizations?query=
       // https://api.ror.org/organizations?query.advanced=name:Prin*
-      $.getJSON("https://api.ror.org/organizations?query.advanced=name:" + request.term + "*", function(data) {
-        var candidates = [];
-        var i, candidate;
-        for(i = 0; i < data.items.length; i++) {
-          candidate = {key: data.items[i].id, label: data.items[i].name};
+      $.getJSON(`https://api.ror.org/organizations?query.advanced=name:${request.term}*`, (data) => {
+        const candidates = [];
+        let i; let
+          candidate;
+        for (i = 0; i < data.items.length; i += 1) {
+          candidate = { key: data.items[i].id, label: data.items[i].name };
           candidates.push(candidate);
         }
         response(candidates);
       });
-    }
+    };
 
     $(inputBox).autocomplete({
-        source: getDataFromROR,
-        select: function(event, ui) {
-          // Find the ROR input box for this row
-          // and sets its ROR based on the selected organization
-          var rorInput = $row.find("input.ror-input");
-          $(rorInput).prop("value", ui.item.key);
-        },
-        minLength: 2,
-        delay: 100
+      source: getDataFromROR,
+      select(event, ui) {
+        // Find the ROR input box for this row
+        // and sets its ROR based on the selected organization
+        const rorInput = $row.find('input.ror-input');
+        $(rorInput).prop('value', ui.item.key);
+      },
+      minLength: 2,
+      delay: 100,
     });
   }
 
