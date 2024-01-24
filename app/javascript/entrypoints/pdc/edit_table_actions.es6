@@ -1,5 +1,6 @@
 /* eslint class-methods-use-this: ["error", {
-  "exceptMethods": ["create_new_row", "delete_row", "find_empty_row"] }] */
+  "exceptMethods": ["create_new_row", "delete_row", "find_empty_row",
+  "setup_auto_complete_for_row"] }] */
 
 import TableRow from './table_row.es6';
 
@@ -34,7 +35,7 @@ export default class EditTableActions {
     const rows = $(`#${tableId} > tbody > tr`);
     for (let i = 0; i < rows.length; i += 1) {
       const $row = $(rows[i]);
-      this.setupAutoCompleteForRow($row);
+      this.setup_auto_complete_for_row($row);
     }
   }
 
@@ -43,13 +44,13 @@ export default class EditTableActions {
     const $newTr = $tbody.find('tr').last().clone();
     $newTr.find('input').val('');
     $tbody.append($newTr);
-    this.setupAutoCompleteForRow($newTr);
+    this.setup_auto_complete_for_row($newTr);
     return $newTr;
   }
 
-  setupAutoCompleteForRow($row) {
+  setup_auto_complete_for_row($row) {
     const inputBox = $row.find('input.affiliation-entry-creator');
-    const getDataFromROR = function (request, response) {
+    const getDataFromROR = function getDataFromROR(request, response) {
       // ROR API: https://ror.readme.io/docs/rest-api
       // https://api.ror.org/organizations?query=
       // https://api.ror.org/organizations?query.advanced=name:Prin*
