@@ -6,8 +6,9 @@ RSpec.describe S3QueryService do
 
   subject(:s3_query_service) { described_class.new(work) }
   let(:work) { FactoryBot.create :draft_work, doi: }
-  let(:s3_key1) { "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_README.txt" }
-  let(:s3_key2) { "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json" }
+  let(:s3_bucket_key) { "10.34770/pe9w-x904/#{work.id}/" }
+  let(:s3_key1) { "#{s3_bucket_key}SCoData_combined_v1_2020-07_README.txt" }
+  let(:s3_key2) { "#{s3_bucket_key}SCoData_combined_v1_2020-07_datapackage.json" }
   let(:s3_last_modified1) { Time.parse("2022-04-21T18:29:40.000Z") }
   let(:s3_last_modified2) { Time.parse("2022-04-21T18:30:07.000Z") }
   let(:s3_size1) { 5_368_709_122 }
@@ -17,6 +18,13 @@ RSpec.describe S3QueryService do
     {
       is_truncated: false,
       contents: [
+        {
+          etag: "\"#{s3_etag1}\"",
+          key: s3_bucket_key,
+          last_modified: s3_last_modified1,
+          size: 0,
+          storage_class: "STANDARD"
+        },
         {
           etag: "\"#{s3_etag1}\"",
           key: s3_key1,
@@ -390,7 +398,7 @@ XML
           fake_s3_resp.stub(:next_continuation_token).and_return("abc")
         end
         it "returns all the objects" do
-          expect(s3_query_service.count_objects).to eq(6)
+          expect(s3_query_service.count_objects).to eq(7) # do not count the bucket the first time
         end
       end
     end
@@ -730,13 +738,15 @@ XML
 
     it "retrieves the directories if requested" do
       files = s3_query_service.client_s3_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix", ignore_directories: false)
-      expect(files.count).to eq 6
-      expect(files.first.filename).to match(/README/)
-      expect(files[1].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
-      expect(files[2].filename).to match(/directory/)
-      expect(files[3].filename).to match(/README/)
-      expect(files[4].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
-      expect(files[5].filename).to match(/directory/)
+      expect(files.count).to eq 8
+      expect(files.first.filename).to match(/#{s3_bucket_key}/)
+      expect(files[1].filename).to match(/README/)
+      expect(files[2].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
+      expect(files[3].filename).to match(/directory/)
+      expect(files[4].filename).to match(/#{s3_bucket_key}/)
+      expect(files[5].filename).to match(/README/)
+      expect(files[6].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
+      expect(files[7].filename).to match(/directory/)
       expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", max_keys: 1000, prefix: "new-prefix")
       expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", continuation_token: "abc123", max_keys: 1000, prefix: "new-prefix")
     end

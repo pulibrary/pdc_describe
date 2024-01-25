@@ -331,7 +331,8 @@ class S3QueryService
 
   def count_objects(bucket_name: self.bucket_name, prefix: self.prefix)
     responses = s3_responses(bucket_name:, prefix:)
-    responses.reduce(0) { |total, resp| total + resp.key_count }
+    total_key_count = responses.reduce(0) { |total, resp| total + resp.key_count }
+    total_key_count - 1 # s3 always sends back the bucket key as the first response, so we should not count it
   end
 
   private
