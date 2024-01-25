@@ -20,13 +20,26 @@ class FakeIdentifierIntegration < Sinatra::Base
   end
 
   # Mimic the response we'd get from
-  # https://api.ror.org/organizations/https://ror.org/01bj3aw27
+  # https://api.ror.org/organizations/https://ror.org/01bj3aw27 (for ROR look ups by ID)
+  # and from https://api.ror.org/?query.advanced=name:Princeton (for ROR queries by name)
+  #
+  # NOTE: You cannot put byebug to step to this code (something to do with different threads
+  # of execution) but you can log to a file and inspect the values that way, for example:
+  #     File.write("/path/to/file.txt", "ROR params #{params}\r\n", mode: "a")
   get "/ror/*" do
     ror = params["splat"].first
+    query = params["query.advanced"]
     content_type(:json)
     callback = params[:callback]
-    data = ror_lookup(ror)
+    data = ror.present? ? ror_lookup(ror) : ror_query(query)
     "#{callback}#{data.to_json}"
+  end
+
+  def ror_query(_query)
+    {
+      "number_of_results": 1,
+      "items": [{ "id": "https://ror.org/02hvk4n65", "name": "Water Department" }]
+    }
   end
 
   # rubocop:disable Metrics/MethodLength
