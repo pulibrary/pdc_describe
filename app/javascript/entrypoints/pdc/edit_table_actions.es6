@@ -54,7 +54,7 @@ export default class EditTableActions {
       // ROR API: https://ror.readme.io/docs/rest-api
       // https://api.ror.org/organizations?query=
       // https://api.ror.org/organizations?query.advanced=name:Prin*
-      $.getJSON(`${pdc.ror_url}/?query.advanced=name:${request.term}*`, (data) => {
+      $.getJSON(`${pdc.ror_url}?query.advanced=name:${request.term}*`, (data) => {
         const candidates = [];
         let i; let
           candidate;

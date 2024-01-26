@@ -23,10 +23,11 @@ class FakeIdentifierIntegration < Sinatra::Base
   # https://api.ror.org/organizations/https://ror.org/01bj3aw27 (for ROR look ups by ID)
   # and from https://api.ror.org/?query.advanced=name:Princeton (for ROR queries by name)
   #
-  # NOTE: You cannot put byebug to step to this code (something to do with different threads
-  # of execution) but you can log to a file and inspect the values that way, for example:
-  #     File.write("/path/to/file.txt", "ROR params #{params}\r\n", mode: "a")
-  get "/ror/*" do
+  # NOTE: You cannot put `byebug` to step into this code (something to do with different threads
+  # of execution) and using `puts` to output to the console does now work either, but you can
+  # write to a file and inspect the values that way, for example:
+  #   File.write("/path/to/file.txt", "ROR params #{params}\r\n", mode: "a")
+  get "/ror*" do
     ror = params["splat"].first
     query = params["query.advanced"]
     content_type(:json)
