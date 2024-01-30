@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-RSpec.describe "Creating and updating works", type: :system do
+RSpec.describe "Creating and updating works", type: :system, js: true do
   let(:user) { FactoryBot.create(:princeton_submitter) }
 
   before do
@@ -255,6 +255,21 @@ RSpec.describe "Creating and updating works", type: :system do
       expect(draft_work.resource.individual_contributors).not_to be_empty
       expect(draft_work.resource.individual_contributors.last.given_name).to eq("Robert")
       expect(draft_work.resource.individual_contributors.last.family_name).to eq("Smith")
+    end
+
+    it "uses the ROR autocomplete on affiliations for creators" do
+      sign_in user
+      visit edit_work_path(draft_work)
+      fill_in "creators[][affiliation]", with: "Water"
+
+      # page.execute.script() forces the auto-complete to kick in and selects the first element
+      # from the list. Source: https://github.com/thoughtbot/capybara-webkit/issues/50
+      sleep(0.5)
+      page.execute_script("$('.ui-menu-item').trigger('mouseenter').click()")
+
+      click_on "Save Work"
+      draft_work.reload
+      expect(draft_work.resource.creators.last.affiliations.last.identifier).to eq("https://ror.org/02hvk4n65")
     end
   end
 

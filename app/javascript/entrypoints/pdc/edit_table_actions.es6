@@ -1,5 +1,6 @@
 /* eslint class-methods-use-this: ["error", {
-  "exceptMethods": ["create_new_row", "delete_row", "find_empty_row"] }] */
+  "exceptMethods": ["create_new_row", "delete_row", "find_empty_row",
+  "setup_auto_complete_for_row"] }] */
 
 import TableRow from './table_row.es6';
 
@@ -11,7 +12,7 @@ export default class EditTableActions {
     this.familyName = $('#user_family_name').val();
   }
 
-  attach_actions() {
+  attach_actions(tableId) {
     $('.btn-add-row').on('click', (event) => {
       this.create_new_row(event.target);
       return false;
@@ -29,6 +30,13 @@ export default class EditTableActions {
       this.delete_row(event.target);
       return false;
     });
+
+    // Attach the auto complete feature to the existing rows on the table
+    const rows = $(`#${tableId} > tbody > tr`);
+    for (let i = 0; i < rows.length; i += 1) {
+      const $row = $(rows[i]);
+      this.setup_auto_complete_for_row($row);
+    }
   }
 
   create_new_row(button) {
@@ -36,7 +44,39 @@ export default class EditTableActions {
     const $newTr = $tbody.find('tr').last().clone();
     $newTr.find('input').val('');
     $tbody.append($newTr);
+    this.setup_auto_complete_for_row($newTr);
     return $newTr;
+  }
+
+  setup_auto_complete_for_row($row) {
+    const inputBox = $row.find('input.affiliation-entry-creator');
+    const getDataFromROR = function getDataFromROR(request, response) {
+      // ROR API: https://ror.readme.io/docs/rest-api
+      // https://api.ror.org/organizations?query=
+      // https://api.ror.org/organizations?query.advanced=name:Prin*
+      $.getJSON(`${pdc.ror_url}?query.advanced=name:${request.term}*`, (data) => {
+        const candidates = [];
+        let i; let
+          candidate;
+        for (i = 0; i < data.items.length; i += 1) {
+          candidate = { key: data.items[i].id, label: data.items[i].name };
+          candidates.push(candidate);
+        }
+        response(candidates);
+      });
+    };
+
+    $(inputBox).autocomplete({
+      source: getDataFromROR,
+      select(event, ui) {
+        // Find the ROR input box for this row
+        // and sets its ROR based on the selected organization
+        const rorInput = $row.find('input.ror-input');
+        $(rorInput).prop('value', ui.item.key);
+      },
+      minLength: 2,
+      delay: 100,
+    });
   }
 
   create_user_row(button) {
