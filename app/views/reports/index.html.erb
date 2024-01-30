@@ -1,1 +1,9 @@
 <p>hello</p>
+<% @works.each do |work| %>
+    
+    <p><%= work.title%></p>
+    <p><%= work["metadata"]["publication_year"]%></p>
+    <p><%= work.group.title%></p>
+    <p><%= work.total_file_size%></p>
+
+<% end %>
