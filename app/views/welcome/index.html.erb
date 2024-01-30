@@ -9,6 +9,8 @@
       <% end %>
     </h2>
     <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-primary" %>
+    <%= link_to "My Reports", reports_path(), class: "btn btn-primary" %>
+
   </div>
 <% else %>
   <div>
