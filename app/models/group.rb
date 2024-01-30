@@ -128,10 +128,16 @@ class Group < ApplicationRecord
     if current_user.has_role?(:super_admin) || current_user.has_role?(:group_admin, self)
       return if (self == additional_user.default_group) && additional_user.just_created
 
+      # set the default group to the current group for the user
+      # in addition to adding the user role if this is the only group the user has submitter access to
       if additional_user.has_role? :submitter, self
         errors.add(:submitter, "User has already been added")
       else
         errors.delete(:submitter)
+        # additional_user.add_role :submitter, self
+        if additional_user.default_group != self
+          additional_user.default_group_id = id
+        end
         additional_user.add_role :submitter, self
       end
     else
