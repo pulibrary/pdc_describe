@@ -1,9 +1,32 @@
-<p>hello</p>
-<% @works.each do |work| %>
-    
-    <p><%= work.title%></p>
-    <p><%= work["metadata"]["publication_year"]%></p>
-    <p><%= work.group.title%></p>
-    <p><%= work.total_file_size%></p>
+<table id = "works_table">
+  <thead>
+    <tr class="work-list-header-row">
+      <th>Work Title</th>
+      <th>Group</th>
+      <th>Year</th>
+      <th>Total File Size</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%@total = 0%>
+    <% @works.each do |work| %>   
+      <tr class="work-list-data-row">
+      <td><%= work.title%></td>
+      <td><%= work.group.code%></td>
+      <td><%= work["metadata"]["publication_year"]%></td>
+      <td><%= number_to_human_size(work.total_file_size)%></td>
+      <%@total += work.total_file_size%>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<p>Total File Size: <%=number_to_human_size(@total)%></p>
 
-<% end %>
+<script type="text/javascript">
+  $(function() {
+    // https://www.datatables.net/reference/option/
+    //  order: [] preserves the order from the backend
+    var dataset_options = {searching: false, paging: false, info: false, order: []};
+    $('#works_table').DataTable(dataset_options);
+  });
+</script>
