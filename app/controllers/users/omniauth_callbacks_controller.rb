@@ -9,7 +9,11 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     else
       sign_in_and_redirect @user, event: :authentication # this will throw if @user is not activated
       if is_navigational_format?
-        set_flash_message(:notice, :success, kind: "from Princeton Central Authentication Service")
+        if @user.default_group_id == Group.plasma_laboratory.id
+          set_flash_message(:notice, :success, kind: "from Princeton Central Authentication Service")
+        else
+          flash[:notice] = "You are not a PPPL user."
+        end
       end
     end
   end
