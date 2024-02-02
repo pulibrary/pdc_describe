@@ -1,3 +1,5 @@
+<%= link_to("Download data", reports_dataset_list_path(format: "csv")) %>
+
 <table id = "works_table">
   <thead>
     <tr class="work-list-header-row">
@@ -8,15 +10,15 @@
     </tr>
   </thead>
   <tbody>
-    <%@total = 0%>
-    <% @works.each do |work| %>   
+    <% @total = 0 %>
+    <% @works.each do |work| %>
       <tr class="work-list-data-row">
-      <td><%= work.title%></td>
-      <td><%= work.group.code%></td>
-      <td><%= work["metadata"]["publication_year"]%></td>
-      <td><%= number_to_human_size(work.total_file_size)%></td>
-      <%@total += work.total_file_size%>
+        <td><%= work.title%></td>
+        <td><%= work.group.code%></td>
+        <td><%= work["metadata"]["publication_year"]%></td>
+        <td><%= number_to_human_size(work.total_file_size)%></td>
       </tr>
+      <% @total += work.total_file_size %>
     <% end %>
   </tbody>
 </table>

@@ -321,11 +321,13 @@ class Work < ApplicationRecord
   end
 
   def total_file_size
-    total_size = 0
-    file_list.each do |file|
-      total_size += file[:size]
+    @total_file_size ||= begin
+      total_size = 0
+      file_list.each do |file|
+        total_size += file[:size]
+      end
+      total_size
     end
-    total_size
   end
 
   # Fetches the data from S3 directly bypassing ActiveStorage
