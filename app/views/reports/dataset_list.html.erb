@@ -1,9 +1,39 @@
 <%= link_to("Download data", reports_dataset_list_path(format: "csv")) %>
 
+<div>
+  <form>
+    <span>Group:</span>
+    <select name="group" id="group">
+      <option value="ALL">(all)</option>
+      <% Group.all.each do |group| %>
+        <option value="<%= group.code %>" <%= params[:group] == group.code ? "selected" : "" %>><%= group.code %></option>
+      <% end %>
+    </select>
+
+    <span>Year:</span>
+    <select name="year" id="year">
+      <option value="ALL">(all)</option>
+      <% (2020..Date.today.year).each do |year| %>
+        <option value="<%= year %>"><%= year %></option>
+      <% end %>
+    </select>
+
+    <span>Status:</span>
+    <select name="status" id="status">
+      <option value="ALL">(all)</option>
+      <option value="finished" <%= params[:status] == "finished" ? "selected" : "" %>>Finished</option>
+      <option value="unfinished" <%= params[:status] == "unfinished" ? "selected" : "" %>>Unfinished</option>
+    </select>
+
+    <input type="submit" value="Filter" />
+  </form>
+</div>
+
 <table id = "works_table">
   <thead>
     <tr class="work-list-header-row">
       <th>Work Title</th>
+      <th>Status</th>
       <th>Group</th>
       <th>Year</th>
       <th>Total File Size</th>
@@ -14,6 +44,7 @@
     <% @works.each do |work| %>
       <tr class="work-list-data-row">
         <td><%= work.title%></td>
+        <td><%= work.state %></td>
         <td><%= work.group.code%></td>
         <td><%= work["metadata"]["publication_year"]%></td>
         <td><%= number_to_human_size(work.total_file_size)%></td>
