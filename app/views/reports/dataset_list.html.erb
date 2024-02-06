@@ -1,5 +1,3 @@
-<%= link_to("Download data", reports_dataset_list_path(format: "csv")) %>
-
 <div>
   <form>
     <span>Status:</span>
@@ -20,13 +18,15 @@
     <span>Year:</span>
     <select name="year" id="year">
       <option value="ALL">(all)</option>
+      <!-- We should calculate the first year too -->
       <% (2020..Date.today.year).each do |year| %>
-        <option value="<%= year %>"><%= year %></option>
+        <option value="<%= year %>" <%= params[:year].to_i == year ? "selected" : "" %>  ><%= year %></option>
       <% end %>
     </select>
 
-    <input type="submit" value="Filter" class="btn btn-primary"/>
+    <input type="submit" value="View" class="btn btn-primary"/>
   </form>
+
 </div>
 
 <table id = "works_table">
@@ -54,6 +54,10 @@
   </tbody>
 </table>
 <p>Total File Size: <%=number_to_human_size(@total)%></p>
+
+<div>
+  <%= link_to("Download data", reports_dataset_list_path(format: "csv") + "?" + request.query_string, class: "btn btn-secondary") %>
+</div>
 
 <script type="text/javascript">
   $(function() {

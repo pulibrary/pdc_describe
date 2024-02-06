@@ -30,10 +30,10 @@ class ReportsController < ApplicationController
         sql_where << "group_id = #{group_id}"
       end
 
-      # if params["year"] != "ALL"
-      #   year = params['year'].to_i
-      #   sql_where << "year = #{year}"
-      # end
+      if params["year"].present? && params["year"] != "ALL"
+        year = params['year'].to_i # Force to int to guard against SQL injection
+        sql_where << "metadata->>'publication_year' = '#{year}'"
+      end
       sql_where.join(" AND ")
     end
 end
