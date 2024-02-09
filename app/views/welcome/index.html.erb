@@ -9,8 +9,9 @@
       <% end %>
     </h2>
     <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-primary" %>
-    <%= link_to "My Reports", reports_dataset_list_path, class: "btn btn-primary" %>
-
+    <% if current_user.super_admin? || current_user.moderator?%>
+      <%= link_to "My Reports", reports_dataset_list_path, class: "btn btn-primary" %>
+    <%end%>
   </div>
 <% else %>
   <div>

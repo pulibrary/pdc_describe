@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 class ReportsController < ApplicationController
-  def dataset_list
-    @works = Work.where(sql_where(params))
-    if params["format"] == "csv"
-      send_data generate_csv(@works), type: "text/plain", filename: "datasets.csv", disposition: "attachment"
+  def dataset_list 
+    if current_user.super_admin? || current_user.moderator?
+      @works = Work.where(sql_where(params))
+      if params["format"] == "csv"
+        send_data generate_csv(@works), type: "text/plain", filename: "datasets.csv", disposition: "attachment"
+      end
+    else
+      redirect_to "/"
     end
   end
 
