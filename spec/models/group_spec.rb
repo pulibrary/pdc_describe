@@ -35,7 +35,7 @@ RSpec.describe Group, type: :model do
 
     group_pppl = described_class.where(code: "PPPL").first
     expect(group_pppl.subcommunities.first).to eq "Advanced Projects"
-    expect(group_pppl.subcommunities.last).to eq "Theory and Computation"
+    expect(group_pppl.subcommunities.last).to eq "Tokamak Experimental Sciences"
   end
 
   describe ".default_for_department" do
