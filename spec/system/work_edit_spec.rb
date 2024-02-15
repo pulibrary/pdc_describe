@@ -202,6 +202,14 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       click_on "Save Work"
       expect(page).to have_content("Spherical Torus")
     end
+    it "allows user to select one of the new subcommunities" do
+      sign_in user
+      visit edit_work_path(work)
+      click_on "Additional Metadata"
+      select "Tokamak Experimental Sciences", from: "subcommunities"
+      click_on "Save Work"
+      expect(page).to have_content("Tokamak Experimental Sciences")
+    end
   end
 
   context "change log" do

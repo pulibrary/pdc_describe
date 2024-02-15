@@ -183,6 +183,9 @@ class Group < ApplicationRecord
       values << "Other Projects"
       values << "System Studies"
       values << "Applied Materials and Sustainability Sciences"
+      values << "Computational Science"
+      values << "DIII-D"
+      values << "Tokamak Experimental Sciences"
 
     end
     values.sort
