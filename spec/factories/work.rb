@@ -101,6 +101,27 @@ FactoryBot.define do
       created_by_user_id { FactoryBot.create(:pppl_submitter).id }
     end
 
+    factory :pppl_work do
+      group { Group.plasma_laboratory }
+      resource do
+        PDCMetadata::Resource.new_from_jsonb({
+                                               "doi" => "10.34770/not_yet_assigned",
+                                               "ark" => "ark:/1234/dsp015d86p342c",
+                                               "identifier_type" => "DOI",
+                                               "titles" => [{ "title" => "plasmaproject123" }],
+                                               "description" => "A plasma project",
+                                               "creators" => [
+                                                 { "value" => "Rafiq, Tariq", "name_type" => "Personal", "given_name" => "Tariq", "family_name" => "Rafiq", "affiliations" => [], "sequence" => "1" }
+                                               ],
+                                               "resource_type" => "Dataset", "publisher" => "Princeton University", "publication_year" => "2022",
+                                               "version_number" => "1",
+                                               "rights" => { "identifier" => "CC BY" }
+                                             })
+      end
+      created_by_user_id { FactoryBot.create(:pppl_submitter).id }
+    end
+
+
     factory :tokamak_work_awaiting_approval do
       group { Group.plasma_laboratory }
       state { "awaiting_approval" }
