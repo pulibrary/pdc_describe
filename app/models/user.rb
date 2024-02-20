@@ -60,7 +60,7 @@ class User < ApplicationRecord
     self.given_name = access_token.extra.givenname || access_token.uid # Harriet
     self.family_name = access_token.extra.sn || access_token.uid # Tubman
     self.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
-    self.default_group_id = Group.default_for_department(access_token.extra.departmentnumber)&.id
+    self.default_group_id ||= Group.default_for_department(access_token.extra.departmentnumber)&.id
     save!
   end
 

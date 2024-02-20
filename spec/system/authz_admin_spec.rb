@@ -43,6 +43,19 @@ RSpec.describe "Authz for curators", type: :system, js: true do
         expect(new_submitter.can_submit?(Group.research_data)).to eq true
       end
 
+      it "can add submitters to a group that are not current users" do
+        login_as pppl_moderator
+        expect(pppl_moderator.can_admin?(Group.plasma_laboratory)).to eq true
+        expect(User.where(uid: "test1").count).to eq(0)
+        visit edit_group_path(Group.plasma_laboratory)
+        fill_in "submitter-uid-to-add", with: "test1"
+        click_on "Add Submitter"
+        expect(page).to have_content "test1"
+        new_submitter = User.last
+        expect(new_submitter.can_submit?(Group.plasma_laboratory)).to eq true
+        expect(new_submitter.default_group).to eq(Group.plasma_laboratory)
+      end
+
       it "can add admins to the group" do
         login_as research_data_moderator
         expect(research_data_moderator.can_admin?(Group.research_data)).to eq true
