@@ -6,7 +6,7 @@ RSpec.describe "License page" do
   describe "Displays for anyone" do
     it "shows any user the license page" do
       visit welcome_license_path
-      expect(page).to have_content "Please take a moment to read the terms of this license"
+      expect(page).to have_content "In furtherance of its non-profit educational mission, Princeton University"
     end
   end
 end
