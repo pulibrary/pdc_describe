@@ -47,7 +47,8 @@ class GroupsController < ApplicationController
   # This is a JSON only endpoint
   def add_submitter
     @group = Group.find(params[:id])
-    @group.add_submitter(current_user, User.new_for_uid(params[:uid]))
+    user = @group.default_user(params[:uid])
+    @group.add_submitter(current_user, user)
     check_and_render
   end
 
