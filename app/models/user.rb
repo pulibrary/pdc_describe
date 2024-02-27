@@ -168,6 +168,13 @@ class User < ApplicationRecord
     given_name.presence || uid
   end
 
+  # Returns a full name that always has a value
+  # This is needed because we have records in the Users table that are created automatically
+  # in which the only value we have for sure its their uid (aka NetID).
+  def full_name_safe
+    full_name&.strip.presence || uid
+  end
+
   def moderator?
     admin_groups.count > 0
   end

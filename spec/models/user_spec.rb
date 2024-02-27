@@ -264,4 +264,21 @@ RSpec.describe User, type: :model do
       expect(user.submitter_or_admin_groups).to contain_exactly(group1, group2, group3, rd_group)
     end
   end
+
+  describe "#full_name_safe" do
+    it "returns the full name" do
+      user = FactoryBot.create(:user)
+      expect(user.full_name_safe).to eq(user.full_name)
+    end
+
+    it "returns the uid if the full name is empty" do
+      user = FactoryBot.create(:user, given_name: "", family_name: "", full_name: "")
+      expect(user.full_name_safe).to eq(user.uid)
+    end
+
+    it "returns the uid if the full name only has spaces" do
+      user = FactoryBot.create(:user, full_name: "  ")
+      expect(user.full_name_safe).to eq(user.uid)
+    end
+  end
 end
