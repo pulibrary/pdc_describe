@@ -242,7 +242,7 @@ class Work < ApplicationRecord
 
     work_url = "[#{title}](#{Rails.application.routes.url_helpers.work_url(self)})"
     message = if curator_user_id.to_i == current_user.id
-                "Self-assigned @#{current_user.uid} as curator for #{work_url}"
+                "Self-assigned @#{current_user.uid} as curator for work #{work_url}"
               else
                 "Set curator to @#{new_curator.uid} for work #{work_url}"
               end
