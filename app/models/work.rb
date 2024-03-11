@@ -240,11 +240,11 @@ class Work < ApplicationRecord
     # ...and log the activity
     new_curator = User.find(curator_user_id)
 
-    #@work_url = Rails.application.routes.url_helpers.work_url(work)
-    message = if curator_user_id == current_user.id
-                "Self-assigned as curator for <a href = #{Rails.application.routes.url_helpers.work_url(self)}> #{self.title}</a>"
+    work_url = "[#{title}](#{Rails.application.routes.url_helpers.work_url(self)})"
+    message = if curator_user_id.to_i == current_user.id
+                "Self-assigned @#{current_user.uid} as curator for #{work_url}"
               else
-                "Set curator to @#{new_curator.uid}"
+                "Set curator to @#{new_curator.uid} for work #{work_url}"
               end
     WorkActivity.add_work_activity(id, message, current_user.id, activity_type: WorkActivity::SYSTEM)
   end
