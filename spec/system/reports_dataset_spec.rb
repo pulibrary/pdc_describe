@@ -33,6 +33,5 @@ RSpec.describe "Reports page", type: :system, js: true do
       expect(page.html.include?(pppl_work.title)).to be true
       expect(page.html.include?(rd_work.title)).to be false
     end
-
   end
 end
