@@ -67,6 +67,7 @@ Rails.application.routes.draw do
   resources :groups
 
   get "/collections/:id", to: redirect("/groups/%{id}"), as: :collections
+  get "/reports/dataset-list", to: "reports#dataset_list", as: :reports_dataset_list
 
   # Anything still unmatched by the end of the routes file should go to the not_found page
   # match '*a', to: redirect('/404'), via: :get

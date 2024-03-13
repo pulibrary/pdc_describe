@@ -1,0 +1,65 @@
+<div>
+  <form>
+    <span>Status:</span>
+    <select name="status" id="status">
+      <option value="ALL">(all)</option>
+      <option value="finished" <%= params[:status] == "finished" ? "selected" : "" %>>Finished</option>
+      <option value="unfinished" <%= params[:status] == "unfinished" ? "selected" : "" %>>Unfinished</option>
+    </select>
+
+    <span>Group:</span>
+    <select name="group" id="group">
+      <option value="ALL">(all)</option>
+      <% Group.all.each do |group| %>
+        <option value="<%= group.code %>" <%= params[:group] == group.code ? "selected" : "" %>><%= group.code %></option>
+      <% end %>
+    </select>
+
+    <span>Year:</span>
+    <select name="year" id="year">
+      <option value="ALL">(all)</option>
+      <!-- We should calculate the first year too -->
+      <% (2020..Date.today.year).each do |year| %>
+        <option value="<%= year %>" <%= params[:year].to_i == year ? "selected" : "" %>  ><%= year %></option>
+      <% end %>
+    </select>
+
+    <input type="submit" value="View" class="btn btn-primary"/>
+  </form>
+
+</div>
+
+<table id = "works_table">
+  <thead>
+    <tr class="work-list-header-row">
+      <th>Work Title</th>
+      <th>Status</th>
+      <th>Group</th>
+      <th>Year</th>
+      <th>Total File Size</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @total = 0 %>
+    <% @works.each do |work| %>
+      <tr class="work-list-data-row">
+        <td><%= work.title%></td>
+        <td><%= work.state %></td>
+        <td><%= work.group.code%></td>
+        <td><%= work["metadata"]["publication_year"]%></td>
+        <td><%= number_to_human_size(work.total_file_size)%></td>
+      </tr>
+      <% @total += work.total_file_size %>
+    <% end %>
+  </tbody>
+</table>
+<p>Total File Size: <%=number_to_human_size(@total)%></p>
+
+<script type="text/javascript">
+  $(function() {
+    // https://www.datatables.net/reference/option/
+    //  order: [] preserves the order from the backend
+    var dataset_options = {searching: false, paging: false, info: false, order: []};
+    $('#works_table').DataTable(dataset_options);
+  });
+</script>
