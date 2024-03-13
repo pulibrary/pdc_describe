@@ -183,6 +183,9 @@ class Group < ApplicationRecord
       values << "Other Projects"
       values << "System Studies"
       values << "Applied Materials and Sustainability Sciences"
+      values << "Computational Science"
+      values << "DIII-D"
+      values << "Tokamak Experimental Sciences"
 
     end
     values.sort
@@ -199,6 +202,15 @@ class Group < ApplicationRecord
 
   def default_community
     return communities.first if code == "PPPL"
+  end
+
+  def default_user(uid)
+    user = User.find_by(uid:)
+    return user if user.present?
+
+    user = User.new(uid:, default_group_id: id)
+    user.save!
+    user
   end
 end
 # rubocop:enable Metrics/ClassLength

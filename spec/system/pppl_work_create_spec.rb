@@ -61,7 +61,7 @@ RSpec.describe "Form submission for a PPPL dataset", type: :system do
       page.find(:xpath, "//input[@value='file_other']").choose
       click_on "Continue"
       click_on "Continue"
-      expect(page).to have_content("Please take a moment to read the terms of this license")
+      expect(page).to have_content("In furtherance of its non-profit educational mission, Princeton University")
       click_on "Complete"
 
       expect(page).to have_content "awaiting_approval"

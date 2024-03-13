@@ -130,7 +130,7 @@ class WorkActivity < ApplicationRecord
     def created_by_user_html
       return UNKNOWN_USER unless @work_activity.created_by_user
 
-      @work_activity.created_by_user.given_name_safe
+      "#{@work_activity.created_by_user.given_name_safe} (@#{@work_activity.created_by_user.uid})"
     end
 
     def created_sortable_html

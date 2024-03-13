@@ -95,4 +95,20 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     expect(page.html.include?('<button id="show-apa-citation-button"')).to be true
     expect(page.html.include?('<button id="show-bibtex-citation-button"')).to be true
   end
+
+  context "as a moderator" do
+    let(:user) { FactoryBot.create :research_data_moderator }
+
+    it "allows a curator to be chosen" do
+      sign_in user
+      visit work_path(work)
+      expect(page).to have_content(work.title)
+      select user.full_name_safe, from: :curator_select
+      visit root_path
+      expect(page).to have_content("Welcome")
+      visit work_path(work)
+      expect(page).to have_content(work.title)
+      expect(page).to have_select(:curator_select, selected: user.full_name_safe)
+    end
+  end
 end

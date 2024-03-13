@@ -35,7 +35,7 @@ RSpec.describe Group, type: :model do
 
     group_pppl = described_class.where(code: "PPPL").first
     expect(group_pppl.subcommunities.first).to eq "Advanced Projects"
-    expect(group_pppl.subcommunities.last).to eq "Theory and Computation"
+    expect(group_pppl.subcommunities.last).to eq "Tokamak Experimental Sciences"
   end
 
   describe ".default_for_department" do
@@ -113,6 +113,19 @@ RSpec.describe Group, type: :model do
       expect(state).to be true
 
       expect { group.disable_messages_for(user:) }.to raise_error(ArgumentError, "User #{user.uid} is not an administrator or submitter for this group #{group.title}")
+    end
+  end
+
+  describe "#default_user" do
+    it "creates a new user with the current group as the deafult" do
+      user = Group.plasma_laboratory.default_user("abc123")
+      expect(user.default_group).to eq(Group.plasma_laboratory)
+    end
+
+    it "allows an existing user to keep it's original group" do
+      user = User.new_for_uid("abc123")
+      Group.plasma_laboratory.default_user("abc123")
+      expect(user.reload.default_group).to eq(Group.research_data)
     end
   end
 end

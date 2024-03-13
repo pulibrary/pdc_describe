@@ -406,13 +406,14 @@ RSpec.describe Work, type: :model do
 
       work.change_curator(curator_user.id, user)
       activity = WorkActivity.changes_for_work(work.id).last
-      expect(activity.message).to eq("Set curator to @#{curator_user.uid}")
+      work_url = "http://www.example.com/works/#{work.id}"
+      expect(activity.message).to eq("Set curator to @#{curator_user.uid} for work [#{work.title}](#{work_url})")
       expect(work.curator.id).to be curator_user.id
       expect(activity.created_by_user.id).to eq user.id
 
       work.change_curator(user.id, user)
       activity = WorkActivity.changes_for_work(work.id).last
-      expect(activity.message).to eq("Self-assigned as curator")
+      expect(activity.message).to eq("Self-assigned @#{user.uid} as curator for work [#{work.title}](#{work_url})")
       expect(work.curator.id).to be user.id
       expect(activity.created_by_user.id).to eq user.id
 
