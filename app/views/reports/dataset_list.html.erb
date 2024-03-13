@@ -55,10 +55,6 @@
 </table>
 <p>Total File Size: <%=number_to_human_size(@total)%></p>
 
-<div>
-  <%= link_to("Download data", reports_dataset_list_path(format: "csv") + "?" + request.query_string, class: "btn btn-secondary") %>
-</div>
-
 <script type="text/javascript">
   $(function() {
     // https://www.datatables.net/reference/option/

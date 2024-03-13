@@ -3,23 +3,12 @@ class ReportsController < ApplicationController
   def dataset_list
     if current_user.super_admin? || current_user.moderator?
       @works = Work.where(sql_where(params))
-      # if params["format"] == "csv"
-      #   send_data generate_csv(@works), type: "text/plain", filename: "datasets.csv", disposition: "attachment"
-      # end
     else
       redirect_to "/"
     end
   end
 
   private
-
-    # def generate_csv(works)
-    #   text = "TITLE, STATUS, GROUP, YEAR, TOTAL_FILE_SIZE\r\n"
-    #   works.each do |work|
-    #     text += "#{work.title}, #{work.state}, #{work.group.code}, #{work['metadata']['publication_year']}, #{work.total_file_size}\r\n"
-    #   end
-    #   text
-    # end
 
     def sql_where(params)
       sql_where = []
