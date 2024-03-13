@@ -51,7 +51,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
       # and we rendered the date in the display format
       expect(page.body.include?(s3_data.first.last_modified_display))
       # make sure that the README file shows first in the data table
-      readme_css_selector = '#files-table>tbody>tr:first-child>td>span>a[href="' + work.id.to_s + "/download?filename=10.34770/pe9w-x904/" + work.id.to_s + '/something_README.txt"]'
+      readme_css_selector = "#files-table>tbody>tr:first-child>td>span>a[href=\"/works/#{work.id}/download?filename=10.34770/pe9w-x904/#{work.id}/something_README.txt\"]"
       expect(page.has_selector?(readme_css_selector)).to be true
     end
 
@@ -61,7 +61,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
         stub_s3(data: [file1])
 
         visit work_path(work)
-        expect(page).to have_link file1.filename_display, href: "#{work.id}/download?filename=#{file1.filename}"
+        expect(page).to have_link file1.filename_display, href: "/works/#{work.id}/download?filename=#{file1.filename}"
         expect(find_link(file1.filename_display)[:target]).to eq("_blank")
         expect(page).not_to have_button("Edit")
       end
@@ -71,12 +71,12 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
         it "shows data from S3" do
           stub_s3(data: s3_data)
           visit work_path(work)
-          expect(page).to have_link file1.filename_display, href: "#{work.id}/download?filename=#{file1.filename}"
-          expect(page).to have_link file2.filename_display, href: "#{work.id}/download?filename=#{file2.filename}"
+          expect(page).to have_link file1.filename_display, href: "/works/#{work.id}/download?filename=#{file1.filename}"
+          expect(page).to have_link file2.filename_display, href: "/works/#{work.id}/download?filename=#{file2.filename}"
 
           click_on "Edit"
-          expect(page).to have_link file1.filename_display, href: "#{work.id}/download?filename=#{file1.filename}"
-          expect(page).to have_link file2.filename_display, href: "#{work.id}/download?filename=#{file2.filename}"
+          expect(page).to have_link file1.filename_display, href: "/works/#{work.id}/download?filename=#{file1.filename}"
+          expect(page).to have_link file2.filename_display, href: "/works/#{work.id}/download?filename=#{file2.filename}"
         end
       end
 
@@ -85,12 +85,12 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
         it "shows data from S3" do
           stub_s3(data: s3_data)
           visit work_path(work)
-          expect(page).to have_link file1.filename_display, href: "#{work.id}/download?filename=#{file1.filename}"
-          expect(page).to have_link file2.filename_display, href: "#{work.id}/download?filename=#{file2.filename}"
+          expect(page).to have_link file1.filename_display, href: "/works/#{work.id}/download?filename=#{file1.filename}"
+          expect(page).to have_link file2.filename_display, href: "/works/#{work.id}/download?filename=#{file2.filename}"
 
           click_on "Edit"
-          expect(page).to have_link file1.filename_display, href: "#{work.id}/download?filename=#{file1.filename}"
-          expect(page).to have_link file2.filename_display, href: "#{work.id}/download?filename=#{file2.filename}"
+          expect(page).to have_link file1.filename_display, href: "/works/#{work.id}/download?filename=#{file1.filename}"
+          expect(page).to have_link file2.filename_display, href: "/works/#{work.id}/download?filename=#{file2.filename}"
         end
       end
     end
