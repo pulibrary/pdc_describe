@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 class ReportsController < ApplicationController
-  def dataset_list 
+  def dataset_list
     if current_user.super_admin? || current_user.moderator?
       @works = Work.where(sql_where(params))
       if params["format"] == "csv"
@@ -30,12 +30,12 @@ class ReportsController < ApplicationController
       end
 
       if params["group"].present? && params["group"] != "ALL"
-        group_id = Group.where(code: params['group']).first.id
+        group_id = Group.where(code: params["group"]).first.id
         sql_where << "group_id = #{group_id}"
       end
 
       if params["year"].present? && params["year"] != "ALL"
-        year = params['year'].to_i # Force to int to guard against SQL injection
+        year = params["year"].to_i # Force to int to guard against SQL injection
         sql_where << "metadata->>'publication_year' = '#{year}'"
       end
       sql_where.join(" AND ")

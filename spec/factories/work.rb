@@ -121,7 +121,6 @@ FactoryBot.define do
       created_by_user_id { FactoryBot.create(:pppl_submitter).id }
     end
 
-
     factory :tokamak_work_awaiting_approval do
       group { Group.plasma_laboratory }
       state { "awaiting_approval" }

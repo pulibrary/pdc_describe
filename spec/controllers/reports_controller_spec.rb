@@ -10,7 +10,6 @@ RSpec.describe ReportsController do
     expect(response).to render_template("dataset_list")
   end
 
-  
   it "redirects user to the homepage" do
     sign_in user
     get :dataset_list
