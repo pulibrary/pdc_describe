@@ -497,10 +497,10 @@ class WorksController < ApplicationController
     end
 
     def process_updates
-      resource_before = @work.resource
+      work_before = @work.dup
       if @work.update(update_params)
-        resource_compare = ResourceCompareService.new(resource_before, update_params[:resource])
-        @work.log_changes(resource_compare, current_user.id)
+        work_compare = WorkCompareService.new(work_before, @work)
+        @work.log_changes(work_compare, current_user.id)
 
         if @wizard_mode
           redirect_to work_readme_select_url(@work)

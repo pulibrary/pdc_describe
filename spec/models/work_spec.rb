@@ -1264,4 +1264,39 @@ RSpec.describe Work, type: :model do
       expect(work_activity.activity_type).to eq(WorkActivity::PROVENANCE_NOTES)
     end
   end
+
+  describe "#log_changes" do
+    let(:work1) { FactoryBot.create(:draft_work, group: Group.research_data) }
+    let(:work2) { FactoryBot.create(:draft_work, group: Group.plasma_laboratory) }
+    let(:work_compare) { WorkCompareService.new(work1, work2) }
+
+    it "compares the changes between versions of resources" do
+      work_activity = work.log_changes(work_compare, user.id)
+      expect(work_activity).to be_a(WorkActivity)
+      expect(work_activity.activity_type).to eq("CHANGES")
+      expect(work_activity.message).to be_a(String)
+      message_json = JSON.parse(work_activity.message)
+      expect(message_json.keys).not_to be_empty
+    end
+
+    context "when the group is updated for the resource" do
+      it "logs that the groups differ" do
+        work_activity = work.log_changes(work_compare, user.id)
+        expect(work_activity).to be_a(WorkActivity)
+        expect(work_activity.message).to be_a(String)
+        message_json = JSON.parse(work_activity.message)
+        expect(message_json.keys).to include("group")
+        group_activities = message_json["group"]
+        expect(group_activities).not_to be_empty
+        group_activity = group_activities.first
+        expect(group_activity).to include("action" => "changed")
+        expect(group_activity).to include("from")
+        group_from = group_activity["from"]
+        expect(group_from).to eq("Princeton Research Data Service (PRDS)")
+        expect(group_activity).to include("to")
+        group_to = group_activity["to"]
+        expect(group_to).to eq("Princeton Plasma Physics Lab (PPPL)")
+      end
+    end
+  end
 end
