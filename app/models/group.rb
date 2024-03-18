@@ -84,7 +84,7 @@ class Group < ApplicationRecord
   # Returns the default group for a given department number.
   # Reference: https://docs.google.com/spreadsheets/d/1_Elxs3Ex-2wCbbKUzD4ii3k16zx36sYf/edit#gid=1484576831
   def self.default_for_department(department_number)
-    if department_number.present? && department_number >= "31000" && department_number <= "31026"
+    if department_number.present? && department_number >= "31000" && department_number <= "31027"
       plasma_laboratory
     else
       default
