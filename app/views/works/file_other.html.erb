@@ -1,7 +1,7 @@
 <div class="wizard-area">
   <h1>New Submission (<%= @work.title %>)</h1>
   <%= render "wizard_progress", wizard_step: 3 %>
-  <p>Please indicate where and how we may access your submission:</p>
+  <p>If your submission is over 100MB or you had trouble uploading, we support data transfers via Globus. After you complete this form, the team will send you further instructions and guide you as needed. If you don't already have a Globus account linked to your Princeton credentials, you will also need to log into Globus and select Princeton as your existing organization. For now, please indicate where your files are currently stored, approximately how many files you have, the total size of your submission, and whether you have a specific deadline to meet.</p>
 
   <%= form_tag(action: "review", id: @work) do %>
     <textarea id="location_notes" name="location_notes"cols="80", rows="10"
