@@ -64,6 +64,22 @@ RSpec.describe Group, type: :model do
         expect(group.code).to eq("PPPL")
       end
     end
+
+    context "when the department number is in the middle of PPPL" do
+      let(:department_number) { "31012" }
+      it "provides the default group" do
+        expect(group).to be_a(described_class)
+        expect(group.code).to eq("PPPL")
+      end
+    end
+
+    context "when the department number is at the other end of PPPL" do
+      let(:department_number) { "31027" }
+      it "provides the default group" do
+        expect(group).to be_a(described_class)
+        expect(group.code).to eq("PPPL")
+      end
+    end
   end
 
   describe "#disable_messages_for" do

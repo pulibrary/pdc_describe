@@ -108,4 +108,24 @@ describe WorkActivity, type: :model do
       expect(renderd_html.include?("backdated")).to be false
     end
   end
+
+  describe "#to_html" do
+    let(:work1) { FactoryBot.create(:draft_work, group: Group.research_data) }
+    let(:work2) { FactoryBot.create(:draft_work, group: Group.plasma_laboratory) }
+    let(:work_compare) { WorkCompareService.new(work1, work2) }
+
+    before do
+      work1.log_changes(work_compare, user.id)
+    end
+
+    it "renders the changes for works when group membership is updated" do
+      changes = WorkActivity.changes_for_work(work1.id)
+      expect(changes).not_to be_empty
+      work_activity = changes.first
+      rendered_html = work_activity.to_html
+      # rubocop:disable Layout/LineLength
+      expect(rendered_html).to include("<summary class='show-changes'>Group</summary>Princeton <del>Research</del><ins>Plasma</ins> <del>Data</del><ins>Physics</ins> <del>Service</del><ins>Lab</ins> (<del>PRDS</del><ins>PPPL</ins>)</details>")
+      # rubocop:enable Layout/LineLength
+    end
+  end
 end
