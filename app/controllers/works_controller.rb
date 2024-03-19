@@ -40,7 +40,6 @@ class WorksController < ApplicationController
       upload_service.update_precurated_file_list(added_files_param, deleted_files_param)
       redirect_to work_url(@work), notice: "Work was successfully created."
     else
-      @work_decorator = WorkDecorator.new(@work, current_user)
       @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
       render :new, status: :unprocessable_entity
     end
