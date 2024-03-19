@@ -23,6 +23,7 @@ class WorksController < ApplicationController
   def new
     group = Group.find_by(code: params[:group_code]) || current_user.default_group
     @work = Work.new(created_by_user_id: current_user.id, group:)
+    @work_decorator = WorkDecorator.new(@work, current_user)
     @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
     if wizard_mode?
       render "new_submission"
@@ -39,6 +40,7 @@ class WorksController < ApplicationController
       upload_service.update_precurated_file_list(added_files_param, deleted_files_param)
       redirect_to work_url(@work), notice: "Work was successfully created."
     else
+      @work_decorator = WorkDecorator.new(@work, current_user)
       @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
       render :new, status: :unprocessable_entity
     end
@@ -96,8 +98,10 @@ class WorksController < ApplicationController
   end
 
   # GET /works/1/edit
+  # rubocop:disable Metrics/MethodLength
   def edit
     @work = Work.find(params[:id])
+    @work_decorator = WorkDecorator.new(@work, current_user)
     if current_user && @work.editable_by?(current_user)
       if @work.approved? && !@work.administered_by?(current_user)
         Honeybadger.notify("Can not edit work: #{@work.id} is approved but #{current_user.uid} is not admin")
@@ -113,6 +117,7 @@ class WorksController < ApplicationController
       redirect_to root_path, notice: I18n.t("works.uneditable.privs")
     end
   end
+  # rubocop:enable Metrics/MethodLength
 
   def update
     @work = Work.find(params[:id])
