@@ -1,10 +1,10 @@
 <div class="wizard-area">
   <h1>New Submission (<%= @work.title %>)</h1>
   <%= render "wizard_progress", wizard_step: 3 %>
-  <p>If your submission is over 100MB or you had trouble uploading, <%= link_to "we support data transfers via Globus", "https://researchdata.princeton.edu/research-lifecycle-guide/publishing-large-datasets" %>. 
+  <p>If your submission is over 100MB or you had trouble uploading, <%= link_to "we support data transfers via Globus", "https://researchdata.princeton.edu/research-lifecycle-guide/publishing-large-datasets", target: "_blank" %>. 
   After you complete this form, the team will send you further instructions and guide you as needed. 
   If you don't already have a Globus account linked to your Princeton credentials, you will also need to 
-  <%= link_to "log into Globus and select Princeton as your existing organization", "https://docs.globus.org/guides/tutorials/manage-files/transfer-files/" %>. 
+  <%= link_to "log into Globus and select Princeton as your existing organization", "https://docs.globus.org/guides/tutorials/manage-files/transfer-files/", target: "_blank" %>. 
   For now, please indicate where your files are currently stored, approximately how many files you have, 
   the total size of your submission, and whether you have a specific deadline to meet.</p>
 
