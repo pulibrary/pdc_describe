@@ -31,6 +31,10 @@ RSpec.describe WorksController, type: :routing do
       expect(patch: "/works/1/readme-uploaded").to route_to("works#readme_uploaded", id: "1")
     end
 
+    it "routes to #work_file_list" do
+      expect(get: "/works/1/file-list").to route_to("works#file_list", id: "1")
+    end
+
     context "when the Work has an ARK" do
       let(:ark) { "ark:/88435/dsp01zc77st047" }
 

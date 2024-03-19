@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 class WorkDecorator
+  include Rails.application.routes.url_helpers
+
   attr_reader :work, :changes, :messages, :can_curate, :current_user
 
   delegate :group, :resource, :draft?, to: :work
@@ -31,5 +33,17 @@ class WorkDecorator
 
   def wizard_mode?
     draft? && !migrated
+  end
+
+  def file_list_path
+    return work_file_list_path("NONE") if @work.nil? || !@work.persisted?
+
+    work_file_list_path(@work.id)
+  end
+
+  def download_path
+    return if @work.nil? || !@work.persisted?
+
+    work_download_path(@work.id)
   end
 end
