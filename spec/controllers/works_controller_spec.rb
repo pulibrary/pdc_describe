@@ -822,12 +822,6 @@ RSpec.describe WorksController do
       end
     end
 
-    it "renders the page to indicate instructions on files on the PUL Research Cluster" do
-      sign_in user
-      get :file_cluster, params: { id: work.id }
-      expect(response).to render_template(:file_cluster)
-    end
-
     it "renders the page to indicate instructions on files on a different location" do
       sign_in user
       get :file_other, params: { id: work.id }
