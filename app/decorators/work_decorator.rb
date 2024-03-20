@@ -38,7 +38,13 @@ class WorkDecorator
   def file_list_path
     return work_file_list_path("NONE") if @work.nil? || !@work.persisted?
 
-    work_file_list_path(@work.id)
+    # This is a horrible hack to work-around the issue where Rails is not adding
+    # the correct prefix to the URL in production and staging.
+    if Rails.env.production? || Rails.env.staging?
+      "/describe" + work_file_list_path(@work.id)
+    else
+      work_file_list_path(@work.id)
+    end
   end
 
   def download_path
