@@ -151,8 +151,6 @@ class WorksController < ApplicationController
     next_url = case @work.files_location
                when "file_upload"
                  work_file_upload_url(@work)
-               when "file_cluster"
-                 work_file_cluster_url(@work)
                else
                  work_file_other_url(@work)
                end
@@ -179,11 +177,6 @@ class WorksController < ApplicationController
     flash[:notice] = "Failed to attach the file uploads for the work #{@work.doi}: #{active_storage_error}. Please contact rdss@princeton.edu for assistance."
 
     redirect_to work_file_upload_path(@work)
-  end
-
-  # Allow user to indicate where their files are located in the PUL Research Cluster
-  def file_cluster
-    @work = Work.find(params[:id])
   end
 
   # Allow user to indicate where their files are located in the WWW

@@ -50,6 +50,10 @@ class WorkDecorator
   def download_path
     return if @work.nil? || !@work.persisted?
 
-    work_download_path(@work.id)
+    if Rails.env.production? || Rails.env.staging?
+      "/describe" + work_download_path(@work.id)
+    else
+      work_download_path(@work.id)
+    end
   end
 end
