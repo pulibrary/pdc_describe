@@ -6,7 +6,6 @@ gem "aasm"
 gem "amazing_print"
 gem "aws-sdk-s3"
 gem "datacite-mapping"
-gem "ddtrace", require: "ddtrace/auto_instrument"
 gem "dogstatsd-ruby"
 gem "health-monitor-rails"
 gem "honeybadger"
@@ -101,6 +100,10 @@ group :test do
   gem "selenium-webdriver"
   gem "sinatra"
   gem "webmock"
+end
+
+group :staging, :production do
+  gem "ddtrace", require: "ddtrace/auto_instrument"
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
