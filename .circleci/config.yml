@@ -6,7 +6,8 @@ commands:
       - run: cp Gemfile.lock Gemfile.lock.bak
       - restore_cache:
           key: &gem_key rails_template-cimg-{{ checksum "Gemfile.lock.bak" }}
-      - run: bundle install --path ./vendor/bundle
+      - run: bundle config set path './vendor/bundle'
+      - run: bundle config set --local without production
       - save_cache:
           key: *gem_key
           paths:
