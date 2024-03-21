@@ -700,16 +700,6 @@ RSpec.describe WorksController do
         expect(fake_s3_service).not_to have_received(:create_directory)
       end
 
-      context "when type is file_cluster" do
-        let(:attachment_type) { "file_cluster" }
-
-        it "redirects to file-cluster" do
-          expect(response.status).to be 302
-          expect(response.location).to eq "http://test.host/works/#{work.id}/file-cluster"
-          expect(fake_s3_service).to have_received(:create_directory)
-        end
-      end
-
       context "when type is file_other" do
         let(:attachment_type) { "file_other" }
 
