@@ -32,9 +32,19 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
   end
 
   # this test depends of the fake ORCID server defined in spec/support/orcid_specs.rb
+  it "Fills in the creator based on an ORCID ID for the wizard", js: true do
+    sign_in user
+    visit work_create_new_submission_path
+    click_on "Add Another Creator"
+    find("tr:last-child input[name='creators[][orcid]']").set "0000-0000-1111-2222"
+    expect(find("tr:last-child input[name='creators[][given_name]']").value).to eq "Sally"
+    expect(find("tr:last-child input[name='creators[][family_name]']").value).to eq "Smith"
+  end
+
+  # this test depends of the fake ORCID server defined in spec/support/orcid_specs.rb
   it "Fills in the creator based on an ORCID ID", js: true do
     sign_in user
-    visit new_work_path(params: { wizard: true })
+    visit new_work_path
     click_on "Add Another Creator"
     find("tr:last-child input[name='creators[][orcid]']").set "0000-0000-1111-2222"
     expect(find("tr:last-child input[name='creators[][given_name]']").value).to eq "Sally"

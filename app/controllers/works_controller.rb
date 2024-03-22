@@ -3,10 +3,33 @@
 require "nokogiri"
 require "open-uri"
 
+# Currently this controller supports Multiple ways to create a work, wizard mode, create dataset, and migrate
+# The goal is to eventually break some of these workflows into separate contorllers.
+# For the moment I'm documenting which methods get called by each workflow below.
+# Note: new, edit and update get called by many of the workflows
+#
+# wizard mode
+# new_sumission -> new_submission_save -> edit -> update -> readme_select -> readme_uploaded -> attachment_select ->
+#     attachment_selected -> file_other ->                  review -> validate -> show & file_list
+#                         \> file_upload -> file_uploaded -^
+#
+# Non wizard mode
+#  new & file_list -> create -> show & file_list
+#
+#  Clicking Edit puts you in wizard mode for some reason :(
+#
+# migrate
+#
+#  new & file_list -> create -> show & file_list
+#
+#  Clicking edit
+#   edit & file_list -> update -> show & file_list
+#
+
 # rubocop:disable Metrics/ClassLength
 class WorksController < ApplicationController
   include ERB::Util
-  around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :validate, :create, :new_submission]
+  around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :validate, :create, :new_submission_save]
 
   skip_before_action :authenticate_user!
   before_action :authenticate_user!, unless: :public_request?
@@ -19,17 +42,15 @@ class WorksController < ApplicationController
     end
   end
 
-  # Renders the "step 0" information page before creating a new dataset
+  # only non wizard mode
   def new
     group = Group.find_by(code: params[:group_code]) || current_user.default_group
     @work = Work.new(created_by_user_id: current_user.id, group:)
     @work_decorator = WorkDecorator.new(@work, current_user)
     @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
-    if wizard_mode?
-      render "new_submission"
-    end
   end
 
+  # only non wizard mode
   def create
     @work = Work.new(created_by_user_id: current_user.id, group_id: params_group_id, user_entered_doi: params["doi"].present?)
     @work.resource = FormToResourceService.convert(params, @work)
@@ -46,10 +67,22 @@ class WorksController < ApplicationController
     end
   end
 
-  # Creates the new dataset
+  # get Renders the "step 0" information page before creating a new dataset
+  # only wizard mode
   def new_submission
-    default_group_id = current_user.default_group.id
-    @work = Work.new(created_by_user_id: current_user.id, group_id: default_group_id)
+    group = Group.find_by(code: params[:group_code]) || current_user.default_group
+    group_id = group.id
+    @work = Work.new(created_by_user_id: current_user.id, group_id:)
+    @work_decorator = WorkDecorator.new(@work, current_user)
+    @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+  end
+
+  # Creates the new dataset
+  # only wizard mode
+  def new_submission_save
+    group = Group.find_by(code: params[:group_code]) || current_user.default_group
+    group_id = group.id
+    @work = Work.new(created_by_user_id: current_user.id, group_id:)
     @work.resource = FormToResourceService.convert(params, @work)
     @work.draft!(current_user)
     redirect_to edit_work_path(@work, wizard: true)
@@ -76,6 +109,7 @@ class WorksController < ApplicationController
     end
   end
 
+  # only non wizard mode
   def file_list
     if params[:id] == "NONE"
       # This is a special case when we render the file list for a work being created
@@ -99,6 +133,7 @@ class WorksController < ApplicationController
 
   # GET /works/1/edit
   # rubocop:disable Metrics/MethodLength
+  # Both wizard and not wizard mode
   def edit
     @work = Work.find(params[:id])
     @work_decorator = WorkDecorator.new(@work, current_user)
@@ -119,6 +154,7 @@ class WorksController < ApplicationController
   end
   # rubocop:enable Metrics/MethodLength
 
+  # Both wizard and not wizard mode
   def update
     @work = Work.find(params[:id])
     if current_user.blank? || !@work.editable_by?(current_user)
@@ -133,12 +169,14 @@ class WorksController < ApplicationController
   end
 
   # Prompt to select how to submit their files
+  # only wizard mode
   def attachment_select
     @work = Work.find(params[:id])
     @wizard_mode = true
   end
 
   # User selected a specific way to submit their files
+  # only wizard mode
   def attachment_selected
     @work = Work.find(params[:id])
     @wizard_mode = true
@@ -180,10 +218,12 @@ class WorksController < ApplicationController
   end
 
   # Allow user to indicate where their files are located in the WWW
+  # only wizard mode
   def file_other
     @work = Work.find(params[:id])
   end
 
+  # only wizard mode
   def review
     @work = Work.find(params[:id])
     if request.method == "POST"
@@ -192,6 +232,7 @@ class WorksController < ApplicationController
     end
   end
 
+  # only wizard mode
   def validate
     @work = Work.find(params[:id])
     @work.submission_notes = params["submission_notes"]
@@ -271,6 +312,7 @@ class WorksController < ApplicationController
     end
   end
 
+  # only wizard mode
   def readme_select
     @work = Work.find(params[:id])
     readme = Readme.new(@work, current_user)
@@ -278,6 +320,7 @@ class WorksController < ApplicationController
     @wizard = true
   end
 
+  # only wizard mode
   def readme_uploaded
     @work = Work.find(params[:id])
     @wizard = true

@@ -49,7 +49,7 @@ RSpec.describe WorksController do
 
     it "renders the new submission wizard' step 0" do
       sign_in user
-      get :new, params: { wizard: true }
+      get :new_submission
       expect(response).to render_template("new_submission")
     end
 
@@ -66,7 +66,7 @@ RSpec.describe WorksController do
         "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
       }
       sign_in user
-      post(:new_submission, params:)
+      post(:new_submission_save, params:)
       expect(response.status).to be 302
       expect(response.location.start_with?("http://test.host/works/")).to be true
     end
@@ -79,7 +79,7 @@ RSpec.describe WorksController do
         "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
       }
       sign_in user
-      post(:new_submission, params:)
+      post(:new_submission_save, params:)
       expect(response.status).to be 302
       # rubocop:disable Layout/LineLength
       expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Must provide a title. Please contact the PDC Describe administrators for any assistance."])

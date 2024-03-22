@@ -29,7 +29,8 @@ Rails.application.routes.draw do
   get "how-to-submit", to: "welcome#how_to_submit", as: :welcome_how_to_submit
 
   get "works/:id/file-list", to: "works#file_list", as: :work_file_list
-  post "works/new-submission", to: "works#new_submission", as: :work_new_submission
+  get "works/new-submission", to: "works#new_submission", as: :work_create_new_submission
+  post "works/new-submission", to: "works#new_submission_save", as: :work_new_submission
   get "works/:id/readme-select", to: "works#readme_select", as: :work_readme_select
   patch "works/:id/readme-uploaded", to: "works#readme_uploaded", as: :work_readme_uploaded
   get "works/:id/attachment-select", to: "works#attachment_select", as: :work_attachment_select
