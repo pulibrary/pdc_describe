@@ -9,7 +9,7 @@ require "open-uri"
 # Note: new, edit and update get called by many of the workflows
 #
 # wizard mode
-# new_sumission -> new_submission_save -> edit -> update -> readme_select -> readme_uploaded -> attachment_select ->
+# new_sumission -> new_submission_save -> edit_wizard -> update -> readme_select -> readme_uploaded -> attachment_select ->
 #     attachment_selected -> file_other ->                  review -> validate -> show & file_list
 #                         \> file_upload -> file_uploaded -^
 #
@@ -85,7 +85,7 @@ class WorksController < ApplicationController
     @work = Work.new(created_by_user_id: current_user.id, group_id:)
     @work.resource = FormToResourceService.convert(params, @work)
     @work.draft!(current_user)
-    redirect_to edit_work_path(@work, wizard: true)
+    redirect_to edit_work_wizard_path(@work)
   end
 
   ##
@@ -131,39 +131,33 @@ class WorksController < ApplicationController
     redirect_to @work
   end
 
+  # GET /works/1/edit_wizard
+  # only wizard
+  def edit_wizard
+    @work = Work.find(params[:id])
+    @work_decorator = WorkDecorator.new(@work, current_user)
+    @wizard_mode = true
+    if handle_modification_permissions
+      @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+    end
+  end
+
   # GET /works/1/edit
-  # rubocop:disable Metrics/MethodLength
-  # Both wizard and not wizard mode
+  # only non wizard mode
   def edit
     @work = Work.find(params[:id])
     @work_decorator = WorkDecorator.new(@work, current_user)
-    if current_user && @work.editable_by?(current_user)
-      if @work.approved? && !@work.administered_by?(current_user)
-        Honeybadger.notify("Can not edit work: #{@work.id} is approved but #{current_user.uid} is not admin")
-        redirect_to root_path, notice: I18n.t("works.uneditable.approved")
-      else
-        @uploads = @work.uploads
-        @wizard_mode = wizard_mode?
-        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
-        render "edit"
-      end
-    else
-      Honeybadger.notify("Can not edit work: #{@work.id} is not editable by #{current_user.uid}")
-      redirect_to root_path, notice: I18n.t("works.uneditable.privs")
+    if handle_modification_permissions
+      @uploads = @work.uploads
+      @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
     end
   end
-  # rubocop:enable Metrics/MethodLength
 
   # Both wizard and not wizard mode
   def update
     @work = Work.find(params[:id])
-    if current_user.blank? || !@work.editable_by?(current_user)
-      Honeybadger.notify("Can not update work: #{@work.id} is not editable by #{current_user.uid}")
-      redirect_to root_path, notice: I18n.t("works.uneditable.privs")
-    elsif !@work.editable_in_current_state?(current_user)
-      Honeybadger.notify("Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
-      redirect_to root_path, notice: I18n.t("works.uneditable.approved")
-    else
+    if handle_modification_permissions(uneditiable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
+                                       current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
       update_work
     end
   end
@@ -574,6 +568,23 @@ class WorksController < ApplicationController
       return false unless params.key?(:submit)
 
       params[:submit] == "Migrate"
+    end
+
+    # @returns false if an error occured
+    def handle_modification_permissions(uneditiable_message: "Can not edit work: #{@work.id} is not editable by #{current_user.uid}",
+                                        current_state_message: "Can not edit work: #{@work.id} is not editable in current state by #{current_user.uid}")
+      no_error = false
+      if current_user.blank? || !@work.editable_by?(current_user)
+        Honeybadger.notify(uneditiable_message)
+        redirect_to root_path, notice: I18n.t("works.uneditable.privs")
+      elsif !@work.editable_in_current_state?(current_user)
+        Honeybadger.notify(current_state_message)
+        redirect_to root_path, notice: I18n.t("works.uneditable.approved")
+      else
+        no_error = true
+      end
+
+      no_error
     end
 end
 # rubocop:enable Metrics/ClassLength

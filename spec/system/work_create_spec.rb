@@ -149,7 +149,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
     context "when no description is provided" do
       let(:resource) { FactoryBot.build(:resource, description: nil) }
       let(:work) do
-        FactoryBot.create(:new_work, created_by_user_id: user.id, resource:)
+        FactoryBot.create(:new_draft_work, created_by_user_id: user.id, resource:)
       end
       it "renders a warning", js: true do
         sign_in user
@@ -215,7 +215,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
         end
         it "renders a warning", js: true do
           sign_in user
-          visit edit_work_path(work, params: { wizard: true })
+          visit edit_work_wizard_path(work)
 
           expect(work.resource.related_objects.count).to eq(0)
 

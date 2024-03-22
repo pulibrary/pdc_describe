@@ -36,6 +36,7 @@ Rails.application.routes.draw do
   get "works/:id/attachment-select", to: "works#attachment_select", as: :work_attachment_select
   post "works/:id/attachment-select", to: "works#attachment_selected", as: :work_attachment_selected
   patch "works/:id/file-upload", to: "works#file_uploaded", as: :work_file_uploaded
+  get "works/:id/edit-wizard", to: "works#edit_wizard", as: :edit_work_wizard
   get "works/:id/file-upload", to: "works#file_upload", as: :work_file_upload
   get "works/:id/file-other", to: "works#file_other", as: :work_file_other
   get "works/:id/review", to: "works#review", as: :work_review
