@@ -52,7 +52,7 @@
     your submission, we may be reached at <a href="mailto:prds@princeton.edu">prds@princeton.edu</a>
   </p>
 
-  <%= form_tag(action: "new_submission") do %>
+  <%= form_tag(action: "new_submission_save") do %>
     <%= render(partial: 'works/required_title', locals: {allow_many: false}) %>
     <%= render(partial: 'works/required_creators_table') %>
     <%= render 'form_hidden_fields' %>
