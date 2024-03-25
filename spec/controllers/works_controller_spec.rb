@@ -129,7 +129,7 @@ RSpec.describe WorksController do
           creators: [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
         }
         sign_in user
-        post(:update, params:)
+        post(:update_wizard, params:)
         expect(response.status).to be 302
         expect(response.location).to eq "http://test.host/works/#{work.id}/readme-select"
         expect(ActiveStorage::PurgeJob).not_to have_received(:new)

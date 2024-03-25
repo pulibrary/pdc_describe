@@ -228,6 +228,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
           expect(work.resource.related_objects.count).to eq(0)
           # rubocop:disable Layout/LineLength
           expect(page).to have_content("1 error prohibited this dataset from being saved:\nRelated Objects are invalid: Related Identifier Type is missing or invalid for https://related.example.com, Relationship Type is missing or invalid for https://related.example.com")
+          expect(page).not_to have_content("Uncurated Files")
+          expect(page).not_to have_content("Curated Files")
           # rubocop:enable Layout/LineLength
         end
       end

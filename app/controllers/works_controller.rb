@@ -6,10 +6,10 @@ require "open-uri"
 # Currently this controller supports Multiple ways to create a work, wizard mode, create dataset, and migrate
 # The goal is to eventually break some of these workflows into separate contorllers.
 # For the moment I'm documenting which methods get called by each workflow below.
-# Note: new, edit and update get called by many of the workflows
+# Note: new, edit and update get called by both the migrate and Non wizard workflows
 #
 # wizard mode
-# new_sumission -> new_submission_save -> edit_wizard -> update -> readme_select -> readme_uploaded -> attachment_select ->
+# new_sumission -> new_submission_save -> edit_wizard -> update_wizard -> readme_select -> readme_uploaded -> attachment_select ->
 #     attachment_selected -> file_other ->                  review -> validate -> show & file_list
 #                         \> file_upload -> file_uploaded -^
 #
@@ -153,10 +153,32 @@ class WorksController < ApplicationController
     end
   end
 
-  # Both wizard and not wizard mode
+  # PATCH /works/1/update-wizard
+  # only wizard  mode
+  def update_wizard
+    @work = Work.find(params[:id])
+    if handle_modification_permissions(uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
+                                       current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
+      work_before = @work.dup
+      if @work.update(update_params)
+        work_compare = WorkCompareService.new(work_before, @work)
+        @work.log_changes(work_compare, current_user.id)
+
+        redirect_to work_readme_select_url(@work)
+      else
+        # This is needed for rendering HTML views with validation errors
+        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+
+        render :edit_wizard, status: :unprocessable_entity
+      end
+    end
+  end
+
+  # PATCH /works/1
+  # only non wizard mode
   def update
     @work = Work.find(params[:id])
-    if handle_modification_permissions(uneditiable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
+    if handle_modification_permissions(uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
                                        current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
       update_work
     end
@@ -487,7 +509,6 @@ class WorksController < ApplicationController
     end
 
     def update_work
-      @wizard_mode = wizard_mode?
       upload_service = WorkUploadsEditService.new(@work, current_user)
       if @work.approved?
         upload_keys = deleted_files_param || []
@@ -537,15 +558,10 @@ class WorksController < ApplicationController
         work_compare = WorkCompareService.new(work_before, @work)
         @work.log_changes(work_compare, current_user.id)
 
-        if @wizard_mode
-          redirect_to work_readme_select_url(@work)
-        else
-          redirect_to work_url(@work), notice: "Work was successfully updated."
-        end
+        redirect_to work_url(@work), notice: "Work was successfully updated."
       else
         # This is needed for rendering HTML views with validation errors
         @uploads = @work.uploads
-        @wizard_mode = wizard_mode?
         @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
 
         render :edit, status: :unprocessable_entity
@@ -571,11 +587,11 @@ class WorksController < ApplicationController
     end
 
     # @returns false if an error occured
-    def handle_modification_permissions(uneditiable_message: "Can not edit work: #{@work.id} is not editable by #{current_user.uid}",
+    def handle_modification_permissions(uneditable_message: "Can not edit work: #{@work.id} is not editable by #{current_user.uid}",
                                         current_state_message: "Can not edit work: #{@work.id} is not editable in current state by #{current_user.uid}")
       no_error = false
       if current_user.blank? || !@work.editable_by?(current_user)
-        Honeybadger.notify(uneditiable_message)
+        Honeybadger.notify(uneditable_message)
         redirect_to root_path, notice: I18n.t("works.uneditable.privs")
       elsif !@work.editable_in_current_state?(current_user)
         Honeybadger.notify(current_state_message)
