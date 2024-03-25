@@ -7,59 +7,34 @@
 -->
 <div class="d-flex align-items-start">
 
-  <!-- This div holds the "tabs menu" section that we display on the left -->
-  <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-    <button class="nav-link active" id="v-pills-required-tab" data-bs-toggle="pill" data-bs-target="#v-pills-required" type="button" role="tab" aria-controls="v-pills-required" aria-selected="true">Required Metadata</button>
-    <button class="nav-link btn btn-light" id="v-pills-additional-tab" data-bs-toggle="pill" data-bs-target="#v-pills-additional" type="button" role="tab" aria-controls="v-pills-additional" aria-selected="false">Additional Metadata</button>
-    <button class="nav-link" id="v-pills-curator-controlled-tab" data-bs-toggle="pill" data-bs-target="#v-pills-curator-controlled" type="button" role="tab" aria-controls="v-pills-curator-controlled" aria-selected="false"><%= t('works.form.curator_controlled') %></button>
-  </div>
+<%= render 'form_nav' %>
 
   <div>
     <%= form_with(model: @work, class: ["work-form"], data: { work: @work.form_attributes }) do |form| %>
-      <!-- This div holds the actual tabs content (displayed on the right) -->
-      <div class="tab-content" id="v-pills-tabContent">
+      <%= render partial: 'form_metadata', locals:  { form: form } %>
 
-        <!-- tab: required fields -->
-        <div class="tab-pane fade show active" id="v-pills-required" role="tabpanel" aria-labelledby="v-pills-required-tab">
-          <%= form.hidden_field :work_id %>
-          <%= render 'required_form' %>
-        </div>
 
-        <!-- tab: additional fields -->
-        <div class="tab-pane fade" id="v-pills-additional" role="tabpanel" aria-labelledby="v-pills-additional-tab">
-          <%= render 'additional_form' %>
-        </div>
-
-        <!-- tab: curator controlled fields -->
-        <div class="tab-pane fade" id="v-pills-curator-controlled" role="tabpanel" aria-labelledby="v-pills-curator-controlled-tab">
-          <%= render 'curator_controlled_form', is_group_admin: current_user.has_role?(:group_admin, @work.group) %>
-        </div>
-
+      <hr />
+      <div class="deposit-uploads">
+        <% if @work.approved? %>
+          <section class="uploads">
+            <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
+            <%= render(partial: 'works/s3_resources', locals: { edit_mode: false }) %>
+          </section>
+        <% else %>
+          <section class="uploads">
+            <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
+            <%= render(partial: 'works/s3_resources', locals: { edit_mode: true, form: form }) %>
+          </section>
+          <div class="container-fluid deposit-uploads">
+            <div id="file-error" class="error_box"></div>
+            <%= form.label("Choose files to attach to this work", for: :pre_curation_uploads_added) %>
+            <%= form.file_field(:pre_curation_uploads_added, id: "pre_curation_uploads_added", multiple: true) %>
+            <!-- We populate this via JavaScript as the user selected files to upload -->
+            <div id="file-upload-list"></div>
+          </div>
+        <% end %>
       </div>
-
-      <% if !@wizard_mode %>
-        <hr />
-        <div class="deposit-uploads">
-          <% if @work.approved? %>
-            <section class="uploads">
-              <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
-              <%= render(partial: 'works/s3_resources', locals: { edit_mode: false }) %>
-            </section>
-          <% else %>
-            <section class="uploads">
-              <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
-              <%= render(partial: 'works/s3_resources', locals: { edit_mode: true, form: form }) %>
-            </section>
-            <div class="container-fluid deposit-uploads">
-              <div id="file-error" class="error_box"></div>
-              <%= form.label("Choose files to attach to this work", for: :pre_curation_uploads_added) %>
-              <%= form.file_field(:pre_curation_uploads_added, id: "pre_curation_uploads_added", multiple: true) %>
-              <!-- We populate this via JavaScript as the user selected files to upload -->
-              <div id="file-upload-list"></div>
-            </div>
-          <% end %>
-        </div>
-      <% end %>
 
       <hr />
       <div class="actions">

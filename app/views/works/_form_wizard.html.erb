@@ -1,0 +1,29 @@
+<%= render 'form_errors' %>
+
+<!--
+  Information about Bootstrap tabs
+  https://getbootstrap.com/docs/5.0/components/navs-tabs/
+  https://getbootstrap.com/docs/5.0/components/navs-tabs/#javascript-behavior
+-->
+<div class="d-flex align-items-start">
+
+<%= render 'form_nav' %>
+
+  <div>
+    <%= form_with(model: @work, url: update_work_wizard_path(@work), class: ["work-form"], data: { work: @work.form_attributes }) do |form| %>
+      <%= render partial: 'form_metadata', locals:  { form: form } %>
+
+      <hr />
+      <div class="actions">
+        <%= link_to 'Cancel', @work, class: "btn btn-secondary" %>
+        <% if @work.persisted? %>
+          <%= form.submit "Save Work", class: "btn btn-primary wizard-next-button", id: "btn-submit" %>
+        <% else %>
+          <%= form.submit "Create", class: "btn btn-primary wizard-next-button", id: "btn-submit", name: "submit" %>
+        <% end %>
+      </div>
+
+      <%= render 'form_hidden_fields' %>
+    <% end %>
+  </div>
+</div>
