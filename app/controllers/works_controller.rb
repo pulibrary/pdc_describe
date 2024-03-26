@@ -8,12 +8,7 @@ require "open-uri"
 # For the moment I'm documenting which methods get called by each workflow below.
 # Note: new, edit and update get called by both the migrate and Non wizard workflows
 #
-# wizard mode
-# new_sumission -> new_submission_save -> edit_wizard -> update_wizard -> readme_select -> readme_uploaded -> attachment_select ->
-#     attachment_selected -> file_other ->                  review -> validate -> show & file_list
-#                         \> file_upload -> file_uploaded -^
-#
-# Non wizard mode
+# Normal mode
 #  new & file_list -> create -> show & file_list
 #
 #  Clicking Edit puts you in wizard mode for some reason :(
@@ -29,7 +24,7 @@ require "open-uri"
 # rubocop:disable Metrics/ClassLength
 class WorksController < ApplicationController
   include ERB::Util
-  around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :validate, :create, :new_submission_save]
+  around_action :rescue_aasm_error, only: [:approve, :withdraw, :resubmit, :validate, :create]
 
   skip_before_action :authenticate_user!
   before_action :authenticate_user!, unless: :public_request?
@@ -65,27 +60,6 @@ class WorksController < ApplicationController
       @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
       render :new, status: :unprocessable_entity
     end
-  end
-
-  # get Renders the "step 0" information page before creating a new dataset
-  # only wizard mode
-  def new_submission
-    group = Group.find_by(code: params[:group_code]) || current_user.default_group
-    group_id = group.id
-    @work = Work.new(created_by_user_id: current_user.id, group_id:)
-    @work_decorator = WorkDecorator.new(@work, current_user)
-    @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
-  end
-
-  # Creates the new dataset
-  # only wizard mode
-  def new_submission_save
-    group = Group.find_by(code: params[:group_code]) || current_user.default_group
-    group_id = group.id
-    @work = Work.new(created_by_user_id: current_user.id, group_id:)
-    @work.resource = FormToResourceService.convert(params, @work)
-    @work.draft!(current_user)
-    redirect_to edit_work_wizard_path(@work)
   end
 
   ##
@@ -153,27 +127,6 @@ class WorksController < ApplicationController
     end
   end
 
-  # PATCH /works/1/update-wizard
-  # only wizard  mode
-  def update_wizard
-    @work = Work.find(params[:id])
-    if handle_modification_permissions(uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
-                                       current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
-      work_before = @work.dup
-      if @work.update(update_params)
-        work_compare = WorkCompareService.new(work_before, @work)
-        @work.log_changes(work_compare, current_user.id)
-
-        redirect_to work_readme_select_url(@work)
-      else
-        # This is needed for rendering HTML views with validation errors
-        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
-
-        render :edit_wizard, status: :unprocessable_entity
-      end
-    end
-  end
-
   # PATCH /works/1
   # only non wizard mode
   def update
@@ -182,80 +135,6 @@ class WorksController < ApplicationController
                                        current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
       update_work
     end
-  end
-
-  # Prompt to select how to submit their files
-  # only wizard mode
-  def attachment_select
-    @work = Work.find(params[:id])
-    @wizard_mode = true
-  end
-
-  # User selected a specific way to submit their files
-  # only wizard mode
-  def attachment_selected
-    @work = Work.find(params[:id])
-    @wizard_mode = true
-    @work.files_location = params["attachment_type"]
-    @work.save!
-
-    # create a directory for the work if the curator will need to move files by hand
-    @work.s3_query_service.create_directory if @work.files_location != "file_upload"
-
-    next_url = case @work.files_location
-               when "file_upload"
-                 work_file_upload_url(@work)
-               else
-                 work_file_other_url(@work)
-               end
-    redirect_to next_url
-  end
-
-  # Allow user to upload files directly
-  def file_upload
-    @work = Work.find(params[:id])
-  end
-
-  def file_uploaded
-    @work = Work.find(params[:id])
-    files = pre_curation_uploads_param || []
-    if files.count > 0
-      upload_service = WorkUploadsEditService.new(@work, current_user)
-      @work = upload_service.update_precurated_file_list(files, [])
-      @work.save!
-      @work.reload_snapshots
-    end
-    redirect_to(work_review_path)
-  rescue StandardError => active_storage_error
-    Rails.logger.error("Failed to attach the file uploads for the work #{@work.doi}: #{active_storage_error}")
-    flash[:notice] = "Failed to attach the file uploads for the work #{@work.doi}: #{active_storage_error}. Please contact rdss@princeton.edu for assistance."
-
-    redirect_to work_file_upload_path(@work)
-  end
-
-  # Allow user to indicate where their files are located in the WWW
-  # only wizard mode
-  def file_other
-    @work = Work.find(params[:id])
-  end
-
-  # only wizard mode
-  def review
-    @work = Work.find(params[:id])
-    if request.method == "POST"
-      @work.location_notes = params["location_notes"]
-      @work.save!
-    end
-  end
-
-  # only wizard mode
-  def validate
-    @work = Work.find(params[:id])
-    @work.submission_notes = params["submission_notes"]
-    @uploads = @work.uploads
-    @wizard_mode = true
-    @work.complete_submission!(current_user)
-    redirect_to user_url(current_user)
   end
 
   def approve
@@ -328,41 +207,12 @@ class WorksController < ApplicationController
     end
   end
 
-  # only wizard mode
-  def readme_select
-    @work = Work.find(params[:id])
-    readme = Readme.new(@work, current_user)
-    @readme = readme.file_name
-    @wizard = true
-  end
-
-  # only wizard mode
-  def readme_uploaded
-    @work = Work.find(params[:id])
-    @wizard = true
-    readme = Readme.new(@work, current_user)
-    readme_error = readme.attach(readme_file_param)
-    if readme_error.nil?
-      redirect_to work_attachment_select_url(@work)
-    else
-      flash[:notice] = readme_error
-      redirect_to work_readme_select_url(@work)
-    end
-  end
-
   def migrating?
     return @work.resource.migrated if @work&.resource && !params.key?(:migrate)
 
     params[:migrate]
   end
   helper_method :migrating?
-
-  def doi_mutable?
-    return true unless !@work.nil? && @work.persisted?
-
-    !@work.approved?
-  end
-  helper_method :doi_mutable?
 
   # Returns the raw BibTex citation information
   def bibtex
