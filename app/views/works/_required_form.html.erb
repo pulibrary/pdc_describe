@@ -5,7 +5,7 @@
     but you can provide this DOI to a publisher now.
     This unique identifier will become searchable at the completion of this process.
   </p>
-  <% if @wizard_mode || !doi_mutable? %>
+  <% if @wizard_mode || !@form_resource_decorator.doi_mutable? %>
     <input id="doi_read_only" name="doi_read_only" value="<%= @work.resource.doi %>" readonly/>
   <% else %>
     <p id="doi_text">DOI: <%= @work.resource.doi %></p>
@@ -16,7 +16,7 @@
 
 <!-- Description (one for now)-->
 <div class="field">
-  <%= render partial: "required_form_field_details", locals: { name: "description", display_name: "Description",
+  <%= render partial: "/works/required_form_field_details", locals: { name: "description", display_name: "Description",
                                                        primary_detail: "Please enter a brief summary of this deposit specifically - not identical to the abstract of a corresponding paper.",
                                                        field_detail: "The description should provide a comprehensive summary describing the contents of this deposit. Provide details that explain the contents of your deposit; such as how it was created, what it was created for, the nature of the materials constituting the item (scope, purpose, methods, etc.), as opposed to substantive claims made in related publications.",
                                                       }

@@ -19,13 +19,8 @@
 
 <!-- DOI field (mostly for legacy DSpace works) -->
 <div class="field">
-  <% if @wizard_mode || @work.persisted? %>
-    DOI: <br>
-    <input type="text" id="doi" name="doi" class="input-text-long" value="<%= @work.doi %>" <%= (is_group_admin && doi_mutable?) ? '' : 'readonly' %> />
-  <% else %>
     DOI: <span class="text-muted field-hint">(enter the Digital Object Identifier, e.g. 10.80021/62qy-nj36)</span><br>
-    <input type="text" id="doi" name="doi" class="input-text-long" value="<%= @work.doi %>" <%= (is_group_admin && doi_mutable?) ? '' : 'readonly' %>/>
-  <% end %>
+    <input type="text" id="doi" name="doi" class="input-text-long" value="<%= @work.doi %>" <%= (is_group_admin && @form_resource_decorator.doi_mutable?) ? '' : 'readonly' %>/>
 </div>
 
 <!-- ARK field (mostly for legacy DSpace works) -->

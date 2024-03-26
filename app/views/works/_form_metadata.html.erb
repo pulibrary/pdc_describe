@@ -4,17 +4,17 @@
     <!-- tab: required fields -->
     <div class="tab-pane fade show active" id="v-pills-required" role="tabpanel" aria-labelledby="v-pills-required-tab">
     <%= form.hidden_field :work_id %>
-    <%= render 'required_form' %>
+    <%= render '/works/required_form' %>
     </div>
 
     <!-- tab: additional fields -->
     <div class="tab-pane fade" id="v-pills-additional" role="tabpanel" aria-labelledby="v-pills-additional-tab">
-    <%= render 'additional_form' %>
+    <%= render '/works/additional_form' %>
     </div>
 
     <!-- tab: curator controlled fields -->
     <div class="tab-pane fade" id="v-pills-curator-controlled" role="tabpanel" aria-labelledby="v-pills-curator-controlled-tab">
-    <%= render 'curator_controlled_form', is_group_admin: current_user.has_role?(:group_admin, @work.group) %>
+    <%= render '/works/curator_controlled_form', is_group_admin: current_user.has_role?(:group_admin, @work.group) %>
     </div>
 
 </div>
