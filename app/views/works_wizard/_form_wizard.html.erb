@@ -1,4 +1,4 @@
-<%= render 'form_errors' %>
+<%= render '/works/form_errors' %>
 
 <!--
   Information about Bootstrap tabs
@@ -7,11 +7,11 @@
 -->
 <div class="d-flex align-items-start">
 
-<%= render 'form_nav' %>
+<%= render '/works/form_nav' %>
 
   <div>
     <%= form_with(model: @work, url: update_work_wizard_path(@work), class: ["work-form"], data: { work: @work.form_attributes }) do |form| %>
-      <%= render partial: 'form_metadata', locals:  { form: form } %>
+      <%= render partial: '/works/form_metadata', locals:  { form: form } %>
 
       <hr />
       <div class="actions">
@@ -23,7 +23,7 @@
         <% end %>
       </div>
 
-      <%= render 'form_hidden_fields' %>
+      <%= render '/works/form_hidden_fields' %>
     <% end %>
   </div>
 </div>

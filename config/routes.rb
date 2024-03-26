@@ -28,21 +28,23 @@ Rails.application.routes.draw do
   get "license", to: "welcome#license", as: :welcome_license
   get "how-to-submit", to: "welcome#how_to_submit", as: :welcome_how_to_submit
 
+  # The work wizard
+  get "works/new-submission", to: "works_wizard#new_submission", as: :work_create_new_submission
+  post "works/new-submission", to: "works_wizard#new_submission_save", as: :work_new_submission
+  get "works/:id/readme-select", to: "works_wizard#readme_select", as: :work_readme_select
+  patch "works/:id/readme-uploaded", to: "works_wizard#readme_uploaded", as: :work_readme_uploaded
+  patch "works/:id/file-upload", to: "works_wizard#file_uploaded", as: :work_file_uploaded
+  get "works/:id/file-upload", to: "works_wizard#file_upload", as: :work_file_upload
+  patch "works/:id/update-wizard", to: "works_wizard#update_wizard", as: :update_work_wizard
+  get "works/:id/edit-wizard", to: "works_wizard#edit_wizard", as: :edit_work_wizard
+  get "works/:id/file-other", to: "works_wizard#file_other", as: :work_file_other
+  get "works/:id/review", to: "works_wizard#review", as: :work_review
+  post "works/:id/review", to: "works_wizard#review"
+  post "works/:id/validate", to: "works_wizard#validate", as: :work_validate
+  get "works/:id/attachment-select", to: "works_wizard#attachment_select", as: :work_attachment_select
+  post "works/:id/attachment-select", to: "works_wizard#attachment_selected", as: :work_attachment_selected
+
   get "works/:id/file-list", to: "works#file_list", as: :work_file_list
-  get "works/new-submission", to: "works#new_submission", as: :work_create_new_submission
-  post "works/new-submission", to: "works#new_submission_save", as: :work_new_submission
-  get "works/:id/readme-select", to: "works#readme_select", as: :work_readme_select
-  patch "works/:id/readme-uploaded", to: "works#readme_uploaded", as: :work_readme_uploaded
-  get "works/:id/attachment-select", to: "works#attachment_select", as: :work_attachment_select
-  post "works/:id/attachment-select", to: "works#attachment_selected", as: :work_attachment_selected
-  patch "works/:id/file-upload", to: "works#file_uploaded", as: :work_file_uploaded
-  patch "works/:id/update-wizard", to: "works#update_wizard", as: :update_work_wizard
-  get "works/:id/edit-wizard", to: "works#edit_wizard", as: :edit_work_wizard
-  get "works/:id/file-upload", to: "works#file_upload", as: :work_file_upload
-  get "works/:id/file-other", to: "works#file_other", as: :work_file_other
-  get "works/:id/review", to: "works#review", as: :work_review
-  post "works/:id/review", to: "works#review"
-  post "works/:id/validate", to: "works#validate", as: :work_validate
   post "work/:id/approve", to: "works#approve", as: :approve_work
   post "work/:id/withdraw", to: "works#withdraw", as: :withdraw_work
   post "work/:id/resubmit", to: "works#resubmit", as: :resubmit_work

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "rails_helper"
 
-describe "works/file_upload.html.erb" do
+describe "works_wizard/file_upload.html.erb" do
   let(:user) { FactoryBot.create(:user) }
 
   before do

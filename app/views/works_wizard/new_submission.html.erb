@@ -33,7 +33,7 @@
     In theory the new submission should never submit without a title or creators, because the javascript should prevent it.
     In reality we are occasionally having issues with the javascript failing and the button submitting anyway.
     In that case we want to show the error to the user so they can fix it. -->
-  <%= render 'form_errors' %>
+  <%= render '/works/form_errors' %>
 
   <h1>New Submission</h1>
   <%= render "wizard_progress", wizard_step: 0 %>
@@ -55,7 +55,7 @@
   <%= form_tag(action: "new_submission_save") do %>
     <%= render(partial: 'works/required_title', locals: {allow_many: false}) %>
     <%= render(partial: 'works/required_creators_table') %>
-    <%= render 'form_hidden_fields' %>
+    <%= render '/works/form_hidden_fields' %>
     <hr />
     <div class="actions">
       <%= link_to "Go Back", root_path, class: "btn btn-secondary" %>
