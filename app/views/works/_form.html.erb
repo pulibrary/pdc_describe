@@ -33,6 +33,7 @@
             <!-- We populate this via JavaScript as the user selected files to upload -->
             <div id="file-upload-list"></div>
           </div>
+          <div id="drag-drop-area"></div>
         <% end %>
       </div>
 
@@ -50,3 +51,15 @@
     <% end %>
   </div>
 </div>
+
+<script>
+  // https://davidwalsh.name/uppy-file-uploading
+  // https://stackoverflow.com/a/75050497/446681
+  var uppy = Uppy.Core({ autoProceed: false })
+  uppy.use(Uppy.Dashboard, { target: '#drag-drop-area', inline: true })
+  uppy.use(Uppy.XHRUpload, {
+    endpoint: '<%= work_upload_files_path(@work) %>' ,
+    headers: {
+        'X-CSRF-Token': document.querySelector("meta[name='csrf-token']").content
+    }})
+</script>

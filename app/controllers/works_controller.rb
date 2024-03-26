@@ -223,6 +223,10 @@ class WorksController < ApplicationController
     send_data bibtex, filename: "#{citation.bibtex_id}.bibtex", type: "text/plain", disposition: "attachment"
   end
 
+  def upload_files
+    byebug
+  end
+
   private
 
     # Extract the Work ID parameter
