@@ -43,6 +43,12 @@ class FormResourceDecorator
     resource.organizational_contributors + [nil]
   end
 
+  def doi_mutable?
+    return true unless !@work.nil? && @work.persisted?
+
+    !@work.approved?
+  end
+
   private
 
     def item_or_nil_array(item)

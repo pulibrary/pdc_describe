@@ -11,13 +11,7 @@
   <input type="text" id="related_object_count" name="related_object_count" value="<%= @work&.resource&.related_objects&.count || 0%>" class="hidden" />
   <input type="text" id="deleted_files_count" name="work[deleted_files_count]" value="0" class="hidden" />
 
-  <% if @wizard_mode || ( @work&.doi&.present? &&  @work.persisted?) %>
-    <input type="text" id="doi_read_only" name="doi_read_only" value="<%= @work&.resource&.doi %>" class="hidden" />
-  <% end %>
-
-  <% if @wizard_mode %>
-    <input type="text" id="wizard" name="wizard" value="true" class="hidden" />
-  <% end %>
+  <input type="text" id="doi_read_only" name="doi_read_only" value="<%= @work&.resource&.doi %>" class="hidden" />
 
   <input type="text" id="user_orcid" name="user_orcid" value="<%= current_user.orcid %>" class="hidden" />
   <input type="text" id="user_given_name" name="user_given_name" value="<%= current_user.given_name %>" class="hidden" />
