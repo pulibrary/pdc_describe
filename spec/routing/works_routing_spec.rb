@@ -23,14 +23,6 @@ RSpec.describe WorksController, type: :routing do
       expect(get: "/works/1/download?file=abc123").to route_to("work_downloader#download", id: "1", file: "abc123")
     end
 
-    it "routes to #attachment_select" do
-      expect(get: "/works/1/readme-select").to route_to("works#readme_select", id: "1")
-    end
-
-    it "routes to #attachment_select" do
-      expect(patch: "/works/1/readme-uploaded").to route_to("works#readme_uploaded", id: "1")
-    end
-
     it "routes to #work_file_list" do
       expect(get: "/works/1/file-list").to route_to("works#file_list", id: "1")
     end
