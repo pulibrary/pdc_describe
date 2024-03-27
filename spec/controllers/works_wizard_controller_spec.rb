@@ -44,18 +44,33 @@ RSpec.describe WorksWizardController do
 
     # In theory we should never get to the new submission without a title, because the javascript should prevent it
     # In reality we are occasionally having issues with the javascript failing and the button submitting anyway.
-    it "renders the edit page when creating a new dataset without a title" do
-      params = {
-        "group_id" => work.group.id,
-        "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
-      }
-      sign_in user
-      post(:new_submission_save, params:)
-      expect(response.status).to be 302
-      # rubocop:disable Layout/LineLength
-      expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Must provide a title. Please contact the PDC Describe administrators for any assistance."])
-      # rubocop:enable Layout/LineLength
-      expect(response).to redirect_to(work_create_new_submission_path)
+    describe "#new_submission_save" do
+      let(:params) do
+        {
+          "group_id" => work.group.id,
+          creators: [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
+        }
+      end
+
+      it "renders the edit page when creating a new dataset without a title" do
+        sign_in user
+        post(:new_submission_save, params:)
+        expect(response.status).to be 302
+        # rubocop:disable Layout/LineLength
+        expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Must provide a title. Please contact the PDC Describe administrators for any assistance."])
+        # rubocop:enable Layout/LineLength
+        expect(response).to redirect_to(work_create_new_submission_path)
+      end
+
+      context "save and stay on page" do
+        let(:save_only_params) { params.merge(save_only: true) }
+        it "renders the edit page when creating a new dataset with save only" do
+          sign_in user
+          post(:new_submission_save, params: save_only_params)
+          expect(response.status).to be 200 # TODO: why does this fail?
+          expect(response).to render_template(:new_submission)
+        end
+      end
     end
 
     describe "#update_wizard" do

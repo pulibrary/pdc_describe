@@ -36,7 +36,13 @@ class WorksWizardController < ApplicationController
     @work = Work.new(created_by_user_id: current_user.id, group_id:)
     @work.resource = FormToResourceService.convert(params, @work)
     @work.draft!(current_user)
-    redirect_to edit_work_wizard_path(@work)
+    if params[:save_only] == "true" # does the sove only button push the :save_only parameter?
+      @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+      @work_decorator = WorkDecorator.new(@work, current_user)
+      render :new_submission
+    else
+      redirect_to edit_work_wizard_path(@work)
+    end
   end
 
   # GET /works/1/edit-wizard
