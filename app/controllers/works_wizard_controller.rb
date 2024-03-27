@@ -19,7 +19,7 @@ class WorksWizardController < ApplicationController
                                    :readme_select, :readme_uploaded]
 
   # get Renders the "step 0" information page before creating a new dataset
-  # GET /works/1/new_submission
+  # GET /works/new_submission
   def new_submission
     group = Group.find_by(code: params[:group_code]) || current_user.default_group
     group_id = group.id
@@ -39,7 +39,7 @@ class WorksWizardController < ApplicationController
     redirect_to edit_work_wizard_path(@work)
   end
 
-  # GET /works/1/edit_wizard
+  # GET /works/1/edit-wizard
   def edit_wizard
     @work_decorator = WorkDecorator.new(@work, current_user)
     @wizard_mode = true
@@ -61,7 +61,12 @@ class WorksWizardController < ApplicationController
         work_compare = WorkCompareService.new(work_before, @work)
         @work.log_changes(work_compare, current_user.id)
 
-        redirect_to work_readme_select_url(@work)
+        if params[:save_only] == "true"
+          @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+          render :edit_wizard
+        else
+          redirect_to work_readme_select_url(@work)
+        end
       else
         # This is needed for rendering HTML views with validation errors
         @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
