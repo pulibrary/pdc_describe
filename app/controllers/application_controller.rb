@@ -76,7 +76,9 @@ class ApplicationController < ActionController::Base
 
       Date.parse(embargo_date_param)
     rescue Date::Error
-      Rails.logger.error("Failed to parse the embargo date #{embargo_date_param} for Work #{@work.id}")
+      message = "Failed to parse the embargo date #{embargo_date_param} for Work #{@work.id}"
+      Rails.logger.error(message)
+      Honeybadger.notify(message)
       nil
     end
 
