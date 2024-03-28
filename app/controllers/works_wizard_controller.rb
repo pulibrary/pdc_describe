@@ -36,7 +36,7 @@ class WorksWizardController < ApplicationController
     @work = Work.new(created_by_user_id: current_user.id, group_id:)
     @work.resource = FormToResourceService.convert(params, @work)
     @work.draft!(current_user)
-    if params[:save_only] == "true" # does the sove only button push the :save_only parameter?
+    if params[:save_only] == "true"
       @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
       @work_decorator = WorkDecorator.new(@work, current_user)
       render :new_submission
@@ -164,7 +164,13 @@ class WorksWizardController < ApplicationController
     readme = Readme.new(@work, current_user)
     readme_error = readme.attach(readme_file_param)
     if readme_error.nil?
-      redirect_to work_attachment_select_url(@work)
+      if params[:save_only] == "true"
+        readme = Readme.new(@work, current_user)
+        @readme = readme.file_name
+        render :readme_select
+      else
+        redirect_to work_attachment_select_url(@work)
+      end
     else
       flash[:notice] = readme_error
       redirect_to work_readme_select_url(@work)

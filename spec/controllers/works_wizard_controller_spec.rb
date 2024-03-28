@@ -132,7 +132,7 @@ RSpec.describe WorksWizardController do
 
     describe "#readme_uploaded" do
       let(:attach_status) { nil }
-      let(:fake_readme) { instance_double Readme, attach: attach_status, "blank?": true }
+      let(:fake_readme) { instance_double Readme, attach: attach_status, "blank?": true, file_name: "abc123" }
       let(:params) do
         {
           "_method" => "patch",
@@ -150,19 +150,31 @@ RSpec.describe WorksWizardController do
       before do
         allow(Readme).to receive(:new).and_return(fake_readme)
         sign_in user
-        post :readme_uploaded, params:
       end
 
       it "redirects to file-upload" do
+        post(:readme_uploaded, params:)
         expect(response.status).to be 302
         expect(fake_readme).to have_received(:attach)
         expect(response.location).to eq "http://test.host/works/#{work.id}/attachment-select"
+      end
+
+      context "save and stay on page" do
+        let(:save_only_params) { params.merge(save_only: true) }
+
+        it "stays on the readme select page" do
+          post :readme_uploaded, params: save_only_params
+          expect(response.status).to be 200
+          expect(fake_readme).to have_received(:attach)
+          expect(response).to render_template(:readme_select)
+        end
       end
 
       context "the upload encounters an error" do
         let(:attach_status) { "An error occured" }
 
         it "Stays on the same page" do
+          post(:readme_uploaded, params:)
           expect(response).to redirect_to(work_readme_select_path(work))
           expect(controller.flash[:notice]).to eq("An error occured")
         end
