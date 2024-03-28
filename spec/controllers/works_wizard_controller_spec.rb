@@ -236,21 +236,22 @@ RSpec.describe WorksWizardController do
     end
 
     describe "#file_uploaded" do
+      let(:params) do
+        {
+          "_method" => "patch",
+          "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
+          "patch" => {
+            "pre_curation_uploads" => [uploaded_file]
+          },
+          "commit" => "Continue",
+          "controller" => "works",
+          "action" => "file_uploaded",
+          "id" => work.id
+        }
+      end
+
       context "with an uploaded CSV file" do
         let(:fake_s3_service) { stub_s3 }
-        let(:params) do
-          {
-            "_method" => "patch",
-            "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
-            "patch" => {
-              "pre_curation_uploads" => [uploaded_file]
-            },
-            "commit" => "Continue",
-            "controller" => "works",
-            "action" => "file_uploaded",
-            "id" => work.id
-          }
-        end
 
         let(:bucket_url) do
           "https://example-bucket.s3.amazonaws.com/"
@@ -259,29 +260,37 @@ RSpec.describe WorksWizardController do
         before do
           sign_in user
           fake_s3_service # make sure the s3 service is mocked here
-          post(:file_uploaded, params:)
-          perform_enqueued_jobs
         end
 
         it "upload files directly from user requests" do
+          post(:file_uploaded, params:)
+          perform_enqueued_jobs
           expect(response).to redirect_to(work_review_path)
           expect(fake_s3_service).to have_received(:upload_file).with(hash_including(filename: "us_covid_2019.csv"))
         end
 
+        context "save and stay on page" do
+          let(:save_only_params) { params.merge(save_only: true) }
+  
+          it "stays on the attachment select page" do
+            post(:file_uploaded, params: save_only_params)
+            perform_enqueued_jobs
+            expect(response).to render_template(:file_upload)
+            expect(response.status).to be 200
+            expect(fake_s3_service).to have_received(:upload_file).with(hash_including(filename: "us_covid_2019.csv"))
+              post :attachment_selected, params: save_only_params
+          end
+        end
+  
         context "when files are not specified within the parameters" do
-          let(:params) do
-            {
-              "_method" => "patch",
-              "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
-              "patch" => {},
-              "commit" => "Continue",
-              "controller" => "works",
-              "action" => "file_uploaded",
-              "id" => work.id
-            }
+          let(:params_no_files) do
+            params["patch"].delete("pre_curation_uploads")
+            params
           end
 
           it "does not update the work" do
+            post(:file_uploaded, params: params_no_files)
+            perform_enqueued_jobs
             expect(response).to redirect_to(work_review_path)
             expect(fake_s3_service).not_to have_received(:upload_file)
           end
@@ -289,20 +298,6 @@ RSpec.describe WorksWizardController do
       end
 
       context "when file uploads raise errors" do
-        let(:params) do
-          {
-            "_method" => "patch",
-            "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
-            "patch" => {
-              "pre_curation_uploads" => [uploaded_file]
-            },
-            "commit" => "Continue",
-            "controller" => "works",
-            "action" => "file_uploaded",
-            "id" => work.id
-          }
-        end
-
         let(:bucket_url) do
           "https://example-bucket.s3.amazonaws.com/"
         end

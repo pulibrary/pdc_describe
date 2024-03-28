@@ -125,7 +125,11 @@ class WorksWizardController < ApplicationController
       @work.save!
       @work.reload_snapshots
     end
-    redirect_to(work_review_path)
+    if params[:save_only] == "true"
+      render :file_upload
+    else
+      redirect_to(work_review_path)
+    end
   rescue StandardError => active_storage_error
     Rails.logger.error("Failed to attach the file uploads for the work #{@work.doi}: #{active_storage_error}")
     flash[:notice] = "Failed to attach the file uploads for the work #{@work.doi}: #{active_storage_error}. Please contact rdss@princeton.edu for assistance."
