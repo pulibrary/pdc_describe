@@ -192,22 +192,35 @@ RSpec.describe WorksWizardController do
     describe "#attachment_selected" do
       let(:attachment_type) { "file_upload" }
       let(:fake_s3_service) { stub_s3 }
+      let(:params) { { id: work.id, attachment_type: } }
+
       before do
         fake_s3_service
         sign_in user
-        post :attachment_selected, params: { id: work.id, attachment_type: }
       end
 
       it "redirects to file-upload" do
+        post(:attachment_selected, params:)
         expect(response.status).to be 302
         expect(response.location).to eq "http://test.host/works/#{work.id}/file-upload"
         expect(fake_s3_service).not_to have_received(:create_directory)
+      end
+
+      context "save and stay on page" do
+        let(:save_only_params) { params.merge(save_only: true) }
+
+        it "stays on the attachment select page" do
+          post :attachment_selected, params: save_only_params
+          expect(response.status).to be 200
+          expect(response).to render_template(:attachment_select)
+        end
       end
 
       context "when type is file_other" do
         let(:attachment_type) { "file_other" }
 
         it "redirects to file-other" do
+          post(:attachment_selected, params:)
           expect(response.status).to be 302
           expect(response.location).to eq "http://test.host/works/#{work.id}/file-other"
           expect(fake_s3_service).to have_received(:create_directory)
@@ -329,12 +342,26 @@ RSpec.describe WorksWizardController do
     end
 
     describe "#review" do
-      it "renders the review page and saves the location notes" do
+      before do
         sign_in user
+      end
+
+      it "renders the review page and saves the location notes" do
         post :review, params: { id: work.id, location_notes: "my files can be found at http://aws/my/data" }
         expect(response).to render_template(:review)
         expect(Work.find(work.id).location_notes).to eq "my files can be found at http://aws/my/data"
       end
+
+      context "save and stay on page" do
+        it "stays on the file other page" do
+          post :review, params: { id: work.id, location_notes: "my files can be found at http://aws/my/data", save_only: true }
+          expect(response.status).to be 200
+          expect(response).to render_template(:file_other)
+          expect(Work.find(work.id).location_notes).to eq "my files can be found at http://aws/my/data"
+        end
+      end
+
+
     end
 
     describe "#validate" do
