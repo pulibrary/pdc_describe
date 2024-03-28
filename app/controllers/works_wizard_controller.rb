@@ -103,14 +103,14 @@ class WorksWizardController < ApplicationController
     else
 
       next_url = case @work.files_location
-                when "file_upload"
-                  work_file_upload_url(@work)
-                else
-                  work_file_other_url(@work)
-                end
+                 when "file_upload"
+                   work_file_upload_url(@work)
+                 else
+                   work_file_other_url(@work)
+                 end
       redirect_to next_url
     end
-end
+  end
 
   # Allow user to upload files directly
   # GET /works/1/file_upload
