@@ -87,7 +87,7 @@ class WorksWizardController < ApplicationController
 
     if params[:save_only] == "true"
       render :attachment_select
-    elsif @work.files_location == file_upload
+    elsif @work.files_location == "file_upload"
       redirect_to work_file_upload_url(@work)
     else
       redirect_to work_file_other_url(@work)
