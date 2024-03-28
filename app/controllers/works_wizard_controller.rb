@@ -24,8 +24,7 @@ class WorksWizardController < ApplicationController
     group = Group.find_by(code: params[:group_code]) || current_user.default_group
     group_id = group.id
     @work = Work.new(created_by_user_id: current_user.id, group_id:)
-    @work_decorator = WorkDecorator.new(@work, current_user)
-    @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+    prepare_decorators_for_work_form(@work)
   end
 
   # Creates the new dataset
@@ -37,8 +36,7 @@ class WorksWizardController < ApplicationController
     @work.resource = FormToResourceService.convert(params, @work)
     @work.draft!(current_user)
     if params[:save_only] == "true"
-      @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
-      @work_decorator = WorkDecorator.new(@work, current_user)
+      prepare_decorators_for_work_form(@work)
       render :new_submission
     else
       redirect_to edit_work_wizard_path(@work)
@@ -47,13 +45,12 @@ class WorksWizardController < ApplicationController
 
   # GET /works/1/edit-wizard
   def edit_wizard
-    @work_decorator = WorkDecorator.new(@work, current_user)
     @wizard_mode = true
     if validate_modification_permissions(work: @work,
                                          uneditable_message: "Can not edit work: #{@work.id} is not editable by #{current_user.uid}",
                                          current_state_message: "Can not edit work: #{@work.id} is not editable in current state by #{current_user.uid}")
 
-      @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+      prepare_decorators_for_work_form(@work)
     end
   end
 
@@ -63,20 +60,17 @@ class WorksWizardController < ApplicationController
                                          uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
                                          current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
       work_before = @work.dup
+      prepare_decorators_for_work_form(@work)
       if @work.update(update_params)
         work_compare = WorkCompareService.new(work_before, @work)
         @work.log_changes(work_compare, current_user.id)
 
         if params[:save_only] == "true"
-          @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
           render :edit_wizard
         else
           redirect_to work_readme_select_url(@work)
         end
       else
-        # This is needed for rendering HTML views with validation errors
-        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
-
         render :edit_wizard, status: :unprocessable_entity
       end
     end
@@ -181,7 +175,6 @@ class WorksWizardController < ApplicationController
     readme_error = readme.attach(readme_file_param)
     if readme_error.nil?
       if params[:save_only] == "true"
-        readme = Readme.new(@work, current_user)
         @readme = readme.file_name
         render :readme_select
       else
@@ -225,11 +218,11 @@ class WorksWizardController < ApplicationController
       Honeybadger.notify("Invalid #{@work.current_transition}: #{error.message} errors: #{message}")
       transition_error_message = "We apologize, the following errors were encountered: #{message}. Please contact the PDC Describe administrators for any assistance."
       @errors = [transition_error_message]
+      prepare_decorators_for_work_form(@work)
 
       if @work.persisted?
         redirect_to edit_work_wizard_path(id: @work.id), notice: transition_error_message, params:
       else
-        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
         redirect_to work_create_new_submission_path, notice: transition_error_message, params:
       end
     rescue StandardError => generic_error
