@@ -158,7 +158,11 @@ class WorksWizardController < ApplicationController
   def validate
     @work.submission_notes = params["submission_notes"]
     @work.complete_submission!(current_user)
-    redirect_to user_url(current_user)
+    if params[:save_only] == "true"
+      render :review
+    else
+      redirect_to user_url(current_user)
+    end
   end
 
   # Show the user the form to select a readme
