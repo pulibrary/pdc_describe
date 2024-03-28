@@ -30,10 +30,9 @@ RSpec.describe WorksWizardController do
       expect(response).to render_template("new_submission")
     end
 
-
     describe "#new_submission_save" do
       let(:params) do
-        params = {
+        {
           "title_main" => "test dataset updated",
           "group_id" => work.group.id,
           "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
@@ -360,8 +359,6 @@ RSpec.describe WorksWizardController do
           expect(Work.find(work.id).location_notes).to eq "my files can be found at http://aws/my/data"
         end
       end
-
-
     end
 
     describe "#validate" do
