@@ -59,12 +59,8 @@ class WorksWizardController < ApplicationController
     if validate_modification_permissions(work: @work,
                                          uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
                                          current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
-      work_before = @work.dup
       prepare_decorators_for_work_form(@work)
-      if @work.update(update_params)
-        work_compare = WorkCompareService.new(work_before, @work)
-        @work.log_changes(work_compare, current_user.id)
-
+      if WorkCompareService.update_work(work: @work, update_params:, current_user:)
         if params[:save_only] == "true"
           render :edit_wizard
         else

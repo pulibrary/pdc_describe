@@ -3,6 +3,24 @@
 class WorkCompareService
   attr_reader :differences
 
+  class << self
+    # Updates a work with the parameters and logs any changes
+    # @param [Work] work work to be updated
+    # @param [HashWithIndifferentAccess] update_params values to update the work with
+    # @param [] current_user user currently logged into the system
+    # @return [Boolean] true if update occured; false if update had errors
+    def update_work(work:, update_params:, current_user:)
+      work_before = work.dup
+      if work.update(update_params)
+        work_compare = new(work_before, work)
+        work.log_changes(work_compare, current_user.id)
+        true
+      else
+        false
+      end
+    end
+  end
+
   def initialize(before, after)
     @before = before
     @after = after

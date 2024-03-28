@@ -369,11 +369,7 @@ class WorksController < ApplicationController
     end
 
     def process_updates
-      work_before = @work.dup
-      if @work.update(update_params)
-        work_compare = WorkCompareService.new(work_before, @work)
-        @work.log_changes(work_compare, current_user.id)
-
+      if WorkCompareService.update_work(work: @work, update_params:, current_user:)
         redirect_to work_url(@work), notice: "Work was successfully updated."
       else
         # This is needed for rendering HTML views with validation errors
