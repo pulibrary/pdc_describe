@@ -16,7 +16,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     fill_in "title_main", with: "Supreme"
     fill_in "creators[][given_name]", with: "Sonia"
     fill_in "creators[][family_name]", with: "Sotomayor"
-    click_on "Create New"
+    click_on "Next"
     work = Work.last
     expect(work.resource.resource_type).to eq "Dataset"
     expect(work.resource.resource_type_general).to eq "Dataset"
@@ -27,7 +27,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     visit user_path(user)
     click_on "Submit New"
     fill_in "title_main", with: ""
-    click_on "Create New"
+    click_on "Next"
     expect(page).to have_content "Must provide a title"
   end
 
