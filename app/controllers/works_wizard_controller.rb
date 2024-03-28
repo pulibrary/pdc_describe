@@ -74,14 +74,11 @@ class WorksWizardController < ApplicationController
 
   # Prompt to select how to submit their files
   # GET /works/1/attachment_select
-  def attachment_select
-    @wizard_mode = true
-  end
+  def attachment_select; end
 
   # User selected a specific way to submit their files
   # POST /works/1/attachment_selected
   def attachment_selected
-    @wizard_mode = true
     @work.files_location = params["attachment_type"]
     @work.save!
 
@@ -90,15 +87,10 @@ class WorksWizardController < ApplicationController
 
     if params[:save_only] == "true"
       render :attachment_select
+    elsif @work.files_location == file_upload
+      redirect_to work_file_upload_url(@work)
     else
-
-      next_url = case @work.files_location
-                 when "file_upload"
-                   work_file_upload_url(@work)
-                 else
-                   work_file_other_url(@work)
-                 end
-      redirect_to next_url
+      redirect_to work_file_other_url(@work)
     end
   end
 
@@ -159,13 +151,11 @@ class WorksWizardController < ApplicationController
   def readme_select
     readme = Readme.new(@work, current_user)
     @readme = readme.file_name
-    @wizard = true
   end
 
   # Uploads the readme the user selects
   # GET /works/1/readme_uploaded
   def readme_uploaded
-    @wizard = true
     readme = Readme.new(@work, current_user)
     readme_error = readme.attach(readme_file_param)
     if readme_error.nil?
