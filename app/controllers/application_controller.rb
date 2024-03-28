@@ -90,4 +90,9 @@ class ApplicationController < ActionController::Base
         resource: FormToResourceService.convert(params, @work)
       }
     end
+
+    def prepare_decorators_for_work_form(work)
+      @work_decorator = WorkDecorator.new(work, current_user)
+      @form_resource_decorator = FormResourceDecorator.new(work, current_user)
+    end
 end
