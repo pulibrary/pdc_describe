@@ -30,36 +30,41 @@ RSpec.describe WorksWizardController do
       expect(response).to render_template("new_submission")
     end
 
-    it "renders creates the work and renders the edit wizard page when creating a new submission" do
-      params = {
-        "title_main" => "test dataset updated",
-        "group_id" => work.group.id,
-        "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
-      }
-      sign_in user
-      expect { post(:new_submission_save, params:) }.to change { Work.count }.by 1
-      expect(response.status).to be 302
-      expect(response.location.start_with?("http://test.host/works/")).to be true
-    end
 
-    # In theory we should never get to the new submission without a title, because the javascript should prevent it
-    # In reality we are occasionally having issues with the javascript failing and the button submitting anyway.
     describe "#new_submission_save" do
       let(:params) do
-        {
+        params = {
+          "title_main" => "test dataset updated",
           "group_id" => work.group.id,
-          creators: [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
+          "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
         }
       end
 
-      it "renders the edit page when creating a new dataset without a title" do
+      it "renders creates the work and renders the edit wizard page when creating a new submission" do
         sign_in user
-        post(:new_submission_save, params:)
+        expect { post(:new_submission_save, params:) }.to change { Work.count }.by 1
         expect(response.status).to be 302
-        # rubocop:disable Layout/LineLength
-        expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Must provide a title. Please contact the PDC Describe administrators for any assistance."])
-        # rubocop:enable Layout/LineLength
-        expect(response).to redirect_to(work_create_new_submission_path)
+        expect(response.location.start_with?("http://test.host/works/")).to be true
+      end
+
+      # In theory we should never get to the new submission without a title, because the javascript should prevent it
+      # In reality we are occasionally having issues with the javascript failing and the button submitting anyway.
+      context "no title is present" do
+        let(:params_no_title) do
+          {
+            "group_id" => work.group.id,
+            "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
+          }
+        end
+        it "renders the edit page when creating a new dataset without a title" do
+          sign_in user
+          post(:new_submission_save, params: params_no_title)
+          expect(response.status).to be 302
+          # rubocop:disable Layout/LineLength
+          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Must provide a title. Please contact the PDC Describe administrators for any assistance."])
+          # rubocop:enable Layout/LineLength
+          expect(response).to redirect_to(work_create_new_submission_path)
+        end
       end
 
       context "save and stay on page" do
@@ -67,7 +72,7 @@ RSpec.describe WorksWizardController do
         it "renders the edit page when creating a new dataset with save only" do
           sign_in user
           post(:new_submission_save, params: save_only_params)
-          expect(response.status).to be 200 # TODO: why does this fail?
+          expect(response.status).to be 200
           expect(response).to render_template(:new_submission)
         end
       end
