@@ -98,14 +98,19 @@ class WorksWizardController < ApplicationController
     # create a directory for the work if the curator will need to move files by hand
     @work.s3_query_service.create_directory if @work.files_location != "file_upload"
 
-    next_url = case @work.files_location
-               when "file_upload"
-                 work_file_upload_url(@work)
-               else
-                 work_file_other_url(@work)
-               end
-    redirect_to next_url
-  end
+    if params[:save_only] == "true"
+      render :attachment_select
+    else
+
+      next_url = case @work.files_location
+                when "file_upload"
+                  work_file_upload_url(@work)
+                else
+                  work_file_other_url(@work)
+                end
+      redirect_to next_url
+    end
+end
 
   # Allow user to upload files directly
   # GET /works/1/file_upload
@@ -138,6 +143,9 @@ class WorksWizardController < ApplicationController
     if request.method == "POST"
       @work.location_notes = params["location_notes"]
       @work.save!
+      if params[:save_only] == "true"
+        render :file_other
+      end
     end
   end
 
