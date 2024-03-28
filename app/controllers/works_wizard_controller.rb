@@ -112,7 +112,6 @@ class WorksWizardController < ApplicationController
     if files.count > 0
       upload_service = WorkUploadsEditService.new(@work, current_user)
       @work = upload_service.update_precurated_file_list(files, [])
-      @work.save!
       @work.reload_snapshots
     end
     if params[:save_only] == "true"
