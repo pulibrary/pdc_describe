@@ -225,6 +225,9 @@ class WorksController < ApplicationController
 
   def upload_files
     byebug
+    upload_service = WorkUploadsEditService.new(@work, current_user)
+    files = params["files"]
+    upload_service.update_precurated_file_list(files, [])
   end
 
   private
