@@ -33,14 +33,14 @@ describe WorkCompareService do
       work = FactoryBot.build(:shakespeare_and_company_work)
       current_user = work.created_by_user
       update_params = {
-                        group_id: Group.plasma_laboratory.id,
-                        embargo_date: DateTime.now,
-                        resource: work.resource
-                      }
-      
-      expect { 
+        group_id: Group.plasma_laboratory.id,
+        embargo_date: DateTime.now,
+        resource: work.resource
+      }
+
+      expect do
         expect(described_class.update_work(work:, update_params:, current_user:)).to be_truthy
-      }.to change { work.work_activity.count }.by(1)
+      end.to change { work.work_activity.count }.by(1)
     end
   end
 end
