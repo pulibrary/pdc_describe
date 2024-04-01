@@ -25,6 +25,14 @@ class WorkMetadataService
     end
   end
 
+  def self.file_location_url(work)
+    if work.files_location == "file_upload"
+      Rails.application.routes.url_helpers.work_file_upload_path(work)
+    else
+      Rails.application.routes.url_helpers.work_file_other_path(work)
+    end
+  end
+
 private
 
   def update_work

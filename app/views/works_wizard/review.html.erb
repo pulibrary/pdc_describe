@@ -10,14 +10,7 @@
     <textarea id="submission_notes" name="submission_notes" cols="80", rows="10"
       placeholder="(optional) Type here to leave a message for the curators"><%= @work.submission_notes %></textarea>
     <div class="actions">
-      <% 
-        url = if @work.files_location == "file_upload"
-              work_file_upload_url(@work)
-            else
-              work_file_other_url(@work)
-            end
-      %>
-      <%= link_to "Go Back", url, class: "btn btn-secondary" %>
+      <%= link_to "Go Back", file_location_url , class: "btn btn-secondary" %>
       <%= submit_tag "Grant License and Complete", class: "btn btn-primary wizard-next-button" %>
     </div>
   <% end %>

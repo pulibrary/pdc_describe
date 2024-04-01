@@ -2,7 +2,6 @@
 require "rails_helper"
 
 describe "walk the wizard in reverse", type: :system, js: true do
-
   it "follow the same path in reverse or forward" do
     work = FactoryBot.create :draft_work, files_location: "file_upload"
     stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
