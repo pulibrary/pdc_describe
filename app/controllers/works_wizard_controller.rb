@@ -84,10 +84,8 @@ class WorksWizardController < ApplicationController
 
     if params[:save_only] == "true"
       render :attachment_select
-    elsif @work.files_location == "file_upload"
-      redirect_to work_file_upload_url(@work)
     else
-      redirect_to work_file_other_url(@work)
+      redirect_to file_location_url
     end
   end
 
@@ -167,6 +165,11 @@ class WorksWizardController < ApplicationController
       redirect_to work_readme_select_url(@work)
     end
   end
+
+  def file_location_url
+    WorkMetadataService.file_location_url(@work)
+  end
+  helper_method :file_location_url
 
   private
 

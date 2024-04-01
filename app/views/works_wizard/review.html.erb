@@ -10,7 +10,7 @@
     <textarea id="submission_notes" name="submission_notes" cols="80", rows="10"
       placeholder="(optional) Type here to leave a message for the curators"><%= @work.submission_notes %></textarea>
     <div class="actions">
-      <%= link_to "Go Back", work_attachment_select_url(@work, wizard: true), class: "btn btn-secondary" %>
+      <%= link_to "Go Back", file_location_url , class: "btn btn-secondary" %>
       <%= submit_tag "Grant License and Complete", class: "btn btn-primary wizard-next-button" %>
     </div>
   <% end %>
