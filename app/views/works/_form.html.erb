@@ -27,13 +27,18 @@
             <%= render(partial: 'works/s3_resources', locals: { edit_mode: true, form: form }) %>
           </section>
           <div class="container-fluid deposit-uploads">
+
+            <% if @new_uploader == true %>
+              <div id="file-upload-area"></div>
+              <button id="add-files-button" class="btn btn-secondary" style="width: 200px;"><i class="bi bi-plus-circle"></i> Add More Files</button>
+            <% else %>
+              <%= form.label("Choose files to attach to this work", for: :pre_curation_uploads_added) %>
+              <%= form.file_field(:pre_curation_uploads_added, id: "pre_curation_uploads_added", multiple: true) %>
+              <!-- We populate this via JavaScript as the user selected files to upload -->
+              <div id="file-upload-list"></div>
+            <% end %>
             <div id="file-error" class="error_box"></div>
-            <%= form.label("Choose files to attach to this work", for: :pre_curation_uploads_added) %>
-            <%= form.file_field(:pre_curation_uploads_added, id: "pre_curation_uploads_added", multiple: true) %>
-            <!-- We populate this via JavaScript as the user selected files to upload -->
-            <div id="file-upload-list"></div>
           </div>
-          <div id="drag-drop-area"></div>
         <% end %>
       </div>
 
@@ -55,11 +60,36 @@
 <script>
   // https://davidwalsh.name/uppy-file-uploading
   // https://stackoverflow.com/a/75050497/446681
+  // https://uppy.io/docs/dashboard
+  // https://uppy.io/docs/xhr-upload/#bundle
   var uppy = Uppy.Core({ autoProceed: false })
-  uppy.use(Uppy.Dashboard, { target: '#drag-drop-area', inline: true })
+
+  uppy.use(Uppy.Dashboard, {
+    target: '#file-upload-area',
+    inline: false, // display of dashboard only when trigger is clicked
+    trigger: "#add-files-button"
+  })
+
   uppy.use(Uppy.XHRUpload, {
-    endpoint: '<%= work_upload_files_path(@work) %>' ,
+    endpoint: '<%= work_upload_files_path(@work) %>',
     headers: {
         'X-CSRF-Token': document.querySelector("meta[name='csrf-token']").content
-    }})
+    },
+    bundle: true,   // upload all selected files at once
+    formData: true, // required when bundle: true
+    getResponseData: function(responseText, response) {
+      const dashboard = uppy.getPlugin('Dashboard');
+      if (dashboard.isModalOpen()) {
+	      dashboard.closeModal();
+      }
+      // Reload the file list displayed
+      let fileTable = $('#files-table').dataTable();
+      fileTable.api().ajax.reload();
+    }
+  })
+
+  $("#add-files-button").on("click", function(_x) {
+    // Prevent the button's click from submitting the form
+    return false;
+  })
 </script>

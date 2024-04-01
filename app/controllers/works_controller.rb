@@ -119,6 +119,7 @@ class WorksController < ApplicationController
   # GET /works/1/edit
   # only non wizard mode
   def edit
+    @new_uploader = true
     @work = Work.find(params[:id])
     @work_decorator = WorkDecorator.new(@work, current_user)
     if handle_modification_permissions
@@ -224,10 +225,9 @@ class WorksController < ApplicationController
   end
 
   def upload_files
-    byebug
+    @work = Work.find(params[:id])
     upload_service = WorkUploadsEditService.new(@work, current_user)
-    files = params["files"]
-    upload_service.update_precurated_file_list(files, [])
+    upload_service.update_precurated_file_list(params["files"], [])
   end
 
   private
