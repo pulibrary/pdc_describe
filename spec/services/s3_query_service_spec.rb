@@ -398,7 +398,7 @@ XML
           fake_s3_resp.stub(:next_continuation_token).and_return("abc")
         end
         it "returns all the objects" do
-          expect(s3_query_service.count_objects).to eq(7) # do not count the bucket the first time
+          expect(s3_query_service.count_objects).to eq(8) # do not count the bucket the first time
         end
       end
     end

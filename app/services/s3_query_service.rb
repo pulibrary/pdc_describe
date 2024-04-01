@@ -333,6 +333,12 @@ class S3QueryService
     responses = s3_responses(bucket_name:, prefix:)
     total_key_count = responses.reduce(0) { |total, resp| total + resp.key_count }
     total_key_count - 1 # s3 always sends back the bucket key as the first response, so we should not count it
+    if total_key_count < 0
+      return @work.upload_count = 0
+    else
+      total_key_count
+    end
+    # if total_key_count - 1 < 0, then limit sum to be 0. 
   end
 
   private
