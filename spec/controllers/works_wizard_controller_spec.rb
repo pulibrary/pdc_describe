@@ -58,11 +58,9 @@ RSpec.describe WorksWizardController do
         it "renders the edit page when creating a new dataset without a title" do
           sign_in user
           post(:new_submission_save, params: params_no_title)
-          expect(response.status).to be 302
-          # rubocop:disable Layout/LineLength
-          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Must provide a title. Please contact the PDC Describe administrators for any assistance."])
-          # rubocop:enable Layout/LineLength
-          expect(response).to redirect_to(work_create_new_submission_path)
+          expect(response.status).to be 200
+          expect(assigns[:errors]).to eq(["Must provide a title"])
+          expect(response).to render_template(:new_submission)
         end
       end
 
@@ -73,6 +71,21 @@ RSpec.describe WorksWizardController do
           post(:new_submission_save, params: save_only_params)
           expect(response.status).to be 200
           expect(response).to render_template(:new_submission)
+        end
+
+        context "when the user has hit save and the work has already been preserved" do
+          let(:work) { FactoryBot.create :draft_work }
+
+          it "renders the correct page" do
+            sign_in user
+            work_params = save_only_params.merge(id: work.id)
+            expect { post(:new_submission_save, params: work_params) }
+              .to change { Work.count }.by(0)
+                                       .and change { WorkActivity.count }.by(1)
+            expect(response.status).to be 200
+            expect(response).to render_template(:new_submission)
+            expect(work.reload.title).to eq("test dataset updated")
+          end
         end
       end
     end

@@ -27,15 +27,12 @@ class WorksWizardController < ApplicationController
     prepare_decorators_for_work_form(@work)
   end
 
-  # Creates the new dataset
-  # POST /works/1/new_submission
+  # Creates the new dataset or update the dataset is save only was done previously
+  # POST /works/new_submission or POST /works/1/new_submission
   def new_submission_save
-    group = Group.find_by(code: params[:group_code]) || current_user.default_group
-    group_id = group.id
-    @work = Work.new(created_by_user_id: current_user.id, group_id:)
-    @work.resource = FormToResourceService.convert(params, @work)
-    @work.draft!(current_user)
-    if params[:save_only] == "true"
+    @work = WorkMetadataService.new(params:, current_user:).new_submission
+    @errors = @work.errors.to_a
+    if params[:save_only] == "true" || @errors.count.positive?
       prepare_decorators_for_work_form(@work)
       render :new_submission
     else
