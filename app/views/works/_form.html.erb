@@ -59,17 +59,20 @@
 
 <script>
   // https://davidwalsh.name/uppy-file-uploading
-  // https://stackoverflow.com/a/75050497/446681
-  // https://uppy.io/docs/dashboard
-  // https://uppy.io/docs/xhr-upload/#bundle
-  var uppy = Uppy.Core({ autoProceed: false })
+  // https://uppy.io/blog/2018/08/0.27/#autoproceed-false-by-default
+  var uppy = Uppy.Core({ autoProceed: true })
 
+  // Configure the initial display
+  // https://uppy.io/docs/dashboard
   uppy.use(Uppy.Dashboard, {
     target: '#file-upload-area',
     inline: false, // display of dashboard only when trigger is clicked
     trigger: "#add-files-button"
   })
 
+  // We use the XHRUploader - this is the most basic
+  // https://uppy.io/docs/xhr-upload/
+  // X-CSRF-Toke: https://stackoverflow.com/a/75050497/446681
   uppy.use(Uppy.XHRUpload, {
     endpoint: '<%= work_upload_files_path(@work) %>',
     headers: {
