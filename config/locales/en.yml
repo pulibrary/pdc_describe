@@ -68,7 +68,7 @@ en:
         heading: "New Submission (%{work_title})"
         title: "Please upload the README file for this submission."
         actions: 'We will ask you about your data files on the next step.'
-        go_back: 'Go Back'
+        go_back: 'Previous'
         continue: 'Next'
     uneditable:
       approved: "This work has been approved.  Edits are no longer available."

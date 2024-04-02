@@ -244,14 +244,14 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
         visit work_readme_select_path(work, params: { wizard: true })
 
         expect(page).to have_content("Please upload the README")
-        expect(page).to have_button("Continue", disabled: true)
+        expect(page).to have_button("Next", disabled: true)
 
         path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
         attach_file(path) do
           page.find("#patch_readme_file").click
         end
 
-        click_on "Continue"
+        click_on "Next"
         expect(page).to have_content("New Submission")
 
         work.reload
@@ -300,7 +300,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
           page.find("#patch_pre_curation_uploads").click
         end
 
-        click_on "Continue"
+        click_on "Next"
         expect(page).to have_content("In furtherance of its non-profit educational mission, Princeton University")
         click_on "Complete"
 
@@ -401,7 +401,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Save Work"
 
       expect(page).to have_content("Please upload the README")
-      expect(page).to have_button("Continue", disabled: true)
+      expect(page).to have_button("Next", disabled: true)
 
       # Make sure we limit the file extensions a user can select
       expect(page.html.include?('accept=".txt,.md"')).to be true
@@ -413,7 +413,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       end
       # ...and we expect and error message to be displayed and the button to continue to remain disabled
       expect(page).to have_content("You must select a file that includes the word README in the name")
-      expect(page).to have_button("Continue", disabled: true)
+      expect(page).to have_button("Next", disabled: true)
     end
   end
 end

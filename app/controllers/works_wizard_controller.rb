@@ -118,7 +118,7 @@ class WorksWizardController < ApplicationController
   # GET /works/1/review
   # POST /works/1/review
   def review
-    if request.method == "POST"
+    if request.method == "POST" || request.method == "PATCH"
       @work.location_notes = params["location_notes"]
       @work.save!
       if params[:save_only] == "true"

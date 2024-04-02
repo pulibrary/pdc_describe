@@ -92,6 +92,7 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
       visit work_attachment_select_path(work)
       other_form_css = "form[action='/works/#{work.id}/review']"
       upload_form_css = "form[action='/works/#{work.id}/attachment-select']"
+      validate_form_css = "form[action='/works/#{work.id}/validate']"
 
       page.find(:xpath, "//input[@value='file_other']").choose
       click_on "Save"
@@ -99,6 +100,17 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
       expect(page).to have_css(upload_form_css)
       click_on "Next"
       expect(page).to have_css(other_form_css)
+
+      click_on "Previous"
+      expect(page).to have_css(upload_form_css)
+      click_on "Next"
+      expect(page).to have_css(other_form_css)
+      fill_in "location_notes", with: "this is not on the page"
+      click_on "Save"
+      expect(work.reload.location_notes). to eq("this is not on the page")
+      expect(page).to have_css(other_form_css)
+      click_on "Next"
+      expect(page).to have_css(validate_form_css)
     end
   end
 end
