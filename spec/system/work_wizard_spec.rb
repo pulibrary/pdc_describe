@@ -15,9 +15,9 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     click_on "Save"
 
     work = Work.last
-    new_submission_form_css = "form[action='/works/new-submission/#{work.id}']" 
-    edit_form_css =  "form[action='/works/#{work.id}/update-wizard']"
-    readme_form_css =  "form[action='/works/#{work.id}/readme-uploaded']"
+    new_submission_form_css = "form[action='/works/new-submission/#{work.id}']"
+    edit_form_css = "form[action='/works/#{work.id}/update-wizard']"
+    readme_form_css = "form[action='/works/#{work.id}/readme-uploaded']"
     upload_form_css = "form[action='/works/#{work.id}/attachment-select']"
     file_upload_form_css = "form[action='/works/#{work.id}/file-upload']"
 
@@ -28,13 +28,13 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
 
     click_on "Previous"
     expect(page).to have_css(new_submission_form_css)
-    
+
     click_on "Next"
     expect(page).to have_css(edit_form_css)
-    
+
     fill_in "description", with: "description"
 
-    expect{ click_on "Save" }.to change { work.work_activity.count}.by(1)
+    expect { click_on "Save" }.to change { work.work_activity.count }.by(1)
     expect(page).to have_css(edit_form_css)
 
     click_on "Next"
@@ -60,13 +60,12 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
 
     click_on "Next"
     expect(page).to have_css(upload_form_css)
-   
-    click_on "Save" 
+
+    click_on "Save"
     sleep(1)
     expect(page).to have_css(upload_form_css)
 
     click_on "Next"
-    expect(page).to have_css(file_upload_form_css) 
-    
+    expect(page).to have_css(file_upload_form_css)
   end
 end
