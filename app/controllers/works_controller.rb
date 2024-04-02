@@ -105,24 +105,15 @@ class WorksController < ApplicationController
     redirect_to @work
   end
 
-  # GET /works/1/edit_wizard
-  # only wizard
-  def edit_wizard
-    @work = Work.find(params[:id])
-    @work_decorator = WorkDecorator.new(@work, current_user)
-    @wizard_mode = true
-    if handle_modification_permissions
-      @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
-    end
-  end
-
   # GET /works/1/edit
   # only non wizard mode
   def edit
     @new_uploader = params[:new_uploader] == "true"
     @work = Work.find(params[:id])
     @work_decorator = WorkDecorator.new(@work, current_user)
-    if handle_modification_permissions
+    if validate_modification_permissions(work: @work,
+                                         uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
+                                         current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
       @uploads = @work.uploads
       @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
     end
@@ -132,8 +123,8 @@ class WorksController < ApplicationController
   # only non wizard mode
   def update
     @work = Work.find(params[:id])
-    if handle_modification_permissions(uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
-                                       current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
+    if validate_modification_permissions(work: @work, uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
+                                         current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
       update_work
     end
   end
@@ -305,11 +296,7 @@ class WorksController < ApplicationController
     def rescue_aasm_error
       yield
     rescue AASM::InvalidTransition => error
-      message = error.message
-      if @work.errors.count > 0
-        message = @work.errors.to_a.join(", ")
-      end
-      message.chop! if message.last == "."
+      message = message_from_assm_error(aasm_error: error, work: @work)
       Honeybadger.notify("Invalid #{@work.current_transition}: #{error.message} errors: #{message}")
       transition_error_message = "We apologize, the following errors were encountered: #{message}. Please contact the PDC Describe administrators for any assistance."
       @errors = [transition_error_message]
@@ -379,27 +366,6 @@ class WorksController < ApplicationController
       process_updates
     end
 
-    def embargo_date_param
-      params["embargo-date"]
-    end
-
-    def embargo_date
-      return nil if embargo_date_param.blank?
-
-      Date.parse(embargo_date_param)
-    rescue Date::Error
-      Rails.logger.error("Failed to parse the embargo date #{embargo_date_param} for Work #{@work.id}")
-      nil
-    end
-
-    def update_params
-      {
-        group_id: params_group_id,
-        embargo_date:,
-        resource: FormToResourceService.convert(params, @work)
-      }
-    end
-
     def added_files_param
       Array(work_params[:pre_curation_uploads_added])
     end
@@ -410,11 +376,7 @@ class WorksController < ApplicationController
     end
 
     def process_updates
-      work_before = @work.dup
-      if @work.update(update_params)
-        work_compare = WorkCompareService.new(work_before, @work)
-        @work.log_changes(work_compare, current_user.id)
-
+      if WorkCompareService.update_work(work: @work, update_params:, current_user:)
         redirect_to work_url(@work), notice: "Work was successfully updated."
       else
         # This is needed for rendering HTML views with validation errors
@@ -425,39 +387,10 @@ class WorksController < ApplicationController
       end
     end
 
-    def params_group_id
-      # Do not allow a nil for the group id
-      @params_group_id ||= begin
-        group_id = params[:group_id]
-        if group_id.blank?
-          group_id = current_user.default_group.id
-          Honeybadger.notify("We got a nil group as part of the parameters #{params} #{request}")
-        end
-        group_id
-      end
-    end
-
     def migrated?
       return false unless params.key?(:submit)
 
       params[:submit] == "Migrate"
-    end
-
-    # @returns false if an error occured
-    def handle_modification_permissions(uneditable_message: "Can not edit work: #{@work.id} is not editable by #{current_user.uid}",
-                                        current_state_message: "Can not edit work: #{@work.id} is not editable in current state by #{current_user.uid}")
-      no_error = false
-      if current_user.blank? || !@work.editable_by?(current_user)
-        Honeybadger.notify(uneditable_message)
-        redirect_to root_path, notice: I18n.t("works.uneditable.privs")
-      elsif !@work.editable_in_current_state?(current_user)
-        Honeybadger.notify(current_state_message)
-        redirect_to root_path, notice: I18n.t("works.uneditable.approved")
-      else
-        no_error = true
-      end
-
-      no_error
     end
 end
 # rubocop:enable Metrics/ClassLength

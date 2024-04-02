@@ -71,6 +71,7 @@ group :development, :test do
   gem "equivalent-xml", "~> 0.6.0"
   gem "pry-byebug"
   gem "pry-rails"
+  gem "yard"
 end
 
 group :development do
