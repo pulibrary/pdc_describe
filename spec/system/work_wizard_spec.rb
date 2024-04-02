@@ -24,7 +24,7 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
 
     expect(page).to have_css(new_submission_form_css)
     click_on "Next"
-    
+
     expect(page).to have_css(edit_form_css)
     click_on "Previous"
     expect(page).to have_css(new_submission_form_css)
@@ -74,11 +74,31 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     expect(page).to have_css(file_upload_form_css)
     click_on "Next"
     expect(page).to have_css(validate_form_css)
-    fill_in "submission_notes", with: "notes"
-    expect { click_on "Save" }.to change { work.work_activity.count }.by(1)
+    fill_in "submission_notes", with: "this is not on the page"
+    click_on "Save"
+    expect(work.reload.submission_notes). to eq("this is not on the page")
     expect(page).to have_css(validate_form_css)
+    expect(page).to have_content("this is not on the page")
     click_on "Grant License and Complete"
     expect(page).to have_content("Welcome")
     expect(page).to have_content(work.title)
+  end
+
+  context "file is in another location" do
+    it "allows me to stay on each page and then move forward" do
+      sign_in user
+      work = FactoryBot.create :draft_work
+      stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
+      visit work_attachment_select_path(work)
+      other_form_css = "form[action='/works/#{work.id}/review']"
+      upload_form_css = "form[action='/works/#{work.id}/attachment-select']"
+
+      page.find(:xpath, "//input[@value='file_other']").choose
+      click_on "Save"
+      expect(work.reload.files_location). to eq("file_other")
+      expect(page).to have_css(upload_form_css)
+      click_on "Next"
+      expect(page).to have_css(other_form_css)
+    end
   end
 end

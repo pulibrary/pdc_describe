@@ -131,10 +131,11 @@ class WorksWizardController < ApplicationController
   # GET /works/1/validate
   def validate
     @work.submission_notes = params["submission_notes"]
-    @work.complete_submission!(current_user)
     if params[:save_only] == "true"
+      @work.save
       render :review
     else
+      @work.complete_submission!(current_user)
       redirect_to user_url(current_user)
     end
   end
