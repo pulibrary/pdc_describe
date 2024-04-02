@@ -19,6 +19,7 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     edit_form_css =  "form[action='/works/#{work.id}/update-wizard']"
     readme_form_css =  "form[action='/works/#{work.id}/readme-uploaded']"
     upload_form_css = "form[action='/works/#{work.id}/attachment-select']"
+    file_upload_form_css = "form[action='/works/#{work.id}/file-upload']"
 
     expect(page).to have_css(new_submission_form_css)
     click_on "Next"
@@ -53,6 +54,19 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
 
     click_on "Next"
     expect(page).to have_css(upload_form_css)
+
+    click_on "Previous"
+    expect(page).to have_css(readme_form_css)
+
+    click_on "Next"
+    expect(page).to have_css(upload_form_css)
+   
+    click_on "Save" 
+    sleep(1)
+    expect(page).to have_css(upload_form_css)
+
+    click_on "Next"
+    expect(page).to have_css(file_upload_form_css) 
     
   end
 end

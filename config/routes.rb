@@ -44,6 +44,7 @@ Rails.application.routes.draw do
   post "works/:id/validate", to: "works_wizard#validate", as: :work_validate
   get "works/:id/attachment-select", to: "works_wizard#attachment_select", as: :work_attachment_select
   post "works/:id/attachment-select", to: "works_wizard#attachment_selected", as: :work_attachment_selected
+  patch "works/:id/attachment-select", to: "works_wizard#attachment_selected"
 
   get "works/:id/file-list", to: "works#file_list", as: :work_file_list
   post "work/:id/approve", to: "works#approve", as: :approve_work
