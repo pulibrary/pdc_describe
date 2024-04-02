@@ -27,6 +27,8 @@
     <div class="actions">
       <%= link_to t('works.form.readme_upload.go_back'), edit_work_wizard_path(@work), class: "btn btn-secondary" %>
       <%= f.submit(t('works.form.readme_upload.continue'), class: "btn btn-primary wizard-next-button", id: 'readme-upload', disabled: @readme.blank?) %>
+      <%= f.button 'Save', type: 'submit', name: 'save_only', value: 'true', class: "btn btn-save wizard-next-button" %>
+      <%= link_to 'Previous', edit_work_wizard_path(@work), class: "btn btn-previous wizard-next-button" %>
     </div>
   <% end %>
 </div>

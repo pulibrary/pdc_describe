@@ -21,9 +21,7 @@ class WorksWizardController < ApplicationController
   # get Renders the "step 0" information page before creating a new dataset
   # GET /works/new_submission
   def new_submission
-    group = Group.find_by(code: params[:group_code]) || current_user.default_group
-    group_id = group.id
-    @work = Work.new(created_by_user_id: current_user.id, group_id:)
+    @work = WorkMetadataService.new(params:, current_user:).work_for_new_submission
     prepare_decorators_for_work_form(@work)
   end
 

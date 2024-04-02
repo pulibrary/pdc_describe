@@ -16,11 +16,10 @@
       <hr />
       <div class="actions">
         <%= link_to 'Cancel', @work, class: "btn btn-secondary" %>
-        <% if @work.persisted? %>
-          <%= form.submit "Save Work", class: "btn btn-primary wizard-next-button", id: "btn-submit" %>
-        <% else %>
-          <%= form.submit "Create", class: "btn btn-primary wizard-next-button", id: "btn-submit", name: "submit" %>
-        <% end %>
+
+        <%= form.submit "Next", class: "btn btn-primary wizard-next-button", id: "btn-submit" %>
+        <%= form.button 'Save', type: 'submit', name: 'save_only', value: 'true', class: "btn btn-save wizard-next-button" %>
+        <%= link_to 'Previous', work_new_submission_path(@work), class: "btn btn-previous wizard-next-button" %>
       </div>
 
       <%= render '/works/form_hidden_fields' %>

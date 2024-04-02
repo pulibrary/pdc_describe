@@ -12,11 +12,21 @@ class WorkMetadataService
     @current_user = current_user
   end
 
-  # generates or load the work for a new submission based on the parameters
-  #
+  # creates or finds the work for the new submission form based on the parameters
   #
   # @returns the new or updated work
+  def work_for_new_submission
+    if params[:id].present?
+      Work.find(params[:id])
+    else
+      group = Group.find_by(code: params[:group_code]) || current_user.default_group
+      Work.new(created_by_user_id: current_user.id, group_id: group.id)
+    end
+  end
+
+  # generates or load the work for a new submission based on the parameters
   #
+  # @returns the new or updated work
   def new_submission
     if params[:id].present?
       update_work
