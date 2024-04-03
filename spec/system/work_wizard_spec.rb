@@ -17,6 +17,7 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
 
     work = Work.last
     edit_form_css = "form[action='/works/#{work.id}/update-wizard']"
+    additional_form_css = "form[action='/works/#{work.id}/update-additional']"
     readme_form_css = "form[action='/works/#{work.id}/readme-uploaded']"
     upload_form_css = "form[action='/works/#{work.id}/attachment-select']"
     file_upload_form_css = "form[action='/works/#{work.id}/file-upload']"
@@ -29,6 +30,15 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     expect { click_on "Save" }.to change { work.work_activity.count }.by(1)
     expect(page).to have_css(edit_form_css)
     click_on "Next"
+
+    expect(page).to have_css(additional_form_css)
+
+    click_on "Previous"
+    expect(page).to have_css(edit_form_css)
+
+    click_on "Next"
+    expect(page).to have_css(additional_form_css)
+
     expect(page).to have_css(readme_form_css)
     expect(page).not_to have_content("previously uploaded")
 

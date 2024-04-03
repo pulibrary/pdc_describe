@@ -59,7 +59,7 @@ class WorksWizardController < ApplicationController
         if params[:save_only] == "true"
           render :edit_wizard
         else
-          redirect_to work_readme_select_url(@work)
+          redirect_to work_update_additional_path(@work)
         end
       else
         render :edit_wizard, status: :unprocessable_entity
@@ -67,6 +67,26 @@ class WorksWizardController < ApplicationController
     end
   end
 
+  # get /works/1/update-additional
+  def update_additional; end
+
+  # PATCH /works/1/update-additional
+  def update_additional_save
+    if validate_modification_permissions(work: @work,
+                                         uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
+                                         current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
+      prepare_decorators_for_work_form(@work)
+      if WorkCompareService.update_work(work: @work, update_params:, current_user:)
+        if params[:save_only] == "true"
+          render :update_additional
+        else
+          redirect_to work_readme_select_url(@work)
+        end
+      else
+        render :update_additional, status: :unprocessable_entity
+      end
+    end
+  end
   # Prompt to select how to submit their files
   # GET /works/1/attachment_select
   def attachment_select; end
