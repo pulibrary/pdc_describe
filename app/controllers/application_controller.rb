@@ -15,6 +15,25 @@ class ApplicationController < ActionController::Base
 
   private
 
+  def rescue_aasm_error
+    yield
+  rescue AASM::InvalidTransition => error
+    message = message_from_assm_error(aasm_error: error, work: @work)
+    Honeybadger.notify("Invalid #{@work.current_transition}: #{error.message} errors: #{message}")
+    transition_error_message = "We apologize, the following errors were encountered: #{message}. Please contact the PDC Describe administrators for any assistance."
+    @errors = [transition_error_message]
+
+    if @work.persisted?
+      redirect_to edit_work_url(id: @work.id), notice: transition_error_message, params:
+    else
+      new_params = {}
+      new_params[:wizard] = wizard_mode? if wizard_mode?
+      new_params[:migrate] = migrating? if migrating?
+      @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+      redirect_to new_work_url(params: new_params), notice: transition_error_message, params: new_params
+    end
+  end
+
     # Take all the errors from the exception and the work and combine them into a single error message that can be shown to the user
     #
     # @param [AASM::InvalidTransition] aasm_error Error thrown by trying to transition states
