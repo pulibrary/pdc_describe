@@ -9,28 +9,28 @@ describe "walk the wizard in reverse", type: :system, js: true do
     visit work_review_path(work)
 
     expect(page).to have_content "Data curators will review"
-    click_on "Go Back"
+    click_on "Previous"
 
     expect(page).to have_content "Once you have uploaded"
-    click_on "Go Back"
+    click_on "Previous"
 
     expect(page).to have_content "Begin the process to upload your submission"
-    click_on "Go Back"
+    click_on "Previous"
 
     expect(page).to have_content "Please upload the README"
-    click_on "Go Back"
+    click_on "Previous"
 
     expect(page).to have_content "By initiating this new submission"
-    click_on "Save Work"
+    click_on "Next"
 
     expect(page).to have_content "Please upload the README"
-    click_on "Continue"
+    click_on "Next"
 
     expect(page).to have_content "Begin the process to upload your submission"
-    click_on "Continue"
+    click_on "Next"
 
     expect(page).to have_content "Once you have uploaded"
-    click_on "Continue"
+    click_on "Next"
 
     expect(page).to have_content "Data curators will review"
   end

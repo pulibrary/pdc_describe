@@ -18,17 +18,17 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
 
     fill_in "creators[][given_name]", with: "Sally"
     fill_in "creators[][family_name]", with: "Smith"
-    click_on "Next"
+    click_on "Create New"
     fill_in "description", with: "test description"
     select "GNU General Public License", from: "rights_identifiers"
-    click_on "Save Work"
+    click_on "Next"
     path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
     attach_file(path) do
       page.find("#patch_readme_file").click
     end
-    click_on "Continue"
-    click_on "Continue"
-    click_on "Continue"
+    click_on "Next"
+    click_on "Next"
+    click_on "Next"
     click_on "Complete"
 
     expect(page).to have_content "awaiting_approval"

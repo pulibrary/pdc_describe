@@ -21,9 +21,7 @@ class WorksWizardController < ApplicationController
   # get Renders the "step 0" information page before creating a new dataset
   # GET /works/new_submission
   def new_submission
-    group = Group.find_by(code: params[:group_code]) || current_user.default_group
-    group_id = group.id
-    @work = Work.new(created_by_user_id: current_user.id, group_id:)
+    @work = WorkMetadataService.new(params:, current_user:).work_for_new_submission
     prepare_decorators_for_work_form(@work)
   end
 
@@ -32,7 +30,7 @@ class WorksWizardController < ApplicationController
   def new_submission_save
     @work = WorkMetadataService.new(params:, current_user:).new_submission
     @errors = @work.errors.to_a
-    if params[:save_only] == "true" || @errors.count.positive?
+    if @errors.count.positive?
       prepare_decorators_for_work_form(@work)
       render :new_submission
     else
@@ -120,7 +118,7 @@ class WorksWizardController < ApplicationController
   # GET /works/1/review
   # POST /works/1/review
   def review
-    if request.method == "POST"
+    if request.method == "POST" || request.method == "PATCH"
       @work.location_notes = params["location_notes"]
       @work.save!
       if params[:save_only] == "true"
@@ -133,10 +131,11 @@ class WorksWizardController < ApplicationController
   # GET /works/1/validate
   def validate
     @work.submission_notes = params["submission_notes"]
-    @work.complete_submission!(current_user)
     if params[:save_only] == "true"
+      @work.save
       render :review
     else
+      @work.complete_submission!(current_user)
       redirect_to user_url(current_user)
     end
   end

@@ -5,8 +5,7 @@
   <p>Begin the process to upload your submission. Please select the most appropriate description.</p>
 
   <p>My submission is...</p>
-
-  <%= form_tag(action: "attachment_selected", id: @work) do %>
+  <%= form_with(model: @work, url: work_attachment_selected_path(@work)) do |form| %>
     <input type="radio" id="attachment_type" name="attachment_type" value="file_upload" class="wizard-radio-button"
       <%= @work.files_location_upload? ? "checked" : "" %>>under 100MB and I want to upload the files directly.</input><br/>
 
@@ -14,8 +13,9 @@
       <%= @work.files_location_other? ? "checked" : "" %>>more than 100MB or I am unable to upload.</input><br/>
 
     <div class="actions">
-      <%= link_to "Go Back", work_readme_select_path(@work, wizard: true), class: "btn btn-secondary" %>
-      <%= submit_tag "Continue", class: "btn btn-primary wizard-next-button" %>
+      <%= link_to "Previous", work_readme_select_path(@work, wizard: true), class: "btn btn-secondary" %>
+       <%= form.button 'Save', type: 'submit', name: 'save_only', value: 'true', class: "btn btn-save wizard-next-button" %>
+      <%= submit_tag "Next", class: "btn btn-primary wizard-next-button" %>
     </div>
   <% end %>
 </div>

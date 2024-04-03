@@ -30,8 +30,7 @@ Rails.application.routes.draw do
 
   # The work wizard
   get "works/new-submission", to: "works_wizard#new_submission", as: :work_create_new_submission
-  post "works/new-submission/(:id)", to: "works_wizard#new_submission_save", as: :work_new_submission
-  patch "works/new-submission/:id", to: "works_wizard#new_submission_save"
+  post "works/new-submission/", to: "works_wizard#new_submission_save", as: :work_new_submission
   get "works/:id/readme-select", to: "works_wizard#readme_select", as: :work_readme_select
   patch "works/:id/readme-uploaded", to: "works_wizard#readme_uploaded", as: :work_readme_uploaded
   patch "works/:id/file-upload", to: "works_wizard#file_uploaded", as: :work_file_uploaded
@@ -41,9 +40,12 @@ Rails.application.routes.draw do
   get "works/:id/file-other", to: "works_wizard#file_other", as: :work_file_other
   get "works/:id/review", to: "works_wizard#review", as: :work_review
   post "works/:id/review", to: "works_wizard#review"
+  patch "works/:id/review", to: "works_wizard#review"
   post "works/:id/validate", to: "works_wizard#validate", as: :work_validate
+  patch "works/:id/validate", to: "works_wizard#validate"
   get "works/:id/attachment-select", to: "works_wizard#attachment_select", as: :work_attachment_select
   post "works/:id/attachment-select", to: "works_wizard#attachment_selected", as: :work_attachment_selected
+  patch "works/:id/attachment-select", to: "works_wizard#attachment_selected"
 
   get "works/:id/file-list", to: "works#file_list", as: :work_file_list
   post "work/:id/approve", to: "works#approve", as: :approve_work
