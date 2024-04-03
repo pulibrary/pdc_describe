@@ -27,7 +27,7 @@ RSpec.describe "Form submission for a PPPL dataset", type: :system do
       fill_in "title_main", with: title
       find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
       find("tr:last-child input[name='creators[][family_name]']").set "Abrams"
-      click_on "Next"
+      click_on "Create New"
       fill_in "description", with: description
       select "GNU General Public License", from: "rights_identifiers"
       click_on "Additional Metadata"

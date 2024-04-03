@@ -12,7 +12,7 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     click_on "Add me as a Creator"
     expect(find("tr:last-child input[name='creators[][given_name]']").value).to eq(user.given_name)
     expect(find("tr:last-child input[name='creators[][family_name]']").value).to eq(user.family_name)
-    click_on "Save"
+    click_on "Create New"
 
     work = Work.last
     new_submission_form_css = "form[action='/works/new-submission/#{work.id}']"
@@ -22,13 +22,8 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     file_upload_form_css = "form[action='/works/#{work.id}/file-upload']"
     validate_form_css = "form[action='/works/#{work.id}/validate']"
 
-    expect(page).to have_css(new_submission_form_css)
-    click_on "Next"
-
-    expect(page).to have_css(edit_form_css)
-    click_on "Previous"
-    expect(page).to have_css(new_submission_form_css)
-    click_on "Next"
+    # edit form has no previous button so no need to test that is goes back
+    expect(page).not_to have_content("Previous")
     expect(page).to have_css(edit_form_css)
     fill_in "description", with: "description"
     expect { click_on "Save" }.to change { work.work_activity.count }.by(1)

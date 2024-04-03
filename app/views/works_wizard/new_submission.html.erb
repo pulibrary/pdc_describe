@@ -59,15 +59,14 @@
     your submission, we may be reached at <a href="mailto:prds@princeton.edu">prds@princeton.edu</a>.
   </p>
 
-  <%= form_with(model: @work, url: work_new_submission_path(@work)) do |form| %>
+  <%= form_with(model: @work, url: work_new_submission_path) do |form| %>
     <%= render(partial: 'works/required_title', locals: {allow_many: false}) %>
     <%= render(partial: 'works/required_creators_table') %>
     <%= render '/works/form_hidden_fields' %>
     <hr />
     <div class="actions">
       <%= link_to "Cancel", root_path, class: "btn btn-secondary" %>
-      <%= submit_tag "Next", class: "btn btn-primary wizard-next-button", id: "btn-create-new" %>
-      <%= form.button 'Save', type: 'submit', name: 'save_only', value: 'true', class: "btn btn-primary wizard-next-button" %>
+      <%= submit_tag "Create New", class: "btn btn-primary wizard-next-button", id: "btn-create-new" %>
     </div>
   <% end %>
 </div>

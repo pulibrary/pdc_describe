@@ -30,7 +30,7 @@ class WorksWizardController < ApplicationController
   def new_submission_save
     @work = WorkMetadataService.new(params:, current_user:).new_submission
     @errors = @work.errors.to_a
-    if params[:save_only] == "true" || @errors.count.positive?
+    if @errors.count.positive?
       prepare_decorators_for_work_form(@work)
       render :new_submission
     else
