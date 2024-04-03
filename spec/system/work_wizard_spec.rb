@@ -5,6 +5,7 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
   let(:user) { FactoryBot.create :princeton_submitter }
   it "allows me to stay on each page and then move forward" do
     sign_in user
+    stub_datacite
 
     visit work_create_new_submission_path
     expect(page).to have_css("form[action='/works/new-submission']")
@@ -15,7 +16,6 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     click_on "Create New"
 
     work = Work.last
-    new_submission_form_css = "form[action='/works/new-submission/#{work.id}']"
     edit_form_css = "form[action='/works/#{work.id}/update-wizard']"
     readme_form_css = "form[action='/works/#{work.id}/readme-uploaded']"
     upload_form_css = "form[action='/works/#{work.id}/attachment-select']"

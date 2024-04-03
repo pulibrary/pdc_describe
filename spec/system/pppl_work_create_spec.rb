@@ -41,7 +41,7 @@ RSpec.describe "Form submission for a PPPL dataset", type: :system do
       expect(page).to have_field(name: "funders[][award_number]", with: "DE-AC02-09CH11466")
       click_on "Curator Controlled"
       expect(page).to have_field("publisher", with: "Princeton Plasma Physics Laboratory, Princeton University")
-      click_on "Save Work"
+      click_on "Next"
       expect(page).to have_content("Please upload the README")
       expect(page).to have_button("Next", disabled: true)
       path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
@@ -54,7 +54,7 @@ RSpec.describe "Form submission for a PPPL dataset", type: :system do
       work = Work.last
       stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
 
-      click_on "Back"
+      click_on "Previous"
       expect(page).to have_content("Please upload the README")
       expect(page).to have_content("README.txt was previously uploaded. You will replace it if you select a different file.")
       click_on "Next"
