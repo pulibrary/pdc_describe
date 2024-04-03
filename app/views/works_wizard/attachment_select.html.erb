@@ -13,9 +13,9 @@
       <%= @work.files_location_other? ? "checked" : "" %>>more than 100MB or I am unable to upload.</input><br/>
 
     <div class="actions">
-      <%= link_to "Previous", work_readme_select_path(@work, wizard: true), class: "btn btn-secondary" %>
-       <%= form.button 'Save', type: 'submit', name: 'save_only', value: 'true', class: "btn btn-save wizard-next-button" %>
       <%= submit_tag "Next", class: "btn btn-primary wizard-next-button" %>
+      <%= form.button 'Save', type: 'submit', name: 'save_only', value: 'true', class: "btn btn-save wizard-next-button" %>
+      <%= link_to "Previous", work_readme_select_path(@work, wizard: true), class: "btn btn-previous wizard-next-button" %>
     </div>
   <% end %>
 </div>
