@@ -108,6 +108,8 @@ class WorksController < ApplicationController
   # GET /works/1/edit
   # only non wizard mode
   def edit
+    @new_uploader = params[:new_uploader] == "true" || Rails.env.staging?
+
     @work = Work.find(params[:id])
     @work_decorator = WorkDecorator.new(@work, current_user)
     if validate_modification_permissions(work: @work,
@@ -212,6 +214,12 @@ class WorksController < ApplicationController
     citation = DatasetCitation.new(creators, [work.resource.publication_year], work.resource.titles.first.title, work.resource.resource_type, work.resource.publisher, work.resource.doi)
     bibtex = citation.bibtex
     send_data bibtex, filename: "#{citation.bibtex_id}.bibtex", type: "text/plain", disposition: "attachment"
+  end
+
+  def upload_files
+    @work = Work.find(params[:id])
+    upload_service = WorkUploadsEditService.new(@work, current_user)
+    upload_service.update_precurated_file_list(params["files"], [])
   end
 
   private

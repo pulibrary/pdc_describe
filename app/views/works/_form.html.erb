@@ -27,11 +27,19 @@
             <%= render(partial: 'works/s3_resources', locals: { edit_mode: true, form: form }) %>
           </section>
           <div class="container-fluid deposit-uploads">
+
+            <% if @new_uploader == true %>
+              <!-- Uses Uppy for uploading -->
+              <div id="file-upload-area"></div>
+              <button id="add-files-button" class="btn btn-secondary" style="width: 200px;"><i class="bi bi-plus-circle"></i> Add More Files</button>
+            <% else %>
+              <!-- Uses the browser's default file upload controls -->
+              <%= form.label("Choose files to attach to this work", for: :pre_curation_uploads_added) %>
+              <%= form.file_field(:pre_curation_uploads_added, id: "pre_curation_uploads_added", multiple: true) %>
+              <!-- We populate this via JavaScript as the user selected files to upload -->
+              <div id="file-upload-list"></div>
+            <% end %>
             <div id="file-error" class="error_box"></div>
-            <%= form.label("Choose files to attach to this work", for: :pre_curation_uploads_added) %>
-            <%= form.file_field(:pre_curation_uploads_added, id: "pre_curation_uploads_added", multiple: true) %>
-            <!-- We populate this via JavaScript as the user selected files to upload -->
-            <div id="file-upload-list"></div>
           </div>
         <% end %>
       </div>
@@ -50,3 +58,48 @@
     <% end %>
   </div>
 </div>
+
+<!--
+  Only render the Uppy JavaScript if we are using it.
+  This also prevents the call to `work_upload_files_path(@work)` when the `work.id` is nil
+  which happens when migrating a dataset from DataSpace.
+-->
+<% if @new_uploader == true %>
+<script>
+  // Setup Uppy to handle file uploads
+  // References:
+  //    https://davidwalsh.name/uppy-file-uploading
+  //    https://uppy.io/blog/2018/08/0.27/#autoproceed-false-by-default
+  var uppy = Uppy.Core({ autoProceed: true })
+
+  // Configure the initial display
+  // https://uppy.io/docs/dashboard
+  uppy.use(Uppy.Dashboard, {
+    target: '#file-upload-area',
+    inline: false, // display of dashboard only when trigger is clicked
+    trigger: "#add-files-button"
+  })
+
+  // We use the XHRUploader - this is the most basic
+  // https://uppy.io/docs/xhr-upload/
+  // X-CSRF-Token: https://stackoverflow.com/a/75050497/446681
+  uppy.use(Uppy.XHRUpload, {
+    endpoint: '<%= work_upload_files_path(@work) %>',
+    headers: {
+        'X-CSRF-Token': document.querySelector("meta[name='csrf-token']").content
+    },
+    bundle: true,   // upload all selected files at once
+    formData: true, // required when bundle: true
+    getResponseData: function(responseText, response) {
+      // Reload the file list displayed
+      let fileTable = $('#files-table').dataTable();
+      fileTable.api().ajax.reload();
+    }
+  })
+
+  $("#add-files-button").on("click", function(_x) {
+    // Prevent the button's click from submitting the form
+    return false;
+  })
+</script>
+<% end %>

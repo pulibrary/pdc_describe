@@ -63,31 +63,6 @@ RSpec.describe WorksWizardController do
           expect(response).to render_template(:new_submission)
         end
       end
-
-      context "save and stay on page" do
-        let(:save_only_params) { params.merge(save_only: true) }
-        it "renders the edit page when creating a new dataset with save only" do
-          sign_in user
-          post(:new_submission_save, params: save_only_params)
-          expect(response.status).to be 200
-          expect(response).to render_template(:new_submission)
-        end
-
-        context "when the user has hit save and the work has already been preserved" do
-          let(:work) { FactoryBot.create :draft_work }
-
-          it "renders the correct page" do
-            sign_in user
-            work_params = save_only_params.merge(id: work.id)
-            expect { post(:new_submission_save, params: work_params) }
-              .to change { Work.count }.by(0)
-                                       .and change { WorkActivity.count }.by(1)
-            expect(response.status).to be 200
-            expect(response).to render_template(:new_submission)
-            expect(work.reload.title).to eq("test dataset updated")
-          end
-        end
-      end
     end
 
     describe "#update_wizard" do

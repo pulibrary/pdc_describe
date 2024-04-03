@@ -12,17 +12,29 @@ class WorkMetadataService
     @current_user = current_user
   end
 
-  # generates or load the work for a new submission based on the parameters
-  #
+  # creates or finds the work for the new submission form based on the parameters
   #
   # @returns the new or updated work
-  #
-  def new_submission
+  def work_for_new_submission
     if params[:id].present?
-      update_work
+      Work.find(params[:id])
     else
-      draft_work
+      group = Group.find_by(code: params[:group_code]) || current_user.default_group
+      Work.new(created_by_user_id: current_user.id, group_id: group.id)
     end
+  end
+
+  # generates the work for a new submission
+  #
+  # @returns the new work
+  def new_submission
+    group_id = group_code.id
+    work = Work.new(created_by_user_id: current_user.id, group_id:)
+    work.resource = FormToResourceService.convert(params, work)
+    if work.valid_to_draft
+      work.draft!(current_user)
+    end
+    work
   end
 
   def self.file_location_url(work)
@@ -34,23 +46,6 @@ class WorkMetadataService
   end
 
 private
-
-  def update_work
-    work = Work.find(params[:id])
-    update_params = { group: group_code, resource: FormToResourceService.convert(params, work) }
-    WorkCompareService.update_work(work:, update_params:, current_user:)
-    work
-  end
-
-  def draft_work
-    group_id = group_code.id
-    work = Work.new(created_by_user_id: current_user.id, group_id:)
-    work.resource = FormToResourceService.convert(params, work)
-    if work.valid_to_draft
-      work.draft!(current_user)
-    end
-    work
-  end
 
   def group_code
     @group_code ||= Group.find_by(code: params[:group_code]) || current_user.default_group

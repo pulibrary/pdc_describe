@@ -27,20 +27,20 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
 
       fill_in "creators[][given_name]", with: FFaker::Name.first_name
       fill_in "creators[][family_name]", with: FFaker::Name.last_name
-      click_on "Next"
+      click_on "Create New"
       fill_in "description", with: FFaker::Lorem.paragraph
       select "GNU General Public License", from: "rights_identifiers"
       click_on "Curator Controlled"
       expect(page).to have_content "Research Data"
-      click_on "Save Work"
+      click_on "Next"
       path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
       attach_file(path) do
         page.find("#patch_readme_file").click
       end
-      click_on "Continue"
+      click_on "Next"
       page.find(:xpath, "//input[@value='file_other']").choose
-      click_on "Continue"
-      click_on "Continue"
+      click_on "Next"
+      click_on "Next"
       click_on "Complete"
 
       expect(page).to have_content "awaiting_approval"
@@ -60,7 +60,7 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
       sign_in submitter2
       visit edit_work_path(work)
       expect(current_path).to eq root_path
-      expect(page).not_to have_content "Save Work"
+      expect(page).not_to have_content "Next"
       expect(page).to have_content "You do not have permission to edit this work"
     end
 

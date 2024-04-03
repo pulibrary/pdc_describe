@@ -27,7 +27,7 @@ RSpec.describe "Form submission for a PPPL dataset", type: :system do
       fill_in "title_main", with: title
       find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
       find("tr:last-child input[name='creators[][family_name]']").set "Abrams"
-      click_on "Next"
+      click_on "Create New"
       fill_in "description", with: description
       select "GNU General Public License", from: "rights_identifiers"
       click_on "Additional Metadata"
@@ -41,26 +41,26 @@ RSpec.describe "Form submission for a PPPL dataset", type: :system do
       expect(page).to have_field(name: "funders[][award_number]", with: "DE-AC02-09CH11466")
       click_on "Curator Controlled"
       expect(page).to have_field("publisher", with: "Princeton Plasma Physics Laboratory, Princeton University")
-      click_on "Save Work"
+      click_on "Next"
       expect(page).to have_content("Please upload the README")
-      expect(page).to have_button("Continue", disabled: true)
+      expect(page).to have_button("Next", disabled: true)
       path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
       attach_file(path) do
         page.find("#patch_readme_file").click
       end
-      click_on "Continue"
+      click_on "Next"
 
       # Make sure the readme is in S3 so when I hit the back button we do not error
       work = Work.last
       stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
 
-      click_on "Back"
+      click_on "Previous"
       expect(page).to have_content("Please upload the README")
       expect(page).to have_content("README.txt was previously uploaded. You will replace it if you select a different file.")
-      click_on "Continue"
+      click_on "Next"
       page.find(:xpath, "//input[@value='file_other']").choose
-      click_on "Continue"
-      click_on "Continue"
+      click_on "Next"
+      click_on "Next"
       expect(page).to have_content("In furtherance of its non-profit educational mission, Princeton University")
       click_on "Complete"
 

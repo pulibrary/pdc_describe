@@ -78,7 +78,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       expect(page).to have_button("Add me as a Creator", disabled: true)
       # make sure an empty creator row does not stop the form submission
       click_on "Add Another Creator"
-      click_on "Next"
+      click_on "Create New"
       expect(Work.all).not_to be_empty
       work = Work.last
       expect(work.resource.creators.length).to eq(8)
@@ -96,7 +96,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
         visit work_create_new_submission_path
 
         fill_in "title_main", with: ""
-        click_on "Next"
+        click_on "Create New"
         expect(page).to have_content("Must provide a title")
         expect(page).to have_content("Must provide at least one creator")
       end
@@ -111,7 +111,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
 
         find("tr:last-child input[name='creators[][family_name]']").set "Abrams"
         click_on "Add Another Creator"
-        click_on "Next"
+        click_on "Create New"
         expect(page).to have_content("Must provide a given name")
       end
     end
@@ -125,7 +125,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
 
         find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
         click_on "Add Another Creator"
-        click_on "Next"
+        click_on "Create New"
         expect(page).to have_content("Must provide a family name")
       end
     end
@@ -223,7 +223,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
           wait_for_ajax
           find("tr:last-child input[name='related_objects[][related_identifier]']").set "https://related.example.com"
           wait_for_ajax
-          click_on "Save Work"
+          click_on "Next"
           work.reload
           expect(work.resource.related_objects.count).to eq(0)
           # rubocop:disable Layout/LineLength
@@ -244,14 +244,14 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
         visit work_readme_select_path(work, params: { wizard: true })
 
         expect(page).to have_content("Please upload the README")
-        expect(page).to have_button("Continue", disabled: true)
+        expect(page).to have_button("Next", disabled: true)
 
         path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
         attach_file(path) do
           page.find("#patch_readme_file").click
         end
 
-        click_on "Continue"
+        click_on "Next"
         expect(page).to have_content("New Submission")
 
         work.reload
@@ -300,7 +300,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
           page.find("#patch_pre_curation_uploads").click
         end
 
-        click_on "Continue"
+        click_on "Next"
         expect(page).to have_content("In furtherance of its non-profit educational mission, Princeton University")
         click_on "Complete"
 
@@ -390,18 +390,17 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
     it "prevents the user from continuing when the readme file is not valid", js: true do
       sign_in user
       visit work_create_new_submission_path
-      click_on "Next"
-      fill_in "title_main", with: title
 
+      fill_in "title_main", with: title
       find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
       find("tr:last-child input[name='creators[][family_name]']").set "Abrams"
-      click_on "Next"
+      click_on "Create New"
 
       fill_in "description", with: description
-      click_on "Save Work"
+      click_on "Next"
 
       expect(page).to have_content("Please upload the README")
-      expect(page).to have_button("Continue", disabled: true)
+      expect(page).to have_button("Next", disabled: true)
 
       # Make sure we limit the file extensions a user can select
       expect(page.html.include?('accept=".txt,.md"')).to be true
@@ -413,7 +412,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       end
       # ...and we expect and error message to be displayed and the button to continue to remain disabled
       expect(page).to have_content("You must select a file that includes the word README in the name")
-      expect(page).to have_button("Continue", disabled: true)
+      expect(page).to have_button("Next", disabled: true)
     end
   end
 end
