@@ -60,6 +60,7 @@ Rails.application.routes.draw do
   resources :works
   get "/doi/*doi", to: "works#resolve_doi", as: :resolve_doi, format: false
   get "/ark/*ark", to: "works#resolve_ark", as: :resolve_ark, format: false
+  post "works/:id/upload-files", to: "works#upload_files", as: :work_upload_files
 
   get "upload-snapshots/:work_id", to: "upload_snapshots#edit", as: :edit_upload_snapshot
   get "upload-snapshots/:id/download", to: "upload_snapshots#download", as: :download_upload_snapshot
