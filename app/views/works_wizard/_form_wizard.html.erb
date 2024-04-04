@@ -7,11 +7,12 @@
 -->
 <div class="d-flex align-items-start">
 
-<%= render '/works/form_nav' %>
+<%= render  partial: '/works/form_nav', locals:  { additional_selected: additional_selected, required_selected: required_selected,
+                                                   additional_button_class: additional_class, required_button_class: required_class}  %>
 
   <div>
     <%= form_with(model: @work, url: form_submit_url, class: ["work-form"], data: { work: @work.form_attributes }) do |form| %>
-      <%= render partial: '/works/form_metadata', locals:  { form: form } %>
+      <%= render partial: '/works/form_metadata', locals:  { form: form, required_class:, additional_class: } %>
 
       <hr />
       <div class="actions">
