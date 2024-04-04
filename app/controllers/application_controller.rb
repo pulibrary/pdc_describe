@@ -95,4 +95,16 @@ class ApplicationController < ActionController::Base
       @work_decorator = WorkDecorator.new(work, current_user)
       @form_resource_decorator = FormResourceDecorator.new(work, current_user)
     end
+
+    def rescue_aasm_error
+      yield
+    rescue AASM::InvalidTransition => error
+      message = message_from_assm_error(aasm_error: error, work: @work)
+
+      Honeybadger.notify("Invalid #{@work.current_transition}: #{error.message} errors: #{message}")
+      transition_error_message = "We apologize, the following errors were encountered: #{message}. Please contact the PDC Describe administrators for any assistance."
+      @errors = [transition_error_message]
+
+      redirect_aasm_error(transition_error_message)
+    end
 end
