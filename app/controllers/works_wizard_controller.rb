@@ -193,5 +193,19 @@ class WorksWizardController < ApplicationController
 
       patch_params[:readme_file]
     end
+
+    def rescue_aasm_error
+      super
+    rescue StandardError => generic_error
+      redirect_to root_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."
+    end
+
+    def redirect_aasm_error(transition_error_message)
+      if @work.persisted?
+        redirect_to edit_work_wizard_path(id: @work.id), notice: transition_error_message, params:
+      else
+        redirect_to work_create_new_submission_path, notice: transition_error_message, params:
+      end
+    end
 end
 # rubocop:enable Metrics/ClassLength
