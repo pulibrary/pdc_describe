@@ -195,22 +195,17 @@ class WorksWizardController < ApplicationController
     end
 
     def rescue_aasm_error
-      yield
-    rescue AASM::InvalidTransition => error
-      message = message_from_assm_error(aasm_error: error, work: @work)
+      super
+    rescue StandardError => generic_error
+      redirect_to root_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."
+    end
 
-      Honeybadger.notify("Invalid #{@work.current_transition}: #{error.message} errors: #{message}")
-      transition_error_message = "We apologize, the following errors were encountered: #{message}. Please contact the PDC Describe administrators for any assistance."
-      @errors = [transition_error_message]
-      prepare_decorators_for_work_form(@work)
-
+    def redirect_aasm_error(transition_error_message)
       if @work.persisted?
         redirect_to edit_work_wizard_path(id: @work.id), notice: transition_error_message, params:
       else
         redirect_to work_create_new_submission_path, notice: transition_error_message, params:
       end
-    rescue StandardError => generic_error
-      redirect_to root_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."
     end
 end
 # rubocop:enable Metrics/ClassLength
