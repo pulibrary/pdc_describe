@@ -407,7 +407,7 @@ XML
           fake_s3_resp.stub(:key_count).and_return(0)
           fake_s3_resp.stub(:is_truncated).and_return(false)
         end
-  
+
         it "returns all the objects" do
           expect(s3_query_service.count_objects).to eq(0)
         end
