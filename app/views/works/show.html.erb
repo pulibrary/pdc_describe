@@ -78,7 +78,7 @@
       <%= link_to("Edit", edit_work_path(@work, wizard: @work_decorator.wizard_mode?), class: "btn btn-primary") %>
     <% end %>
     <% if @work_decorator.show_approve_button? %>
-      <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post) %>
+      <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post, id: "approve-button") %>
     <% end %>
     <% if @work_decorator.show_complete_button? %>
       <%= button_to("Complete", work_validate_path(@work), class: "btn btn-secondary", method: :post) %>
@@ -327,6 +327,25 @@
       const oldClass = $leftOfMessages.attr("class");
       $leftOfMessages.attr("class", $leftOfMessages.data("class"));
       $leftOfMessages.data("class", oldClass);
+    });
+
+    $("#approve-button").on("click", (event) => {
+      <% if @work.embargoed? %>
+        var embargo = true;
+      <% else %>
+        var embargo = false;
+      <% end %>
+      var message = "";
+      if(embargo == true){
+        message = "Embargo";
+      }
+      else{
+        message = "You're about to publish this dataset. There's no going back. Are you sure?";
+      }
+      var input = confirm(message);
+      if(input == false){
+        event.preventDefault();
+      }
     });
 
     // Issues HTTP POST to update the curator assigned to the work.
