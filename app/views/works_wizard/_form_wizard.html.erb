@@ -10,7 +10,7 @@
 <%= render '/works/form_nav' %>
 
   <div>
-    <%= form_with(model: @work, url: update_work_wizard_path(@work), class: ["work-form"], data: { work: @work.form_attributes }) do |form| %>
+    <%= form_with(model: @work, url: form_submit_url, class: ["work-form"], data: { work: @work.form_attributes }) do |form| %>
       <%= render partial: '/works/form_metadata', locals:  { form: form } %>
 
       <hr />
