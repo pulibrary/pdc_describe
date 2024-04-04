@@ -102,42 +102,6 @@ RSpec.describe WorksWizardController do
       end
     end
 
-    describe "#update_additional" do
-      let(:params) do
-        {
-          "title_main" => "test dataset updated",
-          "description" => "a new description",
-          "group_id" => work.group.id,
-          "commit" => "Update Dataset",
-          "controller" => "works",
-          "action" => "update",
-          "id" => work.id.to_s,
-          "publisher" => "Princeton University",
-          "publication_year" => "2022",
-          creators: [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
-        }
-      end
-
-      it "updates the Work and redirects the readme to select" do
-        sign_in user
-        patch(:update_additional_save, params:)
-        expect(response.status).to be 302
-        expect(response.location).to eq "http://test.host/works/#{work.id}/readme-select"
-        expect(ActiveStorage::PurgeJob).not_to have_received(:new)
-      end
-
-      context "save and stay on page" do
-        let(:stay_params) { params.merge(save_only: true) }
-
-        it "updates the Work and redirects the client to select attachments" do
-          sign_in user
-          patch(:update_additional_save, params: stay_params)
-          expect(response.status).to be 200
-          expect(response).to render_template(:update_additional)
-        end
-      end
-    end
-
     describe "#readme_select" do
       let(:fake_readme) { instance_double Readme, file_name: "README.txt" }
 

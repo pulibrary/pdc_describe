@@ -6,7 +6,7 @@ require "open-uri"
 # Controller to handle wizard Mode when editing an work
 #
 # The wizard flow is as follows:
-# new_submission -> new_submission_save -> edit_wizard -> update_wizard -> readme_select -> readme_uploaded -> attachment_select ->
+# new_submission -> new_submission_save -> edit_wizard -> update_wizard -> update_additional -> update_additional_save ->readme_select -> readme_uploaded -> attachment_select ->
 #     attachment_selected -> file_other ->                  review -> validate -> [ work controller ] show & file_list
 #                         \> file_upload -> file_uploaded -^
 
@@ -16,7 +16,7 @@ class WorksWizardController < ApplicationController
 
   before_action :load_work, only: [:edit_wizard, :update_wizard, :attachment_select, :attachment_selected,
                                    :file_upload, :file_uploaded, :file_other, :review, :validate,
-                                   :readme_select, :readme_uploaded, :update_additional_save, :update_additional]
+                                   :readme_select, :readme_uploaded]
 
   # get Renders the "step 0" information page before creating a new dataset
   # GET /works/new_submission
@@ -52,16 +52,6 @@ class WorksWizardController < ApplicationController
   # PATCH /works/1/update-wizard
   def update_wizard
     edit_helper(:edit_wizard, work_update_additional_path(@work))
-  end
-
-  # get /works/1/update-additional
-  def update_additional
-    prepare_decorators_for_work_form(@work)
-  end
-
-  # PATCH /works/1/update-additional
-  def update_additional_save
-    edit_helper(:update_additional, work_readme_select_path(@work))
   end
 
   # Prompt to select how to submit their files

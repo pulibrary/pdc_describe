@@ -37,8 +37,6 @@ Rails.application.routes.draw do
   get "works/:id/file-upload", to: "works_wizard#file_upload", as: :work_file_upload
   patch "works/:id/update-wizard", to: "works_wizard#update_wizard", as: :update_work_wizard
   get "works/:id/edit-wizard", to: "works_wizard#edit_wizard", as: :edit_work_wizard
-  get "works/:id/update-additional", to: "works_wizard#update_additional", as: :work_update_additional
-  patch "works/:id/update-additional", to: "works_wizard#update_additional_save"
   get "works/:id/file-other", to: "works_wizard#file_other", as: :work_file_other
   get "works/:id/review", to: "works_wizard#review", as: :work_review
   post "works/:id/review", to: "works_wizard#review"
@@ -48,6 +46,9 @@ Rails.application.routes.draw do
   get "works/:id/attachment-select", to: "works_wizard#attachment_select", as: :work_attachment_select
   post "works/:id/attachment-select", to: "works_wizard#attachment_selected", as: :work_attachment_selected
   patch "works/:id/attachment-select", to: "works_wizard#attachment_selected"
+
+  get "works/:id/update-additional", to: "works_update_additional#update_additional", as: :work_update_additional
+  patch "works/:id/update-additional", to: "works_update_additional#update_additional_save"
 
   get "works/:id/file-list", to: "works#file_list", as: :work_file_list
   post "work/:id/approve", to: "works#approve", as: :approve_work
