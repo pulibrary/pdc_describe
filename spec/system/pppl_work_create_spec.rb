@@ -42,6 +42,8 @@ RSpec.describe "Form submission for a PPPL dataset", type: :system do
       click_on "Curator Controlled"
       expect(page).to have_field("publisher", with: "Princeton Plasma Physics Laboratory, Princeton University")
       click_on "Next"
+      expect(page).to have_content("These metadata properties are not required")  #testing additional metadata page
+      click_on "Next"
       expect(page).to have_content("Please upload the README")
       expect(page).to have_button("Next", disabled: true)
       path = Rails.root.join("spec", "fixtures", "files", "readme.txt")

@@ -22,6 +22,8 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
     fill_in "description", with: "test description"
     select "GNU General Public License", from: "rights_identifiers"
     click_on "Next"
+    expect(page).to have_content("These metadata properties are not required")  #testing additional metadata page
+    click_on "Next"
     path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
     attach_file(path) do
       page.find("#patch_readme_file").click

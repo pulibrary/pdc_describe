@@ -8,7 +8,7 @@
 <div class="d-flex align-items-start">
 
 <%= render  partial: 'form_nav', locals:  { additional_selected: false, required_selected: true,
-                                            additional_button_class: "show active", required_button_class: "" }  %>
+                                            additional_button_class: "", required_button_class: "show active" }  %>
 
   <div>
     <%= form_with(model: @work, class: ["work-form"], data: { work: @work.form_attributes }) do |form| %>

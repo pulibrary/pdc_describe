@@ -23,6 +23,9 @@ describe "walk the wizard in reverse", type: :system, js: true do
     expect(page).to have_content "By initiating this new submission"
     click_on "Next"
 
+    expect(page).to have_content("These metadata properties are not required")  #testing additional metadata page
+    click_on "Next"
+
     expect(page).to have_content "Please upload the README"
     click_on "Next"
 

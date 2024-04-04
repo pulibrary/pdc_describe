@@ -23,7 +23,7 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     file_upload_form_css = "form[action='/works/#{work.id}/file-upload']"
     validate_form_css = "form[action='/works/#{work.id}/validate']"
 
-    # edit form has no previous button so no need to test that is goes back
+    # edit form has no previous button so no need to test that it goes back
     expect(page).not_to have_content("Previous")
     expect(page).to have_css(edit_form_css)
     fill_in "description", with: "description"
@@ -31,13 +31,8 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     expect(page).to have_css(edit_form_css)
     click_on "Next"
 
-    expect(page).to have_css(additional_form_css)
-
-    click_on "Previous"
-    expect(page).to have_css(edit_form_css)
-
+    expect(page).to have_css(additional_form_css) #additional metadata has no previous button, so no need to test that it goes back
     click_on "Next"
-    expect(page).to have_css(additional_form_css)
 
     expect(page).to have_css(readme_form_css)
     expect(page).not_to have_content("previously uploaded")
@@ -45,6 +40,7 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     click_on "Previous"
     expect(page).to have_css(edit_form_css)
     click_on "Next"
+    click_on "Next" #clicking next twice to get back to the readme
     expect(page).to have_css(readme_form_css)
     stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
     click_on "Save"
