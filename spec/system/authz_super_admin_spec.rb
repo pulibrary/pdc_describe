@@ -31,7 +31,7 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
       click_on "Curator Controlled"
       expect(page).to have_content "Research Data"
       click_on "Next"
-      expect(page).to have_content("These metadata properties are not required")  #testing additional metadata page
+      expect(page).to have_content("These metadata properties are not required") # testing additional metadata page
       click_on "Next"
       path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
       attach_file(path) do

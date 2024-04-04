@@ -31,7 +31,7 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     expect(page).to have_css(edit_form_css)
     click_on "Next"
 
-    expect(page).to have_css(additional_form_css) #additional metadata has no previous button, so no need to test that it goes back
+    expect(page).to have_css(additional_form_css) # additional metadata has no previous button, so no need to test that it goes back
     click_on "Next"
 
     expect(page).to have_css(readme_form_css)
@@ -40,7 +40,7 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     click_on "Previous"
     expect(page).to have_css(edit_form_css)
     click_on "Next"
-    click_on "Next" #clicking next twice to get back to the readme
+    click_on "Next" # clicking next twice to get back to the readme
     expect(page).to have_css(readme_form_css)
     stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
     click_on "Save"
