@@ -16,7 +16,7 @@ class WorksWizardController < ApplicationController
 
   before_action :load_work, only: [:edit_wizard, :update_wizard, :attachment_select, :attachment_selected,
                                    :file_upload, :file_uploaded, :file_other, :review, :validate,
-                                   :readme_select, :readme_uploaded, :update_additional_save]
+                                   :readme_select, :readme_uploaded, :update_additional_save, :update_additional]
 
   # get Renders the "step 0" information page before creating a new dataset
   # GET /works/new_submission
@@ -55,7 +55,9 @@ class WorksWizardController < ApplicationController
   end
 
   # get /works/1/update-additional
-  def update_additional; end
+  def update_additional
+    prepare_decorators_for_work_form(@work)
+  end
 
   # PATCH /works/1/update-additional
   def update_additional_save
