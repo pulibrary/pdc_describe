@@ -86,7 +86,7 @@ RSpec.describe WorksWizardController do
         sign_in user
         post(:update_wizard, params:)
         expect(response.status).to be 302
-        expect(response.location).to eq "http://test.host/works/#{work.id}/readme-select"
+        expect(response.location).to eq "http://test.host/works/#{work.id}/update-additional"
         expect(ActiveStorage::PurgeJob).not_to have_received(:new)
       end
 

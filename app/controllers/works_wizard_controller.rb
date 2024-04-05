@@ -6,7 +6,7 @@ require "open-uri"
 # Controller to handle wizard Mode when editing an work
 #
 # The wizard flow is as follows:
-# new_submission -> new_submission_save -> edit_wizard -> update_wizard -> readme_select -> readme_uploaded -> attachment_select ->
+# new_submission -> new_submission_save -> edit_wizard -> update_wizard -> update_additional -> update_additional_save ->readme_select -> readme_uploaded -> attachment_select ->
 #     attachment_selected -> file_other ->                  review -> validate -> [ work controller ] show & file_list
 #                         \> file_upload -> file_uploaded -^
 
@@ -51,20 +51,7 @@ class WorksWizardController < ApplicationController
 
   # PATCH /works/1/update-wizard
   def update_wizard
-    if validate_modification_permissions(work: @work,
-                                         uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
-                                         current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
-      prepare_decorators_for_work_form(@work)
-      if WorkCompareService.update_work(work: @work, update_params:, current_user:)
-        if params[:save_only] == "true"
-          render :edit_wizard
-        else
-          redirect_to work_readme_select_url(@work)
-        end
-      else
-        render :edit_wizard, status: :unprocessable_entity
-      end
-    end
+    edit_helper(:edit_wizard, work_update_additional_path(@work))
   end
 
   # Prompt to select how to submit their files
@@ -171,6 +158,23 @@ class WorksWizardController < ApplicationController
   helper_method :file_location_url
 
   private
+
+    def edit_helper(view_name, redirect_url)
+      if validate_modification_permissions(work: @work,
+                                           uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
+                                           current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
+        prepare_decorators_for_work_form(@work)
+        if WorkCompareService.update_work(work: @work, update_params:, current_user:)
+          if params[:save_only] == "true"
+            render view_name
+          else
+            redirect_to redirect_url
+          end
+        else
+          render view_name, status: :unprocessable_entity
+        end
+      end
+    end
 
     def load_work
       @work = Work.find(params[:id])

@@ -47,6 +47,9 @@ Rails.application.routes.draw do
   post "works/:id/attachment-select", to: "works_wizard#attachment_selected", as: :work_attachment_selected
   patch "works/:id/attachment-select", to: "works_wizard#attachment_selected"
 
+  get "works/:id/update-additional", to: "works_update_additional#update_additional", as: :work_update_additional
+  patch "works/:id/update-additional", to: "works_update_additional#update_additional_save"
+
   get "works/:id/file-list", to: "works#file_list", as: :work_file_list
   post "work/:id/approve", to: "works#approve", as: :approve_work
   post "work/:id/withdraw", to: "works#withdraw", as: :withdraw_work

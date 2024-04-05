@@ -399,6 +399,9 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       fill_in "description", with: description
       click_on "Next"
 
+      expect(page).to have_content("These metadata properties are not required") # testing additional metadata page
+      click_on "Next"
+
       expect(page).to have_content("Please upload the README")
       expect(page).to have_button("Next", disabled: true)
 
