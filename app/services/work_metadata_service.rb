@@ -19,8 +19,7 @@ class WorkMetadataService
     if params[:id].present?
       Work.find(params[:id])
     else
-      group = Group.find_by(code: params[:group_code]) || current_user.default_group
-      Work.new(created_by_user_id: current_user.id, group_id: group.id)
+      Work.new(created_by_user_id: current_user.id, group_id: group_code.id)
     end
   end
 
@@ -28,8 +27,7 @@ class WorkMetadataService
   #
   # @returns the new work
   def new_submission
-    group_id = group_code.id
-    work = Work.new(created_by_user_id: current_user.id, group_id:)
+    work = work_for_new_submission
     work.resource = FormToResourceService.convert(params, work)
     if work.valid_to_draft
       work.draft!(current_user)

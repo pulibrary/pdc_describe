@@ -13,6 +13,10 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     sign_in user
     visit user_path(user)
     click_on "Submit New"
+
+    check "agreement"
+    click_on "Confirm"
+
     fill_in "title_main", with: "Supreme"
     fill_in "creators[][given_name]", with: "Sonia"
     fill_in "creators[][family_name]", with: "Sotomayor"
@@ -26,6 +30,10 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     sign_in user
     visit user_path(user)
     click_on "Submit New"
+
+    check "agreement"
+    click_on "Confirm"
+
     fill_in "title_main", with: ""
     click_on "Create New"
     expect(page).to have_content "Must provide a title"
@@ -34,7 +42,9 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
   # this test depends of the fake ORCID server defined in spec/support/orcid_specs.rb
   it "Fills in the creator based on an ORCID ID for the wizard", js: true do
     sign_in user
-    visit work_create_new_submission_path
+    work = FactoryBot.create :policy_work
+
+    visit work_create_new_submission_path(work)
     click_on "Add Another Creator"
     find("tr:last-child input[name='creators[][orcid]']").set "0000-0000-1111-2222"
     expect(find("tr:last-child input[name='creators[][given_name]']").value).to eq "Sally"

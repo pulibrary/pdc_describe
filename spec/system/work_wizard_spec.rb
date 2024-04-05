@@ -7,15 +7,19 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     sign_in user
     stub_datacite
 
-    visit work_create_new_submission_path
-    expect(page).to have_css("form[action='/works/new-submission']")
+    visit work_policy_path
+    expect(page).to have_css("form[action='/works/policy']")
+    check "agreement"
+    expect { click_on "Confirm" }.to change { Work.count }.by(1)
+    work = Work.last
+
+    expect(page).to have_css("form[action='/works/#{work.id}/new-submission']")
     fill_in "title_main", with: "title"
     click_on "Add me as a Creator"
     expect(find("tr:last-child input[name='creators[][given_name]']").value).to eq(user.given_name)
     expect(find("tr:last-child input[name='creators[][family_name]']").value).to eq(user.family_name)
     click_on "Create New"
 
-    work = Work.last
     edit_form_css = "form[action='/works/#{work.id}/update-wizard']"
     additional_form_css = "form[action='/works/#{work.id}/update-additional']"
     readme_form_css = "form[action='/works/#{work.id}/readme-uploaded']"

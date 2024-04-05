@@ -14,6 +14,10 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
     sign_in user
     visit user_path(user)
     click_on "Submit New"
+
+    check "agreement"
+    click_on "Confirm"
+
     fill_in "title_main", with: "test title"
 
     fill_in "creators[][given_name]", with: "Sally"

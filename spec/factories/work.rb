@@ -7,6 +7,15 @@ FactoryBot.define do
       ark { nil }
     end
 
+    factory :policy_work do
+      group { Group.research_data }
+      state { "none" }
+      created_by_user_id { FactoryBot.create(:user).id }
+      after(:create) do |work, _evaluator|
+        work.add_provenance_note(DateTime.now, "User agreed to the Data Acceptance and Retention policy", work.created_by_user.id)
+      end
+    end
+
     factory :new_work do
       group { Group.research_data }
       state { "none" }

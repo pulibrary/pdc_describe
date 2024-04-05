@@ -208,7 +208,7 @@ class WorksWizardController < ApplicationController
       if @work.persisted?
         redirect_to edit_work_wizard_path(id: @work.id), notice: transition_error_message, params:
       else
-        redirect_to work_create_new_submission_path, notice: transition_error_message, params:
+        redirect_to work_create_new_submission_path(@work), notice: transition_error_message, params:
       end
     end
 end
