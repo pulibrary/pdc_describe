@@ -21,6 +21,10 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
       visit user_path(submitter2)
       expect(page).to have_content submitter2.given_name
       click_on "Submit New"
+
+      check "agreement"
+      click_on "Confirm"
+
       fill_in "title_main", with: title1
 
       fill_in "creators[][given_name]", with: FFaker::Name.first_name

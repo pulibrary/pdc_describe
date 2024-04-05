@@ -23,7 +23,11 @@ RSpec.describe "Form submission for a PPPL dataset", type: :system do
   context "happy path" do
     it "produces and saves a valid datacite record", js: true do
       sign_in user
-      visit work_create_new_submission_path
+      visit work_policy_path
+
+      check "agreement"
+      click_on "Confirm"
+
       fill_in "title_main", with: title
       find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
       find("tr:last-child input[name='creators[][family_name]']").set "Abrams"
