@@ -7,12 +7,12 @@
 -->
 <div class="d-flex align-items-start">
 
-<%= render  partial: '/works/form_nav', locals:  { additional_selected: false, required_selected: true,
-                                                   additional_button_class: "", required_button_class: "show active" } %>
+<%= render  partial: '/works/form_nav', locals:  { additional_selected: true, required_selected: false,
+                                                   additional_button_class: "show active", required_button_class: "" } %>
 
   <div>
-    <%= form_with(model: @work, url: update_work_wizard_path(@work), class: ["work-form"], data: { work: @work.form_attributes }) do |form| %>
-      <%= render partial: '/works/form_metadata', locals:  { form: form, required_class: "show active", additional_class: "" } %>
+    <%= form_with(model: @work, url: work_update_additional_path(@work), class: ["work-form"], data: { work: @work.form_attributes }) do |form| %>
+      <%= render partial: '/works/form_metadata', locals:  { form: form, required_class: "", additional_class: "show active" } %>
 
       <hr />
       <div class="actions">
@@ -20,6 +20,7 @@
 
         <%= form.submit "Next", class: "btn btn-primary wizard-next-button", id: "btn-submit" %>
         <%= form.button 'Save', type: 'submit', name: 'save_only', value: 'true', class: "btn btn-save wizard-next-button" %>
+        <%= link_to 'Previous', edit_work_wizard_path(@work), class: "btn btn-previous wizard-next-button" %>
       </div>
 
       <%= render '/works/form_hidden_fields' %>
