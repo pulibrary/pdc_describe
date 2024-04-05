@@ -3,7 +3,7 @@
 # Connect with the curators of a work when an activity occurs
 #
 class WorkStateTransitionNotification
-  attr_accessor :group_administrators, :depositor, :to_state, :from_state, :group,
+  attr_reader :group_administrators, :depositor, :to_state, :from_state, :group,
                 :work_url, :notification, :users, :id, :current_user_id, :work_title
 
   def initialize(work, current_user_id)
