@@ -1,0 +1,7 @@
+<div class="wizard-area">
+  <h1>New Submission</h1>
+  <%= render "/works_wizard/wizard_progress", wizard_step: 1 %>
+  <%= render partial: 'form_wizard' %>
+</div>
+
+<%= javascript_include_tag 'edit_work_utils' %>
