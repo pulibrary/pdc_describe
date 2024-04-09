@@ -28,8 +28,9 @@
             <%= render(partial: 'works/s3_resources', locals: { edit_mode: true, form: form }) %>
           </section>
           <div class="container-fluid deposit-uploads">
-            <!-- Uses Uppy for uploading -->
-            <span id="uppy_upload_url" class="hidden"><%= work_upload_files_path(@work) %></span>
+            <% if @work.id != nil %>
+              <span id="uppy_upload_url" class="hidden"><%= work_upload_files_path(@work) %></span>
+            <% end %>
             <div id="file-upload-area"></div>
             <button id="add-files-button" class="btn btn-secondary" style="width: 200px;"><i class="bi bi-plus-circle"></i> Add More Files</button>
             <div id="file-error" class="error_box"></div>
