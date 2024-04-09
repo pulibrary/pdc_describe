@@ -5,9 +5,9 @@ export default class WorkEditFileUpload {
   }
 
   attach_validation() {
+    const uploadUrl = $('#uppy_upload_url').text();
     this.file_upload_element.on('change', this.validate.bind(this));
-    var uploadUrl = $("#uppy_upload_url").text();
-    if (uploadUrl !== "") {
+    if (uploadUrl !== '') {
       this.setupUppy(uploadUrl);
     }
   }
@@ -35,35 +35,33 @@ export default class WorkEditFileUpload {
   //    https://davidwalsh.name/uppy-file-uploading
   setupUppy(uploadUrl) {
     // https://uppy.io/blog/2018/08/0.27/#autoproceed-false-by-default
-    var uppy = Uppy.Core({ autoProceed: true })
+    const uppy = Uppy.Core({ autoProceed: true });
 
     // Configure the initial display (https://uppy.io/docs/dashboard)
     uppy.use(Uppy.Dashboard, {
       target: '#file-upload-area',
       inline: false, // display of dashboard only when trigger is clicked
-      trigger: "#add-files-button"
-    })
+      trigger: '#add-files-button',
+    });
 
     // We use the XHRUploader, this is the most basic uploader (https://uppy.io/docs/xhr-upload/)
     // X-CSRF-Token: https://stackoverflow.com/a/75050497/446681
     uppy.use(Uppy.XHRUpload, {
       endpoint: uploadUrl,
-      headers: {
-          'X-CSRF-Token': document.querySelector("meta[name='csrf-token']").content
-      },
+      headers: { 'X-CSRF-Token': document.querySelector("meta[name='csrf-token']").content },
       bundle: true,   // upload all selected files at once
       formData: true, // required when bundle: true
       getResponseData: function(responseText, response) {
         // Reload the file list displayed
         let fileTable = $('#files-table').dataTable();
         fileTable.api().ajax.reload();
-      }
-    })
+      },
+    });
 
-    $("#add-files-button").on("click", function(_x) {
+    $('#add-files-button').on('click', function() {
       // Prevent the button's click from submitting the form since the
       // files' payload is automatically submitted by Uppy
       return false;
-    })
+    });
   }
 }
