@@ -1,6 +1,6 @@
 # 12. Document why and how we will be backing up data from postcuration to preservation s3 buckets
 
-Date: 2023-??-??
+Date: 2023-12-04
 
 ## Status
 

@@ -186,6 +186,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
 
       visit work_path(work)
       click_on "Approve"
+      page.driver.browser.switch_to.alert.accept
     end
 
     context "Approving a work with a DOI we own" do

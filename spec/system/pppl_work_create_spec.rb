@@ -23,7 +23,11 @@ RSpec.describe "Form submission for a PPPL dataset", type: :system do
   context "happy path" do
     it "produces and saves a valid datacite record", js: true do
       sign_in user
-      visit work_create_new_submission_path
+      visit work_policy_path
+
+      check "agreement"
+      click_on "Confirm"
+
       fill_in "title_main", with: title
       find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
       find("tr:last-child input[name='creators[][family_name]']").set "Abrams"
@@ -41,6 +45,8 @@ RSpec.describe "Form submission for a PPPL dataset", type: :system do
       expect(page).to have_field(name: "funders[][award_number]", with: "DE-AC02-09CH11466")
       click_on "Curator Controlled"
       expect(page).to have_field("publisher", with: "Princeton Plasma Physics Laboratory, Princeton University")
+      click_on "Next"
+      expect(page).to have_content("These metadata properties are not required") # testing additional metadata page
       click_on "Next"
       expect(page).to have_content("Please upload the README")
       expect(page).to have_button("Next", disabled: true)

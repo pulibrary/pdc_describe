@@ -40,9 +40,11 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
   end
 
   context "when using the wizard mode and creating a new work" do
+    let(:work) { FactoryBot.create :policy_work, created_by_user_id: user.id }
+
     it "persists the required metadata and saves a valid work", js: true do
       sign_in user
-      visit work_create_new_submission_path
+      visit work_create_new_submission_path(work)
 
       fill_in "title_main", with: title
 
@@ -93,7 +95,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
     context "when failing to provide the title" do
       it "it renders a warning in response to form submissions", js: true do
         sign_in user
-        visit work_create_new_submission_path
+        visit work_create_new_submission_path(work)
 
         fill_in "title_main", with: ""
         click_on "Create New"
@@ -105,7 +107,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
     context "when failing to provide the given name for the creator" do
       it "renders a warning in response to form submissions", js: true do
         sign_in user
-        visit work_create_new_submission_path
+        visit work_create_new_submission_path(work)
 
         fill_in "title_main", with: title
 
@@ -119,7 +121,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
     context "when failing to provide the family name for the creator" do
       it "renders a warning in response to form submissions", js: true do
         sign_in user
-        visit work_create_new_submission_path
+        visit work_create_new_submission_path(work)
 
         fill_in "title_main", with: title
 
@@ -387,9 +389,11 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
   end
 
   context "invalid readme" do
+    let(:work) { FactoryBot.create :policy_work, created_by_user_id: user.id }
+
     it "prevents the user from continuing when the readme file is not valid", js: true do
       sign_in user
-      visit work_create_new_submission_path
+      visit work_create_new_submission_path(work)
 
       fill_in "title_main", with: title
       find("tr:last-child input[name='creators[][given_name]']").set "Samantha"
@@ -397,6 +401,9 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       click_on "Create New"
 
       fill_in "description", with: description
+      click_on "Next"
+
+      expect(page).to have_content("These metadata properties are not required") # testing additional metadata page
       click_on "Next"
 
       expect(page).to have_content("Please upload the README")

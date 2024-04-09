@@ -289,19 +289,32 @@ class WorksController < ApplicationController
       patch_params[:readme_file]
     end
 
-    # rubocop:disable Metrics/AbcSize
-    # rubocop:disable Metrics/BlockNesting
-    # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/PerceivedComplexity
     def rescue_aasm_error
-      yield
-    rescue AASM::InvalidTransition => error
-      message = message_from_assm_error(aasm_error: error, work: @work)
-      Honeybadger.notify("Invalid #{@work.current_transition}: #{error.message} errors: #{message}")
-      transition_error_message = "We apologize, the following errors were encountered: #{message}. Please contact the PDC Describe administrators for any assistance."
-      @errors = [transition_error_message]
+      super
+    rescue StandardError => generic_error
+      if action_name == "create"
+        handle_error_for_create(generic_error)
+      else
+        redirect_to root_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."
+      end
+    end
 
+    def handle_error_for_create(generic_error)
+      if @work.persisted?
+        Honeybadger.notify("Failed to create the new Dataset #{@work.id}: #{generic_error.message}")
+        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+        redirect_to edit_work_url(id: @work.id), notice: "Failed to create the new Dataset #{@work.id}: #{generic_error.message}", params:
+      else
+        Honeybadger.notify("Failed to create a new Dataset #{@work.id}: #{generic_error.message}")
+        new_params = {}
+        new_params[:wizard] = wizard_mode? if wizard_mode?
+        new_params[:migrate] = migrating? if migrating?
+        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+        redirect_to new_work_url(params: new_params), notice: "Failed to create a new Dataset: #{generic_error.message}", params: new_params
+      end
+    end
+
+    def redirect_aasm_error(transition_error_message)
       if @work.persisted?
         redirect_to edit_work_url(id: @work.id), notice: transition_error_message, params:
       else
@@ -311,29 +324,7 @@ class WorksController < ApplicationController
         @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
         redirect_to new_work_url(params: new_params), notice: transition_error_message, params: new_params
       end
-    rescue StandardError => generic_error
-      if action_name == "create"
-        if @work.persisted?
-          Honeybadger.notify("Failed to create the new Dataset #{@work.id}: #{generic_error.message}")
-          @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
-          redirect_to edit_work_url(id: @work.id), notice: "Failed to create the new Dataset #{@work.id}: #{generic_error.message}", params:
-        else
-          Honeybadger.notify("Failed to create a new Dataset #{@work.id}: #{generic_error.message}")
-          new_params = {}
-          new_params[:wizard] = wizard_mode? if wizard_mode?
-          new_params[:migrate] = migrating? if migrating?
-          @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
-          redirect_to new_work_url(params: new_params), notice: "Failed to create a new Dataset: #{generic_error.message}", params: new_params
-        end
-      else
-        redirect_to root_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."
-      end
     end
-    # rubocop:enable Metrics/PerceivedComplexity
-    # rubocop:enable Metrics/MethodLength
-    # rubocop:enable Metrics/CyclomaticComplexity
-    # rubocop:enable Metrics/BlockNesting
-    # rubocop:enable Metrics/AbcSize
 
     def error_action
       @form_resource_decorator = FormResourceDecorator.new(@work, current_user)

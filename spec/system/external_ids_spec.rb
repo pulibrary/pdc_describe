@@ -14,6 +14,10 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
     sign_in user
     visit user_path(user)
     click_on "Submit New"
+
+    check "agreement"
+    click_on "Confirm"
+
     fill_in "title_main", with: "test title"
 
     fill_in "creators[][given_name]", with: "Sally"
@@ -21,6 +25,8 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
     click_on "Create New"
     fill_in "description", with: "test description"
     select "GNU General Public License", from: "rights_identifiers"
+    click_on "Next"
+    expect(page).to have_content("These metadata properties are not required")  # testing additional metadata page
     click_on "Next"
     path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
     attach_file(path) do
