@@ -65,7 +65,7 @@
     <%= render '/works/form_hidden_fields' %>
     <hr />
     <div class="actions">
-      <%= link_to "Cancel", root_path, class: "btn btn-secondary" %>
+      <%= link_to "Cancel", user_path(current_user), class: "btn btn-secondary" %>
       <%= submit_tag "Create New", class: "btn btn-primary wizard-next-button", id: "btn-create-new" %>
     </div>
   <% end %>
