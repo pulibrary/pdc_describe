@@ -82,6 +82,7 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
       sign_in super_admin
       visit work_path(work)
       click_on "Approve Dataset"
+      page.driver.browser.switch_to.alert.accept
       expect(page).to have_content "marked as Approved"
     end
   end

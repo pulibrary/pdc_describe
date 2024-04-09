@@ -18,6 +18,7 @@ RSpec.describe "Work Approval", type: :system do
       click_link work.title
       expect(page).to have_content(work.doi)
       click_on "Approve Dataset"
+      page.driver.browser.switch_to.alert.accept
       expect(page).to have_content("Uploads must be present for a work to be approved")
     end
   end
