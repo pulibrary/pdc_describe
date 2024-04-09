@@ -1,3 +1,4 @@
+/* global Uppy */
 export default class WorkEditFileUpload {
   constructor(fileUploadId, fileListId) {
     this.file_upload_element = $(`#${fileUploadId}`);
@@ -8,7 +9,7 @@ export default class WorkEditFileUpload {
     const uploadUrl = $('#uppy_upload_url').text();
     this.file_upload_element.on('change', this.validate.bind(this));
     if (uploadUrl !== '') {
-      this.setupUppy(uploadUrl);
+      WorkEditFileUpload.setupUppy(uploadUrl);
     }
   }
 
@@ -33,7 +34,7 @@ export default class WorkEditFileUpload {
   // References:
   //    https://uppy.io/docs/quick-start/
   //    https://davidwalsh.name/uppy-file-uploading
-  setupUppy(uploadUrl) {
+  static setupUppy(uploadUrl) {
     // https://uppy.io/blog/2018/08/0.27/#autoproceed-false-by-default
     const uppy = Uppy.Core({ autoProceed: true });
 
@@ -49,19 +50,17 @@ export default class WorkEditFileUpload {
     uppy.use(Uppy.XHRUpload, {
       endpoint: uploadUrl,
       headers: { 'X-CSRF-Token': document.querySelector("meta[name='csrf-token']").content },
-      bundle: true,   // upload all selected files at once
+      bundle: true, // upload all selected files at once
       formData: true, // required when bundle: true
-      getResponseData: function(responseText, response) {
+      getResponseData() {
         // Reload the file list displayed
-        let fileTable = $('#files-table').dataTable();
+        const fileTable = $('#files-table').dataTable();
         fileTable.api().ajax.reload();
       },
     });
 
-    $('#add-files-button').on('click', function() {
-      // Prevent the button's click from submitting the form since the
-      // files' payload is automatically submitted by Uppy
-      return false;
-    });
+    // Prevent the button's click from submitting the form since the
+    // files' payload is automatically submitted by Uppy
+    $('#add-files-button').on('click', () => false);
   }
 }
