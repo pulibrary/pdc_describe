@@ -108,7 +108,7 @@ class WorksController < ApplicationController
   # GET /works/1/edit
   # only non wizard mode
   def edit
-    @new_uploader = params[:new_uploader] == "true" || Rails.env.staging?
+    @new_uploader = (Rails.env.production? == false)
 
     @work = Work.find(params[:id])
     @work_decorator = WorkDecorator.new(@work, current_user)

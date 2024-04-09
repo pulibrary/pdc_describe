@@ -12,6 +12,7 @@
         </section>
         <div class="container-fluid deposit-uploads">
           <!-- Uses Uppy for uploading -->
+          <span id="uppy_upload_url" class="hidden"><%= work_upload_files_path(@work) %></span>
           <div id="file-upload-area"></div>
           <button id="add-files-button" class="btn btn-secondary" style="width: 200px;"><i class="bi bi-plus-circle"></i> Add Files</button>
           <div id="file-error" class="error_box"></div>
@@ -31,47 +32,3 @@
   <% end %>
 </div>
 
-<!--
-  Only render the Uppy JavaScript if we are using it.
-  This also prevents the call to `work_upload_files_path(@work)` when the `work.id` is nil
-  which happens when migrating a dataset from DataSpace.
--->
-<% if @new_uploader == true %>
-<script>
-  // Setup Uppy to handle file uploads
-  // References:
-  //    https://davidwalsh.name/uppy-file-uploading
-  //    https://uppy.io/blog/2018/08/0.27/#autoproceed-false-by-default
-  var uppy = Uppy.Core({ autoProceed: true })
-
-  // Configure the initial display
-  // https://uppy.io/docs/dashboard
-  uppy.use(Uppy.Dashboard, {
-    target: '#file-upload-area',
-    inline: false, // display of dashboard only when trigger is clicked
-    trigger: "#add-files-button"
-  })
-
-  // We use the XHRUploader - this is the most basic
-  // https://uppy.io/docs/xhr-upload/
-  // X-CSRF-Token: https://stackoverflow.com/a/75050497/446681
-  uppy.use(Uppy.XHRUpload, {
-    endpoint: '<%= work_upload_files_path(@work) %>',
-    headers: {
-        'X-CSRF-Token': document.querySelector("meta[name='csrf-token']").content
-    },
-    bundle: true,   // upload all selected files at once
-    formData: true, // required when bundle: true
-    getResponseData: function(responseText, response) {
-      // Reload the file list displayed
-      let fileTable = $('#files-table').dataTable();
-      fileTable.api().ajax.reload();
-    }
-  })
-
-  $("#add-files-button").on("click", function(_x) {
-    // Prevent the button's click from submitting the form
-    return false;
-  })
-</script>
-<% end %>
