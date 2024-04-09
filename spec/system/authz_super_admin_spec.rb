@@ -21,6 +21,10 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
       visit user_path(submitter2)
       expect(page).to have_content submitter2.given_name
       click_on "Submit New"
+
+      check "agreement"
+      click_on "Confirm"
+
       fill_in "title_main", with: title1
 
       fill_in "creators[][given_name]", with: FFaker::Name.first_name
@@ -30,6 +34,8 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
       select "GNU General Public License", from: "rights_identifiers"
       click_on "Curator Controlled"
       expect(page).to have_content "Research Data"
+      click_on "Next"
+      expect(page).to have_content("These metadata properties are not required") # testing additional metadata page
       click_on "Next"
       path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
       attach_file(path) do
