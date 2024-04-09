@@ -1,10 +1,10 @@
 # 12. Document process and tooling for backing up collections in DataSpace
 
-Date: 2023-??-??
+Date: 2023-08-23
 
 ## Status
 
-Discussion
+Decided
 
 ## Context
 
