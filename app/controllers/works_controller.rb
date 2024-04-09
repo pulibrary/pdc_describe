@@ -108,8 +108,6 @@ class WorksController < ApplicationController
   # GET /works/1/edit
   # only non wizard mode
   def edit
-    @new_uploader = (Rails.env.production? == false)
-
     @work = Work.find(params[:id])
     @work_decorator = WorkDecorator.new(@work, current_user)
     if validate_modification_permissions(work: @work,
