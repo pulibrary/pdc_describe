@@ -298,9 +298,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
         visit work_file_upload_path(work, params: { wizard: true })
 
         path = Rails.root.join("spec", "fixtures", "files", "us_covid_2019.csv")
-        attach_file(path) do
-          page.find("#patch_pre_curation_uploads").click
-        end
+        Rack::Test::UploadedFile.new(File.open(path))
 
         click_on "Next"
         expect(page).to have_content("In furtherance of its non-profit educational mission, Princeton University")
