@@ -4,25 +4,23 @@
   <%= form_with(model: @work, scope: :patch, url: work_file_uploaded_path(id: @work.id)) do |f| %>
     <div id="file-error" class="error_box"></div>
 
-    <div class="deposit-uploads">
+    <% if @new_uploader == true %>
+      <div class="deposit-uploads">
         <section class="uploads">
           <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
           <%= render(partial: 'works/s3_resources', locals: { edit_mode: true, form: f }) %>
         </section>
         <div class="container-fluid deposit-uploads">
-          <% if @new_uploader == true %>
-            <!-- Uses Uppy for uploading -->
-            <div id="file-upload-area"></div>
-            <button id="add-files-button" class="btn btn-secondary" style="width: 200px;"><i class="bi bi-plus-circle"></i> Add Files</button>
-          <% else %>
-            <!-- Uses the browser's default file upload controls -->
-            <%= f.file_field(:pre_curation_uploads, multiple: true) %>
-            <!-- We populate this via JavaScript as the user selected files to upload -->
-            <div id="file-upload-list"></div>
-          <% end %>
+          <!-- Uses Uppy for uploading -->
+          <div id="file-upload-area"></div>
+          <button id="add-files-button" class="btn btn-secondary" style="width: 200px;"><i class="bi bi-plus-circle"></i> Add Files</button>
           <div id="file-error" class="error_box"></div>
         </div>
-    </div>
+      </div>
+    <% else %>
+      <!-- Uses the browser's default file upload controls -->
+      <%= f.file_field(:pre_curation_uploads, multiple: true) %>
+    <% end %>
 
     <p><%= t('works.form.file_upload.actions') %></p>
     <div class="actions">
