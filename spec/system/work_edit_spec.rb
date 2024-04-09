@@ -83,6 +83,10 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       click_on "delete-file-#{contents1.safe_id}"
 
       # ...and add another
+      expect(page).to have_button("Add More Files")
+
+      # Emulate Uppy uploading one file (https://stackoverflow.com/a/41054559/446681)
+      # Notice that we cannot use `attach_file` because we are not using the browser's standard upload file button.
       Rack::Test::UploadedFile.new(File.open(Rails.root.join("spec", "fixtures", "files", "orcid.csv")))
       allow(fake_s3_service).to receive(:client_s3_files).and_return([contents2, contents3])
 

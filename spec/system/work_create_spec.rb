@@ -296,7 +296,10 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       it "allows users to upload files", js: true do
         sign_in user
         visit work_file_upload_path(work, params: { wizard: true })
+        expect(page).to have_button("Add Files")
 
+        # Emulate Uppy uploading one file (https://stackoverflow.com/a/41054559/446681)
+        # Notice that we cannot use `attach_file` because we are not using the browser's standard upload file button.
         path = Rails.root.join("spec", "fixtures", "files", "us_covid_2019.csv")
         Rack::Test::UploadedFile.new(File.open(path))
 
