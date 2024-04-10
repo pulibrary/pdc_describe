@@ -63,11 +63,8 @@ Download the README.txt for a detailed description of this dataset's content."
       select "Creative Commons Attribution 4.0 International", from: "rights_identifiers"
       # TODO: We should also test that the files are saved
       # See https://github.com/pulibrary/pdc_describe/issues/1041
-
-      # Emulate Uppy uploading two files (https://stackoverflow.com/a/41054559/446681)
-      # Notice that we cannot use `attach_file` because we are not using the browser's standard upload file button.
-      Rack::Test::UploadedFile.new(File.open(file1))
-      Rack::Test::UploadedFile.new(File.open(file2))
+      attach_file_via_uppy(file1)
+      attach_file_via_uppy(file2)
 
       click_on "Additional Metadata"
       click_on "Curator Controlled"
