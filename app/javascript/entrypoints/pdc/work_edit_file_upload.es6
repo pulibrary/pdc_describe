@@ -36,7 +36,11 @@ export default class WorkEditFileUpload {
   //    https://davidwalsh.name/uppy-file-uploading
   static setupUppy(uploadUrl) {
     // https://uppy.io/blog/2018/08/0.27/#autoproceed-false-by-default
-    const uppy = Uppy.Core({ autoProceed: true });
+    // https://uppy.io/docs/uppy/#restrictions
+    const uppy = Uppy.Core({
+      autoProceed: true,
+      restrictions: { maxNumberOfFiles: 20 }
+    });
 
     // Configure the initial display (https://uppy.io/docs/dashboard)
     uppy.use(Uppy.Dashboard, {
