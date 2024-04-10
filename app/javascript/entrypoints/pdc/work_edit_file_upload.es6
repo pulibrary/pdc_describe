@@ -39,7 +39,7 @@ export default class WorkEditFileUpload {
     // https://uppy.io/docs/uppy/#restrictions
     const uppy = Uppy.Core({
       autoProceed: true,
-      restrictions: { maxNumberOfFiles: 20 }
+      restrictions: { maxNumberOfFiles: 20 },
     });
 
     // Configure the initial display (https://uppy.io/docs/dashboard)
