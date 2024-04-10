@@ -65,7 +65,11 @@ RSpec.describe "Form submission for migrating attention", type: :system, mock_ez
       select "Research Data", from: "group_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
-      page.attach_file("work[pre_curation_uploads_added][]", [file_upload], make_visible: true)
+
+      # Emulate Uppy uploading one file (https://stackoverflow.com/a/41054559/446681)
+      # Notice that we cannot use `attach_file` because we are not using the browser's standard upload file button.
+      Rack::Test::UploadedFile.new(File.open(file_upload))
+
       click_on "Migrate"
       expect(page).to have_button("Migrate Dataspace Files")
       expect(page).to have_content "marked as Draft"
