@@ -16,6 +16,7 @@
       <%= submit_tag "Next", class: "btn btn-primary wizard-next-button" %>
       <%= form.button 'Save', type: 'submit', name: 'save_only', value: 'true', class: "btn btn-save wizard-next-button" %>
       <%= link_to "Previous", work_readme_select_path(@work, wizard: true), class: "btn btn-previous wizard-next-button" %>
+      <%= link_to "Cancel", user_path(current_user), class: "btn btn-secondary" %>
     </div>
   <% end %>
 </div>
