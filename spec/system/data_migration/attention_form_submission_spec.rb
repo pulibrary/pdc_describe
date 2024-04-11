@@ -65,7 +65,8 @@ RSpec.describe "Form submission for migrating attention", type: :system, mock_ez
       select "Research Data", from: "group_id"
       fill_in "doi", with: doi
       fill_in "ark", with: ark
-      page.attach_file("work[pre_curation_uploads_added][]", [file_upload], make_visible: true)
+      attach_file_via_uppy(file_upload)
+
       click_on "Migrate"
       expect(page).to have_button("Migrate Dataspace Files")
       expect(page).to have_content "marked as Draft"

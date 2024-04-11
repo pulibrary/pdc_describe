@@ -83,7 +83,9 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       click_on "delete-file-#{contents1.safe_id}"
 
       # ...and add another
-      attach_file("pre_curation_uploads_added", Rails.root.join("spec", "fixtures", "files", "orcid.csv"))
+      expect(page).to have_button("Add More Files")
+      attach_file_via_uppy(Rails.root.join("spec", "fixtures", "files", "orcid.csv"))
+
       allow(fake_s3_service).to receive(:client_s3_files).and_return([contents2, contents3])
 
       click_on "Save Work"

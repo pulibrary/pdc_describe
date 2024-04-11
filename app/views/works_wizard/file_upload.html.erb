@@ -3,7 +3,19 @@
   <%= render "wizard_progress", wizard_step: 3 %>
   <%= form_with(model: @work, scope: :patch, url: work_file_uploaded_path(id: @work.id)) do |f| %>
     <div id="file-error" class="error_box"></div>
-    <%= f.file_field(:pre_curation_uploads, multiple: true) %>
+
+    <div class="deposit-uploads">
+      <section class="uploads">
+        <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
+        <%= render(partial: 'works/s3_resources', locals: { edit_mode: true, form: f }) %>
+      </section>
+      <div class="container-fluid deposit-uploads">
+        <span id="uppy_upload_url" class="hidden"><%= work_upload_files_path(@work) %></span>
+        <div id="file-upload-area"></div>
+        <button id="add-files-button" class="btn btn-secondary" style="width: 200px;"><i class="bi bi-plus-circle"></i> Add Files</button>
+        <div id="file-error" class="error_box"></div>
+      </div>
+    </div>
 
     <p><%= t('works.form.file_upload.actions') %></p>
     <div class="actions">
