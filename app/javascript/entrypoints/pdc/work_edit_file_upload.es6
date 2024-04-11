@@ -51,9 +51,16 @@ export default class WorkEditFileUpload {
 
     // We use the XHRUploader, this is the most basic uploader (https://uppy.io/docs/xhr-upload/)
     // X-CSRF-Token: https://stackoverflow.com/a/75050497/446681
+    const token = document.querySelector("meta[name='csrf-token']");
+    let tokenContent;
+    if (token) {
+      tokenContent = token.content;
+    } else {
+      tokenContent = '';
+    }
     uppy.use(Uppy.XHRUpload, {
       endpoint: uploadUrl,
-      headers: { 'X-CSRF-Token': document.querySelector("meta[name='csrf-token']").content },
+      headers: { 'X-CSRF-Token': tokenContent },
       bundle: true, // upload all selected files at once
       formData: true, // required when bundle: true
       getResponseData() {
