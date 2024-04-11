@@ -37,6 +37,17 @@ RSpec.describe WorksWizardController do
       end
     end
 
+    describe "#new_submission_cancel" do
+      let(:work) { FactoryBot.create :policy_work }
+
+      it "Removes the work and redirects to the user's dashboard" do
+        sign_in user
+        expect { get :new_submission_delete, params: { id: work.id } }.to change { Work.count }.by(-1)
+        expect(response.status).to be 302
+        expect(response.location).to eq "http://test.host/users/#{user.uid}"
+      end
+    end
+
     describe "#new_submission_save" do
       let(:work) { FactoryBot.create :policy_work }
       let(:params) do

@@ -18,5 +18,9 @@ RSpec.describe WorksController, type: :routing do
     it "routes to #attachment_selected" do
       expect(post: "/works/1/attachment-select").to route_to("works_wizard#attachment_selected", id: "1")
     end
+
+    it "routes to #new_submission" do
+      expect(get: "/works/1/new-submission-delete").to route_to("works_wizard#new_submission_delete", id: "1")
+    end
   end
 end
