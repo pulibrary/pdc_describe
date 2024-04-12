@@ -31,8 +31,12 @@ class WorkDecorator
     draft? && migrated && current_user_is_admin?
   end
 
-  def wizard_mode?
-    draft? && !migrated
+  def edit_path
+    if draft? && !migrated # wizard mode
+      edit_work_wizard_path(work)
+    else
+      edit_work_path(work)
+    end
   end
 
   def file_list_path
