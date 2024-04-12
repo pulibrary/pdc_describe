@@ -24,58 +24,6 @@ RSpec.describe WorksWizardController do
   let(:uploaded_file) { fixture_file_upload("us_covid_2019.csv", "text/csv") }
 
   context "valid user login" do
-    describe "#new_submission" do
-      let(:work) { FactoryBot.create :policy_work }
-
-      it "renders the new submission wizard' step 0" do
-        sign_in user
-        get :new_submission, params: { id: work.id }
-        expect(response).to render_template("new_submission")
-        work_on_page = assigns[:work]
-        expect(work_on_page.id).to eq(work.id)
-        expect(work_on_page.work_activity.count).to eq(1)
-      end
-    end
-
-    describe "#new_submission_save" do
-      let(:work) { FactoryBot.create :policy_work }
-      let(:params) do
-        {
-          id: work.id,
-          "title_main" => "test dataset updated",
-          "group_id" => work.group.id,
-          "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
-        }
-      end
-
-      it "updates the work and renders the edit wizard page when creating a new submission" do
-        sign_in user
-        expect { patch(:new_submission_save, params:) }.to change { WorkActivity.count }.by 2
-        expect(Work.last.work_activity.count).to eq(3) # keeps the policay activity
-        expect(response.status).to be 302
-        expect(response.location.start_with?("http://test.host/works/")).to be true
-      end
-
-      # In theory we should never get to the new submission without a title, because the javascript should prevent it
-      # In reality we are occasionally having issues with the javascript failing and the button submitting anyway.
-      context "no title is present" do
-        let(:params_no_title) do
-          {
-            id: work.id,
-            "group_id" => work.group.id,
-            "creators" => [{ "orcid" => "", "given_name" => "Jane", "family_name" => "Smith" }]
-          }
-        end
-        it "renders the edit page when creating a new dataset without a title" do
-          sign_in user
-          patch(:new_submission_save, params: params_no_title)
-          expect(response.status).to be 200
-          expect(assigns[:errors]).to eq(["Must provide a title"])
-          expect(response).to render_template(:new_submission)
-        end
-      end
-    end
-
     describe "#update_wizard" do
       let(:params) do
         {

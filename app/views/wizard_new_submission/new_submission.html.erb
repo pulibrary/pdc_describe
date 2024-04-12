@@ -36,7 +36,7 @@
   <%= render '/works/form_errors' %>
 
   <h1>New Submission</h1>
-  <%= render "wizard_progress", wizard_step: 0 %>
+  <%= render "works_wizard/wizard_progress", wizard_step: 0 %>
 
   <p>
     You are starting a new submission.
@@ -65,7 +65,7 @@
     <%= render '/works/form_hidden_fields' %>
     <hr />
     <div class="actions">
-      <%= link_to "Cancel", user_path(current_user), class: "btn btn-secondary" %>
+      <%= link_to "Cancel", work_delete_new_submission_path(@work), class: "btn btn-secondary" %>
       <%= submit_tag "Create New", class: "btn btn-primary wizard-next-button", id: "btn-create-new" %>
     </div>
   <% end %>

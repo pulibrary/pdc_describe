@@ -28,9 +28,12 @@ Rails.application.routes.draw do
   get "license", to: "welcome#license", as: :welcome_license
   get "how-to-submit", to: "welcome#how_to_submit", as: :welcome_how_to_submit
 
+  # The wizard new submission controller (work wizard step 0)
+  get "works/:id/new-submission", to: "wizard_new_submission#new_submission", as: :work_create_new_submission
+  patch "works/:id/new-submission", to: "wizard_new_submission#new_submission_save", as: :work_new_submission
+  get "works/:id/new-submission-delete", to: "wizard_new_submission#new_submission_delete", as: :work_delete_new_submission
+
   # The work wizard
-  get "works/:id/new-submission", to: "works_wizard#new_submission", as: :work_create_new_submission
-  patch "works/:id/new-submission", to: "works_wizard#new_submission_save", as: :work_new_submission
   get "works/:id/readme-select", to: "works_wizard#readme_select", as: :work_readme_select
   patch "works/:id/readme-uploaded", to: "works_wizard#readme_uploaded", as: :work_readme_uploaded
   patch "works/:id/file-upload", to: "works_wizard#file_uploaded", as: :work_file_uploaded
