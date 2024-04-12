@@ -188,16 +188,20 @@ RSpec.describe WorksWizardController do
           "_method" => "patch",
           "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
           "patch" => {
-            "pre_curation_uploads" => [uploaded_file]
+            "pre_curation_uploads" => []
           },
           "commit" => "Continue",
           "controller" => "works",
           "action" => "file_uploaded",
-          "id" => work.id
+          "id" => work.id,
+          "work" => {
+            "deleted_files_count" => "1",
+            "deleted_file_1" => "us_covid_2019.csv"
+          }
         }
       end
 
-      context "with an uploaded CSV file" do
+      context "deleting a file uploaded via the wizard" do
         let(:fake_s3_service) { stub_s3 }
 
         let(:bucket_url) do
@@ -209,11 +213,11 @@ RSpec.describe WorksWizardController do
           fake_s3_service # make sure the s3 service is mocked here
         end
 
-        it "upload files directly from user requests" do
+        it "deletes files requested" do
           post(:file_uploaded, params:)
           perform_enqueued_jobs
           expect(response).to redirect_to(work_review_path)
-          expect(fake_s3_service).to have_received(:upload_file).with(hash_including(filename: "us_covid_2019.csv"))
+          expect(fake_s3_service).to have_received(:delete_s3_object).with("us_covid_2019.csv")
         end
 
         context "save and stay on page" do
@@ -224,14 +228,14 @@ RSpec.describe WorksWizardController do
             perform_enqueued_jobs
             expect(response).to render_template(:file_upload)
             expect(response.status).to be 200
-            expect(fake_s3_service).to have_received(:upload_file).with(hash_including(filename: "us_covid_2019.csv"))
+            expect(fake_s3_service).to have_received(:delete_s3_object).with("us_covid_2019.csv")
             post :attachment_selected, params: save_only_params
           end
         end
 
         context "when files are not specified within the parameters" do
           let(:params_no_files) do
-            params["patch"].delete("pre_curation_uploads")
+            params["work"]["deleted_files_count"] = "0"
             params
           end
 
@@ -239,7 +243,7 @@ RSpec.describe WorksWizardController do
             post(:file_uploaded, params: params_no_files)
             perform_enqueued_jobs
             expect(response).to redirect_to(work_review_path)
-            expect(fake_s3_service).not_to have_received(:upload_file)
+            expect(fake_s3_service).not_to have_received(:delete_s3_object)
           end
         end
       end
