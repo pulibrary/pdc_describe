@@ -195,8 +195,8 @@ class WorksWizardController < ApplicationController
     end
 
     def deleted_files_param
-      deleted_count = (params.dig("work","deleted_files_count") || "0").to_i
-      (1..deleted_count).map { |i| params.dig("work","deleted_file_#{i}") }.select(&:present?)
+      deleted_count = (params.dig("work", "deleted_files_count") || "0").to_i
+      (1..deleted_count).map { |i| params.dig("work", "deleted_file_#{i}") }.select(&:present?)
     end
 
     def readme_file_param
