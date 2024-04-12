@@ -1,7 +1,7 @@
 <div class="wizard-area">
   <h1><%= t('works.form.file_upload.heading', work_title: @work.title) %></h1>
   <%= render "wizard_progress", wizard_step: 3 %>
-  <%= form_with(model: @work, scope: :patch, url: work_file_uploaded_path(id: @work.id)) do |f| %>
+  <%= form_with(model: @work, scope: :patch, url: work_file_uploaded_path(id: @work.id), class: ["work-form"]) do |f| %>
     <div id="file-error" class="error_box"></div>
 
     <div class="deposit-uploads">
@@ -24,6 +24,11 @@
       <%= link_to t('works.form.file_upload.go_back'), work_attachment_select_url(@work, wizard: true), class: "btn btn-previous wizard-next-button" %>
       <%= link_to "Cancel", user_path(current_user), class: "btn btn-secondary" %>
     </div>
+
+    <!-- tracks deleted files count, notice that this field is hidden -->
+    <input type="text" id="deleted_files_count" name="work[deleted_files_count]" value="0" class="hidden" />
   <% end %>
 </div>
 
+<!-- Provides the JavaScript to handle delete files functionality. -->
+<%= javascript_include_tag 'edit_work_utils' %>
