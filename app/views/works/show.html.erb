@@ -75,7 +75,7 @@
 <div class="row">
   <div class="col-8">
     <% if @work.editable_in_current_state?(current_user)  %>
-      <%= link_to("Edit", edit_work_path(@work, wizard: @work_decorator.wizard_mode?), class: "btn btn-primary") %>
+      <%= link_to("Edit", @work_decorator.edit_path, class: "btn btn-primary") %>
     <% end %>
     <% if @work_decorator.show_approve_button? %>
       <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post, id: "approve-button") %>
