@@ -354,7 +354,7 @@ class WorksController < ApplicationController
 
         return head(:forbidden) unless deleted_uploads.empty?
       else
-        @work = upload_service.update_precurated_file_list(added_files_param, deleted_files_param, true)
+        @work = upload_service.update_precurated_file_list(added_files_param, deleted_files_param)
       end
 
       process_updates

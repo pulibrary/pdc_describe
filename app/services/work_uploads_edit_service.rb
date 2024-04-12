@@ -8,9 +8,9 @@ class WorkUploadsEditService
     @current_user = current_user
   end
 
-  def update_precurated_file_list(added_files, deleted_files, fast = false)
+  def update_precurated_file_list(added_files, deleted_files)
     delete_uploads(deleted_files)
-    add_uploads(added_files, fast)
+    add_uploads(added_files)
     if work.changes.count > 0
       s3_service.client_s3_files(reload: true)
       work.reload # reload the work to pick up the changes in the attachments
@@ -36,7 +36,7 @@ class WorkUploadsEditService
       work.log_file_changes(@current_user.id)
     end
 
-    def add_uploads(added_files, fast = false)
+    def add_uploads(added_files)
       return if added_files.empty?
 
       last_snapshot = work.upload_snapshots.first
@@ -46,11 +46,7 @@ class WorkUploadsEditService
       added_files.map do |file|
         new_path = "/tmp/#{file.original_filename}"
         FileUtils.mv(file.path, new_path)
-        if fast
-          AttachFileToWorkJob.perform_now(file_path: new_path, file_name: file.original_filename, size: file.size, background_upload_snapshot_id: snapshot.id)
-        else
-          AttachFileToWorkJob.perform_later(file_path: new_path, file_name: file.original_filename, size: file.size, background_upload_snapshot_id: snapshot.id)
-        end
+        AttachFileToWorkJob.perform_later(file_path: new_path, file_name: file.original_filename, size: file.size, background_upload_snapshot_id: snapshot.id)
       end
     end
 end
