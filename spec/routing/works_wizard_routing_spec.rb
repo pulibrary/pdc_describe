@@ -20,7 +20,7 @@ RSpec.describe WorksController, type: :routing do
     end
 
     it "routes to #new_submission" do
-      expect(get: "/works/1/new-submission-delete").to route_to("works_wizard#new_submission_delete", id: "1")
+      expect(get: "/works/1/new-submission-delete").to route_to("wizard_new_submission#new_submission_delete", id: "1")
     end
   end
 end

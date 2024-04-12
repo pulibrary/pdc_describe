@@ -16,35 +16,7 @@ class WorksWizardController < ApplicationController
 
   before_action :load_work, only: [:edit_wizard, :update_wizard, :attachment_select, :attachment_selected,
                                    :file_upload, :file_uploaded, :file_other, :review, :validate,
-                                   :readme_select, :readme_uploaded, :new_submission_delete]
-
-  # get Renders the "step 0" information page before creating a new dataset
-  # GET /works/1/new_submission
-  def new_submission
-    @work = WorkMetadataService.new(params:, current_user:).work_for_new_submission
-    prepare_decorators_for_work_form(@work)
-  end
-
-  # Creates the new dataset or update the dataset is save only was done previously
-  # POST /works/new_submission or POST /works/1/new_submission
-  def new_submission_save
-    @work = WorkMetadataService.new(params:, current_user:).new_submission
-    @errors = @work.errors.to_a
-    if @errors.count.positive?
-      prepare_decorators_for_work_form(@work)
-      render :new_submission
-    else
-      redirect_to edit_work_wizard_path(@work)
-    end
-  end
-
-  # GET /works/1/new-submission-delete
-  def new_submission_delete
-    if work.editable_by?(current_user) && work.none?
-      @work.destroy
-    end
-    redirect_to user_path(current_user)
-  end
+                                   :readme_select, :readme_uploaded]
 
   # GET /works/1/edit-wizard
   def edit_wizard

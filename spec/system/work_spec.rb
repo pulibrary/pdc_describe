@@ -42,7 +42,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
   # this test depends of the fake ORCID server defined in spec/support/orcid_specs.rb
   it "Fills in the creator based on an ORCID ID for the wizard", js: true do
     sign_in user
-    work = FactoryBot.create :policy_work
+    work = FactoryBot.create :policy_work, created_by_user_id: user.id
 
     visit work_create_new_submission_path(work)
     click_on "Add Another Creator"
