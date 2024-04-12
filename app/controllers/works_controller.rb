@@ -216,8 +216,12 @@ class WorksController < ApplicationController
 
   def upload_files
     @work = Work.find(params[:id])
-    upload_service = WorkUploadsEditService.new(@work, current_user)
-    upload_service.update_precurated_file_list(params["files"], [])
+    readme = Readme.new(@work, current_user)
+    params["files"].each do |file|
+      puts readme.attach_other(file)
+    end
+    # upload_service = WorkUploadsEditService.new(@work, current_user)
+    # upload_service.update_precurated_file_list(params["files"], [])
   end
 
   private
