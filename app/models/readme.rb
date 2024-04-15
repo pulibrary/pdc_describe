@@ -24,21 +24,6 @@ class Readme
     end
   end
 
-  def attach_other(file)
-    extension = File.extname(file.original_filename)
-    filename = file.original_filename # TODO sanitize
-    puts "==> attach_other #{filename} started"
-    size = file.size
-    key = work.s3_query_service.upload_file(io: file.to_io, filename:, size:)
-    puts "==> attach_other #{filename} ended"
-    if key
-      log_change(key)
-      nil
-    else
-      "An error uploading your #{filename}.  Please try again."
-    end
-  end
-
   def blank?
     s3_readme_idx.nil?
   end

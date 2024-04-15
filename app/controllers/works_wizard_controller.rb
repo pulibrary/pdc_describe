@@ -60,11 +60,17 @@ class WorksWizardController < ApplicationController
     @work_decorator = WorkDecorator.new(@work, current_user)
   end
 
+  # POST /works/1/upload-files-wizard (called via Uppy)
+  def upload_files
+    @work = Work.find(params[:id])
+    params["files"].each { |file| upload_file(file) }
+  end
+
   # POST /works/1/file_upload
   def file_uploaded
     upload_service = WorkUploadsEditService.new(@work, current_user)
     # By the time we hit this endpoint files have been uploaded by Uppy submmitting POST requests
-    # to /works/1/upload-files therefore we only need to handle deleted files here.
+    # to /works/1/upload-files-wizard therefore we only need to handle deleted files here.
     @work = upload_service.update_precurated_file_list([], deleted_files_param)
     @work.reload_snapshots
     prepare_decorators_for_work_form(@work)
@@ -198,5 +204,15 @@ class WorksWizardController < ApplicationController
         redirect_to work_create_new_submission_path(@work), notice: transition_error_message, params:
       end
     end
+
+    def upload_file(file)
+      key = @work.s3_query_service.upload_file(io: file.to_io, filename: file.original_filename, size: file.size)
+      if key
+        UploadSnapshot.create(work: @work, files: [{ "filename" => key, "checksum" => @work.s3_query_service.last_response.etag.delete('"') }])
+        @work.track_change(:added, key)
+        @work.log_file_changes(current_user.id)
+      else
+        Rails.logger.error("Error uploading #{file.original_filename} to work #{@work.id}")
+      end
+    end
 end
-# rubocop:enable Metrics/ClassLength

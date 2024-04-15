@@ -214,14 +214,12 @@ class WorksController < ApplicationController
     send_data bibtex, filename: "#{citation.bibtex_id}.bibtex", type: "text/plain", disposition: "attachment"
   end
 
+  # POST /works/1/upload-files (called via Uppy)
   def upload_files
     @work = Work.find(params[:id])
-    readme = Readme.new(@work, current_user)
     params["files"].each do |file|
-      puts readme.attach_other(file)
+      upload_file(file)
     end
-    # upload_service = WorkUploadsEditService.new(@work, current_user)
-    # upload_service.update_precurated_file_list(params["files"], [])
   end
 
   private
@@ -385,6 +383,20 @@ class WorksController < ApplicationController
       return false unless params.key?(:submit)
 
       params[:submit] == "Migrate"
+    end
+
+    def upload_file(file)
+      filename = file.original_filename
+      size = file.size
+      key = @work.s3_query_service.upload_file(io: file.to_io, filename:, size:)
+      if key
+        last_response = @work.s3_query_service.last_response
+        UploadSnapshot.create(work:, files: [{ "filename" => key, "checksum" => last_response.etag.delete('"') }])
+        @work.track_change(:added, key)
+        @work.log_file_changes(current_user.id)
+      else
+        Rails.logger.error("Error uploading #{filename} to work #{@work.id}")
+      end
     end
 end
 # rubocop:enable Metrics/ClassLength
