@@ -79,6 +79,7 @@ RSpec.describe WorksWizardController do
     describe "#readme_uploaded" do
       let(:attach_status) { nil }
       let(:fake_readme) { instance_double Readme, attach: attach_status, "blank?": true, file_name: "abc123" }
+      let(:fake_s3_service) { stub_s3 }
       let(:params) do
         {
           "_method" => "patch",
@@ -109,10 +110,12 @@ RSpec.describe WorksWizardController do
         let(:save_only_params) { params.merge(save_only: true) }
 
         it "stays on the readme select page" do
+          fake_s3_service # make sure the stubs are in place
           post :readme_uploaded, params: save_only_params
           expect(response.status).to be 200
           expect(fake_readme).to have_received(:attach)
           expect(response).to render_template(:readme_select)
+          expect(fake_s3_service).to have_received(:client_s3_files)
         end
       end
 
