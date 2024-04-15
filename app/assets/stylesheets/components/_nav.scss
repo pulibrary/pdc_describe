@@ -1,3 +1,7 @@
+.nav-pills .nav-link {
+  background-color: rgb(248, 249, 250) !important; // rgb for btn-light
+  margin: 1px;
+}
 .nav-pills .nav-link.active {
   background-color: #d5712cff !important;
   color: #ffffff !important;
