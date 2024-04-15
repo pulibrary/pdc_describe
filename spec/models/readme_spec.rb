@@ -34,8 +34,11 @@ RSpec.describe Readme, type: :model do
     end
 
     it "attaches the file and renames to to README" do
+      allow(fake_s3_service).to receive(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv", size: 287).and_return("bucket/key/README.csv")
       expect { expect(readme.attach(uploaded_file)).to be_nil }.to change { UploadSnapshot.count }.by 1
       expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv", size: 287)
+      expect(readme.file_name).to eq("orcid.csv")
+      expect(work.activities.first.message).to eq("[{\"action\":\"added\",\"filename\":\"bucket/key/README.csv\"}]")
     end
 
     context "when no uploaded file is sent" do
@@ -71,9 +74,12 @@ RSpec.describe Readme, type: :model do
       let(:s3_files) { [FactoryBot.build(:s3_file, work:), FactoryBot.build(:s3_readme, work:)] }
 
       it "returns no error message" do
+        allow(fake_s3_service).to receive(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv", size: 287).and_return("bucket/key/README.csv")
         expect { expect(readme.attach(uploaded_file)).to be_nil }.to change { UploadSnapshot.count }.by 1
         expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv", size: 287)
         expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_files.last.key)
+        expect(readme.file_name).to eq("orcid.csv")
+        expect(work.activities.first.message).to eq("[{\"action\":\"removed\",\"filename\":\"README.txt\"},{\"action\":\"added\",\"filename\":\"bucket/key/README.csv\"}]")
       end
     end
   end
