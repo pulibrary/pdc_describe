@@ -13,15 +13,18 @@
     <h2><%= t('works.form.readme_upload.title') %></h2>
     <p>If you have not created a README before, a <%= link_to("template may be found here","https://drive.google.com/file/d/1LCKPj9XxpwJeHYZV2kXROM79xbiBKnkp/view?usp=sharing", target: "blank") %>. See the PRDS website for more guidance on <%= link_to("how to create a README","https://researchdata.princeton.edu/research-lifecycle-guide/readmes-research-data", target: "blank") %>. </p>
 
-
     <p><%= t('works.form.readme_upload.actions') %></p>
     <div id="file-error" class="error_box"></div>
     <div class="file-upload">
+      <span id="uppy_upload_url" class="hidden"><%= work_readme_uploaded_payload_path(@work) %></span>
+      <div id="file-upload-area"></div>
       <% if @readme.present? %>
-        <p><%= @readme %> was previously uploaded.  You will replace it if you select a different file. </p>
+        <p id="new-readme"><b><%= @readme %></b> was previously uploaded. You will replace it if you select a different file. </p>
+        <button id="add-readme" class="btn btn-secondary" style="width: 200px;"><i class="bi bi-plus-circle"></i> Replace README</button>
+      <% else %>
+        <p id="new-readme"></p>
+        <button id="add-readme" class="btn btn-secondary" style="width: 200px;"><i class="bi bi-plus-circle"></i> Add README</button>
       <% end %>
-      <!-- See https://stackoverflow.com/a/11834872/446681 for info on the `accept` attribute -->
-      <%= f.file_field(:readme_file, multiple: false, accept: '.txt,.md') %>
     </div>
 
     <div class="actions">
@@ -33,3 +36,5 @@
   <% end %>
 </div>
 
+<!-- Provides the JavaScript to handle add/replace readme. -->
+<%= javascript_include_tag 'edit_work_utils' %>

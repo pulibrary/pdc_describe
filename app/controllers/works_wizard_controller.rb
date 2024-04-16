@@ -16,7 +16,7 @@ class WorksWizardController < ApplicationController
 
   before_action :load_work, only: [:edit_wizard, :update_wizard, :attachment_select, :attachment_selected,
                                    :file_upload, :file_uploaded, :file_other, :review, :validate,
-                                   :readme_select, :readme_uploaded]
+                                   :readme_select, :readme_uploaded, :readme_uploaded_payload]
 
   # GET /works/1/edit-wizard
   def edit_wizard
@@ -128,6 +128,24 @@ class WorksWizardController < ApplicationController
   def readme_uploaded
     readme = Readme.new(@work, current_user)
     readme_error = readme.attach(readme_file_param)
+    if readme_error.nil?
+      if params[:save_only] == "true"
+        @readme = readme.file_name
+        render :readme_select
+      else
+        redirect_to work_attachment_select_url(@work)
+      end
+    else
+      flash[:notice] = readme_error
+      redirect_to work_readme_select_url(@work)
+    end
+  end
+
+  def readme_uploaded_payload
+    readme = Readme.new(@work, current_user)
+    readme_file = params["files"].first
+    byebug
+    readme_error = readme.attach(readme_file)
     if readme_error.nil?
       if params[:save_only] == "true"
         @readme = readme.file_name

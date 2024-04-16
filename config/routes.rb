@@ -36,6 +36,7 @@ Rails.application.routes.draw do
   # The work wizard
   get "works/:id/readme-select", to: "works_wizard#readme_select", as: :work_readme_select
   patch "works/:id/readme-uploaded", to: "works_wizard#readme_uploaded", as: :work_readme_uploaded
+  post "works/:id/readme-uploaded-payload", to: "works_wizard#readme_uploaded_payload", as: :work_readme_uploaded_payload
   patch "works/:id/file-upload", to: "works_wizard#file_uploaded", as: :work_file_uploaded
   get "works/:id/file-upload", to: "works_wizard#file_upload", as: :work_file_upload
   patch "works/:id/update-wizard", to: "works_wizard#update_wizard", as: :update_work_wizard

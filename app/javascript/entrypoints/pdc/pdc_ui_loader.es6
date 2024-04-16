@@ -5,6 +5,7 @@ import WorkOrcid from './work_orcid.es6';
 import WorkRoR from './work_ror.es6';
 import EditTableActions from './edit_table_actions.es6';
 import WorkEditFileUpload from './work_edit_file_upload.es6';
+import WorkReadmeFileUpload from './work_readme_file_upload.es6';
 import EmailChangeAll from './email_change_all.es6';
 
 /* eslint class-methods-use-this: ["error", { "exceptMethods": ["setup_fileupload_validation"] }] */
@@ -21,6 +22,7 @@ export default class PdcUiLoader {
     (new EmailChangeAll()).attach_change();
     (new ReadmeFileUpload('patch_readme_file', 'readme-upload')).attach_validation();
     (new WorkEditFileUpload('pre_curation_uploads_added', 'file-upload-list')).attach_validation();
+    (new WorkReadmeFileUpload('add-readme', 'file-upload-area', 1)).attach_validation();
     (new WorkOrcid('.orcid-entry-creator', 'creators[][given_name]', 'creators[][family_name]')).attach_validation();
     (new WorkOrcid('.orcid-entry-contributor', 'contributors[][given_name]', 'contributors[][family_name]')).attach_validation();
     (new WorkRoR(pdc.ror_url)).attach_query();
