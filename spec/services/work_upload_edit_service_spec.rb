@@ -88,7 +88,7 @@ RSpec.describe WorkUploadsEditService do
       # it logs the addition (and no delete)
       activity_log = JSON.parse(updated_work.work_activity.first.message)
       expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?(s3_file3.filename_display) }).not_to be nil
-      expect(activity_log.find { |log| log["action"] == "deleted" }).to be nil
+      expect(activity_log.find { |log| log["action"] == "removed" }).to be nil
     end
   end
 
@@ -108,7 +108,7 @@ RSpec.describe WorkUploadsEditService do
 
       # it logs the delete (and no additions)
       activity_log = JSON.parse(work.work_activity.first.message)
-      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"] == s3_data[0].filename }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "removed" && log["filename"] == s3_data[0].filename }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "added" }).to be nil
     end
   end
@@ -132,7 +132,7 @@ RSpec.describe WorkUploadsEditService do
       work_activities = work.work_activity
       expect(work_activities.count).to eq(2) # one for the deletes and one for the adds
       activity_log = work_activities.map { |work_activity| JSON.parse(work_activity.message) }.flatten
-      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"].include?(s3_file1.key) }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "removed" && log["filename"].include?(s3_file1.key) }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?("orcid.csv") }).not_to be nil
     end
@@ -159,8 +159,8 @@ RSpec.describe WorkUploadsEditService do
       work_activities = updated_work.work_activity
       expect(work_activities.count).to eq(2) # one for the deletes and one for the adds
       activity_log = work_activities.map { |work_activity| JSON.parse(work_activity.message) }.flatten
-      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"].include?("us_covid_2019.csv") }).not_to be nil
-      expect(activity_log.find { |log| log["action"] == "deleted" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "removed" && log["filename"].include?("us_covid_2019.csv") }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "removed" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?("orcid.csv") }).not_to be nil
     end

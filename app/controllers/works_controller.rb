@@ -214,6 +214,7 @@ class WorksController < ApplicationController
     send_data bibtex, filename: "#{citation.bibtex_id}.bibtex", type: "text/plain", disposition: "attachment"
   end
 
+  # POST /works/1/upload-files (called via Uppy)
   def upload_files
     @work = Work.find(params[:id])
     upload_service = WorkUploadsEditService.new(@work, current_user)

@@ -60,13 +60,20 @@ class WorksWizardController < ApplicationController
     @work_decorator = WorkDecorator.new(@work, current_user)
   end
 
+  # POST /works/1/upload-files-wizard (called via Uppy)
+  # this puts the files into AWS, but does not capture anything in the Upload Snapshot.  THat occurs when the user hits next
+  def upload_files
+    @work = Work.find(params[:id])
+    params["files"].each { |file| upload_file(file) }
+  end
+
   # POST /works/1/file_upload
   def file_uploaded
     upload_service = WorkUploadsEditService.new(@work, current_user)
     # By the time we hit this endpoint files have been uploaded by Uppy submmitting POST requests
-    # to /works/1/upload-files therefore we only need to handle deleted files here.
-    @work = upload_service.update_precurated_file_list([], deleted_files_param)
-    @work.reload_snapshots
+    # to /works/1/upload-files-wizard therefore we only need to delete files here and update the upload snapshot.
+    @work = upload_service.snapshot_uppy_and_delete_files(deleted_files_param)
+
     prepare_decorators_for_work_form(@work)
     if params[:save_only] == "true"
       render :file_upload
@@ -198,5 +205,14 @@ class WorksWizardController < ApplicationController
         redirect_to work_create_new_submission_path(@work), notice: transition_error_message, params:
       end
     end
+
+    def upload_file(file)
+      key = @work.s3_query_service.upload_file(io: file.to_io, filename: file.original_filename, size: file.size)
+      if key.blank?
+        # TODO: Can we tell uppy there was a failure instead of just logging the error here
+        #  you can render json: {}, status: 500 but how do you tell one file failed instead of all of them
+        Rails.logger.error("Error uploading #{file.original_filename} to work #{@work.id}")
+        Honeybadger.notify("Error uploading #{file.original_filename} to work #{@work.id}")
+      end
+    end
 end
-# rubocop:enable Metrics/ClassLength
