@@ -19,7 +19,11 @@ class WorkUploadsEditService
     work
   end
 
-  def process_background_uploads_and_foreground_deletes(deleted_files)
+  # Delete any files the user has decided not to keep and
+  #  add all files that were uploaded in the backgroud via uppy and any files deleted to an upload snapshot
+  #
+  # @param [Array] deleted_files files that exist in AWS that should be removed
+  def snapshot_uppy_and_delete_files(deleted_files)
     deleted_files.each do |filename|
       s3_service.delete_s3_object(filename)
     end
