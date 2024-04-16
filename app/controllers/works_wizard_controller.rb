@@ -73,6 +73,7 @@ class WorksWizardController < ApplicationController
     # to /works/1/upload-files-wizard therefore we only need to handle deleted files here.
     @work = upload_service.update_precurated_file_list([], deleted_files_param)
     @work.reload_snapshots
+    #todo modify the snapshot here for unknow user
     prepare_decorators_for_work_form(@work)
     if params[:save_only] == "true"
       render :file_upload
@@ -208,9 +209,9 @@ class WorksWizardController < ApplicationController
     def upload_file(file)
       key = @work.s3_query_service.upload_file(io: file.to_io, filename: file.original_filename, size: file.size)
       if key
-        UploadSnapshot.create(work: @work, files: [{ "filename" => key, "checksum" => @work.s3_query_service.last_response.etag.delete('"') }])
-        @work.track_change(:added, key)
-        @work.log_file_changes(current_user.id)
+        # UploadSnapshot.create(work: @work, files: [{ "filename" => key, "checksum" => @work.s3_query_service.last_response.etag.delete('"') }])
+        # @work.track_change(:added, key)
+        # @work.log_file_changes(current_user.id)
       else
         Rails.logger.error("Error uploading #{file.original_filename} to work #{@work.id}")
       end
