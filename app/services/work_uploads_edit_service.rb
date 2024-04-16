@@ -23,7 +23,7 @@ class WorkUploadsEditService
     deleted_files.each do |filename|
       s3_service.delete_s3_object(filename)
     end
-    
+
     # assigns all backgroun changes and deletes to the current user
     work.reload_snapshots(user_id: current_user.id)
     work
