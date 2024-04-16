@@ -124,7 +124,6 @@ class WorksWizardController < ApplicationController
     if readme_error.nil?
       if params[:save_only] == "true"
         @readme = readme.file_name
-        @work.reload_snapshots
         render :readme_select
       else
         redirect_to work_attachment_select_url(@work)

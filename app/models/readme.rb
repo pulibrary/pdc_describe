@@ -13,11 +13,10 @@ class Readme
     return nil if ActiveStorage::Blob.service.name == :local
     remove_old_readme
 
-    extension = File.extname(readme_file_param.original_filename)
-    readme_name = "README#{extension}"
-    size = readme_file_param.size
-    key = work.s3_query_service.upload_file(io: readme_file_param.to_io, filename: readme_name, size:)
+    key = upload_readme(readme_file_param)
     if key
+      @file_names = [readme_file_param.original_filename]
+      @s3_readme_idx = 0
       log_change(key)
       nil
     else
@@ -46,8 +45,15 @@ class Readme
 
       def remove_old_readme
         return if blank?
-
+        work.track_change(:removed, work.pre_curation_uploads_fast[s3_readme_idx].key)
         work.s3_query_service.delete_s3_object(work.pre_curation_uploads_fast[s3_readme_idx].key)
+      end
+
+      def upload_readme(readme_file_param)
+        extension = File.extname(readme_file_param.original_filename)
+        readme_name = "README#{extension}"
+        size = readme_file_param.size
+        work.s3_query_service.upload_file(io: readme_file_param.to_io, filename: readme_name, size:)
       end
 
       def log_change(key)
