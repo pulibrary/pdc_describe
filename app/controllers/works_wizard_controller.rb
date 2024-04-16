@@ -71,9 +71,8 @@ class WorksWizardController < ApplicationController
     upload_service = WorkUploadsEditService.new(@work, current_user)
     # By the time we hit this endpoint files have been uploaded by Uppy submmitting POST requests
     # to /works/1/upload-files-wizard therefore we only need to handle deleted files here.
-    @work = upload_service.update_precurated_file_list([], deleted_files_param)
-    @work.reload_snapshots(user_id: current_user.id)
-    #todo modify the snapshot here for unknow user
+    @work = upload_service.process_background_uploads_and_foreground_deletes(deleted_files_param)
+
     prepare_decorators_for_work_form(@work)
     if params[:save_only] == "true"
       render :file_upload
