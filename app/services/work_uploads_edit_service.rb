@@ -26,6 +26,7 @@ class WorkUploadsEditService
     
     # assigns all backgroun changes and deletes to the current user
     work.reload_snapshots(user_id: current_user.id)
+    work
   end
 
   def find_post_curation_uploads(upload_keys: [])
