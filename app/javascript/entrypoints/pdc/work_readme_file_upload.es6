@@ -9,7 +9,12 @@ export default class WorkReadmeFileUpload {
   attach_validation() {
     const uploadUrl = $('#uppy_upload_url').text();
     if (uploadUrl !== '') {
-      WorkReadmeFileUpload.setupUppy(this.triggerButtonId, this.uppyAreaId, this.maxFiles, uploadUrl);
+      WorkReadmeFileUpload.setupUppy(
+        this.triggerButtonId,
+        this.uppyAreaId,
+        this.maxFiles,
+        uploadUrl,
+      );
     }
   }
 
@@ -30,9 +35,9 @@ export default class WorkReadmeFileUpload {
 
     // Configure the initial display (https://uppy.io/docs/dashboard)
     uppy.use(Uppy.Dashboard, {
-      target: '#' + uppyAreaId,
+      target: `#${uppyAreaId}`,
       inline: false, // display of dashboard only when trigger is clicked
-      trigger: '#' + triggerButtonId,
+      trigger: `#${triggerButtonId}`,
     });
 
     // We use the XHRUploader, this is the most basic uploader (https://uppy.io/docs/xhr-upload/)
@@ -51,12 +56,12 @@ export default class WorkReadmeFileUpload {
       formData: true, // required when bundle: true
       getResponseData(filename) {
         $('#new-readme').html(`File <b>${filename}</b> has been uploaded and set as the README for this dataset.`);
-        $('#readme-upload').prop("disabled", false);
+        $('#readme-upload').prop('disabled', false);
       },
     });
 
     // Prevent the button's click from submitting the form since the
     // files' payload is automatically submitted by Uppy
-    $('#' + triggerButtonId).on('click', () => false);
+    $(`#${triggerButtonId}`).on('click', () => false);
   }
 }
