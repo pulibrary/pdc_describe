@@ -436,8 +436,9 @@ class Work < ApplicationRecord
   end
 
   # Build or find persisted UploadSnapshot models for this Work
+  # @param [integer] user_id optional user to assign the snapshot to
   # @return [UploadSnapshot]
-  def reload_snapshots
+  def reload_snapshots(user_id: nil)
     work_changes = []
     s3_files = pre_curation_uploads_fast
     s3_filenames = s3_files.map(&:filename)
@@ -453,7 +454,7 @@ class Work < ApplicationRecord
       new_snapshot = UploadSnapshot.new(work: self, url: s3_query_service.prefix)
       new_snapshot.store_files(s3_files)
       new_snapshot.save!
-      WorkActivity.add_work_activity(id, work_changes.to_json, nil, activity_type: WorkActivity::FILE_CHANGES)
+      WorkActivity.add_work_activity(id, work_changes.to_json, user_id, activity_type: WorkActivity::FILE_CHANGES)
     end
   end
 
