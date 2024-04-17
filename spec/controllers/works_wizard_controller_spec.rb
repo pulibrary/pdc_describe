@@ -123,7 +123,7 @@ RSpec.describe WorksWizardController do
         {
           "_method" => "post",
           "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
-          "files" => [ uploaded_file ],
+          "files" => [uploaded_file],
           "commit" => "Continue",
           "controller" => "works",
           "action" => "file_uploaded",
