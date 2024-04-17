@@ -1,20 +1,14 @@
 /* global Uppy */
 export default class WorkReadmeFileUpload {
-  constructor(triggerButtonId, uppyAreaId, maxFiles) {
+  constructor(triggerButtonId, uppyAreaId) {
     this.triggerButtonId = triggerButtonId;
     this.uppyAreaId = uppyAreaId;
-    this.maxFiles = maxFiles;
   }
 
   attach_validation() {
     const uploadUrl = $('#uppy_upload_url').text();
     if (uploadUrl !== '') {
-      WorkReadmeFileUpload.setupUppy(
-        this.triggerButtonId,
-        this.uppyAreaId,
-        this.maxFiles,
-        uploadUrl,
-      );
+      WorkReadmeFileUpload.setupUppy(this.triggerButtonId, this.uppyAreaId, uploadUrl );
     }
   }
 
@@ -22,14 +16,26 @@ export default class WorkReadmeFileUpload {
   // References:
   //    https://uppy.io/docs/quick-start/
   //    https://davidwalsh.name/uppy-file-uploading
-  static setupUppy(triggerButtonId, uppyAreaId, maxFiles, uploadUrl) {
+  static setupUppy(triggerButtonId, uppyAreaId, uploadUrl) {
     // https://uppy.io/blog/2018/08/0.27/#autoproceed-false-by-default
     // https://uppy.io/docs/uppy/#restrictions
     const uppy = Uppy.Core({
       autoProceed: true,
       restrictions: {
-        maxNumberOfFiles: maxFiles,
+        maxNumberOfFiles: 1,
         allowedFileTypes: ['.txt', '.md'],
+      },
+      onBeforeUpload(files) {
+        // source: https://github.com/transloadit/uppy/issues/1703#issuecomment-507202561
+        if (Object.entries(files).length === 1) {
+          const file = Object.entries(files)[0][1];
+          if (file.meta.name.toLowerCase().includes("readme") === true) {
+            // we are good
+            return true;
+          }
+        }
+        uppy.info('You must select a file that includes the word README in the name', 'error');
+        return false;
       },
     });
 

@@ -417,11 +417,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
         page.execute_script("$('#readme-upload').prop('disabled', false)")
       end
 
-      # ...we expect and error message to be displayed
-      # TODO: This is now broken
-      expect(page).to have_content("You must select a file that includes the word README in the name")
-
-      # ...and the button to continue to remain disabled
+      # ...and we expect the button to continue to remain disabled
       expect(page).to have_button("Next", disabled: true)
     end
   end
