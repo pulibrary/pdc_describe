@@ -8,7 +8,7 @@ export default class WorkReadmeFileUpload {
   attach_validation() {
     const uploadUrl = $('#uppy_upload_url').text();
     if (uploadUrl !== '') {
-      WorkReadmeFileUpload.setupUppy(this.triggerButtonId, this.uppyAreaId, uploadUrl );
+      WorkReadmeFileUpload.setupUppy(this.triggerButtonId, this.uppyAreaId, uploadUrl);
     }
   }
 
@@ -29,7 +29,7 @@ export default class WorkReadmeFileUpload {
         // source: https://github.com/transloadit/uppy/issues/1703#issuecomment-507202561
         if (Object.entries(files).length === 1) {
           const file = Object.entries(files)[0][1];
-          if (file.meta.name.toLowerCase().includes("readme") === true) {
+          if (file.meta.name.toLowerCase().includes('readme') === true) {
             // we are good
             return true;
           }

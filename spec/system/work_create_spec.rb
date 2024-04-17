@@ -413,9 +413,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
 
       # We on purpose upload a non-read me file...
       path = Rails.root.join("spec", "fixtures", "files", "orcid.csv")
-      attach_file_via_uppy(path) do
-        page.execute_script("$('#readme-upload').prop('disabled', false)")
-      end
+      attach_file_via_uppy(path)
 
       # ...and we expect the button to continue to remain disabled
       expect(page).to have_button("Next", disabled: true)
