@@ -4,7 +4,7 @@
   <%= render "works_wizard/wizard_progress", wizard_step: 0 %>
 
   <p> Before you proceed, please review the PDC policies for <a href="https://drive.google.com/file/d/1GECvKoOjwqvKTKYvyNThCyzTWjD6cPxs/view?usp=sharing" target="_blank">Acceptance and Retention</a>
-   and <a href="https://drive.google.com/file/d/1E8EgfyL2yB2rH0xCIIqYrTFE0QfY8Sk_/view?usp=sharing" target="_blank">Distribution</a> to be sure your intended submission is eligible for PDC, 
+   and <a href="https://drive.google.com/file/d/1E8EgfyL2yB2rH0xCIIqYrTFE0QfY8Sk_/view?usp=sharing" target="_blank">Distribution</a> to be sure your intended submission is eligible for PDC,
    that you are authorized to grant permission for redistribution, and that you are prepared to pay any applicable costs. If you are unsure about any of these points, please <a href="mailto:prds@princeton.edu" target="_blank">reach out to our team</a> before submitting.
   </p>
 
@@ -14,8 +14,27 @@
     <hr />
     <div class="actions">
       <%= link_to "Cancel", root_path, class: "btn btn-secondary" %>
-      <%= submit_tag "Confirm", class: "btn btn-primary wizard-next-button" %>
+      <%= submit_tag "Confirm", class: "btn btn-secondary wizard-next-button", id: "submit-button", disabled: true %>
     </div>
   </form>
 
 </div>
+
+<script>
+$(function() {
+  $('#agreement').on('click', function(event) {
+    let submitButton = $("#submit-button");
+    if (event.target.checked) {
+      submitButton.removeClass("btn-secondary");
+      submitButton.removeClass("disabled");
+      submitButton.addClass("btn-primary");
+      submitButton.prop("disabled", false);
+    } else {
+      submitButton.removeClass("btn-primary");
+      submitButton.addClass("disabled");
+      submitButton.addClass("btn-secondary");
+      submitButton.prop("disabled", true);
+    }
+  });
+});
+</script>

@@ -17,7 +17,7 @@ class Readme
     if key
       @file_names = [readme_file_param.original_filename]
       @s3_readme_idx = 0
-      log_change(key)
+      log_changes
       nil
     else
       "An error uploading your README was encountered.  Please try again."
@@ -45,7 +45,6 @@ class Readme
 
       def remove_old_readme
         return if blank?
-        work.track_change(:removed, work.pre_curation_uploads_fast[s3_readme_idx].key)
         work.s3_query_service.delete_s3_object(work.pre_curation_uploads_fast[s3_readme_idx].key)
       end
 
@@ -56,10 +55,8 @@ class Readme
         work.s3_query_service.upload_file(io: readme_file_param.to_io, filename: readme_name, size:)
       end
 
-      def log_change(key)
-        last_response = work.s3_query_service.last_response
-        UploadSnapshot.create(work:, files: [{ "filename" => key, "checksum" => last_response.etag.delete('"') }])
-        work.track_change(:added, key)
-        work.log_file_changes(current_user.id)
+      def log_changes
+        work.s3_query_service.client_s3_files(reload: true)
+        work.reload_snapshots(user_id: current_user.id)
       end
 end
