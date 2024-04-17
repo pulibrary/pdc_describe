@@ -6,4 +6,9 @@
 # not using the browser's standard upload file button.
 def attach_file_via_uppy(file_name)
   Rack::Test::UploadedFile.new(File.open(file_name))
+  if block_given?
+    # This is used to force the execution of the JavaScript that Uppy
+    # would execute on its own.
+    yield
+  end
 end

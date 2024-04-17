@@ -51,8 +51,8 @@ RSpec.describe "Form submission for a PPPL dataset", type: :system do
       expect(page).to have_content("Please upload the README")
       expect(page).to have_button("Next", disabled: true)
       path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
-      attach_file(path) do
-        page.find("#patch_readme_file").click
+      attach_file_via_uppy(path) do
+        page.execute_script("$('#readme-upload').prop('disabled', false)")
       end
       click_on "Next"
 

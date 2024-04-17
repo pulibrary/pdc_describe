@@ -146,7 +146,7 @@ class WorksWizardController < ApplicationController
       render plain: readme.file_name
     else
       # Tell Uppy there was an error uploading the README
-      render plain: readme.file_name, status: internal_server_error
+      render plain: readme.file_name, status: :internal_server_error
     end
   end
 
