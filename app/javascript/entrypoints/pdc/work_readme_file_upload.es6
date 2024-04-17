@@ -22,7 +22,10 @@ export default class WorkReadmeFileUpload {
     // https://uppy.io/docs/uppy/#restrictions
     const uppy = Uppy.Core({
       autoProceed: true,
-      restrictions: { maxNumberOfFiles: maxFiles },
+      restrictions: {
+        maxNumberOfFiles: maxFiles,
+        allowedFileTypes: ['.txt', '.md'],
+      },
     });
 
     // Configure the initial display (https://uppy.io/docs/dashboard)
@@ -46,9 +49,9 @@ export default class WorkReadmeFileUpload {
       headers: { 'X-CSRF-Token': tokenContent },
       bundle: true, // upload all selected files at once
       formData: true, // required when bundle: true
-      getResponseData(x) {
-        debugger;
-        $('#new-readme').text("new readme has been uploaded")
+      getResponseData(filename) {
+        $('#new-readme').html(`File <b>${filename}</b> has been uploaded and set as the README for this dataset.`);
+        $('#readme-upload').prop("disabled", false);
       },
     });
 
