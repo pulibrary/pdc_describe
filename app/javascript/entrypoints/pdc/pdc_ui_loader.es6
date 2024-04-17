@@ -1,6 +1,5 @@
 import CopytoClipboard from './copy_to_clipboard.es6';
 import EditRequiredFields from './edit_required_fields.es6';
-import ReadmeFileUpload from './readme_file_upload.es6';
 import WorkOrcid from './work_orcid.es6';
 import WorkRoR from './work_ror.es6';
 import EditTableActions from './edit_table_actions.es6';
@@ -20,7 +19,6 @@ export default class PdcUiLoader {
     (new EditRequiredFields()).attach_validations();
     (new EditTableActions()).attach_actions('creators-table');
     (new EmailChangeAll()).attach_change();
-    (new ReadmeFileUpload('patch_readme_file', 'readme-upload')).attach_validation();
     (new WorkEditFileUpload('pre_curation_uploads_added', 'file-upload-list')).attach_validation();
     (new WorkReadmeFileUpload('add-readme', 'file-upload-area', 1)).attach_validation();
     (new WorkOrcid('.orcid-entry-creator', 'creators[][given_name]', 'creators[][family_name]')).attach_validation();
