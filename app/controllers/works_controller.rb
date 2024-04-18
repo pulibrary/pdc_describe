@@ -221,6 +221,14 @@ class WorksController < ApplicationController
     upload_service.update_precurated_file_list(params["files"], [])
   end
 
+  # Validates that the work is ready to be approved
+  # GET /works/1/validate
+  def validate
+    @work = Work.find(params[:id])
+    @work.complete_submission!(current_user)
+    redirect_to user_path(current_user)
+  end
+
   private
 
     # Extract the Work ID parameter

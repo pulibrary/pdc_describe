@@ -693,7 +693,7 @@ RSpec.describe WorksController do
 
     describe "#approve" do
       before do
-        stub_s3 data: [FactoryBot.build(:s3_file)]
+        stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
         allow(Work).to receive(:find).with(work.id).and_return(work)
         allow(Work).to receive(:find).with(work.id.to_s).and_return(work)
         allow(work).to receive(:publish_precurated_files).and_return(true)
@@ -742,13 +742,14 @@ RSpec.describe WorksController do
 
       context "no files attached" do
         it "handles aproval errors" do
+          fake_s3_service = stub_s3 data: [FactoryBot.build(:s3_readme)]
           work.complete_submission!(user)
-          stub_s3 data: []
+          allow(fake_s3_service).to receive(:client_s3_files).and_return([])
           sign_in curator
           post :approve, params: { id: work.id }
           expect(response.status).to be 302
           # rubocop:disable Layout/LineLength
-          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Uploads must be present for a work to be approved. Please contact the PDC Describe administrators for any assistance."])
+          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Must provide a README, Uploads must be present for a work to be approved. Please contact the PDC Describe administrators for any assistance."])
           # rubocop:enable Layout/LineLength
         end
       end
@@ -1269,6 +1270,25 @@ RSpec.describe WorksController do
       get :datacite_validate, params: { id: work.id }
       expect(response).to be_successful
       expect(assigns[:errors]).to eq(["Contributor: Type cannot be nil"])
+    end
+  end
+
+  describe "#validate" do
+    it "validates a work and errors when there is no readme" do
+      stub_s3
+      sign_in user
+      post :validate, params: { id: work.id }
+      expect(response).to redirect_to(edit_work_path(work))
+      expect(controller.flash[:notice]).to eq("We apologize, the following errors were encountered: Must provide a README. Please contact the PDC Describe administrators for any assistance.")
+    end
+
+    it "validates a work completes it when there are no errors" do
+      stub_s3 data: [FactoryBot.build(:s3_readme)]
+      sign_in user
+      post :validate, params: { id: work.id }
+      expect(response).to redirect_to(user_path(user))
+      expect(controller.flash[:notice]).to be_nil
+      expect(work.reload).to be_awaiting_approval
     end
   end
 end

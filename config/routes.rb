@@ -45,8 +45,9 @@ Rails.application.routes.draw do
   get "works/:id/review", to: "works_wizard#review", as: :work_review
   post "works/:id/review", to: "works_wizard#review"
   patch "works/:id/review", to: "works_wizard#review"
-  post "works/:id/validate", to: "works_wizard#validate", as: :work_validate
-  patch "works/:id/validate", to: "works_wizard#validate"
+  post "works/:id/validate-wizard", to: "works_wizard#validate", as: :work_validate_wizard
+  patch "works/:id/validate-wizard", to: "works_wizard#validate"
+  post "works/:id/validate", to: "works#validate", as: :work_validate
   get "works/:id/attachment-select", to: "works_wizard#attachment_select", as: :work_attachment_select
   post "works/:id/attachment-select", to: "works_wizard#attachment_selected", as: :work_attachment_selected
   patch "works/:id/attachment-select", to: "works_wizard#attachment_selected"

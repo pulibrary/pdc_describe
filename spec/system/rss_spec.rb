@@ -33,7 +33,7 @@ XML
 
     allow(work1).to receive(:publish).and_return(true)
     allow(work2).to receive(:publish).and_return(true)
-    stub_s3(data: [s3_file1])
+    stub_s3(data: [FactoryBot.build(:s3_readme), s3_file1])
 
     # Works 1 & 2 are approved, so they should show up in the RSS feed
     work1.complete_submission!(admin)

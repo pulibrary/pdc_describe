@@ -7,7 +7,7 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
-    stub_s3
+    stub_s3 data: [FactoryBot.build(:s3_readme)]
   end
 
   it "Mints a DOI, but does not mint an ark at any point in the wizard proccess" do

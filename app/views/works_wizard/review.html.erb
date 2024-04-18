@@ -6,7 +6,7 @@
     it more discoverable and reusable. Recommendations will be available in the "unfinished submissions"
     section of this form within 5-10 business days.</p>
 
-  <%= form_with(model: @work, url: work_validate_path(@work)) do |form| %>
+  <%= form_with(model: @work, url: work_validate_wizard_path(@work)) do |form| %>
     <textarea id="submission_notes" name="submission_notes" cols="80", rows="10"
       placeholder="(optional) Type here to leave a message for the curators"><%= @work.submission_notes %></textarea>
     <div class="actions">

@@ -19,7 +19,7 @@ class Work < ApplicationRecord
 
   alias state_history user_work
 
-  delegate :valid_to_submit, :valid_to_draft, :valid_to_approve, to: :work_validator
+  delegate :valid_to_submit, :valid_to_draft, :valid_to_approve, :valid_to_complete, to: :work_validator
 
   include AASM
 
@@ -32,7 +32,7 @@ class Work < ApplicationRecord
     end
 
     event :complete_submission do
-      transitions from: :draft, to: :awaiting_approval, guard: :valid_to_submit
+      transitions from: :draft, to: :awaiting_approval, guard: :valid_to_complete
     end
 
     event :request_changes do

@@ -104,7 +104,8 @@ class WorksWizardController < ApplicationController
   end
 
   # Validates that the work is ready to be approved
-  # GET /works/1/validate
+  # POST /works/1/validate-wizard
+  # PATCH /works/1/validate-wizard
   def validate
     @work.submission_notes = params["submission_notes"]
     if params[:save_only] == "true"
