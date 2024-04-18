@@ -173,10 +173,15 @@ RSpec.describe Work, type: :model do
     let(:pre_curated_data_profile) { { objects: [] } }
 
     let(:fake_s3_service_pre) { stub_s3(data: [file1, file2]) }
-    let(:fake_s3_service_post) { stub_s3(data: [file1, file2]) }
+    let(:fake_s3_service_post) { stub_s3 }
 
     before do
-      allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
+      # initialize so the next allows happen after the stubs
+      fake_s3_service_post
+      fake_s3_service_pre
+
+      allow(S3QueryService).to receive(:new).with(work, "postcuration").and_return(fake_s3_service_post)
+      allow(S3QueryService).to receive(:new).with(work, "precuration").and_return(fake_s3_service_pre)
       allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
       allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
       allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
@@ -197,19 +202,32 @@ RSpec.describe Work, type: :model do
         work.reload
 
         expect(fake_s3_service_pre).to have_received(:publish_files).once
-        expect(work.pre_curation_uploads).to be_empty
-        expect(work.post_curation_uploads).not_to be_empty
-        expect(work.post_curation_uploads.length).to eq(2)
-        expect(work.post_curation_uploads.first).to be_an(S3File)
-        expect(work.post_curation_uploads.first.key).to eq(file1.key)
-        expect(work.post_curation_uploads.last).to be_an(S3File)
-        expect(work.post_curation_uploads.last.key).to eq(file2.key)
+        expect(fake_s3_service_post).to have_received(:bucket_name).once
+        expect(fake_s3_service_pre.client).to have_received(:head_object).once
+      end
 
-        expect(work.as_json["files"][0].keys).to eq([:filename, :size, :display_size, :url])
-        expect(work.as_json["files"][0][:filename]).to match(/10\.34770\/123-abc\/\d+\/us_covid_2019\.csv/)
-        expect(work.as_json["files"][0][:size]).to eq(1024)
-        expect(work.as_json["files"][0][:display_size]).to eq("1 KB")
-        expect(work.as_json["files"][0][:url]).to eq "https://example.data.globus.org/10.34770/123-abc/#{work.id}/us_covid_2019.csv"
+      context "when the post curation bucket alreay exists" do
+        before do
+          allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_return(true)
+        end
+
+        it "raises an error" do
+          stub_datacite_doi
+          expect { work.approve!(curator_user) }.to raise_error("Attempting to publish a Work with an existing S3 Bucket directory for: 10.34770/123-abc/#{work.id}")
+        end
+      end
+
+      context "when the pre curation bucket is empty" do
+        let(:fake_s3_service_pre) { stub_s3(data: []) }
+
+        before do
+          allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_return(true)
+        end
+
+        it "raises an error" do
+          stub_datacite_doi
+          expect { work.approve!(curator_user) }.to raise_error(AASM::InvalidTransition)
+        end
       end
 
       context "when the Work is under active embargo" do
@@ -454,26 +472,6 @@ RSpec.describe Work, type: :model do
       expect(activity.message).to eq(message)
       expect(activity.to_html.include?("#{curator_user.uid}</a>")).to be true
       expect(activity.to_html.include?("#{user_other.uid}</a>")).to be true
-    end
-  end
-
-  # Is this test providing any coverage?
-  describe "#pre_curation_uploads" do
-    let(:uploaded_file) do
-      fixture_file_upload("us_covid_2019.csv", "text/csv")
-    end
-
-    let(:uploaded_file2) do
-      fixture_file_upload("us_covid_2019.csv", "text/csv")
-    end
-
-    before do
-      stub_request(:put, /#{attachment_url}/).with(
-        body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
-      ).to_return(status: 200)
-
-      work.pre_curation_uploads.attach(uploaded_file)
-      work.save
     end
   end
 
@@ -924,7 +922,6 @@ RSpec.describe Work, type: :model do
         body: "date,state,fips,cases,deaths\n2020-01-21,Washington,53,1,0\n2022-07-10,Wyoming,56,165619,1834\n"
       ).to_return(status: 200)
 
-      work.pre_curation_uploads.attach(uploaded_file)
       work.save
     end
 

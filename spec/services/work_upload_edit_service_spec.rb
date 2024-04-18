@@ -62,7 +62,7 @@ RSpec.describe WorkUploadsEditService do
 
       upload_service = described_class.new(work, user)
       updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
-      filenames = updated_work.pre_curation_uploads_fast.map(&:filename)
+      filenames = updated_work.pre_curation_uploads.map(&:filename)
       expect(filenames).to eq(s3_data.map(&:filename))
       expect(fake_s3_service).not_to have_received(:delete_s3_object)
       expect(work.work_activity.count).to be 0
@@ -82,7 +82,7 @@ RSpec.describe WorkUploadsEditService do
       expect { updated_work = upload_service.update_precurated_file_list(added_files, deleted_files) }.to change { BackgroundUploadSnapshot.count }.by 1
       perform_enqueued_jobs
 
-      expect(updated_work.pre_curation_uploads_fast.map(&:filename).sort).to eq([s3_file1.key, s3_file2.key].sort)
+      expect(updated_work.pre_curation_uploads.map(&:filename).sort).to eq([s3_file1.key, s3_file2.key].sort)
       expect(fake_s3_service).not_to have_received(:delete_s3_object)
 
       # it logs the addition (and no delete)
@@ -103,7 +103,7 @@ RSpec.describe WorkUploadsEditService do
       upload_service = described_class.new(work, user)
       updated_work = nil
       expect { updated_work = upload_service.update_precurated_file_list(added_files, deleted_files) }.to change { BackgroundUploadSnapshot.count }.by 0
-      expect(updated_work.pre_curation_uploads_fast.map(&:filename)).to eq([s3_file2.key])
+      expect(updated_work.pre_curation_uploads.map(&:filename)).to eq([s3_file2.key])
       expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_file1.key).once
 
       # it logs the delete (and no additions)
@@ -122,7 +122,7 @@ RSpec.describe WorkUploadsEditService do
       allow(fake_s3_service).to receive(:client_s3_files).and_return([s3_file1], [s3_file2, s3_file3])
       upload_service = described_class.new(work, user)
       updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
-      list = updated_work.reload.pre_curation_uploads_fast
+      list = updated_work.reload.pre_curation_uploads
       perform_enqueued_jobs
 
       expect(list.map(&:filename)).to eq([s3_file3.key, s3_file2.key])

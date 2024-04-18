@@ -52,7 +52,7 @@ namespace :works do
     works = Work.where.not(id: work_exclusion_ids)
     works.each do |work|
       service = S3QueryService.new(work, "postcuration")
-      work.pre_curation_uploads_fast.each { |upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key }) }
+      work.pre_curation_uploads.each { |upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key }) }
       work.post_curation_uploads.each { |upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key }) }
       work.destroy
     end
