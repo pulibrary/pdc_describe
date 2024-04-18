@@ -40,12 +40,12 @@ class Readme
       end
 
       def file_names
-        @file_names ||= work.pre_curation_uploads_fast.map(&:filename_display)
+        @file_names ||= work.pre_curation_uploads.map(&:filename_display)
       end
 
       def remove_old_readme
         return if blank?
-        work.s3_query_service.delete_s3_object(work.pre_curation_uploads_fast[s3_readme_idx].key)
+        work.s3_query_service.delete_s3_object(work.pre_curation_uploads[s3_readme_idx].key)
       end
 
       def upload_readme(readme_file_param)

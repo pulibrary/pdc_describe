@@ -425,9 +425,6 @@ XML
       fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
       fake_s3_resp.stub(:to_h).and_return(s3_hash)
 
-      blob = ActiveStorage::Blob.new(filename: s3_key1, key: s3_key1, content_type: "", byte_size: 100, checksum: "abc123")
-      work.pre_curation_uploads << ActiveStorage::Attachment.new(blob:, name: :pre_curation_uploads)
-
       data_profile = s3_query_service.data_profile
       expect(data_profile[:objects]).to be_instance_of(Array)
       expect(data_profile[:ok]).to eq true

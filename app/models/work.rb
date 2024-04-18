@@ -8,7 +8,6 @@ class Work < ApplicationRecord
   has_many :work_activity, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many :user_work, -> { order(updated_at: :desc) }, dependent: :destroy
   has_many :upload_snapshots, -> { order(updated_at: :desc) }, dependent: :destroy
-  has_many_attached :pre_curation_uploads, service: :amazon_pre_curation
 
   belongs_to :group, class_name: "Group"
   belongs_to :curator, class_name: "User", foreign_key: "curator_user_id", optional: true
@@ -299,14 +298,14 @@ class Work < ApplicationRecord
   def uploads
     return post_curation_uploads if approved?
 
-    pre_curation_uploads_fast
+    pre_curation_uploads
   end
 
   # Returns the list of files for the work with some basic information about each of them.
   # This method is much faster than `uploads` because it does not return the actual S3File
   # objects to the client, instead it returns just a few selected data elements.
   def file_list
-    s3_files = approved? ? post_curation_uploads : pre_curation_uploads_fast
+    s3_files = approved? ? post_curation_uploads : pre_curation_uploads
     files_info = s3_files.map do |s3_file|
       {
         "safe_id": s3_file.safe_id,
@@ -333,7 +332,7 @@ class Work < ApplicationRecord
   end
 
   # Fetches the data from S3 directly bypassing ActiveStorage
-  def pre_curation_uploads_fast
+  def pre_curation_uploads
     s3_query_service.client_s3_files.sort_by(&:filename)
   end
 
@@ -359,7 +358,7 @@ class Work < ApplicationRecord
   end
 
   def s3_files
-    pre_curation_uploads_fast
+    pre_curation_uploads
   end
 
   def s3_client
@@ -440,7 +439,7 @@ class Work < ApplicationRecord
   # @return [UploadSnapshot]
   def reload_snapshots(user_id: nil)
     work_changes = []
-    s3_files = pre_curation_uploads_fast
+    s3_files = pre_curation_uploads
     s3_filenames = s3_files.map(&:filename)
 
     upload_snapshot = latest_snapshot
@@ -595,11 +594,7 @@ class Work < ApplicationRecord
     end
 
     def publish_precurated_files(user)
-      # An error is raised if there are no files to be moved
-      raise(StandardError, "Attempting to publish a Work without attached uploads for #{s3_object_key}") if pre_curation_uploads_fast.empty? && post_curation_uploads.empty?
-
-      # We need to explicitly access to post-curation services here.
-      # Lets explicitly create it so the state of the work does not have any impact.
+      # We need to explicitly check the to post-curation bucket here.
       s3_post_curation_query_service = S3QueryService.new(self, "postcuration")
 
       s3_dir = find_post_curation_s3_dir(bucket_name: s3_post_curation_query_service.bucket_name)

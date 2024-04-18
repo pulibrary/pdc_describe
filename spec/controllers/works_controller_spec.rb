@@ -180,7 +180,7 @@ RSpec.describe WorksController do
 
         saved_work = Work.find(work.id)
 
-        expect(saved_work.pre_curation_uploads_fast).not_to be_empty
+        expect(saved_work.pre_curation_uploads).not_to be_empty
         expect(fake_s3_service).not_to have_received(:delete_s3_object)
         background_snapshot = BackgroundUploadSnapshot.last
         expect(background_snapshot.work).to eq(work)
@@ -245,7 +245,7 @@ RSpec.describe WorksController do
 
         saved_work = Work.find(work.id)
 
-        expect(saved_work.pre_curation_uploads_fast).not_to be_empty
+        expect(saved_work.pre_curation_uploads).not_to be_empty
         expect(fake_s3_service).not_to have_received(:delete_s3_object)
         background_snapshot = BackgroundUploadSnapshot.last
         expect(background_snapshot.work).to eq(work)
@@ -312,7 +312,7 @@ RSpec.describe WorksController do
       end
 
       it "handles the update page" do
-        expect(work.pre_curation_uploads_fast.count).to eq 2
+        expect(work.pre_curation_uploads.count).to eq 2
 
         params = base_params.clone
         params[:work] = { pre_curation_uploads_added: [uploaded_file2],
@@ -321,7 +321,7 @@ RSpec.describe WorksController do
         post(:update, params:)
 
         saved_work = Work.find(work.id)
-        expect(saved_work.pre_curation_uploads_fast.count).to eq 2
+        expect(saved_work.pre_curation_uploads.count).to eq 2
         expect(fake_s3_service).to have_received(:delete_s3_object).once
       end
     end
@@ -370,14 +370,14 @@ RSpec.describe WorksController do
         end
 
         it "handles the update page" do
-          expect(work.pre_curation_uploads_fast.length).to eq(3)
+          expect(work.pre_curation_uploads.length).to eq(3)
 
           sign_in user
           post(:update, params:)
 
           saved_work = Work.find(work.id)
 
-          expect(saved_work.pre_curation_uploads_fast.length).to eq(1)
+          expect(saved_work.pre_curation_uploads.length).to eq(1)
 
           expect(ActiveStorage::PurgeJob).not_to have_received(:new)
           expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_file1.key)
@@ -546,11 +546,11 @@ RSpec.describe WorksController do
 
         saved_work = Work.find(work.id)
 
-        expect(saved_work.pre_curation_uploads_fast).not_to be_empty
+        expect(saved_work.pre_curation_uploads).not_to be_empty
 
         # order is alphabetical, we can not change it by sending the files in a different order
-        expect(saved_work.pre_curation_uploads_fast.first.filename).to include(uploaded_files.last.original_filename.gsub(".csv", ""))
-        expect(saved_work.pre_curation_uploads_fast.last.filename).to include(uploaded_files.first.original_filename.gsub(".csv", ""))
+        expect(saved_work.pre_curation_uploads.first.filename).to include(uploaded_files.last.original_filename.gsub(".csv", ""))
+        expect(saved_work.pre_curation_uploads.last.filename).to include(uploaded_files.first.original_filename.gsub(".csv", ""))
 
         # original copies of the files get deleted
         expect(fake_s3_service).to have_received(:delete_s3_object).twice

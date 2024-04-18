@@ -3,7 +3,7 @@ class WorkValidator
   attr_reader :work
 
   delegate :errors, :metadata, :resource, :ark, :doi, :user_entered_doi, :id, :group,
-           :pre_curation_uploads_fast, :post_curation_uploads, to: :work
+           :pre_curation_uploads, :post_curation_uploads, to: :work
 
   def initialize(work)
     @work = work
@@ -44,7 +44,7 @@ class WorkValidator
     unless user.has_role? :group_admin, group
       errors.add :base, "Unauthorized to Approve"
     end
-    if pre_curation_uploads_fast.empty? && post_curation_uploads.empty?
+    if pre_curation_uploads.empty? && post_curation_uploads.empty?
       errors.add :base, "Uploads must be present for a work to be approved"
     end
     errors.count == 0
