@@ -75,6 +75,11 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     click_on "Save"
     sleep(1) # no actual upload occured so no real change to be seen
     expect(page).to have_css(file_upload_form_css)
+
+    # The README file is displayed but cannot be deleted
+    expect(page).to have_content("README.txt")
+    expect(page).to_not have_content("Delete file")
+
     click_on "Next"
     expect(page).to have_css(validate_form_css)
 
