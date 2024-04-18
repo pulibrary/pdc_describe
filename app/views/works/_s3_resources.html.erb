@@ -42,6 +42,8 @@
       fileListUrl = '<%= root_path %>';
     }
     var isEditMode = <%= edit_mode %>;
+    // Notice that Ruby's `defined?` does not return a boolean, hence the `!= nil` comparison.
+    var isWizardMode = <%= defined?(wizard_mode) != nil && wizard_mode == true %>;
 
     // Wire DataTable for the file list.
     // Related documentation
@@ -146,6 +148,11 @@
         },
         {
           render: function (data, type, row) {
+            // Don't render the delete icon for the readme while in the Wizard
+            if (isWizardMode && row.filename.includes("README")) {
+              return "";
+            }
+
             // delete icon
             var html = null;
             if (type == "display") {

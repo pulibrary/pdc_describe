@@ -7,7 +7,7 @@
     <div class="deposit-uploads">
       <section class="uploads">
         <h2 class="h2"><%= t('works.uploads.post_curation.heading') %></h2>
-        <%= render(partial: 'works/s3_resources', locals: { edit_mode: true, form: f }) %>
+        <%= render(partial: 'works/s3_resources', locals: { edit_mode: true, form: f, wizard_mode: true }) %>
       </section>
       <div class="container-fluid deposit-uploads">
         <span id="uppy_upload_url" class="hidden"><%= work_wizard_upload_files_path(@work) %></span>
