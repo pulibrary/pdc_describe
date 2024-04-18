@@ -29,8 +29,8 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
     expect(page).to have_content("These metadata properties are not required")  # testing additional metadata page
     click_on "Next"
     path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
-    attach_file(path) do
-      page.find("#patch_readme_file").click
+    attach_file_via_uppy(path) do
+      page.execute_script("$('#readme-upload').prop('disabled', false)")
     end
     click_on "Next"
     click_on "Next"

@@ -249,8 +249,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
         expect(page).to have_button("Next", disabled: true)
 
         path = Rails.root.join("spec", "fixtures", "files", "readme.txt")
-        attach_file(path) do
-          page.find("#patch_readme_file").click
+        attach_file_via_uppy(path) do
+          page.execute_script("$('#readme-upload').prop('disabled', false)")
         end
 
         click_on "Next"
@@ -413,11 +413,9 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
 
       # We on purpose upload a non-read me file...
       path = Rails.root.join("spec", "fixtures", "files", "orcid.csv")
-      attach_file(path) do
-        page.find("#patch_readme_file").click
-      end
-      # ...and we expect and error message to be displayed and the button to continue to remain disabled
-      expect(page).to have_content("You must select a file that includes the word README in the name")
+      attach_file_via_uppy(path)
+
+      # ...and we expect the button to continue to remain disabled
       expect(page).to have_button("Next", disabled: true)
     end
   end

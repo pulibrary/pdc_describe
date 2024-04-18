@@ -16,7 +16,7 @@ class WorksWizardController < ApplicationController
 
   before_action :load_work, only: [:edit_wizard, :update_wizard, :attachment_select, :attachment_selected,
                                    :file_upload, :file_uploaded, :file_other, :review, :validate,
-                                   :readme_select, :readme_uploaded]
+                                   :readme_select, :readme_uploaded, :readme_uploaded_payload]
 
   # GET /works/1/edit-wizard
   def edit_wizard
@@ -123,21 +123,30 @@ class WorksWizardController < ApplicationController
     @readme = readme.file_name
   end
 
-  # Uploads the readme the user selects
-  # GET /works/1/readme_uploaded
+  # Hit when the user clicks "Save" or "Next" on the README upload process.
+  # Notice that this does not really uploads the file, that happens in readme_uploaded_payload.
+  # PATCH /works/1/readme_uploaded
   def readme_uploaded
     readme = Readme.new(@work, current_user)
-    readme_error = readme.attach(readme_file_param)
-    if readme_error.nil?
-      if params[:save_only] == "true"
-        @readme = readme.file_name
-        render :readme_select
-      else
-        redirect_to work_attachment_select_url(@work)
-      end
+    if params[:save_only] == "true"
+      @readme = readme.file_name
+      render :readme_select
     else
-      flash[:notice] = readme_error
-      redirect_to work_readme_select_url(@work)
+      redirect_to work_attachment_select_url(@work)
+    end
+  end
+
+  # Uploads the README file, called by Uppy.
+  # POST /works/1/readme-uploaded-payload
+  def readme_uploaded_payload
+    readme = Readme.new(@work, current_user)
+    readme_file = params["files"].first
+    readme_error = readme.attach(readme_file)
+    if readme_error.nil?
+      render plain: readme.file_name
+    else
+      # Tell Uppy there was an error uploading the README
+      render plain: readme.file_name, status: :internal_server_error
     end
   end
 

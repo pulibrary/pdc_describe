@@ -101,7 +101,6 @@ RSpec.describe WorksWizardController do
       it "redirects to file-upload" do
         post(:readme_uploaded, params:)
         expect(response.status).to be 302
-        expect(fake_readme).to have_received(:attach)
         expect(response.location).to eq "http://test.host/works/#{work.id}/attachment-select"
       end
 
@@ -111,19 +110,44 @@ RSpec.describe WorksWizardController do
         it "stays on the readme select page" do
           post :readme_uploaded, params: save_only_params
           expect(response.status).to be 200
-          expect(fake_readme).to have_received(:attach)
           expect(response).to render_template(:readme_select)
           expect(assigns[:readme]).to eq("abc123")
         end
       end
+    end
 
-      context "the upload encounters an error" do
-        let(:attach_status) { "An error occured" }
+    describe "#readme_uploaded_payload" do
+      let(:attach_status) { nil }
+      let(:fake_readme) { instance_double Readme, attach: attach_status, "blank?": true, file_name: "abc123" }
+      let(:params) do
+        {
+          "_method" => "post",
+          "authenticity_token" => "MbUfIQVvYoCefkOfSpzyS0EOuSuOYQG21nw8zgg2GVrvcebBYI6jy1-_3LSzbTg9uKgehxWauYS8r1yxcN1Lwg",
+          "files" => [uploaded_file],
+          "commit" => "Continue",
+          "controller" => "works",
+          "action" => "file_uploaded",
+          "id" => work.id
+        }
+      end
 
-        it "Stays on the same page" do
-          post(:readme_uploaded, params:)
-          expect(response).to redirect_to(work_readme_select_path(work))
-          expect(controller.flash[:notice]).to eq("An error occured")
+      before do
+        allow(Readme).to receive(:new).and_return(fake_readme)
+        sign_in user
+      end
+
+      context "when the upload succeeds" do
+        it "returns status 200" do
+          post(:readme_uploaded_payload, params:)
+          expect(response.status).to be 200
+        end
+      end
+
+      context "when the upload throws an error" do
+        let(:attach_status) { "something went wrong" }
+        it "returns status 500" do
+          post(:readme_uploaded_payload, params:)
+          expect(response.status).to be 500
         end
       end
     end
