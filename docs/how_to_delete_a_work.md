@@ -3,7 +3,7 @@ These steps assume the work is assigned to a variable called `work`.
 1. Delete the pre curation uploads
    * ```
      service = S3QueryService.new(work, "postcuration")
-     work.pre_curation_uploads_fast.each{|upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key})}
+     work.pre_curation_uploads.each{|upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key})}
      ```
 1. Delete the post curation uploads
    * ```
@@ -16,7 +16,7 @@ These steps assume the work is assigned to a variable called `work`.
 Full script below...
 ```ruby
 service = S3QueryService.new(work, "postcuration")
-work.pre_curation_uploads_fast.each{|upload| service.client.delete_object({ bucket: service, bucket_name, key: upload.key})}
+work.pre_curation_uploads.each{|upload| service.client.delete_object({ bucket: service, bucket_name, key: upload.key})}
 work.post_curation_uploads.each{|upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key})}
 work.destroy
 ```

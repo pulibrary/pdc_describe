@@ -53,12 +53,12 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         expect(page).to have_content filename1
         expect(page).to have_content filename2
         expect(page).to have_content "Total Size\n31.5 KB"
-        expect(work.reload.pre_curation_uploads_fast.length).to eq(3)
+        expect(work.reload.pre_curation_uploads.length).to eq(3)
       end
 
       it "renders S3 Bucket Objects and file uploads on the edit page", js: true do
         visit work_path(work)
-        expect(work.reload.pre_curation_uploads_fast.length).to eq(3)
+        expect(work.reload.pre_curation_uploads.length).to eq(3)
         visit edit_work_path(work) # can not click Edit link becuase wizard does not show files
 
         expect(page).to have_content upload_file_name
@@ -80,12 +80,12 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
           expect(page).not_to have_content upload_file_name
           expect(page).to have_content filename1
           expect(page).to have_content filename2
-          expect(work.reload.pre_curation_uploads_fast.length).to eq(2)
+          expect(work.reload.pre_curation_uploads.length).to eq(2)
         end
 
         it "renders only the S3 Bucket Objects on the edit page", js: true do
           visit work_path(work)
-          expect(work.pre_curation_uploads_fast.length).to eq(2)
+          expect(work.pre_curation_uploads.length).to eq(2)
           visit edit_work_path(work) # can not click Edit link becuase wizard does not show files
 
           expect(page).not_to have_content upload_file_name
