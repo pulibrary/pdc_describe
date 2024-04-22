@@ -26,6 +26,7 @@ RSpec.describe Work, type: :model do
     fixture_file_upload("us_covid_2019.csv", "text/csv")
   end
   let(:s3_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: }
+  let(:readme) { FactoryBot.build(:s3_readme) }
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
@@ -168,23 +169,22 @@ RSpec.describe Work, type: :model do
 
     let(:file1) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019.csv", work:, size: 1024) }
     let(:file2) { FactoryBot.build(:s3_file, filename: "#{work.doi}/#{work.id}/us_covid_2019_2.csv", work:, size: 2048) }
+    let(:readme) { FactoryBot.build(:s3_readme) }
 
-    let(:post_curation_data_profile) { { objects: [file1, file2] } }
-    let(:pre_curated_data_profile) { { objects: [] } }
-
-    let(:fake_s3_service_pre) { stub_s3(data: [file1, file2]) }
-    let(:fake_s3_service_post) { stub_s3 }
+    let(:fake_s3_service_pre) { stub_s3 }
+    let(:fake_s3_service_post) { stub_s3(data: [file1, file2]) }
 
     before do
       # initialize so the next allows happen after the stubs
       fake_s3_service_post
       fake_s3_service_pre
 
-      allow(S3QueryService).to receive(:new).with(work, "postcuration").and_return(fake_s3_service_post)
-      allow(S3QueryService).to receive(:new).with(work, "precuration").and_return(fake_s3_service_pre)
+      allow(S3QueryService).to receive(:new).with(instance_of(Work), "precuration").and_return(fake_s3_service_pre)
+      allow(S3QueryService).to receive(:new).with(instance_of(Work), "postcuration").and_return(fake_s3_service_post)
       allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
       allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
       allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
+      allow(fake_s3_service_pre).to receive(:client_s3_files).and_return([readme], [readme, file1, file2])
     end
 
     it "approves works and records the change history" do
@@ -199,8 +199,10 @@ RSpec.describe Work, type: :model do
       it "transfers the files to the AWS Bucket" do
         stub_datacite_doi
         work.approve!(curator_user)
-        work.reload
+        work_id = work.id
+        work = Work.find(work_id)
 
+        expect(work).to be_approved
         expect(fake_s3_service_pre).to have_received(:publish_files).once
         expect(fake_s3_service_post).to have_received(:bucket_name).once
         expect(fake_s3_service_pre.client).to have_received(:head_object).once
@@ -218,10 +220,8 @@ RSpec.describe Work, type: :model do
       end
 
       context "when the pre curation bucket is empty" do
-        let(:fake_s3_service_pre) { stub_s3(data: []) }
-
         before do
-          allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_return(true)
+          allow(fake_s3_service_pre).to receive(:client_s3_files).and_return([])
         end
 
         it "raises an error" do
@@ -232,9 +232,10 @@ RSpec.describe Work, type: :model do
 
       context "when the Work is under active embargo" do
         subject(:work) { FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc", embargo_date:) }
+        let(:work_after_approve) { Work.find(work.id) }
 
         let(:embargo_date) { Date.parse("2033-09-14") }
-        let(:json) { JSON.parse(work.to_json) }
+        let(:json) { JSON.parse(work_after_approve.to_json) }
         let(:uploaded_file) do
           fixture_file_upload("us_covid_2019.csv", "text/csv")
         end
@@ -258,7 +259,7 @@ RSpec.describe Work, type: :model do
         end
 
         it "does not serialize the files in JSON" do
-          expect(work.post_curation_uploads).not_to be_empty
+          expect(work_after_approve.post_curation_uploads).not_to be_empty
 
           expect(json).to include("files")
           expect(json["files"]).to be_empty
@@ -267,9 +268,10 @@ RSpec.describe Work, type: :model do
 
       context "when the Work is under an expired embargo" do
         subject(:work) { FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc", embargo_date:) }
+        let(:work_after_approve) { Work.find(work.id) }
 
         let(:embargo_date) { Date.parse("2023-09-14") }
-        let(:json) { JSON.parse(work.to_json) }
+        let(:json) { JSON.parse(work_after_approve.to_json) }
         let(:uploaded_file) do
           fixture_file_upload("us_covid_2019.csv", "text/csv")
         end
@@ -284,11 +286,10 @@ RSpec.describe Work, type: :model do
 
           stub_datacite_doi
           work.approve!(curator_user)
-          work.reload
         end
 
         it "does serialize the files in JSON" do
-          expect(work.post_curation_uploads).not_to be_empty
+          expect(work_after_approve.post_curation_uploads).not_to be_empty
 
           expect(json).to include("files")
           expect(json["files"]).not_to be_empty
@@ -335,7 +336,7 @@ RSpec.describe Work, type: :model do
     end
 
     before do
-      fake_s3_service = stub_s3(data: [s3_file])
+      fake_s3_service = stub_s3(data: [readme, s3_file])
       allow(fake_s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
     end
 
@@ -564,7 +565,9 @@ RSpec.describe Work, type: :model do
   end
 
   describe "#complete_submission" do
+    let(:fake_s3_service) { stub_s3 data: [readme, s3_file] }
     let(:awaiting_approval_work) do
+      fake_s3_service
       work = FactoryBot.create :draft_work
       work.complete_submission!(user)
       work
@@ -581,7 +584,6 @@ RSpec.describe Work, type: :model do
 
     it "transitions from awaiting_approval to approved" do
       stub_datacite_doi
-      fake_s3_service = stub_s3(data: [s3_file])
       allow(fake_s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: awaiting_approval_work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
 
       awaiting_approval_work.approve!(curator_user)
@@ -624,13 +626,20 @@ RSpec.describe Work, type: :model do
   end
 
   describe "#approve" do
-    let(:fake_s3_service_pre) { stub_s3(data: [s3_file]) }
-    let(:fake_s3_service_post) { stub_s3(data: [s3_file]) }
+    let(:fake_s3_service_pre) { stub_s3(data: [readme, s3_file]) }
+    let(:fake_s3_service_post) { stub_s3(data: [readme, s3_file]) }
 
     let(:approved_work) do
       work = FactoryBot.create :awaiting_approval_work, doi: "10.34770/123-abc"
       stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
-      allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
+
+      # initialize so the next allows happen after the stubs
+      fake_s3_service_post
+      fake_s3_service_pre
+
+      allow(S3QueryService).to receive(:new).with(instance_of(Work), "precuration").and_return(fake_s3_service_pre)
+      allow(S3QueryService).to receive(:new).with(instance_of(Work), "postcuration").and_return(fake_s3_service_post)
+
       allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
       allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
       allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
@@ -1072,6 +1081,7 @@ RSpec.describe Work, type: :model do
 
   describe "delete" do
     it "cleans up all the related objects" do
+      work.resource.migrated = true
       work.complete_submission!(user)
       expect { work.destroy }.to change { Work.count }.by(-1)
                                                       .and change { UserWork.count }.by(-1)

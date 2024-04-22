@@ -49,7 +49,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
   context "happy path" do
     before do
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
-      stub_s3
+      stub_s3 data: [FactoryBot.build(:s3_readme)]
     end
 
     it "produces and saves a valid datacite record" do
@@ -106,11 +106,12 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
 
   context "validation errors" do
     let(:work2) { FactoryBot.create :draft_work, ark: "ark:/99999/dsp01d791sj97j" }
+    let(:fake_s3_service) { stub_s3 }
 
     before do
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-ab").to_return(status: 404, body: "", headers: {})
-      stub_s3
+      fake_s3_service
       work2
     end
 
@@ -152,6 +153,12 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "title_main", with: title
       click_on "Create"
       click_on "Complete"
+      expect(page).to have_content "Must provide a README"
+
+      # fake that the user put a file up in globus
+      allow(fake_s3_service).to receive(:client_s3_files).and_return([FactoryBot.build(:s3_readme)])
+      click_on "Save Work"
+      click_on "Complete"
       expect(page).to have_content "awaiting_approval"
     end
   end
@@ -166,6 +173,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
     let(:work) { Work.last }
 
     before do
+      stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
       datacite_stub # make sure the stub is created before we start the test
       allow(identifier).to receive(:save)
 
@@ -179,7 +187,6 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       work.save!
       work.reload
 
-      stub_s3 data: [FactoryBot.build(:s3_file)]
       allow(Work).to receive(:find).with(work.id).and_return(work)
       allow(Work).to receive(:find).with(work.id.to_s).and_return(work)
       allow(work).to receive(:publish_precurated_files).and_return(true)
@@ -187,6 +194,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       visit work_path(work)
       click_on "Approve"
       page.driver.browser.switch_to.alert.accept
+      expect(page).to have_content "approved"
     end
 
     context "Approving a work with a DOI we own" do

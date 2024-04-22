@@ -16,7 +16,7 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
     end
 
     it "should be able to edit someone else's work" do
-      stub_s3
+      stub_s3 data: [FactoryBot.build(:s3_readme)]
       sign_in submitter2
       visit user_path(submitter2)
       expect(page).to have_content submitter2.given_name
@@ -76,7 +76,7 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
 
     it "should be able to approve a work" do
       stub_datacite_doi
-      stub_s3 data: [FactoryBot.build(:s3_file)]
+      stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
       work = FactoryBot.create :awaiting_approval_work
 
       work.save!

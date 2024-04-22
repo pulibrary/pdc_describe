@@ -46,6 +46,7 @@ RSpec.describe Work, type: :model do
 
   context "datacite xml is invalid" do
     let(:work) do
+      stub_s3 data: [FactoryBot.build(:s3_readme)]
       work = FactoryBot.create :draft_work
       work.resource.individual_contributors = [PDCMetadata::Creator.new_individual_contributor("Sally", "Smith", "", "", 0)]
       work.save
@@ -57,6 +58,51 @@ RSpec.describe Work, type: :model do
       expect(validator.valid?).to be_truthy # we can still save, we just can not transition to submitted
       expect(validator.valid_to_submit).to be_falsey
       expect(work.errors.full_messages).to eq(["Contributor: Type cannot be nil"])
+    end
+  end
+
+  describe "#valid_to_complete" do
+    let(:work) { FactoryBot.create :draft_work }
+
+    it "is not valid" do
+      stub_s3
+      validator = WorkValidator.new(work)
+      expect(validator.valid?).to be_truthy # we can still save, we just can not transition to awaiting approval
+      expect(validator.valid_to_complete).to be_falsey
+      expect(work.errors.full_messages).to eq(["Must provide a README"])
+    end
+
+    context "a migrated work" do
+      it "is valid" do
+        work.resource.migrated = true
+        stub_s3
+        validator = WorkValidator.new(work)
+        expect(validator.valid?).to be_truthy # we can still save, we just can not transition to awaiting approval
+        expect(validator.valid_to_complete).to be_truthy
+        expect(work.errors.full_messages).to eq([])
+      end
+    end
+
+    context "a readme exisits" do
+      it "is valid" do
+        stub_s3 data: [FactoryBot.build(:s3_readme)]
+        validator = WorkValidator.new(work)
+        expect(validator.valid?).to be_truthy
+        expect(validator.valid_to_complete).to be_truthy
+        expect(work.errors.full_messages).to eq([])
+      end
+    end
+  end
+
+  describe "#valid_to_submit" do
+    let(:work) { FactoryBot.create :draft_work }
+
+    it "is valid" do
+      stub_s3
+      validator = WorkValidator.new(work)
+      expect(validator.valid?).to be_truthy
+      expect(validator.valid_to_submit).to be_truthy
+      expect(work.errors.full_messages).to eq([])
     end
   end
 end
