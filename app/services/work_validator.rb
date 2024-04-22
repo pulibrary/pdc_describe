@@ -27,6 +27,11 @@ class WorkValidator
     errors.count == 0
   end
 
+  def valid_to_complete(*args)
+    validate_files
+    valid_to_submit(args)
+  end
+
   def valid_to_submit(*args)
     valid_to_draft(args)
     validate_metadata
@@ -44,6 +49,7 @@ class WorkValidator
     unless user.has_role? :group_admin, group
       errors.add :base, "Unauthorized to Approve"
     end
+    validate_files
     if pre_curation_uploads.empty? && post_curation_uploads.empty?
       errors.add :base, "Uploads must be present for a work to be approved"
     end
@@ -150,5 +156,11 @@ class WorkValidator
       errors.add(:base, "Must indicate at least one Rights statement") if resource.rights_many.count == 0
       errors.add(:base, "Must provide a Version number") if resource.version_number.blank?
       validate_related_objects
+    end
+
+    def validate_files
+      return if @work.resource.migrated
+      readme = Readme.new(work, nil)
+      errors.add(:base, "Must provide a README") if readme.blank?
     end
 end

@@ -14,7 +14,8 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
 
     before do
       Group.create_defaults
-      stub_s3 data: [file1]
+
+      stub_s3 data: [FactoryBot.build(:s3_readme), file1]
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     end
 

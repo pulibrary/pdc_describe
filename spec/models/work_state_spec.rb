@@ -3,6 +3,9 @@ require "rails_helper"
 
 RSpec.describe "Work state transions", type: :model do
   let(:curator_user) { FactoryBot.create :user, groups_to_admin: [work.group] }
+  before do
+    stub_s3 data: [FactoryBot.build(:s3_readme)]
+  end
 
   {
     none_work: :draft!,
@@ -32,7 +35,7 @@ RSpec.describe "Work state transions", type: :model do
 
     it "Creates a work activity notification for the curator & the user when approved" do
       allow(work).to receive(:publish)
-      stub_s3 data: [FactoryBot.build(:s3_file)]
+      stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
       expect do
         work.approve!(curator_user)
       end.to change { WorkActivity.count }.by(2)

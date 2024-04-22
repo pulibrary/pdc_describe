@@ -25,7 +25,7 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     readme_form_css = "form[action='/works/#{work.id}/readme-uploaded']"
     upload_form_css = "form[action='/works/#{work.id}/attachment-select']"
     file_upload_form_css = "form[action='/works/#{work.id}/file-upload']"
-    validate_form_css = "form[action='/works/#{work.id}/validate']"
+    validate_form_css = "form[action='/works/#{work.id}/validate-wizard']"
 
     # edit form has no previous button so no need to test that it goes back
     expect(page).not_to have_content("Previous")
@@ -105,7 +105,7 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
       visit work_attachment_select_path(work)
       other_form_css = "form[action='/works/#{work.id}/review']"
       upload_form_css = "form[action='/works/#{work.id}/attachment-select']"
-      validate_form_css = "form[action='/works/#{work.id}/validate']"
+      validate_form_css = "form[action='/works/#{work.id}/validate-wizard']"
 
       page.find(:xpath, "//input[@value='file_other']").choose
       click_on "Save"
