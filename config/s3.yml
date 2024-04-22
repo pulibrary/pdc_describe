@@ -1,5 +1,7 @@
 ---
 production:
+  access_key_id: <%= ENV['AWS_S3_KEY_ID'] || 'not-used-access_key_id' %>
+  secret_access_key: <%= ENV['AWS_S3_SECRET_KEY'] || 'not-used-secret_access_key' %>
   pre_curation:
     bucket: <%= ENV['AWS_S3_PRE_CURATE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_PRE_CURATE_REGION'] || 'us-east-1' %>
@@ -13,6 +15,8 @@ production:
     bucket: <%= ENV['AWS_S3_DSPACE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_DSPACE_REGION'] || 'us-east-1' %>
 staging:
+  access_key_id: <%= ENV['AWS_S3_KEY_ID'] || 'not-used-access_key_id' %>
+  secret_access_key: <%= ENV['AWS_S3_SECRET_KEY'] || 'not-used-secret_access_key' %>
   pre_curation:
     bucket: <%= ENV['AWS_S3_PRE_CURATE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_PRE_CURATE_REGION'] || 'us-east-1' %>
@@ -26,6 +30,8 @@ staging:
     bucket: <%= ENV['AWS_S3_DSPACE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_DSPACE_REGION'] || 'us-east-1' %>
 development:
+  access_key_id: <%= ENV['AWS_S3_KEY_ID'] || 'not-used-access_key_id' %>
+  secret_access_key: <%= ENV['AWS_S3_SECRET_KEY'] || 'not-used-secret_access_key' %>
   pre_curation:
     bucket: <%= ENV['AWS_S3_PRE_CURATE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_PRE_CURATE_REGION'] || 'us-east-1' %>
@@ -39,6 +45,8 @@ development:
     bucket: <%= ENV['AWS_S3_DSPACE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_DSPACE_REGION'] || 'us-east-1' %>
 test:
+  access_key_id: 'not-used-access_key_id'
+  secret_access_key: 'not-used-secret_access_key'
   pre_curation:
     bucket: 'example-bucket'
     region: 'us-east-1'
