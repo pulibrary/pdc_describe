@@ -94,18 +94,12 @@ class S3QueryService
     signer.presigned_url(:get_object, bucket: bucket_name, key:)
   end
 
-  # There is probably a better way to fetch the current ActiveStorage configuration but we have
-  # not found it.
-  def active_storage_configuration
-    Rails.configuration.active_storage.service_configurations[Rails.configuration.active_storage.service.to_s]
-  end
-
   def access_key_id
-    active_storage_configuration["access_key_id"]
+    S3QueryService.configuration["access_key_id"]
   end
 
   def secret_access_key
-    active_storage_configuration["secret_access_key"]
+    S3QueryService.configuration["secret_access_key"]
   end
 
   def credentials
