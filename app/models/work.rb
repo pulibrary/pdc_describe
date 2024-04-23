@@ -530,54 +530,11 @@ class Work < ApplicationRecord
       end
     end
 
-    # Generates the key for ActiveStorage::Attachment and Attachment::Blob objects
-    # @param attachment [ActiveStorage::Attachment]
-    # @return [String]
-    def generate_attachment_key(attachment)
-      attachment_filename = attachment.filename.to_s
-      attachment_key = attachment.key
-
-      # Files actually coming from S3 include the DOI and bucket as part of the file name
-      #  Files being attached in another manner may not have it, so we should include it.
-      #  This is really for testing only.
-      key_base = "#{doi}/#{id}"
-      attachment_key = [key_base, attachment_filename].join("/") unless attachment_key.include?(key_base)
-
-      attachment_ext = File.extname(attachment_filename)
-      attachment_query = attachment_key.gsub(attachment_ext, "")
-      results = ActiveStorage::Blob.where("key LIKE :query", query: "%#{attachment_query}%")
-      blobs = results.to_a
-
-      if blobs.present?
-        index = blobs.length + 1
-        attachment_key = attachment_key.gsub(/\.([a-zA-Z0-9\.]+)$/, "_#{index}.\\1")
-      end
-
-      attachment_key
-    end
-
     def track_state_change(user, state = aasm.to_state)
       uw = UserWork.new(user_id: user.id, work_id: id, state:)
       uw.save!
       WorkActivity.add_work_activity(id, "marked as #{state.to_s.titleize}", user.id, activity_type: WorkActivity::SYSTEM)
       WorkStateTransitionNotification.new(self, user.id).send
-    end
-
-    # This needs to be called #before_save
-    # This ensures that new ActiveStorage::Attachment objects are persisted with custom keys (which are generated from the file name and DOI)
-    # @param new_attachments [Array<ActiveStorage::Attachment>]
-    def save_new_attachments(new_attachments:)
-      new_attachments.each do |attachment|
-        # There are cases (race conditions?) where the ActiveStorage::Blob objects are not persisted
-        next if attachment.frozen?
-
-        # This ensures that the custom key for the ActiveStorage::Attachment and ActiveStorage::Blob objects are generated
-        generated_key = generate_attachment_key(attachment)
-        attachment.blob.key = generated_key
-        attachment.blob.save
-
-        attachment.save
-      end
     end
 
     # Request S3 Bucket Objects associated with this Work

@@ -10,7 +10,6 @@ class Readme
   def attach(readme_file_param)
     return "A README file is required!" if readme_file_param.blank? && blank?
     return nil if readme_file_param.blank?
-    return nil if ActiveStorage::Blob.service.name == :local
     remove_old_readme
 
     key = upload_readme(readme_file_param)

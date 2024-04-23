@@ -52,26 +52,6 @@ class S3File
     File.join(Rails.configuration.globus["post_curation_base_url"], encoded_filename)
   end
 
-  def create_blob(key: nil)
-    key ||= filename
-    params = { filename:, content_type: "", byte_size: size, checksum: }
-
-    blob = ActiveStorage::Blob.create_before_direct_upload!(**params)
-    blob.key = key
-    blob
-  end
-
-  def to_blob
-    existing_blob = ActiveStorage::Blob.find_by(key: filename)
-
-    if existing_blob.present?
-      Rails.logger.warn("There is a blob existing for #{filename}, which we are not expecting!  It will be reattached #{existing_blob.inspect}")
-      return existing_blob
-    end
-
-    create_blob
-  end
-
   delegate :s3_query_service, to: :@work
   delegate :bucket_name, to: :s3_query_service
   def s3_client
