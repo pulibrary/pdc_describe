@@ -193,7 +193,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
   end
 
   context "for PPPL works" do
-    let(:work) { FactoryBot.create(:tokamak_work_awaiting_approval) }
+    let(:work) { FactoryBot.create(:tokamak_work, state: "draft") }
     let(:user) { work.created_by_user }
 
     it "allows user to select a subcommunity" do

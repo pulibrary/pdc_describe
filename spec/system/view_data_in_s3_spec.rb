@@ -25,7 +25,7 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
 
       work.save
       work.reload
-      work.state = "awaiting_approval"
+      work.state = "draft"
       work.save
 
       visit work_path(work)
@@ -33,7 +33,8 @@ RSpec.describe "View status of data in S3", mock_ezid_api: true, js: true do
       expect(page).to have_content file1.filename_display
       expect(page).to have_content file2.filename_display
 
-      click_on "Edit"
+      click_on "Edit" # takes you to the wizard where no files are shown
+      visit edit_work_path(work)
       expect(page).to have_content file1.filename_display
       expect(page).to have_content file2.filename_display
     end
