@@ -325,16 +325,7 @@ class S3QueryService
 
   def count_objects(bucket_name: self.bucket_name, prefix: self.prefix)
     responses = s3_responses(bucket_name:, prefix:)
-    total_key_count = responses.reduce(0) { |total, resp| total + resp.key_count }
-    if total_key_count == 0
-      # if the bucket does not exist
-      # it will return 0
-      0
-    else
-      # if the bucket does exist
-      # s3 always sends back the bucket key as the first response, so we should not count it
-      total_key_count - 1
-    end
+    responses.reduce(0) { |total, resp| total + resp.key_count }
   end
 
   private
