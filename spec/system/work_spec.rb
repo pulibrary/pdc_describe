@@ -191,7 +191,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       it "does not use the wizard if the work once the work is not in draft" do
         sign_in user
         visit work_path(awaiting_approval_work)
-        expect(page.html.include?("/works/#{awaiting_approval_work.id}/edit")).to be true
+        expect(page.html.include?("/works/#{awaiting_approval_work.id}/edit")).to be false
       end
     end
 

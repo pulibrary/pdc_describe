@@ -48,9 +48,9 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
       page.find(:xpath, "//input[@value='file_other']").choose
       click_on "Next"
       click_on "Next"
-      click_on "Complete"
+      click_on "Cancel" # we don't want to complete becuase we can not edit after
 
-      expect(page).to have_content "awaiting_approval"
+      expect(page).to have_content "draft"
       work = Work.last
 
       # Submitter can edit their own work

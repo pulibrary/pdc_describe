@@ -1306,4 +1306,37 @@ RSpec.describe Work, type: :model do
       end
     end
   end
+
+  describe "#editable_in_current_state?" do
+    it "is editable by the depositor" do
+      expect(work.editable_in_current_state?(work.created_by_user)).to be_truthy
+    end
+
+    it "is editable by a moderator" do
+      expect(work.editable_in_current_state?(curator_user)).to be_truthy
+    end
+
+    it "is not editable by a random user" do
+      expect(work.editable_in_current_state?(rd_user)).to be_falsey
+    end
+
+    context "it is awaiting approval" do
+      let(:work) { FactoryBot.create :awaiting_approval_work }
+      before do
+        stub_s3 data: [FactoryBot.build(:s3_readme)]
+      end
+
+      it "is not editable by the depositor" do
+        expect(work.editable_in_current_state?(work.created_by_user)).to be_falsey
+      end
+
+      it "is editable by a moderator" do
+        expect(work.editable_in_current_state?(curator_user)).to be_truthy
+      end
+
+      it "is not editable by a random user" do
+        expect(work.editable_in_current_state?(rd_user)).to be_falsey
+      end
+    end
+  end
 end
