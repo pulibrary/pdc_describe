@@ -15,7 +15,7 @@ class WorkStateTransitionNotification
     @work_url = Rails.application.routes.url_helpers.work_url(work)
 
     # Troubleshooting https://github.com/pulibrary/pdc_describe/issues/1783
-    if @work_url.includes?("/describe/describe/")
+    if @work_url.include?("/describe/describe/")
       Rails.logger.error("URL #{@work_url} included /describe/describe/ and was fixed. See https://github.com/pulibrary/pdc_describe/issues/1783")
       @work_url = @work_url.gsub("/describe/describe/", "/describe/")
     end
