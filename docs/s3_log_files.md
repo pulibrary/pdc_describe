@@ -78,3 +78,14 @@ chmod u+x s3_download.sh
 
 grep -n $AWS_DOI ./s3_log_data/* | grep -v -e GET -e HEAD
 ```
+
+
+## Using lnav
+[lnav](https://lnav.org/) is a tool to navigate log files that provides several advanced query features. The default AWS S3 log files are not recognized by `lnav` but if you drop the first two columns of the files then they are recognized:
+
+```
+for file in ./s3_log_data/*; do awk '{print substr($0, index($0, $3))}' $file > $file.log done
+
+lnav ./s3_log_data/*.log
+```
+
