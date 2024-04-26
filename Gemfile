@@ -34,7 +34,7 @@ gem "nokogiri", ">= 1.13.4"
 gem "retryable"
 gem "rolify"
 gem "rspec-rails", "~> 5.0.0"
-gem "sidekiq", "~> 7.1"
+gem "sidekiq", "~> 7.2"
 gem "simplecov", require: false
 gem "vite_rails", "3.0.12"
 gem "whenever"
