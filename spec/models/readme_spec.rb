@@ -27,20 +27,20 @@ RSpec.describe Readme, type: :model do
   describe "#attach" do
     let(:uploaded_file) do
       ActionDispatch::Http::UploadedFile.new({
-                                               filename: "orcid.csv",
-                                               type: "text/csv",
-                                               tempfile: File.new(Rails.root.join("spec", "fixtures", "files", "orcid.csv"))
+                                               filename: "readme_template.txt",
+                                               type: "text/plain",
+                                               tempfile: File.new(Rails.root.join("spec", "fixtures", "files", "readme_template.txt"))
                                              })
     end
-    let(:new_readme) { FactoryBot.build :s3_file, filename: "bucket/key/README.csv" }
+    let(:new_readme) { FactoryBot.build :s3_file, filename: "bucket/key/readme_template.txt" }
 
-    it "attaches the file and renames to to README" do
+    it "attaches the readme file" do
       allow(fake_s3_service).to receive(:client_s3_files).and_return([new_readme])
-      allow(fake_s3_service).to receive(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv", size: 287).and_return("bucket/key/README.csv")
+      allow(fake_s3_service).to receive(:upload_file).with(io: uploaded_file.to_io, filename: "readme_template.txt", size: 2852).and_return("bucket/key/readme_template.txt")
       expect { expect(readme.attach(uploaded_file)).to be_nil }.to change { UploadSnapshot.count }.by 1
-      expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv", size: 287)
-      expect(readme.file_name).to eq("orcid.csv")
-      expect(work.activities.first.message).to eq("[{\"action\":\"added\",\"filename\":\"bucket/key/README.csv\",\"checksum\":\"abc123\"}]")
+      expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "readme_template.txt", size: 2852)
+      expect(readme.file_name).to eq("readme_template.txt")
+      expect(work.activities.first.message).to eq("[{\"action\":\"added\",\"filename\":\"bucket/key/readme_template.txt\",\"checksum\":\"abc123\"}]")
     end
 
     context "when no uploaded file is sent" do
@@ -68,24 +68,24 @@ RSpec.describe Readme, type: :model do
 
       it "returns an error message" do
         expect(readme.attach(uploaded_file)).to eq("An error uploading your README was encountered.  Please try again.")
-        expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv", size: 287)
+        expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "readme_template.txt", size: 2852)
       end
     end
 
     context "there is an existing readme that should be replaced" do
       let(:s3_files) { [FactoryBot.build(:s3_file, work:), FactoryBot.build(:s3_readme, work:)] }
-      let(:new_readme) { FactoryBot.build :s3_file, filename: "bucket/key/README.csv" }
+      let(:new_readme) { FactoryBot.build :s3_file, filename: "bucket/key/readme_template.txt" }
 
       it "returns no error message" do
         allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_files, s3_files, s3_files, [s3_files.first, new_readme])
-        allow(fake_s3_service).to receive(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv", size: 287).and_return("bucket/key/README.csv")
+        allow(fake_s3_service).to receive(:upload_file).with(io: uploaded_file.to_io, filename: "readme_template.txt", size: 2852).and_return("bucket/key/readme_template.txt")
         work.reload_snapshots
         expect { expect(readme.attach(uploaded_file)).to be_nil }.to change { UploadSnapshot.count }.by 1
-        expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "README.csv", size: 287)
+        expect(fake_s3_service).to have_received(:upload_file).with(io: uploaded_file.to_io, filename: "readme_template.txt", size: 2852)
         expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_files.last.key)
-        expect(readme.file_name).to eq("orcid.csv")
+        expect(readme.file_name).to eq("readme_template.txt")
         expect(work.activities.last.message).to eq("[{\"action\":\"removed\",\"filename\":\"README.txt\",\"checksum\":\"abc123\"}," \
-                                                   "{\"action\":\"added\",\"filename\":\"bucket/key/README.csv\",\"checksum\":\"abc123\"}]")
+                                                   "{\"action\":\"added\",\"filename\":\"bucket/key/readme_template.txt\",\"checksum\":\"abc123\"}]")
       end
     end
   end
