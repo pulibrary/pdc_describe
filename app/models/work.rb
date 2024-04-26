@@ -240,6 +240,13 @@ class Work < ApplicationRecord
     new_curator = User.find(curator_user_id)
 
     work_url = "[#{title}](#{Rails.application.routes.url_helpers.work_url(self)})"
+
+    # Troubleshooting https://github.com/pulibrary/pdc_describe/issues/1783
+    if work_url.include?("/describe/describe/")
+      Rails.logger.error("URL #{work_url} included /describe/describe/ and was fixed. See https://github.com/pulibrary/pdc_describe/issues/1783")
+      work_url = work_url.gsub("/describe/describe/", "/describe/")
+    end
+
     message = if curator_user_id.to_i == current_user.id
                 "Self-assigned @#{current_user.uid} as curator for work #{work_url}"
               else
