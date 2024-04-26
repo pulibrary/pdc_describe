@@ -48,8 +48,7 @@ class Readme
       end
 
       def upload_readme(readme_file_param)
-        extension = File.extname(readme_file_param.original_filename)
-        readme_name = "README#{extension}"
+        readme_name = readme_file_param.original_filename
         size = readme_file_param.size
         work.s3_query_service.upload_file(io: readme_file_param.to_io, filename: readme_name, size:)
       end
