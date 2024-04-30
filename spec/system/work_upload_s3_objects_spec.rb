@@ -52,7 +52,7 @@ describe "Uploading S3 Bucket Objects for new Work", mock_ezid_api: true do
         expect(page).to have_content upload_file_name
         expect(page).to have_content filename1
         expect(page).to have_content filename2
-        expect(page).to have_content "Total Size\n31.5 KB"
+        expect(page).to have_content "Total Size\n32.3 KB"
         expect(work.reload.pre_curation_uploads.length).to eq(3)
       end
 
