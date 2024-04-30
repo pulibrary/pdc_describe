@@ -33,6 +33,20 @@ RSpec.describe S3File, type: :model do
     end
   end
 
+  context "display file size" do
+    it "uses 1000 base by default when calculating display value" do
+      expect(s3_file.display_size).to eq "10.8 KB"
+    end
+  end
+
+  describe "#number_to_human_size" do
+    it "honors the base if we pass it one" do
+      expect(s3_file.number_to_human_size(size)).to eq "10.8 KB"
+      expect(s3_file.number_to_human_size(size, base: 1000)).to eq "10.8 KB"
+      expect(s3_file.number_to_human_size(size, base: 1024)).to eq "10.5 KB"
+    end
+  end
+
   context "safe_id" do
     it "calculates correct safe_id for files with spaces and non-alpha numeric characters" do
       expect(s3_file.safe_id).to eq "10-99999-123-abc-#{work.id}-filename--with-spaces--w-----chars-txt"
