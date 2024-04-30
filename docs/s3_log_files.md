@@ -19,6 +19,12 @@ Get the filenames only (must use single quotes!):
 awk '{ print $4 }' s3_logs.txt > s3_logs_names.txt
 ```
 
+Get the filenames only but sorting so that larger files are listed first (this helps to make sure we download the more interesting files first):
+
+```
+awk '{ printf("%10d %s\r\n",$3,$4) }' s3_logs.txt | sort -r | awk '{ print($2) }' > s3_logs_names.txt
+```
+
 
 ## Downloading a single file
 Download a single file from AWS:
