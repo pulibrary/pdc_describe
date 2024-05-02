@@ -126,4 +126,22 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
       expect(page).to have_css(validate_form_css)
     end
   end
+
+  context "user bails out of the wizard after record has been created on the database" do
+    it "handles an abandoned work properly" do
+      sign_in user
+      stub_datacite
+      visit work_policy_path
+      check "agreement"
+      click_on "Confirm"
+      work = Work.last
+
+      # Emulate the user completelly abandoning the wizard
+      visit user_path(user)
+
+      # Force the user back to the wizard (rather than to the Show page)
+      expect(page.html.include?("(untitled)")).to be true
+      expect(page.html.include?("/works/#{work.id}/new-submission")).to be true
+    end
+  end
 end
