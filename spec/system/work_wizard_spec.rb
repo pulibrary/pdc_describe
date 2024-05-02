@@ -136,12 +136,12 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
       click_on "Confirm"
       work = Work.last
 
-      # Emulates the user completelly abandoning the wizard
+      # Emulate the user completelly abandoning the wizard
       visit user_path(user)
 
-      # Force the user back to the wizard
+      # Force the user back to the wizard (rather than to the Show page)
       expect(page.html.include?("(untitled)")).to be true
-      expect(page.html.include?("/works/#{work.id}/edit-wizard")).to be true
+      expect(page.html.include?("/works/#{work.id}/new-submission")).to be true
     end
   end
 end

@@ -14,7 +14,7 @@
         <tr>
           <td>
             <% if ds.title.blank? %>
-              <a href="<%= edit_work_wizard_path(ds) %>">(untitled)</a>
+              <a href="<%= work_create_new_submission_path(ds) %>">(untitled)</a>
             <% else %>
               <a href="<%= work_path(ds) %>"><%= ds.title %></a>
             <% end %>
