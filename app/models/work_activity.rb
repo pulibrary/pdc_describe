@@ -128,6 +128,7 @@ class WorkActivity < ApplicationRecord
     end
 
     def created_by_user_html
+      # This is where the bug is originating
       return UNKNOWN_USER unless @work_activity.created_by_user
 
       "#{@work_activity.created_by_user.given_name_safe} (@#{@work_activity.created_by_user.uid})"
@@ -248,7 +249,30 @@ class WorkActivity < ApplicationRecord
       Kramdown::Document.new(text).to_html
     end
 
+    def extract_model_from(uid:)
+      Group.find_by(code: uid) || User.find_by(uid:) || uid
+    end
+
     def user_refernces(text_in)
+      label = text_in.gsub(USER_REFERENCE)
+      uid = label[1..-1]
+      raise(StandardError, "Could not extract the UID from the text: #{text_in}") if uid.nil?
+
+      model = extract_model_from(uid:)
+
+      if model.is?(Group)
+        "<a class='message-user-link' title='#{model.title}' href='#{@work_activity.group_path(model)}'>#{model.title}</a>"
+      else
+        user_info = if model.nil?
+                      uid
+                    else
+                      model.given_name_safe
+                    end
+        "<a class='message-user-link' title='#{user_info}' href='#{@work_activity.users_path}/#{uid}'>#{label}</a>"
+      end
+    end
+
+    def deprecated
       # convert user references to user links
       text_in.gsub(USER_REFERENCE) do |at_uid|
         uid = at_uid[1..-1]
@@ -267,6 +291,7 @@ class WorkActivity < ApplicationRecord
             "<a class='message-user-link' title='#{user_info}' href='#{@work_activity.users_path}/#{uid}'>#{at_uid}</a>"
           end
         else
+          # This is where the bug is originating
           UNKNOWN_USER
         end
       end
@@ -279,6 +304,7 @@ class WorkActivity < ApplicationRecord
   class Message < BaseMessage
     # Override the default:
     def created_by_user_html
+      # This is where the bug is originating
       return UNKNOWN_USER unless @work_activity.created_by_user
 
       user = @work_activity.created_by_user
