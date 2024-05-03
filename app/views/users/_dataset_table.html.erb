@@ -13,7 +13,11 @@
       <% datasets.each do |ds| %>
         <tr>
           <td>
-            <a href="<%= work_path(ds) %>"><%= ds.title %></a>
+            <% if ds.title.blank? %>
+              <a href="<%= work_create_new_submission_path(ds) %>">(untitled)</a>
+            <% else %>
+              <a href="<%= work_path(ds) %>"><%= ds.title %></a>
+            <% end %>
             <% if ds.new_notification_count_for_user(@user.id) > 0 %>
               <a href="<%= work_path(ds) %>">
                 <span class="badge rounded-pill bg-primary" title="<%= ds.new_notification_count_for_user(@user.id) %> new notifications"><%= ds.new_notification_count_for_user(@user.id) %></span>
