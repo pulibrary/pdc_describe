@@ -84,7 +84,9 @@ class WorksWizardController < ApplicationController
     # Notice that we log the URL (rather than @work.doi) because sometimes we are getting a nil @work.
     # The URL will include the ID and might help us troubleshoot the issue further if it happens again.
     # See https://github.com/pulibrary/pdc_describe/issues/1801
-    Rails.logger.error("Failed to update work snapshot, URL: #{request.url}: #{ex}")
+    error_message = "Failed to update work snapshot, URL: #{request.url}: #{ex}"
+    Rails.logger.error(error_message)
+    Honeybadger.notify(error_message)
     flash[:notice] = "Failed to update work snapshot, work: #{@work&.doi}: #{ex}. Please contact rdss@princeton.edu for assistance."
 
     redirect_to work_file_upload_path(@work)
