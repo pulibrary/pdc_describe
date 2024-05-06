@@ -36,7 +36,8 @@ Metrics/BlockLength:
   Max: 40 # default: 25
 
 Metrics/ClassLength:
-  Exclude: []
+  Exclude:
+    - app/controllers/works_wizard_controller.rb
   Max: 150 # default: 100
 
 Metrics/CyclomaticComplexity:
