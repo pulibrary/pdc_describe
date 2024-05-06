@@ -297,8 +297,8 @@ RSpec.describe WorksWizardController do
           # TODO: - how do we tell the user there was an error now that this in not in the page context?
           # This error that is happening seems to be just a random error so it is ok that we still capture that
           expect(response).to redirect_to(work_file_upload_path(work))
-          expect(controller.flash[:notice].start_with?("Failed to attach the file uploads for the work #{work.doi}")).to be true
-          expect(Rails.logger).to have_received(:error).with(/Failed to attach the file uploads for the work #{work.doi}/)
+          expect(controller.flash[:notice].start_with?("Failed to update work snapshot, work: #{work.doi}")).to be true
+          expect(Rails.logger).to have_received(:error).with(/Failed to update work snapshot, URL: http\:\/\/test.host\/works\/#{work.id}\/file-upload/)
         end
       end
     end
