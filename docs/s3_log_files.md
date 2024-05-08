@@ -22,7 +22,7 @@ awk '{ print $4 }' s3_logs.txt > s3_logs_names.txt
 Get the filenames only but sorting so that larger files are listed first (this helps to make sure we download the more interesting files first):
 
 ```
-awk '{ printf("%10d %s\r\n",$3,$4) }' s3_logs.txt | sort -r | awk '{ print($2) }' > s3_logs_names.txt
+awk '{ printf("%10d %s\n",$3,$4) }' s3_logs.txt | sort -r | awk '{ print($2) }' > s3_logs_names.txt
 ```
 
 
@@ -85,12 +85,18 @@ chmod u+x s3_download.sh
 grep -n $AWS_DOI ./s3_log_data/* | grep -v -e GET -e HEAD
 ```
 
+## Globus traffic
+Filter all GET requests coming from Globus:
+
+```
+grep -h globus-user *.log | grep GET.OBJECT | sort
+```
 
 ## Using lnav
 [lnav](https://lnav.org/) is a tool to navigate log files that provides several advanced query features. The default AWS S3 log files are not recognized by `lnav` but if you drop the first two columns of the files then they are recognized:
 
 ```
-for file in ./s3_log_data/*; do awk '{print substr($0, index($0, $3))}' $file > $file.log done
+for file in ./s3_log_data/*; do awk '{print substr($0, index($0, $3))}' $file > $file.log; done
 
 lnav ./s3_log_data/*.log
 ```
