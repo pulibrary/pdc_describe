@@ -53,14 +53,19 @@ class WorkUploadsEditService
     def add_uploads(added_files)
       return if added_files.empty?
 
+      # Update the upload snapshot to reflect the files the user wants to add...
       last_snapshot = work.upload_snapshots.first
       snapshot = BackgroundUploadSnapshot.new(work:)
       snapshot.store_files(added_files, pre_existing_files: last_snapshot&.files, current_user: @current_user)
       snapshot.save
+
+      # ...adds the file to AWS directly and mark them as complete in the snapshot
       added_files.map do |file|
-        new_path = "/tmp/#{file.original_filename}"
-        FileUtils.mv(file.path, new_path)
-        AttachFileToWorkJob.perform_later(file_path: new_path, file_name: file.original_filename, size: file.size, background_upload_snapshot_id: snapshot.id)
+        work.s3_query_service.upload_file(io: file.to_io, filename: file.original_filename, size: file.size)
+        snapshot.mark_complete(file.original_filename, work.s3_query_service.last_response.etag.delete('"'))
+        snapshot.save!
+        # delete the local file
+        File.delete(file.path)
       end
     end
 end

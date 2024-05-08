@@ -61,10 +61,10 @@ class WorksWizardController < ApplicationController
   end
 
   # POST /works/1/upload-files-wizard (called via Uppy)
-  # this puts the files into AWS, but does not capture anything in the Upload Snapshot.  THat occurs when the user hits next
   def upload_files
     @work = Work.find(params[:id])
-    params["files"].each { |file| upload_file(file) }
+    upload_service = WorkUploadsEditService.new(@work, current_user)
+    upload_service.update_precurated_file_list(params["files"], [])
   end
 
   # POST /works/1/file_upload
