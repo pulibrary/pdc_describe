@@ -80,7 +80,6 @@ RSpec.describe WorkUploadsEditService do
       upload_service = described_class.new(work, user)
       updated_work = nil
       expect { updated_work = upload_service.update_precurated_file_list(added_files, deleted_files) }.to change { BackgroundUploadSnapshot.count }.by 1
-      # perform_enqueued_jobs
 
       expect(updated_work.pre_curation_uploads.map(&:filename).sort).to eq([s3_file1.key, s3_file2.key, s3_file3.key].sort)
       expect(fake_s3_service).not_to have_received(:delete_s3_object)
