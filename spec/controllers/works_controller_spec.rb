@@ -157,7 +157,6 @@ RSpec.describe WorksController do
       before do
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
         allow(fake_s3_service).to receive(:client_s3_files).and_return([file1])
-        allow(AttachFileToWorkJob).to receive(:perform_later)
       end
 
       it "handles the update page" do
@@ -185,12 +184,8 @@ RSpec.describe WorksController do
         background_snapshot = BackgroundUploadSnapshot.last
         expect(background_snapshot.work).to eq(work)
         expect(background_snapshot.files.map { |file| file["user_id"] }.uniq).to eq([user.id])
-        expect(AttachFileToWorkJob).to have_received(:perform_later).with(
-          background_upload_snapshot_id: background_snapshot.id,
-          size: 92,
-          file_name: "us_covid_2019.csv",
-          file_path: anything
-        )
+        expect(background_snapshot.files.first["filename"]).to eq "10.34770/123-abc/1us_covid_2019.csv"
+        expect(background_snapshot.files.first["upload_status"]).to eq "complete"
       end
     end
 
@@ -222,7 +217,6 @@ RSpec.describe WorksController do
         # This is utilized for active record to send the file to S3
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
         allow(fake_s3_service).to receive(:client_s3_files).and_return([file1, file2])
-        allow(AttachFileToWorkJob).to receive(:perform_later)
       end
 
       it "handles the update page" do
@@ -250,18 +244,11 @@ RSpec.describe WorksController do
         background_snapshot = BackgroundUploadSnapshot.last
         expect(background_snapshot.work).to eq(work)
         expect(background_snapshot.files.map { |file| file["user_id"] }.uniq).to eq([user.id])
-        expect(AttachFileToWorkJob).to have_received(:perform_later).with(
-          background_upload_snapshot_id: background_snapshot.id,
-          size: 92,
-          file_name: "us_covid_2019.csv",
-          file_path: anything
-        )
-        expect(AttachFileToWorkJob).to have_received(:perform_later).with(
-          background_upload_snapshot_id: background_snapshot.id,
-          size: 114,
-          file_name: "us_covid_2020.csv",
-          file_path: anything
-        )
+
+        file1 = background_snapshot.files.find { |file| file["filename"] == "10.34770/123-abc/1us_covid_2019.csv" }
+        expect(file1["upload_status"]).to eq "complete"
+        file2 = background_snapshot.files.find { |file| file["filename"] == "10.34770/123-abc/1us_covid_2020.csv" }
+        expect(file1["upload_status"]).to eq "complete"
       end
     end
 
@@ -536,7 +523,6 @@ RSpec.describe WorksController do
         fake_s3_service
         stub_request(:put, /#{bucket_url}/).to_return(status: 200)
         stub_request(:delete, /#{bucket_url}/).to_return(status: 200)
-        allow(AttachFileToWorkJob).to receive(:perform_later)
 
         sign_in user
       end
@@ -557,14 +543,12 @@ RSpec.describe WorksController do
         background_snapshot = BackgroundUploadSnapshot.last
         expect(background_snapshot.work).to eq(work)
         expect(background_snapshot.files.map { |file| file["user_id"] }.uniq).to eq([user.id])
-        expect(AttachFileToWorkJob).to have_received(:perform_later).with(
-          background_upload_snapshot_id: background_snapshot.id, size: 114,
-          file_name: uploaded_files.first.original_filename, file_path: anything
-        )
-        expect(AttachFileToWorkJob).to have_received(:perform_later).with(
-          background_upload_snapshot_id: background_snapshot.id, size: 92,
-          file_name: uploaded_files.last.original_filename, file_path: anything
-        )
+
+        file1 = background_snapshot.files.find { |file| file["filename"].include?(uploaded_files.first.original_filename) }
+        expect(file1["upload_status"]).to eq "complete"
+
+        file2 = background_snapshot.files.find { |file| file["filename"].include?(uploaded_files.last.original_filename) }
+        expect(file2["upload_status"]).to eq "complete"
       end
     end
 
