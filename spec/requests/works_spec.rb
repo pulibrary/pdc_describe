@@ -161,7 +161,6 @@ RSpec.describe "/works", type: :request do
           # This is utilized for active record to send the file to S3
           stub_request(:put, /#{bucket_url}/).to_return(status: 200)
           allow(fake_s3_service).to receive(:client_s3_files).and_return([], [file1, file2])
-          allow(AttachFileToWorkJob).to receive(:perform_later)
 
           stub_ark
           patch work_url(work), params: params
@@ -175,18 +174,10 @@ RSpec.describe "/works", type: :request do
           background_snapshot = BackgroundUploadSnapshot.last
           expect(background_snapshot.work).to eq(work)
           expect(background_snapshot.files.map { |file| file["user_id"] }.uniq).to eq([user.id])
-          expect(AttachFileToWorkJob).to have_received(:perform_later).with(
-            background_upload_snapshot_id: background_snapshot.id,
-            size: 92,
-            file_name: "us_covid_2019.csv",
-            file_path: anything
-          )
-          expect(AttachFileToWorkJob).to have_received(:perform_later).with(
-            background_upload_snapshot_id: background_snapshot.id,
-            size: 114,
-            file_name: "us_covid_2020.csv",
-            file_path: anything
-          )
+          expect(background_snapshot.files.first["filename"]).to eq "10.34770/123-abc/1us_covid_2019.csv"
+          expect(background_snapshot.files.first["upload_status"]).to eq "complete"
+          expect(background_snapshot.files.second["filename"]).to eq "10.34770/123-abc/1us_covid_2020.csv"
+          expect(background_snapshot.files.second["upload_status"]).to eq "complete"
         end
       end
 

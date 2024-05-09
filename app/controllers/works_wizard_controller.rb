@@ -61,10 +61,10 @@ class WorksWizardController < ApplicationController
   end
 
   # POST /works/1/upload-files-wizard (called via Uppy)
-  # this puts the files into AWS, but does not capture anything in the Upload Snapshot.  THat occurs when the user hits next
   def upload_files
     @work = Work.find(params[:id])
-    params["files"].each { |file| upload_file(file) }
+    upload_service = WorkUploadsEditService.new(@work, current_user)
+    upload_service.update_precurated_file_list(params["files"], [])
   end
 
   # POST /works/1/file_upload
@@ -218,16 +218,6 @@ class WorksWizardController < ApplicationController
         redirect_to edit_work_wizard_path(id: @work.id), notice: transition_error_message, params:
       else
         redirect_to work_create_new_submission_path(@work), notice: transition_error_message, params:
-      end
-    end
-
-    def upload_file(file)
-      key = @work.s3_query_service.upload_file(io: file.to_io, filename: file.original_filename, size: file.size)
-      if key.blank?
-        # TODO: Can we tell uppy there was a failure instead of just logging the error here
-        #  you can render json: {}, status: 500 but how do you tell one file failed instead of all of them
-        Rails.logger.error("Error uploading #{file.original_filename} to work #{@work.id}")
-        Honeybadger.notify("Error uploading #{file.original_filename} to work #{@work.id}")
       end
     end
 end
