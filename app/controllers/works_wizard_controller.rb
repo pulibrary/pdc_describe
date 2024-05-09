@@ -10,7 +10,6 @@ require "open-uri"
 #     attachment_selected -> file_other ->                  review -> validate -> [ work controller ] show & file_list
 #                         \> file_upload -> file_uploaded -^
 
-# rubocop:disable Metrics/ClassLength
 class WorksWizardController < ApplicationController
   include ERB::Util
   around_action :rescue_aasm_error, only: [:validate, :new_submission_save]
@@ -217,4 +216,3 @@ class WorksWizardController < ApplicationController
       end
     end
 end
-# rubocop:enable Metrics/ClassLength

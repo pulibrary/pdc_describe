@@ -17,7 +17,7 @@ AllCops:
 
 Layout/IndentationConsistency:
   EnforcedStyle: indented_internal_methods
-  
+
 Layout/LineLength:
   Exclude:
     - "spec/system/data_migration/*"
@@ -87,4 +87,7 @@ RSpec/ExampleLength:
   Enabled: false
 
 Style/NumericPredicate:
+  Enabled: false
+
+Style/Next:
   Enabled: false

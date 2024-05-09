@@ -61,15 +61,22 @@ class WorkUploadsEditService
 
       # ...adds the file to AWS directly and mark them as complete in the snapshot
       added_files.map do |file|
-        key = work.s3_query_service.upload_file(io: file.to_io, filename: file.original_filename, size: file.size)
-        if key.blank?
-          Rails.logger.error("Error uploading #{file.original_filename} to work #{work.id}")
-          Honeybadger.notify("Error uploading #{file.original_filename} to work #{work.id}")
+        if upload_file(file)
+          snapshot.mark_complete(file.original_filename, work.s3_query_service.last_response.etag.delete('"'))
+          snapshot.save!
+          File.delete(file.path) # delete the local copy
         end
-        snapshot.mark_complete(file.original_filename, work.s3_query_service.last_response.etag.delete('"'))
-        snapshot.save!
-        # delete the local file
-        File.delete(file.path)
+      end
+    end
+
+    def upload_file(file)
+      key = work.s3_query_service.upload_file(io: file.to_io, filename: file.original_filename, size: file.size)
+      if key.blank?
+        Rails.logger.error("Error uploading #{file.original_filename} to work #{work.id}")
+        Honeybadger.notify("Error uploading #{file.original_filename} to work #{work.id}")
+        false
+      else
+        true
       end
     end
 end
