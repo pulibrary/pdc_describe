@@ -216,15 +216,5 @@ class WorksWizardController < ApplicationController
         redirect_to work_create_new_submission_path(@work), notice: transition_error_message, params:
       end
     end
-
-    def upload_file(file)
-      key = @work.s3_query_service.upload_file(io: file.to_io, filename: file.original_filename, size: file.size)
-      if key.blank?
-        # TODO: Can we tell uppy there was a failure instead of just logging the error here
-        #  you can render json: {}, status: 500 but how do you tell one file failed instead of all of them
-        Rails.logger.error("Error uploading #{file.original_filename} to work #{@work.id}")
-        Honeybadger.notify("Error uploading #{file.original_filename} to work #{@work.id}")
-      end
-    end
 end
 # rubocop:enable Metrics/ClassLength
