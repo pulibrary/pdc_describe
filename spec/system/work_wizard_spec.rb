@@ -93,6 +93,7 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     expect(page).to have_css(validate_form_css)
     expect(page).to have_content("this is not on the page")
     click_on "Grant License and Complete"
+    page.driver.browser.switch_to.alert.accept
     expect(page).to have_content("Welcome")
     expect(page).to have_content(work.title)
   end
