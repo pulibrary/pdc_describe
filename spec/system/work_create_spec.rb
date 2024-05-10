@@ -304,6 +304,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
         click_on "Next"
         expect(page).to have_content("In furtherance of its non-profit educational mission, Princeton University")
         click_on "Complete"
+        page.driver.browser.switch_to.alert.accept
 
         work.reload
         expect(work.awaiting_approval?).to be true

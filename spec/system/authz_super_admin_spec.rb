@@ -46,6 +46,7 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
       click_on "Next"
       click_on "Next"
       click_on "Complete"
+      page.driver.browser.switch_to.alert.accept
 
       expect(page).to have_content "awaiting_approval"
       work = Work.last
