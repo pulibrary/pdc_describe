@@ -36,6 +36,7 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
     click_on "Next"
     click_on "Next"
     click_on "Complete"
+    page.driver.browser.switch_to.alert.accept
 
     expect(page).to have_content "awaiting_approval"
     expect(Ezid::Identifier).not_to have_received(:mint)
