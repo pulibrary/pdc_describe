@@ -10,7 +10,7 @@
     <textarea id="submission_notes" name="submission_notes" cols="80", rows="10"
       placeholder="(optional) Type here to leave a message for the curators"><%= @work.submission_notes %></textarea>
     <div class="actions">
-      <%= submit_tag "Grant License and Complete", class: "btn btn-primary wizard-next-button" %>
+      <%= submit_tag "Grant License and Complete", class: "btn btn-primary wizard-next-button", method: :post, id: "grant-button" %>
       <%= form.button 'Save', type: 'submit', name: 'save_only', value: 'true', class: "btn btn-save wizard-next-button" %>
       <%= link_to "Previous", file_location_url , class: "btn btn-previous wizard-next-button" %>
       <%= link_to "Cancel", user_path(current_user), class: "btn btn-secondary" %>
@@ -18,3 +18,12 @@
   <% end %>
 </div>
 
+<script>
+  $("#grant-button").on("click", (event) => {
+    var message = "You're about to grant license for this dataset. Are you sure?";
+    var input = confirm(message);
+    if(input == false){
+      event.preventDefault();
+    }
+  });
+</script>

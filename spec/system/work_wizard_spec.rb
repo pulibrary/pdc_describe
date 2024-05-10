@@ -97,6 +97,25 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     expect(page).to have_content(work.title)
   end
 
+  context "User submits their work" do
+    it "displays confirm dialogue when user grants license", js: true do
+      sign_in user
+      work = FactoryBot.create :draft_work
+      visit work_review_path(work)
+      click_on "Grant License and Complete"
+      page.driver.browser.switch_to.alert.accept
+      expect(page).to have_content("Welcome")
+    end
+    it "remains on the same page if cancel is clicked", js: true do
+      sign_in user
+      work = FactoryBot.create :draft_work
+      visit work_review_path(work)
+      click_on "Grant License and Complete"
+      page.driver.browser.switch_to.alert.dismiss
+      expect(page).to have_content("New Submission")
+    end
+  end
+
   context "file is in another location" do
     it "allows me to stay on each page and then move forward" do
       sign_in user
