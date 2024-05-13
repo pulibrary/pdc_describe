@@ -153,7 +153,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       fill_in "title_main", with: title
       click_on "Create"
       click_on "Complete"
-      expect(page).to have_content "Must provide a README"
+      expect(page).to have_content "You must include a README."
 
       # fake that the user put a file up in globus
       allow(fake_s3_service).to receive(:client_s3_files).and_return([FactoryBot.build(:s3_readme)])

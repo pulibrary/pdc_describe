@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
     #
     # @return [String] a combined error message for the work and transition error
     #
-    def message_from_assm_error(aasm_error:, work:)
+    def message_from_aasm_error(aasm_error:, work:)
       message = aasm_error.message
       if work.errors.count > 0
         message = work.errors.to_a.join(", ")
@@ -99,7 +99,7 @@ class ApplicationController < ActionController::Base
     def rescue_aasm_error
       yield
     rescue AASM::InvalidTransition => error
-      message = message_from_assm_error(aasm_error: error, work: @work)
+      message = message_from_aasm_error(aasm_error: error, work: @work)
 
       Honeybadger.notify("Invalid #{@work.current_transition}: #{error.message} errors: #{message}")
       transition_error_message = "We apologize, the following errors were encountered: #{message}. Please contact the PDC Describe administrators for any assistance."

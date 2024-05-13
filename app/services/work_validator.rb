@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 class WorkValidator
+  include Rails.application.routes.url_helpers
   attr_reader :work
 
   delegate :errors, :metadata, :resource, :ark, :doi, :user_entered_doi, :id, :group,
@@ -51,7 +52,7 @@ class WorkValidator
     end
     validate_files
     if pre_curation_uploads.empty? && post_curation_uploads.empty?
-      errors.add :base, "Uploads must be present for a work to be approved"
+      errors.add(:base, "You must include at least one file. <a href='#{work_file_upload_path(work)}'>Please upload one</a>")
     end
     errors.count == 0
   end
@@ -161,6 +162,7 @@ class WorkValidator
     def validate_files
       return if @work.resource.migrated
       readme = Readme.new(work, nil)
-      errors.add(:base, "Must provide a README") if readme.blank?
+      errors.add(:base, "You must include a README. <a href='#{work_readme_select_path(work)}'>Please upload one</a>") if readme.blank?
+      errors.add(:base, "You must provide only one README file upload") if work.readme_uploads.length > 1
     end
 end

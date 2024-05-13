@@ -110,6 +110,7 @@ class WorksWizardController < ApplicationController
   # PATCH /works/1/validate-wizard
   def validate
     @work.submission_notes = params["submission_notes"]
+
     if params[:save_only] == "true"
       @work.save
       render :review
@@ -139,11 +140,19 @@ class WorksWizardController < ApplicationController
     end
   end
 
+  def files_param
+    params["files"]
+  end
+
   # Uploads the README file, called by Uppy.
   # POST /works/1/readme-uploaded-payload
   def readme_uploaded_payload
+    raise StandardError("Only one README file can be uploaded.") if files_param.empty?
+    raise StandardError("Only one README file can be uploaded.") if files_param.length > 1
+
+    readme_file = files_param.first
     readme = Readme.new(@work, current_user)
-    readme_file = params["files"].first
+
     readme_error = readme.attach(readme_file)
     if readme_error.nil?
       render plain: readme.file_name
@@ -157,6 +166,19 @@ class WorksWizardController < ApplicationController
     WorkMetadataService.file_location_url(@work)
   end
   helper_method :file_location_url
+
+  def rescue_aasm_error
+    yield
+  rescue AASM::InvalidTransition => error
+    message = message_from_aasm_error(aasm_error: error, work: @work)
+
+    Honeybadger.notify("Invalid #{@work.current_transition}: #{error.message} errors: #{message}")
+    transition_error_message = "We apologize, the following errors were encountered: #{message}."
+    @errors = [transition_error_message]
+
+    # redirect_to root_url, notice: transition_error_message
+    redirect_aasm_error(transition_error_message)
+  end
 
   private
 
@@ -204,7 +226,7 @@ class WorksWizardController < ApplicationController
       patch_params[:readme_file]
     end
 
-    def rescue_aasm_error
+    def rescue_aasm_error_dis
       super
     rescue StandardError => generic_error
       redirect_to root_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."

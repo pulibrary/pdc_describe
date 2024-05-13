@@ -725,15 +725,26 @@ RSpec.describe WorksController do
       end
 
       context "no files attached" do
-        it "handles aproval errors" do
-          fake_s3_service = stub_s3 data: [FactoryBot.build(:s3_readme)]
+        let(:data) do
+          [
+            FactoryBot.build(:s3_readme),
+            FactoryBot.build(:s3_file)
+          ]
+        end
+        let(:fake_s3_service) { stub_s3(data:) }
+        before do
+          fake_s3_service
           work.complete_submission!(user)
           allow(fake_s3_service).to receive(:client_s3_files).and_return([])
           sign_in curator
+        end
+        it "handles aproval errors" do
           post :approve, params: { id: work.id }
           expect(response.status).to be 302
           # rubocop:disable Layout/LineLength
-          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Must provide a README, Uploads must be present for a work to be approved. Please contact the PDC Describe administrators for any assistance."])
+          # binding.pry
+          # "We apologize, the following errors were encountered: You must include a README. <a href='/works/1/readme-select'>Please upload one</a>, You must include at least one file. <a href='/works/1/file-upload'>Please upload one</a>. Please contact the PDC Describe administrators for any assistance."
+          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: You must include a README. <a href='#{work_readme_select_path(work)}'>Please upload one</a>, You must include at least one file. <a href='#{work_file_upload_path(work)}'>Please upload one</a>. Please contact the PDC Describe administrators for any assistance."])
           # rubocop:enable Layout/LineLength
         end
       end
@@ -1263,7 +1274,9 @@ RSpec.describe WorksController do
       sign_in user
       post :validate, params: { id: work.id }
       expect(response).to redirect_to(edit_work_path(work))
-      expect(controller.flash[:notice]).to eq("We apologize, the following errors were encountered: Must provide a README. Please contact the PDC Describe administrators for any assistance.")
+      # rubocop:disable Layout/LineLength
+      expect(controller.flash[:notice]).to eq("We apologize, the following errors were encountered: You must include a README. <a href='#{work_readme_select_path(work)}'>Please upload one</a>. Please contact the PDC Describe administrators for any assistance.")
+      # rubocop:enable Layout/LineLength
     end
 
     it "validates a work completes it when there are no errors" do
