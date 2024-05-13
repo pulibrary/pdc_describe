@@ -48,6 +48,9 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
       click_on "Complete"
       page.driver.browser.switch_to.alert.accept
 
+      expect(page).to have_content("5-10 business days")
+      click_on "My Dashboard"
+
       expect(page).to have_content "awaiting_approval"
       work = Work.last
       allow(Work).to receive(:find).with(work.id).and_return(work)

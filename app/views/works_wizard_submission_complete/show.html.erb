@@ -1,0 +1,14 @@
+<div class="wizard-area">
+
+  <h1>Submission complete</h1>
+  <%= render "works_wizard/wizard_progress", wizard_step: 5 %>
+
+  <p> Thank you for your submission. You should hear back from a curator within 5-10 business days.  Your submission is not available to edit while the curators are reviewing it.
+  Please contact <%= mail_to(@email) %> for assistance if you have any question.
+  </p>
+
+  <div class="actions">
+    <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-primary" %>
+  </div>
+
+</div>

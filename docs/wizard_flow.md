@@ -31,9 +31,10 @@
         file_upload -- User uploads Attachments --> review
         file_upload -- User cancels --> user_show
         file_upload -- User saves --> file_upload
-        review -- User Submits work as complete --> validate
+        review -- User Submits work as complete --> validate{ work valid?}
         review -- User cancels --> user_show
         review -- User saves --> review
+        validate -- no --> edit_wizard
     end
 
     subgraph WorksWizardUpdateAdditionalController
@@ -42,4 +43,10 @@
       update_additional_save -- User saves --> update_additional_save
       update_additional_save --> readme_select
     end
+
+     subgraph WorksWizardSubmissionCompleteController
+        validate -- yes --> submission_complete[show]
+        submission_complete --> user_show
+    end
+
 ```
