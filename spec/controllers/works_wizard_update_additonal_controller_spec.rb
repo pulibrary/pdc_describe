@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe WorksUpdateAdditionalController do
+RSpec.describe WorksWizardUpdateAdditionalController do
   include ActiveJob::TestHelper
   before do
     stub_ark

@@ -29,9 +29,9 @@ Rails.application.routes.draw do
   get "how-to-submit", to: "welcome#how_to_submit", as: :welcome_how_to_submit
 
   # The wizard new submission controller (work wizard step 0)
-  get "works/:id/new-submission", to: "wizard_new_submission#new_submission", as: :work_create_new_submission
-  patch "works/:id/new-submission", to: "wizard_new_submission#new_submission_save", as: :work_new_submission
-  get "works/:id/new-submission-delete", to: "wizard_new_submission#new_submission_delete", as: :work_delete_new_submission
+  get "works/:id/new-submission", to: "works_wizard_new_submission#new_submission", as: :work_create_new_submission
+  patch "works/:id/new-submission", to: "works_wizard_new_submission#new_submission_save", as: :work_new_submission
+  get "works/:id/new-submission-delete", to: "works_wizard_new_submission#new_submission_delete", as: :work_delete_new_submission
 
   # The work wizard
   get "works/:id/readme-select", to: "works_wizard#readme_select", as: :work_readme_select
@@ -53,12 +53,12 @@ Rails.application.routes.draw do
   patch "works/:id/attachment-select", to: "works_wizard#attachment_selected"
   post "works/:id/upload-files-wizard", to: "works_wizard#upload_files", as: :work_wizard_upload_files
 
-  get "works/:id/update-additional", to: "works_update_additional#update_additional", as: :work_update_additional
-  patch "works/:id/update-additional", to: "works_update_additional#update_additional_save"
+  get "works/:id/update-additional", to: "works_wizard_update_additional#update_additional", as: :work_update_additional
+  patch "works/:id/update-additional", to: "works_wizard_update_additional#update_additional_save"
 
   # policy agreement
-  get "works/policy", to: "wizard_policy#show", as: :work_policy
-  post "works/policy", to: "wizard_policy#update"
+  get "works/policy", to: "works_wizard_policy#show", as: :work_policy
+  post "works/policy", to: "works_wizard_policy#update"
 
   get "works/:id/file-list", to: "works#file_list", as: :work_file_list
   post "work/:id/approve", to: "works#approve", as: :approve_work

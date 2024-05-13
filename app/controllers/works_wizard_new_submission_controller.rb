@@ -5,7 +5,9 @@ require "open-uri"
 
 # Controller to handle the policy agreement acknowlegdement before the wizard is started
 #
-class WizardNewSubmissionController < ApplicationController
+# The wizard flow is shown in the [mermaid diagram here](https://github.com/pulibrary/pdc_describe/blob/main/docs/wizard_flow.md).
+#
+class WorksWizardNewSubmissionController < ApplicationController
   before_action :load_work
   before_action :can_edit
 
