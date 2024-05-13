@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe WizardNewSubmissionController do
+RSpec.describe WorksWizardNewSubmissionController do
   include ActiveJob::TestHelper
 
   let(:user) { FactoryBot.create :princeton_submitter }

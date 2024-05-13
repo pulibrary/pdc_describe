@@ -5,12 +5,9 @@ require "open-uri"
 
 # Controller to handle the update Additional Metadata step in wizard Mode when editing an work
 #
-# The wizard flow is as follows:
-# new_submission -> new_submission_save -> edit_wizard -> update_wizard -> update_additional -> update_additional_save ->readme_select -> readme_uploaded -> attachment_select ->
-#     attachment_selected -> file_other ->                  review -> validate -> [ work controller ] show & file_list
-#                         \> file_upload -> file_uploaded -^
+# The wizard flow is shown in the [mermaid diagram here](https://github.com/pulibrary/pdc_describe/blob/main/docs/wizard_flow.md).
 
-class WorksUpdateAdditionalController < WorksWizardController
+class WorksWizardUpdateAdditionalController < WorksWizardController
   before_action :load_work, only: [:update_additional_save, :update_additional]
 
   # get /works/1/update-additional

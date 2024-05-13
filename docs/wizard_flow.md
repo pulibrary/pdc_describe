@@ -3,12 +3,12 @@
     subgraph UsersController
       user_show[show]
     end
-    subgraph WizardPolicyController
+    subgraph WorksWizardPolicyController
       show -- user accepts policy --> update
       show -- User cancels --> user_show
     end
     update --> new_submission
-    subgraph WizardNewSubmissionController
+    subgraph WorksWizardNewSubmissionController
         new_submission -- user submits form --> new_submission_save
         new_submission -- User cancels --> user_show
     end
@@ -36,7 +36,7 @@
         review -- User saves --> review
     end
 
-    subgraph WorksUpdateAdditionalController
+    subgraph WorksWizardUpdateAdditionalController
       update_additional-- user submits form --> update_additional_save
       update_additional_save -- User cancels --> user_show
       update_additional_save -- User saves --> update_additional_save
