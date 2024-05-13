@@ -70,7 +70,8 @@ RSpec.describe "Form submission for a PPPL dataset", type: :system do
       expect(page).to have_content("In furtherance of its non-profit educational mission, Princeton University")
       click_on "Complete"
       page.driver.browser.switch_to.alert.accept
-
+      expect(page).to have_content("5-10 business days")
+      click_on "My Dashboard"
       expect(page).to have_content "awaiting_approval"
     end
   end

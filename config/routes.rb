@@ -60,6 +60,9 @@ Rails.application.routes.draw do
   get "works/policy", to: "works_wizard_policy#show", as: :work_policy
   post "works/policy", to: "works_wizard_policy#update"
 
+  # policy agreement
+  get "works/:id/complete", to: "works_wizard_submission_complete#show", as: :work_complete
+
   get "works/:id/file-list", to: "works#file_list", as: :work_file_list
   post "work/:id/approve", to: "works#approve", as: :approve_work
   post "work/:id/withdraw", to: "works#withdraw", as: :withdraw_work

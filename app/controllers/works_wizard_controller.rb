@@ -115,7 +115,7 @@ class WorksWizardController < ApplicationController
       render :review
     else
       @work.complete_submission!(current_user)
-      redirect_to user_url(current_user)
+      redirect_to work_complete_path(@work.id)
     end
   end
 

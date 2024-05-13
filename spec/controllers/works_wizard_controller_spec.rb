@@ -341,7 +341,7 @@ RSpec.describe WorksWizardController do
       it "saves the submission notes and renders the user dashboard" do
         post :validate, params: { id: work.id, submission_notes: "I need this processed ASAP" }
         expect(response.status).to be 302
-        expect(response.location).to eq "http://test.host/users/#{user.uid}"
+        expect(response.location).to eq "http://test.host/works/#{work.id}/complete"
         expect(Work.find(work.id).submission_notes).to eq "I need this processed ASAP"
       end
 
