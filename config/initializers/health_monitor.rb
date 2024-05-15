@@ -15,4 +15,6 @@ HealthMonitor.configure do |config|
     Rails.logger.error "Health check failed with: #{e.message}"
     Honeybadger.notify(e)
   end
+
+  config.add_custom_provider(CustomProvider)
 end
