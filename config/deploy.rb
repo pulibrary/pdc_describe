@@ -63,6 +63,24 @@ namespace :mailcatcher do
   end
 end
 
+namespace :application do
+  desc "Opens the application web app without the load balancer"
+  task :webapp do
+    on roles(:app) do |host|
+      app_host = host.hostname
+      user = "pulsys"
+      port = rand(9000..9999)
+      puts "Opening #{app_host} application on port #{port} as user #{user}"
+      Net::SSH.start(app_host, user) do |session|
+        session.forward.local(port, "localhost", 80)
+        puts "Press Ctrl+C to end the application connection"
+        `open http://localhost:#{port}/describe`
+        session.loop(0.1) { true }
+      end
+    end
+  end
+end
+
 before "deploy:reverted", "deploy:assets:precompile"
 
 # rubocop:enable Rails/Output
