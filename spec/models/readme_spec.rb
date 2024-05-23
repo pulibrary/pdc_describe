@@ -18,7 +18,21 @@ RSpec.describe Readme, type: :model do
 
     context "with a readme present" do
       let(:s3_files) { [FactoryBot.build(:s3_file, work:), FactoryBot.build(:s3_readme, work:)] }
-      it "Does not find a readme" do
+      it "Does find a readme" do
+        expect(readme.blank?).to be_falsey
+      end
+    end
+
+    context "with a lowercase readme present" do
+      let(:s3_files) { [FactoryBot.build(:s3_file, work:), FactoryBot.build(:s3_readme, work:, filename: "readme.txt")] }
+      it "finds a lowercase readme" do
+        expect(readme.blank?).to be_falsey
+      end
+    end
+
+    context "with a readme as part of the filename present" do
+      let(:s3_files) { [FactoryBot.build(:s3_file, work:), FactoryBot.build(:s3_readme, work:, filename: "_readme.txt")] }
+      it "finds a lowercase readme" do
         expect(readme.blank?).to be_falsey
       end
     end

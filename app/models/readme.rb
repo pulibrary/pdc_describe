@@ -35,7 +35,7 @@ class Readme
     private
 
       def s3_readme_idx
-        @s3_readme_idx ||= file_names.find_index { |file_name| file_name.start_with?("README") }
+        @s3_readme_idx ||= file_names.find_index { |file_name| file_name.upcase.include?("README") }
       end
 
       def file_names
