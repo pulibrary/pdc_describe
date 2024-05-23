@@ -10,6 +10,8 @@ set :branch, ENV["BRANCH"] || "main"
 
 set :deploy_to, "/opt/pdc_describe"
 
+set :rails_env, :production if fetch(:stage).to_s.start_with?("production")
+
 # Workaround for this issue: https://github.com/capistrano/rails/issues/235
 Rake::Task["deploy:assets:backup_manifest"].clear_actions
 Rake::Task["deploy:assets:restore_manifest"].clear_actions
