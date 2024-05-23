@@ -114,7 +114,7 @@ Look in your default browser for the consoles
 ### Mail on Production
 Emails on production are sent via [Pony Express](https://github.com/pulibrary/pul-it-handbook/blob/f54dfdc7ada1ff993a721f6edb4aa1707bb3a3a5/services/smtp-mail-server.md).
 
-### Admin users in Production
+## Admin users in Production
 To add a new user as an admin (e.g., so they can migrate data from DataSpace), use the rails console on the production system:
 ```
 irb(main):010:0> user = User.find_by(uid: 'hb0344')
@@ -122,7 +122,7 @@ irb(main):015:0> user.add_role(:group_admin, Group.plasma_laboratory)
 irb(main):016:0> user.add_role(:group_admin, Group.research_data)
 ```
 
-### PPPL submitters
+## PPPL submitters
 To allow a non-admin user to submit only to the PPPL group and its communities and subcommunities, that user's default Group must be set to the Princeton Plasma Physics Lab and their roles must be updated.  To do this, use the Rails console: 
 ```
 irb(main):011:0> user = User.find_by(uid: 'hb0344')
@@ -131,3 +131,18 @@ irb(main):013:0> user.add_role(:submitter, Group.plasma_laboratory)
 irb(main):014:0> user.remove_role(:submitter, Group.research_data)
 irb(main):015:0> user.save!
 ```
+
+## Viewing the Application outside of the load balancer
+To view the application on a specific server you can utilize capistrano to tunnel into the server and open up a browser.
+
+The following would open up a browser to the web application after deploying.  This will allow the developer to verify that the deployment was successful prior to deploying the secondary.
+```
+cap production_primary application:webapp
+```
+
+## Rolling deployments to production
+We utilize rolling deployments to production.  When a new release is ready to deploy
+  1. deploy to production_primary via [ansible tower](https://ansible-tower.princeton.edu/#/templates)
+  1. verify that the deployment was successful utilizing capistrano `cap production_primary application:webapp`
+  1. deploy to production_secondary via [ansible tower](https://ansible-tower.princeton.edu/#/templates)
+  1. verify that the deployment was successful utilizing capistrano `cap production_secondary application:webapp`
