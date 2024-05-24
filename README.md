@@ -139,6 +139,7 @@ The following would open up a browser to the web application after deploying.  T
 ```
 cap production_primary application:webapp
 ```
+**Note** to login you must hand edit the response url to have `http` instead of `https`.  Otherwise read operations work fairly well.  Edit (POST/PUT) operations do not seem to work.
 
 ## Rolling deployments to production
 We utilize rolling deployments to production.  When a new release is ready to deploy
