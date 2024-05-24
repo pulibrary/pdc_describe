@@ -163,6 +163,5 @@ class WorkValidator
       return if @work.resource.migrated
       readme = Readme.new(work, nil)
       errors.add(:base, "You must include a README. <a href='#{work_readme_select_path(work)}'>Please upload one</a>") if readme.blank?
-      errors.add(:base, "You must provide only one README file upload") if work.readme_uploads.length > 1
     end
 end
