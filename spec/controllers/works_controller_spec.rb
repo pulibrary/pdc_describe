@@ -742,8 +742,6 @@ RSpec.describe WorksController do
           post :approve, params: { id: work.id }
           expect(response.status).to be 302
           # rubocop:disable Layout/LineLength
-          # binding.pry
-          # "We apologize, the following errors were encountered: You must include a README. <a href='/works/1/readme-select'>Please upload one</a>, You must include at least one file. <a href='/works/1/file-upload'>Please upload one</a>. Please contact the PDC Describe administrators for any assistance."
           expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: You must include a README. <a href='#{work_readme_select_path(work)}'>Please upload one</a>, You must include at least one file. <a href='#{work_file_upload_path(work)}'>Please upload one</a>. Please contact the PDC Describe administrators for any assistance."])
           # rubocop:enable Layout/LineLength
         end

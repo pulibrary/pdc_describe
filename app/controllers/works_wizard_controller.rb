@@ -167,19 +167,6 @@ class WorksWizardController < ApplicationController
   end
   helper_method :file_location_url
 
-  def rescue_aasm_error
-    yield
-  rescue AASM::InvalidTransition => error
-    message = message_from_aasm_error(aasm_error: error, work: @work)
-
-    Honeybadger.notify("Invalid #{@work.current_transition}: #{error.message} errors: #{message}")
-    transition_error_message = "We apologize, the following errors were encountered: #{message}."
-    @errors = [transition_error_message]
-
-    # redirect_to root_url, notice: transition_error_message
-    redirect_aasm_error(transition_error_message)
-  end
-
   private
 
     def edit_helper(view_name, redirect_url)
@@ -226,7 +213,7 @@ class WorksWizardController < ApplicationController
       patch_params[:readme_file]
     end
 
-    def rescue_aasm_error_dis
+    def rescue_aasm_error
       super
     rescue StandardError => generic_error
       redirect_to root_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."

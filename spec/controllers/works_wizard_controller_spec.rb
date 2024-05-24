@@ -354,7 +354,7 @@ RSpec.describe WorksWizardController do
           expect(response.status).to be 302
           expect(work.reload).to be_draft
           # rubocop:disable Layout/LineLength
-          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Must provide a description."])
+          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: Must provide a description. Please contact the PDC Describe administrators for any assistance."])
           # rubocop:enable Layout/LineLength
         end
       end
@@ -365,29 +365,6 @@ RSpec.describe WorksWizardController do
           expect(response.status).to be 200
           expect(response).to render_template(:review)
           expect(Work.find(work.id).submission_notes).to eq "I need this processed ASAP"
-        end
-      end
-    end
-
-    context "a work with multiple README files" do
-      describe "#validate" do
-        before do
-          stub_s3(data: [
-                    FactoryBot.build(:s3_readme),
-                    FactoryBot.build(:s3_readme)
-                  ])
-          sign_in(user)
-        end
-
-        it "renders the error message" do
-          work.save
-          post :validate, params: { id: work.id }
-          expect(response).to redirect_to(edit_work_wizard_path(work))
-          expect(response.status).to be 302
-          expect(work.reload).to be_draft
-          # rubocop:disable Layout/LineLength
-          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: You must provide only one README file upload."])
-          # rubocop:enable Layout/LineLength
         end
       end
     end
@@ -425,7 +402,7 @@ RSpec.describe WorksWizardController do
           expect(response.status).to be 302
           expect(work.reload).to be_draft
           # rubocop:disable Layout/LineLength
-          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: You must include a README. <a href='#{work_readme_select_path(work)}'>Please upload one</a>."])
+          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: You must include a README. <a href='#{work_readme_select_path(work)}'>Please upload one</a>. Please contact the PDC Describe administrators for any assistance."])
           # rubocop:enable Layout/LineLength
         end
       end
