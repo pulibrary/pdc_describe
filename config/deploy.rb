@@ -10,6 +10,8 @@ set :branch, ENV["BRANCH"] || "main"
 
 set :deploy_to, "/opt/pdc_describe"
 
+set :ssh_options, {verify_host_key: :never}
+
 # Workaround for this issue: https://github.com/capistrano/rails/issues/235
 Rake::Task["deploy:assets:backup_manifest"].clear_actions
 
