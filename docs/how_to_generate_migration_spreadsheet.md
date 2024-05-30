@@ -1,0 +1,2 @@
+# How to generate a migration spreadsheet
+The code to (re)generate the DSpace --> PDC migration spreadsheet lives in PDC Discovery, so that is also where [the documentation to generate the spreadsheet](https://github.com/pulibrary/pdc_discovery/blob/main/docs/migration_spreadsheet.md) lives. 
