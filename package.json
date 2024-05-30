@@ -6,7 +6,10 @@
     "@rails/activestorage": "^6.0.0",
     "@rails/ujs": "^6.0.0",
     "ejs": "^3.1.10",
-    "turbolinks": "^5.2.0"
+    "turbolinks": "^5.2.0",
+    "postcss": "^8.4",
+    "postcss-preset-env": "^9.5.14",
+    "postcss-flexbugs-fixes": "^5.0.2"
   },
   "version": "0.1.0",
   "devDependencies": {
