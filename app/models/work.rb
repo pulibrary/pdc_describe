@@ -322,7 +322,8 @@ class Work < ApplicationRecord
         "last_modified_display": s3_file.last_modified_display,
         "size": s3_file.size,
         "display_size": s3_file.display_size,
-        "url": s3_file.url
+        "url": s3_file.url,
+        "is_folder": s3_file.is_folder
       }
     end
     files_info

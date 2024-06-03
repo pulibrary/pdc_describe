@@ -211,6 +211,7 @@ class S3QueryService
     source_bucket = S3QueryService.pre_curation_config[:bucket]
     target_bucket = S3QueryService.post_curation_config[:bucket]
     empty_files = client_s3_empty_files(reload: true, bucket_name: source_bucket)
+    # See TODO below
     # Do not move the empty files, however, ensure that it is noted that the
     #   presence of empty files is specified in the provenance log.
     unless empty_files.empty?
@@ -368,7 +369,8 @@ class S3QueryService
       resp_hash = resp.to_h
       response_objects = resp_hash[:contents]
       response_objects&.each do |object|
-        next if object[:size] == 0 && ignore_directories
+        # TODO: Revisit this, we might need this logic
+        # next if object[:size] == 0 && ignore_directories
         s3_file = S3File.new(work: model, filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
         objects << s3_file
       end
