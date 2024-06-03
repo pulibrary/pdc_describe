@@ -268,8 +268,8 @@ XML
                                                 "snapshot_id" => snapshot.id, "upload_status" => "complete", "user_id" => user.id },
                                               { "checksum" => "abc123etagetag", "filename" => "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json",
                                                 "snapshot_id" => snapshot.id, "upload_status" => "complete", "user_id" => user.id },
-                                              {"checksum" => "abc123etagetag", "filename" => "10.34770/pe9w-x904/#{work.id}/a_directory/",
-                                                "snapshot_id" => snapshot.id, "upload_status"=>"complete", "user_id" => user.id }
+                                              { "checksum" => "abc123etagetag", "filename" => "10.34770/pe9w-x904/#{work.id}/a_directory/",
+                                                "snapshot_id" => snapshot.id, "upload_status" => "complete", "user_id" => user.id }
                                             ])
       end
       context "the copy fails for some reason" do
@@ -775,7 +775,7 @@ XML
 
   describe "#client_s3_empty_files" do
     let(:fake_aws_client) { double(Aws::S3::Client) }
-    let(:s3_size2) { 0 }   # forces file SCoData_combined_v1_2020-07_datapackage.json to be zero length
+    let(:s3_size2) { 0 } # forces file SCoData_combined_v1_2020-07_datapackage.json to be zero length
 
     before do
       s3_query_service.stub(:client).and_return(fake_aws_client)
