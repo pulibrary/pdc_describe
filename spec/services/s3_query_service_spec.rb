@@ -37,7 +37,7 @@ RSpec.describe S3QueryService do
         },
         {
           etag: "\"7bd3d4339c034ebc663b99065771111\"",
-          key: s3_key3,
+          key: s3_key3, ## this is a directory
           last_modified: s3_last_modified3,
           size: s3_size3,
           storage_class: "STANDARD"
@@ -364,10 +364,6 @@ XML
       it "returns files and directories" do
         expect(s3_query_service.file_count).to eq(3)
       end
-
-      # =
-      # TODO: Add a test that checks for files only
-      # =
 
       context "when an error is encountered" do
         subject(:s3_query_service) { described_class.new(work) }
@@ -779,7 +775,7 @@ XML
 
   describe "#client_s3_empty_files" do
     let(:fake_aws_client) { double(Aws::S3::Client) }
-    let(:s3_size2) { 0 }
+    let(:s3_size2) { 0 }   # forces file SCoData_combined_v1_2020-07_datapackage.json to be zero length
 
     before do
       s3_query_service.stub(:client).and_return(fake_aws_client)
@@ -791,9 +787,11 @@ XML
 
     it "it retrieves the files for the work" do
       files = s3_query_service.client_s3_empty_files
-      expect(files.count).to eq 2
-      expect(files.first.filename).to eq(s3_key2)
-      expect(files[1].filename).to match(s3_key2)
+      expect(files.count).to eq 4
+      expect(files[0].filename).to eq(s3_key2)    # the empty file
+      expect(files[1].filename).to match(s3_key3) # the empty directory
+      expect(files[2].filename).to eq(s3_key2)    # the empty file
+      expect(files[3].filename).to match(s3_key3) # the empty directory
       expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "example-bucket", max_keys: 1000, prefix: "10.34770/pe9w-x904/#{work.id}/")
       expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "example-bucket", continuation_token: "abc123", max_keys: 1000, prefix: "10.34770/pe9w-x904/#{work.id}/")
     end
@@ -801,9 +799,11 @@ XML
     it "it retrieves the files for a bucket and prefix once" do
       s3_query_service.client_s3_empty_files(bucket_name: "other-bucket", prefix: "new-prefix")
       files = s3_query_service.client_s3_empty_files(bucket_name: "other-bucket", prefix: "new-prefix")
-      expect(files.count).to eq 2
-      expect(files.first.filename).to eq(s3_key2)
-      expect(files[1].filename).to eq(s3_key2)
+      expect(files.count).to eq 4
+      expect(files[0].filename).to eq(s3_key2)    # the empty file
+      expect(files[1].filename).to match(s3_key3) # the empty directory
+      expect(files[2].filename).to eq(s3_key2)    # the empty file
+      expect(files[3].filename).to match(s3_key3) # the empty directory
       expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", max_keys: 1000, prefix: "new-prefix").once
       expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", continuation_token: "abc123", max_keys: 1000, prefix: "new-prefix").once
     end
@@ -811,9 +811,11 @@ XML
     it "it retrieves the files for a bucket and prefix any time reload is true" do
       s3_query_service.client_s3_empty_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix")
       files = s3_query_service.client_s3_empty_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix")
-      expect(files.count).to eq 2
-      expect(files.first.filename).to eq(s3_key2)
-      expect(files[1].filename).to eq(s3_key2)
+      expect(files.count).to eq 4
+      expect(files[0].filename).to eq(s3_key2)    # the empty file
+      expect(files[1].filename).to match(s3_key3) # the empty directory
+      expect(files[2].filename).to eq(s3_key2)    # the empty file
+      expect(files[3].filename).to match(s3_key3) # the empty directory
       expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", max_keys: 1000, prefix: "new-prefix").twice
       expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", continuation_token: "abc123", max_keys: 1000, prefix: "new-prefix").twice
     end
@@ -877,17 +879,18 @@ XML
       s3_query_service.publish_files(user)
     end
 
-    # TODO: Make sure this still works since it depends on the empty files
     describe "#publish_files" do
-      it "creates a work activity identifying the empty files" do
+      it "creates two work activities identifying the empty files" do
         work.reload
-        expect(work.work_activity.length).to eq(1)
-        activity = work.work_activity.first
+        expect(work.work_activity.length).to eq(2)
         work_doi = work.doi.sub(/[^A-Za-z\d]/, "-")
-        expect(activity.message).to eq("Warning: Attempted to publish empty S3 file #{work_doi}/SCoData_combined_v1_2020-07_README.empty.txt.")
-        expect(work.uploads.length).to eq(2)
-        expect(work.uploads.first.filename).to eq("#{work_doi}/SCoData_combined_v1_2020-07_README.txt")
-        expect(work.uploads.last.filename).to eq("#{work_doi}/SCoData_combined_v1_2020-07_datapackage.json")
+        expect(work.work_activity[0].message).to eq("Warning: Attempted to publish empty S3 file #{work_doi}/foo/.")
+        expect(work.work_activity[1].message).to eq("Warning: Attempted to publish empty S3 file #{work_doi}/SCoData_combined_v1_2020-07_README.empty.txt.")
+        expect(work.uploads.length).to eq(4)
+        expect(work.uploads[0].filename).to eq("#{work_doi}/SCoData_combined_v1_2020-07_README.empty.txt")
+        expect(work.uploads[1].filename).to eq("#{work_doi}/SCoData_combined_v1_2020-07_README.txt")
+        expect(work.uploads[2].filename).to eq("#{work_doi}/SCoData_combined_v1_2020-07_datapackage.json")
+        expect(work.uploads[3].filename).to eq("#{work_doi}/foo/")
       end
     end
   end

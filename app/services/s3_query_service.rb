@@ -175,7 +175,7 @@ class S3QueryService
     end
     @client_s3_empty_files ||= begin
       files_and_directories = get_s3_objects(bucket_name:, prefix:)
-      files_and_directories.select { |object| !object.filename.ends_with?("/") && object.empty? }
+      files_and_directories.select { |object| object.empty? }
     end
   end
 
