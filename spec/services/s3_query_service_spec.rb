@@ -739,7 +739,7 @@ XML
     end
 
     it "retrieves the directories if requested" do
-      files = s3_query_service.client_s3_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix", ignore_directories: false)
+      files = s3_query_service.client_s3_files(reload: true, bucket_name: "other-bucket", prefix: "new-prefix")
       expect(files.count).to eq 6
       expect(files[0].filename).to match(/README/)
       expect(files[1].filename).to match(/SCoData_combined_v1_2020-07_datapackage.json/)
