@@ -203,6 +203,7 @@ XML
       allow(s3_query_service.client).to receive(:head_object).and_return(true)
       allow(s3_query_service.client).to receive(:complete_multipart_upload).and_return(fake_completion)
       allow(s3_query_service.client).to receive(:put_object).and_return(nil)
+      allow(s3_query_service.client).to receive(:copy_object).and_return(fake_completion)
 
       allow(WorkPreservationService).to receive(:new).and_return(preservation_service)
       allow(preservation_service).to receive(:preserve!)
@@ -213,7 +214,7 @@ XML
         expect do
           expect(s3_query_service.publish_files(user)).to be_truthy
         end.to change { work.upload_snapshots.count }.by 1
-        fake_s3_resp.stub(:to_h).and_return(s3_hash, empty_s3_hash)
+        fake_s3_resp.stub(:to_h).and_return(s3_hash, s3_hash, empty_s3_hash)
         snapshot = work.upload_snapshots.first
         expect(snapshot.files).to eq([
                                        { "filename" => "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_README.txt", "snapshot_id" => snapshot.id, "upload_status" => "started",
@@ -221,7 +222,7 @@ XML
                                        { "filename" => "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json", "snapshot_id" => snapshot.id, "upload_status" => "started",
                                          "user_id" => user.id, "checksum" => "7bd3d4339c034ebc663b990657714688" },
                                        { "filename" => "10.34770/pe9w-x904/#{work.id}/a_directory/", "snapshot_id" => snapshot.id, "upload_status" => "started",
-                                       "user_id" => user.id, "checksum" => "7bd3d4339c034ebc663b99065771111" }
+                                         "user_id" => user.id, "checksum" => "7bd3d4339c034ebc663b99065771111" }
                                      ])
         perform_enqueued_jobs
         expect(s3_query_service.client).to have_received(:create_multipart_upload)
@@ -240,6 +241,9 @@ XML
         expect(s3_query_service.client).to have_received(:upload_part_copy)
           .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key2}",
                   copy_source_range: "bytes=5368709120-5368709127", key: "abc", part_number: 2, upload_id: "upload id" })
+        expect(s3_query_service.client).to have_received(:copy_object)
+          .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key3}",
+                  key: s3_key3, checksum_algorithm: "SHA256" })
         expect(s3_query_service.client).to have_received(:complete_multipart_upload)
           .with({ bucket: "example-bucket-post", key: s3_key1, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1, checksum_sha256: "sha256abc123" },
                                                                                            { etag: "etag123abc", part_number: 2, checksum_sha256: "sha256abc123" }] }, upload_id: "upload id" })
@@ -250,18 +254,22 @@ XML
           .with({ bucket: "example-bucket-post", key: s3_key1 })
         expect(s3_query_service.client).to have_received(:head_object)
           .with({ bucket: "example-bucket-post", key: s3_key2 })
+        expect(s3_query_service.client).to have_received(:head_object)
+          .with({ bucket: "example-bucket-post", key: s3_key3 })
         expect(s3_query_service.client).to have_received(:delete_object)
           .with({ bucket: "example-bucket", key: s3_key1 })
         expect(s3_query_service.client).to have_received(:delete_object)
           .with({ bucket: "example-bucket", key: s3_key2 })
         expect(s3_query_service.client).to have_received(:delete_object)
-          .with({ bucket: "example-bucket", key: work.s3_object_key })
+          .with({ bucket: "example-bucket", key: s3_key3 })
         expect(preservation_service).to have_received(:preserve!)
         expect(snapshot.reload.files).to eq([
-                                              { "checksum" => "abc123etagetag", "filename" => "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_README.txt", "snapshot_id" => snapshot.id,
-                                                "upload_status" => "complete", "user_id" => user.id },
+                                              { "checksum" => "abc123etagetag", "filename" => "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_README.txt",
+                                                "snapshot_id" => snapshot.id, "upload_status" => "complete", "user_id" => user.id },
                                               { "checksum" => "abc123etagetag", "filename" => "10.34770/pe9w-x904/#{work.id}/SCoData_combined_v1_2020-07_datapackage.json",
-                                                "snapshot_id" => snapshot.id, "upload_status" => "complete", "user_id" => user.id }
+                                                "snapshot_id" => snapshot.id, "upload_status" => "complete", "user_id" => user.id },
+                                              {"checksum" => "abc123etagetag", "filename" => "10.34770/pe9w-x904/#{work.id}/a_directory/",
+                                                "snapshot_id" => snapshot.id, "upload_status"=>"complete", "user_id" => user.id }
                                             ])
       end
       context "the copy fails for some reason" do
