@@ -1,5 +1,7 @@
 ```mermaid
  flowchart TD
+    accTitle: Work Wizard Flow Diagram
+    accDescr: The many options and paths a user can take while working through the work wizard
     subgraph UsersController
       user_show[show]
     end
