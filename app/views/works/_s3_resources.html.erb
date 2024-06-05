@@ -94,20 +94,28 @@
                 // On edit mode, file is marked to be deleted display strikethrough
                 html = `<span><s>${row.filename_display.substring(1)}</s></span>`;
               } else {
-                // Display as a hyperlink with the download icon
-                // (Note: Interpolation in the client is interpreted after the server-side Ruby builds the download path)
-                let downloadUrl;
-                if (work) {
-                  downloadUrl = `<%= @work_decorator.download_path %>?filename=${data}`;
+                if (row.size == 0) {
+                  // Display the filename as text (i.e. not a hyperlink)
+                  html = `<span>
+                    <i class="bi bi-dash-square"></i>
+                    ${row.filename_display}
+                  </span>`;
                 } else {
-                  downloadUrl = '<%= root_path %>';
-                }
-                var encodedUrl = window.encodeURI(downloadUrl);
+                  // Display as a hyperlink with the download icon
+                  // (Note: Interpolation in the client is interpreted after the server-side Ruby builds the download path)
+                  let downloadUrl;
+                  if (work) {
+                    downloadUrl = `<%= @work_decorator.download_path %>?filename=${data}`;
+                  } else {
+                    downloadUrl = '<%= root_path %>';
+                  }
+                  var encodedUrl = window.encodeURI(downloadUrl);
 
-                html = `<span>
-                  <i class="bi bi-file-arrow-down"></i>
-                  <a href="${encodedUrl}" target="_blank">${row.filename_display}</a>
-                </span>`;
+                  html = `<span>
+                    <i class="bi bi-file-arrow-down"></i>
+                    <a href="${encodedUrl}" target="_blank">${row.filename_display}</a>
+                  </span>`;
+                }
               }
               return html;
             }
@@ -137,8 +145,13 @@
           render: function (data, type, row) {
             // size
             if (type == "display") {
-              // human readable (e.g. 34 KB)
-              return row.display_size;
+              if (row.is_folder === true) {
+                // display no size for folders
+                return "";
+              } else {
+                // human readable (e.g. 34 KB)
+                return row.display_size;
+              }
             }
             // raw bytes
             return row.size;

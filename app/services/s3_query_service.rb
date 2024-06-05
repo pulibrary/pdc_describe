@@ -160,12 +160,12 @@ class S3QueryService
 
   # Retrieve the S3 resources uploaded to the S3 Bucket
   # @return [Array<S3File>]
-  def client_s3_files(reload: false, bucket_name: self.bucket_name, prefix: self.prefix, ignore_directories: true)
+  def client_s3_files(reload: false, bucket_name: self.bucket_name, prefix: self.prefix)
     if reload # force a reload
       @client_s3_files = nil
       clear_s3_responses(bucket_name:, prefix:)
     end
-    @client_s3_files ||= get_s3_objects(bucket_name:, prefix:, ignore_directories:)
+    @client_s3_files ||= get_s3_objects(bucket_name:, prefix:)
   end
 
   def client_s3_empty_files(reload: false, bucket_name: self.bucket_name, prefix: self.prefix)
@@ -174,8 +174,8 @@ class S3QueryService
       clear_s3_responses(bucket_name:, prefix:)
     end
     @client_s3_empty_files ||= begin
-      files_and_directories = get_s3_objects(bucket_name:, prefix:, ignore_directories: false)
-      files_and_directories.select { |object| !object.filename.ends_with?("/") && object.empty? }
+      files_and_directories = get_s3_objects(bucket_name:, prefix:)
+      files_and_directories.select(&:empty?)
     end
   end
 
@@ -350,12 +350,12 @@ class S3QueryService
       responses
     end
 
-    def get_s3_objects(bucket_name:, prefix:, ignore_directories:)
+    def get_s3_objects(bucket_name:, prefix:)
       start = Time.zone.now
       responses = s3_responses(bucket_name:, prefix:)
       objects = responses.reduce([]) do |all_objects, resp|
         resp_hash = resp.to_h
-        resp_objects = parse_objects(resp_hash, ignore_directories:)
+        resp_objects = parse_objects(resp_hash)
         all_objects + resp_objects
       end
       elapsed = Time.zone.now - start
@@ -363,12 +363,11 @@ class S3QueryService
       objects
     end
 
-    def parse_objects(resp, ignore_directories: true)
+    def parse_objects(resp)
       objects = []
       resp_hash = resp.to_h
       response_objects = resp_hash[:contents]
       response_objects&.each do |object|
-        next if object[:size] == 0 && ignore_directories
         s3_file = S3File.new(work: model, filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
         objects << s3_file
       end

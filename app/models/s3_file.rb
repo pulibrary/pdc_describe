@@ -3,7 +3,7 @@ class S3File
   include Rails.application.routes.url_helpers
   include ActionView::Helpers::NumberHelper
 
-  attr_accessor :safe_id, :filename, :last_modified, :size, :checksum, :url, :filename_display, :last_modified_display, :display_size
+  attr_accessor :safe_id, :filename, :last_modified, :size, :checksum, :url, :filename_display, :last_modified_display, :display_size, :is_folder
   alias key filename
   alias id filename
 
@@ -29,6 +29,7 @@ class S3File
     @checksum = checksum.delete('"')
     @url = url || work_download_path(work, filename:)
     @work = work
+    @is_folder = filename.ends_with?("/")
   end
 
   def created_at
