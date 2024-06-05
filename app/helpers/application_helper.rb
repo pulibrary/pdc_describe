@@ -7,6 +7,13 @@ module ApplicationHelper
     { lang: I18n.locale }
   end
 
+  def flash_notice
+    value = flash[:notice]
+    # rubocop:disable Rails/OutputSafety
+    value.html_safe
+    # rubocop:enable Rails/OutputSafety
+  end
+
   def pre_curation_uploads_file_name(file:)
     value = file.filename.to_s
     return if value.blank?

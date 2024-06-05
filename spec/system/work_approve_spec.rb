@@ -19,7 +19,7 @@ RSpec.describe "Work Approval", type: :system do
       expect(page).to have_content(work.doi)
       click_on "Approve Dataset"
       page.driver.browser.switch_to.alert.accept
-      expect(page).to have_content("Uploads must be present for a work to be approved")
+      expect(page).to have_content("You must include at least one file. Please upload one.")
     end
 
     it "does not display warning if user cancels approval", js: true do
@@ -29,8 +29,9 @@ RSpec.describe "Work Approval", type: :system do
       click_link work.title
       expect(page).to have_content(work.doi)
       click_on "Approve Dataset"
+      sleep(0.5)
       page.driver.browser.switch_to.alert.dismiss
-      expect(page).to_not have_content("Uploads must be present for a work to be approved")
+      expect(page).not_to have_content("You must include at least one file. Please upload one.")
     end
   end
 end

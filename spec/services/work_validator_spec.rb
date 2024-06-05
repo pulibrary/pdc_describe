@@ -69,7 +69,9 @@ RSpec.describe Work, type: :model do
       validator = WorkValidator.new(work)
       expect(validator.valid?).to be_truthy # we can still save, we just can not transition to awaiting approval
       expect(validator.valid_to_complete).to be_falsey
-      expect(work.errors.full_messages).to eq(["Must provide a README"])
+      expect(work.errors.full_messages).not_to be_empty
+      full_message = work.errors.full_messages[0]
+      expect(full_message).to eq("You must include a README. <a href='/works/#{work.id}/readme-select'>Please upload one</a>")
     end
 
     context "a migrated work" do
