@@ -31,13 +31,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       allow(fake_s3_service).to receive(:file_url).with(contents1.key).and_return("https://example-bucket.s3.amazonaws.com/#{contents1.key}")
       allow(fake_s3_service).to receive(:file_url).with(contents2.key).and_return("https://example-bucket.s3.amazonaws.com/#{contents2.key}")
       allow(fake_s3_service).to receive(:file_url).with(contents3.key).and_return("https://example-bucket.s3.amazonaws.com/#{contents2.key}")
-      # fake_aws_client = double(Aws::S3::Client)
-      # fake_s3_resp = double(Aws::S3::Types::ListObjectsV2Output)
-      # fake_aws_client.stub(:list_objects_v2).and_return(fake_s3_resp)
-      # fake_s3_resp.stub(:to_h).and_return(s3_hash, s3_hash_after_delete)
-      # s3 = S3QueryService.new(work)
-      # allow(s3).to receive(:client).and_return(fake_aws_client)
-      # allow(S3QueryService).to receive(:new).and_return(s3)
 
       # Ensure that the S3 API confirms the file already exists
       stub_request(:get, /#{bucket_url}/).to_return(status: 200)
@@ -67,6 +60,19 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
         expect(page).to have_content("us_covid_2020.csv")
         expect(page).not_to have_content("us_covid_2019.csv")
       end
+    end
+
+    it "allows users to cancel the delete of one of the uploads" do
+      allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
+      allow(fake_s3_service).to receive(:client_s3_files).and_return([contents1, contents2], [contents2])
+
+      expect(page).to have_link "us_covid_2019.csv"
+      click_on "delete-file-#{contents1.safe_id}"
+      expect(page).not_to have_link "us_covid_2019.csv"
+      expect(page.html.include?("<s> us_covid_2019.csv</s>")).to be true
+
+      click_on "Undo delete"
+      expect(page).to have_link "us_covid_2019.csv"
     end
 
     it "allows users to replace one of the uploads" do
