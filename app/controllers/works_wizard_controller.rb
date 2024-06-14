@@ -110,6 +110,7 @@ class WorksWizardController < ApplicationController
   # PATCH /works/1/validate-wizard
   def validate
     @work.submission_notes = params["submission_notes"]
+
     if params[:save_only] == "true"
       @work.save
       render :review
@@ -139,11 +140,19 @@ class WorksWizardController < ApplicationController
     end
   end
 
+  def files_param
+    params["files"]
+  end
+
   # Uploads the README file, called by Uppy.
   # POST /works/1/readme-uploaded-payload
   def readme_uploaded_payload
+    raise StandardError("Only one README file can be uploaded.") if files_param.empty?
+    raise StandardError("Only one README file can be uploaded.") if files_param.length > 1
+
+    readme_file = files_param.first
     readme = Readme.new(@work, current_user)
-    readme_file = params["files"].first
+
     readme_error = readme.attach(readme_file)
     if readme_error.nil?
       render plain: readme.file_name

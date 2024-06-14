@@ -368,5 +368,44 @@ RSpec.describe WorksWizardController do
         end
       end
     end
+
+    context "a work with one README but no uploaded files" do
+      describe "#validate" do
+        before do
+          stub_s3(data: [
+                    FactoryBot.build(:s3_readme)
+                  ])
+          sign_in(user)
+          post :validate, params: { id: work.id }
+          work.reload
+        end
+
+        it "advances the Work from the 'draft' state to the 'awaiting_approval' state" do
+          expect(response).to redirect_to("/works/#{work.id}/complete")
+          expect(response.status).to be 302
+          expect(work.state).to eq("awaiting_approval")
+        end
+      end
+    end
+
+    context "a work with no README files" do
+      describe "#validate" do
+        before do
+          stub_s3(data: [])
+          sign_in(user)
+        end
+
+        it "renders the error message" do
+          work.save
+          post :validate, params: { id: work.id }
+          expect(response).to redirect_to(edit_work_wizard_path(work))
+          expect(response.status).to be 302
+          expect(work.reload).to be_draft
+          # rubocop:disable Layout/LineLength
+          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: You must include a README. <a href='#{work_readme_select_path(work)}'>Please upload one</a>. Please contact the PDC Describe administrators for any assistance."])
+          # rubocop:enable Layout/LineLength
+        end
+      end
+    end
   end
 end

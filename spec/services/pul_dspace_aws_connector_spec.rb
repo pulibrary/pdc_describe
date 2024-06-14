@@ -45,8 +45,7 @@ RSpec.describe PULDspaceAwsConnector, type: :model do
       end
       it "finds files" do
         expect(dspace_data.aws_files).to eq([s3_file])
-        expect(fake_s3_service).to have_received(:client_s3_files).with({ bucket_name: "example-bucket-dspace", prefix: "10-123456/acb-123",
-                                                                          ignore_directories: false, reload: true })
+        expect(fake_s3_service).to have_received(:client_s3_files).with({ bucket_name: "example-bucket-dspace", prefix: "10-123456/acb-123", reload: true })
       end
     end
 

@@ -302,10 +302,24 @@ class Work < ApplicationRecord
     aasm.current_event.to_s.humanize.delete("!")
   end
 
+  # Retrieve the S3 file uploads associated with the Work
+  # @return [Array<S3File>]
   def uploads
     return post_curation_uploads if approved?
 
     pre_curation_uploads
+  end
+
+  # Retrieve the S3 file uploads named "README"
+  # @return [Array<S3File>]
+  def readme_uploads
+    uploads.select { |s3_file| s3_file.filename.include?("README") }
+  end
+
+  # Retrieve the S3 file uploads which are research artifacts proper (not README or other files providing metadata/documentation)
+  # @return [Array<S3File>]
+  def artifact_uploads
+    uploads.reject { |s3_file| s3_file.filename.include?("README") }
   end
 
   # Returns the list of files for the work with some basic information about each of them.
@@ -322,7 +336,8 @@ class Work < ApplicationRecord
         "last_modified_display": s3_file.last_modified_display,
         "size": s3_file.size,
         "display_size": s3_file.display_size,
-        "url": s3_file.url
+        "url": s3_file.url,
+        "is_folder": s3_file.is_folder
       }
     end
     files_info

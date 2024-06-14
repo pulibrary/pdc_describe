@@ -72,7 +72,7 @@ $(() => {
     const rowId = `#${safeId}`;
     const filesTable = $('#files-table').DataTable();
     const row = filesTable.row(rowId).data();
-    row.filename_display = `* #${row.filename_display}`;
+    row.filename_display = `* ${row.filename_display}`;
     filesTable.row(rowId).invalidate();
 
     // Keep track of the deleted file, we do this via a hidden textbox with

@@ -309,7 +309,7 @@ RSpec.describe "/works", type: :request do
 
           expect(response.status).to eq(200)
           # rubocop:disable Layout/LineLength
-          error_message = ERB::Util.html_escape("We apologize, the following errors were encountered: Event 'approve' cannot transition from 'draft'. Please contact the PDC Describe administrators for any assistance.")
+          error_message = "We apologize, the following errors were encountered: Event 'approve' cannot transition from 'draft'. Please contact the PDC Describe administrators for any assistance."
           # rubocop:enable Layout/LineLength
           expect(response.body).to include(error_message)
         end
@@ -328,7 +328,7 @@ RSpec.describe "/works", type: :request do
 
           expect(response.status).to eq(200)
           # rubocop:disable Layout/LineLength
-          error_message = ERB::Util.html_escape("We apologize, the following errors were encountered: Event 'approve' cannot transition from 'draft'. Please contact the PDC Describe administrators for any assistance.")
+          error_message = "We apologize, the following errors were encountered: Event 'approve' cannot transition from 'draft'. Please contact the PDC Describe administrators for any assistance."
           # rubocop:enable Layout/LineLength
           expect(response.body).to include(error_message)
         end
