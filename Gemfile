@@ -40,8 +40,9 @@ gem "vite_rails", "3.0.12"
 gem "whenever"
 
 # Reference: https://github.com/pulibrary/pul-the-hard-way/blob/main/services/cas.md
-gem "devise"
-gem "omniauth-cas"
+gem "devise", "~> 4.9"
+gem "omniauth", "~> 2.1", ">= 2.1.2"
+gem "omniauth-cas", "~> 3.0"
 
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
