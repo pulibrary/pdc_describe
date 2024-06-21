@@ -8,27 +8,35 @@ class Readme
   end
 
   def attach(readme_file_param)
-    return "A README file is required!" if readme_file_param.blank? && blank?
-    return nil if readme_file_param.blank?
+    if readme_file_param.blank?
+      message = if blank?
+                  "A README file is required!"
+                end
+
+      return message
+    end
+
     remove_old_readme
 
     key = upload_readme(readme_file_param)
-    if key
-      @file_names = [readme_file_param.original_filename]
-      @s3_readme_idx = 0
-      log_changes
-      nil
-    else
-      "An error uploading your README was encountered.  Please try again."
-    end
+    return "An error uploading your README was encountered.  Please try again." unless key
+
+    @file_names = [readme_file_param.original_filename]
+    @s3_readme_idx = 0
+    log_changes
+  end
+
+  def present?
+    work.pre_curation_uploads.length > 1 && readme_files_uploaded?
   end
 
   def blank?
-    s3_readme_idx.nil?
+    !present?
   end
 
   def file_name
-    return nil if blank?
+    return if blank?
+
     file_names[s3_readme_idx]
   end
 
@@ -42,9 +50,21 @@ class Readme
         @file_names ||= work.pre_curation_uploads.map(&:filename_display)
       end
 
+      def readme_file_names
+        @readme_file_names ||= file_names.select { |file_name| file_name.upcase.include?("README") }
+      end
+
+      # This determines if any S3 objects contain the substring "readme"
+      def readme_files_uploaded?
+        readme_file_names.present?
+      end
+
       def remove_old_readme
         return if blank?
-        work.s3_query_service.delete_s3_object(work.pre_curation_uploads[s3_readme_idx].key)
+
+        s3_object = work.pre_curation_uploads[s3_readme_idx]
+        key = s3_object.key
+        work.s3_query_service.delete_s3_object(key)
       end
 
       def upload_readme(readme_file_param)
@@ -56,5 +76,6 @@ class Readme
       def log_changes
         work.s3_query_service.client_s3_files(reload: true)
         work.reload_snapshots(user_id: current_user.id)
+        nil
       end
 end

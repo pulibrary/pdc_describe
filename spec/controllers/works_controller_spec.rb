@@ -725,6 +725,7 @@ RSpec.describe WorksController do
       end
 
       context "no files attached" do
+        let(:work1) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
         let(:data) do
           [
             FactoryBot.build(:s3_readme),
@@ -734,16 +735,23 @@ RSpec.describe WorksController do
         let(:fake_s3_service) { stub_s3(data:) }
         before do
           fake_s3_service
-          work.complete_submission!(user)
+          allow(Work).to receive(:find).with(work1.id.to_s).and_return(work1)
+          work1.complete_submission!(user)
           allow(fake_s3_service).to receive(:client_s3_files).and_return([])
           sign_in curator
         end
         it "handles aproval errors" do
-          post :approve, params: { id: work.id }
+          post :approve, params: { id: work1.id }
           expect(response.status).to be 302
+          errors = assigns[:errors]
+          expect(errors).not_to be_empty
+          expect(errors.length).to eq(1)
+          error = errors.first
+          expect(error).to include("We apologize, the following errors were encountered: You must include a README. <a href='#{work_readme_select_path(work1)}'>Please upload one</a>")
           # rubocop:disable Layout/LineLength
-          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: You must include a README. <a href='#{work_readme_select_path(work)}'>Please upload one</a>, You must include at least one file. <a href='#{work_file_upload_path(work)}'>Please upload one</a>. Please contact the PDC Describe administrators for any assistance."])
+          expect(error).to include("You must include one or more files if you are uploading files from your local environment. <a href='#{work_file_upload_path(work1)}'>Please resubmit after uploading the file(s)</a>, You must include at least one file. <a href='#{work_file_upload_path(work1)}'>Please upload one</a>.")
           # rubocop:enable Layout/LineLength
+          expect(error).to include("Please contact the PDC Describe administrators for any assistance.")
         end
       end
 
@@ -1267,13 +1275,14 @@ RSpec.describe WorksController do
   end
 
   describe "#validate" do
-    it "validates a work and errors when there is no readme" do
+    it "validates a work and errors when there is no readme and no files" do
       stub_s3
       sign_in user
       post :validate, params: { id: work.id }
       expect(response).to redirect_to(edit_work_path(work))
       # rubocop:disable Layout/LineLength
-      expect(controller.flash[:notice]).to eq("We apologize, the following errors were encountered: You must include a README. <a href='#{work_readme_select_path(work)}'>Please upload one</a>. Please contact the PDC Describe administrators for any assistance.")
+      expect(controller.flash[:notice]).to include("We apologize, the following errors were encountered: You must include a README. <a href='#{work_readme_select_path(work)}'>Please upload one</a>,")
+      expect(controller.flash[:notice]).to include("You must include one or more files if you are uploading files from your local environment. <a href='#{work_file_upload_path(work)}'>Please resubmit after uploading the file(s)</a>. Please contact the PDC Describe administrators for any assistance.")
       # rubocop:enable Layout/LineLength
     end
 

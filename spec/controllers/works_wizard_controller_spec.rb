@@ -389,6 +389,8 @@ RSpec.describe WorksWizardController do
     end
 
     context "a work with no README files" do
+      let(:work1) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
+
       describe "#validate" do
         before do
           stub_s3(data: [])
@@ -396,14 +398,20 @@ RSpec.describe WorksWizardController do
         end
 
         it "renders the error message" do
-          work.save
-          post :validate, params: { id: work.id }
-          expect(response).to redirect_to(edit_work_wizard_path(work))
+          work1.save
+          post :validate, params: { id: work1.id }
+          expect(response).to redirect_to(edit_work_wizard_path(work1))
           expect(response.status).to be 302
-          expect(work.reload).to be_draft
+          expect(work1.reload).to be_draft
+          errors = assigns[:errors]
+          expect(errors).not_to be_empty
+          expect(errors.length).to eq(1)
+          error = errors.first
           # rubocop:disable Layout/LineLength
-          expect(assigns[:errors]).to eq(["We apologize, the following errors were encountered: You must include a README. <a href='#{work_readme_select_path(work)}'>Please upload one</a>. Please contact the PDC Describe administrators for any assistance."])
+          expect(error).to include("We apologize, the following errors were encountered: You must include a README. <a href='#{work_readme_select_path(work1)}'>Please upload one</a>,")
+          expect(error).to include("You must include one or more files if you are uploading files from your local environment. <a href='#{work_file_upload_path(work1)}'>Please resubmit after uploading the file(s)</a>.")
           # rubocop:enable Layout/LineLength
+          expect(error).to include("Please contact the PDC Describe administrators for any assistance.")
         end
       end
     end
