@@ -45,7 +45,7 @@ class BackgroundUploadSnapshot < UploadSnapshot
     if filename.include?(work.prefix)
       filename
     else
-      "#{work.prefix}#{filename}"
+      Pathname.new(work.prefix).join(filename).to_s
     end
   end
 end
