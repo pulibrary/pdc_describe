@@ -11,9 +11,12 @@ class WorkUploadsEditService
   def update_precurated_file_list(added_files, deleted_files)
     delete_uploads(deleted_files)
     add_uploads(added_files)
-    if work.changes.count > 0
+    file_list_changed = deleted_files.count > 0 || added_files.count > 0
+    if file_list_changed
       s3_service.client_s3_files(reload: true)
-      work.reload # reload the work to pick up the changes in the attachments
+      # Pick up the changes in the attachments and assings them to the current user
+      work.reload
+      work.reload_snapshots(user_id: current_user.id)
     end
 
     work
@@ -45,9 +48,7 @@ class WorkUploadsEditService
 
       deleted_files.each do |filename|
         s3_service.delete_s3_object(filename)
-        work.track_change(:removed, filename)
       end
-      work.log_file_changes(@current_user.id)
     end
 
     def add_uploads(added_files)

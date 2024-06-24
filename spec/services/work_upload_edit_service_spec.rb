@@ -76,6 +76,7 @@ RSpec.describe WorkUploadsEditService do
     it "returns all existing files plus the new one" do
       fake_s3_service = stub_s3(bucket_url:)
       allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_data, s3_data + [s3_file3])
+      work.reload_snapshots # Force the activiy log to be initialized so we can detect a change as part of the test
 
       upload_service = described_class.new(work, user)
       updated_work = nil
@@ -85,7 +86,7 @@ RSpec.describe WorkUploadsEditService do
       expect(fake_s3_service).not_to have_received(:delete_s3_object)
 
       # it logs the addition (and no delete)
-      activity_log = JSON.parse(updated_work.work_activity.first.message)
+      activity_log = JSON.parse(updated_work.work_activity.second.message)
       expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?(s3_file3.filename_display) }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "removed" }).to be nil
     end
@@ -98,6 +99,7 @@ RSpec.describe WorkUploadsEditService do
     it "returns all existing files except the deleted one" do
       fake_s3_service = stub_s3(bucket_url:)
       allow(fake_s3_service).to receive(:client_s3_files).and_return(s3_data, [s3_file2])
+      work.reload_snapshots # Force the activiy log to be initialized so we can detect a change as part of the test
 
       upload_service = described_class.new(work, user)
       updated_work = nil
@@ -119,6 +121,8 @@ RSpec.describe WorkUploadsEditService do
     it "replaces all the files" do
       fake_s3_service = stub_s3(bucket_url:)
       allow(fake_s3_service).to receive(:client_s3_files).and_return([s3_file1], [s3_file2, s3_file3])
+      work.reload_snapshots # Force the activiy log to be initialized so we can detect a change as part of the test
+
       upload_service = described_class.new(work, user)
       updated_work = upload_service.update_precurated_file_list(added_files, deleted_files)
       list = updated_work.reload.pre_curation_uploads
@@ -129,7 +133,7 @@ RSpec.describe WorkUploadsEditService do
 
       # it logs the activity
       work_activities = work.work_activity
-      expect(work_activities.count).to eq(2) # one for the deletes and one for the adds
+      expect(work_activities.count).to eq(3) # one for the deletes and one for the adds (plus the initial one)
       activity_log = work_activities.map { |work_activity| JSON.parse(work_activity.message) }.flatten
       expect(activity_log.find { |log| log["action"] == "removed" && log["filename"].include?(s3_file1.key) }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil
@@ -143,6 +147,7 @@ RSpec.describe WorkUploadsEditService do
 
     it "replaces all the files" do
       fake_s3_service = stub_s3(data: s3_data, bucket_url:)
+      work.reload_snapshots # Force the activiy log to be initialized so we can detect a change as part of the test
 
       # upload the two new files
       upload_service = described_class.new(work, user)
@@ -156,9 +161,9 @@ RSpec.describe WorkUploadsEditService do
 
       # it logs the activity (2 deletes + 2 adds)
       work_activities = updated_work.work_activity
-      expect(work_activities.count).to eq(2) # one for the deletes and one for the adds
+      expect(work_activities.count).to eq(3) # one for the deletes and one for the adds (plus the initial one)
       activity_log = work_activities.map { |work_activity| JSON.parse(work_activity.message) }.flatten
-      expect(activity_log.find { |log| log["action"] == "removed" && log["filename"].include?("us_covid_2019.csv") }).not_to be nil
+      expect(activity_log.find { |log| log["action"] == "removed" && log["filename"].include?("orcid.csv") }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "removed" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?("us_covid_2020.csv") }).not_to be nil
       expect(activity_log.find { |log| log["action"] == "added" && log["filename"].include?("orcid.csv") }).not_to be nil
