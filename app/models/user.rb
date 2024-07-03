@@ -9,6 +9,8 @@ class User < ApplicationRecord
 
   devise :rememberable, :omniauthable
 
+  after_initialize :safe_uid_check
+
   # GroupOptions model extensible options set for Groups and Users
   has_many :group_options, dependent: :destroy
   has_many :group_messaging_options, -> { where(option_type: GroupOption::EMAIL_MESSAGES) }, class_name: "GroupOption", dependent: :destroy
@@ -28,7 +30,7 @@ class User < ApplicationRecord
   end
 
   def self.from_cas(access_token)
-    user = User.find_by(uid: access_token.uid)
+    user = User.find_by(uid: safe_uid(access_token.uid))
     if user.nil?
       user = new_from_cas(access_token)
     elsif user.provider.blank?
@@ -41,7 +43,7 @@ class User < ApplicationRecord
   def self.new_from_cas(access_token)
     user = User.new
     user.provider = access_token.provider
-    user.uid = access_token.uid # this is the netid
+    user.uid = safe_uid(access_token.uid) # this is the netid
     user.email = access_token.extra.mail
     user.given_name = access_token.extra.givenname || access_token.uid # Harriet
     user.family_name = access_token.extra.sn || access_token.uid # Tubman
@@ -49,6 +51,11 @@ class User < ApplicationRecord
     user.default_group_id = Group.default_for_department(access_token.extra.departmentnumber)&.id
     user.save!
     user
+  end
+
+  def self.safe_uid(uid)
+    return uid if uid.blank?
+    uid.gsub(/[^(0-9a-zA-Z_\-)]/, "_")
   end
 
   # Updates an existing User record with some information from CAS. This is useful
@@ -236,6 +243,10 @@ class User < ApplicationRecord
   # @return [Boolean]
   def email_messages_enabled?
     email_messages_enabled
+  end
+
+  def safe_uid_check
+    self.uid = self.class.safe_uid(uid)
   end
 end
 # rubocop:enable Metrics/ClassLength

@@ -25,23 +25,32 @@ RSpec.describe "User dashboard", type: :system, js: true do
   describe "Search feature" do
     let(:pppl_moderator) { FactoryBot.create :pppl_moderator }
     let(:rd_moderator) { FactoryBot.create :research_data_moderator }
+    let(:external_user) { FactoryBot.create :external_user }
     let(:user_admin) { FactoryBot.create :super_admin_user }
+    let(:draft_work) { FactoryBot.create(:new_draft_work, created_by_user_id: external_user.id) }
 
     before do
       FactoryBot.create(:tokamak_work)
       FactoryBot.create(:shakespeare_and_company_work)
+      draft_work
     end
 
     it "finds works for the user logged in", js: true do
       sign_in pppl_moderator
       visit user_path(pppl_moderator) + "?q=tokamak"
-      expect(page.html.include?("Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas")).to be true
-      expect(page.html.include?("Shakespeare and Company Project Dataset: Lending Library Members, Books, Events")).to be false
+      expect(page).to have_content("Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas")
+      expect(page).not_to have_content("Shakespeare and Company Project Dataset: Lending Library Members, Books, Events")
 
       sign_in rd_moderator
       visit user_path(rd_moderator) + "?q=shakespeare"
-      expect(page.html.include?("Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas")).to be false
-      expect(page.html.include?("Shakespeare and Company Project Dataset: Lending Library Members, Books, Events")).to be true
+      expect(page).not_to have_content("Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas")
+      expect(page).to have_content("Shakespeare and Company Project Dataset: Lending Library Members, Books, Events")
+
+      sign_in external_user
+      visit user_path(external_user)
+      expect(page).to have_content(draft_work.title)
+      expect(page).not_to have_content("Electron Temperature Gradient Driven Transport Model for Tokamak Plasmas")
+      expect(page).not_to have_content("Shakespeare and Company Project Dataset: Lending Library Members, Books, Events")
     end
 
     it "allows administrators to find works regardless of the group" do

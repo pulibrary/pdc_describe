@@ -19,6 +19,13 @@ RSpec.describe UsersController do
     expect(response).to render_template("show")
   end
 
+  it "renders the show page for external users" do
+    # Notice that for external users like "pppltest@gmail.com" Rails splits the ".com" in the URL
+    sign_in user_external
+    get :show, params: { id: user_external.friendly_id }
+    expect(response).to render_template("show")
+  end
+
   describe "#edit" do
     context "when authenticated and the current user is authorized" do
       before do
