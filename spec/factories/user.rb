@@ -58,7 +58,7 @@ FactoryBot.define do
   end
 
   factory :external_user, class: "User" do
-    uid { FFaker::InternetSE.user_name + "@gmail.com" }
+    uid { User.safe_uid(FFaker::InternetSE.user_name + ".abc@gmail.com") }
     email { "#{uid}@princeton.edu" }
     provider { :cas }
   end

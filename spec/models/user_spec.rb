@@ -8,6 +8,7 @@ RSpec.describe User, type: :model do
   let(:access_token) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu" }) }
   let(:access_token_pppl) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu", departmentnumber: "31000" }) }
   let(:access_token_super_admin) { OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" }) }
+  let(:access_token_guest) { OmniAuth::AuthHash.new(provider: "cas", uid: "test.user@example.com", extra: { mail: "test.user@example.com@princeton.edu" }) }
 
   let(:access_token_full_extras) do
     OmniAuth::AuthHash.new(provider: "cas", uid: "test123",
@@ -71,6 +72,14 @@ RSpec.describe User, type: :model do
       expect(user.full_name).to eq "Areyou, Who"
       expect(user.given_name).to eq "Who"
       expect(user.family_name).to eq "Areyou"
+    end
+
+    context "a guest cas user" do
+      it "redirects to home page with success notice" do
+        user = described_class.from_cas(access_token_guest)
+        expect(user.email).to eq "test.user@example.com@princeton.edu"
+        expect(user.uid).to eq "test_user_example_com"
+      end
     end
   end
 
@@ -279,6 +288,19 @@ RSpec.describe User, type: :model do
     it "returns the uid if the full name only has spaces" do
       user = FactoryBot.create(:user, full_name: "  ")
       expect(user.full_name_safe).to eq(user.uid)
+    end
+  end
+
+  describe "#uid" do
+    it "updates the uid" do
+      user = User.new(uid: "test.abc@example.com@princeton.edu")
+      expect(user.uid).to eq("test_abc_example_com_princeton_edu")
+    end
+
+    it "doesn't update the uid after initialize" do
+      user = User.new
+      user.uid = "test.abc@example.com@princeton.edu"
+      expect(user.uid).to eq("test.abc@example.com@princeton.edu")
     end
   end
 end
