@@ -27,7 +27,7 @@ class Readme
   end
 
   def present?
-    work.pre_curation_uploads.length > 1 && readme_files_uploaded?
+    work.pre_curation_uploads.present? && readme_files_uploaded?
   end
 
   def blank?

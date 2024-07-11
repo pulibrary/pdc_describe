@@ -333,8 +333,9 @@ RSpec.describe WorksWizardController do
     end
 
     describe "#validate" do
+      let(:s3_readme) { FactoryBot.build(:s3_readme) }
       before do
-        stub_s3 data: [FactoryBot.build(:s3_readme)]
+        stub_s3 data: [s3_readme]
         sign_in user
       end
 
