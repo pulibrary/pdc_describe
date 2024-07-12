@@ -280,6 +280,26 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
           expect(page).to have_content("Please upload the README")
           expect(page).to have_content("README.txt was previously uploaded. You will replace it if you select a different file.")
         end
+
+        context "when a Work has no attached files" do
+          let(:work) do
+            FactoryBot.create(:draft_work, created_by_user_id: user.id)
+          end
+          let(:s3_readme) { FactoryBot.build(:s3_readme, work:) }
+
+          before do
+            stub_s3 data: [s3_readme]
+            sign_in user
+          end
+
+          it "redirects users to the edit Work view and does not advance the Work beyond the draft state" do
+            post work_validate_path(work)
+
+            work.reload
+            expect(work.state).to eq("draft")
+            expect(response).to redirect_to(edit_work_path(work))
+          end
+        end
       end
     end
 
