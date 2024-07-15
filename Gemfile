@@ -35,7 +35,6 @@ gem "retryable"
 gem "rolify"
 gem "rspec-rails", "~> 5.0.0"
 gem "sidekiq", "~> 7.2"
-gem "simplecov", require: false
 gem "vite_rails", "3.0.12"
 gem "whenever"
 
@@ -72,6 +71,7 @@ group :development, :test do
   gem "equivalent-xml", "~> 0.6.0"
   gem "pry-byebug"
   gem "pry-rails"
+  gem "simplecov", "~> 0.22"
   gem "yard"
 end
 
