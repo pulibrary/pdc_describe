@@ -86,8 +86,10 @@ RSpec.describe Work, type: :model do
     end
 
     context "a readme exists" do
+      let(:s3_readme) {FactoryBot.build(:s3_readme)}
+      let(:s3_file) {FactoryBot.build(:s3_file)}
       before do
-        stub_s3 data: [FactoryBot.build(:s3_readme)]
+        stub_s3 data: [s3_readme, s3_file]
       end
 
       it "is valid" do
