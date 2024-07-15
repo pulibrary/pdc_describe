@@ -162,12 +162,17 @@ class WorkValidator
     def validate_files
       return if @work.resource.migrated
       readme = Readme.new(work, nil)
+
+      # when files are not uploaded
       errors.add(:base, "You must include a README. <a href='#{work_readme_select_path(work)}'>Please upload one</a>") if readme.blank?
-      # 1 readme and 1 file
-      # 2 readme files and 0 files
-      if work.uploads.length < 2
+      if !work.files_location_upload?
+      elsif work.uploads.length < 2
+
+        # files_location_upload?
+        # 1 readme and 1 file
+        # 2 readme files and 0 files
         errors.add(:base,
-"You must include one or more files if you are uploading files from your local environment. <a href='#{work_file_upload_path(work)}'>Please resubmit after uploading the file(s)</a>")
+        "You must include one or more files if you are uploading files from your local environment. <a href='#{work_file_upload_path(work)}'>Please resubmit after uploading the file(s)</a>")
       end
     end
 end
