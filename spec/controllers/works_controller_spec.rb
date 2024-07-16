@@ -1287,7 +1287,7 @@ RSpec.describe WorksController do
     end
 
     it "validates a work completes it when there are no errors" do
-      stub_s3 data: [FactoryBot.build(:s3_readme)]
+      stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
       sign_in user
       post :validate, params: { id: work.id }
       expect(response).to redirect_to(user_path(user))

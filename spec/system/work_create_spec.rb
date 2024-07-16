@@ -310,7 +310,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
       end
 
       before do
-        stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
+        stub_s3 data: [FactoryBot.build(:s3_readme, work:), FactoryBot.build(:s3_file)]
       end
 
       it "allows users to upload files", js: true do
