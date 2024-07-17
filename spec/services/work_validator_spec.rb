@@ -85,10 +85,16 @@ RSpec.describe Work, type: :model do
       end
     end
 
-    context "a readme exisits" do
+    context "a readme exists" do
+      let(:s3_readme) { FactoryBot.build(:s3_readme) }
+      let(:s3_file) { FactoryBot.build(:s3_file) }
+      before do
+        stub_s3 data: [s3_readme, s3_file]
+      end
+
       it "is valid" do
-        stub_s3 data: [FactoryBot.build(:s3_readme)]
         validator = WorkValidator.new(work)
+
         expect(validator.valid?).to be_truthy
         expect(validator.valid_to_complete).to be_truthy
         expect(work.errors.full_messages).to eq([])

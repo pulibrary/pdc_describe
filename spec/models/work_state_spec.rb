@@ -4,7 +4,7 @@ require "rails_helper"
 RSpec.describe "Work state transions", type: :model do
   let(:curator_user) { FactoryBot.create :user, groups_to_admin: [work.group] }
   before do
-    stub_s3 data: [FactoryBot.build(:s3_readme)]
+    stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
   end
 
   {

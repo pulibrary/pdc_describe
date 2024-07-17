@@ -49,7 +49,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
   context "happy path" do
     before do
       stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
-      stub_s3 data: [FactoryBot.build(:s3_readme)]
+      stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
     end
 
     it "produces and saves a valid datacite record" do
@@ -154,9 +154,10 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       click_on "Create"
       click_on "Complete"
       expect(page).to have_content "You must include a README."
+      expect(page).to have_content "You must include one or more files if you are uploading files from your local environment"
 
       # fake that the user put a file up in globus
-      allow(fake_s3_service).to receive(:client_s3_files).and_return([FactoryBot.build(:s3_readme)])
+      allow(fake_s3_service).to receive(:client_s3_files).and_return([FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)])
       click_on "Save Work"
       click_on "Complete"
       expect(page).to have_content "awaiting_approval"
