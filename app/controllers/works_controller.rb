@@ -278,24 +278,28 @@ class WorksController < ApplicationController
       params[:work] || {}
     end
 
+    # not a route, not called elsewhere
     def patch_params
       return {} unless params.key?(:patch)
 
       params[:patch]
     end
 
+    # not a route, not called elsewhere
     def pre_curation_uploads_param
       return if patch_params.nil?
 
       patch_params[:pre_curation_uploads]
     end
 
+    # not a route, not called elsewhere
     def readme_file_param
       return if patch_params.nil?
 
       patch_params[:readme_file]
     end
 
+    # not called
     def rescue_aasm_error
       super
     rescue StandardError => generic_error
@@ -306,6 +310,7 @@ class WorksController < ApplicationController
       end
     end
 
+    # not called
     def handle_error_for_create(generic_error)
       if @work.persisted?
         Honeybadger.notify("Failed to create the new Dataset #{@work.id}: #{generic_error.message}")
@@ -321,6 +326,7 @@ class WorksController < ApplicationController
       end
     end
 
+    # not called
     def redirect_aasm_error(transition_error_message)
       if @work.persisted?
         redirect_to edit_work_url(id: @work.id), notice: transition_error_message, params:
@@ -333,6 +339,7 @@ class WorksController < ApplicationController
       end
     end
 
+    # not called
     def error_action
       @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
       if action_name == "create"
