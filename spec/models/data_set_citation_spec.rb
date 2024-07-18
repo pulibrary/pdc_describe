@@ -77,6 +77,25 @@ RSpec.describe DatasetCitation do
       expect(citation.bibtex_lines(nil)).to eq [""]
     end
   end
+
+  describe "#to_s" do
+    it "converts BibTeX to string" do
+      bibtex = "@electronic{menard_je_2018,\r\n" \
+      "\tauthor      = {Menard, J.E.},\r\n" \
+      "\ttitle       = {{Compact steady-state tokamak}},\r\n" \
+      "\tpublisher   = {{Princeton University}},\r\n" \
+      "\tyear        = 2018,\r\n" \
+      "\turl         = {http://doi.org/princeton/test123}\r\n" \
+      "}"
+      expect(single_author_dataset.bibtex).to eq bibtex
+      expect(single_author_dataset.to_s("BibTeX")).to eq(bibtex)
+    end
+
+    it "converts APA to string" do
+      apa = "Menard, J.E. (2018). Compact steady-state tokamak [Data set]. Princeton University. http://doi.org/princeton/test123"
+      expect(single_author_dataset.to_s("apa")).to eq(apa)
+    end
+  end
 end
 # rubocop:enable RSpec/ExampleLength
 # rubocop:enable Layout/LineLength

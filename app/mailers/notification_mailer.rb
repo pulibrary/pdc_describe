@@ -12,10 +12,10 @@ class NotificationMailer < ApplicationMailer
     @url = work_url(@work_activity.work)
 
     # Troubleshooting https://github.com/pulibrary/pdc_describe/issues/1783
-    if @url.include?("/describe/describe/")
-      Rails.logger.error("URL #{@url} included /describe/describe/ and was fixed. See https://github.com/pulibrary/pdc_describe/issues/1783")
-      @url = @url.gsub("/describe/describe/", "/describe/")
-    end
+    # if @url.include?("/describe/describe/")
+    #  Rails.logger.error("URL #{@url} included /describe/describe/ and was fixed. See https://github.com/pulibrary/pdc_describe/issues/1783")
+    #  @url = @url.gsub("/describe/describe/", "/describe/")
+    # end
 
     mail(to: @user.email, subject: @subject)
   end

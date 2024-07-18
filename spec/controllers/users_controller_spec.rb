@@ -5,6 +5,7 @@ RSpec.describe UsersController do
   let(:user) { FactoryBot.create(:user) }
   let(:user_other) { FactoryBot.create(:user) }
   let(:user_external) { FactoryBot.create(:external_user) }
+  let(:user_external_2) { FactoryBot.create(:external_user_2) }
 
   it "renders the show page" do
     sign_in user
@@ -16,13 +17,6 @@ RSpec.describe UsersController do
     # Notice that for external users like "pppltest@gmail.com" Rails splits the ".com" in the URL
     sign_in user_external
     get :show, params: { id: user_external.friendly_id.gsub(".com", ""), format: "com" }
-    expect(response).to render_template("show")
-  end
-
-  it "renders the show page for external users" do
-    # Notice that for external users like "pppltest@gmail.com" Rails splits the ".com" in the URL
-    sign_in user_external
-    get :show, params: { id: user_external.friendly_id }
     expect(response).to render_template("show")
   end
 
