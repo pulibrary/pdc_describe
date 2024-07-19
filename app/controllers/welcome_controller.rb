@@ -5,4 +5,5 @@ class WelcomeController < ApplicationController
   def index; end
   def about; end
   def license; end
+  def help; end
 end
