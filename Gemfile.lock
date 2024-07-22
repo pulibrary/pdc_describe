@@ -383,8 +383,8 @@ GEM
       actionpack (>= 5.2)
       railties (>= 5.2)
     retryable (3.0.5)
-    rexml (3.2.8)
-      strscan (>= 3.0.9)
+    rexml (3.3.2)
+      strscan
     rinku (2.0.6)
     rolify (6.0.0)
     rspec (3.11.0)
