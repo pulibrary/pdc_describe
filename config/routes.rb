@@ -27,6 +27,7 @@ Rails.application.routes.draw do
   get "about", to: "welcome#about", as: :welcome_about
   get "license", to: "welcome#license", as: :welcome_license
   get "how-to-submit", to: "welcome#how_to_submit", as: :welcome_how_to_submit
+  get "help", to: "welcome#help", as: :help
 
   # The wizard new submission controller (work wizard step 0)
   get "works/:id/new-submission", to: "works_wizard_new_submission#new_submission", as: :work_create_new_submission
