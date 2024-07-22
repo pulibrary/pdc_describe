@@ -190,12 +190,14 @@ class WorksWizardController < ApplicationController
       @work = Work.find(params[:id])
     end
 
+    # @note No testing coverage but not a route, not called
     def patch_params
       return {} unless params.key?(:patch)
 
       params[:patch]
     end
 
+    # @note No testing coverage but not a route, not called
     def pre_curation_uploads_param
       return if patch_params.nil?
 
@@ -207,6 +209,7 @@ class WorksWizardController < ApplicationController
       (1..deleted_count).map { |i| params.dig("work", "deleted_file_#{i}") }.select(&:present?)
     end
 
+    # @note No testing coverage but not a route, not called
     def readme_file_param
       return if patch_params.nil?
 

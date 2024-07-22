@@ -5,6 +5,7 @@ RSpec.describe UsersController do
   let(:user) { FactoryBot.create(:user) }
   let(:user_other) { FactoryBot.create(:user) }
   let(:user_external) { FactoryBot.create(:external_user) }
+  let(:user_external_2) { FactoryBot.create(:external_user_2) }
 
   it "renders the show page" do
     sign_in user

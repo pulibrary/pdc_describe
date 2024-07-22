@@ -11,12 +11,33 @@ RSpec.describe S3File, type: :model do
   let(:checksum) { "abc123" }
   let(:query_service) { instance_double(S3QueryService, class: S3QueryService, bucket_name:) }
   let(:bucket_name) { "test-bucket" }
+  let(:json_string) do
+    '{"filename":"test", "last_modified":"18th Jul 2024 05:02:00", "size":"5MB", "checksum":"abc123", "work_id":"' + work.id.to_s + '", "filename_display":"filename", "url":"example.com" }'
+  end
 
   it "can take S3 file data at creation time" do
     expect(s3_file.filename).to eq filename
     expect(s3_file.last_modified).to eq last_modified
     expect(s3_file.size).to eq size
     expect(s3_file.checksum).to eq checksum
+  end
+
+  it "can be created from a JSON string" do
+    s3_file2 = S3File.from_json(json_string)
+    expect(s3_file2.filename).to eq("test")
+    expect(s3_file2.last_modified).to eq(DateTime.parse("18th Jul 2024 05:02:00"))
+    expect(s3_file2.size).to eq("5MB")
+    expect(s3_file2.checksum).to eq("abc123")
+    expect(s3_file2.filename_display).to eq("filename")
+    expect(s3_file2.url).to eq("example.com")
+  end
+
+  it "returns byte size" do
+    expect(s3_file.byte_size).to eq(size)
+  end
+
+  it "returns AWS S3 client" do
+    expect(s3_file.s3_client).to be_a(Aws::S3::Client)
   end
 
   context "checksum with quotes" do
