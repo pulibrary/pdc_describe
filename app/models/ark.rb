@@ -30,6 +30,7 @@ class Ark
   # Net::HTTPServerException: 400 "Bad Request"
   # If that happens, try again, up to 5 times, sleep 3 seconds between retries.
   # If it still fails, send the error to honeybadger.
+  # @note No testing coverage for StandardError but depends on API
   def self.update(ezid, new_url, command_line: false)
     return if ezid.start_with?(EZID_TEST_SHOULDER)
     Retryable.retryable(tries: 5, sleep: 3, on: [Net::HTTPServerException]) do
