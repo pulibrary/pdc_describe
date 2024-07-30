@@ -67,6 +67,7 @@ group :development, :test do
   gem "bcrypt_pbkdf"
   gem "bixby"
   gem "byebug"
+  gem "coveralls_reborn", "~> 0.28"
   gem "ed25519"
   gem "equivalent-xml", "~> 0.6.0"
   gem "pry-byebug"
@@ -92,7 +93,6 @@ end
 group :test do
   gem "axe-core-rspec"
   gem "capybara"
-  gem "coveralls_reborn", require: false
   gem "database_cleaner-active_record"
   gem "factory_bot_rails", require: false
   gem "ffaker"
