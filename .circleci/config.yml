@@ -5,7 +5,7 @@ commands:
       - run: gem install bundler -v '2.3.22'
       - run: cp Gemfile.lock Gemfile.lock.bak
       - restore_cache:
-          key: &gem_key rails_template-cimg-{{ checksum "Gemfile.lock.bak" }}
+          key: &gem_key pdc_describe-cimg-{{ checksum "Gemfile.lock.bak" }}
       - run: bundle config set path './vendor/bundle'
       - run: bundle config set --local without production
       - run: bundle install --jobs=4 --retry=3
@@ -15,7 +15,7 @@ commands:
             - ./vendor/bundle
       - restore_cache:
           name: Restore Yarn Package Cache
-          key: &yarn_key rails_template-yarn-cimg-{{ checksum "yarn.lock" }}
+          key: &yarn_key pdc_describe-yarn-cimg-{{ checksum "yarn.lock" }}
       - run:
           name: Install NPM Dependencies via Yarn
           command: yarn install --frozen-lockfile
@@ -28,7 +28,7 @@ orbs:
   browser-tools: circleci/browser-tools@1.4.4
 jobs:
   build:
-    working_directory: ~/rails_template
+    working_directory: ~/pdc_describe
     docker:
       - &ruby_docker
         image: cimg/ruby:3.1.0-browsers
@@ -39,7 +39,7 @@ jobs:
       - run: sudo apt update && sudo apt install postgresql-client libmsgpack-dev
       - install_dependencies
       - persist_to_workspace:
-          root: &root '~/rails_template'
+          root: &root '~/pdc_describe'
           paths: '*'
 
   rubocop:
@@ -55,14 +55,14 @@ jobs:
 
   eslint:
     # We don't actually need any of the ruby environment to lint JS... but use what we have for now.
-    working_directory: ~/rails_template
+    working_directory: ~/pdc_describe
     docker:
       - image: cimg/ruby:3.1.0-browsers
         environment:
           RAILS_ENV: test
     steps:
       - attach_workspace:
-          at: '~/rails_template'
+          at: '~/pdc_describe'
       - install_dependencies
       - run:
           name: Run eslint
@@ -76,7 +76,7 @@ jobs:
       - *ruby_docker
       - image: postgres:15-alpine
         environment:
-          POSTGRES_USER: rails_template_user
+          POSTGRES_USER: pdc_describe_user
           POSTGRES_DB: test_db
           POSTGRES_HOST_AUTH_METHOD: trust
     steps:
@@ -86,17 +86,14 @@ jobs:
       - run:
           name: Wait for PostgreSQL
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
-      - run: bundle exec rake db:create
-      - run: bundle exec rake db:migrate
+      - run: bundle exec rake db:create RAILS_ENV=test
       - run: bundle exec rake db:migrate RAILS_ENV=test
       - run:
           name: Run Rspec
           command: COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN bundle exec rspec spec
       - store_artifacts:
           path:
-            ~/rails_template/coverage
-            ~/rails_template/tmp/capybara
-            ~/rails_template/tmp/screenshots
+            ~/pdc_describe/coverage
 
 workflows:
   version: 2

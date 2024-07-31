@@ -567,7 +567,7 @@ DEPENDENCIES
   capistrano-passenger
   capistrano-rails (~> 1.4)
   capybara
-  coveralls_reborn
+  coveralls_reborn (~> 0.28)
   database_cleaner-active_record
   datacite!
   datacite-mapping
