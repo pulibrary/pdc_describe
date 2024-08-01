@@ -20,6 +20,10 @@
 @import "components/users.scss";
 @import "components/nav.scss";
 
+.welcome-headers, #welcome-to-pdc {
+  font-size: 2rem !important;
+}
+
 .welcome-headers {
   margin: 2.5rem 0 1.5rem 0;
 }
@@ -35,13 +39,9 @@
   }
 }
 
-h1 {
-  font-size: 2rem !important;
-}
-
 ol > li::marker {
   text-shadow: 1px 0 #000;
-  font-weight:bold;
+  font-weight: bold;
 }
 
 .strong {
