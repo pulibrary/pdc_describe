@@ -15,6 +15,96 @@
   </div>
 <% else %>
   <div>
-    <p>Welcome to PDC Describe, please <%= link_to "log in", user_cas_omniauth_authorize_path %> to view or create new datasets</p>
+    <h1 id="welcome-to-pdc">Welcome to Princeton Data Commons: Describe</h1>
+    <p>Princeton Data Commons Describe is the submission portal for our data repository. 
+      Here you will find everything you need to know to successfully submit your research 
+      data and code to the Princeton Data Commons.</p>
+    <h1 class="welcome-headers">Who can submit to this repository?</h1>
+    <p>All faculty, staff, and students of Princeton University are welcome to submit their 
+      <span class="strong">digital research data and code</span> to Princeton Data Commons.  (Want to submit a manuscript, 
+      paper, or other scholarly work? Please see Princeton’s 
+      <a href="https://oar.princeton.edu/">Open Access Repository</a>).</p>
+    <h1 class="welcome-headers" id="how-to-submit-anchor">How to Submit</h1>
+    <ol>
+      <li><span class="strong">Plan Ahead</span></li>
+        <ul class="homepage-bullet-points">
+          <li>All submissions are reviewed (‘curated’) by a team of data management experts (‘curators’) 
+            in order to make the data and code submitted to PDC as findable, accessible, interoperable, 
+            and reusable (<a href="https://www.go-fair.org/fair-principles/">FAIR</a>) as possible. The 
+            review process typically takes <span class="strong">5-10 business days</span> once a submission has been completed in the 
+            webportal. </li>
+        </ul>
+      <li><span class="strong">Prepare your files</span></li>
+        <ul class="homepage-bullet-points">
+          <li>All files should be free of any information that is unsuitable for public release (e.g., sensitive 
+            personal information or intellectual property you do not own)</li>
+          <li>If at all possible, data files should be in open and widely accessible formats (e.g., CSV)</li>
+          <li>Provide adequate documentation for others who may re-use your data or code (e.g., at minimum a README.txt 
+            file explaining variable codes and relations among files; feel free to use 
+            <a href="https://drive.google.com/file/d/1LCKPj9XxpwJeHYZV2kXROM79xbiBKnkp/view">our template</a>)</li>
+          <li>If you have a lot of files or a nested folder structure, please compress the top-level folder(s) into a zip 
+            archive to make your submission compatible with flat-file storage systems</li>
+          <li>Please be conscious of data file sizes. See our procedures by Data File Size.</li>
+        </ul>
+      <li><span class="strong">Verify your agreement with the Princeton Data Commons Describe policies and guidelines</span></li>
+        <ul class="homepage-bullet-points">
+          <li>Review the PDC policies for 
+            <a href="https://drive.google.com/file/d/1GECvKoOjwqvKTKYvyNThCyzTWjD6cPxs/view?usp=sharing">Acceptance and Retention</a>
+            and <a href="https://drive.google.com/file/d/1E8EgfyL2yB2rH0xCIIqYrTFE0QfY8Sk_/view?usp=sharing">Distribution</a>: 
+            Be sure your intended submission is 
+            eligible for PDC, that you are authorized to grant permission for redistribution, and that you are prepared 
+            to pay any applicable costs. If you are unsure about any of these points, please <span style="color: #0062ad">contact PRDS</span>
+             before submitting.</li>
+        </ul>
+      <li><span class="strong">Log in to <a href="https://datacommons.princeton.edu/describe/">Princeton Data Commons Describe</a></span></li>
+        <ul class="homepage-bullet-points">
+          <li>Click the <em>Log In</em> button above and log in using your Princeton NetID.</li>
+          <li>On your first login, you will be prompted to fill in your basic profile information, including your name and your 
+            <a href="https://orcid.org/">ORCiD</a>.</li>
+          <li>In the profile screen, you can also select your notification settings. We recommend that you select to have email 
+            notifications turned on in order to be alerted when messages are sent to you internally in PDC.</li>
+          <li>Navigate to your dashboard by clicking the “My Dashboard” button in order to view your pending submissions or to 
+            begin submitting a new item to the repository.</li>
+        </ul>
+      <li><span class="strong">Create a new item and upload files</span></li>
+        <ul class="homepage-bullet-points">
+          <li>From within the PDC Describe web portal, start a new submission from your dashboard.</li>
+          <li>A draft DOI will be created when you begin a new submission. A DOI is reserved for each submission, but the link 
+            will not be made “live” until the curation process is complete and the dataset has been accepted. Your DOI will not 
+            change throughout the process, so you may use this link as needed before approval of the dataset is complete (eg. in 
+            a citation for a corresponding paper).</li>       
+          <li>Fill out all required metadata (e.g., title, creators, description, license) and additional metadata fields (e.g., 
+            keywords) as completely as possible.</li>
+          <li>Upload a README file to reiterate and supplement the metadata (see 
+            <a href="https://researchdata.princeton.edu/research-lifecycle-guide/readmes-research-data">more guidance on READMEs</a>).</li>
+          <li>Upload your data/code files that are under 100MB directly into the web form when prompted.</li>
+          <li>If your submission is over 100MB or you had trouble uploading, the data will be 
+            <a href="https://researchdata.princeton.edu/research-lifecycle-guide/publishing-large-datasets">transferred via Globus</a>. 
+            If you don't already have a Globus account linked to your Princeton credentials, you will also need to 
+            <a href="https://docs.globus.org/guides/tutorials/manage-files/transfer-files/">log into Globus and select Princeton as 
+              your existing organization</a>. For now, please indicate where your files are currently stored, approximately how many 
+              files you have, the total size of your submission, and whether you have a specific deadline to meet.</li>
+        </ul>
+      <li><span class="strong">Submit for curatorial review</span></li>
+        <ul class="homepage-bullet-points">
+          <li>Even if you have been in touch with the data curators directly, you must complete your submission through the web portal 
+            in order for the curation process to begin.</li>
+          <li>The curators review every submission with an eye toward discoverability, re-usability, and long-term preservation (see 
+            the <a href="https://www.force11.org/group/fairgroup/fairprinciples">FAIR Principles</a>). Curation is a required part of 
+            the data submission process.</li>
+          <li>If you need to request an embargo period or have any other special considerations before acceptance, please contact the 
+            Princeton Data Commons curators via the internal PDC Describe messaging system (on the right hand side of your webpage when 
+            viewing a pending submission).</li>
+          <li>If the curators have any recommended revisions, they will contact you directly via the internal PDC Describe messaging 
+            system. Please ensure you have email notifications enabled (in your profile) or sign-in to your profile regularly to ensure 
+            you do not miss any of these important messages.</li>
+          <li>The review process typically takes <span class="strong">5-10 business days</span> once a submission has been completed in the webportal.</li>
+        </ul>
+      <li><span class="strong">Receive notice of publication</span></li>
+        <ul class="homepage-bullet-points">
+          <li>The PDC Describe system should notify you when your item has been accepted, and the curators will follow up with confirmation 
+            that your item has a registered DOI (and therefore a “live” doi link, as mentioned above).</li>
+        </ul>
+    </ol>
   </div>
 <% end %>
