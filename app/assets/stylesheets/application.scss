@@ -20,6 +20,15 @@
 @import "components/users.scss";
 @import "components/nav.scss";
 
+
+#pdc-discovery-label {
+  float: left;
+  margin: 0 auto;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+}
+
 .welcome-headers, #welcome-to-pdc {
   font-size: 2rem !important;
 }

@@ -5,11 +5,19 @@
       <% if current_user && (current_user.super_admin? || current_user.moderator?) %>
         <%= render 'shared/admin_actions' %>
       <% end %>
-      <nav id="menu" class="col-sm" role="menu">
-        <%= link_to "About","#{root_url}about", :class => "btn btn-primary about", :role => "menuitem" %>
-        <%= link_to "How to Submit", "#{root_url}#how-to-submit", :class => "btn btn-primary how-to-submit", :role => "menuitem" %>
-        <%= link_to "Help", "#{root_url}help", :class =>"btn btn-secondary help", :role => "menuitem" %>
-      </nav>
+      <% if current_user %>
+        <nav id="menu" class="col-sm" role="menu">
+          <%= link_to "How to Submit", "#{root_url}#how-to-submit", :class => "btn btn-primary how-to-submit", :role => "menuitem" %>
+          <%= link_to "Need Help?", "#{root_url}help", :class =>"btn btn-secondary help", :role => "menuitem" %>
+        </nav>
+      <% else %>
+        <div id="pdc-discovery-label">Looking for data? Go to</div>
+        <nav id="menu" class="col-sm" role="menu">
+          <%= link_to "Princeton Data Commons: Discovery","https://datacommons.princeton.edu/discovery/", :class => "btn btn-primary about", :role => "menuitem" %>
+          <%= link_to "How to Submit", "#{root_url}#how-to-submit", :class => "btn btn-primary how-to-submit", :role => "menuitem" %>
+          <%= link_to "Need Help?", "#{root_url}help", :class =>"btn btn-secondary help", :role => "menuitem" %>
+        </nav>
+      <% end %>
       <nav id="user-actions" class="col-sm">
         <% if current_user %>
         <%= render 'shared/user_actions' %>
