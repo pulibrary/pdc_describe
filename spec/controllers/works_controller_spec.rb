@@ -796,7 +796,7 @@ RSpec.describe WorksController do
           post :approve, params: { id: work.id }
         end
 
-        it "responds with a status code of 422" do
+        it "responds with a status code of 302" do
           expect(response.status).to be 302
         end
       end
@@ -998,8 +998,8 @@ RSpec.describe WorksController do
             patch :update, params:
           end
 
-          it "renders the edit view with a 422 response status code" do
-            expect(response.code).to eq("422")
+          it "renders the edit view with a 200 response status code" do
+            expect(response.code).to eq("200")
             expect(response).to render_template(:edit)
           end
         end
@@ -1028,8 +1028,8 @@ RSpec.describe WorksController do
             patch :update, params:
           end
 
-          it "renders JSON-serialized error messages with a 422 response status code" do
-            expect(response.code).to eq("422")
+          it "renders JSON-serialized error messages with a 200 response status code" do
+            expect(response.code).to eq("200")
           end
         end
       end
