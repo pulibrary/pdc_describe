@@ -8,7 +8,10 @@ describe "/", type: :system do
 
   it "renders the homepage" do
     visit "/"
-    expect(page).to have_text("Welcome to PDC Describe")
+    expect(page).to have_text("Welcome to Princeton Data Commons: Describe")
+    expect(page).to have_text("Who can submit to this repository?")
+    expect(page).to have_text("How to Submit")
+    expect(page).to have_text("The review process typically takes 5-10 business days")
   end
 
   it "renders the homepage with admin menu for admin users" do

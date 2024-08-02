@@ -20,6 +20,36 @@
 @import "components/users.scss";
 @import "components/nav.scss";
 
+.welcome-headers, #welcome-to-pdc {
+  font-size: 2rem !important;
+}
+
+.welcome-headers {
+  margin: 2.5rem 0 1.5rem 0;
+}
+
+.homepage-bullet-points {
+  margin: 1rem 0 3rem 0;
+  li {
+    line-height: 2rem; 
+  }
+}
+
+ol > li::marker {
+  text-shadow: 1px 0 #000;
+  font-weight: bold;
+}
+
+.strong {
+  text-shadow: 1px 0 #000;
+  letter-spacing: 1px;
+  font-weight:bold;
+}
+
+ul li {
+  list-style-type: disc;
+}
+
 .hidden {
   display: none;
 }
