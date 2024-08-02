@@ -58,7 +58,8 @@ class WorksController < ApplicationController
     else
       @work_decorator = WorkDecorator.new(@work, current_user)
       @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
-      render :new, status: :unprocessable_entity
+      # return 200 so the loadbalancer doesn't capture the error
+      render :new
     end
   end
 
@@ -389,7 +390,8 @@ class WorksController < ApplicationController
         @uploads = @work.uploads
         @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
 
-        render :edit, status: :unprocessable_entity
+        # return 200 so the loadbalancer doesn't capture the error
+        render :edit
       end
     end
 

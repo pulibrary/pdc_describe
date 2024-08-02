@@ -83,7 +83,7 @@ RSpec.describe GroupsController do
     end
 
     context "when an update request uses invalid parameters" do
-      it "renders the Edit View with a 422 response" do
+      it "renders the Edit View with a 200 response" do
         params = {
           "group" => {
             "title" => nil,
@@ -96,12 +96,12 @@ RSpec.describe GroupsController do
         }
         sign_in admin_user
         post :update, params: params
-        expect(response.status).to eq 422
+        expect(response.status).to eq 200
         expect(response).to render_template("edit")
       end
 
       context "when the request is of the JSON content type" do
-        it "renders the Edit View with a 422 response" do
+        it "renders the Edit View with a 200 response" do
           params = {
             "group" => {
               "title" => nil,
@@ -114,7 +114,7 @@ RSpec.describe GroupsController do
           }
           sign_in admin_user
           post :update, params: params, format: :json
-          expect(response.status).to eq 422
+          expect(response.status).to eq 200
           expect(response.content_type).to eq("application/json; charset=utf-8")
           json_body = JSON.parse(response.body)
           expect(json_body).to include("base" => ["Title cannot be empty"])

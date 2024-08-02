@@ -26,8 +26,9 @@ class GroupsController < ApplicationController
           format.html { redirect_to group_url(@group), notice: "Group was successfully updated." }
           format.json { render :show, status: :ok, location: @group }
         else
-          format.html { render :edit, status: :unprocessable_entity }
-          format.json { render json: @group.errors, status: :unprocessable_entity }
+          # return 200 so the loadbalancer doesn't capture the error
+          format.html { render :edit }
+          format.json { render json: @group.errors }
         end
       end
     else
