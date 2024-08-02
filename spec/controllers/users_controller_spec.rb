@@ -77,8 +77,8 @@ RSpec.describe UsersController do
             patch :update, params:
           end
 
-          it "renders the edit view with a 422 response status code" do
-            expect(response.code).to eq("422")
+          it "renders the edit view with a 200 response status code" do
+            expect(response.code).to eq("200")
             expect(response).to render_template(:edit)
           end
         end
@@ -112,8 +112,8 @@ RSpec.describe UsersController do
             patch :update, params:
           end
 
-          it "renders JSON-serialized error messages with a 422 response status code" do
-            expect(response.code).to eq("422")
+          it "renders JSON-serialized error messages with a 200 response status code" do
+            expect(response.code).to eq("200")
           end
         end
       end
@@ -127,7 +127,7 @@ RSpec.describe UsersController do
         patch :update, params:
       end
 
-      it "renders the edit view with a 422 response status code" do
+      it "renders the edit view with a 200 response status code" do
         expect(response).to redirect_to(user_path(user))
         expect(Rails.logger).to have_received(:warn).with("Unauthorized to update user #{user.id} (current user: #{user_other.id})")
       end

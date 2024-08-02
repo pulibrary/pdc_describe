@@ -181,7 +181,8 @@ class WorksWizardController < ApplicationController
             redirect_to redirect_url
           end
         else
-          render view_name, status: :unprocessable_entity
+          # return 200 so the loadbalancer doesn't capture the error
+          render view_name
         end
       end
     end
