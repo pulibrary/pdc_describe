@@ -864,6 +864,29 @@ XML
     end
   end
 
+  describe "#copy_file" do
+    let(:fake_aws_client) { double(Aws::S3::Client) }
+    let(:fake_completion) { instance_double(Seahorse::Client::Response, "successful?": true) }
+
+    before do
+      s3_query_service.stub(:client).and_return(fake_aws_client)
+      fake_aws_client.stub(:copy_object).and_return(fake_completion)
+    end
+
+    it "copies the file calling copy_object" do
+      expect(s3_query_service.copy_file(target_bucket: "example-bucket-post", source_key: "source-key", target_key: "other-bucket/target-key", size: 23)).to eq(fake_completion)
+      expect(s3_query_service.client).to have_received(:copy_object).with(bucket: "example-bucket-post", copy_source: "source-key", key: "other-bucket/target-key", checksum_algorithm: "SHA256")
+    end
+
+    context "the filename originally had a space" do
+      it "it url encode the space and copies the file calling copy_object" do
+        expect(s3_query_service.copy_file(target_bucket: "example-bucket-post", source_key: "directory/source-key+space", target_key: "other-bucket/target-key", size: 23)).to eq(fake_completion)
+        expect(s3_query_service.client).to have_received(:copy_object).with(bucket: "example-bucket-post", copy_source: "directory/source-key%2Bspace", key: "other-bucket/target-key",
+                                                                            checksum_algorithm: "SHA256")
+      end
+    end
+  end
+
   context "when there are empty files" do
     let(:user) { FactoryBot.create(:user) }
     let(:work) { FactoryBot.create(:draft_work, doi:) }
