@@ -108,4 +108,35 @@ namespace :works do
     work_preservation = WorkPreservationService.new(work_id:, path:, localhost: true)
     puts work_preservation.preserve!
   end
+
+  desc "Clean up the duplicate globus and data_space files in a work from migration"
+  task :migration_cleanup, [:work_id] => :environment do |_, args|
+    work_id = args[:work_id].to_i
+    work = Work.find(work_id)
+    files = work.s3_files
+    globus_files = files.select { |file| file.filename.include?("/globus_") }
+    data_space_files = files.select { |file| file.filename.include?("/data_space_") }
+    if globus_files.count != data_space_files.count
+      puts "Error processing files.  The counts differ! globus: #{globus_files.count} data_space: #{data_space_files.count}"
+      exit 1
+    end
+
+    all_match = (0..(globus_files.count - 1)).all? { |idx| globus_files[idx].checksum == data_space_files[idx].checksum }
+    if all_match
+      puts "deleting matching #{data_space_files.count} dpsace files"
+      bucket = S3QueryService.pre_curation_config[:bucket]
+      data_space_files.each do |file|
+        work.s3_query_service.delete_s3_object(file.key, bucket:)
+      end
+      puts "copying #{globus_files.count} globus file to original name"
+      globus_files.each do |file|
+        new_key = file.key.gsub("globus_", "")
+        work.s3_query_service.copy_file(source_key: "#{bucket}/#{file.key}", target_bucket: bucket, target_key: new_key, size: file.size)
+      end
+      puts "deleting #{globus_files.count} globus prefixed files"
+      globus_files.each do |file|
+        work.s3_query_service.delete_s3_object(file.key, bucket:)
+      end
+    end
+  end
 end
