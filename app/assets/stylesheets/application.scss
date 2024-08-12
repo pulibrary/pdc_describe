@@ -271,6 +271,8 @@ dl {
 
   dd {
     grid-column-start: 2;
+    width: calc(100% - 10rem);
+    word-wrap: break-word;
   }
 }
 
@@ -373,4 +375,8 @@ div.form-subcommunities .form-check{
 
 .hidden-element {
   display: none;
+}
+
+table.dataTable {
+  overflow-wrap: anywhere
 }
