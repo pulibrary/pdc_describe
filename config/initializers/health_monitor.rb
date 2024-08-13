@@ -2,13 +2,13 @@
 HealthMonitor.configure do |config|
   config.cache
   config.redis
-  config.sidekiq
 
   # Make this health check available at /health
   config.path = :health
 
   config.sidekiq.configure do |sidekiq_config|
     sidekiq_config.latency = 3.hours
+    sidekiq_config.queue_size = 10_000
   end
 
   config.error_callback = proc do |e|
