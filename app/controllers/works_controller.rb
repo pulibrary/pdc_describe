@@ -389,6 +389,7 @@ class WorksController < ApplicationController
         # This is needed for rendering HTML views with validation errors
         @uploads = @work.uploads
         @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+        @work_decorator = WorkDecorator.new(@work, current_user)
 
         # return 200 so the loadbalancer doesn't capture the error
         render :edit
