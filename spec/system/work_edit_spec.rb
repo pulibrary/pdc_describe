@@ -183,6 +183,20 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     end
   end
 
+  context "when introducing errors while editting " do
+    let(:work) { FactoryBot.create(:awaiting_approval_work) }
+    let(:curator) { FactoryBot.create(:user, groups_to_admin: [work.group]) }
+
+    it "reports the errors to the user" do
+      sign_in curator
+      visit edit_work_path(work)
+      click_on "Curator Controlled"
+      fill_in "resource_type", with: "invalid value"
+      click_on "Save Work"
+      expect(page).to have_content("error prohibited")
+    end
+  end
+
   context "for PRDS works" do
     let(:work) { FactoryBot.create(:distinct_cytoskeletal_proteins_work) }
     let(:user) { work.created_by_user }
