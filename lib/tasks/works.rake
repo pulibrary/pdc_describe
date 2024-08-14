@@ -110,8 +110,9 @@ namespace :works do
   end
 
   desc "Clean up the duplicate globus and data_space files in a work from migration"
-  task :migration_cleanup, [:work_id] => :environment do |_, args|
+  task :migration_cleanup, [:work_id, :force] => :environment do |_, args|
     work_id = args[:work_id].to_i
+    force = ActiveModel::Type::Boolean.new.cast(args[:force])
     work = Work.find(work_id)
     files = work.s3_files
     globus_files = files.select { |file| file.filename.include?("/globus_") }
@@ -122,13 +123,13 @@ namespace :works do
     end
 
     all_match = (0..(globus_files.count - 1)).all? { |idx| globus_files[idx].checksum == data_space_files[idx].checksum }
-    if all_match
+    if all_match || force
       puts "deleting matching #{data_space_files.count} dpsace files"
       bucket = S3QueryService.pre_curation_config[:bucket]
       data_space_files.each do |file|
         work.s3_query_service.delete_s3_object(file.key, bucket:)
       end
-      puts "copying #{globus_files.count} globus file to original name"
+      puts "copying #{globus_files.count} globus files to original name"
       globus_files.each do |file|
         new_key = file.key.gsub("globus_", "")
         work.s3_query_service.copy_file(source_key: "#{bucket}/#{file.key}", target_bucket: bucket, target_key: new_key, size: file.size)
@@ -136,6 +137,13 @@ namespace :works do
       puts "deleting #{globus_files.count} globus prefixed files"
       globus_files.each do |file|
         work.s3_query_service.delete_s3_object(file.key, bucket:)
+      end
+    else
+      puts "checksums do not match for this work"
+      (0..(globus_files.count - 1)).each do |idx|
+        if globus_files[idx].checksum != data_space_files[idx].checksum
+          puts "#{globus_files[idx].filename} #{globus_files[idx].checksum} #{data_space_files[idx].filename} #{data_space_files[idx].checksum}"
+        end
       end
     end
   end
