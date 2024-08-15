@@ -40,7 +40,7 @@
 .homepage-bullet-points {
   margin: 1rem 0 3rem 0;
   li {
-    line-height: 2rem; 
+    line-height: 2rem;
   }
 }
 
@@ -191,6 +191,11 @@ input[readonly] {
 
 #toggle-messages {
   background-color: #0d6efd;
+}
+
+#new-message-section {
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 details {

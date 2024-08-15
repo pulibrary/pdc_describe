@@ -1,3 +1,21 @@
+<div id="new-message-section">
+  <%= form_with url: add_message_work_path(@work) do |f| %>
+    <textarea id="new-message" name="new-message" class="new-message" placeholder="leave a message" rows="5" cols="30"></textarea>
+    <br/>
+    <%= f.submit("Message", class: "btn btn-secondary") %>
+    <span id="new-message-help" class="new-message-help">
+      Simple Markdown is accepted.
+      <a href="#" id="new-message-help-more">See more.</a>
+    </span>
+    <br/>
+    <span id="new-message-help-part2" class="new-message-help hidden">
+      e.g. *italics*, **bold**, # Header 1, ## Header 2, ```code```.
+      Use @netid to refer to others.
+      <a id="new-message-help-less" href="#" >See less.</a>
+    </span>
+  <% end %>
+</div>
+
 <div>
   <% if @work_decorator.messages.size == 0 && !@work.submission_notes.present? %>
     No messages
@@ -19,15 +37,21 @@
       </li>
     <% end %>
   </ul>
-
-  <div id="new-message-section">
-    <%= form_with url: add_message_work_path(@work) do |f| %>
-      <textarea id="new-message" name="new-message" class="new-message" placeholder="leave a message" rows="5" cols="30"></textarea>
-      <br/>
-      <%= f.submit("Message", class: "btn btn-secondary") %>
-      <span class="new-message-help">
-        Simple Markdown is accepted, e.g. *italics*, **bold**, # Header 1, ## Header 2, ```code```. Use @netid to refer to others.
-      </span>
-    <% end %>
-  </div>
 </div>
+
+<script>
+  // Toggle for the show more/show less buttons
+  $("#new-message-help-more").on("click", function() {
+    $("#new-message-help-more").addClass("hidden");
+    $("#new-message-help-part2").removeClass("hidden");
+    $("#new-message-help-less").removeClass("hidden");
+    return false;
+  });
+
+  $("#new-message-help-less").on("click", function() {
+    $("#new-message-help-less").addClass("hidden");
+    $("#new-message-help-part2").addClass("hidden");
+    $("#new-message-help-more").removeClass("hidden");
+    return false;
+  });
+</script>
