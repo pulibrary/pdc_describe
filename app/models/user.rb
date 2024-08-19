@@ -59,14 +59,12 @@ class User < ApplicationRecord
   end
 
   def self.email_from_access_token(access_token)
-    if access_token.extra.mail != nil
+    if !access_token.extra.mail.nil?
       # For typical Princeton accounts the email comes on the `email` field
       access_token.extra.mail
     elsif User.looks_like_email_address?(access_token.extra.givenname)
       # For Guest Access Accounts (GAP) the email comes in the `givenname`
       access_token.extra.givenname
-    else
-      nil
     end
   end
 
