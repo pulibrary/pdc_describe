@@ -9,6 +9,7 @@ RSpec.describe User, type: :model do
   let(:access_token_pppl) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu", departmentnumber: "31000" }) }
   let(:access_token_super_admin) { OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" }) }
   let(:access_token_guest) { OmniAuth::AuthHash.new(provider: "cas", uid: "test.user@example.com", extra: { mail: "test.user@example.com@princeton.edu" }) }
+  let(:access_token_gap) { OmniAuth::AuthHash.new(provider: "cas", uid: "gap.user@gmail.com", extra: { givenname: "gap.user@gmail.com" }) }
 
   let(:access_token_full_extras) do
     OmniAuth::AuthHash.new(provider: "cas", uid: "test123",
@@ -79,6 +80,16 @@ RSpec.describe User, type: :model do
         user = described_class.from_cas(access_token_guest)
         expect(user.email).to eq "test.user@example.com@princeton.edu"
         expect(user.uid).to eq "test_user_example_com"
+      end
+    end
+
+    context "GAP accounts" do
+      it "process GAP account correctly" do
+        # GAP accounts don't have the email on the email field,
+        # instead it comes buried in the givenname
+        user = described_class.from_cas(access_token_gap)
+        expect(user.email).to eq "gap.user@gmail.com"
+        expect(user.uid).to eq "gap_user_gmail_com"
       end
     end
   end
