@@ -44,7 +44,7 @@ class User < ApplicationRecord
     user = User.new
     user.provider = access_token.provider
     user.uid = safe_uid(access_token.uid) # this is the netid
-    user.email = access_token.extra.mail
+    user.email = User.email_from_access_token(access_token)
     user.given_name = access_token.extra.givenname || access_token.uid # Harriet
     user.family_name = access_token.extra.sn || access_token.uid # Tubman
     user.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
@@ -58,12 +58,28 @@ class User < ApplicationRecord
     uid.gsub(/[^(0-9a-zA-Z_\-)]/, "_")
   end
 
+  def self.email_from_access_token(access_token)
+    if access_token.extra.mail != nil
+      # For typical Princeton accounts the email comes on the `email` field
+      access_token.extra.mail
+    elsif User.looks_like_email_address?(access_token.extra.givenname)
+      # For Guest Access Accounts (GAP) the email comes in the `givenname`
+      access_token.extra.givenname
+    else
+      nil
+    end
+  end
+
+  def self.looks_like_email_address?(value)
+    URI::MailTo::EMAIL_REGEXP.match?(value)
+  end
+
   # Updates an existing User record with some information from CAS. This is useful
-  # for records created before the user ever logged in (e.g. to gran them permissions
+  # for records created before the user ever logged in (e.g. to grant them permissions
   # to groups).
   def update_with_cas(access_token)
     self.provider = access_token.provider
-    self.email = access_token.extra.mail
+    self.email = User.email_from_access_token(access_token)
     self.given_name = access_token.extra.givenname || access_token.uid # Harriet
     self.family_name = access_token.extra.sn || access_token.uid # Tubman
     self.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
