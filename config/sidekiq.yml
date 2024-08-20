@@ -1,4 +1,5 @@
 ---
+# concurancy is really contorlled by https://github.com/pulibrary/princeton_ansible/blob/main/group_vars/pdc_describe/main.yml#L37
 :concurrency: 2
 staging:
   :concurrency: 2
