@@ -123,13 +123,10 @@ irb(main):016:0> user.add_role(:group_admin, Group.research_data)
 ```
 
 ## PPPL submitters
-To allow a non-admin user to submit only to the PPPL group and its communities and subcommunities, that user's default Group must be set to the Princeton Plasma Physics Lab and their roles must be updated.  To do this, use the Rails console: 
+To allow a non-admin user to submit only to the PPPL group and its communities and subcommunities, that user's default Group must be set to the Princeton Plasma Physics Lab and their roles must be updated. To do this, use the Rake task `users:make_pppl_user` and pass the `netid` of the user to update:
+
 ```
-irb(main):011:0> user = User.find_by(uid: 'hb0344')
-irb(main):012:0> user.default_group_id = Group.plasma_laboratory.id
-irb(main):013:0> user.add_role(:submitter, Group.plasma_laboratory)
-irb(main):014:0> user.remove_role(:submitter, Group.research_data)
-irb(main):015:0> user.save!
+bundle exec rake users:make_pppl_user[xx123]
 ```
 
 ## Viewing the Application outside of the load balancer
