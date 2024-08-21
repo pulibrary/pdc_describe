@@ -16,6 +16,16 @@ RSpec.describe "Editing users", type: :system do
       fill_in "user_orcid", with: orcid
       click_on "Save"
     end
+
+    it "shows user fields", js: true do
+      visit edit_user_path(user_admin)
+      # These fields are disabled so we cannot target them with
+      # RSpec `have_field`, but once we make them editable we
+      # could use the more common syntax.
+      expect(page.html.include?(user_admin.email)).to be true
+      expect(page.html.include?(user_admin.uid)).to be true
+      expect(page.html.include?(user_admin.default_group.title)).to be true
+    end
   end
 
   describe "Non-admin users cannot access others people data" do

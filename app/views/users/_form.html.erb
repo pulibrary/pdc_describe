@@ -9,7 +9,7 @@
         </div>
       </fieldset>
 
-      <section class="card container groups"> 
+      <section class="card container groups">
         <h2><%= t('users.form.group') %></h2>
         <fieldset>
           <% @user.submitter_or_admin_groups.each do |group| %>
@@ -76,13 +76,18 @@
   </div>
 
   <div class="field">
+    Email<br />
+    <input id="email" type="text" class="user-edit-long-field" disabled value="<%= @user.email %>" />
+  </div>
+
+  <div class="field">
     Princeton Net ID<br />
-    <input type="text" disabled value="<%= @user.uid %>" />
+    <input id="netid" type="text" class="user-edit-long-field" disabled value="<%= @user.uid %>" />
   </div>
 
   <div class="field">
     Default group<br />
-    <input type="text" disabled value="<%= @user.default_group.title %>" />
+    <input id="default_group" type="text" class="user-edit-long-field" disabled value="<%= @user.default_group.title %>" />
   </div>
 
   <div class="text-left">
