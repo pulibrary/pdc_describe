@@ -15,16 +15,13 @@ import Turbolinks from 'turbolinks';
 import './vendor/jquery-ui-triggeredAutocomplete';
 
 import PdcUiLoader from './pdc/pdc_ui_loader.es6';
-
-console.log('Vite ⚡️ Rails');
+import WorksWizardPolicy from './works_wizard_policy';
 
 // If using a TypeScript entrypoint file:
 //     <%= vite_typescript_tag 'application' %>
 //
 // If you want to use .jsx or .tsx, add the extension:
 //     <%= vite_javascript_tag 'application.jsx' %>
-
-console.log('Visit the guide for more information: ', 'https://vite-ruby.netlify.app/guide/rails');
 
 // Example: Load Rails libraries in Vite.
 //
@@ -45,6 +42,8 @@ Turbolinks.start();
 function ready() {
   const loader = new PdcUiLoader();
   loader.run();
+
+  WorksWizardPolicy.bind('#agreement');
 }
 
 // Must run the javascript loader on every page even if turbolinks loads it

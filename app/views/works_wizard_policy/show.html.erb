@@ -19,22 +19,3 @@
   </form>
 
 </div>
-
-<script>
-$(function() {
-  $('#agreement').on('click', function(event) {
-    let submitButton = $("#submit-button");
-    if (event.target.checked) {
-      submitButton.removeClass("btn-secondary");
-      submitButton.removeClass("disabled");
-      submitButton.addClass("btn-primary");
-      submitButton.prop("disabled", false);
-    } else {
-      submitButton.removeClass("btn-primary");
-      submitButton.addClass("disabled");
-      submitButton.addClass("btn-secondary");
-      submitButton.prop("disabled", true);
-    }
-  });
-});
-</script>
