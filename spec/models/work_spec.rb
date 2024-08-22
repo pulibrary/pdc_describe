@@ -1048,6 +1048,22 @@ RSpec.describe Work, type: :model do
     end
   end
 
+  describe "#revert_to_draft" do
+    subject(:work) { FactoryBot.create(:awaiting_approval_work, doi: "10.34770/123-abc") }
+
+    it "permits a user to return a Work awaiting approval to the draft state" do
+      work
+      expect(work.state).to eq("awaiting_approval")
+      expect(work.activities).to be_empty
+
+      work.revert_to_draft!(curator_user)
+      expect(work.state).to eq("draft")
+      expect(work.activities).not_to be_empty
+      work_activity = work.activities.first
+      expect(work_activity.message).to eq("marked as Draft")
+    end
+  end
+
   describe "valid?" do
     it "requires a group" do
       work = Work.new(created_by_user_id: user.id, group_id: nil, user_entered_doi: false)

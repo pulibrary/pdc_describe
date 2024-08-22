@@ -80,6 +80,9 @@
     <% if @work_decorator.show_approve_button? %>
       <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post, id: "approve-button") %>
     <% end %>
+    <% if @work_decorator.show_revert_button? %>
+      <%= button_to("Revert Dataset to Draft", revert_work_path(@work), class: "btn btn-secondary", method: :post) %>
+    <% end %>
     <% if @work_decorator.show_complete_button? %>
       <%= button_to("Complete", work_validate_path(@work), class: "btn btn-secondary", method: :post) %>
     <% end %>

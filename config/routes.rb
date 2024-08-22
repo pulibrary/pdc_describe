@@ -67,6 +67,7 @@ Rails.application.routes.draw do
   post "work/:id/approve", to: "works#approve", as: :approve_work
   post "work/:id/withdraw", to: "works#withdraw", as: :withdraw_work
   post "work/:id/resubmit", to: "works#resubmit", as: :resubmit_work
+  post "work/:id/revert-to-draft", to: "works#revert_to_draft", as: :revert_work
   post "work/:id/add-message", to: "works#add_message", as: :add_message_work
   post "work/:id/add-provenance-note", to: "works#add_provenance_note", as: :add_provenance_note
   put "works/:id/assign-curator/:uid", to: "works#assign_curator", as: :work_assign_curator

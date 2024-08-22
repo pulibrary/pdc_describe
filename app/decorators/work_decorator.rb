@@ -23,6 +23,10 @@ class WorkDecorator
     work.awaiting_approval? && current_user_is_admin?
   end
 
+  def show_revert_button?
+    work.awaiting_approval? && (work.created_by_user_id == current_user.id || current_user_is_admin?)
+  end
+
   def show_complete_button?
     draft? && (work.created_by_user_id == current_user.id || current_user_is_admin?)
   end
