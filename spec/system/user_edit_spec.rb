@@ -19,12 +19,37 @@ RSpec.describe "Editing users", type: :system do
 
     it "shows user fields", js: true do
       visit edit_user_path(user_admin)
-      # These fields are disabled so we cannot target them with
-      # RSpec `have_field`, but once we make them editable we
-      # could use the more common syntax.
-      expect(page.html.include?(user_admin.email)).to be true
-      expect(page.html.include?(user_admin.uid)).to be true
-      expect(page.html.include?(user_admin.default_group.title)).to be true
+      expect(page).to have_field :user_email
+      expect(page).to have_field :user_uid
+      expect(page).to have_field :user_default_group_id
+    end
+
+    it "allows to change other users' default group" do
+      visit edit_user_path(user)
+      expect(user.default_group.title).to eq Group.research_data.title
+      select Group.plasma_laboratory.title, from: :user_default_group_id
+      click_on "Save"
+      user.reload
+      expect(user.default_group.title).to eq Group.plasma_laboratory.title
+    end
+  end
+
+  describe "Non-admin users" do
+    let(:user) { FactoryBot.create :princeton_submitter }
+
+    before { sign_in user }
+
+    it "allows user to change their email", js: true do
+      visit edit_user_path(user)
+      fill_in "user_email", with: "an-updated@emai.com"
+      click_on "Save"
+      user.reload
+      expect(user.email).to eq "an-updated@emai.com"
+    end
+
+    it "does not allow user to change their default group", js: true do
+      visit edit_user_path(user)
+      expect(page.html.include?("user_default_group_id")).to be false
     end
   end
 

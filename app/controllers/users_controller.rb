@@ -80,7 +80,10 @@ class UsersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
-      @user_params ||= params.require(:user).permit([:given_name, :full_name, :family_name, :orcid, :email_messages_enabled, groups_with_messaging: {}])
+      @user_params ||= params.require(:user).permit([
+                                                      :given_name, :full_name, :family_name, :orcid, :email_messages_enabled,
+                                                      :email, :default_group_id, groups_with_messaging: {}
+                                                    ])
     end
 
     def can_edit?

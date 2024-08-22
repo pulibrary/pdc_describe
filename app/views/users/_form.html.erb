@@ -77,18 +77,25 @@
 
   <div class="field">
     Email<br />
-    <input id="email" type="text" class="user-edit-long-field" disabled value="<%= @user.email %>" />
+    <%= form.text_field :email, class: "user-edit-long-field" %>
   </div>
 
   <div class="field">
     Princeton Net ID<br />
-    <input id="netid" type="text" class="user-edit-long-field" disabled value="<%= @user.uid %>" />
+    <%= form.text_field :uid, class: "user-edit-long-field", readonly: true %>
   </div>
 
-  <div class="field">
-    Default group<br />
-    <input id="default_group" type="text" class="user-edit-long-field" disabled value="<%= @user.default_group.title %>" />
-  </div>
+  <% if current_user.moderator? || current_user.super_admin? %>
+    <div class="field">
+      Default group<br />
+      <%= form.collection_select :default_group_id, Group.order(:title), :id, :title, {include_blank: false}, {class: "user-edit-long-field"} %>
+    </div>
+  <% else %>
+    <div class="field">
+      Default group<br />
+      <input type="text" class="user-edit-long-field" readonly value="<%= @user.default_group.title %>" />
+    </div>
+  <% end %>
 
   <div class="text-left">
     <%= form.submit "Save", class: "btn btn-primary" %>
