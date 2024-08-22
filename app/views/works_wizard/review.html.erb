@@ -18,12 +18,3 @@
   <% end %>
 </div>
 
-<script>
-  $("#grant-button").on("click", (event) => {
-    var message = "You're about to grant license for this dataset. Are you sure?";
-    var input = confirm(message);
-    if(input == false){
-      event.preventDefault();
-    }
-  });
-</script>
