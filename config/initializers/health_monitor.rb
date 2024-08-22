@@ -7,8 +7,8 @@ HealthMonitor.configure do |config|
   config.path = :health
 
   config.sidekiq.configure do |sidekiq_config|
-    sidekiq_config.latency = 3.hours
-    sidekiq_config.queue_size = 10_000
+    sidekiq_config.latency = 12.hours
+    sidekiq_config.queue_size = 20_000
   end
 
   config.error_callback = proc do |e|
