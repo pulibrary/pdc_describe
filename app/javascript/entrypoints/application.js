@@ -16,6 +16,7 @@ import './vendor/jquery-ui-triggeredAutocomplete';
 
 import PdcUiLoader from './pdc/pdc_ui_loader.es6';
 import WorksWizardPolicy from './works_wizard_policy';
+import WorksWizardReview from './works_wizard_review';
 
 // If using a TypeScript entrypoint file:
 //     <%= vite_typescript_tag 'application' %>
@@ -44,6 +45,7 @@ function ready() {
   loader.run();
 
   WorksWizardPolicy.bind('#agreement');
+  WorksWizardReview.bind('#grant-button');
 }
 
 // Must run the javascript loader on every page even if turbolinks loads it
