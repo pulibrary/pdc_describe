@@ -148,6 +148,13 @@ class WorksController < ApplicationController
     redirect_to work_path(@work)
   end
 
+  def revert_to_draft
+    @work = Work.find(params[:id])
+    @work.revert_to_draft!(current_user)
+
+    redirect_to work_path(@work)
+  end
+
   def assign_curator
     work = Work.find(params[:id])
     work.change_curator(params[:uid], current_user)

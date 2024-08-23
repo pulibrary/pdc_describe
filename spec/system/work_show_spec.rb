@@ -111,4 +111,57 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       expect(page).to have_select(:curator_select, selected: user.full_name_safe)
     end
   end
+
+  describe "reverting a Work awaiting approval" do
+    let(:work) { FactoryBot.create(:awaiting_approval_work) }
+
+    context "as a user with super admin privileges" do
+      let(:user) { FactoryBot.create :super_admin_user }
+
+      before do
+        sign_in(user)
+        visit work_path(work)
+      end
+
+      it "sets the Work state to draft" do
+        expect(page).to have_button("Revert Dataset to Draft")
+        click_on("Revert Dataset to Draft")
+        expect(page).not_to have_button("Revert Dataset to Draft")
+        expect(page).to have_button("Complete")
+        expect(page).to have_content("marked as Draft")
+      end
+    end
+
+    context "as a moderator user" do
+      let(:user) { FactoryBot.create :research_data_moderator }
+
+      before do
+        sign_in(user)
+        visit work_path(work)
+      end
+
+      it "sets the Work state to draft" do
+        expect(page).to have_button("Revert Dataset to Draft")
+        click_on("Revert Dataset to Draft")
+        expect(page).not_to have_button("Revert Dataset to Draft")
+        expect(page).to have_button("Complete")
+        expect(page).to have_content("marked as Draft")
+      end
+    end
+
+    context "as the submitter user" do
+      before do
+        sign_in(user)
+        visit work_path(work)
+      end
+
+      it "sets the Work state to draft" do
+        expect(page).to have_button("Revert Dataset to Draft")
+        click_on("Revert Dataset to Draft")
+        expect(page).not_to have_button("Revert Dataset to Draft")
+        expect(page).to have_button("Complete")
+        expect(page).to have_content("marked as Draft")
+      end
+    end
+  end
 end

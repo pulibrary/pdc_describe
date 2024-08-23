@@ -39,6 +39,10 @@ class Work < ApplicationRecord
       transitions from: :awaiting_approval, to: :awaiting_approval, guard: :valid_to_submit
     end
 
+    event :revert_to_draft do
+      transitions from: :awaiting_approval, to: :draft, guard: :valid_to_draft
+    end
+
     event :approve do
       transitions from: :awaiting_approval, to: :approved, guard: :valid_to_approve, after: :publish
     end
