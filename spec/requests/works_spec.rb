@@ -174,9 +174,9 @@ RSpec.describe "/works", type: :request do
           background_snapshot = BackgroundUploadSnapshot.last
           expect(background_snapshot.work).to eq(work)
           expect(background_snapshot.files.map { |file| file["user_id"] }.uniq).to eq([user.id])
-          expect(background_snapshot.files.first["filename"]).to eq "10.34770/123-abc/1us_covid_2019.csv"
+          expect(background_snapshot.files.first["filename"]).to eq "10.34770/123-abc/1/us_covid_2019.csv"
           expect(background_snapshot.files.first["upload_status"]).to eq "complete"
-          expect(background_snapshot.files.second["filename"]).to eq "10.34770/123-abc/1us_covid_2020.csv"
+          expect(background_snapshot.files.second["filename"]).to eq "10.34770/123-abc/1/us_covid_2020.csv"
           expect(background_snapshot.files.second["upload_status"]).to eq "complete"
         end
       end

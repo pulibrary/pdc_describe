@@ -184,7 +184,7 @@ RSpec.describe WorksController do
         background_snapshot = BackgroundUploadSnapshot.last
         expect(background_snapshot.work).to eq(work)
         expect(background_snapshot.files.map { |file| file["user_id"] }.uniq).to eq([user.id])
-        expect(background_snapshot.files.first["filename"]).to eq "10.34770/123-abc/1us_covid_2019.csv"
+        expect(background_snapshot.files.first["filename"]).to eq "10.34770/123-abc/1/us_covid_2019.csv"
         expect(background_snapshot.files.first["upload_status"]).to eq "complete"
       end
     end
@@ -245,9 +245,9 @@ RSpec.describe WorksController do
         expect(background_snapshot.work).to eq(work)
         expect(background_snapshot.files.map { |file| file["user_id"] }.uniq).to eq([user.id])
 
-        file1 = background_snapshot.files.find { |file| file["filename"] == "10.34770/123-abc/1us_covid_2019.csv" }
+        file1 = background_snapshot.files.find { |file| file["filename"] == "10.34770/123-abc/1/us_covid_2019.csv" }
         expect(file1["upload_status"]).to eq "complete"
-        file2 = background_snapshot.files.find { |file| file["filename"] == "10.34770/123-abc/1us_covid_2020.csv" }
+        file2 = background_snapshot.files.find { |file| file["filename"] == "10.34770/123-abc/1/us_covid_2020.csv" }
         expect(file2["upload_status"]).to eq "complete"
       end
     end

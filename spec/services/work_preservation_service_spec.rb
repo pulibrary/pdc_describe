@@ -5,7 +5,7 @@ RSpec.describe WorkPreservationService do
   describe "preserve in S3" do
     let(:approved_work) { FactoryBot.create :approved_work, doi: "10.34770/pe9w-x904" }
     let(:path) { approved_work.s3_query_service.prefix }
-    let(:preservation_directory) { path + "/princeton_data_commons/" }
+    let(:preservation_directory) { path + "princeton_data_commons/" }
     let(:file1) { FactoryBot.build :s3_file, filename: "#{approved_work.doi}/#{approved_work.id}/anyfile1.txt", last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
     let(:file2) { FactoryBot.build :s3_file, filename: "#{approved_work.doi}/#{approved_work.id}/folder1/anyfile2.txt", last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
     let(:preservation_file1) do
@@ -48,7 +48,7 @@ RSpec.describe WorkPreservationService do
       subject = described_class.new(work_id: approved_work.id, path: local_path, localhost: true)
       location = subject.preserve!
       expect(location.start_with?("file:///")).to be true
-      expect(location.end_with?("#{local_path}/princeton_data_commons/")).to be true
+      expect(location.end_with?("#{local_path}princeton_data_commons/")).to be true
     end
   end
 end
