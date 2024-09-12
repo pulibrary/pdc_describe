@@ -1,4 +1,8 @@
 version: 2.1
+
+orbs:
+  coveralls: coveralls/coveralls@2.2.1
+
 commands:
   install_dependencies:
     steps:
@@ -90,10 +94,11 @@ jobs:
       - run: bundle exec rake db:migrate RAILS_ENV=test
       - run:
           name: Run Rspec
-          command: COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN bundle exec rspec spec
+          command: bundle exec rspec spec
       - store_artifacts:
           path:
             ~/pdc_describe/coverage
+      - coveralls/upload
 
 workflows:
   version: 2
