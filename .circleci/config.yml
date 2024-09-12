@@ -1,6 +1,8 @@
+---
 version: 2.1
 
 orbs:
+  browser-tools: circleci/browser-tools@1.4.4
   coveralls: coveralls/coveralls@2.2.1
 
 commands:
@@ -28,8 +30,7 @@ commands:
           key: *yarn_key
           paths:
             - ~/.cache/yarn
-orbs:
-  browser-tools: circleci/browser-tools@1.4.4
+
 jobs:
   build:
     working_directory: ~/pdc_describe
