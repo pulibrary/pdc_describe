@@ -32,5 +32,9 @@ class DspaceFileCopyJob < ApplicationJob
         migration_snapshot.mark_complete(S3File.new(filename: s3_key, last_modified: DateTime.now, size: s3_size, checksum: "", work:))
         migration_snapshot.save!
       end
+
+    rescue ActiveRecord::StatementInvalid
+      ActiveRecord::Base.connection_pool.release_connection
+      retry
     end
 end
