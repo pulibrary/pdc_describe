@@ -25,6 +25,29 @@ RSpec.describe DspaceFileCopyJob, type: :job do
                                                               target_bucket: "work-bucket", target_key: "abc/123/#{work.id}/test_key")
   end
 
+  context "when an ActiveRecord::StatementInvalid error occurs" do
+    before do
+      @error_count = 0
+      allow(MigrationUploadSnapshot).to receive(:find) do
+        if @error_count == 0
+          @error_count = 1
+          raise ActiveRecord::StatementInvalid, "error"
+        else
+          migration_snapshot
+        end
+      end
+    end
+
+    it "runs the copy and updates the snapshot" do
+      allow(migration_snapshot).to receive(:"save!").and_call_original
+      perform_enqueued_jobs { job }
+      expect(fake_s3_service).to have_received(:copy_file).with(size: 10_759, source_key: "example-bucket-dspace/10-34770/ackh-7y71/test_key",
+                                                                target_bucket: "work-bucket", target_key: "abc/123/#{work.id}/test_key")
+
+      expect(migration_snapshot).to have_received(:"save!")
+    end
+  end
+
   context "when the files is a directory" do
     let(:s3_file) { FactoryBot.build :s3_file, filename: "10-34770/ackh-7y71/dir/", size: 0, filename_display: "abc/123/#{work.id}/dir/" }
 
