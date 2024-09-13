@@ -1,4 +1,10 @@
+---
 version: 2.1
+
+orbs:
+  browser-tools: circleci/browser-tools@1.4.4
+  coveralls: coveralls/coveralls@2.2.1
+
 commands:
   install_dependencies:
     steps:
@@ -24,8 +30,7 @@ commands:
           key: *yarn_key
           paths:
             - ~/.cache/yarn
-orbs:
-  browser-tools: circleci/browser-tools@1.4.4
+
 jobs:
   build:
     working_directory: ~/pdc_describe
@@ -90,10 +95,11 @@ jobs:
       - run: bundle exec rake db:migrate RAILS_ENV=test
       - run:
           name: Run Rspec
-          command: COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN bundle exec rspec spec
+          command: bundle exec rspec spec
       - store_artifacts:
           path:
             ~/pdc_describe/coverage
+      - coveralls/upload
 
 workflows:
   version: 2
