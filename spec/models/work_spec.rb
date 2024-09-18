@@ -181,7 +181,7 @@ RSpec.describe Work, type: :model do
 
       allow(S3QueryService).to receive(:new).with(instance_of(Work), "precuration").and_return(fake_s3_service_pre)
       allow(S3QueryService).to receive(:new).with(instance_of(Work), "postcuration").and_return(fake_s3_service_post)
-      allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(fake_s3_service_pre.client).to receive(:head_object).with({ bucket: "example-post-bucket", key: work.s3_object_key }).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
       allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
       allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
       allow(fake_s3_service_pre).to receive(:client_s3_files).and_return([readme], [readme, file1, file2])
@@ -210,7 +210,7 @@ RSpec.describe Work, type: :model do
 
       context "when the post curation bucket alreay exists" do
         before do
-          allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_return(true)
+          allow(fake_s3_service_pre.client).to receive(:head_object).with({ bucket: "example-post-bucket", key: work.s3_object_key }).and_return(true)
         end
 
         it "raises an error" do
@@ -337,7 +337,7 @@ RSpec.describe Work, type: :model do
 
     before do
       fake_s3_service = stub_s3(data: [readme, s3_file])
-      allow(fake_s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(fake_s3_service.client).to receive(:head_object).with({ bucket: "example-bucket", key: work.s3_object_key }).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
     end
 
     it "updates the ARK metadata" do
@@ -584,7 +584,7 @@ RSpec.describe Work, type: :model do
 
     it "transitions from awaiting_approval to approved" do
       stub_datacite_doi
-      allow(fake_s3_service.client).to receive(:head_object).with(bucket: "example-bucket", key: awaiting_approval_work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(fake_s3_service.client).to receive(:head_object).with({ bucket: "example-bucket", key: awaiting_approval_work.s3_object_key }).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
 
       awaiting_approval_work.approve!(curator_user)
       expect(awaiting_approval_work.reload.state).to eq("approved")
@@ -640,7 +640,7 @@ RSpec.describe Work, type: :model do
       allow(S3QueryService).to receive(:new).with(instance_of(Work), "precuration").and_return(fake_s3_service_pre)
       allow(S3QueryService).to receive(:new).with(instance_of(Work), "postcuration").and_return(fake_s3_service_post)
 
-      allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(fake_s3_service_pre.client).to receive(:head_object).with({ bucket: "example-post-bucket", key: work.s3_object_key }).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
       allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
       allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
       work.approve!(curator_user)
@@ -657,7 +657,7 @@ RSpec.describe Work, type: :model do
         work = FactoryBot.create :awaiting_approval_work
         work.update_curator(curator_user.id, user)
         allow(S3QueryService).to receive(:new).and_return(fake_s3_service_pre, fake_s3_service_post)
-        allow(fake_s3_service_pre.client).to receive(:head_object).with(bucket: "example-post-bucket", key: work.s3_object_key).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+        allow(fake_s3_service_pre.client).to receive(:head_object).with({ bucket: "example-post-bucket", key: work.s3_object_key }).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
         allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
         allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
         work.approve!(curator_user)
