@@ -23,6 +23,8 @@ class WorkStateTransitionNotification
     @work_title = work.title
     @notification = notification_for_transition
     @id = work.id
+
+    raise(NotImplementedError, "Invalid user ID provided.") if current_user_id.nil?
     @current_user_id = current_user_id
   end
 

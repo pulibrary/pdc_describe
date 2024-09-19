@@ -267,6 +267,7 @@ class WorkActivity < ApplicationRecord
             "<a class='message-user-link' title='#{user_info}' href='#{@work_activity.users_path}/#{uid}'>#{at_uid}</a>"
           end
         else
+          Rails.logger.warn("Failed to extract the user ID from #{uid}")
           UNKNOWN_USER
         end
       end
