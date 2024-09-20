@@ -401,8 +401,8 @@ RSpec.describe WorksController do
           allow(s3_query_service_double).to receive(:bucket_name).and_return("example-bucket")
           allow(s3_client).to receive(:delete_object)
           allow(s3_client).to receive(:put_object)
-          allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: "#{work.s3_object_key}/us_covid_2019.csv").and_return(true)
-          allow(s3_client).to receive(:head_object).with(bucket: "example-bucket", key: work.s3_object_key.to_s)
+          allow(s3_client).to receive(:head_object).with({ bucket: "example-bucket", key: "#{work.s3_object_key}/us_covid_2019.csv" }).and_return(true)
+          allow(s3_client).to receive(:head_object).with({ bucket: "example-bucket", key: work.s3_object_key.to_s })
           allow(s3_query_service_double).to receive(:client).and_return(s3_client)
           allow(s3_query_service_double).to receive(:data_profile).and_return({ objects: s3_data, ok: true })
 

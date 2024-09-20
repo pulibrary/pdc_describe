@@ -19,7 +19,7 @@ def datacite_update_body(attributes:)
 end
 
 def stub_datacite(host: "api.datacite.org", body: datacite_register_body, fixture: "doi_response.json")
-  response = File.read(Pathname.new(fixture_path).join(fixture).to_s)
+  response = File.read(Pathname.new(fixture_paths.first).join(fixture).to_s)
 
   datacite_env(user: "foo", password: "bar", host:)
   stub_request(:post, "https://#{host}/dois")
@@ -37,7 +37,7 @@ def stub_datacite(host: "api.datacite.org", body: datacite_register_body, fixtur
 end
 
 def stub_datacite_update(doi:, body:, fixture:, host: "api.datacite.org")
-  response = File.read(Pathname.new(fixture_path).join(fixture).to_s)
+  response = File.read(Pathname.new(fixture_paths.first).join(fixture).to_s)
   datacite_env(user: "foo", password: "bar", host:)
   stub_request(:put, "https://#{host}/dois/#{doi}")
     .with(
