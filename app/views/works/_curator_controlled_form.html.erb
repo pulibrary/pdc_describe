@@ -48,14 +48,11 @@
 
 <!-- Version number -->
 <div class="field">
-  Version: <span class="required-field required-field-star">*</span><br>
-  <input type="hidden" name="version_number" value="<%= @work.resource.version_number%>"/> <!-- put the value in the form as disabled will not send the data back -->
-  <select id="version_number" name="version_number" class="input-version" <%= is_group_admin ? '' : 'disabled' %> >
-    <% (1..10).each do |i| %>
-      <option value="<%= i %>" <%= i.to_s == @work.resource.version_number ? "selected" : "" %>><%= i %></option>
-    <% end %>
-  </select>
+  Version: <br>
+  <input type="text" id="version_number" name="version_number" class="input-text-long" value="<%= @work.resource.version_number %>"  />
 </div>
+
+
 
 <!-- Group field -->
 <div class="field">
