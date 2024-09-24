@@ -341,7 +341,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
 
         version_number_element = page.find("#version_number")
         expect(version_number_element.tag_name).to eq("input")
-        expect(version_number_element["readonly"]).to eq("true")
+        expect(version_number_element["disabled"]).to eq("true")
 
         group_id_element = page.find("#group_id")
         expect(group_id_element.tag_name).to eq("select")
