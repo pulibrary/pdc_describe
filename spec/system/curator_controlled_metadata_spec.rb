@@ -24,7 +24,7 @@ RSpec.describe "Curator Controlled metadata tab", type: :system do
       expect(page).to have_field("ark", readonly: true)
       expect(page).to have_field("resource_type", readonly: true)
       expect(page).to have_field("resource_type_general", disabled: true)
-      expect(page).to have_field("version_number", disabled: false)
+      expect(page).to have_field("version_number", disabled: true)
       expect(page).to have_field("collection_tags", readonly: true)
 
       # I can edit other fields
