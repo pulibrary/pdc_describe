@@ -135,4 +135,5 @@ end
 ORCID_URL = "https://pub.orcid.org/v2.0"
 ROR_URL = "https://api.ror.org/organizations"
 
-Rails.application.routes.default_url_options[:relative_url_root] = "/describe"
+Rails.config.relative_url_root = "/describe"
+# Rails.application.routes.default_url_options[:relative_url_root] = "/describe"
