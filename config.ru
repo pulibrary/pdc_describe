@@ -6,9 +6,9 @@ require_relative "config/environment"
 if Rails.env.production? || Rails.env.staging?
   map "/describe/" do
     run Rails.application
+    Rails.application.load_server
   end
 else
   run Rails.application
+  Rails.application.load_server
 end
-
-Rails.application.load_server

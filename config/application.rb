@@ -13,6 +13,10 @@ module PdcDescribe
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.1
 
+    if Rails.env.production? || Rails.env.staging?
+      config.relative_url_root = "/describe"
+    end
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
