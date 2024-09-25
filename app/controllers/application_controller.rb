@@ -13,6 +13,12 @@ class ApplicationController < ActionController::Base
     new_user_session_path
   end
 
+  # See https://github.com/rails/rails/issues/42243#issuecomment-913912639
+  # and https://github.com/rails/rails/issues/42243#issuecomment-1182336847
+  def url_options
+    super.except(:script_name)
+  end
+
   private
 
     # Take all the errors from the exception and the work and combine them into a single error message that can be shown to the user
