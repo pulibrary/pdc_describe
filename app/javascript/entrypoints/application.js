@@ -33,7 +33,7 @@ import WorksWizardReview from './works_wizard_review';
 // ActiveStorage.start()
 //
 // Import all channels.
-import.meta.globEager('../channels/*.js');
+import.meta.glob('../channels/*.js');
 
 if (typeof (window._rails_loaded) === 'undefined' || window._rails_loaded == null || !window._rails_loaded) {
   Rails.start();

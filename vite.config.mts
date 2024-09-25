@@ -12,7 +12,8 @@ export default ({ command, mode }) => {
 
   return {
     build: {
-      minify: minifySetting
+      minify: minifySetting,
+      skipCompatibilityCheck: true
     },
     plugins: [
       RubyPlugin(),

@@ -15,13 +15,13 @@ gem "net-imap"
 gem "net-pop"
 gem "net-ssh", "7.0.0.beta1"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
-gem "rails", "~> 6.1.7"
+gem "rails"
 # Use sqlite3 as the database for Active Record
 gem "pg"
 # Use Puma as the app server
 gem "puma", "~> 5.6"
 # Use SCSS for stylesheets
-gem "sass-rails", ">= 6"
+gem "sass-rails"
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
 gem "turbolinks", "~> 5"
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
@@ -33,9 +33,9 @@ gem "redis", "~> 4.0"
 gem "nokogiri", ">= 1.13.4"
 gem "retryable"
 gem "rolify"
-gem "rspec-rails", "~> 5.0.0"
+gem "rspec-rails"
 gem "sidekiq", "~> 7.2"
-gem "vite_rails", "3.0.12"
+gem "vite_rails"
 gem "whenever"
 
 # Reference: https://github.com/pulibrary/pul-the-hard-way/blob/main/services/cas.md

@@ -6,6 +6,7 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
   it "allows me to stay on each page and then move forward" do
     sign_in user
     stub_datacite
+    stub_s3
 
     visit work_policy_path
     expect(page).to have_css("form[action='/works/policy']")
@@ -99,6 +100,10 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
   end
 
   context "User submits their work" do
+    before do
+      stub_s3
+    end
+
     it "displays confirm dialogue when user grants license", js: true do
       sign_in user
       work = FactoryBot.create :draft_work
