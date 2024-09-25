@@ -33,6 +33,10 @@
 
 <script type="text/javascript">
   $(function() {
+    // https://github.com/rails/rails/pull/45719#issuecomment-1209510774
+    // SCRIPT_NAME= <%= ENV["SCRIPT_NAME"] %>
+    //
+
     // work.id is nil when the form is rendered during work creation and the work has not been saved
     var work = '<%= @work %>';
     let fileListUrl;
