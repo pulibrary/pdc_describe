@@ -48,8 +48,8 @@
 
 <!-- Version number -->
 <div class="field">
-  Version: <br>
-  <input type="text" id="version_number" name="version_number" class="input-text-long" value="<%= @work.resource.version_number %>" <%= is_group_admin ? '' : 'readonly' %> />
+  Version: <span class="required-field required-field-star">*</span><br>
+  <input type="text" id="version_number" name="version_number" class="input-text-long" value="<%= @work.resource.version_number %>" <%= is_group_admin ? '' : 'disabled' %> />
 </div>
 
 
