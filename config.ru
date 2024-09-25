@@ -4,7 +4,7 @@
 require_relative "config/environment"
 
 if Rails.env.production? || Rails.env.staging?
-  map "/describe/" do
+  map RelativeRoot::Application.config.relative_url_root || '/' do
     run Rails.application
   end
 else
