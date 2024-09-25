@@ -28,6 +28,8 @@ Rails.application.configure do
   # Compress CSS using a preprocessor.
   # config.assets.css_compressor = :sass
 
+  config.relative_url_root = "/describe"
+
   config.assets.prefix = "/describe/assets/"
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
@@ -110,6 +112,8 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
+
+
   # Inserts middleware to perform automatic connection switching.
   # The `database_selector` hash is used to pass options to the DatabaseSelector
   # middleware. The `delay` is used to determine how long to wait after a write
@@ -135,5 +139,4 @@ end
 ORCID_URL = "https://pub.orcid.org/v2.0"
 ROR_URL = "https://api.ror.org/organizations"
 
-Rails.config.relative_url_root = "/describe"
 # Rails.application.routes.default_url_options[:relative_url_root] = "/describe"
