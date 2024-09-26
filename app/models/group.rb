@@ -208,9 +208,18 @@ class Group < ApplicationRecord
     user = User.find_by(uid:)
     return user if user.present?
 
-    user = User.new(uid:, default_group_id: id)
-    user.save!
-    user
+    begin
+      user = User.new(uid:, default_group_id: id)
+      user.save!
+      user
+    rescue ActiveRecord::RecordNotUnique => unique_error
+      # If adding a submitter to an existing group
+      Rails.logger.error("Failed to created a new user for #{self}: #{unique_error}")
+      user = User.new(uid:)
+      user.default_group_id = id
+      user.save!
+      user
+    end
   end
 end
 # rubocop:enable Metrics/ClassLength
