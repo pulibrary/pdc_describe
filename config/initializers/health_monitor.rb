@@ -7,9 +7,10 @@ HealthMonitor.configure do |config|
   config.path = :health
 
   config.sidekiq.configure do |sidekiq_config|
-    sidekiq_config.latency = 12.hours
-    sidekiq_config.queue_size = 20_000
-    sidekiq_config.maximum_amount_of_retries = 999_999 # this is really large becuase we don't really want to take the server out of rotation for this
+    sidekiq_config.latency = 6.hours
+    sidekiq_config.queue_size = 10_000
+    sidekiq_config.maximum_amount_of_retries = 100
+    sidekiq_config.critical = false
   end
 
   config.error_callback = proc do |e|
