@@ -2,9 +2,12 @@
 class BackgroundUploadSnapshot < UploadSnapshot
   def store_files(uploaded_files, pre_existing_files: [], current_user: nil)
     save # needed so I can point to this snapshot in the files to distinguish new files from existing ones froma past snapshot
+
+    raise(ArgumentError, "Failed to resolve the user ID from #{self}") if current_user.nil?
+    user_id = current_user&.id
     self.files = uploaded_files.map do |file|
       { "filename" => prefix_filename(file.original_filename),
-        "upload_status" => "started", user_id: current_user&.id, snapshot_id: id }
+        "upload_status" => "started", user_id:, snapshot_id: id }
     end
     files.concat pre_existing_files if pre_existing_files.present?
   end
@@ -38,7 +41,14 @@ class BackgroundUploadSnapshot < UploadSnapshot
     new_files.each do |file|
       work.track_change(:added, file["filename"])
     end
-    work.log_file_changes(new_files.first["user_id"])
+
+    raise(ArgumentError, "Upload failed with empty files.") if new_files.empty?
+    first_new_file = new_files.first
+
+    user_id = first_new_file["user_id"]
+    raise(ArgumentError, "Failed to resolve the user ID from #{first_new_file['filename']}") if user_id.nil?
+
+    work.log_file_changes(user_id)
   end
 
   def prefix_filename(filename)
