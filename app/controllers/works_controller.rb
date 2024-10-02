@@ -164,8 +164,10 @@ class WorksController < ApplicationController
       render json: {}
     end
   rescue => ex
+    # This is necessary for JSON responses
     Rails.logger.error("Error changing curator for work: #{work.id}. Exception: #{ex.message}")
-    render json: { errors: ["Cannot save dataset"] }, status: :bad_request
+    Honeybadger.notify("Error changing curator for work: #{work.id}. Exception: #{ex.message}")
+    render(json: { errors: ["Cannot save dataset"] }, status: :bad_request)
   end
 
   def add_message
@@ -314,8 +316,13 @@ class WorksController < ApplicationController
       if action_name == "create"
         handle_error_for_create(generic_error)
       else
-        redirect_to root_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."
+        redirect_to error_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."
       end
+    end
+
+    rescue_from StandardError do |generic_error|
+      Honeybadger.notify("We apologize, an error was encountered: #{generic_error.message}.")
+      redirect_to error_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."
     end
 
     # @note No testing coverage but not a route, not called

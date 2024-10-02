@@ -96,4 +96,7 @@ Rails.application.routes.draw do
 
   # Anything still unmatched by the end of the routes file should go to the not_found page
   # match '*a', to: redirect('/404'), via: :get
+
+  match "/404", to: "errors#not_found", via: :all, as: :not_found
+  match "/500", to: "errors#internal_server_error", via: :all, as: :error
 end
