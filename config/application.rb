@@ -33,5 +33,7 @@ module PdcDescribe
     # Explicitly set timezome rather than relying on system,
     # which may be different in CI environment.
     config.time_zone = "America/New_York"
+
+    config.exceptions_app = routes
   end
 end

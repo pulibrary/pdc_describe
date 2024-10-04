@@ -49,7 +49,8 @@ RSpec.describe "/works", type: :request do
         end
 
         it "will raise an error" do
-          expect { get work_url(work) }.to raise_error(Work::InvalidGroupError, "The Work test-id does not belong to any Group")
+          get work_url(work)
+          expect(response).to redirect_to(error_url)
         end
       end
 
