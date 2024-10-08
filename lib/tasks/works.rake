@@ -147,4 +147,34 @@ namespace :works do
       end
     end
   end
+
+  desc "Rename files in a work from migration that should have been renamed, but were not"
+  task :migration_rename_aws, [:work_id] => :environment do |_, args|
+    work_id = args[:work_id].to_i
+
+    work = Work.find(work_id)
+    bucket = work.bucket_name
+    service = S3QueryService.new(work, "precuration")
+    uri = service.file_url("#{service.prefix}renamed_files.txt")
+    filename = "/tmp/#{work.id}renamed_files.txt"
+    stdout_and_stderr_str, status = Open3.capture2e("wget -c '#{uri}' -O '#{filename}'")
+
+    if status.success?
+      s3_files = work.s3_files
+      File.readlines(filename, chomp: true).each do |line|
+        next unless line.starts_with?(work.doi)
+        original_name, new_name = line.split("\t")
+        file_index = s3_files.index { |file| file.key == original_name }
+        if file_index
+          puts "will rename #{original_name} to #{new_name}"
+          work.s3_query_service.copy_file(source_key: "#{bucket}/#{ERB::Util.url_encode(original_name)}", target_bucket: bucket, target_key: new_name, size: s3_files[file_index].size)
+          work.s3_query_service.delete_s3_object(original_name, bucket:)
+        else
+          puts "New name already present #{new_name}"
+        end
+      end
+    else
+      puts "Error dowloading file #{uri} for work id #{work.id} to #{filename}! Error: #{stdout_and_stderr_str}"
+    end
+  end
 end
