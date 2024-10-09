@@ -190,8 +190,8 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     it "reports the errors to the user" do
       sign_in curator
       visit edit_work_path(work)
-      click_on "Curator Controlled"
-      fill_in "resource_type", with: "invalid value"
+      click_on "Additional Metadata"
+      find("tr:last-child input[name='related_objects[][related_identifier]']").set "https://related.example.com"
       click_on "Save Work"
       expect(page).to have_content("error prohibited")
     end

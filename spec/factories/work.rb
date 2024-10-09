@@ -81,7 +81,7 @@ FactoryBot.define do
             "creators" => [
               { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => "1" }
             ],
-            "resource_type" => "Dataset", "publisher" => "Princeton University", "publication_year" => "2020",
+            "resource_type_general" => "Dataset", "resource_type" => "Data in set", "publisher" => "Princeton University", "publication_year" => "2020",
             "version_number" => "1",
             "rights" => { "identifier" => "CC BY" }
           }
@@ -102,7 +102,7 @@ FactoryBot.define do
                                                "creators" => [
                                                  { "value" => "Rafiq, Tariq", "name_type" => "Personal", "given_name" => "Tariq", "family_name" => "Rafiq", "affiliations" => [], "sequence" => "1" }
                                                ],
-                                               "resource_type" => "Dataset", "publisher" => "Princeton University", "publication_year" => "2022",
+                                               "resource_type_general" => "Dataset", "resource_type" => "Data in set", "publisher" => "Princeton University", "publication_year" => "2022",
                                                "version_number" => "1",
                                                "rights" => { "identifier" => "CC BY" }
                                              })
@@ -122,7 +122,7 @@ FactoryBot.define do
                                                "creators" => [
                                                  { "value" => "Rafiq, Tariq", "name_type" => "Personal", "given_name" => "Tariq", "family_name" => "Rafiq", "affiliations" => [], "sequence" => "1" }
                                                ],
-                                               "resource_type" => "Dataset", "publisher" => "Princeton University", "publication_year" => "2022",
+                                               "resource_type_general" => "Dataset", "resource_type" => "Data in set", "publisher" => "Princeton University", "publication_year" => "2022",
                                                "version_number" => "1",
                                                "rights" => { "identifier" => "CC BY" }
                                              })
@@ -143,7 +143,7 @@ FactoryBot.define do
                                                "creators" => [
                                                  { "value" => "Rafiq, Tariq", "name_type" => "Personal", "given_name" => "Tariq", "family_name" => "Rafiq", "affiliations" => [], "sequence" => "1" }
                                                ],
-                                               "resource_type" => "Dataset", "publisher" => "Princeton University", "publication_year" => "2022",
+                                               "resource_type_general" => "Dataset", "resource_type" => "Data in set", "publisher" => "Princeton University", "publication_year" => "2022",
                                                "version_number" => "1",
                                                "rights" => { "identifier" => "CC BY" }
                                              })

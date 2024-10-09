@@ -18,7 +18,7 @@ describe FormToResourceService do
           { "orcid" => "", "given_name" => "Toni", "family_name" => "Morrison" },
           { "orcid" => "1234-1234-1234-1234", "given_name" => "Sonia", "family_name" => "Sotomayor" }
         ],
-        resource_type: "Dataset",
+        resource_type: "Visual Stuff",
         resource_type_general: "Audiovisual",
         related_objects: [{ related_identifier: "", related_identifier_type: "", relation_type: "" }]
       }.with_indifferent_access
