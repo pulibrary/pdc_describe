@@ -290,7 +290,7 @@ Devise.setup do |config|
 
   ## For CAS
   config.omniauth :cas, host: "fed.princeton.edu", url: "https://fed.princeton.edu/cas"
-  OmniAuth.config.allowed_request_methods = [:get, :post]
+  OmniAuth.config.allowed_request_methods = [:get, :post, :patch]
   OmniAuth.config.request_validation_phase = OmniAuth::AuthenticityTokenProtection.new(allow_if: ->(_env) { true })
 
   # ==> Mountable engine configurations
