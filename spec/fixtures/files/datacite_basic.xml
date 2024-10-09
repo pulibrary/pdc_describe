@@ -18,7 +18,7 @@
     <title>hello world</title>
   </titles>
   <publisher>Princeton University</publisher>
-  <resourceType resourceTypeGeneral='Dataset'/>
+  <resourceType resourceTypeGeneral='Dataset'>Dataset</resourceType>
   <publicationYear>2022</publicationYear>
   <contributors>
     <contributor contributorType='ProjectLeader'>

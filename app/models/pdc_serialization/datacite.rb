@@ -63,14 +63,14 @@ module PDCSerialization
     # @param [String] publisher
     # @param [String] publication_year
     # @param [String] resource_type
-    def self.skeleton_datacite_xml(identifier:, title:, creator:, publisher:, publication_year:, resource_type:)
+    def self.skeleton_datacite_xml(identifier:, title:, creator:, publisher:, publication_year:, resource_type:, resource_type_general:)
       mapping = ::Datacite::Mapping::Resource.new(
         identifier: ::Datacite::Mapping::Identifier.new(value: identifier),
         creators: [] << ::Datacite::Mapping::Creator.new(name: creator),
         titles: [] << ::Datacite::Mapping::Title.new(value: title),
         publisher: ::Datacite::Mapping::Publisher.new(value: publisher),
         publication_year:,
-        resource_type: datacite_resource_type(resource_type)
+        resource_type: datacite_resource_type(resource_type_general, resource_type)
       )
       mapping.write_xml
     end
@@ -94,7 +94,7 @@ module PDCSerialization
         titles: titles_from_work_resource(resource.titles),
         publisher: ::Datacite::Mapping::Publisher.new(value: resource.publisher),
         publication_year: resource.publication_year,
-        resource_type: datacite_resource_type(resource.resource_type),
+        resource_type: datacite_resource_type(resource.resource_type_general, resource.resource_type),
         related_identifiers: related_identifiers_from_work_resource(resource),
         rights_list: rights_from_work_resource(resource),
         version: resource.version_number,
@@ -105,9 +105,9 @@ module PDCSerialization
     # rubocop:enable Metrics/MethodLength
 
     class << self
-      def datacite_resource_type(value)
-        resource_type = ::Datacite::Mapping::ResourceTypeGeneral.find_by_value(value)
-        ::Datacite::Mapping::ResourceType.new(resource_type_general: resource_type)
+      def datacite_resource_type(resource_type_general, value)
+        resource_type = ::Datacite::Mapping::ResourceTypeGeneral.find_by_value(resource_type_general)
+        ::Datacite::Mapping::ResourceType.new(resource_type_general: resource_type, value:)
       end
 
       def datacite_contributor_type(key)

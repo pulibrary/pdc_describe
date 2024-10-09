@@ -12,7 +12,7 @@
     <title>This is the title</title>
   </titles>
   <publisher>Princeton University</publisher>
-  <resourceType resourceTypeGeneral='Dataset'/>
+  <resourceType resourceTypeGeneral='Dataset'>Dataset</resourceType>
   <publicationYear>2019</publicationYear>
   <contributors>
     <contributor contributorType='Other'>

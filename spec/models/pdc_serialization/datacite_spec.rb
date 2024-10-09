@@ -9,7 +9,8 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
     let(:creator) { "Doctor Bones" }
     let(:publisher) { "Femur Inc." }
     let(:publication_year) { 1654 }
-    let(:resource_type) { "Dataset" }
+    let(:resource_type_general) { "Dataset" }
+    let(:resource_type) { "Data in a set" }
     let(:skeleton_datacite_xml) do
       described_class.skeleton_datacite_xml(
       identifier:,
@@ -17,7 +18,8 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
       creator:,
       publisher:,
       publication_year:,
-      resource_type:
+      resource_type:,
+      resource_type_general:
     )
     end
     let(:parsed_xml) { Datacite::Mapping::Resource.parse_xml(skeleton_datacite_xml) }
@@ -28,7 +30,8 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
       expect(parsed_xml.creators.first.creator_name.value).to eq creator
       expect(parsed_xml.publisher.value).to eq publisher
       expect(parsed_xml.publication_year).to eq publication_year
-      expect(parsed_xml.resource_type.resource_type_general.value).to eq resource_type
+      expect(parsed_xml.resource_type.resource_type_general.value).to eq resource_type_general
+      expect(parsed_xml.resource_type.value).to eq resource_type
     end
   end
 
@@ -75,7 +78,8 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
         "creators" => [
           { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [{ "value" => "Example" }], "sequence" => "1" }
         ],
-        "resource_type" => "Dataset",
+        "resource_type_general" => "Dataset",
+        "resource_type" => "data in a set",
         "publisher" => "Princeton University",
         "publication_year" => "2020"
       }
@@ -143,63 +147,64 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
 
       context "resource types" do
         it "maps dataset" do
-          resource_type = described_class.datacite_resource_type("Dataset")
+          resource_type = described_class.datacite_resource_type("Dataset", "Data in a set")
           expect(resource_type.resource_type_general.value).to eq "Dataset"
+          expect(resource_type.value).to eq "Data in a set"
         end
         it "Audiovisual" do
-          resource_type = described_class.datacite_resource_type("Audiovisual")
+          resource_type = described_class.datacite_resource_type("Audiovisual", "visual data")
           expect(resource_type.resource_type_general.value).to eq "Audiovisual"
         end
         it "Collection" do
-          resource_type = described_class.datacite_resource_type("Collection")
+          resource_type = described_class.datacite_resource_type("Collection", "Stamp")
           expect(resource_type.resource_type_general.value).to eq "Collection"
         end
         it "DataPaper" do
-          resource_type = described_class.datacite_resource_type("DataPaper")
+          resource_type = described_class.datacite_resource_type("DataPaper", "about science")
           expect(resource_type.resource_type_general.value).to eq "DataPaper"
         end
         it "Event" do
-          resource_type = described_class.datacite_resource_type("Event")
+          resource_type = described_class.datacite_resource_type("Event", "Rubyconf")
           expect(resource_type.resource_type_general.value).to eq "Event"
         end
         it "Image" do
-          resource_type = described_class.datacite_resource_type("Image")
+          resource_type = described_class.datacite_resource_type("Image", "cat pics")
           expect(resource_type.resource_type_general.value).to eq "Image"
         end
         it "InteractiveResource" do
-          resource_type = described_class.datacite_resource_type("InteractiveResource")
+          resource_type = described_class.datacite_resource_type("InteractiveResource", "kitten video")
           expect(resource_type.resource_type_general.value).to eq "InteractiveResource"
         end
         it "Model" do
-          resource_type = described_class.datacite_resource_type("Model")
+          resource_type = described_class.datacite_resource_type("Model", "aeroplane")
           expect(resource_type.resource_type_general.value).to eq "Model"
         end
         it "PhysicalObject" do
-          resource_type = described_class.datacite_resource_type("PhysicalObject")
+          resource_type = described_class.datacite_resource_type("PhysicalObject", "a rock")
           expect(resource_type.resource_type_general.value).to eq "PhysicalObject"
         end
         it "Service" do
-          resource_type = described_class.datacite_resource_type("Service")
+          resource_type = described_class.datacite_resource_type("Service", "cleaning")
           expect(resource_type.resource_type_general.value).to eq "Service"
         end
         it "Software" do
-          resource_type = described_class.datacite_resource_type("Software")
+          resource_type = described_class.datacite_resource_type("Software", "code base")
           expect(resource_type.resource_type_general.value).to eq "Software"
         end
         it "Sound" do
-          resource_type = described_class.datacite_resource_type("Sound")
+          resource_type = described_class.datacite_resource_type("Sound", "pop music")
           expect(resource_type.resource_type_general.value).to eq "Sound"
         end
         it "Text" do
-          resource_type = described_class.datacite_resource_type("Text")
+          resource_type = described_class.datacite_resource_type("Text", "story")
           expect(resource_type.resource_type_general.value).to eq "Text"
         end
         it "Workflow" do
-          resource_type = described_class.datacite_resource_type("Workflow")
+          resource_type = described_class.datacite_resource_type("Workflow", "recipe")
           expect(resource_type.resource_type_general.value).to eq "Workflow"
         end
         it "Other" do
-          resource_type = described_class.datacite_resource_type("Other")
+          resource_type = described_class.datacite_resource_type("Other", "stuff")
           expect(resource_type.resource_type_general.value).to eq "Other"
         end
       end
@@ -221,7 +226,8 @@ RSpec.describe PDCSerialization::Datacite, type: :model do
             "creators" => [
               { "value" => "Kotin, Joshua", "name_type" => "Personal", "given_name" => "Joshua", "family_name" => "Kotin", "affiliations" => [], "sequence" => "1" }
             ],
-            "resource_type" => "Dataset",
+            "resource_type_general" => "Dataset",
+            "resource_type" => "data in a set",
             "publisher" => "Princeton University",
             "publication_year" => "2020"
           }

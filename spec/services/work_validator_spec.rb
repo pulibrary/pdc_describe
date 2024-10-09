@@ -100,6 +100,24 @@ RSpec.describe Work, type: :model do
         expect(work.errors.full_messages).to eq([])
       end
     end
+
+    context "resource type has been set" do
+      let(:s3_readme) { FactoryBot.build(:s3_readme) }
+      let(:s3_file) { FactoryBot.build(:s3_file) }
+      before do
+        stub_s3 data: [s3_readme, s3_file]
+      end
+
+      it "is valid" do
+        work.resource_type_general = "Software"
+        work.resource_type = "Software codebase"
+        validator = WorkValidator.new(work)
+
+        expect(validator.valid?).to be_truthy
+        expect(validator.valid_to_submit).to be_truthy
+        expect(work.errors.full_messages).to eq([])
+      end
+    end
   end
 
   describe "#valid_to_submit" do
