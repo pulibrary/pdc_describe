@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 class WorkMigrationController < ApplicationController
-  # @note No testing coverage for RuntimeError but depends on Dspace
+  # @note No testing coverage for RuntimeError but depends on Dspaces
   def migrate
     work = Work.find(params[:id])
     if work.ark.present? && current_user.can_admin?(work.group)

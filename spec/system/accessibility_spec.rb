@@ -55,12 +55,11 @@ describe "application accessibility", type: :system, js: true do
 
   context "when viewing an individual work show page" do
     it "complies with WCAG 2.0 AA and Section 508" do
+      WebMock.allow_net_connect!
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
       stub_s3
-      resource = PDCMetadata::Resource.new(title: "Test dataset")
-      resource.creators << PDCMetadata::Creator.new_person("Harriet", "Tubman", "1234-5678-9012-3456")
-      resource.ark = "ark:/99999/dsp01qb98mj541"
-      work = FactoryBot.create(:draft_work, created_by_user_id: user.id, group_id: user.default_group_id, resource:)
+      work = FactoryBot.create(:distinct_cytoskeletal_proteins_work)
+
       visit work_path(work)
       expect(page).to be_axe_clean
         .according_to(:wcag2a, :wcag2aa, :wcag21a, :wcag21aa, :section508)
