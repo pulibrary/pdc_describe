@@ -1,0 +1,18 @@
+{
+    "Rules": [
+        {
+            "Expiration": {
+                "ExpiredObjectDeleteMarker": true
+            },
+            "ID": "Remove old deleted versions",
+            "Filter": {},
+            "Status": "Enabled",
+            "NoncurrentVersionExpiration": {
+                "NoncurrentDays": 30
+            },
+            "AbortIncompleteMultipartUpload": {
+                "DaysAfterInitiation": 14
+            }
+        }
+    ]
+}
