@@ -205,10 +205,10 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       sign_in user
       visit edit_work_path(work)
       click_on "Additional Metadata"
-      select "Department of Geosciences", from: "communities"
+      select "Geosciences", from: "communities"
       expect(page).to_not have_content("Subcommunities")
       click_on "Save Work"
-      expect(page).to have_content("Department of Geosciences")
+      expect(page).to have_content("Geosciences")
     end
   end
 
