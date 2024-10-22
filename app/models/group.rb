@@ -159,9 +159,10 @@ class Group < ApplicationRecord
     if code == "PPPL"
       ["Princeton Plasma Physics Laboratory"]
     else
-      ["Princeton Neuroscience Institute", "Department of Geosciences", "Mechanical and Aerospace Engineering",
+      ["Princeton Neuroscience Institute", "Geosciences", "Mechanical and Aerospace Engineering",
        "Astrophysical Sciences", "Civil and Environmental Engineering", "Chemical and Biological Engineering",
-       "Digital Humanities", "Music and Arts", "Princeton School of Public and International Affairs"].sort
+       "Digital Humanities", "Music and Arts", "Princeton School of Public and International Affairs",
+       "Chemistry", "Lewis Seigler Genomics", "Architecture", "Ecology and Evolutionary Biology", "Economics"].sort
     end
   end
 
