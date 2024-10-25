@@ -148,6 +148,45 @@ namespace :works do
     end
   end
 
+  desc "Clean up the duplicates keeping data_space files in a work from migration"
+  task :migration_cleanup_keep_dataspace, [:work_id, :force] => :environment do |_, args|
+    work_id = args[:work_id].to_i
+    force = ActiveModel::Type::Boolean.new.cast(args[:force])
+    work = Work.find(work_id)
+    files = work.s3_files
+    globus_files = files.select { |file| file.filename.include?("/globus_") }
+    data_space_files = files.select { |file| file.filename.include?("/data_space_") }
+    if (globus_files.count != data_space_files.count) && !force
+      puts "Error processing files.  The counts differ! globus: #{globus_files.count} data_space: #{data_space_files.count}"
+      exit 1
+    end
+
+    all_match = (0..(globus_files.count - 1)).all? { |idx| globus_files[idx].checksum == data_space_files[idx].checksum }
+    if all_match || force
+      puts "deleting matching #{globus_files.count} globus files"
+      bucket = S3QueryService.pre_curation_config[:bucket]
+      globus_files.each do |file|
+        work.s3_query_service.delete_s3_object(file.key, bucket:)
+      end
+      puts "copying #{data_space_files.count} data space files to original name"
+      data_space_files.each do |file|
+        new_key = file.key.gsub("data_space_", "")
+        work.s3_query_service.copy_file(source_key: "#{bucket}/#{file.key}", target_bucket: bucket, target_key: new_key, size: file.size)
+      end
+      puts "deleting #{data_space_files.count} data_space prefixed files"
+      data_space_files.each do |file|
+        work.s3_query_service.delete_s3_object(file.key, bucket:)
+      end
+    else
+      puts "checksums do not match for this work"
+      (0..(globus_files.count - 1)).each do |idx|
+        if globus_files[idx].checksum != data_space_files[idx].checksum
+          puts "#{globus_files[idx].filename} #{globus_files[idx].checksum} #{data_space_files[idx].filename} #{data_space_files[idx].checksum}"
+        end
+      end
+    end
+  end
+
   desc "Rename files in a work from migration that should have been renamed, but were not"
   task :migration_rename_aws, [:work_id] => :environment do |_, args|
     work_id = args[:work_id].to_i
