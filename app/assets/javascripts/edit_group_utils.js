@@ -83,41 +83,58 @@ $(() => {
     return false;
   });
 
-  if ($('#data-loaded').text() !== 'true') {
-    // Displays the initial list of submitters.
-    $('.submitter-data').each((ix, el) => {
-      const elList = $('#submitter-list');
-      const uid = $(el).data('uid');
-      const groupId = $(el).data('groupId');
-      const canDelete = $(el).data('canDelete');
-      const isYou = $(el).data('you');
-      const isSuperAdmin = false;
-      addUserHtml(elList, uid, groupId, 'submit', canDelete, isYou, isSuperAdmin);
-    });
+  class SubmittersList {
+    constructor(element) {
 
-    // Displays the initial list of curators.
-    $('.curator-data').each((ix, el) => {
-      const elList = $('#curator-list');
-      const uid = $(el).data('uid');
-      const groupId = $(el).data('groupId');
-      const canDelete = $(el).data('canDelete');
-      const isYou = $(el).data('you');
-      addUserHtml(elList, uid, groupId, 'admin', canDelete, isYou, false);
-    });
+      this.$element = element;
+      const text = this.$element.text();
+      const loaded = text == "true";
 
-    // Displays the list of system administrators.
-    $('.sysadmin-data').each((ix, el) => {
-      const elList = $('#sysadmin-list');
-      const uid = $(el).data('uid');
-      const groupId = $(el).data('groupId');
-      const isYou = $(el).data('you');
-      addUserHtml(elList, uid, groupId, 'admin', false, isYou, true);
-    });
+      this.loaded = loaded;
+    }
 
-    // Track that we have displayed this information. This prevents re-display when
-    // user click the Back/Forward button on their browser.
-    $('<span id="data-loaded" class="hidden">true</span>').appendTo('body');
+    bind() {
+      if(this.loaded) {
+
+        // Displays the initial list of submitters.
+        $('.submitter-data').each((ix, el) => {
+          const elList = $('#submitter-list');
+          const uid = $(el).data('uid');
+          const groupId = $(el).data('groupId');
+          const canDelete = $(el).data('canDelete');
+          const isYou = $(el).data('you');
+          const isSuperAdmin = false;
+          addUserHtml(elList, uid, groupId, 'submit', canDelete, isYou, isSuperAdmin);
+        });
+
+        // Displays the initial list of curators.
+        $('.curator-data').each((ix, el) => {
+          const elList = $('#curator-list');
+          const uid = $(el).data('uid');
+          const groupId = $(el).data('groupId');
+          const canDelete = $(el).data('canDelete');
+          const isYou = $(el).data('you');
+          addUserHtml(elList, uid, groupId, 'admin', canDelete, isYou, false);
+        });
+
+        // Displays the list of system administrators.
+        $('.sysadmin-data').each((ix, el) => {
+          const elList = $('#sysadmin-list');
+          const uid = $(el).data('uid');
+          const groupId = $(el).data('groupId');
+          const isYou = $(el).data('you');
+          addUserHtml(elList, uid, groupId, 'admin', false, isYou, true);
+        });
+
+        // Track that we have displayed this information. This prevents re-display when
+        // user click the Back/Forward button on their browser.
+        $('<span id="data-loaded" class="hidden">true</span>').appendTo('body');
+      }
+    }
   }
+
+  const $element = $('#data-loaded');
+  const submitters = SubmittersList($element);
 
   // Wire up the delete button for all users listed in the group.
   //
@@ -126,6 +143,8 @@ $(() => {
   // we can detect the click even on HTML elements _added on the fly_ which
   // is the case when a user adds a new submitter or admin to the group.
   // Reference: https://stackoverflow.com/a/17086311/446681
+
+  
   $(document).on('click', '.delete-user-from-group', (el) => {
     const url = pdc.deleteUserFromGroupUrl;
     const uid = $(el.target).data('uid');
