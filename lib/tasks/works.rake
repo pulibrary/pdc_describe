@@ -109,6 +109,17 @@ namespace :works do
     puts work_preservation.preserve!
   end
 
+  # Artificially add a lot of notifications to a work
+  task :big_provenance, [:work_id] => :environment do |_, args|
+    work_id = args[:work_id].to_i
+    user = User.find_by(uid: "hc8719")
+    (0..10000).each do |i|
+      WorkActivity.add_work_activity(work_id, "random activity #{i} - #{rand(1000000)}", user.id, activity_type: WorkActivity::SYSTEM)
+    end
+    work = Work.find(work_id)
+    puts work.activities.count
+  end
+
   desc "Clean up the duplicate globus and data_space files in a work from migration"
   task :migration_cleanup, [:work_id, :force] => :environment do |_, args|
     work_id = args[:work_id].to_i

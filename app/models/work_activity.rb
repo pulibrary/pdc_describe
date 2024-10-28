@@ -80,6 +80,8 @@ class WorkActivity < ApplicationRecord
   def created_by_user
     return nil unless created_by_user_id
 
+    # This is very slow when we have thousands of notifications
+    # (even when Rails is reading from cache, we are calling the find method way to many times)
     User.find(created_by_user_id)
   end
 
