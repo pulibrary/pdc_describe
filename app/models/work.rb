@@ -292,20 +292,15 @@ class Work < ApplicationRecord
   # In practice, the user_id is the id of the current user and therefore this method marks the current's user
   # notifications as read.
   def mark_new_notifications_as_read(user_id)
-    # https://guides.rubyonrails.org/active_record_querying.html
-    # TODO: Although we are batching the query (see batch_size parameter) we are still
-    # calling save on *each* notification and that might be too slow, is there a way to
-    # batch the save too?
-    WorkActivityNotification.joins(:work_activity).where("user_id=? and work_id=?", user_id, id).find_each(batch_size: 1000) do |unread_notification|
-      unread_notification.read_at = Time.now.utc
-      unread_notification.save
-    end
-
-    # TODO: Test if this work to save in batches
-    # ====
-    # now_utc = Time.now.utc
-    # WorkActivityNotification.joins(:work_activity).where("user_id=? and work_id=?", user_id, id).find_in_batches.update_all(read_at: now_utc)
-    # ====
+    # Notice that we fetch and update the information in batches
+    # so that we don't issue individual SQL SELECT + SQL UPDATE
+    # for each notification.
+    #
+    # Rails batching information:
+    #   https://guides.rubyonrails.org/active_record_querying.html
+    #   https://api.rubyonrails.org/classes/ActiveRecord/Batches.html
+    now_utc = Time.now.utc
+    WorkActivityNotification.joins(:work_activity).where("user_id=? and work_id=?", user_id, id).in_batches(of: 1000).update_all(read_at: now_utc)
   end
 
   def current_transition

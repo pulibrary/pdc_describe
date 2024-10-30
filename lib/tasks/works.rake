@@ -110,11 +110,16 @@ namespace :works do
   end
 
   # Artificially add a lot of notifications to a work
+  # (Will be used to test https://github.com/pulibrary/pdc_describe/issues/1978 in staging )
   task :big_provenance, [:work_id] => :environment do |_, args|
     work_id = args[:work_id].to_i
     user = User.find_by(uid: "hc8719")
-    (0..10000).each do |i|
-      WorkActivity.add_work_activity(work_id, "random activity #{i} - #{rand(1000000)}", user.id, activity_type: WorkActivity::SYSTEM)
+    datestamp = DateTime.now.to_s
+    (0..2000).each do |i|
+      WorkActivity.add_work_activity(work_id, "SYSTEM #{datestamp} - #{rand(1000000)}", user.id, activity_type: WorkActivity::SYSTEM)
+    end
+    (0..40).each do |i|
+      WorkActivity.add_work_activity(work_id, "MESSAGE #{datestamp} - #{rand(1000000)} @hc8719", user.id, activity_type: WorkActivity::MESSAGE)
     end
     work = Work.find(work_id)
     puts work.activities.count

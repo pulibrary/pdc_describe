@@ -4,12 +4,15 @@
     No activity
   <% end %>
   <ul class="beads">
-    <% @work_decorator.changes.sort_by(&:created_at).each do |activity| %>
+    <% @work_decorator.changes.take(100).each_with_index do |activity| %>
       <li class="activity-history-item">
         <%= activity.to_html.html_safe %>
       </li>
     <% end %>
   </ul>
+  <% if @work_decorator.changes.size > 100 %>
+    <p><i>There are <b><%= @work_decorator.changes.size - 100 %></b> more notifications, contact RDSS if you need to view them.</i></p>
+  <% end %>
 
   <% if can_add_provenance_note %>
     <%= form_with url: add_provenance_note_path(@work) do |f| %>
@@ -34,7 +37,7 @@
         <summary  class="remove-see-more">
         Change Label
         <span class="summary-detail">
-        The change label applies a brief descriptor to the provenance log that labels the applied action. 
+        The change label applies a brief descriptor to the provenance log that labels the applied action.
         </span>
         <title>Change Label</title>
         </head>
@@ -55,11 +58,11 @@
       <div class="field">
         <details>
           <summary  class="remove-see-more">
-          Note 
+          Note
           <span class="summary-detail">
-          The note to add to the change history. Markdown can be used. 
+          The note to add to the change history. Markdown can be used.
           </span>
-          
+
           </summary>
         </details>
         <input id="new-provenance-note" name="new-provenance-note">
