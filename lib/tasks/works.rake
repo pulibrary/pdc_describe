@@ -115,11 +115,11 @@ namespace :works do
     work_id = args[:work_id].to_i
     user = User.find_by(uid: "hc8719")
     datestamp = DateTime.now.to_s
-    (0..2000).each do |i|
-      WorkActivity.add_work_activity(work_id, "SYSTEM #{datestamp} - #{rand(1000000)}", user.id, activity_type: WorkActivity::SYSTEM)
+    (0..2000).each do |_i|
+      WorkActivity.add_work_activity(work_id, "SYSTEM #{datestamp} - #{rand(1_000_000)}", user.id, activity_type: WorkActivity::SYSTEM)
     end
-    (0..40).each do |i|
-      WorkActivity.add_work_activity(work_id, "MESSAGE #{datestamp} - #{rand(1000000)} @hc8719", user.id, activity_type: WorkActivity::MESSAGE)
+    (0..40).each do |_i|
+      WorkActivity.add_work_activity(work_id, "MESSAGE #{datestamp} - #{rand(1_000_000)} @hc8719", user.id, activity_type: WorkActivity::MESSAGE)
     end
     work = Work.find(work_id)
     puts work.activities.count

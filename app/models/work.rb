@@ -299,8 +299,12 @@ class Work < ApplicationRecord
     # Rails batching information:
     #   https://guides.rubyonrails.org/active_record_querying.html
     #   https://api.rubyonrails.org/classes/ActiveRecord/Batches.html
+
+    # Disable this validation since we want to force a SQL UPDATE.
+    # rubocop:disable Rails/SkipsModelValidations
     now_utc = Time.now.utc
     WorkActivityNotification.joins(:work_activity).where("user_id=? and work_id=?", user_id, id).in_batches(of: 1000).update_all(read_at: now_utc)
+    # rubocop:enable Rails/SkipsModelValidations
   end
 
   def current_transition
