@@ -292,13 +292,19 @@ class Work < ApplicationRecord
   # In practice, the user_id is the id of the current user and therefore this method marks the current's user
   # notifications as read.
   def mark_new_notifications_as_read(user_id)
-    activities.each do |activity|
-      unread_notifications = WorkActivityNotification.where(user_id:, work_activity_id: activity.id, read_at: nil)
-      unread_notifications.each do |notification|
-        notification.read_at = Time.now.utc
-        notification.save
-      end
-    end
+    # Notice that we fetch and update the information in batches
+    # so that we don't issue individual SQL SELECT + SQL UPDATE
+    # for each notification.
+    #
+    # Rails batching information:
+    #   https://guides.rubyonrails.org/active_record_querying.html
+    #   https://api.rubyonrails.org/classes/ActiveRecord/Batches.html
+
+    # Disable this validation since we want to force a SQL UPDATE.
+    # rubocop:disable Rails/SkipsModelValidations
+    now_utc = Time.now.utc
+    WorkActivityNotification.joins(:work_activity).where("user_id=? and work_id=?", user_id, id).in_batches(of: 1000).update_all(read_at: now_utc)
+    # rubocop:enable Rails/SkipsModelValidations
   end
 
   def current_transition

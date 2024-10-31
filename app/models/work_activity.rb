@@ -79,7 +79,6 @@ class WorkActivity < ApplicationRecord
 
   def created_by_user
     return nil unless created_by_user_id
-
     User.find(created_by_user_id)
   end
 
