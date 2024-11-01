@@ -35,9 +35,9 @@ RSpec.describe "Editing groups" do
   it "allows a group admin to add a submitter to the group", js: true do
     sign_in group_admin_user
     visit edit_group_path(group)
-    fill_in "submitter-uid-to-add", with: "submiter123"
+    fill_in "submitter-uid-to-add", with: "submitter123"
     click_on "Add Submitter"
-    expect(page).to have_content "submiter123"
+    expect(page).to have_content "submitter123"
     expect(page).not_to have_content "User has already been added"
   end
 
