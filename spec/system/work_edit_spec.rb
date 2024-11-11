@@ -408,6 +408,32 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       expect(work.resource.resource_type).to eq("Something")
       expect(work.resource.collection_tags).to eq(["tag1", "tag2"])
     end
+
+    context "when the funders are updated" do
+      before do
+        sign_in user
+        visit edit_work_path(work)
+        click_on "Curator Controlled"
+
+        fill_in "publisher", with: "New Publisher"
+        fill_in "publication_year", with: "1996"
+        fill_in "doi", with: "10.34770/123"
+        fill_in "ark", with: "ark:/11111/abc12345678901"
+        fill_in "resource_type", with: "Something"
+        fill_in "collection_tags", with: "tag1, tag2"
+        click_on "Save"
+        work.reload
+      end
+
+      it "the funders are rendered" do
+        expect(work.resource.publisher).to eq("New Publisher")
+        expect(work.resource.publication_year).to eq("1996")
+        expect(work.doi).to eq("10.34770/123")
+        expect(work.ark).to eq("ark:/11111/abc12345678901")
+        expect(work.resource.resource_type).to eq("Something")
+        expect(work.resource.collection_tags).to eq(["tag1", "tag2"])
+      end
+    end
   end
 
   context "when the Work has been approved" do
