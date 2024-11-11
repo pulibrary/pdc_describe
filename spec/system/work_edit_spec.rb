@@ -410,28 +410,45 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     end
 
     context "when the funders are updated" do
+      let(:funder_name) { "National Science Foundation" }
+      let(:award_number) { "nsf-123" }
+      let(:award_uri) { "http://nsg.gov/award/123" }
+      let(:ror) { "https://ror.org/03vn1ts68" }
+
       before do
         sign_in user
         visit edit_work_path(work)
-        click_on "Curator Controlled"
 
-        fill_in "publisher", with: "New Publisher"
-        fill_in "publication_year", with: "1996"
-        fill_in "doi", with: "10.34770/123"
-        fill_in "ark", with: "ark:/11111/abc12345678901"
-        fill_in "resource_type", with: "Something"
-        fill_in "collection_tags", with: "tag1, tag2"
+        click_on "Additional Metadata"
+        find("input[name='funders[][funder_name]']").set funder_name
+        find("input[name='funders[][award_number]']").set award_number
+        find("input[name='funders[][award_uri]']").set award_uri
+        find("input[name='funders[][ror]']").set ror
+
         click_on "Save"
-        work.reload
+
+        # Edit the Work twice
+        visit edit_work_path(work)
+
+        click_on "Curator Controlled"
+        fill_in "publisher", with: "New Publisher"
+
+        click_on "Save"
       end
 
-      it "the funders are rendered" do
+      it "the funders are persisted" do
+        work.reload
+
+        funders = work.resource.funders
+        expect(funders).not_to be_empty
+        funder = funders.last
+
+        expect(funder.funder_name).to eq(funder_name)
+        expect(funder.award_number).to eq(award_number)
+        expect(funder.award_uri).to eq(award_uri)
+        expect(funder.ror).to eq(ror)
+
         expect(work.resource.publisher).to eq("New Publisher")
-        expect(work.resource.publication_year).to eq("1996")
-        expect(work.doi).to eq("10.34770/123")
-        expect(work.ark).to eq("ark:/11111/abc12345678901")
-        expect(work.resource.resource_type).to eq("Something")
-        expect(work.resource.collection_tags).to eq(["tag1", "tag2"])
       end
     end
   end
