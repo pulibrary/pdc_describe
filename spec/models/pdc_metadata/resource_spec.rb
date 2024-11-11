@@ -129,6 +129,18 @@ RSpec.describe PDCMetadata::Resource, type: :model do
   end
 
   describe "##new_from_jsonb" do
+    let(:ror) { "test1" }
+    let(:funder_name) { "test2" }
+    let(:award_number) { "test3" }
+    let(:award_uri) { "test4" }
+    let(:funders) do
+      [
+        "ror" => ror,
+        "funder_name" => funder_name,
+        "award_number" => award_number,
+        "award_uri" => award_uri
+      ]
+    end
     let(:jsonb) do
       {
         "doi" => doi,
@@ -155,12 +167,7 @@ RSpec.describe PDCMetadata::Resource, type: :model do
         "related_objects" => [],
         "rights_many" => [{ "identifier" => "CC BY", "name" => "Creative Commons Attribution 4.0 International", "uri" => "https://creativecommons.org/licenses/by/4.0/" }],
         "version_number" => 1,
-        "funders" => [{
-          "ror" => nil,
-          "funder_name" => nil,
-          "award_number" => nil,
-          "award_uri" => nil
-        }],
+        "funders" => funders,
         "domains" => ["Humanities"],
         "communities" => [],
         "subcommunities" => [],
@@ -174,6 +181,13 @@ RSpec.describe PDCMetadata::Resource, type: :model do
       expect(resource.keywords).to eq(["red", "yellow", "green"])
       expect(resource.description).to eq("All data is related to the Shakespeare and Company bookshop and lending library opened and operated by Sylvia Beach in Paris, 1919–1962.")
       expect(resource.domains).to eq(["Humanities"])
+      persisted_funders = resource.funders
+      expect(persisted_funders).not_to be_empty
+      persisted_funder = persisted_funders.first
+      expect(persisted_funder.award_number).to eq(award_number)
+      expect(persisted_funder.award_uri).to eq(award_uri)
+      expect(persisted_funder.funder_name).to eq(funder_name)
+      expect(persisted_funder.ror).to eq(ror)
       expect(resource.migrated).to be_truthy
       expect(JSON.parse(resource.to_json)).to eq(jsonb)
     end
