@@ -8,14 +8,6 @@ GIT
       nokogiri
 
 GIT
-  remote: https://github.com/pulibrary/health-monitor-rails.git
-  revision: 69f1ded751c5fa2f0b6a0f1c2180cbd832a41365
-  branch: add-file-absence-check
-  specs:
-    health-monitor-rails (12.3.0)
-      railties (>= 6.1)
-
-GIT
   remote: https://github.com/sul-dlss/datacite-ruby.git
   revision: e17b5eb313aa8cfa7a345efb71c98bb51d660a9f
   branch: main
@@ -253,6 +245,8 @@ GEM
       activesupport (>= 6.1)
     hashdiff (1.1.1)
     hashie (3.6.0)
+    health-monitor-rails (12.4.0)
+      railties (>= 6.1)
     honeybadger (5.15.6)
     i18n (1.14.6)
       concurrent-ruby (~> 1.0)
@@ -634,7 +628,7 @@ DEPENDENCIES
   ffaker
   foreman
   friendly_id (~> 5.4.0)
-  health-monitor-rails!
+  health-monitor-rails (= 12.4.0)
   honeybadger
   io-wait (= 0.2.1)
   jbuilder (~> 2.7)
