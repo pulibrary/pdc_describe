@@ -335,6 +335,7 @@ class Work < ApplicationRecord
   # This method is much faster than `uploads` because it does not return the actual S3File
   # objects to the client, instead it returns just a few selected data elements.
   def file_list
+    start = Time.zone.now
     s3_files = approved? ? post_curation_uploads : pre_curation_uploads
     files_info = s3_files.map do |s3_file|
       {
@@ -349,17 +350,24 @@ class Work < ApplicationRecord
         "is_folder": s3_file.is_folder
       }
     end
+    elapsed = Time.zone.now - start
+    Rails.logger.info("PERFORMANCE: file_list called for #{id}. Elapsed: #{elapsed} seconds")
     files_info
   end
 
   def total_file_size
-    @total_file_size ||= begin
-      total_size = 0
-      file_list.each do |file|
-        total_size += file[:size]
-      end
-      total_size
+    total_size = 0
+    file_list.each do |file|
+      total_size += file[:size]
     end
+    total_size
+  end
+
+  # Calculates the total file size from a given list of files
+  # This is so that we don't fetch the list twice from AWS since it can be expensive when
+  # there are thousands of files on the work.
+  def total_file_size_from_list(list)
+    list.reduce { |sum, file| sum + file[:size] }
   end
 
   # Fetches the data from S3 directly bypassing ActiveStorage

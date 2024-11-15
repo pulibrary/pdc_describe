@@ -96,6 +96,19 @@ class WorksController < ApplicationController
     end
   end
 
+  def file_list_extended
+    if params[:id] == "NONE"
+      # This is a special case when we render the file list for a work being created
+      # (i.e. it does not have an id just yet)
+      render json: []
+    else
+      @work = Work.find(params[:id])
+      file_list = @work.file_list
+      total_file_size = @work.total_file_size_from_list(file_list)
+      render json: {file_list: file_list, total_file_size: total_file_size}
+    end
+  end
+
   def resolve_doi
     @work = Work.find_by_doi(params[:doi])
     redirect_to @work
