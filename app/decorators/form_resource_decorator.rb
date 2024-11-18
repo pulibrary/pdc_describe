@@ -13,7 +13,7 @@ class FormResourceDecorator
     @current_user = current_user
   end
 
-  def funders
+  def funders # @funders probably null for some reason
     @funders ||= begin
                    empty_row = if pppl? && resource.funders.empty?
                                  PDCMetadata::Funder.new(PPPL_FUNDER_ROR, PPPL_FUNDER_NAME, PPPL_FUNDER_AWARD_NUMBER, nil)
