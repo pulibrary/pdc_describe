@@ -89,10 +89,10 @@ class WorksController < ApplicationController
     if params[:id] == "NONE"
       # This is a special case when we render the file list for a work being created
       # (i.e. it does not have an id just yet)
-      render json: []
+      render json: file_list_ajax_response(nil)
     else
-      @work = Work.find(params[:id])
-      render json: @work.file_list
+      work = Work.find(params[:id])
+      render json: file_list_ajax_response(work)
     end
   end
 
@@ -414,6 +414,25 @@ class WorksController < ApplicationController
       return false unless params.key?(:submit)
 
       params[:submit] == "Migrate"
+    end
+
+    # Returns a hash object that can be serialized into something that DataTables
+    # can consume. The `data` elements includes the work's file list all other
+    # properties are used for displaying different data elements related but not
+    # directly on the DataTable object (e.g. the total file size)
+    def file_list_ajax_response(work)
+      files = []
+      total_size = 0
+      unless work.nil?
+        files = work.file_list
+        total_size = work.total_file_size_from_list(files)
+      end
+      {
+        data: files,
+        total_size:,
+        total_size_display: ActiveSupport::NumberHelper.number_to_human_size(total_size),
+        total_file_count: files.count
+      }
     end
 end
 # rubocop:enable Metrics/ClassLength

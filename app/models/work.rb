@@ -334,7 +334,9 @@ class Work < ApplicationRecord
   # Returns the list of files for the work with some basic information about each of them.
   # This method is much faster than `uploads` because it does not return the actual S3File
   # objects to the client, instead it returns just a few selected data elements.
+  # rubocop:disable Metrics/MethodLength
   def file_list
+    start = Time.zone.now
     s3_files = approved? ? post_curation_uploads : pre_curation_uploads
     files_info = s3_files.map do |s3_file|
       {
@@ -349,17 +351,24 @@ class Work < ApplicationRecord
         "is_folder": s3_file.is_folder
       }
     end
+    log_performance(start, "file_list called for #{id}")
     files_info
   end
+  # rubocop:enable Metrics/MethodLength
 
   def total_file_size
-    @total_file_size ||= begin
-      total_size = 0
-      file_list.each do |file|
-        total_size += file[:size]
-      end
-      total_size
+    total_size = 0
+    file_list.each do |file|
+      total_size += file[:size]
     end
+    total_size
+  end
+
+  # Calculates the total file size from a given list of files
+  # This is so that we don't fetch the list twice from AWS since it can be expensive when
+  # there are thousands of files on the work.
+  def total_file_size_from_list(files)
+    files.sum { |file| file[:size] }
   end
 
   # Fetches the data from S3 directly bypassing ActiveStorage
@@ -627,6 +636,15 @@ class Work < ApplicationRecord
         # 1972-05-20T17:33:18Z
         # https://solr.apache.org/guide/solr/latest/indexing-guide/date-formatting-math.html
         embargo_date_iso8601.gsub(/\+.+$/, "Z")
+      end
+    end
+
+    def log_performance(start, message)
+      elapsed = Time.zone.now - start
+      if elapsed > 20
+        Rails.logger.warn("PERFORMANCE: #{message}. Elapsed: #{elapsed} seconds")
+      else
+        Rails.logger.info("PERFORMANCE: #{message}. Elapsed: #{elapsed} seconds")
       end
     end
 end

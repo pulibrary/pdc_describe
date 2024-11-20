@@ -2,8 +2,9 @@
   <div class="lux">
     <div class="card">
       <div class="files card-body">
-        <h3><%= "#{@work.upload_count} #{'File'.pluralize(@work.upload_count)} or #{'Directory'.pluralize(@work.upload_count)}"%> in
-          <%= @work.approved? ? "post-curation" : "pre-curation" %> storage
+        <h3>
+          <div id="total-file-count-spinner" class="spinner-border spinner-border-sm" role="status"></div>
+          <span id="total-file-count-in-table"></span> Files or Directories in <%= @work.approved? ? "post-curation" : "pre-curation" %> storage
         </h3>
         <table id="files-table" class="table">
           <thead>
@@ -15,14 +16,6 @@
             </tr>
           </thead>
           <tbody>
-            <% if @work.upload_count.zero? %>
-              <tr class="files">
-                <td><span><%= t('works.form.curation_uploads.empty') %></span></td>
-                <td><span></span></td>
-                <td><span></span></td>
-                <td><span></span></td>
-              </tr>
-            <% end %>
           </tbody>
           <tfoot></tfoot>
         </table>
@@ -75,7 +68,18 @@
       select: true,
       ajax: {
         url: fileListUrl,
-        dataSrc: ''
+        dataSrc: function(json) {
+          // The JSON payload includes a few extra properties (fetched via AJAX because
+          // they be slow for large datasets). Here we pick up those properties and update
+          // the display with them.
+          $("#total-file-size").text(json.total_size_display);
+          $("#total-file-size-spinner").hide();
+          $("#total-file-count-in-table").text(json.total_file_count.toLocaleString("en-US"));
+          $("#total-file-count-spinner").hide();
+          // The JSON payload include the file list in the `data` property
+          // and that's what we return to DataTables as the "source" data.
+          return json.data;
+        }
       },
       rowId: 'safe_id',
       columns: [
