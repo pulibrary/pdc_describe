@@ -350,8 +350,7 @@ class Work < ApplicationRecord
         "is_folder": s3_file.is_folder
       }
     end
-    elapsed = Time.zone.now - start
-    Rails.logger.info("PERFORMANCE: file_list called for #{id}. Elapsed: #{elapsed} seconds")
+    log_performance(start, "file_list called for #{id}")
     files_info
   end
 
@@ -366,8 +365,8 @@ class Work < ApplicationRecord
   # Calculates the total file size from a given list of files
   # This is so that we don't fetch the list twice from AWS since it can be expensive when
   # there are thousands of files on the work.
-  def total_file_size_from_list(list)
-    list.reduce { |sum, file| sum + file[:size] }
+  def total_file_size_from_list(files)
+    files.sum { |file| file[:size] }
   end
 
   # Fetches the data from S3 directly bypassing ActiveStorage
@@ -601,9 +600,16 @@ class Work < ApplicationRecord
     end
 
     def latest_snapshot
+      start = Time.zone.now
+      byebug
+      x = upload_snapshots.empty?
+      log_performance(start, "upload_snapshots.empty?")
       return upload_snapshots.first unless upload_snapshots.empty?
 
-      UploadSnapshot.new(work: self, files: [])
+      start = Time.zone.now
+      y = UploadSnapshot.new(work: self, files: [])
+      log_performance(start, "uploadsnapshot.new")
+      y
     end
 
     def datacite_service
@@ -636,6 +642,11 @@ class Work < ApplicationRecord
         # https://solr.apache.org/guide/solr/latest/indexing-guide/date-formatting-math.html
         embargo_date_iso8601.gsub(/\+.+$/, "Z")
       end
+    end
+
+    def log_performance(start, message)
+      elapsed = Time.zone.now - start
+      Rails.logger.info("PERFORMANCE: #{message}. Elapsed: #{elapsed} seconds")
     end
 end
 # rubocop:enable Metrics/ClassLength

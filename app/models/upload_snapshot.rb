@@ -6,15 +6,18 @@ class UploadSnapshot < ApplicationRecord
   alias_attribute :existing_files, :files
 
   def snapshot_deletions(work_changes, s3_filenames)
+    start = Time.zone.now
     existing_files.each do |file|
       filename = file["filename"]
       unless s3_filenames.include?(filename)
         work_changes << { action: "removed", filename:, checksum: file["checksum"] }
       end
     end
+    log_performance(start, "snapshot_deletions")
   end
 
   def snapshot_modifications(work_changes, s3_files)
+    start = Time.zone.now
     # check for modifications
     s3_files.each do |s3_file|
       next if match?(s3_file)
@@ -24,6 +27,12 @@ class UploadSnapshot < ApplicationRecord
                         { action: "added", filename: s3_file.filename, checksum: s3_file.checksum }
                       end
     end
+    log_performance(start, "snapshot_modifications")
+  end
+
+  def log_performance(start, message)
+    elapsed = Time.zone.now - start
+    Rails.logger.info("PERFORMANCE: #{message}. Elapsed: #{elapsed} seconds")
   end
 
   def upload

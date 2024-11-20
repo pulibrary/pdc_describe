@@ -274,7 +274,7 @@
 
       <dt>Location</dt>
       <dd>
-        <% if @work.upload_count > 0 %>
+        <% if @work.files_location_upload? %>
           Amazon S3 Curation Storage
         <% elsif @work.files_location_cluster? %>
           PUL Research Cluster
@@ -291,7 +291,8 @@
       <% end %>
       <dt>Total Size</dt>
       <dd>
-        <%= number_to_human_size(@work.total_file_size)%>
+        <div id="total-file-size-spinner" class="spinner-border spinner-border-sm" role="status"></div>
+        <span id="total-file-size"></span>
       </dd>
     </dl>
 
