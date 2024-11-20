@@ -597,8 +597,10 @@ RSpec.describe WorksController do
         allow(fake_s3_service).to receive(:client_s3_files).and_return(data)
 
         get :file_list, params: { id: work.id }
-        file_list = JSON.parse(response.body)
+        json_response = JSON.parse(response.body)
+        file_list = json_response["data"]
         expect(file_list.map { |f| f["filename"] }.sort).to eq(["10.34770/123-abc/#{work.id}/SCoData_combined_v1_2020-07_README.txt", "10.34770/123-abc/#{work.id}/something.jpg"])
+        expect(json_response["total_size"]).to be 21518
 
         # Check that we don't accidentally serialize the Work as part of the JSON file list.
         # Including the work is bad for large records, because if for example a Work has 500 files
