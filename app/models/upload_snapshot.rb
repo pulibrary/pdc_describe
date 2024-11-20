@@ -26,15 +26,10 @@ class UploadSnapshot < ApplicationRecord
       match = existing_files_sorted.bsearch { |file| s3_file.filename <=> file["filename"] }
       if match.nil?
         work_changes << { action: "added", filename: s3_file.filename, checksum: s3_file.checksum }
-      elsif checksum_compare(match["checksum"], s3_file.checksum) == false
+      elsif UploadSnapshot.checksum_compare(match["checksum"], s3_file.checksum) == false
         work_changes << { action: "replaced", filename: s3_file.filename, checksum: s3_file.checksum }
       end
     end
-  end
-
-  def log_performance(start, message)
-    elapsed = Time.zone.now - start
-    Rails.logger.info("PERFORMANCE: #{message}. Elapsed: #{elapsed} seconds")
   end
 
   def upload
@@ -57,16 +52,7 @@ class UploadSnapshot < ApplicationRecord
     find_by("work_id = ? AND files @> ?", work_id, JSON.dump([{ filename: }]))
   end
 
-  private
-
-    def existing_files_sorted
-      @existing_files_sorted ||= files.sort_by { |file| file["filename"] }
-    end
-
-    def uploads
-      work.uploads
-    end
-
+  class << self
     # Compares two checksums. Accounts for the case in which one of them is
     # a plain MD5 value and the other has been encoded with base64.
     # See also
@@ -87,5 +73,16 @@ class UploadSnapshot < ApplicationRecord
     rescue ArgumentError
       # One of the values was not properly encoded
       false
+    end
+  end
+
+  private
+
+    def existing_files_sorted
+      @existing_files_sorted ||= files.sort_by { |file| file["filename"] }
+    end
+
+    def uploads
+      work.uploads
     end
 end

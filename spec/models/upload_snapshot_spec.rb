@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe UploadSnapshot, type: :model do
-  subject(:upload_snapshot) { described_class.new(files: [{ filename:, checkSum: "aaabbb111222" }], url:, work:) }
+  subject(:upload_snapshot) { described_class.new(files: [{ filename:, checksum: "aaabbb111222" }], url:, work:) }
 
   let(:filename) { "us_covid_2019.csv" }
   let(:url) { "http://localhost.localdomain/us_covid_2019.csv" }
@@ -10,7 +10,7 @@ RSpec.describe UploadSnapshot, type: :model do
 
   describe "#files" do
     it "lists files associated with the snapshot" do
-      expect(upload_snapshot.files).to eq([{ "filename" => filename, "checkSum" => "aaabbb111222" }])
+      expect(upload_snapshot.files).to eq([{ "filename" => filename, "checksum" => "aaabbb111222" }])
     end
   end
 
@@ -121,80 +121,63 @@ RSpec.describe UploadSnapshot, type: :model do
     end
   end
 
-  describe "#include?" do
-    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url:, work:) }
+  describe "#snapshot_deletions" do
+    it "detects deletions" do
+      work_changes = []
+      upload_snapshot.snapshot_deletions(work_changes, ["us_covid_other.csv"])
+      expect(work_changes.first[:action]).to eq "removed"
+      expect(work_changes.first[:filename]).to eq "us_covid_2019.csv"
+    end
 
-    let(:s3_file) { FactoryBot.build :s3_file, filename: "fileone" }
-    let(:other_file) { FactoryBot.build :s3_file, filename: "other" }
-    it "checks if a files is part of the snamshot via name" do
-      expect(upload_snapshot.include?(s3_file)).to be_truthy
-      expect(upload_snapshot.include?(other_file)).to be_falsey
+    it "does not detect false positives" do
+      work_changes = []
+      upload_snapshot.snapshot_deletions(work_changes, ["us_covid_2019.csv"])
+      expect(work_changes.count).to be 0
     end
   end
 
-  describe "#index" do
-    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url:, work:) }
-
-    let(:s3_file) { FactoryBot.build :s3_file, filename: "filetwo", checksum: "aaabbb111222" }
-    let(:other_file) { FactoryBot.build :s3_file, filename: "other" }
-    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url:, work:) }
-
-    it "lists filenames associated with the snapshot" do
-      expect(upload_snapshot.index(s3_file)).to eq(1)
-      expect(upload_snapshot.index(other_file)).to be_nil
+  describe "#snapshot_modifications" do
+    let(:existing_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", checksum: "aaabbb111222" }
+    let(:s3_new_file) { FactoryBot.build :s3_file, filename: "one.txt", checksum: "111" }
+    let(:s3_modified_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", checksum: "zzzyyyy999888" }
+    it "detects additions and modifications" do
+      work_changes = []
+      upload_snapshot.snapshot_modifications(work_changes, [existing_file, s3_new_file, s3_modified_file])
+      expect(work_changes.find { |change| change[:action] == "added" && change[:filename] == "one.txt" }).to_not be nil
+      expect(work_changes.find { |change| change[:action] == "replaced" && change[:filename] == "us_covid_2019.csv" }).to_not be nil
     end
 
-    it "checks both the filename and the checksum" do
-      s3_file.checksum = "otherchecksum"
-      expect(upload_snapshot.index(s3_file)).to be_nil
-    end
-  end
-
-  describe "#match?" do
-    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url:, work:) }
-
-    let(:s3_file) { FactoryBot.build :s3_file, filename: "filetwo", checksum: "aaabbb111222" }
-    let(:other_file) { FactoryBot.build :s3_file, filename: "other" }
-    subject(:upload_snapshot) { described_class.new(files: [{ filename: "fileone", checksum: "aaabbb111222" }, { filename: "filetwo", checksum: "aaabbb111222" }], url:, work:) }
-
-    it "lists filenames associated with the snapshot" do
-      expect(upload_snapshot.match?(s3_file)).to be_truthy
-      expect(upload_snapshot.match?(other_file)).to be_falsey
-    end
-
-    it "checks both the filename and the checksum" do
-      s3_file.checksum = "otherchecksum"
-      expect(upload_snapshot.match?(s3_file)).to be_falsey
+    it "does not detect false positives" do
+      work_changes = []
+      upload_snapshot.snapshot_modifications(work_changes, [existing_file])
+      expect(work_changes.count).to be 0
     end
   end
 
-  describe "checksum compare" do
-    let(:file1_base64) { { filename: "fileone", checksum: "98691a716ece23a77735f37b5a421253" } }
-    let(:file2_md5) { { filename: "filetwo", checksum: "mGkacW7OI6d3NfN7WkISUw==" } }
-    subject(:upload_snapshot) { described_class.new(files: [file1_base64, file2_md5], url:, work:) }
+  describe "#compare_checksum" do
+    let(:checksum1) { "98691a716ece23a77735f37b5a421253" }
+    let(:checksum1_encoded) { "mGkacW7OI6d3NfN7WkISUw==" }
+    let(:checksum2) { "xx691a716ece23a77735f37b5a421253" }
 
     it "matches identical checksums" do
-      s3_file = FactoryBot.build :s3_file, filename: "fileone", checksum: "98691a716ece23a77735f37b5a421253"
-      expect(upload_snapshot.match?(s3_file)).to be true
+      expect(described_class.checksum_compare(checksum1, checksum1)).to be true
     end
 
     it "detects differences" do
-      s3_file = FactoryBot.build :s3_file, filename: "fileone", checksum: "xx691a716ece23a77735f37b5a421253"
-      expect(upload_snapshot.match?(s3_file)).to be false
+      expect(described_class.checksum_compare(checksum1, checksum2)).to be false
     end
 
     it "matches encoded checksums" do
-      s3_file = FactoryBot.build :s3_file, filename: "fileone", checksum: "mGkacW7OI6d3NfN7WkISUw=="
-      expect(upload_snapshot.match?(s3_file)).to be true
-
-      s3_file = FactoryBot.build :s3_file, filename: "filetwo", checksum: "98691a716ece23a77735f37b5a421253"
-      expect(upload_snapshot.match?(s3_file)).to be true
+      expect(described_class.checksum_compare(checksum1, checksum1_encoded)).to be true
     end
 
     it "does not cause issues when the checksum is nil" do
-      s3_file = FactoryBot.build :s3_file, filename: "fileone"
-      s3_file.checksum = nil
-      expect(upload_snapshot.match?(s3_file)).to be false
+      expect(described_class.checksum_compare(nil, checksum1)).to be false
+      expect(described_class.checksum_compare(checksum1, nil)).to be false
+    end
+
+    it "return false if the encoding is wrong" do
+      expect(described_class.checksum_compare(checksum1, checksum1_encoded + "xxx")).to be false
     end
   end
 
