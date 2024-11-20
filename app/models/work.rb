@@ -334,6 +334,7 @@ class Work < ApplicationRecord
   # Returns the list of files for the work with some basic information about each of them.
   # This method is much faster than `uploads` because it does not return the actual S3File
   # objects to the client, instead it returns just a few selected data elements.
+  # rubocop:disable Metrics/MethodLength
   def file_list
     start = Time.zone.now
     s3_files = approved? ? post_curation_uploads : pre_curation_uploads
@@ -353,6 +354,7 @@ class Work < ApplicationRecord
     log_performance(start, "file_list called for #{id}")
     files_info
   end
+  # rubocop:enable Metrics/MethodLength
 
   def total_file_size
     total_size = 0
@@ -600,16 +602,9 @@ class Work < ApplicationRecord
     end
 
     def latest_snapshot
-      start = Time.zone.now
-      byebug
-      x = upload_snapshots.empty?
-      log_performance(start, "upload_snapshots.empty?")
       return upload_snapshots.first unless upload_snapshots.empty?
 
-      start = Time.zone.now
-      y = UploadSnapshot.new(work: self, files: [])
-      log_performance(start, "uploadsnapshot.new")
-      y
+      UploadSnapshot.new(work: self, files: [])
     end
 
     def datacite_service
@@ -646,7 +641,11 @@ class Work < ApplicationRecord
 
     def log_performance(start, message)
       elapsed = Time.zone.now - start
-      Rails.logger.info("PERFORMANCE: #{message}. Elapsed: #{elapsed} seconds")
+      if elapsed > 20
+        Rails.logger.warn("PERFORMANCE: #{message}. Elapsed: #{elapsed} seconds")
+      else
+        Rails.logger.info("PERFORMANCE: #{message}. Elapsed: #{elapsed} seconds")
+      end
     end
 end
 # rubocop:enable Metrics/ClassLength

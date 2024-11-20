@@ -6,28 +6,30 @@ class UploadSnapshot < ApplicationRecord
   alias_attribute :existing_files, :files
 
   def snapshot_deletions(work_changes, s3_filenames)
-    start = Time.zone.now
+    s3_filenames_sorted = s3_filenames.sort
     existing_files.each do |file|
       filename = file["filename"]
-      unless s3_filenames.include?(filename)
+      # Use Ruby's Binary Search functionality instead of a plain Ruby Array `.include?`
+      # to detect missing values in the array because the binary search performs
+      # much faster when the list of files is large. Notice that the binary search
+      # requires that the list of files is sorted.
+      # See https://ruby-doc.org/3.3.6/bsearch_rdoc.html
+      if s3_filenames_sorted.bsearch { |s3_filename| filename <=> s3_filename }.nil?
         work_changes << { action: "removed", filename:, checksum: file["checksum"] }
       end
     end
-    log_performance(start, "snapshot_deletions")
   end
 
   def snapshot_modifications(work_changes, s3_files)
-    start = Time.zone.now
     # check for modifications
     s3_files.each do |s3_file|
-      next if match?(s3_file)
-      work_changes << if include?(s3_file)
-                        { action: "replaced", filename: s3_file.filename, checksum: s3_file.checksum }
-                      else
-                        { action: "added", filename: s3_file.filename, checksum: s3_file.checksum }
-                      end
+      match = existing_files_sorted.bsearch { |file| s3_file.filename <=> file["filename"] }
+      if match.nil?
+        work_changes << { action: "added", filename: s3_file.filename, checksum: s3_file.checksum }
+      elsif checksum_compare(match["checksum"], s3_file.checksum) == false
+        work_changes << { action: "replaced", filename: s3_file.filename, checksum: s3_file.checksum }
+      end
     end
-    log_performance(start, "snapshot_modifications")
   end
 
   def log_performance(start, message)
@@ -47,18 +49,6 @@ class UploadSnapshot < ApplicationRecord
     files.map { |file| file["filename"] }
   end
 
-  def include?(s3_file)
-    filenames.include?(s3_file.filename)
-  end
-
-  def index(s3_file)
-    files.index { |file| file["filename"] == s3_file.filename && checksum_compare(file["checksum"], s3_file.checksum) }
-  end
-
-  def match?(s3_file)
-    index(s3_file).present?
-  end
-
   def store_files(s3_files)
     self.files = s3_files.map { |file| { "filename" => file.filename, "checksum" => file.checksum } }
   end
@@ -68,6 +58,10 @@ class UploadSnapshot < ApplicationRecord
   end
 
   private
+
+    def existing_files_sorted
+      @existing_files_sorted ||= files.sort_by { |file| file["filename"] }
+    end
 
     def uploads
       work.uploads

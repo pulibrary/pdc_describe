@@ -68,7 +68,7 @@ class WorksController < ApplicationController
   # When requested as .json, return the internal json resource
   def show
     @work = Work.find(params[:id])
-    # UpdateSnapshotJob.perform_later(work_id: @work.id, last_snapshot_id: work.upload_snapshots.first&.id)
+    UpdateSnapshotJob.perform_later(work_id: @work.id, last_snapshot_id: work.upload_snapshots.first&.id)
     @work_decorator = WorkDecorator.new(@work, current_user)
 
     respond_to do |format|
@@ -423,13 +423,13 @@ class WorksController < ApplicationController
     def file_list_ajax_response(work)
       files = []
       total_size = 0
-      if work != nil
+      unless work.nil?
         files = work.file_list
         total_size = work.total_file_size_from_list(files)
       end
       {
         data: files,
-        total_size: total_size,
+        total_size:,
         total_size_display: ActiveSupport::NumberHelper.number_to_human_size(total_size),
         total_file_count: files.count
       }
