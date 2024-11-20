@@ -263,7 +263,7 @@
 
       <% if @work.resource.funders.count > 0 %>
         <dt>Funders</dt>
-        <% @work.resource.funders.each do |funder| %>
+        <% @work.resource.funders.each do |funder| %> 
           <dd>
             <%= funder.funder_name %>,
             <%= funder.award_number %>,

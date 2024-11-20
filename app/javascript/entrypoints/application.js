@@ -17,6 +17,7 @@ import './vendor/jquery-ui-triggeredAutocomplete';
 import PdcUiLoader from './pdc/pdc_ui_loader.es6';
 import WorksWizardPolicy from './works_wizard_policy';
 import WorksWizardReview from './works_wizard_review';
+import EditGroupUtils from './edit_group_utils';
 
 // If using a TypeScript entrypoint file:
 //     <%= vite_typescript_tag 'application' %>
@@ -35,17 +36,27 @@ import WorksWizardReview from './works_wizard_review';
 // Import all channels.
 import.meta.glob('../channels/*.js');
 
+// Load Rails JavaScript API
 if (typeof (window._rails_loaded) === 'undefined' || window._rails_loaded == null || !window._rails_loaded) {
   Rails.start();
 }
+
+// Turbolinks
 Turbolinks.start();
 
+// Integrate JavaScript API with Turbolinks
 function ready() {
   const loader = new PdcUiLoader();
   loader.run();
 
   WorksWizardPolicy.bind('#agreement');
   WorksWizardReview.bind('#grant-button');
+
+  // This should be moved into the Rails object
+  if (typeof (pdc) !== 'undefined' && pdc != null && pdc) {
+    const groupUtils = new EditGroupUtils(window.jQuery);
+    groupUtils.bind(pdc);
+  }
 }
 
 // Must run the javascript loader on every page even if turbolinks loads it
