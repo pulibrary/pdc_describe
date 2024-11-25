@@ -26,7 +26,7 @@
       <% @form_resource_decorator.funders.each do |funder| %>
         <tr>
           <td>
-            <input name="funders[][funder_name]" value="<%= funder&.funder_name %>" class="ror-output" />
+            <input id="funder-id" name="funders[][funder_name]" value="<%= funder&.funder_name %>" class="ror-output" />
           </td>
           <td>
             <input name="funders[][award_number]" value="<%= funder&.award_number %>" />
@@ -52,3 +52,35 @@
     </tfoot>
   </table>
 </div>
+
+<script>
+  var countries = [
+    { value: 'Andorra', data: 'AD' },
+    { value: 'Portugal', data: 'PT' },
+    { value: 'mexico', data: 'MX' },
+    { value: 'canada', data: 'CA' },
+    { value: 'ecuador', data: 'EC' },
+    { value: 'China', data: 'CN' },
+    { value: 'Zimbabwe', data: 'ZZ' }
+  ];
+
+  // debugger;
+  $('#funder-id').devbridgeAutocomplete({
+      lookup: countries,
+      onSelect: function (suggestion) {
+          alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
+      }
+  });
+
+  // Settings that we use in TigerData
+  // $(elementId).autocomplete({
+  //   minChars: 1,
+  //   autoSelectFirst: true,
+  //   showNoSuggestionNotice: true,
+  //   noSuggestionNotice: "No results found",
+  //   lookup: data,
+  //   onSelect: function (suggestion) {
+  //       $(elementId).val(suggestion.data);
+  //   }
+  // });
+</script>

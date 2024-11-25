@@ -23,6 +23,9 @@
     <!-- Provides https://jqueryui.com/sortable/ and /autocomplete/-->
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
 
+    <!-- Load our local Autocomplete plug-in which is a copy of https://github.com/devbridge/jQuery-Autocomplete -->
+    <script src="<%= root_path + 'jquery.autocomplete.js' %>"></script>
+
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css"/>
     <script type="text/javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
     <%= favicon_link_tag asset_path('favicon.png') %>
