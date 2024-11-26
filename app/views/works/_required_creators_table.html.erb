@@ -43,11 +43,11 @@
         <tr class="creators-table-row">
         <td>
           <span class="hidden given-name-required-message"><i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a given name</span>
-          <input name="creators[][given_name]" value="<%= creator&.given_name %>" class="given-entry-creator" />
+          <input id="creator-row-givenname" name="creators[][given_name]" value="<%= creator&.given_name %>" class="given-entry-creator" />
         </td>
         <td class="creators-table-row-family-name">
           <span class="hidden family-name-required-message"><i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a family name</span>
-          <input name="creators[][family_name]" value="<%= creator&.family_name %>" class="family-entry-creator" />
+          <input  id="creator-row-familyname" name="creators[][family_name]" value="<%= creator&.family_name %>" class="family-entry-creator" />
         </td>
         <td>
           <input name="creators[][orcid]" value="<%= creator&.orcid %>" class="orcid-entry-creator"  placeholder="0000-0000-0000-0000" />
@@ -77,3 +77,32 @@
   </table>
 </div>
 
+<script>
+  var creators = [
+    { value: 'Claudia', data: 'cl7359' },
+    { value: 'Hector', data: 'hc8719' },
+    { value: 'Kate', data: 'klynch' },
+    { value: 'Jaymee', data: 'jhypolitte' }
+  ];
+
+  // debugger;
+  // Documentation: https://github.com/devbridge/jQuery-Autocomplete
+  $('#creator-row-givenname').devbridgeAutocomplete({
+      serviceUrl: 'http://localhost:3000/creators/ajax-list',
+      onSelect: function (suggestion) {
+        $("#creator-row-familyname").val(suggestion.data);
+      }
+  });
+
+  // Settings that we use in TigerData
+  // $(elementId).autocomplete({
+  //   minChars: 1,
+  //   autoSelectFirst: true,
+  //   showNoSuggestionNotice: true,
+  //   noSuggestionNotice: "No results found",
+  //   lookup: data,
+  //   onSelect: function (suggestion) {
+  //       $(elementId).val(suggestion.data);
+  //   }
+  // });
+</script>
