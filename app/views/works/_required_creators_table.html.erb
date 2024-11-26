@@ -78,17 +78,11 @@
 </div>
 
 <script>
-  var creators = [
-    { value: 'Claudia', data: 'cl7359' },
-    { value: 'Hector', data: 'hc8719' },
-    { value: 'Kate', data: 'klynch' },
-    { value: 'Jaymee', data: 'jhypolitte' }
-  ];
-
   // debugger;
   // Documentation: https://github.com/devbridge/jQuery-Autocomplete
   $('#creator-row-givenname').devbridgeAutocomplete({
-      serviceUrl: 'http://localhost:3000/creators/ajax-list',
+      serviceUrl: '/creators/ajax-list',
+      // lookup: creators,
       onSelect: function (suggestion) {
         $("#creator-row-familyname").val(suggestion.data);
       }
