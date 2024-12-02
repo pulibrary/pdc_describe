@@ -3,6 +3,7 @@ class CreatorsController < ApplicationController
   before_action :authenticate_user!
 
   def ajax_list
+    # TODO: creator model
     creators = { suggestions: [
       { value: 'Claudia', data: 'cl7359' },
       { value: 'Hector', data: 'hc8719' },
