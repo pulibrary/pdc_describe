@@ -2,8 +2,13 @@
 namespace :creators do
   desc "Creates default creators"
   task create_default_creators: :environment do
-    Creator.new_creator("claudia", "lee", "1111", "cl7359")
-    Creator.new_creator("hector", "correa", "2222", "hc8719")
+    User.all.each do |user|
+      if user.orcid != nil
+        Creator.new_creator(user.given_name, user.family_name, user.orcid, user.uid)
+      end
+    end
+    # Creator.new_creator("claudia", "lee", "1111", "cl7359")
+    # Creator.new_creator("hector", "correa", "2222", "hc8719")
     
   end
 end

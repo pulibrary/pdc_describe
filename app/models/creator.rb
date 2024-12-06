@@ -12,4 +12,16 @@ class Creator < ApplicationRecord
     user.save!
     return user
   end
+
+  def self.all_creators
+    array = []
+    table = Creator.all
+    table.each do |creator|
+      display_value = "#{creator.first_name} #{creator.last_name} (#{creator.netid})"
+      map = {value: display_value, data: creator.netid}
+      array << map
+    end
+    return array
+  end
+
 end
