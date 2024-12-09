@@ -42,17 +42,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_02_152610) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "creators", force: :cascade do |t|
-    t.string "first_name", null: false
-    t.string "last_name", null: false
-    t.string "orcid", null: false
-    t.string "affiliation"
-    t.string "affiliation_ror"
-    t.string "netid", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "group_options", force: :cascade do |t|
     t.integer "option_type"
     t.integer "option_value"
@@ -71,6 +60,17 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_02_152610) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_groups_on_code", unique: true
+  end
+
+  create_table "researchers", force: :cascade do |t|
+    t.string "first_name", null: false
+    t.string "last_name", null: false
+    t.string "orcid", null: false
+    t.string "affiliation"
+    t.string "affiliation_ror"
+    t.string "netid"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "roles", force: :cascade do |t|

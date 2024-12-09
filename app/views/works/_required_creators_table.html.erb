@@ -81,8 +81,7 @@
   // debugger;
   // Documentation: https://github.com/devbridge/jQuery-Autocomplete
   $('#creator-row-givenname').devbridgeAutocomplete({
-      serviceUrl: '<%=creators_ajax_list_url%>',
-      // lookup: creators,
+      serviceUrl: '<%= researchers_ajax_list_url %>',
       onSelect: function (suggestion) {
         $("#creator-row-familyname").val(suggestion.data);
       }
