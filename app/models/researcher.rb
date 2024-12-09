@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 class Researcher < ApplicationRecord
   def self.new_researcher(first_name, last_name, orcid, netid)
-    researcher = Researcher.where(netid: netid).first
+    researcher = Researcher.where(orcid: orcid).first
     if researcher == nil
       researcher = Researcher.new
       researcher.netid = netid

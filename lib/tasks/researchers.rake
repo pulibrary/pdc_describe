@@ -8,4 +8,15 @@ namespace :researchers do
       end
     end
   end
+
+  task researchers_from_works: :environment do
+    Work.all.each do |work|
+      creators = work.resource.creators
+      creators.each do |creator|
+        if creator.identifier&.scheme == "ORCID"
+          Researcher.new_researcher(creator.given_name, creator.family_name, creator.identifier.value, nil)
+        end
+      end
+    end
+  end
 end
