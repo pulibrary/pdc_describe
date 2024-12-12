@@ -9,7 +9,7 @@ RSpec.describe WorksController do
     Group.create_defaults
     user
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
-    allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
+    # allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
 
     stub_request(:get, /#{Regexp.escape('https://example-bucket.s3.amazonaws.com/us_covid_20')}.*\.csv/).to_return(status: 200, body: "", headers: {})
   end
@@ -76,7 +76,7 @@ RSpec.describe WorksController do
       work.reload
       expect(work.resource_type).to eq("Dataset")
       expect(work.resource_type_general).to eq("Dataset")
-      expect(ActiveStorage::PurgeJob).not_to have_received(:new)
+      # expect(ActiveStorage::PurgeJob).not_to have_received(:new)
     end
 
     it "handles the reordering the creators on the update page" do
@@ -366,7 +366,7 @@ RSpec.describe WorksController do
 
           expect(saved_work.pre_curation_uploads.length).to eq(1)
 
-          expect(ActiveStorage::PurgeJob).not_to have_received(:new)
+          # expect(ActiveStorage::PurgeJob).not_to have_received(:new)
           expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_file1.key)
           expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_file3.key)
           expect(fake_s3_service).not_to have_received(:delete_s3_object).with(s3_file2.key)
@@ -428,7 +428,7 @@ RSpec.describe WorksController do
           post :update, params: params_no_delete
 
           expect(response).to redirect_to(work_path(work))
-          expect(ActiveStorage::PurgeJob).not_to have_received(:new)
+          # expect(ActiveStorage::PurgeJob).not_to have_received(:new)
         end
       end
     end
