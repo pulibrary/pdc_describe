@@ -4,7 +4,7 @@ class ApplicationController < ActionController::Base
   # but it shouldn't cause problems in other environments that use S3.
   # Including this concern lets the disk service generate URLs using
   # the same host, protocol, and port as the current request.
-  include ActiveStorage::SetCurrent
+  # include ActiveStorage::SetCurrent
 
   protect_from_forgery with: :exception
   before_action :authenticate_user!
