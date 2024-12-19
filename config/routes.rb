@@ -96,6 +96,7 @@ Rails.application.routes.draw do
 
   # researchers
   get "/researchers/ajax-list", to: "researchers#ajax_list", as: :researchers_ajax_list
+  get "/researchers", to: "researchers#index", as: :researchers_list
 
   # Anything still unmatched by the end of the routes file should go to the not_found page
   # match '*a', to: redirect('/404'), via: :get

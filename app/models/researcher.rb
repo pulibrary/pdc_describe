@@ -13,7 +13,7 @@ class Researcher < ApplicationRecord
     return researcher
   end
 
-  def self.all_researchers
+  def self.autocomplete_list
     researchers = []
     Researcher.all.each do |researcher|
       display_value = "#{researcher.first_name} #{researcher.last_name} (#{researcher.netid})"
