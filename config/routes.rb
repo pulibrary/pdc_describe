@@ -95,6 +95,7 @@ Rails.application.routes.draw do
   get "/reports/dataset-list", to: "reports#dataset_list", as: :reports_dataset_list
 
   # researchers
+  resources :researchers
   get "/researchers/ajax-list", to: "researchers#ajax_list", as: :researchers_ajax_list
   get "/researchers", to: "researchers#index", as: :researchers_list
 
