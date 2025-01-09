@@ -23,6 +23,12 @@ GEM
   specs:
     aasm (5.5.0)
       concurrent-ruby (~> 1.0)
+    actioncable (7.2.2.1)
+      actionpack (= 7.2.2.1)
+      activesupport (= 7.2.2.1)
+      nio4r (~> 2.0)
+      websocket-driver (>= 0.6.1)
+      zeitwerk (~> 2.6)
     actionmailer (7.2.2.1)
       actionpack (= 7.2.2.1)
       actionview (= 7.2.2.1)
@@ -214,6 +220,8 @@ GEM
       websocket-driver (>= 0.5.1)
     ffaker (2.23.0)
     ffi (1.17.0)
+    ffi (1.17.0-x86_64-darwin)
+    ffi (1.17.0-x86_64-linux-gnu)
     foreman (0.88.1)
     friendly_id (5.4.2)
       activerecord (>= 4.0.0)
@@ -568,6 +576,7 @@ PLATFORMS
 
 DEPENDENCIES
   aasm
+  actioncable
   amazing_print
   aws-sdk-s3
   axe-core-rspec
