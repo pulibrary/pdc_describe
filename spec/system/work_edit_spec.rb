@@ -43,7 +43,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     end
 
     it "allows users to delete one of the uploads" do
-      # allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
       allow(fake_s3_service).to receive(:client_s3_files).and_return([contents1, contents2], [contents2])
 
       expect(page).to have_content "Filename"
@@ -63,7 +62,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     end
 
     it "allows users to cancel the delete of one of the uploads" do
-      # allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
       allow(fake_s3_service).to receive(:client_s3_files).and_return([contents1, contents2], [contents2])
 
       expect(page).to have_link "us_covid_2019.csv"
@@ -76,7 +74,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     end
 
     it "allows users to replace one of the uploads" do
-      # allow(ActiveStorage::PurgeJob).to receive(:new).and_call_original
       expect(page).to have_content "Filename"
       expect(page).to have_content "Last Modified"
       expect(page).to have_content "Size"
