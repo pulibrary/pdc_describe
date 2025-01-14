@@ -71,6 +71,8 @@ class WorkUploadsEditService
     end
 
     def upload_file(file)
+      # TODO: remove this warning (it's only for troubleshooting)
+      Rails.logger.warn("ISSUE-2009 Uploading file #{file.original_filename} to work #{work.id}")
       key = work.s3_query_service.upload_file(io: file.to_io, filename: file.original_filename, size: file.size)
       if key.blank?
         Rails.logger.error("Error uploading #{file.original_filename} to work #{work.id}")

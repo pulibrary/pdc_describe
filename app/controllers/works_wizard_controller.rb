@@ -62,6 +62,12 @@ class WorksWizardController < ApplicationController
     @work = Work.find(params[:id])
     upload_service = WorkUploadsEditService.new(@work, current_user)
     upload_service.update_precurated_file_list(params["files"], [])
+  rescue => ex
+    error_message = "Failed to upload file, URL: #{request.url}: #{ex}"
+    Rails.logger.error(error_message)
+    Honeybadger.notify(error_message)
+    flash[:notice] = "Failed to upload file, work: #{@work&.doi}: #{ex}. Please contact rdss@princeton.edu for assistance."
+    redirect_to work_file_upload_path(@work)
   end
 
   # POST /works/1/file_upload
