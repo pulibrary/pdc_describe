@@ -63,7 +63,8 @@ export default class WorkEditFileUpload {
       headers: { 'X-CSRF-Token': tokenContent },
       bundle: true, // upload all selected files at once
       formData: true, // required when bundle: true
-      getResponseData() {
+      getResponseData(data) {
+        console.log(data);
         // Reload the file list displayed
         const fileTable = $('#files-table').dataTable();
         fileTable.api().ajax.reload();
