@@ -1,0 +1,8 @@
+README.md
+docs/
+architecture-decisions/
+.prettierrc
+vendor/
+.yarn/
+vite.config.mts
+spec/fixtures/**/*yaml

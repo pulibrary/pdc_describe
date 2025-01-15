@@ -143,9 +143,7 @@
             "format": "%Y-%m-%dT%H:%M:%S+00:00"
           }
         ],
-        "missingValues": [
-          ""
-        ],
+        "missingValues": [""],
         "primaryKey": "uri"
       }
     },
@@ -284,9 +282,7 @@
             "format": "%Y-%m-%dT%H:%M:%S+00:00"
           }
         ],
-        "missingValues": [
-          ""
-        ],
+        "missingValues": [""],
         "primaryKey": "uri"
       }
     },
@@ -453,9 +449,7 @@
             "format": "uri"
           }
         ],
-        "missingValues": [
-          ""
-        ],
+        "missingValues": [""],
         "foreignKeys": [
           {
             "fields": "member_uris",

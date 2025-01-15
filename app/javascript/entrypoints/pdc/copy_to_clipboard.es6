@@ -13,13 +13,25 @@ export default class CopytoClipboard {
 
   copy_doi() {
     const doi = $('#copy-doi').data('url');
-    this.copyToClipboard(doi, '#copy-doi-icon', '#copy-doi-label', 'copy-doi-label-normal', 'copy-doi-label-copied');
+    this.copyToClipboard(
+      doi,
+      '#copy-doi-icon',
+      '#copy-doi-label',
+      'copy-doi-label-normal',
+      'copy-doi-label-copied',
+    );
     return false;
   }
 
   copy_citation(target) {
     const value = target.parentElement.dataset.text;
-    this.copyToClipboard(value, target.parentElement.children[0], target.parentElement.children[1], 'copy-doi-label-normal', 'copy-doi-label-copied');
+    this.copyToClipboard(
+      value,
+      target.parentElement.children[0],
+      target.parentElement.children[1],
+      'copy-doi-label-normal',
+      'copy-doi-label-copied',
+    );
     return false;
   }
 
@@ -58,15 +70,18 @@ export default class CopytoClipboard {
   //  to an element)
   copyToClipboard(value, iconEl, labelEl, normalClass, copiedClass) {
     // Copy value to the clipboard....
-    navigator.clipboard.writeText(value).then(() => {
-      // ...and notify the user
-      this.setCopiedToClipboard(iconEl, labelEl, normalClass, copiedClass);
-      setTimeout(() => {
-        this.resetCopyToClipboard(iconEl, labelEl, normalClass, copiedClass);
-      }, 20000);
-    }, () => {
-      this.errorCopyToClipboard(iconEl, 'Copy to clipboard failed');
-    });
+    navigator.clipboard.writeText(value).then(
+      () => {
+        // ...and notify the user
+        this.setCopiedToClipboard(iconEl, labelEl, normalClass, copiedClass);
+        setTimeout(() => {
+          this.resetCopyToClipboard(iconEl, labelEl, normalClass, copiedClass);
+        }, 20000);
+      },
+      () => {
+        this.errorCopyToClipboard(iconEl, 'Copy to clipboard failed');
+      },
+    );
     // Clear focus from the button.
     document.activeElement.blur();
   }
