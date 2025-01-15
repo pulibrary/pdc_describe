@@ -9,11 +9,18 @@ class ApprovedFileMoveJob < ApplicationJob
     @source_bucket = source_bucket
     @source_key = source_key
 
-    resp = service.copy_file(source_key: key, target_bucket:, target_key:, size:)
-
-    unless resp.successful?
-      raise "Error copying #{key} to #{target_bucket}/#{target_key} Response #{resp.to_json}"
+    begin
+      resp = service.copy_file(source_key: key, target_bucket:, target_key:, size:)
+      unless resp.successful?
+        raise "Error copying #{key} to #{target_bucket}/#{target_key} Response #{resp.to_json}"
+      end
+    rescue Aws::S3::Errors::NoSuchKey => error
+      status = service.check_file(bucket: source_bucket, key:)
+      unless status
+        raise "Missing source file #{key} can not copy to #{target_bucket}/#{target_key} Error: #{error}"
+      end
     end
+
     status = service.check_file(bucket: target_bucket, key: target_key)
     unless status
       raise "File check was not valid #{source_key} to #{target_bucket}/#{target_key} Response #{status.to_json}"
