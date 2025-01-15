@@ -45,17 +45,17 @@ development:
     bucket: <%= ENV['AWS_S3_DSPACE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_DSPACE_REGION'] || 'us-east-1' %>
 test:
-  access_key_id: 'not-used-access_key_id'
-  secret_access_key: 'not-used-secret_access_key'
+  access_key_id: "not-used-access_key_id"
+  secret_access_key: "not-used-secret_access_key"
   pre_curation:
-    bucket: 'example-bucket'
-    region: 'us-east-1'
+    bucket: "example-bucket"
+    region: "us-east-1"
   post_curation:
-    bucket: 'example-bucket-post'
-    region: 'us-east-1'
+    bucket: "example-bucket-post"
+    region: "us-east-1"
   preservation:
-    bucket: 'example-bucket-preservation'
-    region: 'us-west-1'
+    bucket: "example-bucket-preservation"
+    region: "us-west-1"
   dspace:
-    bucket: 'example-bucket-dspace'
-    region: 'us-east-1'
+    bucket: "example-bucket-dspace"
+    region: "us-east-1"

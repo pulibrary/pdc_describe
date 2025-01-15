@@ -56,8 +56,8 @@ export default class EditTableActions {
       // https://api.ror.org/organizations?query.advanced=name:Prin*
       $.getJSON(`${pdc.ror_url}?query.advanced=name:${request.term}*`, (data) => {
         const candidates = [];
-        let i; let
-          candidate;
+        let i;
+        let candidate;
         for (i = 0; i < data.items.length; i += 1) {
           candidate = { key: data.items[i].id, label: data.items[i].name };
           candidates.push(candidate);
@@ -93,7 +93,7 @@ export default class EditTableActions {
     const rows = $(button).closest('table').find('tbody').find('tr');
     let empty = null;
     for (const row of rows) {
-      if ((new TableRow(row)).is_empty()) {
+      if (new TableRow(row).is_empty()) {
         empty = $(row);
         break;
       }

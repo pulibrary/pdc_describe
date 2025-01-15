@@ -14,7 +14,8 @@ export default class WorkRoR {
   fetchROR(element) {
     const $target = $(element.target);
     const ror = $target.val().trim();
-    fetch(`${this.rorUrl}/${ror}`).then()
+    fetch(`${this.rorUrl}/${ror}`)
+      .then()
       .then((response) => response.json())
       .then((responseJson) => {
         const { name } = responseJson;

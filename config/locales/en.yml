@@ -51,8 +51,8 @@ en:
       file_upload:
         heading: "New Submission (%{work_title})"
         actions: 'Once you have uploaded your files, click "next" to continue.'
-        go_back: 'Previous'
-        continue: 'Next'
+        go_back: "Previous"
+        continue: "Next"
       curation_uploads:
         filename: "Filename"
         created_at: "Time of Upload"
@@ -67,9 +67,9 @@ en:
       readme_upload:
         heading: "New Submission (%{work_title})"
         title: "Please upload the README file for this submission."
-        actions: 'We will ask you about your data files on the next step.'
-        go_back: 'Previous'
-        continue: 'Next'
+        actions: "We will ask you about your data files on the next step."
+        go_back: "Previous"
+        continue: "Next"
     uneditable:
       approved: "This work has been approved.  Edits are no longer available."
       privs: "You do not have permission to edit this work."
