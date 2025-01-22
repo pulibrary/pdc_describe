@@ -1,137 +1,137 @@
 [
-  {
-    "key": "dc.contributor.author",
-    "value": "Kim, Chang-Goo",
-    "language": null
-  },
-  {
-    "key": "dc.contributor.author",
-    "value": "Ostriker, Eve",
-    "language": null
-  },
-  {
-    "key": "dc.contributor.author",
-    "value": "Gong, Munan",
-    "language": null
-  },
-  {
-    "key": "dc.contributor.author",
-    "value": "Kim, Jeong-Gyu",
-    "language": null
-  },
-  {
-    "key": "dc.date.accessioned",
-    "value": "2022-09-06T16:00:45Z",
-    "language": null
-  },
-  {
-    "key": "dc.date.available",
-    "value": "2022-09-06T16:00:45Z",
-    "language": null
-  },
-  {
-    "key": "dc.date.created",
-    "value": "2022-08-11",
-    "language": null
-  },
-  {
-    "key": "dc.date.issued",
-    "value": "2022-09-06",
-    "language": null
-  },
-  {
-    "key": "dc.identifier.uri",
-    "value": "http://arks.princeton.edu/ark:/88435/dsp01s7526g63n",
-    "language": null
-  },
-  {
-    "key": "dc.identifier.uri",
-    "value": "https://doi.org/10.34770/ackh-7y71",
-    "language": null
-  },
-  {
-    "key": "dc.identifier.uri",
-    "value": "https://app.globus.org/file-manager?origin_id=dc43f461-0ca7-4203-848c-33a9fc00a464&origin_path=%2Fackh-7y71%2F",
-    "language": null
-  },
-  {
-    "key": "dc.description",
-    "value": "This dataset is too large to download directly from this item page. You can access and download the data via Globus at this link: https://app.globus.org/file-manager?origin_id=dc43f461-0ca7-4203-848c-33a9fc00a464&origin_path=%2Fackh-7y71%2F (See https://docs.globus.org/how-to/get-started/ for instructions on how to use Globus; sign-in is required).",
-    "language": null
-  },
-  {
-    "key": "dc.description.abstract",
-    "value": "We present the public data release of the TIGRESS (Three-phase Interstellar Medium in Galaxies Resolving Evolution with Star Formation and Supernova Feedback) simulations. This release includes simulations representing the solar neighborhood environment at spatial resolutions of 2 and 4 pc. The original magneto-hydrodynamic simulation data is published along with data products from post-processing, including chemistry, CO emission line, and photoionization (HII regions). Data reading and analysis examples are provided in Python.",
-    "language": "en_US"
-  },
-  {
-    "key": "dc.language.iso",
-    "value": "en_US",
-    "language": "en_US"
-  },
-  {
-    "key": "dc.publisher",
-    "value": "Princeton University",
-    "language": "en_US"
-  },
-  {
-    "key": "dc.relation.isreferencedby",
-    "value": "https://doi.org/10.3847/1538-4357/aa8599",
-    "language": "en_US"
-  },
-  {
-    "key": "dc.relation.isreferencedby",
-    "value": "https://doi.org/10.3847/1538-4357/aab9af",
-    "language": "en_US"
-  },
-  {
-    "key": "dc.relation.isreferencedby",
-    "value": "https://doi.org/10.3847/1538-4357/abbdab",
-    "language": "en_US"
-  },
-  {
-    "key": "dc.relation.isreferencedby",
-    "value": "https://doi.org/10.3847/1538-4357/ab9abd",
-    "language": "en_US"
-  },
-  {
-    "key": "dc.relation.uri",
-    "value": "https://princetonuniversity.github.io/astro-tigress/",
-    "language": null
-  },
-  {
-    "key": "dc.rights",
-    "value": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
-    "language": "en_US"
-  },
-  {
-    "key": "dc.subject",
-    "value": "astrophysics",
-    "language": "en_US"
-  },
-  {
-    "key": "dc.subject",
-    "value": "simulation",
-    "language": "en_US"
-  },
-  {
-    "key": "dc.subject",
-    "value": "interstellar medium",
-    "language": "en_US"
-  },
-  {
-    "key": "dc.subject",
-    "value": "galaxy",
-    "language": "en_US"
-  },
-  {
-    "key": "dc.title",
-    "value": "TIGRESS simulation data",
-    "language": "en_US"
-  },
-  {
-    "key": "dc.type",
-    "value": "Dataset",
-    "language": "en_US"
-  }
+	{
+		"key": "dc.contributor.author",
+		"value": "Kim, Chang-Goo",
+		"language": null
+	},
+	{
+		"key": "dc.contributor.author",
+		"value": "Ostriker, Eve",
+		"language": null
+	},
+	{
+		"key": "dc.contributor.author",
+		"value": "Gong, Munan",
+		"language": null
+	},
+	{
+		"key": "dc.contributor.author",
+		"value": "Kim, Jeong-Gyu",
+		"language": null
+	},
+	{
+		"key": "dc.date.accessioned",
+		"value": "2022-09-06T16:00:45Z",
+		"language": null
+	},
+	{
+		"key": "dc.date.available",
+		"value": "2022-09-06T16:00:45Z",
+		"language": null
+	},
+	{
+		"key": "dc.date.created",
+		"value": "2022-08-11",
+		"language": null
+	},
+	{
+		"key": "dc.date.issued",
+		"value": "2022-09-06",
+		"language": null
+	},
+	{
+		"key": "dc.identifier.uri",
+		"value": "http://arks.princeton.edu/ark:/88435/dsp01s7526g63n",
+		"language": null
+	},
+	{
+		"key": "dc.identifier.uri",
+		"value": "https://doi.org/10.34770/ackh-7y71",
+		"language": null
+	},
+	{
+		"key": "dc.identifier.uri",
+		"value": "https://app.globus.org/file-manager?origin_id=dc43f461-0ca7-4203-848c-33a9fc00a464&origin_path=%2Fackh-7y71%2F",
+		"language": null
+	},
+	{
+		"key": "dc.description",
+		"value": "This dataset is too large to download directly from this item page. You can access and download the data via Globus at this link: https://app.globus.org/file-manager?origin_id=dc43f461-0ca7-4203-848c-33a9fc00a464&origin_path=%2Fackh-7y71%2F (See https://docs.globus.org/how-to/get-started/ for instructions on how to use Globus; sign-in is required).",
+		"language": null
+	},
+	{
+		"key": "dc.description.abstract",
+		"value": "We present the public data release of the TIGRESS (Three-phase Interstellar Medium in Galaxies Resolving Evolution with Star Formation and Supernova Feedback) simulations. This release includes simulations representing the solar neighborhood environment at spatial resolutions of 2 and 4 pc. The original magneto-hydrodynamic simulation data is published along with data products from post-processing, including chemistry, CO emission line, and photoionization (HII regions). Data reading and analysis examples are provided in Python.",
+		"language": "en_US"
+	},
+	{
+		"key": "dc.language.iso",
+		"value": "en_US",
+		"language": "en_US"
+	},
+	{
+		"key": "dc.publisher",
+		"value": "Princeton University",
+		"language": "en_US"
+	},
+	{
+		"key": "dc.relation.isreferencedby",
+		"value": "https://doi.org/10.3847/1538-4357/aa8599",
+		"language": "en_US"
+	},
+	{
+		"key": "dc.relation.isreferencedby",
+		"value": "https://doi.org/10.3847/1538-4357/aab9af",
+		"language": "en_US"
+	},
+	{
+		"key": "dc.relation.isreferencedby",
+		"value": "https://doi.org/10.3847/1538-4357/abbdab",
+		"language": "en_US"
+	},
+	{
+		"key": "dc.relation.isreferencedby",
+		"value": "https://doi.org/10.3847/1538-4357/ab9abd",
+		"language": "en_US"
+	},
+	{
+		"key": "dc.relation.uri",
+		"value": "https://princetonuniversity.github.io/astro-tigress/",
+		"language": null
+	},
+	{
+		"key": "dc.rights",
+		"value": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+		"language": "en_US"
+	},
+	{
+		"key": "dc.subject",
+		"value": "astrophysics",
+		"language": "en_US"
+	},
+	{
+		"key": "dc.subject",
+		"value": "simulation",
+		"language": "en_US"
+	},
+	{
+		"key": "dc.subject",
+		"value": "interstellar medium",
+		"language": "en_US"
+	},
+	{
+		"key": "dc.subject",
+		"value": "galaxy",
+		"language": "en_US"
+	},
+	{
+		"key": "dc.title",
+		"value": "TIGRESS simulation data",
+		"language": "en_US"
+	},
+	{
+		"key": "dc.type",
+		"value": "Dataset",
+		"language": "en_US"
+	}
 ]

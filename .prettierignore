@@ -5,4 +5,5 @@ architecture-decisions/
 vendor/
 .yarn/
 vite.config.mts
+spec/fixtures/**/*json
 spec/fixtures/**/*yaml
