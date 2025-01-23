@@ -20,7 +20,6 @@
 @import "components/users.scss";
 @import "components/nav.scss";
 
-
 #pdc-discovery-label {
   float: left;
   margin: 0 auto;
@@ -29,7 +28,8 @@
   text-align: center;
 }
 
-.welcome-headers, #welcome-to-pdc {
+.welcome-headers,
+#welcome-to-pdc {
   font-size: 2rem !important;
 }
 
@@ -52,7 +52,7 @@ ol > li::marker {
 .strong {
   text-shadow: 1px 0 #000;
   letter-spacing: 1px;
-  font-weight:bold;
+  font-weight: bold;
 }
 
 ul li {
@@ -369,10 +369,9 @@ div.form-subcommunities {
   @media all and (min-width: 765px) {
     grid-template-columns: 1fr 1fr 1fr;
   }
-
 }
 
-div.form-subcommunities .form-check{
+div.form-subcommunities .form-check {
   padding: 0em 1rem;
   margin-top: 0.5rem;
   margin-bottom: 0;
@@ -383,7 +382,7 @@ div.form-subcommunities .form-check{
 }
 
 table.dataTable {
-  overflow-wrap: anywhere
+  overflow-wrap: anywhere;
 }
 
 .user-edit-long-field {

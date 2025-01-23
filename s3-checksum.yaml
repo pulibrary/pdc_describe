@@ -20,7 +20,7 @@ Resources:
   ChecksumLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      Code: 
+      Code:
         ZipFile: |
           from urllib.parse import unquote_plus
           import boto3
@@ -154,7 +154,7 @@ Resources:
 
               except Exception as e:
                   print(e)
-                  raise      
+                  raise
       Description: Function to add Checksums to objects in Amazon S3
       Environment:
         Variables:
@@ -170,51 +170,51 @@ Resources:
           - id: W89
             reason: "The function does not process any data but merely copies it, hence VPC configuration is not needed."
   ChecksumLambdaRole:
-    Type: 'AWS::IAM::Role'
+    Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
-        - Effect: Allow
-          Principal:
-            Service: 'lambda.amazonaws.com'
-          Action:
-          - 'sts:AssumeRole'
-      Path: '/'
+          - Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
       ManagedPolicyArns:
-      - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
       Policies:
-      - PolicyName: S3Permissions
-        PolicyDocument:
-          Version: 2012-10-17
-          Statement:
-          - Sid: S3ReadWrite
-            Effect: Allow
-            Action:
-            - s3:PutObject
-            - s3:PutObjectTagging
-            - s3:PutObjectAcl
-            - s3:GetObject
-            - s3:GetObjectVersion
-            - s3:GetObjectTagging
-            - s3:GetObjectAcl
-            - s3:GetObjectAttributes
-            - s3:GetObjectVersionAttributes
-            - s3:ListBucket
-            Resource:
-            - !Sub 'arn:aws:s3:::${S3Bucket}/*'
-      - PolicyName: KMSPermissions
-        PolicyDocument:
-          Version: 2012-10-17
-          Statement:
-          - Sid: S3ReadWrite
-            Effect: Allow
-            Action:
-            - kms:Decrypt
-            - kms:Encrypt
-            - kms:GenerateDataKey
-            Resource:
-            - !Sub 'arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*'
+        - PolicyName: S3Permissions
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: S3ReadWrite
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:PutObjectTagging
+                  - s3:PutObjectAcl
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetObjectTagging
+                  - s3:GetObjectAcl
+                  - s3:GetObjectAttributes
+                  - s3:GetObjectVersionAttributes
+                  - s3:ListBucket
+                Resource:
+                  - !Sub "arn:aws:s3:::${S3Bucket}/*"
+        - PolicyName: KMSPermissions
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: S3ReadWrite
+                Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:Encrypt
+                  - kms:GenerateDataKey
+                Resource:
+                  - !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*"
   S3InvokeLambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -222,50 +222,49 @@ Resources:
       FunctionName: !Ref ChecksumLambdaFunction
       Principal: s3.amazonaws.com
       SourceArn: !Sub arn:aws:s3:::${S3Bucket}
-      SourceAccount: !Ref 'AWS::AccountId'
+      SourceAccount: !Ref "AWS::AccountId"
   S3BatchRole:
-    Type: 'AWS::IAM::Role'
+    Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
-        - Effect: Allow
-          Principal:
-            Service: 'batchoperations.s3.amazonaws.com'
-          Action:
-          - 'sts:AssumeRole'
-      Path: '/'
+          - Effect: Allow
+            Principal:
+              Service: "batchoperations.s3.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
       Policies:
-      - PolicyName: S3Permissions
-        PolicyDocument:
-          Version: 2012-10-17
-          Statement:
-          - Sid: S3ReadWrite
-            Effect: Allow
-            Action:
-            - s3:PutObject
-            - s3:PutObjectAcl
-            - s3:PutObjectTagging
-            - s3:GetObject
-            - s3:GetObjectVersion
-            - s3:GetObjectAcl
-            - s3:GetObjectTagging
-            - s3:ListBucket
-            - s3:InitiateReplication
-            - s3:GetReplicationConfiguration
-            - s3:PutInventoryConfiguration
-            Resource:
-            - !Sub 'arn:aws:s3:::${S3Bucket}/*'
-      - PolicyName: KMSPermissions
-        PolicyDocument:
-          Version: 2012-10-17
-          Statement:
-          - Sid: S3ReadWrite
-            Effect: Allow
-            Action:
-            - kms:Decrypt
-            - kms:Encrypt
-            - kms:GenerateDataKey
-            Resource:
-            - !Sub 'arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*'
-
+        - PolicyName: S3Permissions
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: S3ReadWrite
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:PutObjectAcl
+                  - s3:PutObjectTagging
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetObjectAcl
+                  - s3:GetObjectTagging
+                  - s3:ListBucket
+                  - s3:InitiateReplication
+                  - s3:GetReplicationConfiguration
+                  - s3:PutInventoryConfiguration
+                Resource:
+                  - !Sub "arn:aws:s3:::${S3Bucket}/*"
+        - PolicyName: KMSPermissions
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: S3ReadWrite
+                Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:Encrypt
+                  - kms:GenerateDataKey
+                Resource:
+                  - !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*"

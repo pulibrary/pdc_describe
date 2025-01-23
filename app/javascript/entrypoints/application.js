@@ -37,7 +37,11 @@ import EditGroupUtils from './edit_group_utils';
 import.meta.glob('../channels/*.js');
 
 // Load Rails JavaScript API
-if (typeof (window._rails_loaded) === 'undefined' || window._rails_loaded == null || !window._rails_loaded) {
+if (
+  typeof window._rails_loaded === 'undefined' ||
+  window._rails_loaded == null ||
+  !window._rails_loaded
+) {
   Rails.start();
 }
 
@@ -53,7 +57,7 @@ function ready() {
   WorksWizardReview.bind('#grant-button');
 
   // This should be moved into the Rails object
-  if (typeof (pdc) !== 'undefined' && pdc != null && pdc) {
+  if (typeof pdc !== 'undefined' && pdc != null && pdc) {
     const groupUtils = new EditGroupUtils(window.jQuery);
     groupUtils.bind(pdc);
   }

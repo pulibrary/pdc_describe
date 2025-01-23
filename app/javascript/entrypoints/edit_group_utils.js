@@ -82,14 +82,26 @@ class EditGroupUtils {
 
   onAddSubmitter() {
     const url = this.pdc.addSubmitterUrl;
-    this.addUserToGroup(url, '#submitter-uid-to-add', '#add-submitter-message', '#submitter-list', 'submit');
+    this.addUserToGroup(
+      url,
+      '#submitter-uid-to-add',
+      '#add-submitter-message',
+      '#submitter-list',
+      'submit',
+    );
     $('#submitter-uid-to-add').focus();
     return false;
   }
 
   onAddAdmin() {
     const url = this.pdc.addAdminUrl;
-    this.addUserToGroup(url, '#admin-uid-to-add', '#add-admin-message', '#curator-list', 'admin');
+    this.addUserToGroup(
+      url,
+      '#admin-uid-to-add',
+      '#add-admin-message',
+      '#curator-list',
+      'admin',
+    );
     $('#admin-uid-to-add').focus();
     return false;
   }
@@ -130,7 +142,8 @@ class EditGroupUtils {
       html += ' (you)';
     }
     if (isSuperAdmin) {
-      html += ' <i title="This is a system administrator, access cannot be changed." class="bi bi-person-workspace"></i>';
+      html +=
+        ' <i title="This is a system administrator, access cannot be changed." class="bi bi-person-workspace"></i>';
     }
     if (canDelete) {
       html += `
@@ -171,7 +184,15 @@ class EditGroupUtils {
       const isYou = false;
       const isSuperAdmin = false;
       // eslint-disable-next-line max-len
-      this.addUserHtml(this.elList, this.uid, this.groupId, this.role, canDelete, isYou, isSuperAdmin);
+      this.addUserHtml(
+        this.elList,
+        this.uid,
+        this.groupId,
+        this.role,
+        canDelete,
+        isYou,
+        isSuperAdmin,
+      );
       // eslint-enable-next-line max-len
     };
 
