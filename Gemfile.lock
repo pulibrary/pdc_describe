@@ -170,7 +170,7 @@ GEM
       xml-mapping_extensions (~> 0.4, >= 0.4.7)
     datadog-ci (0.8.3)
       msgpack
-    date (3.3.4)
+    date (3.4.1)
     ddtrace (1.23.3)
       datadog-ci (~> 0.8.1)
       debase-ruby_core_source (= 3.3.1)
@@ -293,7 +293,7 @@ GEM
       time
     net-http (0.4.1)
       uri
-    net-imap (0.4.16)
+    net-imap (0.4.19)
       date
       net-protocol
     net-pop (0.1.2)
@@ -516,7 +516,7 @@ GEM
     tilt (2.4.0)
     time (0.4.0)
       date
-    timeout (0.4.1)
+    timeout (0.4.3)
     tins (1.33.0)
       bigdecimal
       sync
