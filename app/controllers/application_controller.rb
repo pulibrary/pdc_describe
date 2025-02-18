@@ -2,6 +2,7 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   before_action :authenticate_user!
+  around_action :rescue_redis_error
 
   def new_session_path(_scope)
     new_user_session_path
@@ -100,5 +101,13 @@ class ApplicationController < ActionController::Base
       @errors = [transition_error_message]
 
       redirect_aasm_error(transition_error_message)
+    end
+
+    def rescue_redis_error
+      yield
+    rescue HealthMonitor::Providers::RedisException => error
+      Honeybadger.notify("Connection failure for Redis: #{error.message}")
+
+      redirect_to root_path
     end
 end
