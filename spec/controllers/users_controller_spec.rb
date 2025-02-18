@@ -149,5 +149,19 @@ RSpec.describe UsersController do
       expect(response.body).to include(user.uid)
       expect(response.body).to include(user_other.uid)
     end
+
+    context "when a HealthMonitor Redis error is raised" do
+      before do
+        allow(Honeybadger).to receive(:notify)
+        allow(User).to receive(:all).and_raise(HealthMonitor::Providers::RedisException)
+      end
+
+      it "logs a HoneyBadger notification and redirects the client to the root index view" do
+        get :index
+
+        expect(Honeybadger).to have_received(:notify).with("Connection failure for Redis: HealthMonitor::Providers::RedisException")
+        expect(response).to redirect_to(root_path)
+      end
+    end
   end
 end
