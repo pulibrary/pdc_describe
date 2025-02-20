@@ -89,14 +89,10 @@
 <% end %>
 </ul>
 
-<script>
-pdc = {
-  ...pdc,
-  deleteUserFromGroupUrl: '<%= delete_user_from_group_url(id: @group.id, uid: "uid-placeholder") %>',
-  formAuthenticityToken: '<%= form_authenticity_token %>',
-  groupId: '<%= @group.id %>',
-  addSubmitterUrl: '<%= add_submitter_url(id: @group.id, uid: "uid-placeholder") %>',
-  addAdminUrl: '<%= add_admin_url(id: @group.id, uid: "uid-placeholder") %>',
-  userPath: "<%= user_path('user-placeholder') %>"
-}
-</script>
+<input type="hidden" id="deleteUserFromGroupUrl" name="deleteUserFromGroupUrl" value="<%= delete_user_from_group_url(id: @group.id, uid: "uid-placeholder") %>" />
+<input type="hidden" id="formAuthenticityToken" name="formAuthenticityToken" value="<%= form_authenticity_token %>" />
+<input type="hidden" id="groupId" name="groupId" value="<%= @group.id %>" />
+<input type="hidden" id="addSubmitterUrl" name="addSubmitterUrl" value="<%= add_submitter_url(id: @group.id, uid: "uid-placeholder") %>" />
+<input type="hidden" id="addAdminUrl" name="addAdminUrl" value="<%=  add_admin_url(id: @group.id, uid: "uid-placeholder") %>" />
+<input type="hidden" id="userPath" name="userPath" value="<%= user_path('user-placeholder') %>" />
+<input type="hidden" id="groupId" name="groupId" value="<%= @group.id %>" />

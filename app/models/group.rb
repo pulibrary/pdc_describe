@@ -139,7 +139,10 @@ class Group < ApplicationRecord
     end
   end
 
-  def delete_permission(current_user, removed_user)
+  # @param [User] current_user - the currently logged in user
+  # @param [User] admin_user - the user who will be granted admin rights on this group
+  # @param [String] role to be deleted
+  def delete_permission(current_user, removed_user, role)
     if current_user.has_role?(:super_admin) || current_user.has_role?(:group_admin, self)
       if removed_user.nil?
         errors.add(:delete_permission, "User was not found")
@@ -147,8 +150,7 @@ class Group < ApplicationRecord
         errors.add(:delete_permission, "Cannot remove yourself from a group. Contact a super-admin for help.")
       else
         errors.delete(:delete_permission)
-        removed_user.remove_role :group_admin, self
-        removed_user.remove_role :submitter, self
+        removed_user.remove_role role, self
       end
     else
       errors.add(:delete_permission, "Unauthorized")

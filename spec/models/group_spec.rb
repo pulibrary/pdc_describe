@@ -162,4 +162,32 @@ RSpec.describe Group, type: :model do
       end
     end
   end
+
+  describe "#delete_permission" do
+    it "deletes only the admin permissions" do
+      moderator = FactoryBot.create(:pppl_moderator)
+      other_user = FactoryBot.create(:user)
+      Group.plasma_laboratory.add_submitter(moderator, other_user)
+      Group.plasma_laboratory.add_administrator(moderator, other_user)
+      expect(other_user.can_submit?(Group.plasma_laboratory)).to be_truthy
+      expect(other_user.can_admin?(Group.plasma_laboratory)).to be_truthy
+
+      Group.plasma_laboratory.delete_permission(moderator, other_user, "group_admin")
+      expect(other_user.can_submit?(Group.plasma_laboratory)).to be_truthy
+      expect(other_user.can_admin?(Group.plasma_laboratory)).to be_falsey
+    end
+
+    it "deletes only the submitter permissions" do
+      moderator = FactoryBot.create(:pppl_moderator)
+      other_user = FactoryBot.create(:user)
+      Group.plasma_laboratory.add_submitter(moderator, other_user)
+      Group.plasma_laboratory.add_administrator(moderator, other_user)
+      expect(other_user.can_submit?(Group.plasma_laboratory)).to be_truthy
+      expect(other_user.can_admin?(Group.plasma_laboratory)).to be_truthy
+
+      Group.plasma_laboratory.delete_permission(moderator, other_user, "submitter")
+      expect(other_user.can_submit?(Group.plasma_laboratory)).to be_falsey
+      expect(other_user.can_admin?(Group.plasma_laboratory)).to be_truthy
+    end
+  end
 end

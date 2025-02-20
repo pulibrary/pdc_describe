@@ -28,7 +28,7 @@ class EditGroupUtils {
         const canDelete = $el.data('canDelete');
         const isYou = $el.data('you');
         const isSuperAdmin = false;
-        this.addUserHtml(elList, uid, groupId, 'submit', canDelete, isYou, isSuperAdmin);
+        this.addUserHtml(elList, uid, groupId, 'submitter', canDelete, isYou, isSuperAdmin);
       });
 
       // Displays the initial list of curators.
@@ -40,7 +40,7 @@ class EditGroupUtils {
         const groupId = $el.data('groupId');
         const canDelete = $el.data('canDelete');
         const isYou = $el.data('you');
-        this.addUserHtml(elList, uid, groupId, 'admin', canDelete, isYou, false);
+        this.addUserHtml(elList, uid, groupId, 'group_admin', canDelete, isYou, false);
       });
 
       // Displays the list of system administrators.
@@ -51,7 +51,7 @@ class EditGroupUtils {
         const uid = $el.data('uid');
         const groupId = $el.data('groupId');
         const isYou = $el.data('you');
-        this.addUserHtml(elList, uid, groupId, 'admin', false, isYou, true);
+        this.addUserHtml(elList, uid, groupId, 'sysadmin', false, isYou, true);
       });
 
       // Track that we have displayed this information. This prevents re-display when
@@ -68,10 +68,11 @@ class EditGroupUtils {
     // is the case when a user adds a new submitter or admin to the group.
     // Reference: https://stackoverflow.com/a/17086311/446681
     $(document).on('click', '.delete-user-from-group', (event) => {
-      const url = this.pdc.deleteUserFromGroupUrl;
       const $target = this.$(event.target);
+      const role = $target.data('role');
+      const url = `${$('#deleteUserFromGroupUrl')[0].value}?role=${role}`;
       const uid = $target.data('uid');
-      const message = `Revoke access to user ${uid}`;
+      const message = `Revoke ${role} access to user ${uid}`;
       const confirmed = window.confirm(message);
       if (confirmed) {
         this.deleteUserFromGroup(event, url, uid);
@@ -81,26 +82,26 @@ class EditGroupUtils {
   }
 
   onAddSubmitter() {
-    const url = this.pdc.addSubmitterUrl;
+    const url = $('#addSubmitterUrl')[0].value;
     this.addUserToGroup(
       url,
       '#submitter-uid-to-add',
       '#add-submitter-message',
       '#submitter-list',
-      'submit',
+      'submitter',
     );
     $('#submitter-uid-to-add').focus();
     return false;
   }
 
   onAddAdmin() {
-    const url = this.pdc.addAdminUrl;
+    const url = $('#addAdminUrl')[0].value;
     this.addUserToGroup(
       url,
       '#admin-uid-to-add',
       '#add-admin-message',
       '#curator-list',
-      'admin',
+      'group_admin',
     );
     $('#admin-uid-to-add').focus();
     return false;
@@ -125,7 +126,7 @@ class EditGroupUtils {
     this.$.ajax({
       type: 'DELETE',
       url: url.replace('uid-placeholder', uid),
-      data: { authenticity_token: this.pdc.formAuthenticityToken },
+      data: { authenticity_token: $('#formAuthenticityToken')[0].value },
       success: onSuccess.bind(this),
       error: onError.bind(this),
     });
@@ -135,8 +136,8 @@ class EditGroupUtils {
   // for the group.
   // `elList` is the reference to the <ul> HTML element that hosts the list.
   addUserHtml(elList, uid, groupId, role, canDelete, isYou, isSuperAdmin) {
-    const { userPath } = this.pdc;
-    const showUserUrl = userPath.replace('user-placeholder', uid);
+    const userUrl = $('#userPath')[0].value;
+    const showUserUrl = userUrl.replace('user-placeholder', uid);
     let html = `<li class="li-user-${uid}"> <a href="${showUserUrl}">${uid}</a>`;
     if (isYou) {
       html += ' (you)';
@@ -150,7 +151,7 @@ class EditGroupUtils {
         <span>
         <a class="delete-user-from-group" data-group-id="${groupId}" data-uid="${uid}"
           href="#" title="Revoke user's ${role} access this group">
-          <i class="bi bi-trash delete_icon" data-group-id="${groupId}" data-uid="${uid}"></i>
+          <i class="bi bi-trash delete_icon" data-group-id="${groupId}" data-uid="${uid}" data-role="${role}"></i>
         </a>
       </span>`;
     }
@@ -160,7 +161,7 @@ class EditGroupUtils {
 
   // Issues the HTTP POST to add a user to a group and updates the UI
   addUserToGroup(url, elTxt, elError, elList, role) {
-    const { groupId } = this.pdc;
+    const groupId = $('#groupId')[0].value;
     this.groupId = groupId;
 
     this.elList = elList;
@@ -204,7 +205,7 @@ class EditGroupUtils {
     $.ajax({
       type: 'POST',
       url: url.replace('uid-placeholder', this.uid),
-      data: { authenticity_token: this.pdc.formAuthenticityToken },
+      data: { authenticity_token: $('#formAuthenticityToken')[0].value },
       success: onSuccess.bind(this),
       error: onError.bind(this),
     });
