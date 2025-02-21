@@ -41,7 +41,7 @@ RSpec.describe "Editing groups" do
     expect(page).not_to have_content "User has already been added"
   end
 
-  it "allows a group admin to add a submitter to their defailt group without error only when the user is first created", js: true do
+  it "allows a group admin to add a submitter to their default group without error only when the user is first created", js: true do
     sign_in group_admin_user
     visit edit_group_path(Group.research_data)
     fill_in "submitter-uid-to-add", with: "submiter123"
@@ -51,6 +51,30 @@ RSpec.describe "Editing groups" do
     fill_in "submitter-uid-to-add", with: "submiter123"
     click_on "Add Submitter"
     expect(page).to have_content "User has already been added"
+  end
+
+  it "allows a group admin to add submitter and admin roles and delete only admin", js: true do
+    sign_in group_admin_user
+    visit edit_group_path(Group.research_data)
+    fill_in "submitter-uid-to-add", with: "submiter123"
+    click_on "Add Submitter"
+    expect(page).to have_content "submiter123"
+    expect(page).not_to have_content "User has already been added"
+    fill_in "admin-uid-to-add", with: "submiter123"
+    click_on "Add Moderator"
+    within("#curator-list") do
+      expect(page).to have_content "submiter123"
+      expect(page).not_to have_content "User has already been added"
+      find(".li-user-submiter123 .delete_icon").click
+    end
+    page.accept_alert
+    within("#curator-list") do
+      expect(page).not_to have_content "submiter123"
+    end
+    visit edit_group_path(Group.research_data)
+    within("#submitter-list") do
+      expect(page).to have_content "submiter123"
+    end
   end
 
   it "allows a curator to add another curator to the group", js: true do

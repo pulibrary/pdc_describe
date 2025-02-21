@@ -56,7 +56,8 @@ class GroupsController < ApplicationController
   # This is a JSON only endpoint
   def delete_user_from_group
     @group = Group.find(params[:id])
-    @group.delete_permission(current_user, User.find_by(uid: params[:uid]))
+    role = params[:role] || "submitter"
+    @group.delete_permission(current_user, User.find_by(uid: params[:uid]), role)
     check_and_render
   end
 
