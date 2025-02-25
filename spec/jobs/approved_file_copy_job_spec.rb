@@ -65,6 +65,23 @@ RSpec.describe ApprovedFileMoveJob, type: :job do
       end
     end
 
+    context "the original key is missing" do
+      before do
+        allow(fake_s3_service).to receive(:copy_file).and_raise(Aws::S3::Errors::NoSuchKey.new(nil, nil))
+        allow(fake_s3_service).to receive(:check_file).and_return(false)
+      end
+      it "runs an aws copy, but no delete" do
+        expect do
+          perform_enqueued_jobs do
+            job
+          end
+        end .to raise_error(/Missing source file \/example-bucket\/10.34770\/ackh-7y71\/#{work.id}\/test_key can not copy/)
+        expect(fake_s3_service).to have_received(:copy_file).with(size: 200, source_key: "/example-bucket/#{s3_file.key}",
+                                                                  target_bucket: "example-bucket-post", target_key: s3_file.key)
+        expect(fake_s3_service).not_to have_received(:delete_s3_object).with("example-bucket/#{s3_file.key}")
+        expect(fake_s3_service).not_to have_received(:delete_s3_object).with(work.s3_object_key, bucket: "example-bucket")
+      end
+    end
     context "when the ApprovedUploadSnapshot cannot be found" do
       subject(:output) do
         described_class.perform_now(

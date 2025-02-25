@@ -2,7 +2,7 @@
 version: 2.1
 
 orbs:
-  browser-tools: circleci/browser-tools@1.4.4
+  browser-tools: circleci/browser-tools@1.5.1
   coveralls: coveralls/coveralls@2.2.1
 
 commands:
@@ -44,8 +44,8 @@ jobs:
       - run: sudo apt update && sudo apt install postgresql-client libmsgpack-dev
       - install_dependencies
       - persist_to_workspace:
-          root: &root '~/pdc_describe'
-          paths: '*'
+          root: &root "~/pdc_describe"
+          paths: "*"
 
   rubocop:
     working_directory: *root
@@ -67,8 +67,11 @@ jobs:
           RAILS_ENV: test
     steps:
       - attach_workspace:
-          at: '~/pdc_describe'
+          at: "~/pdc_describe"
       - install_dependencies
+      - run:
+          name: Run prettier
+          command: yarn run prettier --check .
       - run:
           name: Run eslint
           command: yarn lint
@@ -85,7 +88,7 @@ jobs:
     steps:
       - attach_workspace:
           at: *root
-      - browser-tools/install-firefox    
+      - browser-tools/install-firefox
       - run:
           name: Wait for PostgreSQL
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
@@ -95,8 +98,7 @@ jobs:
           name: Run Rspec
           command: bundle exec rspec spec
       - store_artifacts:
-          path:
-            ~/pdc_describe/coverage
+          path: ~/pdc_describe/coverage
       - coveralls/upload
 
 workflows:
