@@ -3,7 +3,7 @@
 set :application, "pdc_describe"
 set :repo_url, "https://github.com/pulibrary/pdc_describe.git"
 
-set :linked_dirs, %w[log public/system public/assets node_modules]
+set :linked_dirs, %w[log /opt/pdc_describe/shared/system /opt/pdc_describe/shared/assets node_modules]
 
 # Default branch is :main
 set :branch, ENV["BRANCH"] || "main"
@@ -93,7 +93,7 @@ namespace :application do
     end
     on roles(:app) do
       within release_path do
-        execute :touch, "public/remove-from-nginx"
+        execute :touch, "/opt/pdc_describe/shared/remove-from-nginx"
       end
     end
   end
@@ -104,7 +104,7 @@ namespace :application do
   task :serve_from_nginx do
     on roles(:app) do
       within release_path do
-        execute :rm, "-f public/remove-from-nginx"
+        execute :rm, "-f /opt/pdc_describe/shared/remove-from-nginx"
       end
     end
   end
