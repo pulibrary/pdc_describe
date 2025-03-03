@@ -1,9 +1,5 @@
 ---
-production:
-  true
-staging:
-  false
-development:
-  false
-test:
-  false
+production: true
+staging: false
+development: false
+test: false

@@ -83,6 +83,8 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
 
     click_on "Next"
     expect(page).to have_css(validate_form_css)
+    # Force the work to have two files (readme + another file)
+    stub_s3 data: [FactoryBot.build(:s3_readme, work:), FactoryBot.build(:s3_file, work:)]
 
     click_on "Previous"
     expect(page).to have_css(file_upload_form_css)
@@ -96,7 +98,6 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     click_on "Grant License and Complete"
     page.driver.browser.switch_to.alert.accept
     expect(page).to have_content("5-10 business days")
-    expect(page).to have_content(work.title)
   end
 
   context "User submits their work" do

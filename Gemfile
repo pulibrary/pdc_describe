@@ -15,7 +15,8 @@ gem "net-imap"
 gem "net-pop"
 gem "net-ssh", "7.0.0.beta1"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
-gem "rails"
+gem "actioncable"
+gem "rails", "~> 7.2"
 # Use sqlite3 as the database for Active Record
 gem "pg"
 # Use Puma as the app server

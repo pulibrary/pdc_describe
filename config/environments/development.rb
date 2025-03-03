@@ -34,9 +34,6 @@ Rails.application.configure do
     config.cache_store = :null_store
   end
 
-  # Store uploaded files on amazon (see config/storage.yml for options).
-  config.active_storage.service = :local
-
   config.action_mailer.perform_caching = false
 
   config.action_mailer.default_options = {
