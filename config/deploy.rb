@@ -3,7 +3,7 @@
 set :application, "pdc_describe"
 set :repo_url, "https://github.com/pulibrary/pdc_describe.git"
 
-set :linked_dirs, %w[log /opt/pdc_describe/shared/system /opt/pdc_describe/shared/assets node_modules]
+set :linked_dirs, %w[log public/system public/assets node_modules]
 
 # Default branch is :main
 set :branch, ENV["BRANCH"] || "main"
