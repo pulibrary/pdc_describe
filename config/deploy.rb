@@ -93,7 +93,7 @@ namespace :application do
     end
     on roles(:app) do
       within release_path do
-        execute :touch, "public/remove-from-nginx"
+        execute :touch, "/opt/pdc_describe/shared/remove-from-nginx"
       end
     end
   end
@@ -104,7 +104,7 @@ namespace :application do
   task :serve_from_nginx do
     on roles(:app) do
       within release_path do
-        execute :rm, "-f public/remove-from-nginx"
+        execute :rm, "-f /opt/pdc_describe/shared/remove-from-nginx"
       end
     end
   end

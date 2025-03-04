@@ -15,7 +15,7 @@ HealthMonitor.configure do |config|
   end
 
   config.file_absence.configure do |file_config|
-    file_config.filename = "public/remove-from-nginx"
+    file_config.filename = "/opt/pdc_describe/shared/remove-from-nginx"
   end
 
   config.error_callback = proc do |e|
