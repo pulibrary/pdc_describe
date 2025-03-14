@@ -16,5 +16,6 @@ development:
   - kl37 # Kate Lynch
   - hc8719 # Hector Correa
   - cl7359 # Claudia Lee
+  - rl3667 # Robert-Anthony Lee-Faison
 test:
   - fake1 # Fake user for testing

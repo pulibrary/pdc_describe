@@ -30,10 +30,15 @@ class WorksController < ApplicationController
   before_action :authenticate_user!, unless: :public_request?
 
   def index
-    @works = Work.all
-    respond_to do |format|
-      format.html
-      format.rss { render layout: false }
+    if current_user.super_admin?
+      @works = Work.all
+      respond_to do |format|
+        format.html
+        format.rss { render layout: false }
+      end
+    else
+      flash[:notice] = "You do not have access to this page."
+      redirect_to root_path
     end
   end
 
