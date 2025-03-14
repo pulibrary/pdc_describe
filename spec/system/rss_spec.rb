@@ -65,6 +65,6 @@ XML
 
     # Fetching the JSON for a work that is not yet approved doesn't work
     visit "/works/#{work3.id}.json"
-    expect(page).to have_content "#{work3.title}"
+    expect(page).to have_content work3.title.to_s
   end
 end
