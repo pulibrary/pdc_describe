@@ -227,8 +227,10 @@ class WorksController < ApplicationController
   # POST /works/1/upload-files (called via Uppy)
   def upload_files
     @work = Work.find(params[:id])
-    upload_service = WorkUploadsEditService.new(@work, current_user)
-    upload_service.update_precurated_file_list(params["files"], [])
+    # upload_service = WorkUploadsEditService.new(@work, current_user)
+    # upload_service.update_precurated_file_list(params["files"], [])
+    byebug
+    render plain: "An error from the load balancer: Your Support ID is 123"
   end
 
   # Validates that the work is ready to be approved

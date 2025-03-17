@@ -61,6 +61,7 @@ export default class WorkReadmeFileUpload {
       bundle: true, // upload all selected files at once
       formData: true, // required when bundle: true
       getResponseData(filename) {
+        debugger;
         $('#new-readme').html(
           `File <b>${filename}</b> has been uploaded and set as the README for this dataset.`,
         );

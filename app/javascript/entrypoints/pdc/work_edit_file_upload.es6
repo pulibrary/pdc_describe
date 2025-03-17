@@ -63,10 +63,46 @@ export default class WorkEditFileUpload {
       headers: { 'X-CSRF-Token': tokenContent },
       bundle: true, // upload all selected files at once
       formData: true, // required when bundle: true
-      getResponseData() {
-        // Reload the file list displayed
-        const fileTable = $('#files-table').dataTable();
-        fileTable.api().ajax.reload();
+      getResponseData(serverResponse) {
+        try {
+          // A normal response is a string that can be parsed as JSON
+          response = JSON.parse(serverResponse)
+          // Reload the file list displayed
+          const fileTable = $('#files-table').dataTable();
+          fileTable.api().ajax.reload();
+        } catch (ex) {
+
+          // Display the error message to the user
+          var errorMessage;
+          if ((serverResponse || "").toLowerCase().includes("your support id")) {
+            // We could not parse the serverResponse and it includes "Your support" ID
+            // we assume the problem is the Load Balancer.
+            errorMessage = "Error uploading file: Our load balancer rejected the request.";
+          } else {
+            // Any other kind of error.
+            errorMessage = `Error uploading file: ${ex.message}`;
+          }
+
+          uppy.info(errorMessage, "error", 10000);
+
+          // Remove the files from the Uppy dashboard so that Uppy does not show
+          // the file in green to the user because that makes the user experience
+          // very confusing: the is file shown in green with a red error message.
+          //
+          // A side effect of removing the files from Uppy is that the Browser's
+          // console will log "Uncaught TypeError: e.getFile(...) is undefined"
+          // but we can safely ignore that error message since we are indeed cancelling
+          // the file upload.
+          var files = uppy.getFiles();
+          var i, file;
+          for(i = 0; i < files.length; i += 1) {
+            file = files[i];
+            if (file.progress.uploadComplete === false) {
+              uppy.removeFile(file.id);
+            }
+          }
+
+        }
       },
     });
 
