@@ -30,11 +30,12 @@ class WorksController < ApplicationController
   before_action :authenticate_user!, unless: :public_request?
 
   def index
-    if current_user.super_admin?
+    if rss_index_request?
+      rss_index
+    elsif current_user.super_admin?
       @works = Work.all
       respond_to do |format|
         format.html
-        format.rss { render layout: false }
       end
     else
       flash[:notice] = "You do not have access to this page."
@@ -438,6 +439,14 @@ class WorksController < ApplicationController
         total_size_display: ActiveSupport::NumberHelper.number_to_human_size(total_size),
         total_file_count: files.count
       }
+    end
+
+    def rss_index
+      # Only include approved works in the RSS feed
+      @approved_works = Work.all.select {|work| work.approved? }
+      respond_to do |format|
+        format.rss { render layout: false }
+      end
     end
 end
 # rubocop:enable Metrics/ClassLength

@@ -51,7 +51,6 @@ XML
   # Note that we do not require sign in for getting a list of approved works
   # or the JSON representation of a work
   it "provides a list of approved works, with links to their datacite records" do
-    sign_in super_admin
     visit "/works.rss"
     doc = Nokogiri::XML(page.body)
     expect(doc.xpath("//item").size).to eq 2
@@ -65,6 +64,6 @@ XML
 
     # Fetching the JSON for a work that is not yet approved doesn't work
     visit "/works/#{work3.id}.json"
-    expect(page).to have_content work3.title.to_s
+    expect(page).to have_content "You need to sign in"
   end
 end
