@@ -19,18 +19,19 @@ RSpec.describe WorksController do
   let(:work) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
   let(:user) { work.created_by_user }
   let(:pppl_user) { FactoryBot.create(:pppl_submitter) }
+  let(:super_admin) { FactoryBot.create :super_admin_user }
 
   let(:uploaded_file) { fixture_file_upload("us_covid_2019.csv", "text/csv") }
 
-  context "valid user login" do
+  context "valid admin user login" do
     it "handles the index page" do
-      sign_in user
+      sign_in super_admin
       get :index
       expect(response).to render_template("index")
     end
 
     it "has an rss feed" do
-      sign_in user
+      sign_in super_admin
       get :index, format: "rss"
       expect(response.content_type).to eq "application/rss+xml; charset=utf-8"
     end
