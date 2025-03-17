@@ -4,3 +4,7 @@ production: &production
   db: <%= ENV['PDC_REDIS_DB'] || 0 %>
 staging:
   <<: *production
+development:
+  <<: *production
+test:
+  <<: *production
