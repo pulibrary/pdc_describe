@@ -1,8 +1,11 @@
 # frozen_string_literal: true
+require_relative "redis_config"
 
 HealthMonitor.configure do |config|
   config.cache
-  config.redis
+  config.redis.configure do |provider_config|
+    provider_config.url = RedisConfig.url
+  end
 
   # Make this health check available at /health
   config.path = :health
