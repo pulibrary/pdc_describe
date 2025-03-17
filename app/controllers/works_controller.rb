@@ -443,7 +443,7 @@ class WorksController < ApplicationController
 
     def rss_index
       # Only include approved works in the RSS feed
-      @approved_works = Work.all.select {|work| work.approved? }
+      @approved_works = Work.all.select(&:approved?)
       respond_to do |format|
         format.rss { render layout: false }
       end
