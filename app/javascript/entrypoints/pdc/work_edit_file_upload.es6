@@ -64,7 +64,7 @@ export default class WorkEditFileUpload {
       bundle: true, // upload all selected files at once
       formData: true, // required when bundle: true
       getResponseData(filenames) {
-        var loadBalancerError = (filenames || '').toLowerCase().includes('your support id');
+        const loadBalancerError = (filenames || '').toLowerCase().includes('your support id');
         if (loadBalancerError) {
           // Tell Uppy to cancel the updates. This clears the list of files
           // uploaded on the Dashboard which is good because otherwise they
