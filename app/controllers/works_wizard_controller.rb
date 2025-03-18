@@ -60,11 +60,9 @@ class WorksWizardController < ApplicationController
   # POST /works/1/upload-files-wizard (called via Uppy)
   def upload_files
     @work = Work.find(params[:id])
-    # upload_service = WorkUploadsEditService.new(@work, current_user)
-    # upload_service.update_precurated_file_list(params["files"], [])
-    # byebug
-    render plain: "An error from the load balancer: Your Support ID is 456"
-    # render plain: "something went wrong"
+    upload_service = WorkUploadsEditService.new(@work, current_user)
+    upload_service.update_precurated_file_list(params["files"], [])
+    render plain: params["files"].map(&:original_filename).join(",")
   end
 
   # POST /works/1/file_upload
@@ -153,19 +151,16 @@ class WorksWizardController < ApplicationController
     raise StandardError("Only one README file can be uploaded.") if files_param.empty?
     raise StandardError("Only one README file can be uploaded.") if files_param.length > 1
 
-    # readme_file = files_param.first
-    # readme = Readme.new(@work, current_user)
+    readme_file = files_param.first
+    readme = Readme.new(@work, current_user)
 
-    # readme_error = readme.attach(readme_file)
-    # if readme_error.nil?
-    #   render plain: readme.file_name
-    # else
-    #   # Tell Uppy there was an error uploading the README
-    #   render plain: readme.file_name, status: :internal_server_error
-    # end
-
-    byebug
-    render plain: "An error from the load balancer: Your Support ID is 789"
+    readme_error = readme.attach(readme_file)
+    if readme_error.nil?
+      render plain: readme.file_name
+    else
+      # Tell Uppy there was an error uploading the README
+      render plain: readme.file_name, status: :internal_server_error
+    end
   end
 
   def file_location_url

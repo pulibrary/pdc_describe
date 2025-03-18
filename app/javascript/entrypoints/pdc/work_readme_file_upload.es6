@@ -61,11 +61,24 @@ export default class WorkReadmeFileUpload {
       bundle: true, // upload all selected files at once
       formData: true, // required when bundle: true
       getResponseData(filename) {
-        debugger;
-        $('#new-readme').html(
-          `File <b>${filename}</b> has been uploaded and set as the README for this dataset.`,
-        );
-        $('#readme-upload').prop('disabled', false);
+        var loadBalancerError = (filename || "").toLowerCase().includes("your support id");
+        if (loadBalancerError) {
+          // Tell Uppy to cancel the updates. This clears the list of files
+          // uploaded on the Dashboard which is good because otherwise they
+          // show as successfull (in green) even though they failed to upload.
+          //
+          // A side effect of cancelling the uploads is that the browser's
+          // console will log "Uncaught TypeError: e.getFile(...) is undefined"
+          // but we can safely ignore that error message since we are indeed
+          // cancelling the file upload.
+          uppy.cancelAll();
+          uppy.info("Error uploading file: Our load balancer rejected the request.", "error", 0);
+        } else {
+          $('#new-readme').html(
+            `File <b>${filename}</b> has been uploaded and set as the README for this dataset.`,
+          );
+          $('#readme-upload').prop('disabled', false);
+        }
       },
     });
 
