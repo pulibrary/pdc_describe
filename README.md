@@ -95,7 +95,30 @@ RDSS uses the same [release and deployment process](https://github.com/pulibrary
 
 ## Sidekiq
 
-Background jobs in staging and production are run via [sidekiq](https://sidekiq.org/). You can go to `https://pdc-describe-staging.princeton.edu/describe/sidekiq` to see the sidekiq dashboard, but because these environments are load balanced, that view will switch back and forth between hosts. Instead, use the capistrano task: `cap staging sidekiq:console` or `cap production sidekiq:console`. This will open an ssh tunnel to all nodes in a PDC Describe environment (staging or production), with a tab in your browser for each one.
+Background jobs in staging and production are run via [sidekiq](https://sidekiq.org/). You can go to `https://pdc-describe-staging.princeton.edu/describe/sidekiq` or `https://pdc-describe-prod.princeton.edu/describe/sidekiq` to see the sidekiq dashboard.
+
+Sidekiq jobs are stored in a central redis on pdc-describe-redis-prod1.lib.princeton.edu or pdc-describe-redis-staging1.lib.princeton.edu.  Sidekiq then has workers on each application box working off the list of jobs for staging or production
+
+```mermaid
+---
+title: Sidekiq Environment
+---
+graph TD
+redis@{ shape: lin-cyl, label: "Central Redis" }
+subgraph Application Sever
+   rails1[Rails application]
+   workers1[Sidekiq Workers] 
+end
+
+subgraph Application Sever
+   rails2[Rails application]
+   workers2[Sidekiq Workers] 
+end
+rails1 --> redis
+rails2 --> redis
+workers2 <--> redis
+workers1 <--> redis
+```
 
 ## Mail
 
