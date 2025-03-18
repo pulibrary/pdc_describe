@@ -63,10 +63,28 @@ export default class WorkEditFileUpload {
       headers: { 'X-CSRF-Token': tokenContent },
       bundle: true, // upload all selected files at once
       formData: true, // required when bundle: true
-      getResponseData() {
-        // Reload the file list displayed
-        const fileTable = $('#files-table').dataTable();
-        fileTable.api().ajax.reload();
+      getResponseData(filenames) {
+        const loadBalancerError = (filenames || '').toLowerCase().includes('your support id');
+        if (loadBalancerError) {
+          // Tell Uppy to cancel the updates. This clears the list of files
+          // uploaded on the Dashboard which is good because otherwise they
+          // show as successfull (in green) even though they failed to upload.
+          //
+          // A side effect of cancelling the uploads is that the browser's
+          // console will log "Uncaught TypeError: e.getFile(...) is undefined"
+          // but we can safely ignore that error message since we are indeed
+          // cancelling the file upload.
+          uppy.cancelAll();
+          uppy.info(
+            'Error uploading file: Our load balancer rejected the request.',
+            'error',
+            0,
+          );
+        } else {
+          // Reload the file list displayed
+          const fileTable = $('#files-table').dataTable();
+          fileTable.api().ajax.reload();
+        }
       },
     });
 

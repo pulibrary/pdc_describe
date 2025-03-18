@@ -235,6 +235,7 @@ class WorksController < ApplicationController
     @work = Work.find(params[:id])
     upload_service = WorkUploadsEditService.new(@work, current_user)
     upload_service.update_precurated_file_list(params["files"], [])
+    render plain: params["files"].map(&:original_filename).join(",")
   end
 
   # Validates that the work is ready to be approved
