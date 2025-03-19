@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 require_relative "redis_config"
 require "pul_redis"
+require "pul_cache"
 
 HealthMonitor.configure do |config|
-  config.cache
   config.redis.configure do |provider_config|
     provider_config.url = RedisConfig.url
   end
@@ -11,6 +11,9 @@ HealthMonitor.configure do |config|
   config.add_custom_provider(PULRedis).configure do |provider_config|
     provider_config.url = RedisConfig.url
   end
+
+  # Use our custom Cache checker instead of the deault one
+  config.add_custom_provider(PULCache).configure
 
   # Make this health check available at /health
   config.path = :health
