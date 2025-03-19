@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 require_relative "redis_config"
+require "pul_redis"
 
 HealthMonitor.configure do |config|
   config.cache
   config.redis.configure do |provider_config|
+    provider_config.url = RedisConfig.url
+  end
+
+  config.add_custom_provider(PULRedis).configure do |provider_config|
     provider_config.url = RedisConfig.url
   end
 
