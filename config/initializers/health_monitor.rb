@@ -4,10 +4,7 @@ require "pul_redis"
 require "pul_cache"
 
 HealthMonitor.configure do |config|
-  config.redis.configure do |provider_config|
-    provider_config.url = RedisConfig.url
-  end
-
+  # utilizing our own redis check so we do nothave key collisions
   config.add_custom_provider(PULRedis).configure do |provider_config|
     provider_config.url = RedisConfig.url
   end
