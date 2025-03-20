@@ -9,7 +9,7 @@ class PULRedis < HealthMonitor::Providers::Redis
 
     # Add a random number to the key so we do not collide with another machine
     def key
-      random = rand(99)
+      random = rand(999)
       @key ||= ["health", request.try(:remote_ip), random].join(":")
     end
 end
