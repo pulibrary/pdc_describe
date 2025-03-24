@@ -67,7 +67,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       expect(page).to have_link "us_covid_2019.csv"
       click_on "delete-file-#{contents1.safe_id}"
       expect(page).not_to have_link "us_covid_2019.csv"
-      expect(page.html.include?("<s> us_covid_2019.csv</s>")).to be true
+      expect(page.html.include?("<s> #us_covid_2019.csv</s>")).to be true
 
       click_on "Undo delete"
       expect(page).to have_link "us_covid_2019.csv"

@@ -8,7 +8,15 @@ class WorkActivityNotification < ApplicationRecord
     if send_message?
       mailer = NotificationMailer.with(user:, work_activity:)
       message = mailer.build_message
-      message.deliver_later(wait: 10.seconds) unless Rails.env.development?
+      reject_message = mailer.reject_message
+      work = work_activity.work
+      if work.state == "approved"
+        message.deliver_later(wait: 90.minutes) unless Rails.env.development?
+      elsif work.state == "draft" && work_activity.message.include?("revision")
+        reject_message.deliver_later(wait: 10.seconds) unless Rails.env.development?
+      else
+        message.deliver_later(wait: 10.seconds) unless Rails.env.development?
+      end
     end
   end
 

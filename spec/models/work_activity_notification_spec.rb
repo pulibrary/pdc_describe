@@ -13,6 +13,7 @@ describe WorkActivityNotification, type: :model do
     before do
       allow(message_delivery).to receive(:deliver_later)
       allow(notification_mailer).to receive(:build_message).and_return(message_delivery)
+      allow(notification_mailer).to receive(:reject_message).and_return(message_delivery)
       allow(NotificationMailer).to receive(:with).and_return(notification_mailer)
     end
 
