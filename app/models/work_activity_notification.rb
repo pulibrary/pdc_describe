@@ -7,20 +7,29 @@ class WorkActivityNotification < ApplicationRecord
   after_create do
     if send_message?
       mailer = NotificationMailer.with(user:, work_activity:)
-      message = mailer.build_message
-      reject_message = mailer.reject_message
       work = work_activity.work
-      if work.state == "approved"
-        message.deliver_later(wait: 90.minutes) unless Rails.env.development?
-      elsif work.state == "draft" && work_activity.message.include?("revision")
-        reject_message.deliver_later(wait: 10.seconds) unless Rails.env.development?
+      delay = wait_time
+
+      if work.state == "draft" && work.aasm.from_state == "awaiting_approval"
+        reject_message = mailer.reject_message
+        reject_message.deliver_later(wait: delay) unless Rails.env.development?
       else
-        message.deliver_later(wait: 10.seconds) unless Rails.env.development?
+        message = mailer.build_message
+        message.deliver_later(wait: delay) unless Rails.env.development?
       end
     end
   end
 
   private
+
+    def wait_time
+      work = work_activity.work
+      if work.state == "approved"
+        90.minutes
+      else
+        10.seconds
+      end
+    end
 
     def direct_message?
       @direct_message ||= work_activity.activity_type == WorkActivity::MESSAGE && work_activity.message.include?("@#{user.uid}")
