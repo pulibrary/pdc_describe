@@ -10,13 +10,13 @@ class WorkActivityNotification < ApplicationRecord
       work = work_activity.work
       delay = wait_time
 
-      if work.state == "draft" && work.aasm.to_state == "none" # new_submission event
+      if work.state == "draft" && work.aasm.from_state == :none # draft event
         new_submission_message = mailer.new_submission_message
         new_submission_message.deliver_later(wait: delay) unless Rails.env.development?
-      elsif work.state == "draft" && work.aasm.from_state == "awaiting_approval" # revert_to_draft event
+      elsif work.state == "draft" && work.aasm.from_state == :awaiting_approval # revert_to_draft event
         reject_message = mailer.reject_message
         reject_message.deliver_later(wait: delay) unless Rails.env.development?
-      elsif work.state == "awaiting_approval" && work.aasm.to_state == "draft" # complete_submission
+      elsif work.state == "awaiting_approval" && work.aasm.from_state == :draft # complete_submission
         review_message = mailer.review_message
         review_message.deliver_later(wait: delay) unless Rails.env.development?
       else
