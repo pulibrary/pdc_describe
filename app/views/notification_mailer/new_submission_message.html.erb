@@ -1,0 +1,28 @@
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1>PDC Describe: New Submission Created</h1>
+    <section>
+      <p>
+        <span>Hello <%= @user.given_name %>,</span>
+        <p>You have a new notification for your account with PDC Describe:</p>
+        <p><%= @message_html.html_safe %></p>
+      </p>
+    </section>
+    <section>
+      <p>
+        <span>To view the notification, please browse <a href='<%= @url %>'>here<a>.</span>
+        <span>Thank you very much for your support and time.</span>
+      </p>
+    </section>
+    <section>
+      <p>
+        <span>Gratefully,</span>
+        <span>Research Data and Scholarship Services</span>
+        <span>Princeton University Library</span>
+      </p>
+    </section>
+  </body>
+</html>
