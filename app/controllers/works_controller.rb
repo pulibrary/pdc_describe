@@ -381,6 +381,8 @@ class WorksController < ApplicationController
     end
 
     def update_work
+      byebug
+      validate_work_update(@work, params["last_updated_at"])
       upload_service = WorkUploadsEditService.new(@work, current_user)
       if @work.approved?
         upload_keys = deleted_files_param || []
@@ -392,6 +394,12 @@ class WorksController < ApplicationController
       end
 
       process_updates
+    end
+
+    def validate_work_update(work, last_updated_at)
+      if work.updated_at.to_s != last_updated_at
+        Rails.logger.warn "Update to work #{@work.id} by #{current_user.uid} will overwrite changes (last update: #{@work.updated_at.to_s}, with update: #{last_updated_at})"
+      end
     end
 
     def added_files_param
