@@ -120,7 +120,7 @@ class ApplicationController < ActionController::Base
     def check_for_stale_update(work, params)
       stale = false
       last_updated_at = params["last_updated_at"] || "" # when was this record last saved (when the edit form was loaded)
-      loaded_at = params["loaded_at"] || "" # when was the edit form loaded
+      loaded_at = params["loaded_at"] || "00:00" # when was the edit form loaded
       edit_time = (Time.now.in_time_zone - loaded_at.to_time).to_i
       if work.updated_at.to_s != last_updated_at
         log_message = "Update to work #{work.id} by #{current_user.uid} via will overwrite changes"
