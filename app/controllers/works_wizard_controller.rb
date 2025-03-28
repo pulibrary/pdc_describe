@@ -175,6 +175,7 @@ class WorksWizardController < ApplicationController
                                            uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
                                            current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
         prepare_decorators_for_work_form(@work)
+        check_for_stale_update(@work, params)
         if WorkCompareService.update_work(work: @work, update_params:, current_user:)
           if params[:save_only] == "true"
             render view_name
