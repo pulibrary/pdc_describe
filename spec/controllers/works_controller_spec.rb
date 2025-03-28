@@ -951,6 +951,28 @@ RSpec.describe WorksController do
           end
         end
 
+        context "when updating a record" do
+          let(:form_params_stale) do
+            # Pretent the data submitted on the web form was updated
+            # an hour before the current data on the database
+            params.merge(last_updated_at: (work.updated_at - 1.hour).to_s).with_indifferent_access
+          end
+
+          let(:form_params_good) do
+            # The normal case is that the data on the web form matches the data
+            # on the database (i.e. we are updating with the latest data)
+            params.merge(last_updated_at: work.updated_at.to_s).with_indifferent_access
+          end
+
+          it "detects if the data submitted has stale data" do
+            stale = controller.send(:check_for_stale_update, work, form_params_stale)
+            expect(stale).to be true
+
+            stale = controller.send(:check_for_stale_update, work, form_params_good)
+            expect(stale).to be false
+          end
+        end
+
         context "a submitter trying to update the curator conrolled fields" do
           before do
             new_params = params.merge(doi: "10.34770/new-doi")
