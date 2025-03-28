@@ -110,4 +110,25 @@ class ApplicationController < ActionController::Base
 
       redirect_to root_path
     end
+
+    # Logs if the work is being updated with stale data.
+    #
+    # This can happen if user A opens two browser windows, edits the data on both of them,
+    # and saves from both of them. This could also happen if a user A edits the data,
+    # another user (say user B) also edits the data and saves it before user A saves their
+    # own changes.
+    def check_for_stale_update(work, params)
+      stale = false
+      last_updated_at = params["last_updated_at"] || "" # when was this record last saved (when the edit form was loaded)
+      loaded_at = params["loaded_at"] || "00:00" # when was the edit form loaded
+      edit_time = (Time.now.in_time_zone - loaded_at.to_time).to_i
+      if work.updated_at.to_s != last_updated_at
+        log_message = "Update to work #{work.id} by #{current_user.uid} via will overwrite changes"
+        log_message << " (current: #{work.updated_at}, with: #{last_updated_at}, edit time: #{edit_time} seconds)"
+        Rails.logger.warn log_message
+        Honeybadger.notify log_message
+        stale = true
+      end
+      stale
+    end
 end

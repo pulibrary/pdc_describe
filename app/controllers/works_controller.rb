@@ -381,6 +381,7 @@ class WorksController < ApplicationController
     end
 
     def update_work
+      check_for_stale_update(@work, params)
       upload_service = WorkUploadsEditService.new(@work, current_user)
       if @work.approved?
         upload_keys = deleted_files_param || []
