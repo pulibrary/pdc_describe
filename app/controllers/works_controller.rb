@@ -381,8 +381,7 @@ class WorksController < ApplicationController
     end
 
     def update_work
-      byebug
-      validate_work_update(@work, params["last_updated_at"])
+      validate_work_update(@work, params)
       upload_service = WorkUploadsEditService.new(@work, current_user)
       if @work.approved?
         upload_keys = deleted_files_param || []
@@ -396,9 +395,17 @@ class WorksController < ApplicationController
       process_updates
     end
 
-    def validate_work_update(work, last_updated_at)
+    # Logs if the work is being updated with stale data.
+    #
+    # This can happen if a user A opens two browser windows, edits the data on both of them,
+    # and saves from both of them. This could also happen if a user A edits the data,
+    # another user B also edits the data and saves it before user A saves their own changes.
+    def validate_work_update(work, params)
+      last_updated_at = params["last_updated_at"] || "" # when was this record last saved (when the edit form was loaded)
+      loaded_at = params["loaded_at"] || "" # when was the edit form loaded
+      edit_time = (Time.now.in_time_zone - loaded_at.to_time).to_i
       if work.updated_at.to_s != last_updated_at
-        Rails.logger.warn "Update to work #{@work.id} by #{current_user.uid} will overwrite changes (last update: #{@work.updated_at.to_s}, with update: #{last_updated_at})"
+        Rails.logger.warn "Update to work #{@work.id} by #{current_user.uid} will overwrite changes (current: #{@work.updated_at}, with: #{last_updated_at}, edit time: #{edit_time} seconds)"
       end
     end
 

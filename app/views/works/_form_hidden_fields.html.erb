@@ -18,4 +18,5 @@
   <input type="text" id="user_family_name" name="user_family_name" value="<%= current_user.family_name %>" class="hidden" />
 
   <input type="text" id="last_updated_at" name="last_updated_at" value="<%= @work.updated_at %>" class="will-be-hidden" />
+  <input type="text" id="loaded_at" name="loaded_at" value="<%= Time.now.to_s %>" class="will-be-hidden" />
 </div>
