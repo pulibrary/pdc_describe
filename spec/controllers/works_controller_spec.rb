@@ -1027,7 +1027,7 @@ RSpec.describe WorksController do
         context "when sending a nil group" do
           before do
             params[:group_id] = nil
-            params[:last_updated_at] = work.updated_at.to_s # Make sure we don't trigger the Honeybadger to stale data
+            params[:last_updated_at] = work.updated_at.to_s # Make sure we don't trigger the Honeybadger for stale data
             allow(Honeybadger).to receive(:notify)
           end
           it "uses the updators default group" do
