@@ -10,7 +10,7 @@ class WorkActivityNotification < ApplicationRecord
       work = work_activity.work
       delay = wait_time
       from_state = check_from_state
-      # TODO: Why does the revert_to_draft event not trigger a work state transition notification message?
+
       if work.state == "draft" && from_state == :none # draft event
         new_submission_message = mailer.new_submission_message
         new_submission_message.deliver_later(wait: delay) unless Rails.env.development?
@@ -39,7 +39,7 @@ class WorkActivityNotification < ApplicationRecord
     end
 
     def check_from_state
-      case work_activity.message # this is a string
+      case work_activity.message
       when /has been created/
         :none
       when /for revision/
