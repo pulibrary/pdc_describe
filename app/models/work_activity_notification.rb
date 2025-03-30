@@ -38,7 +38,7 @@ class WorkActivityNotification < ApplicationRecord
       end
     end
 
-    def check_from_state
+    def check_from_state # check the previous state of the work
       case work_activity.message
       when /has been created/
         :none
