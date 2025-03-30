@@ -21,11 +21,11 @@ class WorkStateTransitionNotification
     end
 
     @work_title = work.title
-    @notification = notification_for_transition
     @id = work.id
 
     raise(NotImplementedError, "Invalid user ID provided.") if current_user_id.nil?
     @current_user_id = current_user_id
+    @notification = notification_for_transition
   end
 
   def send
@@ -47,7 +47,7 @@ class WorkStateTransitionNotification
           when :none
             "#{user_tags} [#{work_title}](#{work_url}) has been created."
           when :awaiting_approval
-            "#{depositor.full_name} (#{depositor.id}) at #{Time.now.utc} returned the following submission to you for revision: #{work_title}"
+            "#{user_tags} #{User.find(@current_user_id).full_name} at #{Time.now.utc} returned the following submission to you for revision: #{work_title}"
           end
         end
       end
