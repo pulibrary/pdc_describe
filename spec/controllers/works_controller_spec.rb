@@ -953,7 +953,7 @@ RSpec.describe WorksController do
 
         context "when updating a record" do
           let(:form_params_stale) do
-            # Pretent the data submitted on the web form is older
+            # Pretend the data submitted on the web form is older
             # than the current data on the database
             params.merge(last_updated_at: (work.updated_at - 1.hour).to_s).with_indifferent_access
           end
