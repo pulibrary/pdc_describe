@@ -9,7 +9,7 @@ class WorkActivityNotification < ApplicationRecord
       mailer = NotificationMailer.with(user:, work_activity:)
       work = work_activity.work
       delay = wait_time
-      from_state = check_from_state
+      from_state = check_from_state(work)
 
       if work.state == "draft" && from_state == :none # draft event
         new_submission_message = mailer.new_submission_message
@@ -38,14 +38,13 @@ class WorkActivityNotification < ApplicationRecord
       end
     end
 
-    def check_from_state # check the previous state of the work
-      case work_activity.message
-      when /has been created/
+    def check_from_state(work) # check the previous state of the work
+      work_states = UserWork.where(work_id: work.id).sort_by(&:created_at).reverse
+      if work_states.count > 1
+        # states[0] is the current state, [1] is the previous state
+        work_states[1].state.to_sym
+      else
         :none
-      when /for revision/
-        :awaiting_approval
-      when /ready for review/
-        :draft
       end
     end
 
