@@ -5,6 +5,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 gem "aasm"
 gem "amazing_print"
 gem "aws-sdk-s3"
+gem "csv"
 gem "datacite-mapping"
 gem "dogstatsd-ruby"
 gem "health-monitor-rails", "12.4.0"
@@ -16,7 +17,7 @@ gem "net-pop"
 gem "net-ssh", "7.0.0.beta1"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem "actioncable"
-gem "rails", "~> 7.2"
+gem "rails", "~> 8.0"
 # Use sqlite3 as the database for Active Record
 gem "pg"
 # Use Puma as the app server
