@@ -140,6 +140,7 @@ RSpec.describe "Editing users", type: :system do
         uncheck "group_messaging_#{pppl_group.id}"
         uncheck "group_messaging_#{random_group.id}"
         click_on "Update"
+        expect(page).to have_content "User was successfully updated."
         visit edit_user_path(user)
         expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}"
         expect(page).to have_unchecked_field "group_messaging_#{rd_group.id}"
@@ -147,6 +148,7 @@ RSpec.describe "Editing users", type: :system do
         check "group_messaging_#{rd_group.id}"
         check "group_messaging_#{random_group.id}"
         click_on "Update"
+        expect(page).to have_content "User was successfully updated."
         visit edit_user_path(user)
         expect(page).to have_unchecked_field "group_messaging_#{pppl_group.id}"
         expect(page).to have_checked_field "group_messaging_#{rd_group.id}"
