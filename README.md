@@ -169,7 +169,7 @@ We utilize rolling deployments to production.  When a new release is ready to de
      ```
   1. run any ansible updates if needed (Must be setup with pip before running the command below)
      ```
-     ansible-playbook playbooks/  --limit pdc-pdc-describe-prod1.princeton.edu -e runtime_env=production
+     ansible-playbook playbooks/pdc_describe.yml  --limit pdc-describe-prod1.princeton.edu -e runtime_env=production
      ```
   1. Run capistrano deploy on the first machine        
      ```
@@ -189,7 +189,7 @@ We utilize rolling deployments to production.  When a new release is ready to de
      ```
   1. run any ansible updates if needed (Must be setup with pip before running the command below)
      ```
-     ansible-playbook playbooks/  --limit pdc-pdc-describe-prod2.princeton.edu -e runtime_env=production
+     ansible-playbook playbooks/pdc_describe.yml  --limit pdc-describe-prod2.princeton.edu -e runtime_env=production
      ```
   1. Run capistrano deploy on the first machine        
      ```
