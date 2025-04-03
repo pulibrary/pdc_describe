@@ -252,7 +252,7 @@ GEM
       activesupport (>= 6.1)
     hashdiff (1.1.1)
     hashie (3.6.0)
-    health-monitor-rails (12.4.0)
+    health-monitor-rails (12.6.0)
       railties (>= 6.1)
     honeybadger (5.15.6)
     i18n (1.14.7)
@@ -260,7 +260,7 @@ GEM
     ice_nine (0.11.2)
     io-console (0.8.0)
     io-wait (0.2.1)
-    irb (1.15.1)
+    irb (1.15.2)
       pp (>= 0.6.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
@@ -283,7 +283,7 @@ GEM
     listen (3.9.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
-    logger (1.6.6)
+    logger (1.7.0)
     loofah (2.24.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -309,7 +309,7 @@ GEM
     mime-types-data (3.2024.0903)
     mini_mime (1.1.5)
     mini_portile2 (2.8.8)
-    minitest (5.25.4)
+    minitest (5.25.5)
     msgpack (1.7.2)
     mustermann (3.0.3)
       ruby2_keywords (~> 0.0.1)
@@ -334,12 +334,12 @@ GEM
       net-protocol
     net-ssh (7.0.0.beta1)
     nio4r (2.7.4)
-    nokogiri (1.16.8)
+    nokogiri (1.18.7)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.16.8-x86_64-darwin)
+    nokogiri (1.18.7-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.16.8-x86_64-linux)
+    nokogiri (1.18.7-x86_64-linux-gnu)
       racc (~> 1.4)
     omniauth (2.1.2)
       hashie (>= 3.4.6)
@@ -427,7 +427,7 @@ GEM
     rb-fsevent (0.11.2)
     rb-inotify (0.11.1)
       ffi (~> 1.0)
-    rdoc (6.12.0)
+    rdoc (6.13.1)
       psych (>= 4.0.0)
     redis (4.8.1)
     redis-client (0.22.2)
@@ -542,7 +542,7 @@ GEM
       net-sftp (>= 2.1.2)
       net-ssh (>= 2.8.0)
       ostruct
-    stringio (3.1.2)
+    stringio (3.1.6)
     sync (0.5.0)
     term-ansicolor (1.11.2)
       tins (~> 1.0)
@@ -566,7 +566,7 @@ GEM
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.6.0)
-    uri (1.0.2)
+    uri (1.0.3)
     useragent (0.16.11)
     virtus (2.0.0)
       axiom-types (~> 0.1)
@@ -608,7 +608,7 @@ GEM
     xpath (3.2.0)
       nokogiri (~> 1.8)
     yard (0.9.37)
-    zeitwerk (2.7.1)
+    zeitwerk (2.7.2)
 
 PLATFORMS
   ruby
@@ -646,7 +646,7 @@ DEPENDENCIES
   ffaker
   foreman
   friendly_id (~> 5.4.0)
-  health-monitor-rails (= 12.4.0)
+  health-monitor-rails (= 12.6.0)
   honeybadger
   io-wait (= 0.2.1)
   jbuilder (~> 2.7)
@@ -689,4 +689,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   2.5.9
+   2.5.22
