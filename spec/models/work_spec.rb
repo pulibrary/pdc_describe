@@ -480,12 +480,12 @@ RSpec.describe Work, type: :model do
     let(:draft_work) do
       work = Work.new(group:, resource: FactoryBot.build(:resource), created_by_user_id: user.id)
       work.draft!(user)
-      work = Work.find(work.id)
       work
     end
 
     it "transitions from none to draft" do
       expect(draft_work.reload.state).to eq("draft")
+      expect(draft_work.aasm.from_state).to eq(:none)
     end
 
     it "drafts a doi and the DOI is persisted" do
@@ -575,6 +575,7 @@ RSpec.describe Work, type: :model do
 
     it "is awaiting approval" do
       expect(awaiting_approval_work.reload.state).to eq("awaiting_approval")
+      expect(awaiting_approval_work.aasm.from_state).to eq(:draft)
     end
 
     it "transitions from awaiting_approval to withdrawn" do
@@ -1058,6 +1059,7 @@ RSpec.describe Work, type: :model do
 
       work.revert_to_draft!(curator_user)
       expect(work.state).to eq("draft")
+      expect(work.aasm.from_state).to eq(:awaiting_approval)
       expect(work.activities).not_to be_empty
       work_activity = work.activities.first
       expect(work_activity.message).to eq("marked as Draft")

@@ -5,7 +5,7 @@ class GroupOption < ApplicationRecord
   belongs_to :group, class_name: "Group"
   belongs_to :user
 
-  enum option_type: { email_messages: 0 }
+  enum :option_type, { email_messages: 0 }
 
   # Provides a human-readable label for the type of the option
   # @note This should perhaps in the future parse from a YAML config. file

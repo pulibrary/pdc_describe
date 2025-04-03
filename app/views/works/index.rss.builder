@@ -6,9 +6,7 @@ xml.rss version: "2.0" do
     xml.description "Princeton Data Commons RSS Feed of approved submissions"
     xml.link root_url
 
-    @works.each do |work|
-      # Only include approved works in the RSS feed
-      next unless work.state == "approved"
+    @approved_works.each do |work|
       xml.item do
         xml.title work.title
         xml.url work_url(work, format: "json")

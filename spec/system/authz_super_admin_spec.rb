@@ -15,6 +15,18 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
     end
 
+    it "should be able to access the Works index" do
+      sign_in super_admin
+      visit "/works"
+      expect(page).to have_content "Works"
+    end
+
+    it "does not allow any user who is not a super admin to access the Works index" do
+      sign_in submitter2
+      visit "/works"
+      expect(page).to have_content "You do not have access to this page."
+    end
+
     it "should be able to edit someone else's work" do
       stub_s3 data: [FactoryBot.build(:s3_readme)]
       sign_in submitter2

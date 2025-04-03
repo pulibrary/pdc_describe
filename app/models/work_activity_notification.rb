@@ -7,12 +7,46 @@ class WorkActivityNotification < ApplicationRecord
   after_create do
     if send_message?
       mailer = NotificationMailer.with(user:, work_activity:)
-      message = mailer.build_message
-      message.deliver_later(wait: 10.seconds) unless Rails.env.development?
+      work = work_activity.work
+      delay = wait_time
+      from_state = check_from_state(work)
+
+      if work.state == "draft" && from_state == :none # draft event
+        new_submission_message = mailer.new_submission_message
+        new_submission_message.deliver_later(wait: delay) unless Rails.env.development?
+      elsif work.state == "draft" && from_state == :awaiting_approval # revert_to_draft event
+        reject_message = mailer.reject_message
+        reject_message.deliver_later(wait: delay) unless Rails.env.development?
+      elsif work.state == "awaiting_approval" && from_state == :draft # complete_submission
+        review_message = mailer.review_message
+        review_message.deliver_later(wait: delay) unless Rails.env.development?
+      else
+        message = mailer.build_message
+        message.deliver_later(wait: delay) unless Rails.env.development?
+      end
     end
   end
 
   private
+
+    def wait_time
+      work = work_activity.work
+      if work.state == "approved"
+        90.minutes
+      else
+        10.seconds
+      end
+    end
+
+    def check_from_state(work) # check the previous state of the work
+      work_states = UserWork.where(work_id: work.id).sort_by(&:created_at).reverse
+      if work_states.count > 1
+        # states[0] is the current state, [1] is the previous state
+        work_states[1].state.to_sym
+      else
+        :none
+      end
+    end
 
     def direct_message?
       @direct_message ||= work_activity.activity_type == WorkActivity::MESSAGE && work_activity.message.include?("@#{user.uid}")

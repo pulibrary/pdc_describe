@@ -19,18 +19,19 @@ RSpec.describe WorksController do
   let(:work) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
   let(:user) { work.created_by_user }
   let(:pppl_user) { FactoryBot.create(:pppl_submitter) }
+  let(:super_admin) { FactoryBot.create :super_admin_user }
 
   let(:uploaded_file) { fixture_file_upload("us_covid_2019.csv", "text/csv") }
 
-  context "valid user login" do
+  context "valid admin user login" do
     it "handles the index page" do
-      sign_in user
+      sign_in super_admin
       get :index
       expect(response).to render_template("index")
     end
 
     it "has an rss feed" do
-      sign_in user
+      sign_in super_admin
       get :index, format: "rss"
       expect(response.content_type).to eq "application/rss+xml; charset=utf-8"
     end
@@ -950,6 +951,28 @@ RSpec.describe WorksController do
           end
         end
 
+        context "when updating a record" do
+          let(:form_params_stale) do
+            # Pretend the data submitted on the web form is older
+            # than the current data on the database
+            params.merge(last_updated_at: (work.updated_at - 1.hour).to_s).with_indifferent_access
+          end
+
+          let(:form_params_good) do
+            # The normal case is that the data on the web form matches the data
+            # on the database (i.e. we are updating with the latest data)
+            params.merge(last_updated_at: work.updated_at.to_s).with_indifferent_access
+          end
+
+          it "detects if the data submitted has stale data" do
+            stale = controller.send(:check_for_stale_update, work, form_params_stale)
+            expect(stale).to be true
+
+            stale = controller.send(:check_for_stale_update, work, form_params_good)
+            expect(stale).to be false
+          end
+        end
+
         context "a submitter trying to update the curator conrolled fields" do
           before do
             new_params = params.merge(doi: "10.34770/new-doi")
@@ -1004,6 +1027,7 @@ RSpec.describe WorksController do
         context "when sending a nil group" do
           before do
             params[:group_id] = nil
+            params[:last_updated_at] = work.updated_at.to_s # Make sure we don't trigger the Honeybadger for stale data
             allow(Honeybadger).to receive(:notify)
           end
           it "uses the updators default group" do

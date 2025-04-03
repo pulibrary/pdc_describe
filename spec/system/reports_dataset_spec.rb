@@ -33,5 +33,14 @@ RSpec.describe "Reports page", type: :system, js: true do
       expect(page.html.include?(pppl_work.title)).to be true
       expect(page.html.include?(rd_work.title)).to be false
     end
+
+    context "on the home page" do
+      it "includes the current year in the link to the reports page", js: true do
+        stub_s3
+        sign_in moderator_user
+        visit root_path
+        expect(page.html.include?("#{reports_dataset_list_path}?year=#{Time.zone.now.year}")).to be true
+      end
+    end
   end
 end

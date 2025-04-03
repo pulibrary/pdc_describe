@@ -62,6 +62,7 @@ class WorksWizardController < ApplicationController
     @work = Work.find(params[:id])
     upload_service = WorkUploadsEditService.new(@work, current_user)
     upload_service.update_precurated_file_list(params["files"], [])
+    render plain: params["files"].map(&:original_filename).join(",")
   end
 
   # POST /works/1/file_upload
@@ -174,6 +175,7 @@ class WorksWizardController < ApplicationController
                                            uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
                                            current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
         prepare_decorators_for_work_form(@work)
+        check_for_stale_update(@work, params)
         if WorkCompareService.update_work(work: @work, update_params:, current_user:)
           if params[:save_only] == "true"
             render view_name

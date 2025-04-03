@@ -15,14 +15,16 @@
           <% @user.submitter_or_admin_groups.each do |group| %>
             <legend><%= group.title %></legend>
             <div class="form-check">
-              <%= form.check_box("[groups_with_messaging][#{group.id}]", { id: "group_messaging_#{group.id}", checked: group.messages_enabled_for?(user: user), class: ["form-check-input", "form-group-check"] }) %>
-              <%= form.label("[groups_with_messaging][#{group.id}]", t("users.form.email_messages_enabled"), class: ["form-check-label"]) %>
+              <%= hidden_field_tag "user[groups_with_messaging][#{group.id}]", 0, { id: "group_messaging_#{group.id}" } %>
+              <%= check_box_tag("user[groups_with_messaging][#{group.id}]", { id: "group_messaging_#{group.id}", checked: group.messages_enabled_for?(user: user), class: ["form-check-input", "form-group-check"] }) %>
+              <%= label("user[groups_with_messaging][#{group.id}]", t("users.form.email_messages_enabled"), class: ["form-check-label"]) %>
 
               <div class="form-subcommunities">
               <% group.subcommunities.each do |subcommunity| %>
                 <div class="form-check">
-                  <%= form.check_box("[groups_with_messaging][#{group.id}_#{subcommunity}]", { id: "group_messaging_#{group.id}_#{subcommunity}", checked: group.messages_enabled_for?(user: user, subcommunity: subcommunity), class: ["form-check-input", "form-subcommunity-check"] }) %>
-                  <%= form.label("[groups_with_messaging][#{group.id}_#{subcommunity}]", subcommunity, class: ["form-check-label"]) %>
+                  <%= hidden_field_tag "user[groups_with_messaging][#{group.id}_#{subcommunity}]", 0, { id: "group_messaging_#{group.id}_#{subcommunity}" } %>
+                  <%= check_box_tag("user[groups_with_messaging][#{group.id}_#{subcommunity}]", { id: "group_messaging_#{group.id}_#{subcommunity}", checked: group.messages_enabled_for?(user: user, subcommunity: subcommunity), class: ["form-check-input", "form-subcommunity-check"] }) %>
+                  <%= label("user[groups_with_messaging][#{group.id}_#{subcommunity}]", subcommunity, class: ["form-check-label"]) %>
                 </div>
               <% end %>
               </div>

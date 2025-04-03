@@ -218,7 +218,7 @@ class User < ApplicationRecord
   # Returns true if the user can admin the group
   def can_admin?(group)
     return true if super_admin?
-    has_role? :group_admin, group
+    has_role?(:group_admin, group)
   end
 
   # Returns the list of groups where the user can submit datasets

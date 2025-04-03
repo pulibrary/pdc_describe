@@ -3,6 +3,7 @@ require "rails_helper"
 
 RSpec.describe "Work state transions", type: :model do
   let(:curator_user) { FactoryBot.create :user, groups_to_admin: [work.group] }
+  let(:message_delivery) { instance_double(ActionMailer::Parameterized::MessageDelivery) }
   before do
     stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
   end
@@ -30,6 +31,26 @@ RSpec.describe "Work state transions", type: :model do
     end
   end
 
+  context "a new work" do
+    let(:work) { FactoryBot.create(:none_work) }
+
+    it "Creates a work activity notification for the curator & the user when approved" do
+      allow(work).to receive(:publish)
+      stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
+      expect do
+        work.draft!(curator_user)
+      end.to change { WorkActivity.count }.by(2)
+         .and change { WorkActivityNotification.count }.by(2)
+    end
+
+    it "Enqueues an email for the curator & user containing a review message" do
+      allow(work).to receive(:publish)
+      stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
+      work.draft!(curator_user)
+      expect WorkActivityNotification.last.work_activity.message.include?("created")
+    end
+  end
+
   context "a completed work" do
     let(:work) { FactoryBot.create(:awaiting_approval_work) }
 
@@ -40,6 +61,33 @@ RSpec.describe "Work state transions", type: :model do
         work.approve!(curator_user)
       end.to change { WorkActivity.count }.by(2)
          .and change { WorkActivityNotification.count }.by(2)
+    end
+
+    it "Enqueues an email for the curator & user containing a review message" do
+      allow(work).to receive(:publish)
+      stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
+      work.approve!(curator_user)
+      expect WorkActivityNotification.last.work_activity.message.include?("ready for review")
+    end
+  end
+
+  context "a rejected work" do
+    let(:work) { FactoryBot.create(:awaiting_approval_work) }
+
+    it "Creates a work activity notification for the curator & the user when approved" do
+      allow(work).to receive(:publish)
+      stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
+      expect do
+        work.revert_to_draft!(curator_user)
+      end.to change { WorkActivity.count }.by(2)
+         .and change { WorkActivityNotification.count }.by(2)
+    end
+
+    it "Enqueues an email for the curator & user containing a rejection message" do
+      allow(work).to receive(:publish)
+      stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
+      work.revert_to_draft!(curator_user)
+      expect WorkActivityNotification.last.work_activity.message.include?("returned the following submission to you for revision")
     end
   end
 end

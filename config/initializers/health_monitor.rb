@@ -1,8 +1,21 @@
 # frozen_string_literal: true
+require_relative "redis_config"
+require "pul_redis"
+require "pul_cache"
 
 HealthMonitor.configure do |config|
-  config.cache
-  config.redis
+  config.no_database
+  config.database.configure do |provider_config|
+    provider_config.config_name = "primary"
+  end
+
+  # utilizing our own redis check so we do nothave key collisions
+  config.add_custom_provider(PULRedis).configure do |provider_config|
+    provider_config.url = RedisConfig.url
+  end
+
+  # Use our custom Cache checker instead of the deault one
+  config.add_custom_provider(PULCache).configure
 
   # Make this health check available at /health
   config.path = :health
@@ -15,7 +28,7 @@ HealthMonitor.configure do |config|
   end
 
   config.file_absence.configure do |file_config|
-    file_config.filename = "public/remove-from-nginx"
+    file_config.filename = "/opt/pdc_describe/shared/remove-from-nginx"
   end
 
   config.error_callback = proc do |e|
