@@ -163,7 +163,43 @@ cap production_primary application:webapp
 
 ## Rolling deployments to production
 We utilize rolling deployments to production.  When a new release is ready to deploy
-  1. deploy to production_primary via [ansible tower](https://ansible-tower.princeton.edu/#/templates)
-  1. verify that the deployment was successful utilizing capistrano `cap production_primary application:webapp`
-  1. deploy to production_secondary via [ansible tower](https://ansible-tower.princeton.edu/#/templates)
-  1. verify that the deployment was successful utilizing capistrano `cap production_secondary application:webapp`
+  1. remove the first machine from the loadbalancer
+     ```
+     cap --hosts=pdc-describe-prod1.princeton.edu production application:remove_from_nginx
+     ```
+  1. run any ansible updates if needed (Must be setup with pip before running the command below)
+     ```
+     ansible-playbook playbooks/  --limit pdc-pdc-describe-prod1.princeton.edu -e runtime_env=production
+     ```
+  1. Run capistrano deploy on the first machine        
+     ```
+     cap --hosts=pdc-describe-prod1.princeton.edu production deploy
+     ```
+  1. verify that the deployment was successful utilizing capistrano
+     ```
+     cap  --hosts=pdc-describe-prod1.princeton.edu production application:webapp
+     ```
+  1. Add the machine back into the loadblancer
+     ```
+     cap --hosts=pdc-describe-prod1.princeton.edu production application:serve_from_nginx
+     ```
+    1. remove the secondary machine from the loadbalancer
+     ```
+     cap --hosts=pdc-describe-prod2.princeton.edu production application:remove_from_nginx
+     ```
+  1. run any ansible updates if needed (Must be setup with pip before running the command below)
+     ```
+     ansible-playbook playbooks/  --limit pdc-pdc-describe-prod2.princeton.edu -e runtime_env=production
+     ```
+  1. Run capistrano deploy on the first machine        
+     ```
+     cap --hosts=pdc-describe-prod2.princeton.edu production deploy
+     ```
+  1. verify that the deployment was successful utilizing capistrano
+     ```
+     cap  --hosts=pdc-describe-prod2.princeton.edu production application:webapp
+     ```
+  1. Add the machine back into the loadblancer
+     ```
+     cap --hosts=pdc-describe-prod2.princeton.edu production application:serve_from_nginx
+     ```
