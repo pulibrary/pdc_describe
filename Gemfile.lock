@@ -268,7 +268,7 @@ GEM
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
     jmespath (1.6.2)
-    json (2.10.1)
+    json (2.10.2)
     json_schema (0.21.0)
     kramdown (2.4.0)
       rexml
