@@ -1,27 +1,27 @@
 # frozen_string_literal: true
 class Researcher < ApplicationRecord
   def self.new_researcher(first_name, last_name, orcid)
-    researcher = Researcher.where(orcid: orcid).first
-    if researcher == nil
+    researcher = Researcher.where(orcid:).first
+    if researcher.nil?
       researcher = Researcher.new
       researcher.orcid = orcid
     end
     researcher.first_name = first_name
     researcher.last_name = last_name
     researcher.save!
-    return researcher
+    researcher
   end
 
   def self.autocomplete_list(search_term)
     researchers = []
-    Researcher.all.each do |researcher|
+    Researcher.all.find_each do |researcher|
       if researcher.match?(search_term)
         display_value = "#{researcher.first_name} #{researcher.last_name} (#{researcher.orcid})"
         data = "#{researcher.first_name}|#{researcher.last_name}|#{researcher.orcid}"
-        researchers << {value: display_value, data: data}
+        researchers << { value: display_value, data: }
       end
     end
-    return researchers
+    researchers
   end
 
   def match?(search_term)

@@ -7,6 +7,6 @@ FactoryBot.define do
     end
     first_name { FFaker::Name.name.split(" ").first }
     last_name { FFaker::Name.name.split(" ").last }
-    orcid {"1111-2222-#{rand(1000).to_s.rjust(4,'0')}-#{rand(1000).to_s.rjust(4,'0')}"}
+    orcid { "1111-2222-#{rand(1000).to_s.rjust(4, '0')}-#{rand(1000).to_s.rjust(4, '0')}" }
   end
 end

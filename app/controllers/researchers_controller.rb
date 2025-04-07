@@ -4,7 +4,7 @@ class ResearchersController < ApplicationController
 
   def ajax_list
     search_term = params["query"] || ""
-    researchers = { suggestions: Researcher.autocomplete_list(search_term)}
+    researchers = { suggestions: Researcher.autocomplete_list(search_term) }
     render json: researchers.to_json
   end
 

@@ -6,7 +6,6 @@ RSpec.describe "Researcher List View", type: :system, js: true do
     let!(:researcher2) { FactoryBot.create :researcher }
     let(:user_admin) { FactoryBot.create :super_admin_user }
 
-
     it "shows basic information about researchers" do
       sign_in user_admin
       visit researchers_path

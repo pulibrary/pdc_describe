@@ -3,7 +3,7 @@ namespace :researchers do
   desc "Creates researchers records from user records"
   task create_from_users: :environment do
     User.all.each do |user|
-      if user.orcid != nil
+      unless user.orcid.nil?
         Researcher.new_researcher(user.given_name, user.family_name, user.orcid)
         puts "Added researcher: #{user.given_name} #{user.family_name}"
       end
