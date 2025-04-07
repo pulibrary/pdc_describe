@@ -17,8 +17,9 @@ class Researcher < ApplicationRecord
     researchers = []
     Researcher.all.each do |researcher|
       if researcher.match?(search_term)
-        display_value = "#{researcher.first_name} #{researcher.last_name} (#{researcher.netid})"
-        researchers << {value: display_value, data: researcher.netid}
+        display_value = "#{researcher.first_name} #{researcher.last_name} (#{researcher.orcid})"
+        data = "#{researcher.first_name}|#{researcher.last_name}|#{researcher.orcid}"
+        researchers << {value: display_value, data: data}
       end
     end
     return researchers

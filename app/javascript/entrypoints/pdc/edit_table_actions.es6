@@ -1,6 +1,6 @@
 /* eslint class-methods-use-this: ["error", {
   "exceptMethods": ["create_new_row", "delete_row", "find_empty_row",
-  "setup_auto_complete_for_row"] }] */
+  "setup_ror_auto_complete_for_row", "setup_contributor_auto_complete_for_row"] }] */
 
 import TableRow from './table_row.es6';
 
@@ -35,7 +35,8 @@ export default class EditTableActions {
     const rows = $(`#${tableId} > tbody > tr`);
     for (let i = 0; i < rows.length; i += 1) {
       const $row = $(rows[i]);
-      this.setup_auto_complete_for_row($row);
+      this.setup_ror_auto_complete_for_row($row);
+      this.setup_contributor_auto_complete_for_row($row);
     }
   }
 
@@ -44,11 +45,12 @@ export default class EditTableActions {
     const $newTr = $tbody.find('tr').last().clone();
     $newTr.find('input').val('');
     $tbody.append($newTr);
-    this.setup_auto_complete_for_row($newTr);
+    this.setup_ror_auto_complete_for_row($newTr);
+    this.setup_contributor_auto_complete_for_row($newTr);
     return $newTr;
   }
 
-  setup_auto_complete_for_row($row) {
+  setup_ror_auto_complete_for_row($row) {
     const inputBox = $row.find('input.affiliation-entry-creator');
     const getDataFromROR = function getDataFromROR(request, response) {
       // ROR API: https://ror.readme.io/docs/rest-api
@@ -73,6 +75,44 @@ export default class EditTableActions {
         // and sets its ROR based on the selected organization
         const rorInput = $row.find('input.ror-input');
         $(rorInput).prop('value', ui.item.key);
+      },
+      minLength: 2,
+      delay: 100,
+    });
+  }
+
+  setup_contributor_auto_complete_for_row($row) {
+    const inputBox = $row.find('input.given-entry-creator');
+    const getContributorData = function getContributorData(request, response) {
+      $.getJSON(`${pdc.researchers_ajax_list_url}?query=${request.term}`, (data) => {
+        const candidates = [];
+        let i;
+        let candidate;
+        for (i = 0; i < data.suggestions.length; i += 1) {
+          candidate = { key: data.suggestions[i].data, label: data.suggestions[i].value };
+          candidates.push(candidate);
+        }
+        response(candidates);
+      });
+    };
+
+    $(inputBox).autocomplete({
+      source: getContributorData,
+      select(event, data) {
+        const tokens = data.item.key.split("|");
+        if (tokens.length == 3) {
+          // Find the HTML elements associated with the current row
+          const firstNameEl = $row.find('input.given-entry-creator');
+          const lastNameEl = $row.find('input.family-entry-creator');
+          const orcidEl = $row.find('input.orcid-entry-creator');
+          // Set the values to the current selection
+          $(firstNameEl).val(tokens[0]);
+          $(lastNameEl).val(tokens[1]);
+          $(orcidEl).val(tokens[2]);
+          // Return false to prevent the parsed value that we set (e.g. Jane)
+          // from being overwritten with the raw value selected (e.g. Jane|Smith|1234)
+          return false;
+        }
       },
       minLength: 2,
       delay: 100,
