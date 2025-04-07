@@ -74,15 +74,6 @@ RSpec.describe S3File, type: :model do
     end
   end
 
-  describe "#globus_url" do
-    it "builds the URL for the S3 endpoint" do
-      expect(s3_file.globus_url).to match(%r{^https://example.data.globus.org/#{work.doi}/#{work.id}/filename})
-      url_file = s3_file.globus_url.split("/").last
-      expect(url_file).to eq("filename%20%5Bwith%20spaces%5D%20w%C3%A9%C3%AE%C2%AE%E2%88%82%20chars.txt")
-      expect(CGI.unescape(url_file)).to eq(filename.split("/").last)
-    end
-  end
-
   describe "#create_snapshot" do
     let(:s3_file) do
       S3File.new(

@@ -622,8 +622,7 @@ class Work < ApplicationRecord
         {
           "filename": upload.filename,
           "size": upload.size,
-          "display_size": upload.display_size,
-          "url": upload.globus_url
+          "display_size": upload.display_size
         }
       end
     end

@@ -48,11 +48,6 @@ class S3File
     size == 0
   end
 
-  def globus_url
-    encoded_filename = filename.split("/").map { |name| ERB::Util.url_encode(name) }.join("/")
-    File.join(Rails.configuration.globus["post_curation_base_url"], encoded_filename)
-  end
-
   delegate :s3_query_service, to: :@work
   delegate :bucket_name, to: :s3_query_service
   def s3_client
