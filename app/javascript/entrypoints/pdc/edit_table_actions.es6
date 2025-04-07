@@ -99,7 +99,7 @@ export default class EditTableActions {
     $(inputBox).autocomplete({
       source: getContributorData,
       select(event, data) {
-        const tokens = data.item.key.split("|");
+        const tokens = data.item.key.split('|');
         if (tokens.length == 3) {
           // Find the HTML elements associated with the current row
           const firstNameEl = $row.find('input.given-entry-creator');
