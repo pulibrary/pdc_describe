@@ -28,7 +28,7 @@ class Researcher < ApplicationRecord
     return false if search_term.blank?
 
     search_term.downcase!
-    if (first_name || "").downcase.include?(search_term) || (last_name || "").downcase.include?(search_term) ||
+    if (first_name || "").downcase.include?(search_term) || (last_name || "").downcase.include?(search_term)
       return true
     end
     false
