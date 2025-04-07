@@ -4,11 +4,12 @@ class CreateResearchers < ActiveRecord::Migration[6.1]
       t.string "first_name", null: false
       t.string "last_name", null: false
       t.string "orcid", null: false
-      t.string "affiliation", null: true
-      t.string "affiliation_ror", null: true
-      t.string "netid", null: true
 
       t.timestamps
     end
+
+    add_index :researchers, :first_name
+    add_index :researchers, :last_name
+    add_index :researchers, :orcid
   end
 end

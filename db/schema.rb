@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_02_152610) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_07_152610) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension "pg_catalog.plpgsql"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -66,11 +66,11 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_02_152610) do
     t.string "first_name", null: false
     t.string "last_name", null: false
     t.string "orcid", null: false
-    t.string "affiliation"
-    t.string "affiliation_ror"
-    t.string "netid"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["first_name"], name: "index_researchers_on_first_name"
+    t.index ["last_name"], name: "index_researchers_on_last_name"
+    t.index ["orcid"], name: "index_researchers_on_orcid"
   end
 
   create_table "roles", force: :cascade do |t|

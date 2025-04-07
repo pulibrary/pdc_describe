@@ -1,14 +1,13 @@
 # frozen_string_literal: true
 class Researcher < ApplicationRecord
-  def self.new_researcher(first_name, last_name, orcid, netid)
+  def self.new_researcher(first_name, last_name, orcid)
     researcher = Researcher.where(orcid: orcid).first
     if researcher == nil
       researcher = Researcher.new
-      researcher.netid = netid
+      researcher.orcid = orcid
     end
     researcher.first_name = first_name
     researcher.last_name = last_name
-    researcher.orcid = orcid
     researcher.save!
     return researcher
   end
@@ -29,9 +28,7 @@ class Researcher < ApplicationRecord
     return false if search_term.blank?
 
     search_term.downcase!
-    if (first_name || "").downcase.include?(search_term) ||
-      (last_name || "").downcase.include?(search_term) ||
-      (netid || "").downcase.include?(search_term)
+    if (first_name || "").downcase.include?(search_term) || (last_name || "").downcase.include?(search_term) ||
       return true
     end
     false
