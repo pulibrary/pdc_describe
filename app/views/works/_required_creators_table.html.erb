@@ -43,14 +43,14 @@
         <tr class="creators-table-row">
         <td>
           <span class="hidden given-name-required-message"><i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a given name</span>
-          <input id="creator-row-givenname" name="creators[][given_name]" value="<%= creator&.given_name %>" class="given-entry-creator" />
+          <input name="creators[][given_name]" value="<%= creator&.given_name %>" class="given-entry-creator" />
         </td>
         <td class="creators-table-row-family-name">
           <span class="hidden family-name-required-message"><i class="bi bi-exclamation-diamond-fill required-field"></i>&nbsp;Must provide a family name</span>
-          <input  id="creator-row-familyname" name="creators[][family_name]" value="<%= creator&.family_name %>" class="family-entry-creator" />
+          <input name="creators[][family_name]" value="<%= creator&.family_name %>" class="family-entry-creator" />
         </td>
         <td>
-          <input id="creator-row-orcid" name="creators[][orcid]" value="<%= creator&.orcid %>" class="orcid-entry-creator" placeholder="0000-0000-0000-0000" />
+          <input name="creators[][orcid]" value="<%= creator&.orcid %>" class="orcid-entry-creator"  placeholder="0000-0000-0000-0000" />
         </td>
         <td class="creators-table-row-affiliation">
           <input name="creators[][affiliation]" value="<%= creator&.affiliation %>" class="affiliation-entry-creator ror-output" />
