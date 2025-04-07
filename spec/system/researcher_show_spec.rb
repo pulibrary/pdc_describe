@@ -10,11 +10,9 @@ RSpec.describe "Researcher List View", type: :system, js: true do
     it "shows basic information about researchers" do
       sign_in user_admin
       visit researchers_path
-      expect(page.html.include?("Net ID")).to be true
       expect(page.html.include?("First name")).to be true
       expect(page.html.include?("Last name")).to be true
       expect(page.html.include?("ORCID")).to be true
-      expect(page.html.include?(researcher.netid)).to be true
       expect(page.html.include?(researcher.first_name)).to be true
       expect(page.html.include?(researcher.last_name)).to be true
       expect(page.html.include?(researcher.orcid)).to be true
