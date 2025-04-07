@@ -100,7 +100,7 @@ export default class EditTableActions {
       source: getContributorData,
       select(event, data) {
         const tokens = data.item.key.split('|');
-        if (tokens.length == 3) {
+        if (tokens.length === 3) {
           // Find the HTML elements associated with the current row
           const firstNameEl = $row.find('input.given-entry-creator');
           const lastNameEl = $row.find('input.family-entry-creator');
@@ -113,6 +113,7 @@ export default class EditTableActions {
           // from being overwritten with the raw value selected (e.g. Jane|Smith|1234)
           return false;
         }
+        return true;
       },
       minLength: 2,
       delay: 100,
