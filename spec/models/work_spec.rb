@@ -1213,7 +1213,7 @@ RSpec.describe Work, type: :model do
       expect(Work.find_by_ark(nil)).to eq(work)
     end
 
-    it "can find empty dois" do
+    it "can find empty arks" do
       work = FactoryBot.create(:draft_work, ark: "")
       expect(Work.find_by_ark("")).to eq(work)
     end
@@ -1355,6 +1355,18 @@ RSpec.describe Work, type: :model do
       it "is not editable by a random user" do
         expect(work.editable_in_current_state?(rd_user)).to be_falsey
       end
+    end
+  end
+
+  describe "#list_embargoed" do
+    let(:embargo_date) { Date.parse("2033-09-14") }
+    it "finds only approved works" do
+      FactoryBot.create(:draft_work, embargo_date:)
+      approved_embargoed_work1 = FactoryBot.create(:approved_work, embargo_date:)
+      approved_embargoed_work2 = FactoryBot.create(:approved_work, embargo_date:)
+      FactoryBot.create(:approved_work)
+
+      expect(Work.list_embargoed).to contain_exactly(approved_embargoed_work1, approved_embargoed_work2)
     end
   end
 end
