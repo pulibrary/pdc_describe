@@ -14,6 +14,9 @@ production:
   dspace:
     bucket: <%= ENV['AWS_S3_DSPACE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_DSPACE_REGION'] || 'us-east-1' %>
+  embargo:
+    bucket: <%= ENV['AWS_S3_EMBARGO_BUCKET'] || 'example-bucket' %>
+    region: <%= ENV['AWS_S3_EMBARGO_REGION'] || 'us-east-1' %>
 staging:
   access_key_id: <%= ENV['AWS_S3_KEY_ID'] || 'not-used-access_key_id' %>
   secret_access_key: <%= ENV['AWS_S3_SECRET_KEY'] || 'not-used-secret_access_key' %>
@@ -29,6 +32,9 @@ staging:
   dspace:
     bucket: <%= ENV['AWS_S3_DSPACE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_DSPACE_REGION'] || 'us-east-1' %>
+  embargo:
+    bucket: <%= ENV['AWS_S3_EMBARGO_BUCKET'] || 'example-bucket' %>
+    region: <%= ENV['AWS_S3_EMBARGO_REGION'] || 'us-east-1' %>
 development:
   access_key_id: <%= ENV['AWS_S3_KEY_ID'] || 'not-used-access_key_id' %>
   secret_access_key: <%= ENV['AWS_S3_SECRET_KEY'] || 'not-used-secret_access_key' %>
@@ -44,6 +50,9 @@ development:
   dspace:
     bucket: <%= ENV['AWS_S3_DSPACE_BUCKET'] || 'example-bucket' %>
     region: <%= ENV['AWS_S3_DSPACE_REGION'] || 'us-east-1' %>
+  embargo:
+    bucket: <%= ENV['AWS_S3_EMBARGO_BUCKET'] || 'example-bucket' %>
+    region: <%= ENV['AWS_S3_EMBARGO_REGION'] || 'us-east-1' %>
 test:
   access_key_id: "not-used-access_key_id"
   secret_access_key: "not-used-secret_access_key"
@@ -58,4 +67,7 @@ test:
     region: "us-west-1"
   dspace:
     bucket: "example-bucket-dspace"
+    region: "us-east-1"
+  embargo:
+    bucket: "example-bucket-embargo"
     region: "us-east-1"
