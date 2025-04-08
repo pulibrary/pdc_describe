@@ -1,0 +1,21 @@
+<h1>Researchers</h1>
+
+<table id="user-list-table">
+  <thead>
+    <tr class="user-list-header-row">
+        <th>First name</th>
+        <th>Last name</th>
+        <th>ORCID</th>
+    </tr>
+  </thead>
+
+  <tbody>
+  <% @researchers.each do |researcher| %>
+  <tr class="user-list-data-row">
+    <td><%= researcher.first_name %></td>
+    <td><%= researcher.last_name %></td>
+    <td><%= researcher.orcid %></td>
+  </tr>
+  <% end %>
+</tbody>
+</table>
