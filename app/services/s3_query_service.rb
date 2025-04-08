@@ -10,6 +10,7 @@ class S3QueryService
   PRECURATION = "precuration"
   POSTCURATION = "postcuration"
   PRESERVATION = "preservation"
+  EMBARGO = "embargo"
 
   def self.configuration
     Rails.configuration.s3
@@ -25,6 +26,10 @@ class S3QueryService
 
   def self.preservation_config
     configuration.preservation
+  end
+
+  def self.embargo_config
+    configuration.embargo
   end
 
   attr_reader :part_size, :last_response
@@ -50,6 +55,8 @@ class S3QueryService
       self.class.post_curation_config
     elsif @mode == PRECURATION
       self.class.pre_curation_config
+    elsif @mode == EMBARGO
+      self.class.embargo_config
     else
       raise ArgumentError, "Invalid mode value: #{@mode}"
     end
