@@ -1359,14 +1359,31 @@ RSpec.describe Work, type: :model do
   end
 
   describe "#list_embargoed" do
-    let(:embargo_date) { Date.parse("2033-09-14") }
+    let(:embargo_date) { Time.zone.tomorrow }
+    let(:past_embargo_date) { Time.zone.yesterday }
     it "finds only approved works" do
       FactoryBot.create(:draft_work, embargo_date:)
       approved_embargoed_work1 = FactoryBot.create(:approved_work, embargo_date:)
       approved_embargoed_work2 = FactoryBot.create(:approved_work, embargo_date:)
+      FactoryBot.create(:approved_work, embargo_date: past_embargo_date)
       FactoryBot.create(:approved_work)
 
       expect(Work.list_embargoed).to contain_exactly(approved_embargoed_work1, approved_embargoed_work2)
+    end
+  end
+
+  describe "#list_released_embargo" do
+    let(:embargo_date) { Time.zone.yesterday }
+    let(:future_embargo_date) { Time.zone.tomorrow }
+
+    it "finds only approved released from embargo yesterday" do
+      FactoryBot.create(:draft_work, embargo_date:)
+      approved_embargoed_work1 = FactoryBot.create(:approved_work, embargo_date:)
+      approved_embargoed_work2 = FactoryBot.create(:approved_work, embargo_date:)
+      FactoryBot.create(:approved_work, embargo_date: future_embargo_date)
+      FactoryBot.create(:approved_work)
+
+      expect(Work.list_released_embargo).to contain_exactly(approved_embargoed_work1, approved_embargoed_work2)
     end
   end
 end
