@@ -111,6 +111,14 @@ class Work < ApplicationRecord
     end
 
     delegate :resource_type_general_values, to: PDCMetadata::Resource
+
+    def list_embargoed
+      Work.where("embargo_date >= current_date").where(state: "approved")
+    end
+
+    def list_released_embargo
+      Work.where("embargo_date = current_date-1").where(state: "approved")
+    end
   end
 
   include Rails.application.routes.url_helpers

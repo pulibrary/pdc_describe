@@ -59,6 +59,7 @@
       ...pdc,
       orcid_url: '<%= raw(ORCID_URL) %>',
       ror_url: '<%= raw(ROR_URL) %>',
+      researchers_ajax_list_url: '<%= researchers_ajax_list_url %>',
       datacite: <%= raw(
         ['RelationType', 'RelatedIdentifierType'].map { |name|
           [
