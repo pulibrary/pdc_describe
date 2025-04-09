@@ -32,7 +32,9 @@ class S3QueryService
     configuration.embargo
   end
 
-  attr_reader :part_size, :last_response
+  attr_reader :part_size, :last_response, :s3client
+
+  delegate "pre_curation?", "post_curation?", :bucket_name, :region, to: :s3client
 
   ##
   # @param [Work] model
@@ -42,43 +44,10 @@ class S3QueryService
   def initialize(model, mode = "precuration")
     @model = model
     @doi = model.doi
-    @mode = mode
+    @s3client = PULS3Client.new(mode)
     @part_size = 5_368_709_120 # 5GB is the maximum part size for AWS
     @last_response = nil
     @s3_responses = {}
-  end
-
-  def config
-    if @mode == PRESERVATION
-      self.class.preservation_config
-    elsif @mode == POSTCURATION
-      self.class.post_curation_config
-    elsif @mode == PRECURATION
-      self.class.pre_curation_config
-    elsif @mode == EMBARGO
-      self.class.embargo_config
-    else
-      raise ArgumentError, "Invalid mode value: #{@mode}"
-    end
-  end
-
-  def pre_curation?
-    @mode == PRECURATION
-  end
-
-  def post_curation?
-    @mode == POSTCURATION
-  end
-
-  ##
-  # The name of the bucket this class is configured to use.
-  # See config/s3.yml for configuration file.
-  def bucket_name
-    config.fetch(:bucket, nil)
-  end
-
-  def region
-    config.fetch(:region, nil)
   end
 
   ##
@@ -101,21 +70,7 @@ class S3QueryService
     signer.presigned_url(:get_object, bucket: bucket_name, key:)
   end
 
-  def access_key_id
-    S3QueryService.configuration["access_key_id"]
-  end
-
-  def secret_access_key
-    S3QueryService.configuration["secret_access_key"]
-  end
-
-  def credentials
-    @credentials ||= Aws::Credentials.new(access_key_id, secret_access_key)
-  end
-
-  def client
-    @client ||= Aws::S3::Client.new(region:, credentials:)
-  end
+  delegate :client, to: :s3client
 
   # required, accepts ETag, Checksum, ObjectParts, StorageClass, ObjectSize
   def self.object_attributes

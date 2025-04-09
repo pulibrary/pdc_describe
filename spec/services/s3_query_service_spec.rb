@@ -917,31 +917,4 @@ XML
       end
     end
   end
-
-  describe "initialize mode" do
-    it "returns the correct config for PRECURATION" do
-      s3 = described_class.new(work, S3QueryService::PRECURATION)
-      expect(s3.config[:bucket]).to eq("example-bucket")
-    end
-
-    it "returns the correct config for POSTCURATION" do
-      s3 = described_class.new(work, S3QueryService::POSTCURATION)
-      expect(s3.config[:bucket]).to eq("example-bucket-post")
-    end
-
-    it "returns the correct config for PRESERVATION" do
-      s3 = described_class.new(work, S3QueryService::PRESERVATION)
-      expect(s3.config[:bucket]).to eq("example-bucket-preservation")
-    end
-
-    it "returns the correct config for EMBARGO" do
-      s3 = described_class.new(work, S3QueryService::EMBARGO)
-      expect(s3.config[:bucket]).to eq("example-bucket-embargo")
-    end
-
-    it "raises and error for other names" do
-      s3 = described_class.new(work, "other")
-      expect { s3.config }.to raise_error "Invalid mode value: other"
-    end
-  end
 end
