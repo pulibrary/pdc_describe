@@ -7,78 +7,23 @@ require "aws-sdk-s3"
 class S3QueryService
   attr_reader :model
 
-  PRECURATION = "precuration"
-  POSTCURATION = "postcuration"
-  PRESERVATION = "preservation"
-  EMBARGO = "embargo"
+  attr_reader :part_size, :last_response, :s3client
 
-  def self.configuration
-    Rails.configuration.s3
-  end
-
-  def self.pre_curation_config
-    configuration.pre_curation
-  end
-
-  def self.post_curation_config
-    configuration.post_curation
-  end
-
-  def self.preservation_config
-    configuration.preservation
-  end
-
-  def self.embargo_config
-    configuration.embargo
-  end
-
-  attr_reader :part_size, :last_response
+  delegate "pre_curation?", "post_curation?", :bucket_name, :region, to: :s3client
 
   ##
   # @param [Work] model
-  # @param [String] mode Valid values are "precuration", "postcuration", "preservation".
-  #                      This value controlls the AWS S3 bucket used to access the files.
+  # @param [String] mode Valid values are PULS3Client::PRECURATION, PULS3Client::POSTCURATION
+  #                          PULS3Client::PRESERVATION, and PULS3Client::EMBARGO.
+  #                      This value controls the AWS S3 bucket used to access the files.
   # @example S3QueryService.new(Work.find(1), "precuration")
-  def initialize(model, mode = "precuration")
+  def initialize(model, mode = PULS3Client::PRECURATION)
     @model = model
     @doi = model.doi
-    @mode = mode
+    @s3client = PULS3Client.new(mode)
     @part_size = 5_368_709_120 # 5GB is the maximum part size for AWS
     @last_response = nil
     @s3_responses = {}
-  end
-
-  def config
-    if @mode == PRESERVATION
-      self.class.preservation_config
-    elsif @mode == POSTCURATION
-      self.class.post_curation_config
-    elsif @mode == PRECURATION
-      self.class.pre_curation_config
-    elsif @mode == EMBARGO
-      self.class.embargo_config
-    else
-      raise ArgumentError, "Invalid mode value: #{@mode}"
-    end
-  end
-
-  def pre_curation?
-    @mode == PRECURATION
-  end
-
-  def post_curation?
-    @mode == POSTCURATION
-  end
-
-  ##
-  # The name of the bucket this class is configured to use.
-  # See config/s3.yml for configuration file.
-  def bucket_name
-    config.fetch(:bucket, nil)
-  end
-
-  def region
-    config.fetch(:region, nil)
   end
 
   ##
@@ -101,21 +46,7 @@ class S3QueryService
     signer.presigned_url(:get_object, bucket: bucket_name, key:)
   end
 
-  def access_key_id
-    S3QueryService.configuration["access_key_id"]
-  end
-
-  def secret_access_key
-    S3QueryService.configuration["secret_access_key"]
-  end
-
-  def credentials
-    @credentials ||= Aws::Credentials.new(access_key_id, secret_access_key)
-  end
-
-  def client
-    @client ||= Aws::S3::Client.new(region:, credentials:)
-  end
+  delegate :client, to: :s3client
 
   # required, accepts ETag, Checksum, ObjectParts, StorageClass, ObjectSize
   def self.object_attributes
@@ -215,8 +146,8 @@ class S3QueryService
   # Notice that the copy process happens at AWS (i.e. the files are not downloaded and re-uploaded).
   # Returns an array with the files that were copied.
   def publish_files(current_user)
-    source_bucket = S3QueryService.pre_curation_config[:bucket]
-    target_bucket = S3QueryService.post_curation_config[:bucket]
+    source_bucket = PULS3Client.pre_curation_config[:bucket]
+    target_bucket = PULS3Client.post_curation_config[:bucket]
     empty_files = client_s3_empty_files(reload: true, bucket_name: source_bucket)
     # Do not move the empty files, however, ensure that it is noted that the
     #   presence of empty files is specified in the provenance log.
