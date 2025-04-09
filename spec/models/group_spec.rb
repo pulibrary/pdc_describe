@@ -31,7 +31,7 @@ RSpec.describe Group, type: :model do
     described_class.create_defaults
     group_rd = described_class.where(code: "RD").first
     expect(group_rd.communities.first).to eq "Architecture"
-    expect(group_rd.communities.last).to eq "Princeton School of Public and International Affairs"
+    expect(group_rd.communities.last).to eq "Sociology"
 
     group_pppl = described_class.where(code: "PPPL").first
     expect(group_pppl.subcommunities.first).to eq "Advanced Projects"
