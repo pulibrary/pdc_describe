@@ -141,7 +141,7 @@ namespace :works do
     all_match = (0..(globus_files.count - 1)).all? { |idx| globus_files[idx].checksum == data_space_files[idx].checksum }
     if all_match || force
       puts "deleting matching #{data_space_files.count} dpsace files"
-      bucket = S3QueryService.pre_curation_config[:bucket]
+      bucket = PULS3Client.pre_curation_config[:bucket]
       data_space_files.each do |file|
         work.s3_query_service.delete_s3_object(file.key, bucket:)
       end
@@ -180,7 +180,7 @@ namespace :works do
     all_match = (0..(globus_files.count - 1)).all? { |idx| globus_files[idx].checksum == data_space_files[idx].checksum }
     if all_match || force
       puts "deleting matching #{globus_files.count} globus files"
-      bucket = S3QueryService.pre_curation_config[:bucket]
+      bucket = PULS3Client.pre_curation_config[:bucket]
       globus_files.each do |file|
         work.s3_query_service.delete_s3_object(file.key, bucket:)
       end

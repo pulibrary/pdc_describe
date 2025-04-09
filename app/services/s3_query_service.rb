@@ -7,41 +7,17 @@ require "aws-sdk-s3"
 class S3QueryService
   attr_reader :model
 
-  PRECURATION = "precuration"
-  POSTCURATION = "postcuration"
-  PRESERVATION = "preservation"
-  EMBARGO = "embargo"
-
-  def self.configuration
-    Rails.configuration.s3
-  end
-
-  def self.pre_curation_config
-    configuration.pre_curation
-  end
-
-  def self.post_curation_config
-    configuration.post_curation
-  end
-
-  def self.preservation_config
-    configuration.preservation
-  end
-
-  def self.embargo_config
-    configuration.embargo
-  end
-
   attr_reader :part_size, :last_response, :s3client
 
   delegate "pre_curation?", "post_curation?", :bucket_name, :region, to: :s3client
 
   ##
   # @param [Work] model
-  # @param [String] mode Valid values are "precuration", "postcuration", "preservation".
-  #                      This value controlls the AWS S3 bucket used to access the files.
+  # @param [String] mode Valid values are PULS3Client::PRECURATION, PULS3Client::POSTCURATION
+  #                          PULS3Client::PRESERVATION, and PULS3Client::EMBARGO.
+  #                      This value controls the AWS S3 bucket used to access the files.
   # @example S3QueryService.new(Work.find(1), "precuration")
-  def initialize(model, mode = "precuration")
+  def initialize(model, mode = PULS3Client::PRECURATION)
     @model = model
     @doi = model.doi
     @s3client = PULS3Client.new(mode)
@@ -170,8 +146,8 @@ class S3QueryService
   # Notice that the copy process happens at AWS (i.e. the files are not downloaded and re-uploaded).
   # Returns an array with the files that were copied.
   def publish_files(current_user)
-    source_bucket = S3QueryService.pre_curation_config[:bucket]
-    target_bucket = S3QueryService.post_curation_config[:bucket]
+    source_bucket = PULS3Client.pre_curation_config[:bucket]
+    target_bucket = PULS3Client.post_curation_config[:bucket]
     empty_files = client_s3_empty_files(reload: true, bucket_name: source_bucket)
     # Do not move the empty files, however, ensure that it is noted that the
     #   presence of empty files is specified in the provenance log.
