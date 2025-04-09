@@ -164,7 +164,10 @@ class Group < ApplicationRecord
       ["Princeton Neuroscience Institute", "Geosciences", "Mechanical and Aerospace Engineering",
        "Astrophysical Sciences", "Civil and Environmental Engineering", "Chemical and Biological Engineering",
        "Digital Humanities", "Music and Arts", "Princeton School of Public and International Affairs",
-       "Chemistry", "Lewis-Sigler Institute of Integrative Genomics", "Architecture", "Ecology and Evolutionary Biology", "Economics"].sort
+       "Chemistry", "Lewis-Sigler Institute of Integrative Genomics", "Architecture", "Ecology and Evolutionary Biology",
+       "Economics", "Computational Social Science", "Electrical and Computer Engineering",
+       "Geophysical Fluid Dynamics Laboratory", "Industrial Relations Section", "Molecular Biology", "Physics",
+       "Psychology", "Sociology"].sort
     end
   end
 
