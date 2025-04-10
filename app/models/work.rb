@@ -549,7 +549,9 @@ class Work < ApplicationRecord
     embargo_date >= current_date
   end
 
-  # Returns the bucket name for the files in the work
+  # Returns a human friendly name for the bucket where the files for the work are located.
+  # Notice that we don't use the values from PULS3Client because those are not human friendly
+  # (e.g. the lack dashes between words)
   def files_bucket_name
     if approved?
       if embargoed?
