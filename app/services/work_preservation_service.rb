@@ -98,9 +98,9 @@ class WorkPreservationService
     end
 
     def upload_file(io:, filename:)
-      md5_digest = @work.s3_query_service.md5(io:)
+      s3client = PULS3Client.new(PULS3Client::PRESERVATION)
       key = preservation_directory.join(filename).to_s
-      s3_query_service.client.put_object(bucket: bucket_name, key:, body: io, content_md5: md5_digest)
+      s3client.upload_file(io:, target_key: key, size: io.length)
       key
     end
 

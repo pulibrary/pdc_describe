@@ -34,10 +34,11 @@ RSpec.describe ApprovedFileMoveJob, type: :job do
       allow(fake_s3_service).to receive(:copy_file).and_return(fake_completion)
       allow(fake_s3_service).to receive(:delete_s3_object).and_return(fake_completion)
       allow(fake_s3_service).to receive(:check_file).and_return(true)
+      allow(fake_s3_service.s3client).to receive(:upload_file).and_return(true)
       allow(fake_s3_service.client).to receive(:put_object).and_return(nil)
     end
 
-    it "runs an aws copy and delete" do
+    it "runs an aws copy and delete and updates preservation information" do
       perform_enqueued_jobs { job }
       expect(fake_s3_service).to have_received(:copy_file).with(size: 200, source_key: "/example-bucket/#{s3_file.key}",
                                                                 target_bucket: "example-bucket-post", target_key: s3_file.key)
@@ -115,6 +116,7 @@ RSpec.describe ApprovedFileMoveJob, type: :job do
       allow(fake_s3_service).to receive(:delete_s3_object).and_return(fake_completion)
       allow(fake_s3_service).to receive(:check_file).and_return(true)
       allow(fake_s3_service.client).to receive(:put_object).and_return(nil)
+      allow(fake_s3_service.s3client).to receive(:upload_file).and_return(true)
     end
 
     it "creates the preservation files in the preservation bucket" do
@@ -122,6 +124,9 @@ RSpec.describe ApprovedFileMoveJob, type: :job do
       expect(fake_s3_service.client).to have_received(:put_object).with({ bucket: "example-bucket-preservation", content_length: 0, key: "#{work.doi}/#{work.id}/princeton_data_commons/" })
       expect(approved_upload_snapshot.reload.files).to eq([{ "checksum" => "abc123etagetag", "filename" => s3_file.key, "upload_status" => "complete", "user_id" => user.id,
                                                              "snapshot_id" => approved_upload_snapshot.id }])
+      expect(fake_s3_service.s3client).to have_received(:upload_file).with(target_key: "#{work.doi}/#{work.id}/princeton_data_commons/metadata.json", size: anything, io: anything)
+      expect(fake_s3_service.s3client).to have_received(:upload_file).with(target_key: "#{work.doi}/#{work.id}/princeton_data_commons/datacite.xml", size: anything, io: anything)
+      expect(fake_s3_service.s3client).to have_received(:upload_file).with(target_key: "#{work.doi}/#{work.id}/princeton_data_commons/provenance.json", size: anything, io: anything)
     end
   end
 end
