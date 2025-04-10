@@ -475,14 +475,14 @@ class Work < ApplicationRecord
   # @return [S3QueryService]
   def s3_query_service
     mode = if approved?
-      if embargoed?
-        PULS3Client::EMBARGO
-      else
-        PULS3Client::POSTCURATION
-      end
-    else
-      PULS3Client::PRECURATION
-    end
+             if embargoed?
+               PULS3Client::EMBARGO
+             else
+               PULS3Client::POSTCURATION
+             end
+           else
+             PULS3Client::PRECURATION
+           end
     @s3_query_service ||= S3QueryService.new(self, mode)
   end
 
@@ -605,10 +605,10 @@ class Work < ApplicationRecord
     def publish_precurated_files(user)
       # We need to explicitly check for the target bucket here (postcuration or embargo).
       target = if embargoed?
-        PULS3Client::EMBARGO
-      else
-        PULS3Client::POSTCURATION
-      end
+                 PULS3Client::EMBARGO
+               else
+                 PULS3Client::POSTCURATION
+               end
 
       s3_target_query_service = S3QueryService.new(self, target)
 
