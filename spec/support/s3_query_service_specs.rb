@@ -5,11 +5,13 @@ def stub_s3(data: [], bucket_url: nil, prefix: "10.34770/123-abc/1/", bucket_nam
   allow(@s3_client).to receive(:head_object)
   allow(@s3_client).to receive(:delete_object)
   allow(@s3_client).to receive(:put_object)
+  fake_pul_s3_client = instance_double(PULS3Client, client: @s3_client)
 
-  fake_s3_query = instance_double(S3QueryService, data_profile: { objects: data, ok: true }, client: @s3_client,
-                                                  client_s3_files: data, prefix:)
+  fake_s3_query = instance_double(S3QueryService, data_profile: { objects: data, ok: true },
+                                                  client_s3_files: data, prefix:, s3client: fake_pul_s3_client, client: fake_pul_s3_client.client)
   mock_methods(fake_s3_query, data, bucket_name)
   allow(S3QueryService).to receive(:new).and_return(fake_s3_query)
+  allow(PULS3Client).to receive(:new).and_return(fake_pul_s3_client)
 
   mock_bucket(bucket_url)
 
@@ -23,7 +25,6 @@ def mock_methods(fake_s3_query, data, bucket_name)
   allow(fake_s3_query).to receive(:create_directory)
   allow(fake_s3_query).to receive(:publish_files).and_return([])
   allow(fake_s3_query).to receive(:upload_file).and_return(true)
-  allow(fake_s3_query).to receive(:md5).and_return(nil)
   allow(fake_s3_query).to receive(:last_response).and_return Aws::S3::Types::PutObjectOutput.new(etag: "\"abc123\"")
 end
 
