@@ -261,11 +261,6 @@ class S3QueryService
     md5.base64digest
   end
 
-  def count_objects(bucket_name: self.bucket_name, prefix: self.prefix)
-    responses = s3_responses(bucket_name:, prefix:)
-    responses.reduce(0) { |total, resp| total + resp.key_count }
-  end
-
   private
 
     def clear_s3_responses(bucket_name:, prefix:)

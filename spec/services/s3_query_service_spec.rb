@@ -389,39 +389,6 @@ XML
         end
       end
     end
-
-    describe "#count_objects" do
-      before do
-        fake_s3_resp.stub(:key_count).and_return(s3_hash[:key_count])
-        fake_s3_resp.stub(:is_truncated).and_return(false)
-      end
-
-      it "returns all the objects" do
-        expect(s3_query_service.count_objects).to eq(3)
-      end
-
-      context "truncated results" do
-        before do
-          fake_s3_resp.stub(:key_count).and_return(s3_hash[:key_count])
-          fake_s3_resp.stub(:is_truncated).and_return(true, false)
-          fake_s3_resp.stub(:next_continuation_token).and_return("abc")
-        end
-        it "returns all the objects" do
-          expect(s3_query_service.count_objects).to eq(6)
-        end
-      end
-
-      context "an empty response" do
-        before do
-          fake_s3_resp.stub(:key_count).and_return(0)
-          fake_s3_resp.stub(:is_truncated).and_return(false)
-        end
-
-        it "returns all the objects" do
-          expect(s3_query_service.count_objects).to eq(0)
-        end
-      end
-    end
   end
 
   context "post curated" do
