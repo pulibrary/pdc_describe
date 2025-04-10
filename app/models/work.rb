@@ -425,7 +425,7 @@ class Work < ApplicationRecord
   # Transmit a HEAD request for the S3 Bucket directory for this Work
   # @param bucket_name location to be checked to be found
   # @return [Aws::S3::Types::HeadObjectOutput]
-  def find_post_curation_s3_dir(bucket_name:)
+  def find_bucket_s3_dir(bucket_name:)
     # TODO: Directories really do not exists in S3
     #      if we really need this check then we need to do something else to check the bucket
     s3_client.head_object({
@@ -549,6 +549,19 @@ class Work < ApplicationRecord
     embargo_date >= current_date
   end
 
+  # Returns the location of the files for this work
+  def files_location
+    if approved?
+      if embargoed?
+        "embargo"
+      else
+        "post-curation"
+      end
+    else
+      "pre-curation"
+    end
+  end
+
   protected
 
     def work_validator
@@ -612,8 +625,7 @@ class Work < ApplicationRecord
 
       s3_target_query_service = S3QueryService.new(self, target)
 
-      # TODO: rename this function?
-      s3_dir = find_post_curation_s3_dir(bucket_name: s3_target_query_service.bucket_name)
+      s3_dir = find_bucket_s3_dir(bucket_name: s3_target_query_service.bucket_name)
       raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{s3_object_key}") unless s3_dir.nil?
 
       # Copy the pre-curation S3 Objects to the target S3 Bucket.
