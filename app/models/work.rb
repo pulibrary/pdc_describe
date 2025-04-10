@@ -549,8 +549,8 @@ class Work < ApplicationRecord
     embargo_date >= current_date
   end
 
-  # Returns the location of the files for this work
-  def files_location
+  # Returns the bucket name for the files in the work
+  def files_bucket
     if approved?
       if embargoed?
         "embargo"
@@ -623,6 +623,7 @@ class Work < ApplicationRecord
                  PULS3Client::POSTCURATION
                end
 
+      target = "postcuration"
       s3_target_query_service = S3QueryService.new(self, target)
 
       s3_dir = find_bucket_s3_dir(bucket_name: s3_target_query_service.bucket_name)
