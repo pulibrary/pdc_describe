@@ -142,12 +142,16 @@ class S3QueryService
   end
 
   ##
-  # Copies the existing files from the pre-curation bucket to the post-curation bucket.
+  # Copies the existing files from the pre-curation bucket to the target bucket (postcuration or embargo).
   # Notice that the copy process happens at AWS (i.e. the files are not downloaded and re-uploaded).
-  # Returns an array with the files that were copied.
   def publish_files(current_user)
     source_bucket = PULS3Client.pre_curation_config[:bucket]
-    target_bucket = PULS3Client.post_curation_config[:bucket]
+    target_bucket = if model.embargoed?
+                      PULS3Client.embargo_config[:bucket]
+                    else
+                      PULS3Client.post_curation_config[:bucket]
+                    end
+
     empty_files = client_s3_empty_files(reload: true, bucket_name: source_bucket)
     # Do not move the empty files, however, ensure that it is noted that the
     #   presence of empty files is specified in the provenance log.

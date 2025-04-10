@@ -138,7 +138,12 @@ class WorksController < ApplicationController
   def approve
     @work = Work.find(params[:id])
     @work.approve!(current_user)
-    flash[:notice] = "Your files are being moved to the post-curation bucket in the background. Depending on the file sizes this may take some time."
+    target_bucket = if @work.embargoed?
+                      PULS3Client::EMBARGO
+                    else
+                      PULS3Client::POSTCURATION
+                    end
+    flash[:notice] = "Your files are being moved to the #{target_bucket} bucket in the background. Depending on the file sizes this may take some time."
     redirect_to work_path(@work)
   end
 

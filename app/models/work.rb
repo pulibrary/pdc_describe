@@ -474,7 +474,15 @@ class Work < ApplicationRecord
   # S3QueryService object associated with this Work
   # @return [S3QueryService]
   def s3_query_service
-    mode = approved? ? "postcuration" : "precuration"
+    mode = if approved?
+      if embargoed?
+        PULS3Client::EMBARGO
+      else
+        PULS3Client::POSTCURATION
+      end
+    else
+      PULS3Client::PRECURATION
+    end
     @s3_query_service ||= S3QueryService.new(self, mode)
   end
 
@@ -595,13 +603,20 @@ class Work < ApplicationRecord
     end
 
     def publish_precurated_files(user)
-      # We need to explicitly check the to post-curation bucket here.
-      s3_post_curation_query_service = S3QueryService.new(self, "postcuration")
+      # We need to explicitly check for the target bucket here (postcuration or embargo).
+      target = if embargoed?
+        PULS3Client::EMBARGO
+      else
+        PULS3Client::POSTCURATION
+      end
 
-      s3_dir = find_post_curation_s3_dir(bucket_name: s3_post_curation_query_service.bucket_name)
+      s3_target_query_service = S3QueryService.new(self, target)
+
+      # TODO: rename this function?
+      s3_dir = find_post_curation_s3_dir(bucket_name: s3_target_query_service.bucket_name)
       raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{s3_object_key}") unless s3_dir.nil?
 
-      # Copy the pre-curation S3 Objects to the post-curation S3 Bucket...
+      # Copy the pre-curation S3 Objects to the target S3 Bucket.
       s3_query_service.publish_files(user)
     end
 
