@@ -564,6 +564,18 @@ class Work < ApplicationRecord
     end
   end
 
+  def files_bucket_name_aws
+    if approved?
+      if embargoed?
+        PULS3Client::EMBARGO
+      else
+        PULS3Client::POSTCURATION
+      end
+    else
+      PULS3Client::PRECURATION
+    end
+  end
+
   protected
 
     def work_validator
