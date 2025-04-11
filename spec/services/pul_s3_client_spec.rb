@@ -24,8 +24,7 @@ RSpec.describe PULS3Client do
     end
 
     it "raises and error for other names" do
-      s3 = described_class.new("other")
-      expect { s3.config }.to raise_error "Invalid mode value: other"
+      expect { described_class.new("other") }.to raise_error "Invalid mode value: other"
     end
   end
 

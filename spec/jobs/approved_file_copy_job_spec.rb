@@ -3,14 +3,8 @@ require "rails_helper"
 
 RSpec.describe ApprovedFileMoveJob, type: :job do
   include ActiveJob::TestHelper
-  let(:fake_completion) do
-    fake_copy_object_result = instance_double(Aws::S3::Types::CopyObjectResult, etag: "\"abc123etagetag\"")
-    fake_copy = instance_double(Aws::S3::Types::CopyObjectOutput, copy_object_result: fake_copy_object_result)
-    fake_http_resp = instance_double(Seahorse::Client::Http::Response, status_code: 200, on_error: nil)
-    fake_http_req = instance_double(Seahorse::Client::Http::Request)
-    fake_request_context = instance_double(Seahorse::Client::RequestContext, http_response: fake_http_resp, http_request: fake_http_req)
-    Seahorse::Client::Response.new(context: fake_request_context, data: fake_copy)
-  end
+  let(:fake_completion) { build_fake_s3_completion }
+  let(:fake_s3_move) { instance_double S3MoveService }
 
   let(:user) { FactoryBot.create :user }
 
@@ -31,58 +25,23 @@ RSpec.describe ApprovedFileMoveJob, type: :job do
     let(:work) { FactoryBot.create :approved_work, doi: "10.34770/ackh-7y71" }
 
     before do
-      allow(fake_s3_service).to receive(:copy_file).and_return(fake_completion)
+      allow(fake_s3_move).to receive(:move).and_return("abc123etagetag")
+      allow(S3MoveService).to receive(:new).and_return(fake_s3_move)
       allow(fake_s3_service).to receive(:delete_s3_object).and_return(fake_completion)
-      allow(fake_s3_service).to receive(:check_file).and_return(true)
       allow(fake_s3_service.s3client).to receive(:upload_file).and_return(true)
       allow(fake_s3_service.client).to receive(:put_object).and_return(nil)
     end
 
     it "runs an aws copy and delete and updates preservation information" do
       perform_enqueued_jobs { job }
-      expect(fake_s3_service).to have_received(:copy_file).with(size: 200, source_key: "/example-bucket/#{s3_file.key}",
-                                                                target_bucket: "example-bucket-post", target_key: s3_file.key)
-      expect(fake_s3_service).to have_received(:delete_s3_object).with(s3_file.key, bucket: "example-bucket")
+      expect(S3MoveService).to have_received(:new).with(size: 200, work_id: work.id, source_bucket: "example-bucket", source_key: s3_file.key,
+                                                        target_bucket: "example-bucket-post", target_key: s3_file.key)
+      expect(fake_s3_move).to have_received(:move)
       expect(fake_s3_service).to have_received(:delete_s3_object).with(work.s3_object_key, bucket: "example-bucket")
       expect(approved_upload_snapshot.reload.files).to eq([{ "checksum" => "abc123etagetag", "filename" => s3_file.key, "upload_status" => "complete", "user_id" => user.id,
                                                              "snapshot_id" => approved_upload_snapshot.id }])
     end
 
-    context "the copy fails" do
-      before do
-        fake_completion = instance_double(Seahorse::Client::Response, "successful?": false)
-        allow(fake_s3_service).to receive(:copy_file).and_return(fake_completion)
-      end
-      it "runs an aws copy, but no delete" do
-        expect do
-          perform_enqueued_jobs do
-            job
-          end
-        end .to raise_error(/Error copying \/example-bucket\/10.34770\/ackh-7y71\/#{work.id}\/test_key to example-bucket-post\/10.34770\/ackh-7y71\/#{work.id}\/test_key/)
-        expect(fake_s3_service).to have_received(:copy_file).with(size: 200, source_key: "/example-bucket/#{s3_file.key}",
-                                                                  target_bucket: "example-bucket-post", target_key: s3_file.key)
-        expect(fake_s3_service).not_to have_received(:delete_s3_object).with("example-bucket/#{s3_file.key}")
-        expect(fake_s3_service).not_to have_received(:delete_s3_object).with(work.s3_object_key, bucket: "example-bucket")
-      end
-    end
-
-    context "the original key is missing" do
-      before do
-        allow(fake_s3_service).to receive(:copy_file).and_raise(Aws::S3::Errors::NoSuchKey.new(nil, nil))
-        allow(fake_s3_service).to receive(:check_file).and_return(false)
-      end
-      it "runs an aws copy, but no delete" do
-        expect do
-          perform_enqueued_jobs do
-            job
-          end
-        end .to raise_error(/Missing source file \/example-bucket\/10.34770\/ackh-7y71\/#{work.id}\/test_key can not copy/)
-        expect(fake_s3_service).to have_received(:copy_file).with(size: 200, source_key: "/example-bucket/#{s3_file.key}",
-                                                                  target_bucket: "example-bucket-post", target_key: s3_file.key)
-        expect(fake_s3_service).not_to have_received(:delete_s3_object).with("example-bucket/#{s3_file.key}")
-        expect(fake_s3_service).not_to have_received(:delete_s3_object).with(work.s3_object_key, bucket: "example-bucket")
-      end
-    end
     context "when the ApprovedUploadSnapshot cannot be found" do
       subject(:output) do
         described_class.perform_now(
@@ -112,9 +71,9 @@ RSpec.describe ApprovedFileMoveJob, type: :job do
     let(:work) { FactoryBot.create :approved_work }
 
     before do
-      allow(fake_s3_service).to receive(:copy_file).and_return(fake_completion)
+      allow(fake_s3_move).to receive(:move).and_return("abc123etagetag")
+      allow(S3MoveService).to receive(:new).and_return(fake_s3_move)
       allow(fake_s3_service).to receive(:delete_s3_object).and_return(fake_completion)
-      allow(fake_s3_service).to receive(:check_file).and_return(true)
       allow(fake_s3_service.client).to receive(:put_object).and_return(nil)
       allow(fake_s3_service.s3client).to receive(:upload_file).and_return(true)
     end
