@@ -17,10 +17,10 @@ class S3QueryService
   #                          PULS3Client::PRESERVATION, and PULS3Client::EMBARGO.
   #                      This value controls the AWS S3 bucket used to access the files.
   # @example S3QueryService.new(Work.find(1), "precuration")
-  def initialize(model, mode = PULS3Client::PRECURATION)
+  def initialize(model, mode = PULS3Client::PRECURATION, bucket_name: nil)
     @model = model
     @doi = model.doi
-    @s3client = PULS3Client.new(mode)
+    @s3client = PULS3Client.new(mode, bucket_name:)
     @part_size = 5_368_709_120 # 5GB is the maximum part size for AWS
     @last_response = nil
     @s3_responses = {}
