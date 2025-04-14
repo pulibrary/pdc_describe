@@ -34,12 +34,6 @@ class S3QueryService
   end
 
   ##
-  # Construct an S3 address for this data set
-  def s3_address
-    "s3://#{bucket_name}/#{prefix}"
-  end
-
-  ##
   # Public signed URL to fetch this file from the S3 (valid for a limited time)
   def file_url(key)
     signer = Aws::S3::Presigner.new(client:)
@@ -66,34 +60,6 @@ class S3QueryService
     response.to_h
   end
 
-  def get_s3_object(key:)
-    response = client.get_object({
-                                   bucket: bucket_name,
-                                   key:
-                                 })
-    object = response.to_h
-    return if object.empty?
-
-    object
-  rescue Aws::Errors::ServiceError => aws_service_error
-    message = "An error was encountered when requesting the AWS S3 Object #{key}: #{aws_service_error}"
-    Rails.logger.error(message)
-    raise aws_service_error
-  end
-
-  def build_s3_object_key(filename:)
-    "#{prefix}#{filename}"
-  end
-
-  def find_s3_file(filename:)
-    s3_object_key = build_s3_object_key(filename:)
-
-    object = get_s3_object_attributes(key: s3_object_key)
-    return if object.nil?
-
-    S3File.new(work: model, filename: s3_object_key, last_modified: object[:last_modified], size: object[:object_size], checksum: object[:etag])
-  end
-
   # Retrieve the S3 resources uploaded to the S3 Bucket
   # @return [Array<S3File>]
   def client_s3_files(reload: false, bucket_name: self.bucket_name, prefix: self.prefix)
@@ -113,14 +79,6 @@ class S3QueryService
       files_and_directories = get_s3_objects(bucket_name:, prefix:)
       files_and_directories.select(&:empty?)
     end
-  end
-
-  def file_count
-    client_s3_files.count
-  rescue Aws::Errors::ServiceError => aws_service_error
-    message = "An error was encountered when requesting AWS S3 Objects from the bucket #{bucket_name} with the prefix #{prefix}: #{aws_service_error}"
-    Rails.logger.error(message)
-    raise aws_service_error
   end
 
   ##
@@ -200,14 +158,6 @@ class S3QueryService
     client.complete_multipart_upload(bucket: target_bucket, key: target_key, upload_id: multi.upload_id, multipart_upload: { parts: })
   rescue Aws::Errors::ServiceError => aws_service_error
     message = "An error was encountered when requesting to multipart copy AWS S3 Object from #{source_key} to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}"
-    Rails.logger.error(message)
-    raise aws_service_error
-  end
-
-  def copy_directory(source_key:, target_bucket:, target_key:)
-    client.copy_object(copy_source: source_key, bucket: target_bucket, key: target_key)
-  rescue Aws::Errors::ServiceError => aws_service_error
-    message = "An error was encountered when requesting to copy the AWS S3 directory Object from #{source_key} to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}"
     Rails.logger.error(message)
     raise aws_service_error
   end

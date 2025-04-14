@@ -464,10 +464,6 @@ class Work < ApplicationRecord
     date.strftime("%Y-%m-%dT%H:%M:%SZ")
   end
 
-  def pre_curation_uploads_count
-    s3_query_service.file_count
-  end
-
   delegate :ark, :doi, :resource_type, :resource_type=, :resource_type_general, :resource_type_general=,
            :to_xml, to: :resource
 
