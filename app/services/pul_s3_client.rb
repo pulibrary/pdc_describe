@@ -10,15 +10,20 @@ class PULS3Client
   PRESERVATION = "preservation"
   EMBARGO = "embargo"
 
-  attr_reader :part_size, :last_response
+  attr_reader :part_size, :last_response, :bucket_name
 
   ##
   # @param [String] mode See constant options above
   #                      This value controls the AWS S3 bucket used to access the files.
+  # @param [String] "optional bucket name to override the bucket name defined by the mode"
   # @example S3Client.new("precuration")
-  def initialize(mode = "precuration")
+  # @example S3Client.new(bucket_name: "example-bucket-two")
+  #
+  # See config/s3.yml for configuration file.
+  def initialize(mode = "precuration", bucket_name: nil)
     @mode = mode
     @part_size = 5_368_709_120 # 5GB is the maximum part size for AWS
+    @bucket_name = bucket_name || config.fetch(:bucket, nil)
   end
 
   class << self
@@ -63,13 +68,6 @@ class PULS3Client
 
   def post_curation?
     @mode == POSTCURATION
-  end
-
-  ##
-  # The name of the bucket this class is configured to use.
-  # See config/s3.yml for configuration file.
-  def bucket_name
-    config.fetch(:bucket, nil)
   end
 
   def region
