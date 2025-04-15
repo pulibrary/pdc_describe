@@ -552,7 +552,7 @@ class Work < ApplicationRecord
   end
 
   # Returns the bucket name where the files are stored for this work.
-  def files_bucket_name
+  def files_mode
     if approved?
       if embargoed?
         PULS3Client::EMBARGO
