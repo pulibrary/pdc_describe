@@ -29,6 +29,7 @@ RSpec.describe WorkEmbargoService do
                                    ])
       activity = work.work_activity.last
       expect(activity.message).to eq("2 files were moved to the embargo bucket")
+      expect(activity.activity_type).to eq(WorkActivity::EMBARGO)
     end
   end
 end

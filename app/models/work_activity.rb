@@ -15,7 +15,8 @@ class WorkActivity < ApplicationRecord
   MIGRATION_COMPLETE = "MIGRATION_COMPLETE"
   PROVENANCE_NOTES = "PROVENANCE-NOTES"
   SYSTEM = "SYSTEM"
-  CHANGE_LOG_ACTIVITY_TYPES = [CHANGES, FILE_CHANGES, PROVENANCE_NOTES, SYSTEM, DATACITE_ERROR, MIGRATION_COMPLETE].freeze
+  EMBARGO = "EMBARGO"
+  CHANGE_LOG_ACTIVITY_TYPES = [CHANGES, FILE_CHANGES, PROVENANCE_NOTES, SYSTEM, DATACITE_ERROR, MIGRATION_COMPLETE, EMBARGO].freeze
 
   USER_REFERENCE = /@[\w]*/ # e.g. @xy123
 
@@ -123,6 +124,8 @@ class WorkActivity < ApplicationRecord
                               Migration
                             elsif activity_type == PROVENANCE_NOTES
                               ProvenanceNote
+                            elsif activity_type == EMBARGO
+                              EmbargoEvent
                             elsif CHANGE_LOG_ACTIVITY_TYPES.include?(activity_type)
                               OtherLogEvent
                             else
@@ -297,6 +300,12 @@ class WorkActivity < ApplicationRecord
   end
 
   class OtherLogEvent < BaseMessage
+  end
+
+  class EmbargoEvent < BaseMessage
+    def created_by_user_html
+      "the system"
+    end
   end
 
   class Message < BaseMessage
