@@ -470,7 +470,7 @@ class Work < ApplicationRecord
   # S3QueryService object associated with this Work
   # @return [S3QueryService]
   def s3_query_service
-    @s3_query_service ||= S3QueryService.new(self, files_bucket_name)
+    @s3_query_service ||= S3QueryService.new(self, files_mode)
   end
 
   def past_snapshots
