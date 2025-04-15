@@ -35,7 +35,7 @@ namespace :works do
     end
     works = Work.where(created_by_user_id: user.id)
     works.each do |work|
-      service = S3QueryService.new(work, work.files_bucket_name)
+      service = S3QueryService.new(work, work.files_mode)
       work.post_curation_uploads.each { |upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key }) }
       work.destroy
     end
