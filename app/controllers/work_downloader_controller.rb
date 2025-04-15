@@ -4,8 +4,7 @@ class WorkDownloaderController < ApplicationController
     work = Work.find(params[:id])
     if current_user && work.editable_by?(current_user)
       file_name = params[:filename]
-      mode = work.approved? ? "postcuration" : "precuration"
-      service = S3QueryService.new(work, mode)
+      service = S3QueryService.new(work, work.files_mode)
       uri = service.file_url(file_name)
       redirect_to uri
     else

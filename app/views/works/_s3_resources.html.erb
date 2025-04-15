@@ -4,7 +4,7 @@
       <div class="files card-body">
         <h3>
           <div id="total-file-count-spinner" class="spinner-border spinner-border-sm" role="status"></div>
-          <span id="total-file-count-in-table"></span> Files or Directories in <%= @work.approved? ? "post-curation" : "pre-curation" %> storage
+          <span id="total-file-count-in-table"></span> Files or Directories in <%= @work.files_bucket_name_human %> storage
         </h3>
         <table id="files-table" class="table">
           <thead>

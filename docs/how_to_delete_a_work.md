@@ -2,12 +2,12 @@ Deleting a work and its content on Amazon is not as easy as running `work.destro
 These steps assume the work is assigned to a variable called `work`.
 1. Delete the pre curation uploads
    * ```
-     service = S3QueryService.new(work, "postcuration")
+     service = S3QueryService.new(work, PULS3Client::POSTCURATION)
      work.pre_curation_uploads.each{|upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key})}
      ```
 1. Delete the post curation uploads
    * ```
-     service = S3QueryService.new(work, "postcuration")
+     service = S3QueryService.new(work, PULS3Client::POSTCURATION)
      work.post_curation_uploads.each{|upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key})}
      ```
 1. Finally destroy the work
@@ -15,7 +15,7 @@ These steps assume the work is assigned to a variable called `work`.
 
 Full script below...
 ```ruby
-service = S3QueryService.new(work, "postcuration")
+service = S3QueryService.new(work, PULS3Client::POSTCURATION)
 work.pre_curation_uploads.each{|upload| service.client.delete_object({ bucket: service, bucket_name, key: upload.key})}
 work.post_curation_uploads.each{|upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key})}
 work.destroy

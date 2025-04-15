@@ -74,7 +74,7 @@ class WorkPreservationService
     end
 
     def s3_query_service
-      @s3_query_service ||= S3QueryService.new(@work, "preservation")
+      @s3_query_service ||= S3QueryService.new(@work, PULS3Client::PRESERVATION)
     end
 
     def bucket_name

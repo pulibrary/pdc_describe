@@ -16,7 +16,7 @@ class S3QueryService
   # @param [String] mode Valid values are PULS3Client::PRECURATION, PULS3Client::POSTCURATION
   #                          PULS3Client::PRESERVATION, and PULS3Client::EMBARGO.
   #                      This value controls the AWS S3 bucket used to access the files.
-  # @example S3QueryService.new(Work.find(1), "precuration")
+  # @example S3QueryService.new(Work.find(1), PULS3Client::PRECURATION)
   def initialize(model, mode = PULS3Client::PRECURATION, bucket_name: nil)
     @model = model
     @doi = model.doi
@@ -97,12 +97,16 @@ class S3QueryService
   end
 
   ##
-  # Copies the existing files from the pre-curation bucket to the post-curation bucket.
+  # Copies the existing files from the pre-curation bucket to the target bucket (postcuration or embargo).
   # Notice that the copy process happens at AWS (i.e. the files are not downloaded and re-uploaded).
-  # Returns an array with the files that were copied.
   def publish_files(current_user)
     source_bucket = PULS3Client.pre_curation_config[:bucket]
-    target_bucket = PULS3Client.post_curation_config[:bucket]
+    target_bucket = if model.embargoed?
+                      PULS3Client.embargo_config[:bucket]
+                    else
+                      PULS3Client.post_curation_config[:bucket]
+                    end
+
     empty_files = client_s3_empty_files(reload: true, bucket_name: source_bucket)
     # Do not move the empty files, however, ensure that it is noted that the
     #   presence of empty files is specified in the provenance log.
