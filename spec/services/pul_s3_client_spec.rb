@@ -34,34 +34,32 @@ RSpec.describe PULS3Client do
     let(:key) { "10.34770/pe9w-x904/work_id/README.txt" }
 
     before do
-      stub_request(:put, "https://example-bucket.s3.amazonaws.com/#{key}").to_return(status: 200)
+      allow(pul_s3_client.client).to receive(:put_object).and_return(Aws::S3::Types::PutObjectOutput.new(etag: "\"abc123\""))
     end
 
     it "uploads the readme to the bucket" do
       expect(pul_s3_client.upload_file(io: file, target_key: key, size: 2852)).to eq(key)
-      assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{key}", headers: { "Content-Length" => 2852 })
+      expect(pul_s3_client.last_response.etag).to eq("\"abc123\"")
+      expect(pul_s3_client.client).to have_received(:put_object).with(bucket: "example-bucket", key:, body: anything, content_md5: anything)
     end
 
     context "when the bucket is embargo" do
       let(:pul_s3_client) { described_class.new(PULS3Client::EMBARGO) }
-      before do
-        stub_request(:put, "https://example-bucket-embargo.s3.amazonaws.com/#{key}").to_return(status: 200)
-      end
 
       it "uploads the readme to the bucket" do
         expect(pul_s3_client.upload_file(io: file, target_key: key, size: 2852)).to eq(key)
-        assert_requested(:put, "https://example-bucket-embargo.s3.amazonaws.com/#{key}", headers: { "Content-Length" => 2852 })
+        expect(pul_s3_client.client).to have_received(:put_object).with(bucket: "example-bucket-embargo", key:, body: anything, content_md5: anything)
       end
     end
 
     context "when checksum does not match" do
       before do
-        stub_request(:put, "https://example-bucket.s3.amazonaws.com/#{key}").to_raise(Aws::S3::Errors::SignatureDoesNotMatch.new(nil, nil))
+        allow(pul_s3_client.client).to receive(:put_object).and_raise(Aws::S3::Errors::SignatureDoesNotMatch.new(nil, nil))
       end
 
       it "detects the upload error" do
         expect(pul_s3_client.upload_file(io: file, target_key: key, size: 2852)).to be_falsey
-        assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{key}", headers: { "Content-Length" => 2852 })
+        expect(pul_s3_client.client).to have_received(:put_object).with(bucket: "example-bucket", key:, body: anything, content_md5: anything)
       end
     end
 
