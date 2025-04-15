@@ -16,7 +16,7 @@ class S3QueryService
   # @param [String] mode Valid values are PULS3Client::PRECURATION, PULS3Client::POSTCURATION
   #                          PULS3Client::PRESERVATION, and PULS3Client::EMBARGO.
   #                      This value controls the AWS S3 bucket used to access the files.
-  # @example S3QueryService.new(Work.find(1), "precuration")
+  # @example S3QueryService.new(Work.find(1), PULS3Client::PRECURATION)
   def initialize(model, mode = PULS3Client::PRECURATION, bucket_name: nil)
     @model = model
     @doi = model.doi

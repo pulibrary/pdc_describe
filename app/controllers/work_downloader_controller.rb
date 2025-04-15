@@ -4,7 +4,7 @@ class WorkDownloaderController < ApplicationController
     work = Work.find(params[:id])
     if current_user && work.editable_by?(current_user)
       file_name = params[:filename]
-      service = S3QueryService.new(work, work.files_bucket_name_aws)
+      service = S3QueryService.new(work, work.files_bucket_name)
       uri = service.file_url(file_name)
       redirect_to uri
     else

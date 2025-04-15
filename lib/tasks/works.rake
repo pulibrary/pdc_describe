@@ -35,7 +35,7 @@ namespace :works do
     end
     works = Work.where(created_by_user_id: user.id)
     works.each do |work|
-      service = S3QueryService.new(work, "postcuration")
+      service = S3QueryService.new(work, work.files_bucket_name)
       work.post_curation_uploads.each { |upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key }) }
       work.destroy
     end
@@ -51,7 +51,7 @@ namespace :works do
     work_exclusion_ids = works_str.split("+").map(&:to_i)
     works = Work.where.not(id: work_exclusion_ids)
     works.each do |work|
-      service = S3QueryService.new(work, "postcuration")
+      service = S3QueryService.new(work, work.files_bucket_name)
       work.pre_curation_uploads.each { |upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key }) }
       work.post_curation_uploads.each { |upload| service.client.delete_object({ bucket: service.bucket_name, key: upload.key }) }
       work.destroy
@@ -209,7 +209,7 @@ namespace :works do
 
     work = Work.find(work_id)
     bucket = work.bucket_name
-    service = S3QueryService.new(work, "precuration")
+    service = S3QueryService.new(work, work.files_bucket_name)
     uri = service.file_url("#{service.prefix}renamed_files.txt")
     filename = "/tmp/#{work.id}renamed_files.txt"
     stdout_and_stderr_str, status = Open3.capture2e("wget -c '#{uri}' -O '#{filename}'")

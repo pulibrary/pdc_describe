@@ -37,7 +37,7 @@ class ApprovedFileMoveJob < ApplicationJob
   end
 
   def service
-    @service ||= S3QueryService.new(work, "postcuration")
+    @service ||= S3QueryService.new(work, work.files_bucket_name)
   end
 
   def snapshot

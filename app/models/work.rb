@@ -397,6 +397,7 @@ class Work < ApplicationRecord
   def post_curation_uploads(force_post_curation: false)
     if force_post_curation
       # Always use the post-curation data regardless of the work's status
+      # TODO: we probably also need to account for embargoes here...but not sure.
       post_curation_s3_query_service = S3QueryService.new(self, "postcuration")
       post_curation_s3_query_service.data_profile.fetch(:objects, [])
     else
@@ -548,7 +549,7 @@ class Work < ApplicationRecord
   # Returns a human friendly name for the bucket where the files for the work are located.
   # Notice that we don't use the values from PULS3Client because those are not human friendly
   # (e.g. the lack dashes between words)
-  def files_bucket_name
+  def files_bucket_name_human
     if approved?
       if embargoed?
         "embargo"
@@ -560,7 +561,7 @@ class Work < ApplicationRecord
     end
   end
 
-  def files_bucket_name_aws
+  def files_bucket_name
     if approved?
       if embargoed?
         PULS3Client::EMBARGO
