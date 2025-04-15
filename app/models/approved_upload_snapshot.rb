@@ -4,7 +4,8 @@ class ApprovedUploadSnapshot < BackgroundUploadSnapshot
     new_files.each do |file|
       work.track_change(:added, file["filename"])
     end
-    WorkActivity.add_work_activity(work.id, "#{new_files.count} #{'file'.pluralize(new_files.count)} were moved to the post curation bucket", new_files.first["user_id"],
+    target_location = work.embargoed? ? "embargo" : "post-curation"
+    WorkActivity.add_work_activity(work.id, "#{new_files.count} #{'file'.pluralize(new_files.count)} were moved to the #{target_location} bucket", new_files.first["user_id"],
                                    activity_type: WorkActivity::SYSTEM)
   end
 

@@ -539,7 +539,7 @@ class Work < ApplicationRecord
   # Returns a human friendly name for the bucket where the files for the work are located.
   # Notice that we don't use the values from PULS3Client because those are not human friendly
   # (e.g. the lack dashes between words)
-  def files_bucket_name_human
+  def files_mode_human
     if approved?
       if embargoed?
         "embargo"
