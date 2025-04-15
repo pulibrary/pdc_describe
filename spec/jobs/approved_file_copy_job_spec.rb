@@ -42,6 +42,13 @@ RSpec.describe ApprovedFileMoveJob, type: :job do
                                                              "snapshot_id" => approved_upload_snapshot.id }])
     end
 
+    it "logs that files were moved to the post-curation bucket" do
+      perform_enqueued_jobs { job }
+      post_curation_activities = work.activities.select {|a| a.message.include?("moved to the post-curation bucket") }
+      expect(post_curation_activities.count > 0).to be true
+    end
+
+
     context "when the ApprovedUploadSnapshot cannot be found" do
       subject(:output) do
         described_class.perform_now(
@@ -62,6 +69,30 @@ RSpec.describe ApprovedFileMoveJob, type: :job do
       end
     end
   end
+
+  describe "embargo works" do
+    subject(:job) do
+      described_class.perform_later(work_id: work.id, source_bucket: "example-bucket", source_key: s3_file.key, target_bucket: "example-bucket-post",
+                                    target_key: s3_file.key, size: 200, snapshot_id: approved_upload_snapshot.id)
+    end
+    let(:fake_s3_service) { stub_s3 prefix: "10.34770/ackh-7y71/#{work.id}" }
+    let(:work) { FactoryBot.create :approved_work, doi: "10.34770/ackh-7y71", embargo_date: "2050-01-01" }
+
+    before do
+      allow(fake_s3_move).to receive(:move).and_return("abc123etagetag")
+      allow(S3MoveService).to receive(:new).and_return(fake_s3_move)
+      allow(fake_s3_service).to receive(:delete_s3_object).and_return(fake_completion)
+      allow(fake_s3_service.s3client).to receive(:upload_file).and_return(true)
+      allow(fake_s3_service.client).to receive(:put_object).and_return(nil)
+    end
+
+    it "logs that files were moved to the embargo bucket" do
+      perform_enqueued_jobs { job }
+      embargo_activities = work.activities.select {|a| a.message.include?("moved to the embargo bucket") }
+      expect(embargo_activities.count > 0).to be true
+    end
+  end
+
   describe "preservation files after approval" do
     subject(:job) do
       described_class.perform_later(work_id: work.id, source_bucket: "example-bucket", source_key: s3_file.key, target_bucket: "example-bucket-post",
