@@ -209,7 +209,7 @@ namespace :works do
 
     work = Work.find(work_id)
     bucket = work.bucket_name
-    service = S3QueryService.new(work, work.files_bucket_name)
+    service = S3QueryService.new(work, work.files_mode)
     uri = service.file_url("#{service.prefix}renamed_files.txt")
     filename = "/tmp/#{work.id}renamed_files.txt"
     stdout_and_stderr_str, status = Open3.capture2e("wget -c '#{uri}' -O '#{filename}'")
