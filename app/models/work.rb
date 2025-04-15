@@ -397,8 +397,7 @@ class Work < ApplicationRecord
   def post_curation_uploads(force_post_curation: false)
     if force_post_curation
       # Always use the post-curation data regardless of the work's status
-      # TODO: we probably also need to account for embargoes here...but not sure.
-      post_curation_s3_query_service = S3QueryService.new(self, "postcuration")
+      post_curation_s3_query_service = S3QueryService.new(self, PULS3Client::POSTCURATION)
       post_curation_s3_query_service.data_profile.fetch(:objects, [])
     else
       # Return the list based of files honoring the work status
