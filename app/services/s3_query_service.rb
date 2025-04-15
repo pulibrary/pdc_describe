@@ -9,7 +9,7 @@ class S3QueryService
 
   attr_reader :part_size, :last_response, :s3client
 
-  delegate "pre_curation?", "post_curation?", :bucket_name, :region, :client, to: :s3client
+  delegate "pre_curation?", "post_curation?", :bucket_name, :region, :client, :last_response, to: :s3client
 
   ##
   # @param [Work] model
@@ -22,7 +22,6 @@ class S3QueryService
     @doi = model.doi
     @s3client = PULS3Client.new(mode, bucket_name:)
     @part_size = 5_368_709_120 # 5GB is the maximum part size for AWS
-    @last_response = nil
     @s3_responses = {}
   end
 

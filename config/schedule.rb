@@ -19,3 +19,7 @@
 # end
 
 # Learn more: http://github.com/javan/whenever
+
+every :day, at: "12:05am", roles: [:cron] do
+  rake "embargo:release"
+end
