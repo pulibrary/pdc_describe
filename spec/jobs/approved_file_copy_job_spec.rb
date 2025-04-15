@@ -44,10 +44,9 @@ RSpec.describe ApprovedFileMoveJob, type: :job do
 
     it "logs that files were moved to the post-curation bucket" do
       perform_enqueued_jobs { job }
-      post_curation_activities = work.activities.select {|a| a.message.include?("moved to the post-curation bucket") }
+      post_curation_activities = work.activities.select { |work_activity| work_activity.message.include?("moved to the post-curation bucket") }
       expect(post_curation_activities.count > 0).to be true
     end
-
 
     context "when the ApprovedUploadSnapshot cannot be found" do
       subject(:output) do
@@ -88,7 +87,7 @@ RSpec.describe ApprovedFileMoveJob, type: :job do
 
     it "logs that files were moved to the embargo bucket" do
       perform_enqueued_jobs { job }
-      embargo_activities = work.activities.select {|a| a.message.include?("moved to the embargo bucket") }
+      embargo_activities = work.activities.select { |work_activity| work_activity.message.include?("moved to the embargo bucket") }
       expect(embargo_activities.count > 0).to be true
     end
   end
