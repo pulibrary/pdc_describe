@@ -470,16 +470,7 @@ class Work < ApplicationRecord
   # S3QueryService object associated with this Work
   # @return [S3QueryService]
   def s3_query_service
-    mode = if approved?
-             if embargoed?
-               PULS3Client::EMBARGO
-             else
-               PULS3Client::POSTCURATION
-             end
-           else
-             PULS3Client::PRECURATION
-           end
-    @s3_query_service ||= S3QueryService.new(self, mode)
+    @s3_query_service ||= S3QueryService.new(self, files_bucket_name)
   end
 
   def past_snapshots
@@ -560,6 +551,7 @@ class Work < ApplicationRecord
     end
   end
 
+  # Returns the bucket name where the files are stored for this work.
   def files_bucket_name
     if approved?
       if embargoed?
