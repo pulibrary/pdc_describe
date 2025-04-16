@@ -34,6 +34,11 @@ class WorkActivity < ApplicationRecord
     )
     activity.save!
     activity.notify_users
+
+    if activity.message_event_type?
+      activity.notify_creator
+    end
+
     activity
   end
 
@@ -47,6 +52,13 @@ class WorkActivity < ApplicationRecord
 
   def self.changes_for_work(work_id)
     activities_for_work(work_id, CHANGE_LOG_ACTIVITY_TYPES)
+  end
+
+  # notify the creator of the work whenever a message activity type is created
+  def notify_creator
+    # Don't notify the creator if they are already referenced in the message
+    return if users_referenced.include?(created_by_user_id) || created_by_user_id.nil?
+    WorkActivityNotification.create(work_activity_id: id, user_id: creator_id)
   end
 
   # Log notifications for each of the users references on the activity
