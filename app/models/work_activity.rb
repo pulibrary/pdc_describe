@@ -58,7 +58,7 @@ class WorkActivity < ApplicationRecord
   def notify_creator
     # Don't notify the creator if they are already referenced in the message
     return if users_referenced.include?(created_by_user_id) || created_by_user_id.nil?
-    WorkActivityNotification.create(work_activity_id: id, user_id: creator_id)
+    WorkActivityNotification.create(work_activity_id: id, user_id: created_by_user_id)
   end
 
   # Log notifications for each of the users references on the activity
