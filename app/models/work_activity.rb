@@ -56,9 +56,6 @@ class WorkActivity < ApplicationRecord
   # notify the creator of the work whenever a message activity type is created
   def notify_creator
     # Don't notify the creator if they are already referenced in the message
-
-    # return if users_referenced.include?(created_by_user_id) || created_by_user_id.nil?
-    # WorkActivityNotification.create(work_activity_id: id, user_id: created_by_user_id)
     users_referenced.each do |uid|
       user_id = User.where(uid:).first&.id
       if user_id.nil?
