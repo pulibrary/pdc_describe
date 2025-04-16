@@ -63,7 +63,6 @@ class WorkActivity < ApplicationRecord
       user_id = User.where(uid:).first&.id
       if user_id.nil?
         Rails.logger.info("Message #{id} for work #{work_id} referenced an non-existing user: #{uid}")
-        next
       elsif user_id == work.created_by_user_id
         Rails.logger.info("Skipping notification for creator #{work.created_by_user_id} of work #{work_id} because they are already referenced in the message")
       else
