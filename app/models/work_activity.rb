@@ -66,6 +66,10 @@ class WorkActivity < ApplicationRecord
         WorkActivityNotification.create(work_activity_id: id, user_id: work.created_by_user_id)
       end
     end
+    # If no users are referenced in the message, notify the creator
+    if users_referenced.empty?
+      WorkActivityNotification.create(work_activity_id: id, user_id: work.created_by_user_id)
+    end
   end
 
   # Log notifications for each of the users references on the activity
