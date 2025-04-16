@@ -34,8 +34,7 @@ class WorkActivity < ApplicationRecord
     )
     activity.save!
     activity.notify_users
-
-    if activity.message_event_type?
+    if activity_type == MESSAGE
       activity.notify_creator
     end
 
@@ -57,8 +56,20 @@ class WorkActivity < ApplicationRecord
   # notify the creator of the work whenever a message activity type is created
   def notify_creator
     # Don't notify the creator if they are already referenced in the message
-    return if users_referenced.include?(created_by_user_id) || created_by_user_id.nil?
-    WorkActivityNotification.create(work_activity_id: id, user_id: created_by_user_id)
+
+    # return if users_referenced.include?(created_by_user_id) || created_by_user_id.nil?
+    # WorkActivityNotification.create(work_activity_id: id, user_id: created_by_user_id)
+    users_referenced.each do |uid|
+      user_id = User.where(uid:).first&.id
+      if user_id.nil?
+        Rails.logger.info("Message #{id} for work #{work_id} referenced an non-existing user: #{uid}")
+        next
+      elsif user_id == work.created_by_user_id
+        Rails.logger.info("Skipping notification for creator #{work.created_by_user_id} of work #{work_id} because they are already referenced in the message")
+      else
+        WorkActivityNotification.create(work_activity_id: id, user_id: work.created_by_user_id)
+      end
+    end
   end
 
   # Log notifications for each of the users references on the activity
