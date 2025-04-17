@@ -16,14 +16,18 @@ RSpec.describe WorkPreservationService do
       )
     end
     let(:files) { [file1, file2, preservation_file1] }
+    let(:fake_s3_service) { stub_s3(data: files, bucket_name: "example-bucket-preservation", prefix: "10.34770/pe9w-x904/#{approved_work.id}/") }
 
     before do
-      stub_s3(data: files, bucket_name: "example-bucket-preservation")
+      allow(fake_s3_service.s3client).to receive(:upload_file).and_return(true)
     end
 
     it "preserves a work to the indicated location in S3" do
       subject = described_class.new(work_id: approved_work.id, path:)
       expect(subject.preserve!).to eq "s3://example-bucket-preservation/#{preservation_directory}"
+      expect(fake_s3_service.s3client).to have_received(:upload_file).with(target_key: "10.34770/pe9w-x904/#{approved_work.id}/princeton_data_commons/metadata.json", size: anything, io: anything)
+      expect(fake_s3_service.s3client).to have_received(:upload_file).with(target_key: "10.34770/pe9w-x904/#{approved_work.id}/princeton_data_commons/datacite.xml", size: anything, io: anything)
+      expect(fake_s3_service.s3client).to have_received(:upload_file).with(target_key: "10.34770/pe9w-x904/#{approved_work.id}/princeton_data_commons/provenance.json", size: anything, io: anything)
     end
 
     it "excludes the preservation files from the preservation metadata" do

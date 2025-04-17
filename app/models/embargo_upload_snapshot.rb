@@ -1,16 +1,15 @@
 # frozen_string_literal: true
-class ApprovedUploadSnapshot < BackgroundUploadSnapshot
+class EmbargoUploadSnapshot < BackgroundUploadSnapshot
   def finalize_upload
     new_files.each do |file|
       work.track_change(:added, file["filename"])
     end
-    target_location = work.embargoed? ? "embargo" : "post-curation"
-    WorkActivity.add_work_activity(work.id, "#{new_files.count} #{'file'.pluralize(new_files.count)} were moved to the #{target_location} bucket", new_files.first["user_id"],
+    WorkActivity.add_work_activity(work.id, "#{new_files.count} #{'file'.pluralize(new_files.count)} were moved to the embargo bucket", new_files.first["user_id"],
                                    activity_type: WorkActivity::SYSTEM)
   end
 
   def store_files(s3_files, current_user: nil)
-    save # needed so I can reuse the code in backroundUploadSnapshot
+    save # allow out id to be set
     self.files = s3_files.map do |file|
       { "filename" => file.filename, "checksum" => file.checksum,
         "upload_status" => "started", user_id: current_user&.id, snapshot_id: id }

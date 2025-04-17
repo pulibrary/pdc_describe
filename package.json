@@ -19,7 +19,7 @@
     "eslint-plugin-import": "^2.26.0",
     "postcss-import": "^15.1.0",
     "prettier": "^3.4.2",
-    "vite": "^6.0.0",
+    "vite": "^6.2.6",
     "vite-plugin-ruby": "^5.1.0"
   },
   "scripts": {

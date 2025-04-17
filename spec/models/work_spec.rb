@@ -173,16 +173,21 @@ RSpec.describe Work, type: :model do
 
     let(:fake_s3_service_pre) { stub_s3 }
     let(:fake_s3_service_post) { stub_s3(data: [file1, file2]) }
+    let(:fake_s3_service_embargo) { stub_s3(data: [file1, file2]) }
 
     before do
       # initialize so the next allows happen after the stubs
       fake_s3_service_post
       fake_s3_service_pre
+      fake_s3_service_embargo
 
       allow(S3QueryService).to receive(:new).with(instance_of(Work), "precuration").and_return(fake_s3_service_pre)
       allow(S3QueryService).to receive(:new).with(instance_of(Work), "postcuration").and_return(fake_s3_service_post)
+      allow(S3QueryService).to receive(:new).with(instance_of(Work), "embargo").and_return(fake_s3_service_embargo)
       allow(fake_s3_service_pre.client).to receive(:head_object).with({ bucket: "example-post-bucket", key: work.s3_object_key }).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(fake_s3_service_pre.client).to receive(:head_object).with({ bucket: "example-bucket-embargo", key: work.s3_object_key }).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
       allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
+      allow(fake_s3_service_embargo).to receive(:bucket_name).and_return("example-bucket-embargo")
       allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
       allow(fake_s3_service_pre).to receive(:client_s3_files).and_return([readme], [readme, file1, file2])
     end
@@ -1104,20 +1109,6 @@ RSpec.describe Work, type: :model do
       expect { work.destroy }.to change { Work.count }.by(-1)
                                                       .and change { UserWork.count }.by(-1)
                                                                                     .and change { WorkActivity.count }.by(-2)
-    end
-  end
-
-  describe "pre_curation_uploads_count" do
-    let(:s3_query_service_double) { instance_double(S3QueryService, file_count: 3) }
-
-    it "gets the count of the files on Amazon" do
-      allow(S3QueryService).to receive(:new).and_return(s3_query_service_double)
-
-      expect(work.pre_curation_uploads_count).to eq(3)
-
-      # only loads the data once
-      expect(work.pre_curation_uploads_count).to eq(3)
-      expect(S3QueryService).to have_received(:new).once
     end
   end
 

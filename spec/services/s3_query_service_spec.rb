@@ -108,10 +108,6 @@ XML
     expect(s3_query_service.bucket_name).to eq "example-bucket"
   end
 
-  it "converts a doi to an S3 address" do
-    expect(s3_query_service.s3_address).to eq "s3://example-bucket/10.34770/pe9w-x904/#{work.id}/"
-  end
-
   it "takes a DOI and returns information about that DOI in S3" do
     fake_aws_client = double(Aws::S3::Client)
     s3_query_service.stub(:client).and_return(fake_aws_client)
@@ -359,69 +355,6 @@ XML
         expect(children.last.size).to eq(s3_size3)
       end
     end
-
-    describe "#file_count" do
-      it "returns files and directories" do
-        expect(s3_query_service.file_count).to eq(3)
-      end
-
-      context "when an error is encountered" do
-        subject(:s3_query_service) { described_class.new(work) }
-        let(:file_count) { s3_query_service.file_count }
-        let(:client) { instance_double(Aws::S3::Client) }
-        let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
-        let(:service_error_message) { "test AWS service error" }
-        let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
-        let(:prefix) { "#{work.doi}/#{work.id}/" }
-
-        before do
-          allow(Rails.logger).to receive(:error)
-          # This needs to be disabled to override the mock set for previous cases
-          allow(s3_query_service).to receive(:client).and_call_original
-          allow(Aws::S3::Client).to receive(:new).and_return(client)
-          allow(client).to receive(:list_objects_v2).and_raise(service_error)
-        end
-
-        it "logs the error and re-raises it" do
-          s3_query_service = described_class.new(work)
-          expect { s3_query_service.file_count }.to raise_error(Aws::Errors::ServiceError)
-          expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting AWS S3 Objects from the bucket example-bucket with the prefix #{prefix}: test AWS service error")
-        end
-      end
-    end
-
-    describe "#count_objects" do
-      before do
-        fake_s3_resp.stub(:key_count).and_return(s3_hash[:key_count])
-        fake_s3_resp.stub(:is_truncated).and_return(false)
-      end
-
-      it "returns all the objects" do
-        expect(s3_query_service.count_objects).to eq(3)
-      end
-
-      context "truncated results" do
-        before do
-          fake_s3_resp.stub(:key_count).and_return(s3_hash[:key_count])
-          fake_s3_resp.stub(:is_truncated).and_return(true, false)
-          fake_s3_resp.stub(:next_continuation_token).and_return("abc")
-        end
-        it "returns all the objects" do
-          expect(s3_query_service.count_objects).to eq(6)
-        end
-      end
-
-      context "an empty response" do
-        before do
-          fake_s3_resp.stub(:key_count).and_return(0)
-          fake_s3_resp.stub(:is_truncated).and_return(false)
-        end
-
-        it "returns all the objects" do
-          expect(s3_query_service.count_objects).to eq(0)
-        end
-      end
-    end
   end
 
   context "post curated" do
@@ -452,47 +385,6 @@ XML
       'ETag': "6805f2cfc46c0f04559748bb039d69ae",
       'Last-Modified': Time.parse("Thu, 15 Dec 2016 01:19:41 GMT")
     }
-  end
-
-  describe "#get_s3_object" do
-    subject(:s3_query_service) { described_class.new(work) }
-    let(:key) { "test_key" }
-    let(:s3_object) { s3_query_service.get_s3_object(key:) }
-
-    before do
-      stub_request(:get, "https://example-bucket.s3.amazonaws.com/test_key?attributes").to_return(status: 200, body: s3_attributes_response_body, headers: s3_attributes_response_headers)
-      stub_request(:get, "https://example-bucket.s3.amazonaws.com/test_key").to_return(status: 200, body: s3_object_response_body, headers: s3_object_response_headers)
-    end
-
-    it "retrieves the S3 Object from the HTTP API" do
-      expect(s3_object).not_to be nil
-      bytestream = s3_object[:body]
-      expect(bytestream.read).to eq("test_content")
-    end
-
-    context "when an error is encountered" do
-      subject(:s3_query_service) { described_class.new(work) }
-      let(:file_count) { s3_query_service.file_count }
-      let(:client) { instance_double(Aws::S3::Client) }
-      let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
-      let(:service_error_message) { "test AWS service error" }
-      let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
-      let(:prefix) { "#{work.doi}/#{work.id}/" }
-
-      before do
-        allow(Rails.logger).to receive(:error)
-        # This needs to be disabled to override the mock set for previous cases
-        allow(s3_query_service).to receive(:client).and_call_original
-        allow(Aws::S3::Client).to receive(:new).and_return(client)
-        allow(client).to receive(:get_object).and_raise(service_error)
-      end
-
-      it "logs and re-raises the error" do
-        s3_query_service = described_class.new(work)
-        expect { s3_query_service.get_s3_object(key:) }.to raise_error(Aws::Errors::ServiceError)
-        expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting the AWS S3 Object test_key: test AWS service error")
-      end
-    end
   end
 
   describe "#delete_s3_object" do
@@ -539,35 +431,6 @@ XML
         expect { s3_query_service.delete_s3_object(s3_file.key) }.to raise_error(Aws::Errors::ServiceError)
         expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to delete the AWS S3 Object test_key in the bucket example-bucket: test AWS service error")
       end
-    end
-  end
-
-  describe "#find_s3_file" do
-    subject(:s3_query_service) { described_class.new(work) }
-    let(:filename) { "test.txt" }
-    let(:s3_file) { s3_query_service.find_s3_file(filename:) }
-
-    before do
-      stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt").to_return(
-        headers: s3_object_response_headers,
-        status: 200,
-        body: s3_object_response_body
-      )
-
-      stub_request(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt?attributes").to_return(
-        headers: s3_attributes_response_headers,
-        status: 200, body: s3_attributes_response_body
-      )
-    end
-
-    it "retrieves the S3File from the AWS Bucket" do
-      expect(s3_file).not_to be nil
-      expect(s3_file.filename).to eq("10.34770/pe9w-x904/#{work.id}/test.txt")
-      expect(s3_file.last_modified).to be_a(Time)
-      expect(s3_file.size).to eq(12)
-      expect(s3_file.checksum).to eq(s3_etag1)
-
-      assert_requested(:get, "https://example-bucket.s3.amazonaws.com/10.34770/pe9w-x904/#{work.id}/test.txt?attributes")
     end
   end
 
@@ -631,79 +494,12 @@ XML
     let(:file) { File.open(Rails.root.join("spec", "fixtures", "files", "readme_template.txt")) }
 
     before do
-      stub_request(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}").to_return(status: 200)
+      allow(s3_query_service.s3client).to receive(:upload_file).and_return(true)
     end
 
-    it "uploads the readme" do
+    it "uploads the readme via the PULS3Client" do
       expect(s3_query_service.upload_file(io: file, filename:, size: 2852)).to eq("10.34770/pe9w-x904/#{work.id}/README.txt")
-      assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}", headers: { "Content-Length" => 2852 })
-    end
-
-    context "when the file is large" do
-      let(:fake_aws_client) { double(Aws::S3::Client) }
-      let(:fake_multi) { instance_double(Aws::S3::Types::CreateMultipartUploadOutput, key: "abc", upload_id: "upload id", bucket: "bucket") }
-      let(:fake_upload) { instance_double(Aws::S3::Types::UploadPartOutput, etag: "etag123abc") }
-      let(:fake_completion) { instance_double(Seahorse::Client::Response, "successful?": true) }
-      let(:key) { "10.34770/pe9w-x904/#{work.id}/README.txt" }
-
-      before do
-        s3_query_service.stub(:client).and_return(fake_aws_client)
-        allow(s3_query_service.client).to receive(:create_multipart_upload).and_return(fake_multi)
-        allow(s3_query_service.client).to receive(:upload_part).and_return(fake_upload)
-        allow(s3_query_service.client).to receive(:complete_multipart_upload).and_return(fake_completion)
-      end
-
-      it "uploads the large file" do
-        expect(s3_query_service.upload_file(io: file, filename:, size: 6_000_000_000)).to eq(key)
-        expect(s3_query_service.client).to have_received(:create_multipart_upload)
-          .with({ bucket: "example-bucket", key: })
-        expect(s3_query_service.client).to have_received(:upload_part)
-          .with(hash_including(bucket: "example-bucket", key: "abc", part_number: 1, upload_id: "upload id"))
-        expect(s3_query_service.client).to have_received(:upload_part)
-          .with(hash_including(bucket: "example-bucket", key: "abc", part_number: 2, upload_id: "upload id"))
-        expect(s3_query_service.client).to have_received(:complete_multipart_upload)
-          .with({ bucket: "example-bucket", key:, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1 },
-                                                                              { etag: "etag123abc", part_number: 2 }] }, upload_id: "upload id" })
-      end
-    end
-
-    context "when checksum does not match" do
-      before do
-        stub_request(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}").to_raise(Aws::S3::Errors::SignatureDoesNotMatch.new(nil, nil))
-      end
-
-      it "detects the upload error" do
-        expect(s3_query_service.upload_file(io: file, filename:, size: 2852)).to be_falsey
-        assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}#{filename}", headers: { "Content-Length" => 2852 })
-      end
-    end
-
-    context "when an error is encountered" do
-      subject(:s3_query_service) { described_class.new(work) }
-      let(:file_count) { s3_query_service.file_count }
-      let(:client) { instance_double(Aws::S3::Client) }
-      let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
-      let(:service_error_message) { "test AWS service error" }
-      let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
-      let(:prefix) { "#{work.doi}/#{work.id}/" }
-
-      before do
-        allow(Rails.logger).to receive(:error)
-        # This needs to be disabled to override the mock set for previous cases
-        allow(s3_query_service).to receive(:client).and_call_original
-        allow(Aws::S3::Client).to receive(:new).and_return(client)
-        allow(client).to receive(:put_object).and_raise(service_error)
-      end
-
-      it "logs and re-raises the error" do
-        s3_query_service = described_class.new(work)
-        expect do
-          s3_query_service.upload_file(io: file, filename:, size: 2852)
-        end.to raise_error(Aws::Errors::ServiceError)
-        # rubocop:disable Layout/LineLength
-        expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to create the AWS S3 Object in the bucket example-bucket with the key #{prefix}README.txt: test AWS service error")
-        # rubocop:enable Layout/LineLength
-      end
+      expect(s3_query_service.s3client).to have_received(:upload_file).with(target_key: "10.34770/pe9w-x904/#{work.id}/README.txt", size: 2852, io: file, md5_digest: nil)
     end
   end
 
@@ -818,49 +614,6 @@ XML
       expect(files[3].filename).to match(s3_key3) # the empty directory
       expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", max_keys: 1000, prefix: "new-prefix").twice
       expect(fake_aws_client).to have_received(:list_objects_v2).with(bucket: "other-bucket", continuation_token: "abc123", max_keys: 1000, prefix: "new-prefix").twice
-    end
-  end
-
-  describe "#copy_directory" do
-    let(:fake_aws_client) { double(Aws::S3::Client) }
-    let(:fake_completion) { instance_double(Seahorse::Client::Response, "successful?": true) }
-
-    before do
-      s3_query_service.stub(:client).and_return(fake_aws_client)
-      fake_aws_client.stub(:copy_object).and_return(fake_completion)
-    end
-
-    it "copies the directory calling copy_object" do
-      expect(s3_query_service.copy_directory(target_bucket: "example-bucket-post", source_key: "source-key", target_key: "other-bucket/target-key")).to eq(fake_completion)
-      expect(s3_query_service.client).to have_received(:copy_object).with(bucket: "example-bucket-post", copy_source: "source-key", key: "other-bucket/target-key")
-    end
-
-    context "when an error is encountered" do
-      subject(:s3_query_service) { described_class.new(work) }
-      let(:file_count) { s3_query_service.file_count }
-      let(:client) { instance_double(Aws::S3::Client) }
-      let(:service_error_context) { instance_double(Seahorse::Client::RequestContext) }
-      let(:service_error_message) { "test AWS service error" }
-      let(:service_error) { Aws::Errors::ServiceError.new(service_error_context, service_error_message) }
-      let(:prefix) { "#{work.doi}/#{work.id}/" }
-
-      before do
-        allow(Rails.logger).to receive(:error)
-        # This needs to be disabled to override the mock set for previous cases
-        allow(s3_query_service).to receive(:client).and_call_original
-        allow(Aws::S3::Client).to receive(:new).and_return(client)
-        allow(client).to receive(:copy_object).and_raise(service_error)
-      end
-
-      it "logs and re-raises the error" do
-        s3_query_service = described_class.new(work)
-        expect do
-          s3_query_service.copy_directory(target_bucket: "example-bucket-post", source_key: "source-key", target_key: "other-bucket/target-key")
-        end.to raise_error(Aws::Errors::ServiceError)
-        # rubocop:disable Layout/LineLength
-        expect(Rails.logger).to have_received(:error).with("An error was encountered when requesting to copy the AWS S3 directory Object from source-key to other-bucket/target-key in the bucket example-bucket-post: test AWS service error")
-        # rubocop:enable Layout/LineLength
-      end
     end
   end
 
