@@ -17,7 +17,7 @@ RSpec.describe "Commenting on works sends emails or not", type: :system, js: tru
     fill_in "new-message", with: message
     expect { click_on "Message" }
       .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
-      .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(1).times
+      .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
     expect(page).to have_content message
   end
 
@@ -30,7 +30,7 @@ RSpec.describe "Commenting on works sends emails or not", type: :system, js: tru
       fill_in "new-message", with: message
       expect { click_on "Message" }
         .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
-        .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(1).times
+        .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
       expect(page).to have_content message
     end
   end
@@ -43,7 +43,7 @@ RSpec.describe "Commenting on works sends emails or not", type: :system, js: tru
       fill_in "new-message", with: message
       expect { click_on "Message" }
         .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
-        .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(1).times
+        .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
       expect(page).to have_content message
     end
 
@@ -56,7 +56,7 @@ RSpec.describe "Commenting on works sends emails or not", type: :system, js: tru
         fill_in "new-message", with: message
         expect { click_on "Message" }
           .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
-          .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(1).times
+          .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
         expect(page).to have_content message
       end
     end
