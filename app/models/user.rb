@@ -86,10 +86,11 @@ class User < ApplicationRecord
   end
 
   # Creates a new user by uid. If the user already exists it returns the existing user.
-  def self.new_for_uid(uid)
+  def self.new_for_uid(uid, default_group_id = nil)
     user = User.find_by(uid:)
     if user.nil?
       user = User.new(uid:, email: "#{uid}@princeton.edu")
+      user.default_group_id = default_group_id
       user.save!
     end
     user
