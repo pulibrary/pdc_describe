@@ -143,23 +143,16 @@ RSpec.describe Group, type: :model do
       Group.plasma_laboratory.default_user("abc123")
       expect(user.reload.default_group).to eq(Group.research_data)
     end
+  end
 
-    context "when an error is encountered while persisting the user model" do
-      let(:user) { FactoryBot.build(:user) }
-      let(:uid) { "abc234" }
-      let(:default_group_id) { Group.plasma_laboratory.id }
+  describe "#add_submitter" do
+    it "creates the default user with an email" do
+      user = Group.plasma_laboratory.default_user("abc123")
+      expect(user.default_group).to eq(Group.plasma_laboratory)
+      expect(user.email).to eq("abc123@princeton.edu")
 
-      before do
-        user
-        allow(User).to receive(:new).with(uid:, default_group_id:).and_raise(ActiveRecord::RecordNotUnique)
-        allow(User).to receive(:new).with(uid:).and_return(user)
-      end
-
-      it "attempts to create a new user mode without initially setting the default group ID" do
-        persisted = Group.plasma_laboratory.default_user("abc234")
-
-        expect(persisted.default_group_id).to eq(Group.plasma_laboratory.id)
-      end
+      # Make sure a second attempt picks up the existing user
+      expect(Group.plasma_laboratory.default_user("abc123").id).to eq user.id
     end
   end
 
