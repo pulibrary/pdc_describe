@@ -5,7 +5,7 @@ class EmbargoUploadSnapshot < BackgroundUploadSnapshot
       work.track_change(:added, file["filename"])
     end
     WorkActivity.add_work_activity(work.id, "#{new_files.count} #{'file'.pluralize(new_files.count)} were moved to the embargo bucket", new_files.first["user_id"],
-                                   activity_type: WorkActivity::SYSTEM)
+                                   activity_type: WorkActivity::EMBARGO)
   end
 
   def store_files(s3_files, current_user: nil)

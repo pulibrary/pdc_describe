@@ -88,9 +88,10 @@ describe WorkActivity, type: :model do
         change_file = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::FILE_CHANGES)
         changes = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::CHANGES)
         migration = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::MIGRATION_COMPLETE)
+        embargo = described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::EMBARGO)
         described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::MIGRATION_START)
         described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::MESSAGE)
-        expect(described_class.changes_for_work(work.id)).to contain_exactly(work_activity, change_file, changes, migration)
+        expect(described_class.changes_for_work(work.id)).to contain_exactly(work_activity, change_file, changes, migration, embargo)
       end
     end
   end
@@ -126,6 +127,14 @@ describe WorkActivity, type: :model do
       # rubocop:disable Layout/LineLength
       expect(rendered_html).to include("<summary class='show-changes'>Group</summary>Princeton <del>Research</del><ins>Plasma</ins> <del>Data</del><ins>Physics</ins> <del>Service</del><ins>Lab</ins> (<del>PRDS</del><ins>PPPL</ins>)</details>")
       # rubocop:enable Layout/LineLength
+    end
+  end
+
+  describe "embargo activity" do
+    let(:work) { FactoryBot.create(:draft_work, group: Group.research_data) }
+    it "show as the system" do
+      activity = WorkActivity.add_work_activity(work.id, "1 file was moved to the ...", nil, activity_type: WorkActivity::EMBARGO)
+      expect(activity.to_html).to include("by the system")
     end
   end
 end
