@@ -32,7 +32,16 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     expect(page).not_to have_content("Previous")
     expect(page).to have_css(edit_form_css)
     fill_in "description", with: "description"
+
+    # change the name entered
+    updated_name = user.given_name + "2"
+    fill_in "creators[][given_name]", with: updated_name
+
     expect { click_on "Save" }.to change { work.work_activity.count }.by(1)
+
+    # make sure we render the updated name after the save
+    expect(page.html.include?(updated_name)).to be true
+
     expect(page).to have_css(edit_form_css)
     click_on "Next"
 

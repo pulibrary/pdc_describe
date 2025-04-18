@@ -170,6 +170,7 @@ class WorksWizardController < ApplicationController
 
   private
 
+    # rubocop:disable Metrics/MethodLength
     def edit_helper(view_name, redirect_url)
       if validate_modification_permissions(work: @work,
                                            uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
@@ -178,6 +179,8 @@ class WorksWizardController < ApplicationController
         check_for_stale_update(@work, params)
         if WorkCompareService.update_work(work: @work, update_params:, current_user:)
           if params[:save_only] == "true"
+            # Make sure we render the updated data
+            prepare_decorators_for_work_form(@work)
             render view_name
           else
             redirect_to redirect_url
@@ -188,6 +191,7 @@ class WorksWizardController < ApplicationController
         end
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def load_work
       @work = Work.find(params[:id])
