@@ -565,13 +565,10 @@ class Work < ApplicationRecord
     end
   end
 
-  def date_approved()
-    #TODO : cache this value
-    approved_activity = WorkActivity.where("work_id = ? and message='marked as Approved'", id).first
-    if approved_activity.nil?
-      return nil
-    end
-    approved_activity.created_at.to_date.to_s
+  def date_approved
+    @approved_activity ||= WorkActivity.where("work_id = ? and message='marked as Approved'", id).first
+    return nil if @approved_activity.nil?
+    @approved_activity.created_at.to_date.to_s
   end
 
   protected
