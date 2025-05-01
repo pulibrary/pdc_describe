@@ -453,7 +453,8 @@ class Work < ApplicationRecord
       "group" => group.as_json.except("id"),
       "embargo_date" => embargo_date_as_json,
       "created_at" => format_date_for_solr(created_at),
-      "updated_at" => format_date_for_solr(updated_at)
+      "updated_at" => format_date_for_solr(updated_at),
+      "date_approved" => date_approved
     }
   end
 
@@ -562,6 +563,15 @@ class Work < ApplicationRecord
     else
       PULS3Client::PRECURATION
     end
+  end
+
+  def date_approved()
+    #TODO : cache this value
+    approved_activity = WorkActivity.where("work_id = ? and message='marked as Approved'", id).first
+    if approved_activity.nil?
+      return nil
+    end
+    approved_activity.created_at.to_date.to_s
   end
 
   protected
