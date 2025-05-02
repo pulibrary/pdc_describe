@@ -232,4 +232,25 @@ namespace :works do
       puts "Error dowloading file #{uri} for work id #{work.id} to #{filename}! Error: #{stdout_and_stderr_str}"
     end
   end
+
+  desc "Outputs the upload snapshot data for a work"
+  task :snapshots, [:work_id] => :environment do |_, args|
+    work_id = args[:work_id].to_i
+
+    puts "snapshot_id, snapshot_date, snapshot_files, user, checkshum, filename, upload_status"
+    snapshots = UploadSnapshot.where(work_id:).order(:created_at)
+    snapshots.each do |snapshot|
+      snapshot.files.each do |file|
+        tokens = []
+        tokens << snapshot.id
+        tokens << snapshot.created_at
+        tokens << snapshot.files.count
+        tokens << (file["user_id"] || "nil")
+        tokens << (file["checksum"] || "nil")
+        tokens << (file["filename"] || "nil")
+        tokens << (file["upload_status"] || "nil")
+        puts tokens.join(",")
+      end
+    end
+  end
 end
