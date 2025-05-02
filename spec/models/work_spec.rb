@@ -73,6 +73,7 @@ RSpec.describe Work, type: :model do
             "updated_at" => "2021-12-31T19:00:00.000-05:00"
           },
           "embargo_date" => "2023-09-14T00:00:00Z",
+          "date_approved" => nil,
           "created_at" => "2021-12-31T19:00:00Z",
           "updated_at" => "2021-12-31T19:00:00Z"
         }
@@ -142,6 +143,39 @@ RSpec.describe Work, type: :model do
 
     it "is not editable by a group admin of a different group" do
       expect(work.editable_by?(research_data_moderator)).to eq false
+    end
+  end
+
+  describe "#date_approved?" do
+    let(:fake_s3_service_pre) { stub_s3(data: [readme, s3_file]) }
+    let(:fake_s3_service_post) { stub_s3(data: [readme, s3_file]) }
+
+    let(:approved_work) do
+      work = FactoryBot.create :awaiting_approval_work, doi: "10.34770/123-abc"
+      stub_request(:put, "https://api.datacite.org/dois/10.34770/123-abc")
+
+      # initialize so the next allows happen after the stubs
+      fake_s3_service_post
+      fake_s3_service_pre
+
+      allow(S3QueryService).to receive(:new).with(instance_of(Work), "precuration").and_return(fake_s3_service_pre)
+      allow(S3QueryService).to receive(:new).with(instance_of(Work), "postcuration").and_return(fake_s3_service_post)
+
+      allow(fake_s3_service_pre.client).to receive(:head_object).with({ bucket: "example-post-bucket", key: work.s3_object_key }).and_raise(Aws::S3::Errors::NotFound.new("blah", "error"))
+      allow(fake_s3_service_post).to receive(:bucket_name).and_return("example-post-bucket")
+      allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
+      work.approve!(curator_user)
+      work
+    end
+
+    subject(:draft_work) { FactoryBot.create(:draft_work) }
+
+    it "shows correct date when work is approved" do
+      expect(approved_work.date_approved).to eq(Date.current.to_date.to_s)
+    end
+
+    it "returns nil when the work is not approved" do
+      expect(draft_work.date_approved).to be nil
     end
   end
 
