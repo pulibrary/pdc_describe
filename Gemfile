@@ -17,8 +17,8 @@ gem "net-pop"
 gem "net-ssh", "7.0.0.beta1"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem "actioncable"
-gem "rails", "~> 8.0"
 gem "pg"
+gem "rails", "~> 8.0"
 # Use Puma as the app server
 gem "puma", "~> 5.6"
 # Use SCSS for stylesheets
