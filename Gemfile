@@ -17,9 +17,8 @@ gem "net-pop"
 gem "net-ssh", "7.0.0.beta1"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem "actioncable"
-gem "rails", "~> 8.0"
-# Use sqlite3 as the database for Active Record
 gem "pg"
+gem "rails", "~> 8.0"
 # Use Puma as the app server
 gem "puma", "~> 5.6"
 # Use SCSS for stylesheets
@@ -37,6 +36,7 @@ gem "retryable"
 gem "rolify"
 gem "rspec-rails"
 gem "sidekiq", "~> 7.2"
+gem "sqlite3", force_ruby_platform: true # requires bundler >= 2.3.18
 gem "vite_rails"
 gem "whenever"
 
@@ -104,10 +104,6 @@ group :test do
   gem "selenium-webdriver"
   gem "sinatra"
   gem "webmock"
-end
-
-group :staging, :production do
-  gem "ddtrace", require: "ddtrace/auto_instrument"
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
