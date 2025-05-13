@@ -191,16 +191,7 @@ GEM
     datacite-mapping (0.5.0)
       typesafe_enum (~> 0.1, >= 0.1.7)
       xml-mapping_extensions (~> 0.4, >= 0.4.7)
-    datadog-ci (0.8.3)
-      msgpack
     date (3.4.1)
-    ddtrace (1.23.3)
-      datadog-ci (~> 0.8.1)
-      debase-ruby_core_source (= 3.3.1)
-      libdatadog (~> 7.0.0.1.0)
-      libddwaf (~> 1.14.0.0.0)
-      msgpack
-    debase-ruby_core_source (3.3.1)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     devise (4.9.4)
@@ -272,14 +263,6 @@ GEM
     json_schema (0.21.0)
     kramdown (2.4.0)
       rexml
-    libdatadog (7.0.0.1.0)
-    libdatadog (7.0.0.1.0-x86_64-linux)
-    libddwaf (1.14.0.0.0)
-      ffi (~> 1.0)
-    libddwaf (1.14.0.0.0-x86_64-darwin)
-      ffi (~> 1.0)
-    libddwaf (1.14.0.0.0-x86_64-linux)
-      ffi (~> 1.0)
     listen (3.9.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -534,8 +517,6 @@ GEM
       sprockets (>= 3.0.0)
     sqlite3 (1.7.3)
       mini_portile2 (~> 2.8.0)
-    sqlite3 (1.7.3-x86_64-darwin)
-    sqlite3 (1.7.3-x86_64-linux)
     sshkit (1.24.0)
       base64
       logger
@@ -636,7 +617,6 @@ DEPENDENCIES
   database_cleaner-active_record
   datacite!
   datacite-mapping
-  ddtrace
   devise (~> 4.9)
   dogstatsd-ruby
   ed25519
@@ -681,6 +661,7 @@ DEPENDENCIES
   sidekiq (~> 7.2)
   simplecov (~> 0.22)
   sinatra
+  sqlite3
   turbolinks (~> 5)
   tzinfo-data
   vite_rails

@@ -7,10 +7,7 @@ Cataloging application for PDC content and more
 [![Coverage Status](https://coveralls.io/repos/github/pulibrary/pdc_describe/badge.svg?branch=main)](https://coveralls.io/github/pulibrary/pdc_describe?branch=main)
 
 ## Dependencies
-* Ruby: 3.0.3
-* nodejs: 16.15.0
-* yarn: 1.22.18
-* Lando: 3.6.2
+See `.tool_versions`
 
 ## Local development
 
@@ -41,6 +38,14 @@ Cataloging application for PDC content and more
    export AWS_S3_PRE_CURATE_REGION="us-east-1"
    export AWS_S3_KEY_ID="AWS_S3_KEY_ID"
    ```
+
+#### Troubleshooting sqlite
+If you are having trouble installing sqlite3 on an M-series mac, try making a file called `.bundle/config` and put this into it (this assumes you're using homebrew) [Source](https://github.com/sparklemotion/sqlite3-ruby/blob/main/INSTALLATION.md): 
+
+```
+---
+BUNDLE_BUILD__SQLITE3: "--enable-system-libraries --with-sqlite3-include=/opt/homebrew/opt/sqlite/include --with-sqlite3-lib=/opt/homebrew/opt/sqlite/lib --with-sqlite-cflags='-DSQLITE_DEFAULT_CACHE_SIZE=9999 -DSQLITE_DEFAULT_PAGE_SIZE=4444'"
+```
 
 ### Starting / stopping services
 We use lando to run services required for both test and development environments.
