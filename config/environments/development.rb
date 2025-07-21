@@ -90,4 +90,4 @@ Rails.application.configure do
 end
 
 ORCID_URL = "https://pub.orcid.org/v2.0"
-ROR_URL = "https://api.ror.org/organizations"
+ROR_URL = "https://api.ror.org/v2/organizations"
