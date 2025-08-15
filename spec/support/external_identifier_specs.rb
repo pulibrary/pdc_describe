@@ -28,11 +28,13 @@ class FakeIdentifierIntegration < Sinatra::Base
   # write to a file and inspect the values that way, for example:
   #   File.write("/path/to/file.txt", "ROR params #{params}\r\n", mode: "a")
   get "/ror*" do
+    File.write("/tmp/file.txt", "ROR params #{params}\r\n", mode: "a")
     ror = params["splat"].first
     query = params["query.advanced"]
     content_type(:json)
     callback = params[:callback]
     data = ror.present? ? ror_lookup(ror) : ror_query(query)
+    File.write("/tmp/file.txt", "ROR data: #{data.to_json}\r\n", mode: "a")
     "#{callback}#{data.to_json}"
   end
 
@@ -51,7 +53,7 @@ class FakeIdentifierIntegration < Sinatra::Base
         "id": ror,
         "names": [
           {
-            "lang": null,
+            "lang": "null",
             "types": [
               "acronym"
             ],
@@ -93,7 +95,7 @@ class FakeIdentifierIntegration < Sinatra::Base
         "id": ror,
         "names": [
           {
-            "lang": null,
+            "lang": "null",
             "types": [
               "acronym"
             ],
@@ -121,7 +123,7 @@ class FakeIdentifierIntegration < Sinatra::Base
         "id": ror,
         "names": [
           {
-            "lang": null,
+            "lang": "null",
             "types": [
               "acronym"
             ],
@@ -156,14 +158,14 @@ class FakeIdentifierIntegration < Sinatra::Base
             "value": "Mary W. Jackson Headquarters Building"
           },
           {
-            "lang": null,
+            "lang": "null",
             "types": [
               "acronym"
             ],
             "value": "NASA"
           },
           {
-            "lang": null,
+            "lang": "null",
             "types": [
               "acronym"
             ],
@@ -191,28 +193,28 @@ class FakeIdentifierIntegration < Sinatra::Base
         "id": ror,
         "names": [
           {
-            "lang": null,
+            "lang": "null",
             "types": [
               "alias"
             ],
             "value": "Kakuyugo Kagaku Kenkyujo"
           },
           {
-            "lang": null,
+            "lang": "null",
             "types": [
               "alias"
             ],
             "value": "Kakuyugou Kagaku Kenkyuujo"
           },
           {
-            "lang": null,
+            "lang": "null",
             "types": [
               "alias"
             ],
             "value": "Kakuyūgō Kagaku Kenkyūjo"
           },
           {
-            "lang": null,
+            "lang": "null",
             "types": [
               "acronym"
             ],
@@ -310,7 +312,7 @@ class FakeIdentifierIntegration < Sinatra::Base
             "value": "Office of Science Princeton Plasma Physics Laboratory"
           },
           {
-            "lang": null,
+            "lang": "null",
             "types": [
               "acronym"
             ],
@@ -346,7 +348,7 @@ class FakeIdentifierIntegration < Sinatra::Base
             "value": "Division of Atmospheric and Geospace Sciences"
           },
           {
-            "lang": null,
+            "lang": "null",
             "types": [
               "acronym"
             ],
@@ -398,3 +400,5 @@ end
 server = FakeIdentifierIntegration.boot
 ORCID_URL = "http://#{[server.host, server.port].join(':')}/orcid".freeze
 ROR_URL = "http://#{[server.host, server.port].join(':')}/ror".freeze
+File.write("/tmp/file.txt", "ORCID_URL: #{ORCID_URL}\r\n", mode: "a")
+File.write("/tmp/file.txt", "ROR_URL: #{ROR_URL}\r\n", mode: "a")

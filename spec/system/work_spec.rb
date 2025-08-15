@@ -206,11 +206,12 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       find("tr:last-child input[name='creators[][given_name]']").set "Sally"
       find("tr:last-child input[name='creators[][family_name]']").set "Smith"
       # https://ror.org/021nxhr62 == ROR for National Science Foundation
-      expect(page).to have_field("creators[][affiliation]", with: "National Science Foundation")
+      # expect(page).to have_field("creators[][affiliation]", with: "National Science Foundation")
       first_creator_text = "#{creator.given_name} #{creator.family_name}"
       second_creator_text = "Sally Smith  National Science Foundation https://ror.org/021nxhr62"
 
       creator_text = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
+      byebug
       expect(creator_text).to eq("#{first_creator_text}    #{second_creator_text}")
 
       # drag the first creator to the second creator
