@@ -211,7 +211,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       second_creator_text = "Sally Smith  National Science Foundation https://ror.org/021nxhr62"
 
       creator_text = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
-      byebug
       expect(creator_text).to eq("#{first_creator_text}    #{second_creator_text}")
 
       # drag the first creator to the second creator
