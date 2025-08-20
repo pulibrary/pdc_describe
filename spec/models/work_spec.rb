@@ -1411,4 +1411,30 @@ RSpec.describe Work, type: :model do
       expect(Work.list_released_embargo).to contain_exactly(approved_embargoed_work1, approved_embargoed_work2)
     end
   end
+
+  describe "#embargoed?" do
+    let(:embargo_date) { Time.zone.yesterday }
+    let(:future_embargo_date) { Time.zone.tomorrow }
+    let(:today_embargo_date) { Time.zone.now }
+
+    it "sees approved works as not embargoed" do
+      approved_work = FactoryBot.create(:approved_work)
+      expect(approved_work).not_to be_embargoed
+    end
+
+    it "sees previously embargoed works as not embargoed" do
+      approved_work = FactoryBot.create(:approved_work, embargo_date:)
+      expect(approved_work).not_to be_embargoed
+    end
+
+    it "sees embargoed works as embargoed" do
+      approved_work = FactoryBot.create(:approved_work, embargo_date: future_embargo_date)
+      expect(approved_work).to be_embargoed
+    end
+
+    it "sees embargoed ending today works as embargoed" do
+      approved_work = FactoryBot.create(:approved_work, embargo_date: today_embargo_date)
+      expect(approved_work).to be_embargoed
+    end
+  end
 end
