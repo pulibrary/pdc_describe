@@ -40,13 +40,18 @@ class FakeIdentifierIntegration < Sinatra::Base
     {
       "number_of_results": 1,
       "items": [
-        { "id": "https://ror.org/02hvk4n65",
+        { 
+          "id": "https://ror.org/02hvk4n65",
+        "names": [
+          {
           "lang": "en",
           "types": [
                     "ror_display",
                     "label"
                   ],
-          "value": "Water Department" }
+          "value": "Water Department" 
+        }
+      ]
       ]
     }
   end

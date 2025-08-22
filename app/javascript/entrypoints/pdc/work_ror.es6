@@ -17,20 +17,15 @@ export default class WorkRoR {
 
     fetch(`${this.rorUrl}/${ror}`)
     .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
         return response.json();
     })
     .then(data => {
-        console.log('Fetched data:', data["names"]);
+        const name = data["names"].filter((names) => names.types.includes("ror_display"))[0].value;
+        $target.closest('tr').find('.ror-output').val(name);
     })
     .catch(error => {
         console.error('Fetch error:', error);
     });
-
-    debugger;
-
 
     // fetch(`${this.rorUrl}/${ror}`)
     //   .then()

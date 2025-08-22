@@ -208,7 +208,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       # https://ror.org/021nxhr62 == ROR for National Science Foundation
       # expect(page).to have_field("creators[][affiliation]", with: "National Science Foundation")
       first_creator_text = "#{creator.given_name} #{creator.family_name}"
-      second_creator_text = "Sally Smith  National Science Foundation https://ror.org/021nxhr62"
+      second_creator_text = "Sally Smith  U.S. National Science Foundation https://ror.org/021nxhr62"
 
       creator_text = page.all("tr")[1..2].map { |each| each.all("input").map(&:value) }.flatten.join(" ").strip
       expect(creator_text).to eq("#{first_creator_text}    #{second_creator_text}")
@@ -235,7 +235,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       expect(draft_work.resource.creators.first.given_name).to eq("Sally")
       expect(draft_work.resource.creators.first.family_name).to eq("Smith")
       expect(draft_work.resource.creators.first.affiliation_ror).to eq("https://ror.org/021nxhr62")
-      expect(draft_work.resource.creators.first.affiliation).to eq("National Science Foundation")
+      expect(draft_work.resource.creators.first.affiliation).to eq("U.S. National Science Foundation")
     end
 
     it "allows users to modify the order of the contributors", js: true do
@@ -280,6 +280,7 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     it "uses the ROR autocomplete on affiliations for creators" do
       sign_in user
       visit edit_work_path(draft_work)
+      byebug
       fill_in "creators[][affiliation]", with: "Water"
 
       # page.execute.script() forces the auto-complete to kick in and selects the first element
