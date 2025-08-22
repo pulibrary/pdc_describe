@@ -14,12 +14,30 @@ export default class WorkRoR {
   fetchROR(element) {
     const $target = $(element.target);
     const ror = $target.val().trim();
+
     fetch(`${this.rorUrl}/${ror}`)
-      .then()
-      .then((response) => response.json())
-      .then((responseJson) => {
-        const { name } = responseJson;
-        $target.closest('tr').find('.ror-output').val(name);
-      });
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Fetched data:', data["names"]);
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+    });
+
+    debugger;
+
+
+    // fetch(`${this.rorUrl}/${ror}`)
+    //   .then()
+    //   .then((response) => response.json())
+    //   .then((responseJson) => {
+    //     const { name } = responseJson;
+    //     $target.closest('tr').find('.ror-output').val(name);
+    //   });
   }
 }
