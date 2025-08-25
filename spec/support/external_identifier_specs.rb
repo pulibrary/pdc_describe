@@ -47,9 +47,9 @@ class FakeIdentifierIntegration < Sinatra::Base
             {
               "lang": "en",
               "types": [
-                      "ror_display",
-                      "label"
-                    ],
+                "ror_display",
+                "label"
+              ],
               "value": "Water Department"
             }
           ]
