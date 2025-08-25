@@ -529,12 +529,13 @@ class Work < ApplicationRecord
   end
 
   # Determine whether or not the Work is under active embargo
+  #  Embargoes are not fully released until the day after the embargo date
   # @return [Boolean]
   def embargoed?
     return false if embargo_date.blank?
 
-    current_date = Time.zone.now
-    embargo_date >= current_date
+    current_date = Time.zone.now.to_date
+    current_date <= embargo_date
   end
 
   # Returns a human friendly name for the bucket where the files for the work are located.
