@@ -25,13 +25,5 @@ export default class WorkRoR {
       .catch((error) => {
         console.error('Fetch error:', error);
       });
-
-    // fetch(`${this.rorUrl}/${ror}`)
-    //   .then()
-    //   .then((response) => response.json())
-    //   .then((responseJson) => {
-    //     const { name } = responseJson;
-    //     $target.closest('tr').find('.ror-output').val(name);
-    //   });
   }
 }
