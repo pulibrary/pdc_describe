@@ -280,7 +280,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     it "uses the ROR autocomplete on affiliations for creators" do
       sign_in user
       visit edit_work_path(draft_work)
-      byebug
       fill_in "creators[][affiliation]", with: "Water"
 
       # page.execute.script() forces the auto-complete to kick in and selects the first element

@@ -20,8 +20,9 @@ class FakeIdentifierIntegration < Sinatra::Base
   end
 
   # Mimic the response we'd get from
-  # https://api.ror.org/organizations/https://ror.org/01bj3aw27 (for ROR look ups by ID)
-  # and from https://api.ror.org/?query.advanced=name:Princeton (for ROR queries by name)
+  # https://api.ror.org/v2/organizations/https://ror.org/01bj3aw27 (for ROR look ups by ID)
+  # and from https://api.ror.org/v2/organizations?query.advanced=names.value:Prin*
+  # (for ROR queries by name)
   #
   # NOTE: You cannot put `byebug` to step into this code (something to do with different threads
   # of execution) and using `puts` to output to the console does now work either, but you can
@@ -40,18 +41,19 @@ class FakeIdentifierIntegration < Sinatra::Base
     {
       "number_of_results": 1,
       "items": [
-        { 
+        {
           "id": "https://ror.org/02hvk4n65",
-        "names": [
-          {
-          "lang": "en",
-          "types": [
-                    "ror_display",
-                    "label"
-                  ],
-          "value": "Water Department" 
+          "names": [
+            {
+              "lang": "en",
+              "types": [
+                      "ror_display",
+                      "label"
+                    ],
+              "value": "Water Department"
+            }
+          ]
         }
-      ]
       ]
     }
   end
