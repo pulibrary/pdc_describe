@@ -14,7 +14,7 @@ gem "io-wait", "0.2.1"
 gem "net-ftp"
 gem "net-imap"
 gem "net-pop"
-gem "net-ssh", "7.0.0.beta1"
+gem "net-ssh", "~> 7.0"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem "actioncable"
 gem "pg"
