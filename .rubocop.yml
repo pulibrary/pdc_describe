@@ -38,6 +38,7 @@ Metrics/BlockLength:
 Metrics/ClassLength:
   Exclude:
     - app/controllers/works_wizard_controller.rb
+    - spec/support/external_identifier_specs.rb
   Max: 150 # default: 100
 
 Metrics/CyclomaticComplexity:
@@ -50,6 +51,7 @@ Metrics/MethodLength:
     - app/models/work_activity.rb
     - app/jobs/approved_file_move_job.rb
     - app/services/s3_query_service.rb
+    - spec/support/external_identifier_specs.rb
   Max: 15 # default: 10
 
 Metrics/ParameterLists:

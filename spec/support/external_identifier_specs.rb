@@ -20,8 +20,9 @@ class FakeIdentifierIntegration < Sinatra::Base
   end
 
   # Mimic the response we'd get from
-  # https://api.ror.org/organizations/https://ror.org/01bj3aw27 (for ROR look ups by ID)
-  # and from https://api.ror.org/?query.advanced=name:Princeton (for ROR queries by name)
+  # https://api.ror.org/v2/organizations/https://ror.org/01bj3aw27 (for ROR look ups by ID)
+  # and from https://api.ror.org/v2/organizations?query.advanced=names.value:Prin*
+  # (for ROR queries by name)
   #
   # NOTE: You cannot put `byebug` to step into this code (something to do with different threads
   # of execution) and using `puts` to output to the console does now work either, but you can
@@ -39,7 +40,21 @@ class FakeIdentifierIntegration < Sinatra::Base
   def ror_query(_query)
     {
       "number_of_results": 1,
-      "items": [{ "id": "https://ror.org/02hvk4n65", "name": "Water Department" }]
+      "items": [
+        {
+          "id": "https://ror.org/02hvk4n65",
+          "names": [
+            {
+              "lang": "en",
+              "types": [
+                "ror_display",
+                "label"
+              ],
+              "value": "Water Department"
+            }
+          ]
+        }
+      ]
     }
   end
 
@@ -49,42 +64,310 @@ class FakeIdentifierIntegration < Sinatra::Base
     when /01bj3aw27/
       {
         "id": ror,
-        "name": "United States Department of Energy"
+        "names": [
+          {
+            "lang": null,
+            "types": [
+              "acronym"
+            ],
+            "value": "DOE"
+          },
+          {
+            "lang": "es",
+            "types": [
+              "label"
+            ],
+            "value": "Departamento de Energía de los Estados Unidos"
+          },
+          {
+            "lang": "fr",
+            "types": [
+              "label"
+            ],
+            "value": "Département de l'Énergie des États-unis"
+          },
+          {
+            "lang": "en",
+            "types": [
+              "alias"
+            ],
+            "value": "U.S. Department of Energy"
+          },
+          {
+            "lang": "en",
+            "types": [
+              "ror_display",
+              "label"
+            ],
+            "value": "United States Department of Energy"
+          }
+        ]
       }
     when /021nxhr62/
       {
         "id": ror,
-        "name": "National Science Foundation"
+        "names": [
+          {
+            "lang": "null",
+            "types": [
+              "acronym"
+            ],
+            "value": "NSF"
+          },
+          {
+            "lang": "en",
+            "types": [
+              "alias"
+            ],
+            "value": "National Science Foundation"
+          },
+          {
+            "lang": "en",
+            "types": [
+              "label",
+              "ror_display"
+            ],
+            "value": "U.S. National Science Foundation"
+          }
+        ]
       }
     when /018mejw64/
       {
         "id": ror,
-        "name": "Deutsche Forschungsgemeinschaft"
+        "names": [
+          {
+            "lang": "null",
+            "types": [
+              "acronym"
+            ],
+            "value": "DFG"
+          },
+          {
+            "lang": "de",
+            "types": [
+              "ror_display",
+              "label"
+            ],
+            "value": "Deutsche Forschungsgemeinschaft"
+          },
+          {
+            "lang": "en",
+            "types": [
+              "label"
+            ],
+            "value": "German Research Foundation"
+          }
+        ]
       }
     when /027ka1x80/
       {
         "id": ror,
-        "name": "National Aeronautics and Space Administration"
+        "names": [
+          {
+            "lang": "en",
+            "types": [
+              "alias"
+            ],
+            "value": "Mary W. Jackson Headquarters Building"
+          },
+          {
+            "lang": "null",
+            "types": [
+              "acronym"
+            ],
+            "value": "NASA"
+          },
+          {
+            "lang": "null",
+            "types": [
+              "acronym"
+            ],
+            "value": "NASA HQ"
+          },
+          {
+            "lang": "en",
+            "types": [
+              "alias"
+            ],
+            "value": "NASA Headquarters"
+          },
+          {
+            "lang": "en",
+            "types": [
+              "ror_display",
+              "label"
+            ],
+            "value": "National Aeronautics and Space Administration"
+          }
+        ]
       }
     when /01t3wyv61/
       {
         "id": ror,
-        "name": "National Institute for Fusion Science"
+        "names": [
+          {
+            "lang": "null",
+            "types": [
+              "alias"
+            ],
+            "value": "Kakuyugo Kagaku Kenkyujo"
+          },
+          {
+            "lang": "null",
+            "types": [
+              "alias"
+            ],
+            "value": "Kakuyugou Kagaku Kenkyuujo"
+          },
+          {
+            "lang": "null",
+            "types": [
+              "alias"
+            ],
+            "value": "Kakuyūgō Kagaku Kenkyūjo"
+          },
+          {
+            "lang": "null",
+            "types": [
+              "acronym"
+            ],
+            "value": "NIFS"
+          },
+          {
+            "lang": "en",
+            "types": [
+              "alias"
+            ],
+            "value": "NINS National Institute for Fusion Science"
+          },
+          {
+            "lang": "en",
+            "types": [
+              "ror_display",
+              "label"
+            ],
+            "value": "National Institute for Fusion Science"
+          },
+          {
+            "lang": "en",
+            "types": [
+              "alias"
+            ],
+            "value": "National Institutes of Natural Sciences National Institute for Fusion Science"
+          },
+          {
+            "lang": "ja",
+            "types": [
+              "alias"
+            ],
+            "value": "かくゆうごうかがくけんきゅうじょ"
+          },
+          {
+            "lang": "ja",
+            "types": [
+              "alias"
+            ],
+            "value": "カクユウゴウカガクケンキュウジョ"
+          },
+          {
+            "lang": "ja",
+            "types": [
+              "label"
+            ],
+            "value": "核融合科学研究所"
+          }
+        ]
       }
     when /00hx57361/
       {
         "id": ror,
-        "name": "Princeton University"
+        "names": [
+          {
+            "lang": "en",
+            "types": [
+              "alias"
+            ],
+            "value": "College of New Jersey"
+          },
+          {
+            "lang": "en",
+            "types": [
+              "ror_display",
+              "label"
+            ],
+            "value": "Princeton University"
+          },
+          {
+            "lang": "es",
+            "types": [
+              "label"
+            ],
+            "value": "Universidad de Princeton"
+          },
+          {
+            "lang": "fr",
+            "types": [
+              "label"
+            ],
+            "value": "Université de princeton"
+          }
+        ]
       }
     when /03vn1ts68/
       {
         "id": ror,
-        "name": "Princeton Plasma Physics Laboratory"
+        "names": [
+          {
+            "lang": "en",
+            "types": [
+              "alias"
+            ],
+            "value": "Office of Science Princeton Plasma Physics Laboratory"
+          },
+          {
+            "lang": "null",
+            "types": [
+              "acronym"
+            ],
+            "value": "PPPL"
+          },
+          {
+            "lang": "en",
+            "types": [
+              "ror_display",
+              "label"
+            ],
+            "value": "Princeton Plasma Physics Laboratory"
+          },
+          {
+            "lang": "en",
+            "types": [
+              "alias"
+            ],
+            "value": "United States Department of Energy Office of Science Princeton Plasma Physics Laboratory"
+          }
+        ]
       }
     when /037gd6g64/
       {
         "id": ror,
-        "name": "Division of Atmospheric and Geospace Sciences"
+        "names": [
+          {
+            "lang": "en",
+            "types": [
+              "ror_display",
+              "label"
+            ],
+            "value": "Division of Atmospheric and Geospace Sciences"
+          },
+          {
+            "lang": "null",
+            "types": [
+              "acronym"
+            ],
+            "value": "NSF AGS"
+          }
+        ]
       }
     else
       {
