@@ -315,7 +315,7 @@ GEM
       net-ssh (>= 5.0.0, < 8.0.0)
     net-smtp (0.5.0)
       net-protocol
-    net-ssh (7.0.0.beta1)
+    net-ssh (7.3.0)
     nio4r (2.7.4)
     nokogiri (1.18.9)
       mini_portile2 (~> 2.8.2)
@@ -640,7 +640,7 @@ DEPENDENCIES
   net-imap
   net-pop
   net-smtp
-  net-ssh (= 7.0.0.beta1)
+  net-ssh (~> 7.0)
   nokogiri (>= 1.13.4)
   omniauth (~> 2.1, >= 2.1.2)
   omniauth-cas (~> 3.0)
