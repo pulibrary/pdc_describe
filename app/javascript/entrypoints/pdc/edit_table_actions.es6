@@ -62,9 +62,11 @@ export default class EditTableActions {
         let i;
         let candidate;
         for (i = 0; i < data.items.length; i += 1) {
-          candidate = { 
-            key: data.items[i].id, 
-            label: data.items[i].names.filter((names) => names.types.includes("ror_display"))[0].value};
+          candidate = {
+            key: data.items[i].id,
+            label: data.items[i].names.filter((names) => names.types.includes('ror_display'))[0]
+              .value,
+          };
           candidates.push(candidate);
         }
         response(candidates);

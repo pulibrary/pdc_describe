@@ -16,16 +16,17 @@ export default class WorkRoR {
     const ror = $target.val().trim();
 
     fetch(`${this.rorUrl}/${ror}`)
-    .then(response => {
+      .then((response) => {
         return response.json();
-    })
-    .then(data => {
-        const name = data["names"].filter((names) => names.types.includes("ror_display"))[0].value;
+      })
+      .then((data) => {
+        const name = data['names'].filter((names) => names.types.includes('ror_display'))[0]
+          .value;
         $target.closest('tr').find('.ror-output').val(name);
-    })
-    .catch(error => {
+      })
+      .catch((error) => {
         console.error('Fetch error:', error);
-    });
+      });
 
     // fetch(`${this.rorUrl}/${ror}`)
     //   .then()
