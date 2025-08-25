@@ -18,8 +18,7 @@ export default class WorkRoR {
     fetch(`${this.rorUrl}/${ror}`)
       .then((response) => response.json())
       .then((data) => {
-        const name = data.names.filter((names) => names.types.includes('ror_display'))[0]
-          .value;
+        const name = data.names.filter((names) => names.types.includes('ror_display'))[0].value;
         $target.closest('tr').find('.ror-output').val(name);
       })
       .catch((error) => {
