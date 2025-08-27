@@ -40,7 +40,7 @@ See `.tool_versions`
    ```
 
 #### Troubleshooting sqlite
-If you are having trouble installing sqlite3 on an M-series mac, try making a file called `.bundle/config` and put this into it (this assumes you're using homebrew) [Source](https://github.com/sparklemotion/sqlite3-ruby/blob/main/INSTALLATION.md): 
+If you are having trouble installing sqlite3 on an M-series mac, try making a file called `.bundle/config` and put this into it (this assumes you're using homebrew) [Source](https://github.com/sparklemotion/sqlite3-ruby/blob/main/INSTALLATION.md):
 
 ```
 ---
@@ -112,12 +112,12 @@ graph TD
 redis@{ shape: lin-cyl, label: "Central Redis" }
 subgraph Application Sever
    rails1[Rails application]
-   workers1[Sidekiq Workers] 
+   workers1[Sidekiq Workers]
 end
 
 subgraph Application Sever
    rails2[Rails application]
-   workers2[Sidekiq Workers] 
+   workers2[Sidekiq Workers]
 end
 rails1 --> redis
 rails2 --> redis
@@ -176,7 +176,7 @@ We utilize rolling deployments to production.  When a new release is ready to de
      ```
      ansible-playbook playbooks/pdc_describe.yml  --limit pdc-describe-prod1.princeton.edu -e runtime_env=production
      ```
-  1. Run capistrano deploy on the first machine        
+  1. Run capistrano deploy on the first machine
      ```
      cap --hosts=pdc-describe-prod1.princeton.edu production deploy
      ```
@@ -196,7 +196,7 @@ We utilize rolling deployments to production.  When a new release is ready to de
      ```
      ansible-playbook playbooks/pdc_describe.yml  --limit pdc-describe-prod2.princeton.edu -e runtime_env=production
      ```
-  1. Run capistrano deploy on the first machine        
+  1. Run capistrano deploy on the first machine
      ```
      cap --hosts=pdc-describe-prod2.princeton.edu production deploy
      ```
@@ -208,3 +208,18 @@ We utilize rolling deployments to production.  When a new release is ready to de
      ```
      cap --hosts=pdc-describe-prod2.princeton.edu production application:serve_from_nginx
      ```
+
+### Manually releasing an embargo
+If you need to release an embargo manually you can do it via the command line.
+
+First launch the Rails console: `bundle exec rails console` and run the following commands (make sure to use the `id` of the work that you are interested and an `embargo_date` in the past)
+
+```
+work = Work.find(568)
+work.embargo_date = "2025-08-26"
+work.save!
+```
+
+Then, run the rake task `bundle exec rake embargo:release` to make sure the files are moved from the embargo AWS bucket to the post-curation bucket.
+
+After you have done this the files for the work will be picked up by PDC Discovery next time it indexes the data (typically once an hour)
