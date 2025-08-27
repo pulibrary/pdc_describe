@@ -54,14 +54,19 @@ export default class EditTableActions {
     const inputBox = $row.find('input.affiliation-entry-creator');
     const getDataFromROR = function getDataFromROR(request, response) {
       // ROR API: https://ror.readme.io/docs/rest-api
-      // https://api.ror.org/organizations?query=
-      // https://api.ror.org/organizations?query.advanced=name:Prin*
-      $.getJSON(`${pdc.ror_url}?query.advanced=name:${request.term}*`, (data) => {
+      // https://api.ror.org/v2/organizations?query=
+      // https://api.ror.org/v2/organizations?query.advanced=names.value:Prin*
+
+      $.getJSON(`${pdc.ror_url}?query.advanced=names.value:${request.term}*`, (data) => {
         const candidates = [];
         let i;
         let candidate;
         for (i = 0; i < data.items.length; i += 1) {
-          candidate = { key: data.items[i].id, label: data.items[i].name };
+          candidate = {
+            key: data.items[i].id,
+            label: data.items[i].names.filter((names) => names.types.includes('ror_display'))[0]
+              .value,
+          };
           candidates.push(candidate);
         }
         response(candidates);
