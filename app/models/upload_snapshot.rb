@@ -73,6 +73,9 @@ class UploadSnapshot < ApplicationRecord
     rescue ArgumentError
       # One of the values was not properly encoded
       false
+    rescue NoMethodError
+      # One of the values was not properly encoded
+      false
     end
   end
 

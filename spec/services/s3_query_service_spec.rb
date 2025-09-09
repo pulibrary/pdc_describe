@@ -226,19 +226,19 @@ XML
         expect(s3_query_service.client).to have_received(:create_multipart_upload)
           .with({ bucket: "example-bucket-post", key: s3_key2, checksum_algorithm: "SHA256" })
         expect(s3_query_service.client).to have_received(:upload_part_copy)
-          .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key1}",
+          .with({ bucket: "example-bucket-post", copy_source: "example-bucket/#{s3_key1}",
                   copy_source_range: "bytes=0-5368709119", key: "abc", part_number: 1, upload_id: "upload id" })
         expect(s3_query_service.client).to have_received(:upload_part_copy)
-          .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key1}",
+          .with({ bucket: "example-bucket-post", copy_source: "example-bucket/#{s3_key1}",
                   copy_source_range: "bytes=5368709120-5368709121", key: "abc", part_number: 2, upload_id: "upload id" })
         expect(s3_query_service.client).to have_received(:upload_part_copy)
-          .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key2}",
+          .with({ bucket: "example-bucket-post", copy_source: "example-bucket/#{s3_key2}",
                   copy_source_range: "bytes=0-5368709119", key: "abc", part_number: 1, upload_id: "upload id" })
         expect(s3_query_service.client).to have_received(:upload_part_copy)
-          .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key2}",
+          .with({ bucket: "example-bucket-post", copy_source: "example-bucket/#{s3_key2}",
                   copy_source_range: "bytes=5368709120-5368709127", key: "abc", part_number: 2, upload_id: "upload id" })
         expect(s3_query_service.client).to have_received(:copy_object)
-          .with({ bucket: "example-bucket-post", copy_source: "/example-bucket/#{s3_key3}",
+          .with({ bucket: "example-bucket-post", copy_source: "example-bucket/#{s3_key3[0..-2]}",
                   key: s3_key3, checksum_algorithm: "SHA256" })
         expect(s3_query_service.client).to have_received(:complete_multipart_upload)
           .with({ bucket: "example-bucket-post", key: s3_key1, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1, checksum_sha256: "sha256abc123" },
@@ -635,6 +635,14 @@ XML
       it "it url encode the space and copies the file calling copy_object" do
         expect(s3_query_service.copy_file(target_bucket: "example-bucket-post", source_key: "directory/source-key+space", target_key: "other-bucket/target-key", size: 23)).to eq(fake_completion)
         expect(s3_query_service.client).to have_received(:copy_object).with(bucket: "example-bucket-post", copy_source: "directory/source-key%2Bspace", key: "other-bucket/target-key",
+                                                                            checksum_algorithm: "SHA256")
+      end
+    end
+
+    context "the filename originally had a diacritic" do
+      it "it url encode the space and copies the file calling copy_object" do
+        expect(s3_query_service.copy_file(target_bucket: "example-bucket-post", source_key: "directory/source-key é", target_key: "other-bucket/target-key", size: 23)).to eq(fake_completion)
+        expect(s3_query_service.client).to have_received(:copy_object).with(bucket: "example-bucket-post", copy_source: "directory/source-key+%C3%A9", key: "other-bucket/target-key",
                                                                             checksum_algorithm: "SHA256")
       end
     end

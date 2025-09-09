@@ -4,7 +4,7 @@ class S3MoveService
   attr_reader :source_bucket, :source_key, :target_bucket, :target_key, :size, :service, :copy_source
 
   def initialize(work_id:, source_bucket:, source_key:, target_bucket:, target_key:, size:)
-    @copy_source = "/#{source_bucket}/#{source_key}"
+    @copy_source = [source_bucket, source_key].join("/")
     @source_key = source_key
     @source_bucket = source_bucket
     @target_bucket = target_bucket
@@ -29,8 +29,9 @@ class S3MoveService
       end
       etag(resp)
     rescue Aws::S3::Errors::NoSuchKey => error
-      status = service.check_file(bucket: source_bucket, key: source_key)
-      unless status
+      if service.check_file(bucket: target_bucket, key: target_key)
+        Rails.logger.warn("Trying to move a file that was already moved... #{copy_source} can not copy to #{target_bucket}/#{target_key}")
+      else
         raise "Missing source file #{copy_source} can not copy to #{target_bucket}/#{target_key} Error: #{error}"
       end
     end
