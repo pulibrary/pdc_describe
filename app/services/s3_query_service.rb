@@ -129,11 +129,12 @@ class S3QueryService
   end
 
   def copy_file(source_key:, target_bucket:, target_key:, size:)
-    Rails.logger.info("Copying #{source_key} to #{target_bucket}/#{target_key}")
+    encoded_source_key = encode_key(source_key)
+    Rails.logger.info("Copying #{source_key} (encoded: #{encoded_source_key}) to #{target_bucket}/#{target_key}")
     if size > part_size
-      copy_multi_part(source_key:, target_bucket:, target_key:, size:)
+      copy_multi_part(source_key: encoded_source_key, target_bucket:, target_key:, size:)
     else
-      client.copy_object(copy_source: source_key.gsub("+", "%2B"), bucket: target_bucket, key: target_key, checksum_algorithm: "SHA256")
+      client.copy_object(copy_source: encoded_source_key, bucket: target_bucket, key: target_key, checksum_algorithm: "SHA256")
     end
   rescue Aws::Errors::ServiceError => aws_service_error
     message = "An error was encountered when requesting to copy AWS S3 Object from #{source_key} to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}"
@@ -191,6 +192,10 @@ class S3QueryService
     message = "An error was encountered when requesting to check the status of the AWS S3 Object in the bucket #{bucket} with the key #{key}: #{aws_service_error}"
     Rails.logger.error(message)
     raise aws_service_error
+  end
+
+  def encode_key(source_key)
+    source_key.split("/").map { |token| CGI.escape(token) }.join("/")
   end
 
   private
