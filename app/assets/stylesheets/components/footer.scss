@@ -13,6 +13,31 @@
     align-items: center;
     flex-wrap: wrap;
 
+    .pul-accessible {
+      a {
+        color: #000000;
+        text-decoration: none;
+        margin: 0px 0px 0px 10px;
+
+        &:hover {
+          text-decoration: underline;
+        }
+
+        &::after {
+          background-image: asset_url("open-icon.svg");
+          background-position: center center;
+          background-repeat: no-repeat;
+          background-size: contain;
+          content: "";
+          display: inline-block;
+          height: 12px;
+          margin-left: 8px;
+          position: relative;
+          width: 12px;
+        }
+      }
+    }
+
     img {
       display: block;
       margin: auto;
