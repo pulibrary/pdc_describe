@@ -19,7 +19,7 @@ GIT
       zeitwerk (~> 2.4)
 
 GEM
-  remote: https://rubygems.org/
+  remote: https://gem.coop/
   specs:
     aasm (5.5.0)
       concurrent-ruby (~> 1.0)
