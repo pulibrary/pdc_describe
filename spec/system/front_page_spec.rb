@@ -10,6 +10,7 @@ describe "Application landing page", type: :system do
   it "has a header with links to helpful info" do
     visit "/"
     expect(page).to have_link "How to Submit", href: /how-to-submit/
+    expect(page).to have_link "Accessibility", href: "https://accessibility.princeton.edu/help"
   end
 
   context "an error in the footer" do
