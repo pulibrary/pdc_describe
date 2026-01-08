@@ -19,7 +19,21 @@
 # end
 
 # Learn more: http://github.com/javan/whenever
+set :output, "/opt/pdc_describe/shared/cron.log"
+job_type :restart_passenger, "cd :path && touch tmp/restart.txt :output"
 
 every :day, at: "12:05am", roles: [:cron] do
   rake "embargo:release"
+end
+
+every :day, at: "12:05am", roles: [:one] do
+  restart_passenger "na"
+end
+
+every :day, at: "12:15am", roles: [:two] do
+  restart_passenger "na"
+end
+
+every :day, at: "12:30am", roles: [:three] do
+  restart_passenger "na"
 end

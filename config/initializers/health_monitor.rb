@@ -14,7 +14,7 @@ HealthMonitor.configure do |config|
     provider_config.url = RedisConfig.url
   end
 
-  # Use our custom Cache checker instead of the deault one
+  # Use our custom Cache checker instead of the default one
   config.add_custom_provider(PULCache).configure
 
   # Make this health check available at /health
