@@ -1,18 +1,18 @@
 <!-- Render the main title (notice that we don't display a dropdown for this title) -->
 <div class="field">
-  <%= render partial: "/works/required_form_field_details", locals: { name: "title", display_name: "Title", 
+  <%= render partial: "/works/required_form_field_details", locals: { name: "title", display_name: "Title",
                                                       primary_detail: "Provide an informative and distinctive title for the item as a whole - not identical to that of a corresponding paper.",
                                                        field_detail: "Tips
-                                                       <ul> 
+                                                       <ul>
                                                          <li>Keywords included in the title can help others to discover your work.</li>
                                                          <li>In most cases, titles should avoid using acronyms or abbreviations that create a barrier to understanding content outside of your research group or area.</li>
                                                          <li>Please do not use the name of your file for the title.</li>
                                                        </ul>",
                                                       }
   %>
-  <input type="text" id="title_main" name="title_main" class="input-text-long"
+  <textarea type="text" id="title_main" name="title_main" class="input-text-long"
     value="<%= @work&.resource&.main_title %>"
-  />
+  </textarea>
   <% if allow_many %>
     <span>
       <a id="btn-add-title" class="add-title-button" href="#" title="Add an additional title for this dataset, like a subtitle or a translated title">
