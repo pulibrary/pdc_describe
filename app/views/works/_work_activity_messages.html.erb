@@ -1,12 +1,9 @@
 <div id="new-message-section">
   <%= form_with url: add_message_work_path(@work) do |f| %>
+    <p>Communication about this data submission will be through this chat feature. Please use @netid to refer to each other so that we are notified that you have left a message</p>
     <textarea id="new-message" name="new-message" class="new-message" placeholder="leave a message" rows="5" cols="30"></textarea>
     <br/>
     <%= f.submit("Message", class: "btn btn-secondary") %>
-    <span id="new-message-help" class="new-message-help">
-      Simple Markdown is accepted.
-      <a href="#" id="new-message-help-more">See more.</a>
-    </span>
     <br/>
     <span id="new-message-help-part2" class="new-message-help hidden">
       e.g. *italics*, **bold**, # Header 1, ## Header 2, ```code```.
