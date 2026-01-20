@@ -554,7 +554,7 @@ GEM
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.6.0)
-    uri (1.0.3)
+    uri (1.0.4)
     useragent (0.16.11)
     virtus (2.0.0)
       axiom-types (~> 0.1)
