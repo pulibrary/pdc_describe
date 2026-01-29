@@ -20,7 +20,7 @@
 
 # Learn more: http://github.com/javan/whenever
 set :output, "/opt/pdc_describe/shared/cron.log"
-job_type :restart_passenger, "cd :path && touch tmp/restart.txt :output"
+job_type :restart_passenger, "sudo service nginx restart :output"
 
 every :day, at: "12:05am", roles: [:cron] do
   rake "embargo:release"
