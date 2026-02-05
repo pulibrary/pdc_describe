@@ -56,3 +56,9 @@ node_modules
 *.local
 test_results/**
 .yardoc/
+# devbox
+.devbox
+devbox.d
+.postgres/
+.redis/
+.tmp/

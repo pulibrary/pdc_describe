@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${BUNDLER_VERSION:=2.5.9}"
+
+# Force devbox ruby explicitly to avoid /usr/bin/ruby (2.6) on macOS
+RUBY="$PWD/.devbox/nix/profile/default/bin/ruby"
+GEM="$PWD/.devbox/nix/profile/default/bin/gem"
+
+mkdir -p "$PWD/.devbox/virtenv/ruby/gems" "$PWD/.tmp"
+
+export GEM_HOME="$PWD/.devbox/virtenv/ruby/gems"
+export GEM_PATH="$PWD/.devbox/virtenv/ruby/gems"
+export PATH="$GEM_HOME/bin:$PWD/.devbox/nix/profile/default/bin:$PATH"
+
+# Install required bundler version if missing
+if ! "$RUBY" -S gem list -i bundler -v "$BUNDLER_VERSION" >/dev/null 2>&1; then
+  "$GEM" install -N bundler -v "$BUNDLER_VERSION"
+fi
+
+exec "$RUBY" -S bundle "_${BUNDLER_VERSION}_" "$@"
+EOF
