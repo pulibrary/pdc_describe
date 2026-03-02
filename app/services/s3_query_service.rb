@@ -187,11 +187,13 @@ class S3QueryService
   end
 
   def check_file(bucket:, key:)
-    client.head_object({ bucket:, key: })
-  rescue Aws::Errors::ServiceError => aws_service_error
-    message = "An error was encountered when requesting to check the status of the AWS S3 Object in the bucket #{bucket} with the key #{key}: #{aws_service_error}"
-    Rails.logger.error(message)
-    raise aws_service_error
+    if client.list_objects_v2({ bucket:, max_keys: 1, prefix: key }).key_count == 1
+      true
+    else
+      message = "The AWS S3 Object in the bucket #{bucket} with the key #{key} is not present"
+      Rails.logger.error(message)
+      false
+    end
   end
 
   def encode_key(source_key)

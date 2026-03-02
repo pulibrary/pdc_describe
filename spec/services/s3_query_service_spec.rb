@@ -196,7 +196,6 @@ XML
       allow(s3_query_service.client).to receive(:create_multipart_upload).and_return(fake_multi)
       allow(s3_query_service.client).to receive(:upload_part_copy).and_return(fake_upload)
       allow(s3_query_service.client).to receive(:delete_object).and_return(fake_delete)
-      allow(s3_query_service.client).to receive(:head_object).and_return(true)
       allow(s3_query_service.client).to receive(:complete_multipart_upload).and_return(fake_completion)
       allow(s3_query_service.client).to receive(:put_object).and_return(nil)
       allow(s3_query_service.client).to receive(:copy_object).and_return(fake_completion)
@@ -207,6 +206,8 @@ XML
 
     describe "#publish_files" do
       it "calls moves the files calling create_multipart_upload, head_object, and delete_object twice, once for each file, and called the preservation service" do
+        # Allow the all files to check out
+        allow(fake_s3_resp).to receive(:key_count).and_return(1)
         expect do
           expect(s3_query_service.publish_files(user)).to be_truthy
         end.to change { work.upload_snapshots.count }.by 1
@@ -246,12 +247,13 @@ XML
         expect(s3_query_service.client).to have_received(:complete_multipart_upload)
           .with({ bucket: "example-bucket-post", key: s3_key2, multipart_upload: { parts: [{ etag: "etag123abc", part_number: 1, checksum_sha256: "sha256abc123" },
                                                                                            { etag: "etag123abc", part_number: 2, checksum_sha256: "sha256abc123" }] }, upload_id: "upload id" })
-        expect(s3_query_service.client).to have_received(:head_object)
-          .with({ bucket: "example-bucket-post", key: s3_key1 })
-        expect(s3_query_service.client).to have_received(:head_object)
-          .with({ bucket: "example-bucket-post", key: s3_key2 })
-        expect(s3_query_service.client).to have_received(:head_object)
-          .with({ bucket: "example-bucket-post", key: s3_key3 })
+
+        expect(s3_query_service.client).to have_received(:list_objects_v2)
+          .with({ bucket: "example-bucket-post", prefix: s3_key1, max_keys: 1 })
+        expect(s3_query_service.client).to have_received(:list_objects_v2)
+          .with({ bucket: "example-bucket-post", prefix: s3_key2, max_keys: 1 })
+        expect(s3_query_service.client).to have_received(:list_objects_v2)
+          .with({ bucket: "example-bucket-post", prefix: s3_key3, max_keys: 1 })
         expect(s3_query_service.client).to have_received(:delete_object)
           .with({ bucket: "example-bucket", key: s3_key1 })
         expect(s3_query_service.client).to have_received(:delete_object)
@@ -270,17 +272,19 @@ XML
       end
       context "the copy fails for some reason" do
         it "Does not delete anything and returns the missing file" do
-          allow(s3_query_service.client).to receive(:head_object).and_return(true, false)
+          # Allow the first file to check out and the second one to not
+          allow(fake_s3_resp).to receive(:key_count).and_return(1, 0)
+
           expect(s3_query_service.publish_files(user)).to be_truthy
           expect { perform_enqueued_jobs }.to raise_error(/File check was not valid/)
           expect(s3_query_service.client).to have_received(:create_multipart_upload)
             .with({ bucket: "example-bucket-post", key: s3_key1, checksum_algorithm: "SHA256" })
           expect(s3_query_service.client).to have_received(:create_multipart_upload)
             .with({ bucket: "example-bucket-post", key: s3_key2, checksum_algorithm: "SHA256" })
-          expect(s3_query_service.client).to have_received(:head_object)
-            .with({ bucket: "example-bucket-post", key: s3_key1 })
-          expect(s3_query_service.client).to have_received(:head_object)
-            .with({ bucket: "example-bucket-post", key: s3_key2 })
+          expect(s3_query_service.client).to have_received(:list_objects_v2)
+            .with({ bucket: "example-bucket-post", prefix: s3_key1, max_keys: 1 })
+          expect(s3_query_service.client).to have_received(:list_objects_v2)
+            .with({ bucket: "example-bucket-post", prefix: s3_key2, max_keys: 1 })
           expect(s3_query_service.client).to have_received(:delete_object)
             .with({ bucket: "example-bucket", key: s3_key1 })
           expect(s3_query_service.client).not_to have_received(:delete_object)
@@ -290,7 +294,9 @@ XML
         end
 
         it "Does not delete anything and returns both missing files" do
-          allow(s3_query_service.client).to receive(:head_object).and_return(false)
+          # Allow the all files to NOT check out
+          allow(fake_s3_resp).to receive(:key_count).and_return(0)
+
           expect(s3_query_service.publish_files(user)).to be_truthy
 
           # both jobs create an exception
@@ -301,10 +307,10 @@ XML
             .with({ bucket: "example-bucket-post", key: s3_key1, checksum_algorithm: "SHA256" })
           expect(s3_query_service.client).to have_received(:create_multipart_upload)
             .with({ bucket: "example-bucket-post", key: s3_key2, checksum_algorithm: "SHA256" })
-          expect(s3_query_service.client).to have_received(:head_object)
-            .with({ bucket: "example-bucket-post", key: s3_key1 })
-          expect(s3_query_service.client).to have_received(:head_object)
-            .with({ bucket: "example-bucket-post", key: s3_key2 })
+          expect(s3_query_service.client).to have_received(:list_objects_v2)
+            .with({ bucket: "example-bucket-post", prefix: s3_key1, max_keys: 1 })
+          expect(s3_query_service.client).to have_received(:list_objects_v2)
+            .with({ bucket: "example-bucket-post", prefix: s3_key2, max_keys: 1 })
           expect(s3_query_service.client).not_to have_received(:delete_object)
             .with({ bucket: "example-bucket", key: s3_key1 })
           expect(s3_query_service.client).not_to have_received(:delete_object)
