@@ -41,9 +41,6 @@ class WorksWizardController < ApplicationController
     @work.files_location = params["attachment_type"]
     @work.save!
 
-    # create a directory for the work if the curator will need to move files by hand
-    @work.s3_query_service.create_directory if @work.files_location != "file_upload"
-
     if params[:save_only] == "true"
       render :attachment_select
     else
