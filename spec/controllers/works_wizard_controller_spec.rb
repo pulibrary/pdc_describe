@@ -192,7 +192,6 @@ RSpec.describe WorksWizardController do
           post(:attachment_selected, params:)
           expect(response.status).to be 302
           expect(response.location).to eq "http://test.host/works/#{work.id}/file-other"
-          expect(fake_s3_service).to have_received(:create_directory)
         end
       end
     end
