@@ -224,12 +224,14 @@ RSpec.describe Work, type: :model do
       allow(fake_s3_service_embargo).to receive(:bucket_name).and_return("example-bucket-embargo")
       allow(fake_s3_service_pre).to receive(:bucket_name).and_return("example-pre-bucket")
       allow(fake_s3_service_pre).to receive(:client_s3_files).and_return([readme], [readme, file1, file2])
+      allow(ApprovedFileMoveJob).to receive(:perform_later)
     end
 
     it "approves works and records the change history" do
       stub_datacite_doi
       work.approve!(curator_user)
-      expect(fake_s3_service_pre).to have_received(:publish_files).once
+      expect(fake_s3_service_pre).to have_received(:client_s3_files).exactly(4).times
+      expect(ApprovedFileMoveJob).to have_received(:perform_later).exactly(3).times
       expect(work.state_history.first.state).to eq "approved"
       expect(work.reload.state).to eq("approved")
     end
@@ -242,7 +244,8 @@ RSpec.describe Work, type: :model do
         work = Work.find(work_id)
 
         expect(work).to be_approved
-        expect(fake_s3_service_pre).to have_received(:publish_files).once
+        expect(fake_s3_service_pre).to have_received(:client_s3_files).exactly(4).times
+        expect(ApprovedFileMoveJob).to have_received(:perform_later).exactly(3).times
         expect(fake_s3_service_post).to have_received(:bucket_name).once
         expect(fake_s3_service_pre.client).to have_received(:head_object).once
       end
@@ -254,7 +257,7 @@ RSpec.describe Work, type: :model do
 
         it "raises an error" do
           stub_datacite_doi
-          expect { work.approve!(curator_user) }.to raise_error("Attempting to publish a Work with an existing S3 Bucket directory for: 10.34770/123-abc/#{work.id}")
+          expect { work.approve!(curator_user) }.to raise_error("Attempting to publish a Work with an existing S3 Bucket directory for: example-bucket-post/10.34770/123-abc/#{work.id}")
         end
       end
 
