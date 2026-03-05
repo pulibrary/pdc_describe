@@ -626,20 +626,7 @@ class Work < ApplicationRecord
     end
 
     def publish_precurated_files(user)
-      # We need to explicitly check for the target bucket here (postcuration or embargo).
-      target = if embargoed?
-                 PULS3Client::EMBARGO
-               else
-                 PULS3Client::POSTCURATION
-               end
-
-      s3_target_query_service = S3QueryService.new(self, target)
-
-      s3_dir = find_bucket_s3_dir(bucket_name: s3_target_query_service.bucket_name)
-      raise(StandardError, "Attempting to publish a Work with an existing S3 Bucket directory for: #{s3_object_key}") unless s3_dir.nil?
-
-      # Copy the pre-curation S3 Objects to the target S3 Bucket.
-      s3_query_service.publish_files(user)
+      WorkPublishService.new(work: self, current_user: user).publish
     end
 
     def latest_snapshot

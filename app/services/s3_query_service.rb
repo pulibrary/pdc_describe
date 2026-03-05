@@ -96,38 +96,6 @@ class S3QueryService
     { objects: [], ok: false }
   end
 
-  ##
-  # Copies the existing files from the pre-curation bucket to the target bucket (postcuration or embargo).
-  # Notice that the copy process happens at AWS (i.e. the files are not downloaded and re-uploaded).
-  def publish_files(current_user)
-    source_bucket = PULS3Client.pre_curation_config[:bucket]
-    target_bucket = if model.embargoed?
-                      PULS3Client.embargo_config[:bucket]
-                    else
-                      PULS3Client.post_curation_config[:bucket]
-                    end
-
-    empty_files = client_s3_empty_files(reload: true, bucket_name: source_bucket)
-    # Do not move the empty files, however, ensure that it is noted that the
-    #   presence of empty files is specified in the provenance log.
-    unless empty_files.empty?
-      empty_files.each do |empty_file|
-        message = "Warning: Attempted to publish empty S3 file #{empty_file.filename}."
-        WorkActivity.add_work_activity(model.id, message, current_user.id, activity_type: WorkActivity::SYSTEM)
-      end
-    end
-
-    files = client_s3_files(reload: true, bucket_name: source_bucket)
-    snapshot = ApprovedUploadSnapshot.new(work: model)
-    snapshot.store_files(files, current_user:)
-    snapshot.save
-    files.each do |file|
-      ApprovedFileMoveJob.perform_later(work_id: model.id, source_bucket:, source_key: file.key, target_bucket:,
-                                        target_key: file.key, size: file.size, snapshot_id: snapshot.id)
-    end
-    true
-  end
-
   def copy_file(source_key:, target_bucket:, target_key:, size:)
     encoded_source_key = encode_key(source_key)
     Rails.logger.info("Copying #{source_key} (encoded: #{encoded_source_key}) to #{target_bucket}/#{target_key}")
@@ -192,6 +160,14 @@ class S3QueryService
     else
       message = "The AWS S3 Object in the bucket #{bucket} with the key #{key} is not present"
       Rails.logger.error(message)
+      false
+    end
+  end
+
+  def directory_empty(bucket:, key:)
+    if client.list_objects_v2({ bucket:, max_keys: 2, prefix: key }).key_count <= 1
+      true
+    else
       false
     end
   end

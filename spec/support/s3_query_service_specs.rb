@@ -22,7 +22,6 @@ def mock_methods(fake_s3_query, bucket_name)
   allow(fake_s3_query).to receive(:bucket_name).and_return(bucket_name)
   allow(fake_s3_query).to receive(:delete_s3_object)
   allow(fake_s3_query).to receive(:create_directory)
-  allow(fake_s3_query).to receive(:publish_files).and_return([])
   allow(fake_s3_query).to receive(:upload_file).and_return(true)
   allow(fake_s3_query).to receive(:last_response).and_return Aws::S3::Types::PutObjectOutput.new(etag: "\"abc123\"")
 end
