@@ -9,9 +9,8 @@ class NotificationMailer < ApplicationMailer
     @subject = "[pdc-describe] New Notification"
     @message = @work_activity.message
     @message_html = @work_activity.to_html
-    @url = work_url(@work_activity.work)
+    @url = data_commons_url(@work_activity.work)
 
-    @url = check_url(@url)
     mail(to: @user.email, subject: @subject)
   end
 
@@ -22,9 +21,8 @@ class NotificationMailer < ApplicationMailer
     @subject = "[pdc-describe] New Submission Created"
     @message = @work_activity.message
     @message_html = @work_activity.to_html
-    @url = work_url(@work_activity.work)
+    @url = data_commons_url(@work_activity.work)
 
-    @url = check_url(@url)
     mail(to: @user.email, subject: @subject)
   end
 
@@ -35,9 +33,8 @@ class NotificationMailer < ApplicationMailer
     @subject = "[pdc-describe] Submission Ready for Review"
     @message = @work_activity.message
     @message_html = @work_activity.to_html
-    @url = work_url(@work_activity.work)
+    @url = data_commons_url(@work_activity.work)
 
-    @url = check_url(@url)
     mail(to: @user.email, subject: @subject)
   end
 
@@ -48,10 +45,20 @@ class NotificationMailer < ApplicationMailer
     @subject = "[pdc-describe] Submission Returned"
     @message = @work_activity.message
     @message_html = @work_activity.to_html
-    @url = work_url(@work_activity.work)
+    @url = data_commons_url(@work_activity.work)
 
-    @url = check_url(@url)
     mail(to: @user.email, subject: @subject)
+  end
+
+  def data_commons_url(work)
+    url = if Rails.env.production?
+            path = work_path(work)
+
+            "https://datacommons.princeton.edu#{path}"
+          else
+            work_url(work)
+          end
+    check_url(url)
   end
 
   def check_url(url)

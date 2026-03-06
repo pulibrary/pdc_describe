@@ -52,6 +52,20 @@ describe NotificationMailer, type: :mailer do
         expect(text_part.encoded).to include("To view the notification, please browse to http://www.example.com/works/#{work.id}.")
       end
     end
+
+    context "when we are in production" do
+      before do
+        allow(Rails.env).to receive(:production?).and_return(true)
+      end
+
+      it "shows the data commons url" do
+        message = message_delivery.message
+        text_part = message.text_part
+        html_part = message.html_part
+        expect(html_part.encoded).to include("To view the notification, please browse <a href='https://datacommons.princeton.edu/works/#{work.id}'>here<a>.")
+        expect(text_part.encoded).to include("To view the notification, please browse to https://datacommons.princeton.edu/works/#{work.id}.")
+      end
+    end
   end
 
   describe "#new_submission_message" do
