@@ -49,9 +49,10 @@
     If you have already started a submission for this deposit, then please
     <a href="<%= user_path(current_user) %>">go to your dashboard</a> and complete
     the existing submission.
-    You can find more documentation on the <%= link_to "PRDS Data Repository Help Page", "https://researchdata.princeton.edu/research-lifecycle-guide/princeton-research-data-repository", target: "_blank" %>.
-    If you would like to talk to a specialist about
-    your submission, we may be reached at <a href="mailto:prds@princeton.edu">prds@princeton.edu</a>.
+    You can find more guidance on the <%= link_to "PRDS Data Repository Help Page", "https://researchdata.princeton.edu/research-lifecycle-guide/publishing-and-preservation/princeton-research-data-repository/princeton", target: "_blank" %>.
+    If you would like to talk to a specialist about your submission, 
+    we may be reached at <a href="mailto:prds@princeton.edu">prds@princeton.edu</a> (Princeton researchers) or 
+    <a href="mailto:publications@pppl.gov">publications@pppl.gov</a>publications@pppl.gov (PPPL researchers).
   </p>
 
   <%= form_with(model: @work, url: work_new_submission_path) do |form| %>
