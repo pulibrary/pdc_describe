@@ -7,7 +7,7 @@ Rails.application.routes.draw do
 
   mount HealthMonitor::Engine, at: "/"
 
-  authenticate :user, ->(user) { user.super_admin? } do
+  authenticate :user, ->(user) { user.super_admin? || user.sidekiq_admin? } do
     mount Sidekiq::Web => "/sidekiq" # mount Sidekiq::Web in your Rails app
   end
 

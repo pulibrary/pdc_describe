@@ -103,6 +103,16 @@ class User < ApplicationRecord
     user
   end
 
+  ##
+  # Grants the user sidekiq_admin role for accessing the Sidekiq dashboard.
+  # @param uid [String] the uid of the user to grant access
+  # @return [User] the updated user
+  def self.new_sidekiq_admin(uid)
+    user = new_for_uid(uid)
+    user.add_role(:sidekiq_admin) unless user.has_role?(:sidekiq_admin)
+    user
+  end
+
   # rubocop:disable Metrics/MethodLength
   def self.new_from_csv_params(csv_params)
     email = "#{csv_params['Net ID']}@princeton.edu"
@@ -180,6 +190,16 @@ class User < ApplicationRecord
     has_role? :super_admin
   rescue => ex
     Rails.logger.error("Unexpected error checking super_admin: #{ex}")
+    false
+  end
+
+  ##
+  # Is this user a sidekiq_admin? sidekiq_admins can access the Sidekiq dashboard.
+  # @return [Boolean]
+  def sidekiq_admin?
+    has_role? :sidekiq_admin
+  rescue => ex
+    Rails.logger.error("Unexpected error checking sidekiq_admin: #{ex}")
     false
   end
 
