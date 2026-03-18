@@ -150,6 +150,18 @@ irb(main):015:0> user.add_role(:group_admin, Group.plasma_laboratory)
 irb(main):016:0> user.add_role(:group_admin, Group.research_data)
 ```
 
+### Sidekiq Dashboard Access
+To grant a user access to the Sidekiq dashboard (e.g., for monitoring background jobs), use the rails console:
+```
+irb(main):001:0> User.new_sidekiq_admin("your_netid")
+```
+
+Alternatively, you can manually add the role:
+```
+irb(main):001:0> user = User.find_by(uid: 'your_netid')
+irb(main):002:0> user.add_role(:sidekiq_admin)
+```
+
 ## PPPL submitters
 To allow a non-admin user to submit only to the PPPL group and its communities and subcommunities, that user's default Group must be set to the Princeton Plasma Physics Lab and their roles must be updated. To do this, use the Rake task `users:make_pppl_user` and pass the `netid` of the user to update:
 
