@@ -62,4 +62,13 @@ FactoryBot.define do
     email { "#{uid}@princeton.edu" }
     provider { :cas }
   end
+
+  factory :sidekiq_admin_user, class: "User" do
+    uid { FFaker::InternetSE.login_user_name }
+    email { "#{uid}@princeton.edu" }
+    provider { :cas }
+    after(:create) do |user|
+      User.new_sidekiq_admin(user.uid)
+    end
+  end
 end
