@@ -117,30 +117,6 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe "#sidekiq_admin?" do
-    let(:normal_user) { described_class.from_cas(access_token) }
-    let(:sidekiq_admin_user) { described_class.new_sidekiq_admin("fake1") }
-
-    it "is true if the user has the sidekiq_admin role" do
-      expect(sidekiq_admin_user.sidekiq_admin?).to eq true
-    end
-
-    it "is false if the user does not have the sidekiq_admin role" do
-      expect(normal_user.sidekiq_admin?).to eq false
-    end
-
-    context "when an error is raised parsing the user roles" do
-      before do
-        normal_user
-        allow(described_class).to receive(:adapter).and_raise(StandardError)
-      end
-
-      it "returns false" do
-        expect(normal_user.sidekiq_admin?).to eq false
-      end
-    end
-  end
-
   describe "#new_for_uid" do
     it "creates the user only once" do
       described_class.where(uid: "test222").delete_all

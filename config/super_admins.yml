@@ -1,21 +1,30 @@
 ---
 production:
-  - bs3097 # Bess Sadler
-  - jrg5 # James Griffin
   - kl37 # Kate Lynch
-  - hc8719 # Hector Correa
-staging:
+  - pp9425 # Precilla Prempeh
   - bs3097 # Bess Sadler
-  - jrg5 # James Griffin
-  - kl37 # Kate Lynch
+  - cac9 # Carolyn Cole
   - hc8719 # Hector Correa
-  - cl7359 # Claudia Lee
-development:
-  - bs3097 # Bess Sadler
-  - jrg5 # James Griffin
-  - kl37 # Kate Lynch
-  - hc8719 # Hector Correa
-  - cl7359 # Claudia Lee
   - rl3667 # Robert-Anthony Lee-Faison
+  - jh6441 # Jaymee Hyppolite
+  - jrg5 # James Griffin
+staging:
+  - kl37 # Kate Lynch
+  - pp9425 # Precilla Prempeh
+  - bs3097 # Bess Sadler
+  - cac9 # Carolyn Cole
+  - hc8719 # Hector Correa
+  - rl3667 # Robert-Anthony Lee-Faison
+  - jh6441 # Jaymee Hyppolite
+  - jrg5 # James Griffin
+development:
+  - kl37 # Kate Lynch
+  - pp9425 # Precilla Prempeh
+  - bs3097 # Bess Sadler
+  - cac9 # Carolyn Cole
+  - hc8719 # Hector Correa
+  - rl3667 # Robert-Anthony Lee-Faison
+  - jh6441 # Jaymee Hyppolite
+  - jrg5 # James Griffin
 test:
   - fake1 # Fake user for testing

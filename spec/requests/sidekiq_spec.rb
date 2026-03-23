@@ -9,20 +9,27 @@ RSpec.describe "Sidekiq Dashboard", type: :request do
   end
 
   after(:each) do
-    Sidekiq::Testing.disable!
+    allow(Sidekiq::Web).to receive(:call).and_call_original
   end
+
   describe "GET /sidekiq" do
-    it "redirects to the sign in page" do
-      get "/sidekiq"
-      expect(response).to redirect_to(new_user_session_path)
+    context "when the client is not authenticated" do
+      it "redirects to the sign in page" do
+        get sidekiq_web_path
+        expect(response).to redirect_to(new_user_session_path)
+      end
     end
+
     context "when the user does not have the role sidekiq_admin" do
       let(:user) { create(:external_user) }
 
       before do
         sign_in user
-        get "/sidekiq"
-        expect(response).to redirect_to(new_user_session_path)
+      end
+
+      it "responds with a 404 (not found) HTTP response" do
+        get sidekiq_web_path
+        expect(response).to have_http_status(:not_found)
       end
     end
 
@@ -31,7 +38,7 @@ RSpec.describe "Sidekiq Dashboard", type: :request do
 
       before do
         sign_in user
-        get "/sidekiq"
+        get sidekiq_web_path
       end
 
       it "allows access to the dashboard" do

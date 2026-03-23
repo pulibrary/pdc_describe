@@ -68,7 +68,7 @@ FactoryBot.define do
     email { "#{uid}@princeton.edu" }
     provider { :cas }
     after(:create) do |user|
-      User.new_sidekiq_admin(user.uid)
+      User.new_super_admin(user.uid)
     end
   end
 end
