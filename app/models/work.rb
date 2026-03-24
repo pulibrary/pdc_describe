@@ -125,7 +125,12 @@ class Work < ApplicationRecord
 
   before_save do |work|
     # Ensure that the metadata JSONB postgres field is persisted properly
-    work.metadata = JSON.parse(work.resource.to_json)
+    work_resource = work.resource
+    resource_json = work_resource.to_json
+    resource_attr = JSON.parse(resource_json)
+    resource_metadata = PDCMetadata::ResourceMetadata.new(**resource_attr.symbolize_keys)
+    # work.metadata = resource_metadata.to_h
+    work.metadata = resource_attr.to_h
   end
 
   after_save do |work|

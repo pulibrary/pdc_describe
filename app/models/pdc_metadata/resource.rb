@@ -7,6 +7,16 @@ module PDCMetadata
     obj.key.to_s == value or obj.value.casecmp(value).zero?
   end
 
+  ResourceMetadata = Struct.new(
+    :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
+      :description, :doi, :ark, :rights_many, :version_number, :collection_tags, :keywords, :related_objects,
+      :funders, :organizational_contributors, :domains, :migrated, :communities, :subcommunities,
+    # unexpected
+    :contributors,
+    :datacite_serialization
+
+  )
+
   # rubocop:disable Metrics/ClassLength
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
