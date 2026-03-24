@@ -8,13 +8,19 @@ module PDCMetadata
   end
 
   ResourceMetadata = Struct.new(
-    :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
-      :description, :doi, :ark, :rights_many, :version_number, :collection_tags, :keywords, :related_objects,
-      :funders, :organizational_contributors, :domains, :migrated, :communities, :subcommunities,
-    # unexpected
+    :creators, :titles,
+    :publisher, :publication_year,
+    :resource_type, :resource_type_general,
+    :description, :doi,
+    :ark, :rights_many,
+    :version_number, :collection_tags,
+    :keywords, :related_objects,
+    :funders, :organizational_contributors,
+    :domains, :migrated,
+    :communities, :subcommunities,
+    # These map to Resource methods rather than attributes
     :contributors,
     :datacite_serialization
-
   )
 
   # rubocop:disable Metrics/ClassLength

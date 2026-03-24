@@ -131,7 +131,6 @@ class Work < ApplicationRecord
     resource_metadata = PDCMetadata::ResourceMetadata.new(**resource_attr.to_h)
 
     work.metadata = resource_metadata.to_h.stringify_keys
-    # work.metadata = resource_attr.to_h
   end
 
   after_save do |work|
