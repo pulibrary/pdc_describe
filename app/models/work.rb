@@ -198,18 +198,20 @@ class Work < ApplicationRecord
     nil
   end
 
-  def resource=(resource)
-    @resource = resource
-    # Ensure that the metadata JSONB postgres field is persisted properly
-    self.metadata = JSON.parse(resource.to_json)
-  end
-
   # Building PDCMetadata::Resource from the database JSONB metadata field.
   # @note: This method memoizes the resource object so that it is only built
   #   once per instance of the Work.
   # @return [PDCMetadata::Resource] the resource object for this work
   def resource
     @resource ||= PDCMetadata::Resource.new_from_jsonb(metadata)
+  end
+
+  # This method sets the resource for the work and also ensures that the metadata JSONB field is updated accordingly.
+  # @param [PDCMetadata::Resource] resource the resource object to be associated with this work
+  def resource=(resource)
+    @resource = resource
+    # Ensure that the metadata JSONB postgres field is persisted properly
+    self.metadata = JSON.parse(resource.to_json)
   end
 
   def url
@@ -584,6 +586,7 @@ class Work < ApplicationRecord
 
     # This must be protected, NOT private for ActiveRecord to work properly with this attribute.
     #   Protected will still keep others from setting the metatdata, but allows ActiveRecord the access it needs
+    # @param metadata [Hash] the metadata hash to be set on the work, which will also be used to build the resource object
     def metadata=(metadata)
       super
       @resource = PDCMetadata::Resource.new_from_jsonb(metadata)

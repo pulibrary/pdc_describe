@@ -84,6 +84,9 @@ module PDCMetadata
       # Creates a PDCMetadata::Resource from a JSONB postgres field
       #  This jsonb_hash can be created by running JSON.parse(pdc_metadata_resource.to_json)
       #   or by loading it from the work.metadata jsonb field
+      #
+      # @param jsonb_hash [Hash] the hash to create the resource from
+      # @return [PDCMetadata::Resource] the created resource
       def new_from_jsonb(jsonb_hash)
         resource = PDCMetadata::Resource.new
         return resource if jsonb_hash.blank?
