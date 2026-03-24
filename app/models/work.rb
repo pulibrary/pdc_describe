@@ -204,6 +204,10 @@ class Work < ApplicationRecord
     self.metadata = JSON.parse(resource.to_json)
   end
 
+  # Building PDCMetadata::Resource from the database JSONB metadata field.
+  # @note: This method memoizes the resource object so that it is only built
+  #   once per instance of the Work.
+  # @return [PDCMetadata::Resource] the resource object for this work
   def resource
     @resource ||= PDCMetadata::Resource.new_from_jsonb(metadata)
   end
