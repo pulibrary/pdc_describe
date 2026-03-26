@@ -18,7 +18,7 @@ gem "net-ssh", "~> 7.0"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem "actioncable"
 gem "pg"
-gem "rails", "~> 8.0"
+gem "rails", "~> 8.1"
 # Use Puma as the app server
 gem "puma", "~> 5.6"
 # Use SCSS for stylesheets
