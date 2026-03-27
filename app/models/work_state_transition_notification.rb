@@ -12,7 +12,7 @@ class WorkStateTransitionNotification
     @depositor = work.created_by_user
     @group = work.group
     @group_administrators = group.administrators.to_a
-    @work_url = Rails.application.routes.url_helpers.work_url(work)
+    @work_url = data_commons_url(work)
 
     # Troubleshooting https://github.com/pulibrary/pdc_describe/issues/1783
     if @work_url.include?("/describe/describe/")
@@ -61,5 +61,16 @@ class WorkStateTransitionNotification
 
                       groups_users_for_tags.join(", ")
                     end
+      end
+
+      # Make sure we use the official "datacommons" URL for production (and not pdc-describe-prod)
+      def data_commons_url(work)
+        url = if Rails.env.production?
+                path = Rails.application.routes.url_helpers.work_path(work)
+                "https://datacommons.princeton.edu#{path}"
+              else
+                Rails.application.routes.url_helpers.work_url(work)
+              end
+        url
       end
 end
