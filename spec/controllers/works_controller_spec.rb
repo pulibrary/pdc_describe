@@ -1311,9 +1311,9 @@ RSpec.describe WorksController do
       stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
       sign_in user
       post :validate, params: { id: work.id }
-      expect(response).to redirect_to(user_path(user))
+      expect(response).to redirect_to(work_review_path(work)) # the user must review and grant the license
       expect(controller.flash[:notice]).to be_nil
-      expect(work.reload).to be_awaiting_approval
+      expect(work.reload).to be_draft
     end
   end
 end
