@@ -242,8 +242,13 @@ class WorksController < ApplicationController
   # GET /works/1/validate
   def validate
     @work = Work.find(params[:id])
-    @work.complete_submission!(current_user)
-    redirect_to user_path(current_user)
+    if @work.valid_to_complete
+      redirect_to work_review_path(@work)
+    else
+      message = @work.errors.to_a.join(" ")
+      transition_error_message = "We apologize, the following errors were encountered: #{message}. Please contact the PDC Describe administrators for any assistance."
+      redirect_to edit_work_url(id: @work.id), notice: transition_error_message, params:
+    end
   end
 
   private

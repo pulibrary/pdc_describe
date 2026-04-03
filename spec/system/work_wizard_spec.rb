@@ -11,6 +11,7 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
     visit work_policy_path
     expect(page).to have_css("form[action='/works/policy']")
     check "agreement"
+    sleep(0.1) # adding sleep here to give the page time to increase Work.count
     expect { click_on "Confirm" }.to change { Work.count }.by(1)
     work = Work.last
 
@@ -111,6 +112,8 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
 
   context "User submits their work" do
     before do
+      sign_in user
+      stub_datacite
       stub_s3
     end
 
@@ -129,6 +132,22 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
       click_on "Grant License and Complete"
       page.driver.browser.switch_to.alert.dismiss
       expect(page).to have_content("New Submission")
+    end
+    it "does not allow user to complete without granting the license" do
+      sign_in user
+      work = FactoryBot.create :draft_work, created_by_user_id: user.id
+      stub_s3 data: [FactoryBot.build(:s3_readme, work:)]
+      stub_s3 data: [FactoryBot.build(:s3_readme, work:), FactoryBot.build(:s3_file, work:)]
+      visit work_path(work)
+      click_on "Complete"
+      expect(page).to have_content("You acknowledge")
+    end
+    it "does not allow user to grant license without the work being complete" do
+      sign_in user
+      work = FactoryBot.create :draft_work, created_by_user_id: user.id
+      visit work_path(work)
+      click_on "Complete"
+      expect(page).to have_content("You must include one or more files")
     end
   end
 
@@ -173,7 +192,6 @@ describe "walk the wizard hitting all the buttons", type: :system, js: true do
 
       # Emulate the user completelly abandoning the wizard
       visit user_path(user)
-
       # Force the user back to the wizard (rather than to the Show page)
       expect(page.html.include?("(untitled)")).to be true
       expect(page.html.include?("/works/#{work.id}/new-submission")).to be true
