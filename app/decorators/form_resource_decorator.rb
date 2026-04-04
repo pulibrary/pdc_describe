@@ -7,9 +7,16 @@ class FormResourceDecorator
   PPPL_FUNDER_ROR = "https://ror.org/01bj3aw27"
   PPPL_FUNDER_AWARD_NUMBER = "DE-AC02-09CH11466"
 
+  # This decorator provides methods for accessing the resource's funders,
+  #   contributors, and related objects, as well as a method for
+  #   determining if the work's DOI is mutable.
+  #
+  # @param work [Work] the work being edited
+  # @param current_user [User] the user doing the editing
+  # @return [FormResourceDecorator] a decorator for the work's resource
   def initialize(work, current_user)
-    @resource = work.resource
     @work = work
+    @resource = work.resource
     @current_user = current_user
   end
 

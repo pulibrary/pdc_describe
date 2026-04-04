@@ -125,7 +125,10 @@ class Work < ApplicationRecord
 
   before_save do |work|
     # Ensure that the metadata JSONB postgres field is persisted properly
-    work.metadata = JSON.parse(work.resource.to_json)
+    work_resource = work.resource
+    resource_attr = work_resource.as_json
+
+    work.update_metadata(**resource_attr)
   end
 
   after_save do |work|
@@ -198,12 +201,33 @@ class Work < ApplicationRecord
     nil
   end
 
+  # This method is used to update the metadata JSONB field on the Work, which is used to build the Resource object.
+  # This method is called in the before_save callback to ensure that the metadata is always up to date with the Resource object.
+  # @param metadata [Hash] the metadata hash to be set on the work, which will also be used to build the resource object
+  # @return [void]
+  def update_metadata(metadata)
+    # Dry::Schema could be used here to validate the resource_attr before creating the ResourceMetadata object.
+    resource_metadata = PDCMetadata::ResourceMetadata.new(**metadata)
+    # Avoid persisting the memoized @datacite_serialization object
+    updated_metadata = resource_metadata.to_h.except(:datacite_serialization)
+    values = updated_metadata.deep_stringify_keys
+
+    self.metadata = values
+  end
+
+  # This method sets the resource for the work and also ensures that the metadata JSONB field is updated accordingly.
+  # @param [PDCMetadata::Resource] resource the resource object to be associated with this work
   def resource=(resource)
     @resource = resource
     # Ensure that the metadata JSONB postgres field is persisted properly
-    self.metadata = JSON.parse(resource.to_json)
+    resource_json = resource.as_json
+    update_metadata(resource_json)
   end
 
+  # Building PDCMetadata::Resource from the database JSONB metadata field.
+  # @note: This method memoizes the resource object so that it is only built
+  #   once per instance of the Work.
+  # @return [PDCMetadata::Resource] the resource object for this work
   def resource
     @resource ||= PDCMetadata::Resource.new_from_jsonb(metadata)
   end
@@ -579,9 +603,16 @@ class Work < ApplicationRecord
     end
 
     # This must be protected, NOT private for ActiveRecord to work properly with this attribute.
-    #   Protected will still keep others from setting the metatdata, but allows ActiveRecord the access it needs
+    #   Protected will still keep others from setting the metadata, but allows ActiveRecord the access it needs
+    # @param metadata [Hash] the metadata hash to be set on the work, which will also be used to build the resource object
     def metadata=(metadata)
       super
+      # resource_attr = work_resource.as_json
+      # resource_metadata = PDCMetadata::ResourceMetadata.new(**resource_attr.to_h.deep_symbolize_keys)
+      # work_metadata = resource_metadata.to_h.except(:datacite_serialization)
+      # values = work_metadata.deep_stringify_keys
+      # work.metadata = values
+
       @resource = PDCMetadata::Resource.new_from_jsonb(metadata)
     end
 
