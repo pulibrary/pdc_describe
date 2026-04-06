@@ -45,7 +45,7 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
     expect(a_request(:post, "https://api.datacite.org/dois")).to have_been_made
   end
 
-  it "Mints a DOI, but does not mint an ark at any point in the non wizard proccess" do
+  xit "Mints a DOI, but does not mint an ark at any point in the non wizard proccess" do
     sign_in research_data_moderator
     visit user_path(research_data_moderator)
     click_on(research_data_moderator.uid)

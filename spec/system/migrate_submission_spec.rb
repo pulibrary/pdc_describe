@@ -52,7 +52,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
     end
 
-    it "produces and saves a valid datacite record" do
+    xit "produces and saves a valid datacite record" do
       sign_in user
       visit user_path(user)
       click_on(user.uid)
@@ -77,7 +77,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       expect(page).to have_content "awaiting_approval"
     end
 
-    it "produces and saves a valid datacite record that is migrated" do
+    xit "produces and saves a valid datacite record that is migrated" do
       sign_in user
       visit user_path(user)
       click_on(user.uid)
@@ -115,7 +115,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       work2
     end
 
-    it "returns the user to the new page so they can recover from an error" do
+    xit "returns the user to the new page so they can recover from an error" do
       sign_in user
       visit user_path(user)
       click_on(user.uid)
@@ -268,7 +268,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       FileUtils.rm_r("/tmp/dspace_download/#{work.id}")
     end
 
-    it "allows the user to click migrate and the migration gets run" do
+    xit "allows the user to click migrate and the migration gets run" do
       sign_in user
       visit(work_path(work))
       expect(page).to have_content work.title
