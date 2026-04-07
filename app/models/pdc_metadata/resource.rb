@@ -7,6 +7,34 @@ module PDCMetadata
     obj.key.to_s == value or obj.value.casecmp(value).zero?
   end
 
+  # This defines the attributes when creating a Resource from a JSONB hash.
+  # Implementing validation with Dry::Schema.Params can utilize these.
+  ResourceMetadata = Struct.new(
+    :creators,
+    :titles,
+    :publication_year,
+    :publisher,
+    :resource_type,
+    :resource_type_general,
+    :description,
+    :doi,
+    :ark,
+    :rights_many,
+    :version_number,
+    :collection_tags,
+    :keywords,
+    :related_objects,
+    :funders,
+    :organizational_contributors,
+    :domains,
+    :migrated,
+    :communities,
+    :subcommunities,
+    # These map to Resource methods rather than attributes
+    :contributors,
+    :datacite_serialization
+  )
+
   # rubocop:disable Metrics/ClassLength
   class Resource
     attr_accessor :creators, :titles, :publisher, :publication_year, :resource_type, :resource_type_general,
@@ -84,6 +112,9 @@ module PDCMetadata
       # Creates a PDCMetadata::Resource from a JSONB postgres field
       #  This jsonb_hash can be created by running JSON.parse(pdc_metadata_resource.to_json)
       #   or by loading it from the work.metadata jsonb field
+      #
+      # @param jsonb_hash [Hash] the hash to create the resource from
+      # @return [PDCMetadata::Resource] the created resource
       def new_from_jsonb(jsonb_hash)
         resource = PDCMetadata::Resource.new
         return resource if jsonb_hash.blank?
