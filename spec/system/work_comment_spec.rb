@@ -45,6 +45,7 @@ RSpec.describe "Commenting on works sends emails or not", type: :system, js: tru
       fill_in "new-message", with: message
       expect { click_on "Message" }
         .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
+        .and change { WorkActivityNotification.count }.by(2)
         .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
       expect(page).to have_content message
     end
@@ -56,7 +57,8 @@ RSpec.describe "Commenting on works sends emails or not", type: :system, js: tru
         fill_in "new-message", with: message
         expect { click_on "Message" }
           .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
-          .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(1).times
+          .and change { WorkActivityNotification.count }.by(2)
+          .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
         expect(page).to have_content "#{work.group.title} Look at this work!"
       end
     end
@@ -70,6 +72,7 @@ RSpec.describe "Commenting on works sends emails or not", type: :system, js: tru
         fill_in "new-message", with: message
         expect { click_on "Message" }
           .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
+          .and change { WorkActivityNotification.count }.by(2)
           .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
         expect(page).to have_content message
       end
@@ -81,7 +84,63 @@ RSpec.describe "Commenting on works sends emails or not", type: :system, js: tru
           fill_in "new-message", with: message
           expect { click_on "Message" }
             .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
-            .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(0).times
+            .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(1).times
+          expect(page).to have_content "#{work.group.title} Look at this work!"
+        end
+      end
+
+      context "the curator is assigned to the work" do
+        let(:work) { FactoryBot.create(:draft_work, group: Group.research_data, curator_user_id: user2.id) }
+        let(:message) { "Look at this work!" }
+        it "Allows the user to comment and sends a message to the curator without tagging them" do
+          fill_in "new-message", with: message
+          expect { click_on "Message" }
+            .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
+            .and change { WorkActivityNotification.count }.by(2)
+            .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
+          expect(page).to have_content message
+        end
+      end
+    end
+  end
+
+  context "the signed in user is the work curator" do
+    let(:user) { FactoryBot.create(:research_data_moderator) }
+    let(:work) { FactoryBot.create(:draft_work, group: Group.research_data, curator_user_id: user.id) }
+    let(:message) { "A message from the curator" }
+
+    it "Allows the curator to comment and it sends an email to the creator" do
+      fill_in "new-message", with: message
+      expect { click_on "Message" }
+        .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
+        .and change { WorkActivityNotification.count }.by(2)
+        .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
+      expect(page).to have_content message
+    end
+
+    context "when the creator has emails disabled" do
+      before do
+        work.group.disable_messages_for(user: work.created_by_user)
+      end
+
+      it "Allows the curator to comment and it sends an email to the creator" do
+        fill_in "new-message", with: message
+        expect { click_on "Message" }
+          .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
+          .and change { WorkActivityNotification.count }.by(2)
+          .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
+        expect(page).to have_content message
+      end
+
+      context "the message contacts a group" do
+        let(:message) { "@#{work.group.code} Look at this work!" }
+
+        it "Allows the curator to comment and tag a group and it sends an email to group and the creator" do
+          fill_in "new-message", with: message
+          expect { click_on "Message" }
+            .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
+            .and change { WorkActivityNotification.count }.by(2)
+            .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
           expect(page).to have_content "#{work.group.title} Look at this work!"
         end
       end

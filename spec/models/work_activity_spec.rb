@@ -137,4 +137,129 @@ describe WorkActivity, type: :model do
       expect(activity.to_html).to include("by the system")
     end
   end
+
+  context "when the activity is a message" do
+    let(:message) { ["test message for work"].to_json }
+    let(:work_activity) do
+      described_class.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::MESSAGE)
+    end
+
+    it "sends a notification to the depositor" do
+      expect { work_activity }
+        .to change { WorkActivityNotification.count }.by(1)
+        .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(1).times
+      expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: work.created_by_user_id).count).to eq(1)
+    end
+
+    context "when the depositor has email disabled" do
+      before do
+        work.group.disable_messages_for(user: work.created_by_user)
+      end
+
+      it "sends a notification to the depositor" do
+        expect { work_activity }
+          .to change { WorkActivityNotification.count }.by(1)
+          .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(1).times
+        expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: work.created_by_user_id).count).to eq(1)
+      end
+    end
+
+    context "when the depositor is tagged in the message" do
+      let(:message) { "test message for @#{work.created_by_user.uid}" }
+      it "sends a single notification to the depositor" do
+        expect { work_activity }
+          .to change { WorkActivityNotification.count }.by(1)
+          .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(1).times
+        expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: work.created_by_user_id).count).to eq(1)
+      end
+    end
+
+    context "when the work has a curator assigned" do
+      let(:curator) { FactoryBot.create(:research_data_moderator) }
+      let(:work) { FactoryBot.create(:draft_work, curator_user_id: curator.id) }
+
+      it "sends a notification to the curator and depositor" do
+        expect { work_activity }
+          .to change { WorkActivityNotification.count }.by(2)
+          .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
+        expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: work.created_by_user_id).count).to eq(1)
+        expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: curator.id).count).to eq(1)
+      end
+
+      context "when the curator is tagged in the message" do
+        let(:message) { "test message for @#{curator.uid}" }
+        it "sends a single notification to the curator and depositor" do
+          expect { work_activity }
+            .to change { WorkActivityNotification.count }.by(2)
+            .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
+          expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: work.created_by_user_id).count).to eq(1)
+          expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: curator.id).count).to eq(1)
+        end
+      end
+
+      context "when the depositor is tagged in the message" do
+        let(:message) { "test message for @#{work.created_by_user.uid}" }
+        it "sends a single notification to the depositor and curator" do
+          expect { work_activity }
+            .to change { WorkActivityNotification.count }.by(2)
+            .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
+          expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: work.created_by_user_id).count).to eq(1)
+          expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: curator.id).count).to eq(1)
+        end
+      end
+
+      context "when the depositor has email disabled" do
+        before do
+          work.group.disable_messages_for(user: curator)
+        end
+
+        it "sends a notification to the curator and depositor" do
+          expect { work_activity }
+            .to change { WorkActivityNotification.count }.by(2)
+            .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
+          expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: work.created_by_user_id).count).to eq(1)
+          expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: curator.id).count).to eq(1)
+        end
+      end
+
+      context "when the curator has email disabled" do
+        before do
+          work.group.disable_messages_for(user: work.created_by_user)
+        end
+
+        it "sends a notification to the curator and depositor" do
+          expect { work_activity }
+            .to change { WorkActivityNotification.count }.by(2)
+            .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
+          expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: work.created_by_user_id).count).to eq(1)
+          expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: curator.id).count).to eq(1)
+        end
+      end
+
+      context "when the person sending the message is the curator" do
+        let(:user) { curator }
+
+        it "sends a notification to the curator and depositor" do
+          expect { work_activity }
+            .to change { WorkActivityNotification.count }.by(2)
+            .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
+          expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: work.created_by_user_id).count).to eq(1)
+          expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: curator.id).count).to eq(1)
+        end
+      end
+
+      context "when the person sending the message is the depositor" do
+        let(:user) { work.created_by_user }
+
+        it "sends a notification to the curator and depositor" do
+          expect { work_activity }
+            .to change { WorkActivityNotification.count }.by(2)
+            .and have_enqueued_job(ActionMailer::MailDeliveryJob).exactly(2).times
+
+          expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: work.created_by_user_id).count).to eq(1)
+          expect(WorkActivityNotification.where(work_activity_id: work_activity.id, user_id: curator.id).count).to eq(1)
+        end
+      end
+    end
+  end
 end
