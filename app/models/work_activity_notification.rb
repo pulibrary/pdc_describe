@@ -48,13 +48,24 @@ class WorkActivityNotification < ApplicationRecord
       end
     end
 
+    # always send a direct message
     def direct_message?
       @direct_message ||= work_activity.activity_type == WorkActivity::MESSAGE && work_activity.message.include?("@#{user.uid}")
     end
 
+    # always send a message to the curator about works they are curating
+    def work_curator_message?
+      @work_curator_message ||= work_activity.activity_type == WorkActivity::MESSAGE && user.id == work_activity.work.curator_user_id
+    end
+
+    # always send a message to the creator of the work
+    def work_creator_message?
+      @work_creator_message ||= work_activity.activity_type == WorkActivity::MESSAGE && user.id == work_activity.work.created_by_user_id
+    end
+
     def send_message?
-      return true if direct_message? # always send a direct message
-      return false unless user.email_messages_enabled? # do not send message if all emails are disabled
+      return true if direct_message? || work_curator_message? || work_creator_message?
+      return false unless user.email_messages_enabled?
       work = work_activity.work
 
       if work.resource.subcommunities.count > 1

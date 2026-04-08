@@ -37,6 +37,7 @@ class WorkActivity < ApplicationRecord
     activity.notify_users
     if activity_type == MESSAGE
       activity.notify_creator
+      activity.notify_curator
     end
 
     activity
@@ -54,21 +55,19 @@ class WorkActivity < ApplicationRecord
     activities_for_work(work_id, CHANGE_LOG_ACTIVITY_TYPES)
   end
 
-  # notify the creator of the work whenever a message activity type is created
-  def notify_creator
-    # Don't notify the creator if they are already referenced in the message
-    users_referenced.each do |uid|
-      user_id = User.where(uid:).first&.id
-      if user_id.nil?
-        Rails.logger.info("Message #{id} for work #{work_id} referenced an non-existing user: #{uid}")
-      elsif user_id == work.created_by_user_id
-        Rails.logger.info("Skipping notification for creator #{work.created_by_user_id} of work #{work_id} because they are already referenced in the message")
-      else
-        WorkActivityNotification.create(work_activity_id: id, user_id: work.created_by_user_id)
-      end
+  def notify_curator
+    # do not send a notification if no curator is assigned
+    return if work.curator_user_id.nil?
+
+    # only send a notification to the curator if they are not already referenced in the message
+    if WorkActivityNotification.where(work_activity_id: id, user_id: work.curator_user_id).count.zero?
+      WorkActivityNotification.create(work_activity_id: id, user_id: work.curator_user_id)
     end
-    # If no users are referenced in the message, notify the creator
-    if users_referenced.empty?
+  end
+
+  def notify_creator
+    # only send a notification to the creator if they are not already referenced in the message
+    if WorkActivityNotification.where(work_activity_id: id, user_id: work.created_by_user_id).count.zero?
       WorkActivityNotification.create(work_activity_id: id, user_id: work.created_by_user_id)
     end
   end
