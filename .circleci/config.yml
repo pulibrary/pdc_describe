@@ -5,28 +5,41 @@ orbs:
   browser-tools: circleci/browser-tools@2.4.0
   coveralls: coveralls/coveralls@2.2.5
 commands:
-  install_dependencies:
+  bundle_install:
+    description: "Install correct version of bundler and load from cache or bundle install"
     steps:
-      - run: gem install bundler -v '2.3.22'
-      - run: cp Gemfile.lock Gemfile.lock.bak
+      # Restore bundle cache
       - restore_cache:
-          key: &gem_key pdc_describe-cimg-{{ checksum "Gemfile.lock.bak" }}
-      - run: bundle config set path './vendor/bundle'
-      - run: bundle config set --local without production
-      - run: bundle install --jobs=4 --retry=3
+          keys:
+            - pdc_describe-{{ checksum "Gemfile.lock" }}-{{ checksum "yarn.lock" }}
+      - run:
+          name: Update bundler
+          command: |
+            echo 'export BUNDLER_VERSION=2.3.11' >> $BASH_ENV
+            gem install bundler -v 2.3.11
+      - run:
+          name: Install dependencies
+          command: bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs 4 --retry 3
       - save_cache:
-          key: *gem_key
+          key: pdc_describe-{{ checksum "Gemfile.lock" }}-{{ checksum "yarn.lock" }}
           paths:
             - ./vendor/bundle
+  yarn_install:
+    description: "Install the supported release of Yarn and install the package dependencies"
+    steps:
+      - run:
+          name: Enable corepack and set the supported release of Yarn as the default
+          command: sudo corepack enable && yarn set version berry
       - restore_cache:
-          name: Restore Yarn Package Cache
-          key: &yarn_key pdc_describe-yarn-cimg-{{ checksum "yarn.lock" }}
+          name: Restore the Yarn package dependencies from the cache
+          keys:
+            - pdc_describe-yarn-{{ checksum "yarn.lock" }}
       - run:
           name: Install NPM Dependencies via Yarn
-          command: yarn install --frozen-lockfile
+          command: yarn install --immutable
       - save_cache:
           name: Save Yarn Package Cache
-          key: *yarn_key
+          key: pdc_describe-yarn-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
 
@@ -41,7 +54,8 @@ jobs:
     steps:
       - checkout
       - run: sudo apt update && sudo apt install postgresql-client libmsgpack-dev
-      - install_dependencies
+      - bundle_install
+      - yarn_install
       - persist_to_workspace:
           root: &root "~/pdc_describe"
           paths: "*"
@@ -67,7 +81,8 @@ jobs:
     steps:
       - attach_workspace:
           at: "~/pdc_describe"
-      - install_dependencies
+      - bundle_install
+      - yarn_install
       - run:
           name: Run prettier
           command: yarn run prettier --check .
