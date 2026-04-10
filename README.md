@@ -6,26 +6,13 @@ Cataloging application for PDC content and more
 
 [![Coverage Status](https://coveralls.io/repos/github/pulibrary/pdc_describe/badge.svg?branch=main)](https://coveralls.io/github/pulibrary/pdc_describe?branch=main)
 
-## Dependencies
-See `.tool_versions`
-
 ## Local development
 
+This project uses [devbox](https://www.jetify.com/devbox) to manage system dependencies, and [lando](https://lando.dev/)/docker to run services (postgres and solr). 
+
 ### Setup
-1. Check out code and `cd`
-1. Install tool dependencies
-    1. [Lando](https://docs.lando.dev/getting-started/installation.html)
-    1. [asdf](https://asdf-vm.com/guide/getting-started.html#_2-download-asdf)
-1. Install asdf dependencies
-    1. `asdf plugin add ruby`
-    1. `asdf plugin add nodejs`
-    1. `asdf plugin add yarn`
-    1. `asdf plugin add awscli`
-    1. `asdf install`
-    1. ... but because asdf is not a dependency manager, if there are errors, you may need to install other dependencies. For example: `brew install gpg` or `brew install pkgconfig`
-1. Install language-specific dependencies
-    1. `bundle install`
-    1. `yarn install`
+
+> **Notes**
 1. Set up local AWS credentials
    1. Put a stanza like this in your UNIX setup environment (e.g., `.zshrc` or `.bashrc`). Get the AWS secrets from the staging server:
    ```
@@ -38,6 +25,31 @@ See `.tool_versions`
    export AWS_S3_PRE_CURATE_REGION="us-east-1"
    export AWS_S3_KEY_ID="AWS_S3_KEY_ID"
    ```
+
+1. Install Devbox (see `./bin/first-time-setup.sh`).
+
+2. Start a devbox shell:
+
+   ```sh
+   devbox shell
+   ```
+
+3. Install Ruby gems and JS dependencies:
+
+   ```sh
+   devbox run deps
+   ```
+
+4. Start the services
+
+    Start and initialize solr and database services with:
+    ```
+    bundle exec rake servers:start
+    ```
+
+6. Run tests:
+* Faster: `bundle exec rspec spec`
+* Run in browser: `RUN_IN_BROWSER=true bundle exec rspec spec`
 
 #### Troubleshooting sqlite
 If you are having trouble installing sqlite3 on an M-series mac, try making a file called `.bundle/config` and put this into it (this assumes you're using homebrew) [Source](https://github.com/sparklemotion/sqlite3-ruby/blob/main/INSTALLATION.md):
@@ -57,10 +69,6 @@ Start and initialize database services with:
 To stop database services:
 
 `bundle exec rake servers:stop` or `lando stop`
-
-### Running tests
-1. Fast: `bundle exec rspec spec`
-2. Run in browser: `RUN_IN_BROWSER=true bundle exec rspec spec`
 
 ### Starting the development server
 1. `bundle exec rails s -p 3000`
