@@ -8,7 +8,7 @@ Cataloging application for PDC content and more
 
 ## Local development
 
-This project uses [devbox](https://www.jetify.com/devbox) to manage system dependencies, and [lando](https://lando.dev/)/docker to run services (postgres and solr). 
+This project uses [devbox](https://www.jetify.com/devbox) to manage system dependencies, and [lando](https://lando.dev/)/docker to run services (postgres). 
 
 ### Setup
 
