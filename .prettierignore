@@ -7,3 +7,4 @@ vendor/
 vite.config.mts
 spec/fixtures/**/*json
 spec/fixtures/**/*yaml
+.devbox

@@ -16,6 +16,18 @@ set :rails_env, :production if fetch(:stage).to_s.start_with?("production")
 Rake::Task["deploy:assets:backup_manifest"].clear_actions
 Rake::Task["deploy:assets:restore_manifest"].clear_actions
 
+namespace :pdc_describe do
+  desc "Set Yarn 4 (berry) as the default package manager for this project"
+  task :set_yarn_berry do
+    on roles(:app) do
+      within release_path do
+        execute("yarn set version berry")
+      end
+    end
+  end
+end
+before "deploy:assets:precompile", "pdc_describe:set_yarn_berry"
+
 namespace :sidekiq do
   task :restart do
     on roles(:app) do
