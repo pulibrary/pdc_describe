@@ -19,7 +19,7 @@ commands:
             gem install bundler -v 2.5.9
       - run:
           name: Install dependencies
-          command: bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs 4 --retry 3
+          command: bundle config set path 'vendor/bundle' && bundle install --retry 3
       - save_cache:
           key: pdc_describe-{{ checksum "Gemfile.lock" }}-{{ checksum "yarn.lock" }}
           paths:
