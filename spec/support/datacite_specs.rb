@@ -30,7 +30,7 @@ def stub_datacite(host: "api.datacite.org", body: datacite_register_body, fixtur
       "Accept-Encoding" => "gzip;q=1.0,deflate;q=0.6,identity;q=0.3",
       "Authorization" => "Basic Zm9vOmJhcg==",
       "Content-Type" => "application/vnd.api+json",
-      "User-Agent" => "Datacite Ruby client version 0.3.0"
+      "User-Agent" => "Datacite Ruby client version 0.8.2"
     }
   )
     .to_return(status: 200, body: response, headers: { "Content-Type" => "application/json" })
@@ -47,7 +47,7 @@ def stub_datacite_update(doi:, body:, fixture:, host: "api.datacite.org")
              "Accept-Encoding" => "gzip;q=1.0,deflate;q=0.6,identity;q=0.3",
              "Authorization" => "Basic Zm9vOmJhcg==",
              "Content-Type" => "application/vnd.api+json",
-             "User-Agent" => "Datacite Ruby client version 0.3.0"
+             "User-Agent" => "Datacite Ruby client version 0.8.2"
            }
          )
     .to_return(status: 200, body: response, headers: { "Content-Type" => "application/json" })
