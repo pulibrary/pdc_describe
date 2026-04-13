@@ -48,7 +48,7 @@ jobs:
     working_directory: ~/pdc_describe
     docker:
       - &ruby_docker
-        image: cimg/ruby:3.3.7-browsers
+        image: cimg/ruby:3.4.8-browsers
         environment:
           RAILS_ENV: test
     steps:
@@ -75,7 +75,7 @@ jobs:
     # We don't actually need any of the ruby environment to lint JS... but use what we have for now.
     working_directory: ~/pdc_describe
     docker:
-      - image: cimg/ruby:3.3.7-browsers
+      - image: cimg/ruby:3.4.8-browsers
         environment:
           RAILS_ENV: test
     steps:
