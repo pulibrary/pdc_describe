@@ -5,6 +5,9 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 gem "aasm"
 gem "amazing_print"
 gem "aws-sdk-s3"
+# https://github.com/sul-dlss/cocina-models
+# Required by latest datacite library
+gem "cocina-models" #
 gem "csv"
 gem "datacite-mapping"
 gem "dogstatsd-ruby"
