@@ -20,7 +20,9 @@ bundle exec cap --hosts=[$HOSTNAME].princeton.edu [staging|production] applicati
 * From princeton_ansible, install the checkmk monitoring and run the project playbook:
     ```
     ansible-playbook playbooks/utils/checkmk_agent.yml --limit=pdc_describe_[staging|production] -e checkmk_folder=linux/rdss -e checkmk_service=[staging|production] -e runtime_env=[staging|production]
+    ```
 
+    ```
     ansible-playbook playbooks/pdc_describe.yml -e runtime_env=[staging|production] --limit $HOSTNAME.princeton.edu
     ```
 * Deploy with capistrano or tower:
