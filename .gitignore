@@ -57,4 +57,3 @@ node_modules
 test_results/**
 .yardoc/
 
-.yarn/install-state.gz
