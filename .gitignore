@@ -56,5 +56,4 @@ node_modules
 *.local
 test_results/**
 .yardoc/
-
-.yarn/install-state.gz
+.pnp**
