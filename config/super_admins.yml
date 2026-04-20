@@ -4,7 +4,6 @@ production:
   - pp9425 # Precilla Prempeh
   - bs3097 # Bess Sadler
   - cac9 # Carolyn Cole
-  - hc8719 # Hector Correa
   - rl3667 # Robert-Anthony Lee-Faison
   - jh6441 # Jaymee Hyppolite
   - jrg5 # James Griffin
@@ -13,7 +12,6 @@ staging:
   - pp9425 # Precilla Prempeh
   - bs3097 # Bess Sadler
   - cac9 # Carolyn Cole
-  - hc8719 # Hector Correa
   - rl3667 # Robert-Anthony Lee-Faison
   - jh6441 # Jaymee Hyppolite
   - jrg5 # James Griffin
@@ -22,7 +20,6 @@ development:
   - pp9425 # Precilla Prempeh
   - bs3097 # Bess Sadler
   - cac9 # Carolyn Cole
-  - hc8719 # Hector Correa
   - rl3667 # Robert-Anthony Lee-Faison
   - jh6441 # Jaymee Hyppolite
   - jrg5 # James Griffin
