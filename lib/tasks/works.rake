@@ -113,13 +113,13 @@ namespace :works do
   # (Will be used to test https://github.com/pulibrary/pdc_describe/issues/1978 in staging )
   task :big_provenance, [:work_id] => :environment do |_, args|
     work_id = args[:work_id].to_i
-    user = User.find_by(uid: "hc8719")
+    user = User.find_by(uid: "kl37")
     datestamp = DateTime.now.to_s
     (0..2000).each do |_i|
       WorkActivity.add_work_activity(work_id, "SYSTEM #{datestamp} - #{rand(1_000_000)}", user.id, activity_type: WorkActivity::SYSTEM)
     end
     (0..40).each do |_i|
-      WorkActivity.add_work_activity(work_id, "MESSAGE #{datestamp} - #{rand(1_000_000)} @hc8719", user.id, activity_type: WorkActivity::MESSAGE)
+      WorkActivity.add_work_activity(work_id, "MESSAGE #{datestamp} - #{rand(1_000_000)} @kl37", user.id, activity_type: WorkActivity::MESSAGE)
     end
     work = Work.find(work_id)
     puts work.activities.count
