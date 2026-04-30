@@ -8,6 +8,7 @@ gem "aws-sdk-s3"
 # https://github.com/sul-dlss/cocina-models
 # Required by latest datacite library
 gem "cocina-models" #
+gem "connection_pool", "~> 2.0"
 gem "csv"
 gem "datacite-mapping"
 gem "dogstatsd-ruby"
