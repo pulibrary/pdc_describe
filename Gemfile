@@ -8,7 +8,6 @@ gem "aws-sdk-s3"
 # https://github.com/sul-dlss/cocina-models
 # Required by latest datacite library
 gem "cocina-models" #
-gem "connection_pool", "~> 2.0"
 gem "csv"
 gem "datacite-mapping"
 gem "dogstatsd-ruby"
@@ -39,7 +38,7 @@ gem "nokogiri", ">= 1.13.4"
 gem "retryable"
 gem "rolify"
 gem "rspec-rails"
-gem "sidekiq", "~> 7.2"
+gem "sidekiq", "< 9"
 gem "sqlite3", force_ruby_platform: true # requires bundler >= 2.3.18
 gem "vite_rails"
 gem "whenever"
