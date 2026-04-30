@@ -7,14 +7,9 @@
     <section>
       <p>
         <span>Hello <%= @user.given_name %>,</span>
-        <p>You have a new notification for your account with PDC Describe:</p>
-        <p><%= @message_html.html_safe %></p>
-      </p>
-    </section>
-    <section>
-      <p>
-        <span>To view the notification, please browse <a href='<%= @url %>'>here<a>.</span>
-        <span>Thank you very much for your support and time.</span>
+        <span>Your submission <a href='<%= @url %>'><%= @work_title %></a> has been returned to a draft state. You can edit the files and information. Please see the curators follow up email(s) or chat box message(s) for more information.:</span>
+        <p>Once you are done with edits and are ready to move forward with publishing, just click “Complete” on the top of the data submission page. Your curator will review any changes before proceeding with the data publication.</p>
+        <span>Feedback? Answer this <a href='https://princetonsurvey.az1.qualtrics.com/jfe/form/SV_8dmxZjvhlF41jD0'>2 minute survey</a> to help PDC improve for users like you.</span>
       </p>
     </section>
     <section>
