@@ -23,7 +23,7 @@ gem "actioncable"
 gem "pg"
 gem "rails", "~> 8.0"
 # Use Puma as the app server
-gem "puma", "~> 5.6"
+gem "puma"
 # Use SCSS for stylesheets
 gem "sass-rails"
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
