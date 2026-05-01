@@ -42,7 +42,10 @@ class NotificationMailer < ApplicationMailer
     @user = params[:user]
     @work_activity = params[:work_activity]
     # Get the title of the work for the email message
-    @work_title = @work_activity.work.metadata["titles"].first["title"]
+    @work_title = "Untitled Work"
+    if @work_activity.work.metadata["titles"].first
+      @work_title = @work_activity.work.metadata["titles"].first["title"]
+    end
 
     @subject = "[pdc-describe] Submission Returned"
     @message = @work_activity.message
