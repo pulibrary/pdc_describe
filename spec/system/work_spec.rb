@@ -184,11 +184,11 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
       expect(page.html.include?("/works/#{draft_work.id}/edit-wizard")).to be true
     end
 
-    context "work is awaiting approval" do
+    context "when the work is awaiting approval" do
       let(:awaiting_approval_work) { FactoryBot.create(:awaiting_approval_work) }
       let(:user) { awaiting_approval_work.created_by_user }
 
-      it "does not use the wizard if the work once the work is not in draft" do
+      it "does not use the wizard" do
         sign_in user
         visit work_path(awaiting_approval_work)
         expect(page.html.include?("/works/#{awaiting_approval_work.id}/edit")).to be false
