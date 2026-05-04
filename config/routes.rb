@@ -79,7 +79,6 @@ Rails.application.routes.draw do
   get "works/:id/download", controller: "work_downloader", action: "download", as: :work_download
   post "works/:id/migrate_content", controller: "work_migration", action: "migrate", as: :work_migrate_content
   get "works/:id/bibtex" => "works#bibtex", as: :work_bibtex
-  get "works/index" => "works#index", as: :work_index
   get "works/pending" => "works#pending", as: :pending
   resources :works
   get "/doi/*doi", to: "works#resolve_doi", as: :resolve_doi, format: false

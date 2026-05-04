@@ -55,6 +55,9 @@ class WorksController < ApplicationController
   # (see https://github.com/pulibrary/pdc_describe/issues/2204) we will add a pending works RSS feed.
   def pending
     byebug
+    if rss_pending_request?
+      rss_pending_index
+    end
   end
 
   # only non wizard mode
@@ -472,6 +475,14 @@ class WorksController < ApplicationController
     def rss_index
       # Only include approved works in the RSS feed
       @approved_works = Work.all.select(&:approved?)
+      respond_to do |format|
+        format.rss { render layout: false }
+      end
+    end
+
+    def rss_pending_index
+      # Only include pending works in the RSS feed
+      @pending_works = Work.all.select(&:awaiting_approval?)
       respond_to do |format|
         format.rss { render layout: false }
       end
