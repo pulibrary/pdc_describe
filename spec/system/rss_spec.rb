@@ -66,4 +66,8 @@ XML
     visit "/works/#{work3.id}.json"
     expect(page).to have_content "You need to sign in"
   end
+
+  it "provides a list of pending works" do
+    visit "/works/pending.rss"
+  end
 end

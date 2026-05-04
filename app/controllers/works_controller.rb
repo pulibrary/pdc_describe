@@ -32,8 +32,6 @@ class WorksController < ApplicationController
   # This method allows any user to visit /works.rss
   # and a list is generated of all approved works in an RSS format
   # so that the works are harvestable by PDC Discovery.
-  # In order to support landing pages for not yet approved works in PDC Discovery
-  # (see https://github.com/pulibrary/pdc_describe/issues/2204) we will add a pending works RSS feed.
   def index
     if rss_index_request?
       rss_index
@@ -48,6 +46,15 @@ class WorksController < ApplicationController
       flash[:notice] = "You do not have access to this page."
       redirect_to root_path
     end
+  end
+
+  # This method allows any user to visit /pending-works.rss
+  # and a list is generated for all pending works in an RSS format
+  # so that the works are harvestable by PDC Discovery.
+  # In order to support landing pages for not yet approved works in PDC Discovery
+  # (see https://github.com/pulibrary/pdc_describe/issues/2204) we will add a pending works RSS feed.
+  def pending
+    byebug
   end
 
   # only non wizard mode
@@ -279,6 +286,12 @@ class WorksController < ApplicationController
       action_name == "index" && request.format.symbol == :rss
     end
 
+    # Determine whether or not the request is for the Work#pending_index action in RSS response format.
+    # This is to enable PDC Discovery to index pending work content via the RSS feed.
+    def rss_pending_request?
+      action_name == "pending" && request.format.symbol == :rss
+    end
+
     # Determine whether or not the request is for the :show action in the JSON
     # response format
     # @return [Boolean]
@@ -299,6 +312,7 @@ class WorksController < ApplicationController
     # Note that only approved works can be fetched for indexing.
     def public_request?
       return true if rss_index_request?
+      return true if rss_pending_request?
       return true if json_show_request? && work_approved?
       false
     end
