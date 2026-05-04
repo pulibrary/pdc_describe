@@ -29,15 +29,20 @@ class WorksController < ApplicationController
   skip_before_action :authenticate_user!
   before_action :authenticate_user!, unless: :public_request?
 
+  # This method allows any user to visit /works.rss
+  # and a list is generated of all approved works in an RSS format
+  # so that the works are harvestable by PDC Discovery.
   def index
     if rss_index_request?
       rss_index
+    # If the user is authenticated as a super admin and visits /works it will return a list of all approved works in an HTML format.
     elsif current_user.super_admin?
       @works = Work.all
       respond_to do |format|
         format.html
       end
     else
+      # If a user who is not a super admin attempts to visit /works they will be redirected to the root_path and receive a flash notice that they do not have access to that page.
       flash[:notice] = "You do not have access to this page."
       redirect_to root_path
     end
