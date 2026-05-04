@@ -5,7 +5,7 @@ FactoryBot.define do
     message { "test work activity message" }
     activity_type { WorkActivity::SYSTEM }
     created_by_user_id { FactoryBot.create(:user).id }
-    work_id { FactoryBot.create(:draft_work).id }
+    work_id { FactoryBot.create(:new_draft_work).id }
   end
 
   factory :work_activity_message, class: "WorkActivity" do
