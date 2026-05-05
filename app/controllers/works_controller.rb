@@ -48,13 +48,12 @@ class WorksController < ApplicationController
     end
   end
 
-  # This method allows any user to visit /pending-works.rss
+  # This method allows any user to visit /works/pending.rss
   # and a list is generated for all pending works in an RSS format
   # so that the works are harvestable by PDC Discovery.
   # In order to support landing pages for not yet approved works in PDC Discovery
   # (see https://github.com/pulibrary/pdc_describe/issues/2204) we will add a pending works RSS feed.
   def pending
-    byebug
     if rss_pending_request?
       rss_pending_index
     end

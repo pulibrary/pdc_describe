@@ -5,6 +5,7 @@ RSpec.describe "RSS feed of approved works, for harvesting and indexing", type: 
   let(:work1) { FactoryBot.create(:draft_work) }
   let(:work2) { FactoryBot.create(:draft_work) }
   let(:work3) { FactoryBot.create(:draft_work) }
+  let(:work4) { FactoryBot.create(:awaiting_approval_work) }
   let(:super_admin) { FactoryBot.create(:super_admin_user) }
   let(:s3_file1) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work1 }
   let(:s3_file2) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work1 }
@@ -45,6 +46,9 @@ XML
     # Ensure work3 exists before running the tests, but leave it in draft state.
     # It should NOT appear in the RSS feed.
     work3
+
+    # Ensure work4 exists before running the tests, so that it will appear in the works/pending.rss feed.
+    work4
   end
 
   ##
@@ -69,5 +73,7 @@ XML
 
   it "provides a list of pending works" do
     visit "/works/pending.rss"
+    doc = Nokogiri::XML(page.body)
+    expect(doc.xpath("//item").size).to eq 1
   end
 end
