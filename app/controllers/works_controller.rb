@@ -56,6 +56,10 @@ class WorksController < ApplicationController
   def awaiting_approval
     if rss_awaiting_approval_request?
       rss_awaiting_approval_index
+    else
+      # If a user who is not a super admin attempts to visit /awaiting_approval they will be redirected to the root_path and receive a flash notice that they do not have access to that page.
+      flash[:notice] = "You do not have access to this page."
+      redirect_to root_path
     end
   end
 
