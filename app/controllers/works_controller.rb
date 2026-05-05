@@ -48,14 +48,14 @@ class WorksController < ApplicationController
     end
   end
 
-  # This method allows any user to visit /works/pending.rss
-  # and a list is generated for all pending works in an RSS format
+  # This method allows any user to visit /works/awaiting-approval.rss
+  # and a list is generated for works with a draft DOI in an RSS format
   # so that the works are harvestable by PDC Discovery.
   # In order to support landing pages for not yet approved works in PDC Discovery
-  # (see https://github.com/pulibrary/pdc_describe/issues/2204) we will add a pending works RSS feed.
-  def pending
-    if rss_pending_request?
-      rss_pending_index
+  # (see https://github.com/pulibrary/pdc_describe/issues/2204).
+  def awaiting_approval
+    if rss_awaiting_approval_request?
+      rss_awaiting_approval_index
     end
   end
 
@@ -288,10 +288,10 @@ class WorksController < ApplicationController
       action_name == "index" && request.format.symbol == :rss
     end
 
-    # Determine whether or not the request is for the Work#pending_index action in RSS response format.
-    # This is to enable PDC Discovery to index pending work content via the RSS feed.
-    def rss_pending_request?
-      action_name == "pending" && request.format.symbol == :rss
+    # Determine whether or not the request is for the Work#awaiting_approval action in RSS response format.
+    # This is to enable PDC Discovery to index work whose DOIs are not yet published content via the RSS feed.
+    def rss_awaiting_approval_request?
+      action_name == "awaiting_approval" && request.format.symbol == :rss
     end
 
     # Determine whether or not the request is for the :show action in the JSON
@@ -314,7 +314,7 @@ class WorksController < ApplicationController
     # Note that only approved works can be fetched for indexing.
     def public_request?
       return true if rss_index_request?
-      return true if rss_pending_request?
+      return true if rss_awaiting_approval_request?
       return true if json_show_request? && work_approved?
       false
     end
@@ -479,9 +479,9 @@ class WorksController < ApplicationController
       end
     end
 
-    def rss_pending_index
-      # Only include pending works in the RSS feed
-      @pending_works = Work.all.select(&:awaiting_approval?)
+    def rss_awaiting_approval_index
+      # Only include works with draft DOIs in the RSS feed
+      @awaiting_approval_works = Work.all.select(&:awaiting_approval?)
       respond_to do |format|
         format.rss { render layout: false }
       end
