@@ -71,8 +71,8 @@ XML
     expect(page).to have_content "You need to sign in"
   end
 
-  it "provides a list of pending works" do
-    visit "/works/pending.rss"
+  it "provides a list of awaiting approval works" do
+    visit "/works/awaiting-approval.rss"
     doc = Nokogiri::XML(page.body)
     expect(doc.xpath("//item").size).to eq 1
   end
