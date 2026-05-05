@@ -7,15 +7,20 @@
     <section>
       <p>
         <span>Hello <%= @user.given_name %>,</span>
-        <p>You have a new notification for your account with PDC Describe:</p>
-        <p><%= @message_html.html_safe %></p>
+        <span>Thank you for creating a new submission  <a href='<%= @url %>'><%= @work_title %></a>, the DOI the system generated for you <a href='<%= @doi_url %>'><%= @doi_url %></a> can be given to your paper publisher at this time although it will not be live until this data submission is accepted. When you are ready, please:</span>
       </p>
     </section>
     <section>
-      <p>
-        <span>To view the notification, please browse <a href='<%= @url %>'>here<a>.</span>
-        <span>Thank you very much for your support and time.</span>
-      </p>
+      <ul>
+        <li>Complete your submission.</li>
+        <li>Accept the distribution license and submit it</li>
+      </ul>
+    </section>
+    <section>
+      <p>A curator will then be assigned to begin the curatorial review process.</p>
+    </section>
+    <section>
+      <p>Feedback? Answer this 2 minute survey to help PDC improve for users like you.</p>
     </section>
     <section>
       <p>

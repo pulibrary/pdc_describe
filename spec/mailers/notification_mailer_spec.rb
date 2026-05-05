@@ -4,7 +4,7 @@ require "rails_helper"
 describe NotificationMailer, type: :mailer do
   subject(:notification_mailer) { NotificationMailer.with(user:, work_activity:) }
 
-  let(:work) { FactoryBot.create(:work, group: Group.default) }
+  let(:work) { FactoryBot.create(:shakespeare_and_company_work, group: Group.default) }
   let(:work_activity) { FactoryBot.create(:work_activity, work:) }
   let(:user) { work_activity.created_by_user }
 
@@ -87,12 +87,14 @@ describe NotificationMailer, type: :mailer do
       expect(message.body.parts.last).to be_an(Mail::Part)
       expect(message.body.parts.last.content_type).to eq("text/html; charset=UTF-8")
       expect(message.body.encoded).to include("Hello #{user.given_name},")
-      expect(message.body.encoded).to include(work_activity.message)
       expect(message.body.encoded).to include("PDC Describe: New Submission Created")
+      expect(message.body.encoded).to include("Thank you for creating a new submission")
+      expect(message.body.encoded).to include("A curator will then be assigned to begin the curatorial review process")
+      expect(message.body.encoded).to include("doi.org/#{work.doi}")
     end
 
     context "when the message has markdown" do
-      let(:work_activity) { FactoryBot.create(:work_activity, work:, message: "I like to send [links](https://www.google.com)") }
+      let(:work_activity) { FactoryBot.create(:work_activity, work:) }
       it "generates the e-mail message" do
         expect(message_delivery).to be_a(ActionMailer::Parameterized::MessageDelivery)
         expect(message_delivery.message).to be_a(Mail::Message)
@@ -102,14 +104,18 @@ describe NotificationMailer, type: :mailer do
         expect(message.subject).to eq("[pdc-describe] New Submission Created")
         text_part = message.text_part
         html_part = message.html_part
-        expect(text_part.content_type).to eq("text/plain; charset=UTF-8")
         expect(html_part.content_type).to eq("text/html; charset=UTF-8")
-        expect(html_part.encoded).to include("Hello #{user.given_name},")
-        expect(html_part.encoded).to include("To view the notification, please browse <a href='http://www.example.com/works/#{work.id}'>here<a>.")
-        expect(html_part.encoded).to include("I like to send <a href=\"https://www.google.com\">links</a>")
-        expect(text_part.encoded).to include(work_activity.message)
-        expect(text_part.encoded).to include("Hello #{user.given_name},")
-        expect(text_part.encoded).to include("To view the notification, please browse to http://www.example.com/works/#{work.id}.")
+        expect(text_part.content_type).to eq("text/plain; charset=UTF-8")
+
+        expect(html_part.body.encoded).to include("Hello #{user.given_name},")
+        expect(html_part.body.encoded).to include("Thank you for creating a new submission")
+        expect(html_part.body.encoded).to include("A curator will then be assigned to begin the curatorial review process")
+        expect(html_part.body.encoded).to include("doi.org/#{work.doi}")
+
+        expect(text_part.body.encoded).to include("Hello #{user.given_name},")
+        expect(text_part.body.encoded).to include("Thank you for creating a new submission")
+        expect(text_part.body.encoded).to include("A curator will then be assigned to begin the curatorial review process")
+        expect(text_part.body.encoded).to include("doi.org/#{work.doi}")
       end
     end
   end
@@ -195,10 +201,10 @@ describe NotificationMailer, type: :mailer do
         html_part = message.html_part
         expect(text_part.content_type).to eq("text/plain; charset=UTF-8")
         expect(html_part.content_type).to eq("text/html; charset=UTF-8")
-        expect(html_part.encoded).to include("Hello #{user.given_name},")
-        expect(html_part.encoded).to include("has been returned to a draft state.")
-        expect(text_part.encoded).to include("Hello #{user.given_name},")
-        expect(text_part.encoded).to include("has been returned to a draft state.")
+        expect(html_part.body.encoded).to include("Hello #{user.given_name},")
+        expect(html_part.body.encoded).to include("has been returned to a draft state.")
+        expect(text_part.body.encoded).to include("Hello #{user.given_name},")
+        expect(text_part.body.encoded).to include("has been returned to a draft state.")
       end
     end
   end
