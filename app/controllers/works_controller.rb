@@ -32,8 +32,6 @@ class WorksController < ApplicationController
   # This method allows any user to visit /works.rss
   # and a list is generated of all approved works in an RSS format
   # so that the works are harvestable by PDC Discovery.
-  # In order to support landing pages for not yet approved works in PDC Discovery
-  # (see https://github.com/pulibrary/pdc_describe/issues/2204) we will add a pending works RSS feed.
   def index
     if rss_index_request?
       rss_index
@@ -45,6 +43,21 @@ class WorksController < ApplicationController
       end
     else
       # If a user who is not a super admin attempts to visit /works they will be redirected to the root_path and receive a flash notice that they do not have access to that page.
+      flash[:notice] = "You do not have access to this page."
+      redirect_to root_path
+    end
+  end
+
+  # This method allows any user to visit /works/awaiting-approval.rss
+  # and a list is generated for works with a draft DOI in an RSS format
+  # so that the works are harvestable by PDC Discovery.
+  # In order to support landing pages for not yet approved works in PDC Discovery
+  # (see https://github.com/pulibrary/pdc_describe/issues/2204).
+  def awaiting_approval
+    if rss_awaiting_approval_request?
+      rss_awaiting_approval_index
+    else
+      # If a user who is not a super admin attempts to visit /awaiting_approval they will be redirected to the root_path and receive a flash notice that they do not have access to that page.
       flash[:notice] = "You do not have access to this page."
       redirect_to root_path
     end
@@ -279,6 +292,12 @@ class WorksController < ApplicationController
       action_name == "index" && request.format.symbol == :rss
     end
 
+    # Determine whether or not the request is for the Work#awaiting_approval action in RSS response format.
+    # This is to enable PDC Discovery to index work whose DOIs are not yet published content via the RSS feed.
+    def rss_awaiting_approval_request?
+      action_name == "awaiting_approval" && request.format.symbol == :rss
+    end
+
     # Determine whether or not the request is for the :show action in the JSON
     # response format
     # @return [Boolean]
@@ -299,6 +318,7 @@ class WorksController < ApplicationController
     # Note that only approved works can be fetched for indexing.
     def public_request?
       return true if rss_index_request?
+      return true if rss_awaiting_approval_request?
       return true if json_show_request? && work_approved?
       false
     end
@@ -458,6 +478,14 @@ class WorksController < ApplicationController
     def rss_index
       # Only include approved works in the RSS feed
       @approved_works = Work.all.select(&:approved?)
+      respond_to do |format|
+        format.rss { render layout: false }
+      end
+    end
+
+    def rss_awaiting_approval_index
+      # Only include works with draft DOIs in the RSS feed
+      @awaiting_approval_works = Work.all.select(&:awaiting_approval?)
       respond_to do |format|
         format.rss { render layout: false }
       end
