@@ -47,7 +47,7 @@ XML
     # It should NOT appear in the RSS feed.
     work3
 
-    # Ensure work4 exists before running the tests, so that it will appear in the works/pending.rss feed.
+    # Ensure work4 exists before running the tests, so that it will appear in the works/awaiting-approval.rss feed.
     work4
   end
 
