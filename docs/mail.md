@@ -92,6 +92,7 @@ sequenceDiagram
     work-->>activity: SYSTEM (no Email sent)
     work-->>activity: NOTIFICATION (via WorkTransitionActivity)
     activity-->>new: Notify group and researcher
+    new->>depositor: draft created 📫
     new->>curator: draft created 📫
     new->>researcher: draft created 📫
 ```
