@@ -31,8 +31,6 @@ class NotificationMailer < ApplicationMailer
     @work_activity = params[:work_activity]
 
     @subject = "[pdc-describe] Submission Ready for Review"
-    @message = @work_activity.message
-    @message_html = @work_activity.to_html
     @url = data_commons_url(@work_activity.work)
 
     mail(to: @user.email, subject: @subject)

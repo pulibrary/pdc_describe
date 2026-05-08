@@ -1,14 +1,10 @@
 Hello <%= @user.given_name %>,
 
-You have a new notification for your account with PDC Describe:
+Your submission <%= link_to @work_title, @url %> has been received, a curator will be assigned shortly and begin the curatorial review process. We will review the files and metadata and may recommend changes to maximize the reusability, transparency, and the accessibility of your dataset. The review typically takes 5 to 10 business days.
 
-<%= @message %>
+If you will need to embargo your dataset or need the data to be available for peer review, please include a note in dataset chat box.
 
-===============================================
-
-To view the notification, please browse to <%= @url %>.
-
-Thank you very much for your support and time.
+Feedback? Answer this <%= link_to "2 minute survey", "https://princetonsurvey.az1.qualtrics.com/jfe/form/SV_8dmxZjvhlF41jD0" %> to help PDC improve for users like you.
 
 Gratefully,
 Research Data and Scholarship Services

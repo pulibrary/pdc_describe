@@ -139,8 +139,9 @@ describe NotificationMailer, type: :mailer do
       expect(message.body.parts.last).to be_an(Mail::Part)
       expect(message.body.parts.last.content_type).to eq("text/html; charset=UTF-8")
       expect(message.body.encoded).to include("Hello #{user.given_name},")
-      expect(message.body.encoded).to include(work_activity.message)
       expect(message.body.encoded).to include("PDC Describe: Submission Ready for Review")
+      expect(message.body.encoded).to include("a curator will be assigned shortly and begin the curatorial review process.")
+      expect(message.body.encoded).to include("If you will need to embargo your dataset or need the data to be available for peer review, please include a note in dataset chat box.")
     end
 
     context "when the message has markdown" do
@@ -157,11 +158,12 @@ describe NotificationMailer, type: :mailer do
         expect(text_part.content_type).to eq("text/plain; charset=UTF-8")
         expect(html_part.content_type).to eq("text/html; charset=UTF-8")
         expect(html_part.encoded).to include("Hello #{user.given_name},")
-        expect(html_part.encoded).to include("To view the notification, please browse <a href='http://www.example.com/works/#{work.id}'>here<a>.")
-        expect(html_part.encoded).to include("I like to send <a href=\"https://www.google.com\">links</a>")
-        expect(text_part.encoded).to include(work_activity.message)
+        expect(html_part.body.encoded).to include("a curator will be assigned shortly and begin the curatorial review process.")
+        expect(html_part.body.encoded).to include("If you will need to embargo your dataset or need the data to be available for peer review, please include a note in dataset chat box.")
+
         expect(text_part.encoded).to include("Hello #{user.given_name},")
-        expect(text_part.encoded).to include("To view the notification, please browse to http://www.example.com/works/#{work.id}.")
+        expect(html_part.body.encoded).to include("a curator will be assigned shortly and begin the curatorial review process.")
+        expect(html_part.body.encoded).to include("If you will need to embargo your dataset or need the data to be available for peer review, please include a note in dataset chat box.")
       end
     end
   end

@@ -7,14 +7,13 @@
     <section>
       <p>
         <span>Hello <%= @user.given_name %>,</span>
-        <p>You have a new notification for your account with PDC Describe:</p>
-        <p><%= @message_html.html_safe %></p>
+        <p>Your submission <a href='<%= @url %>'><%= @work_title %></a> has been received, a curator will be assigned shortly and begin the curatorial review process. We will review the files and metadata and may recommend changes to maximize the reusability, transparency, and the accessibility of your dataset. The review typically takes 5 to 10 business days.</p>
       </p>
     </section>
     <section>
       <p>
-        <span>To view the notification, please browse <a href='<%= @url %>'>here<a>.</span>
-        <span>Thank you very much for your support and time.</span>
+        <span>If you will need to embargo your dataset or need the data to be available for peer review, please include a note in dataset chat box.</span>
+        <span>Feedback? Answer this <a href='https://princetonsurvey.az1.qualtrics.com/jfe/form/SV_8dmxZjvhlF41jD0'>2 minute survey</a> to help PDC improve for users like you.</span>
       </p>
     </section>
     <section>
