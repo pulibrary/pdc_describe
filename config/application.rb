@@ -7,6 +7,7 @@ require_relative "lando_env"
 # Require the gems listed in Gemfile,  but only the default ones
 # and those for the environment rails is running in.
 Bundler.require(:default, Rails.env)
+# Bundler.require(*Rails.groups)
 
 module PdcDescribe
   class Application < Rails::Application

@@ -3,6 +3,7 @@ source "https://gem.coop"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 gem "aasm"
+gem "addressable", ">= 2.9.0"
 gem "amazing_print"
 gem "aws-sdk-s3"
 # https://github.com/sul-dlss/cocina-models
@@ -21,7 +22,7 @@ gem "net-ssh", "~> 7.0"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem "actioncable"
 gem "pg"
-gem "rails", "~> 8.0"
+gem "rails", "8.1.3"
 # Use Puma as the app server
 gem "puma"
 # Use SCSS for stylesheets
@@ -31,10 +32,8 @@ gem "turbolinks", "~> 5"
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem "jbuilder", "~> 2.7"
 # Use Redis adapter to run Action Cable in production
+gem "nokogiri", ">= 1.19.3"
 gem "redis", "~> 4.0"
-# Use Active Model has_secure_password
-# gem 'bcrypt', '~> 3.1.7'
-gem "nokogiri", ">= 1.13.4"
 gem "retryable"
 gem "rolify"
 gem "rspec-rails"
@@ -44,7 +43,7 @@ gem "vite_rails"
 gem "whenever"
 
 # Reference: https://github.com/pulibrary/pul-the-hard-way/blob/main/services/cas.md
-gem "devise", "~> 4.9"
+gem "devise", ">= 5.0.4"
 gem "omniauth", "~> 2.1", ">= 2.1.2"
 gem "omniauth-cas", "~> 3.0"
 
