@@ -158,12 +158,13 @@ describe NotificationMailer, type: :mailer do
         expect(text_part.content_type).to eq("text/plain; charset=UTF-8")
         expect(html_part.content_type).to eq("text/html; charset=UTF-8")
         expect(html_part.encoded).to include("Hello #{user.given_name},")
+        expect(html_part.body.encoded).to include("Your submission <a href='http://www.example.com/works/#{work.id}'>#{work_activity.work.title}</a> has been received,")
         expect(html_part.body.encoded).to include("a curator will be assigned shortly and begin the curatorial review process.")
         expect(html_part.body.encoded).to include("If you will need to embargo your dataset or need the data to be available for peer review, please include a note in dataset chat box.")
 
-        expect(text_part.encoded).to include("Hello #{user.given_name},")
-        expect(html_part.body.encoded).to include("a curator will be assigned shortly and begin the curatorial review process.")
-        expect(html_part.body.encoded).to include("If you will need to embargo your dataset or need the data to be available for peer review, please include a note in dataset chat box.")
+        expect(text_part.body.encoded).to include("Hello #{user.given_name},")
+        expect(text_part.body.encoded).to include("a curator will be assigned shortly and begin the curatorial review process.")
+        expect(text_part.body.encoded).to include("If you will need to embargo your dataset or need the data to be available for peer review, please include a note in dataset chat box.")
       end
     end
   end

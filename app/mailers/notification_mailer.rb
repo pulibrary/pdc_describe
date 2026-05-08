@@ -29,6 +29,7 @@ class NotificationMailer < ApplicationMailer
   def review_message
     @user = params[:user]
     @work_activity = params[:work_activity]
+    @work_title = @work_activity.work.title.nil? ? "Untitled Work" : @work_activity.work.title
 
     @subject = "[pdc-describe] Submission Ready for Review"
     @url = data_commons_url(@work_activity.work)
