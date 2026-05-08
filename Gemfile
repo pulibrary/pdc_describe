@@ -44,7 +44,7 @@ gem "vite_rails"
 gem "whenever"
 
 # Reference: https://github.com/pulibrary/pul-the-hard-way/blob/main/services/cas.md
-gem "devise", "~> 4.9"
+gem "devise", "~> 5.0"
 gem "omniauth", "~> 2.1", ">= 2.1.2"
 gem "omniauth-cas", "~> 3.0"
 
