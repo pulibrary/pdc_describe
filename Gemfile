@@ -18,6 +18,10 @@ gem "net-ftp"
 gem "net-imap"
 gem "net-pop"
 gem "net-ssh", "~> 7.0"
+# apm
+gem "opentelemetry-exporter-otlp"
+gem "opentelemetry-instrumentation-all"
+gem "opentelemetry-sdk"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem "actioncable"
 gem "pg"
