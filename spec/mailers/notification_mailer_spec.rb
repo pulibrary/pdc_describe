@@ -26,13 +26,12 @@ describe NotificationMailer, type: :mailer do
       expect(message.body.parts.first.content_type).to eq("text/plain; charset=UTF-8")
       expect(message.body.parts.last).to be_an(Mail::Part)
       expect(message.body.parts.last.content_type).to eq("text/html; charset=UTF-8")
-      expect(message.body.encoded).to include("Hello #{user.given_name},")
-      expect(message.body.encoded).to include(work_activity.message)
-      expect(message.body.encoded).to include("To view the notification, please browse <a href='http://www.example.com/works/#{work.id}'>here<a>.")
+      expect(message.body.encoded).to include("Dear #{user.given_name},")
+      expect(message.body.encoded).to include("Congratulations! Your dataset, #{work_activity.work.title}, has been published.")
     end
 
     context "when the message has markdown" do
-      let(:work_activity) { FactoryBot.create(:work_activity, work:, message: "I like to send [links](https://www.google.com)") }
+      let(:work_activity) { FactoryBot.create(:work_activity, work:) }
       it "generates the e-mail message" do
         expect(message_delivery).to be_a(ActionMailer::Parameterized::MessageDelivery)
         expect(message_delivery.message).to be_a(Mail::Message)
@@ -44,12 +43,12 @@ describe NotificationMailer, type: :mailer do
         html_part = message.html_part
         expect(text_part.content_type).to eq("text/plain; charset=UTF-8")
         expect(html_part.content_type).to eq("text/html; charset=UTF-8")
-        expect(html_part.encoded).to include("Hello #{user.given_name},")
-        expect(html_part.encoded).to include("To view the notification, please browse <a href='http://www.example.com/works/#{work.id}'>here<a>.")
-        expect(html_part.encoded).to include("I like to send <a href=\"https://www.google.com\">links</a>")
-        expect(text_part.encoded).to include(work_activity.message)
-        expect(text_part.encoded).to include("Hello #{user.given_name},")
-        expect(text_part.encoded).to include("To view the notification, please browse to http://www.example.com/works/#{work.id}.")
+
+        expect(html_part.encoded).to include("Dear #{user.given_name},")
+        expect(html_part.encoded).to include("Congratulations! Your dataset, #{work_activity.work.title}, has been published.")
+
+        expect(text_part.encoded).to include("Dear #{user.given_name},")
+        expect(text_part.encoded).to include("Congratulations! Your dataset, #{work_activity.work.title}, has been published.")
       end
     end
 
@@ -62,8 +61,8 @@ describe NotificationMailer, type: :mailer do
         message = message_delivery.message
         text_part = message.text_part
         html_part = message.html_part
-        expect(html_part.encoded).to include("To view the notification, please browse <a href='https://datacommons.princeton.edu/works/#{work.id}'>here<a>.")
-        expect(text_part.encoded).to include("To view the notification, please browse to https://datacommons.princeton.edu/works/#{work.id}.")
+        expect(html_part.encoded).to include("Your DOI https://datacommons.princeton.edu/discovery/catalog/doi-#{work_activity.work.doi} will go live soon.")
+        expect(text_part.encoded).to include("Your DOI https://datacommons.princeton.edu/discovery/catalog/doi-#{work_activity.work.doi} will go live soon.")
       end
     end
   end

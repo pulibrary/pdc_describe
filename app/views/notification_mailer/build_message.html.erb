@@ -6,15 +6,16 @@
     <h1>PDC Describe</h1>
     <section>
       <p>
-        <span>Hello <%= @user.given_name %>,</span>
-        <p>You have a new notification for your account with PDC Describe:</p>
-        <p><%= @message_html.html_safe %></p>
+        <span>Dear <%= @user.given_name %>,</span>
       </p>
     </section>
     <section>
       <p>
-        <span>To view the notification, please browse <a href='<%= @url %>'>here<a>.</span>
-        <span>Thank you very much for your support and time.</span>
+        <span>Congratulations! Your dataset, <%= @work_title %>, has been published. Your DOI https://datacommons.princeton.edu/discovery/catalog/doi-<%= @work_activity.work.doi%> will go live soon. Your page may take some time to appear depending on the size and quantity of files. If you notice your publication page has not appeared after 72 hours, please contact us so we can remedy it as soon as possible.</span>
+        <span>Since the data has been published, you won't be able to change it within PDC. If you need to make a change, please contact us for assistance: prds@princeton.edu (Princeton researchers) or publications@pppl.gov (PPPL researchers).</span>
+        <span>Please share your associated paper's DOI with us once you receive it so we can connect your data publication with your paper to increase the findability of your work.</span>
+        <span>Thank you for publishing your dataset with Princeton Data Commons.</span>
+        <span>Feedback? Answer this <a href='https://princetonsurvey.az1.qualtrics.com/jfe/form/SV_8dmxZjvhlF41jD0'>2 minute survey</a> to help PDC improve for users like you.</span>
       </p>
     </section>
     <section>
