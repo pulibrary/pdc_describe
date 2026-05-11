@@ -1,14 +1,13 @@
-Hello <%= @user.given_name %>,
+Dear <%= @user.given_name %>,
+Congratulations! Your dataset, <%= @work_title %>, has been published. Your DOI <%= @doi_url %> will go live soon. Your page may take some time to appear depending on the size and quantity of files. If you notice your publication page has not appeared after 72 hours, please contact us so we can remedy it as soon as possible.
 
-You have a new notification for your account with PDC Describe:
+Since the data has been published, you won't be able to change it within PDC. If you need to make a change, please contact us for assistance: prds@princeton.edu (Princeton researchers) or publications@pppl.gov (PPPL researchers)
 
-<%= @message %>
+Please share your associated paper's DOI with us once you receive it so we can connect your data publication with your paper to increase the findability of your work.
 
-===============================================
+Thank you for publishing your dataset with Princeton Data Commons.
 
-To view the notification, please browse to <%= @url %>.
-
-Thank you very much for your support and time.
+Feedback? Answer this <%= link_to "2 minute survey", "https://princetonsurvey.az1.qualtrics.com/jfe/form/SV_8dmxZjvhlF41jD0" %> to help PDC improve for users like you.
 
 Gratefully,
 Research Data and Scholarship Services

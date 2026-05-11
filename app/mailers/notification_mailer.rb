@@ -5,11 +5,11 @@ class NotificationMailer < ApplicationMailer
   def build_message
     @user = params[:user]
     @work_activity = params[:work_activity]
+    @work_title = @work_activity.work.title.nil? ? "Untitled Work" : @work_activity.work.title
 
     @subject = "[pdc-describe] New Notification"
-    @message = @work_activity.message
-    @message_html = @work_activity.to_html
     @url = data_commons_url(@work_activity.work)
+    @doi_url = @work_activity.work.doi_url
 
     mail(to: @user.email, subject: @subject)
   end
