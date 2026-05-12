@@ -3,6 +3,7 @@ source "https://gem.coop"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 gem "aasm"
+gem "addressable", "~> 2.9.0"
 gem "amazing_print"
 gem "aws-sdk-s3"
 # https://github.com/sul-dlss/cocina-models
@@ -44,7 +45,7 @@ gem "vite_rails"
 gem "whenever"
 
 # Reference: https://github.com/pulibrary/pul-the-hard-way/blob/main/services/cas.md
-gem "devise", "~> 4.9"
+gem "devise", "~> 5.0.4"
 gem "omniauth", "~> 2.1", ">= 2.1.2"
 gem "omniauth-cas", "~> 3.0"
 
