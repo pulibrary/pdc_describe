@@ -109,6 +109,13 @@ namespace :works do
     puts work_preservation.preserve!
   end
 
+  desc "Audit preservations from yesterday"
+  task preservation_audit: :environment do
+    auditor = WorkPreservationAuditService.new
+    auditor.audit!
+    puts "All works approved yesterday are in preservation!"
+  end
+
   # Artificially add a lot of notifications to a work
   # (Will be used to test https://github.com/pulibrary/pdc_describe/issues/1978 in staging )
   task :big_provenance, [:work_id] => :environment do |_, args|
