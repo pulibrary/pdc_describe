@@ -311,7 +311,13 @@ class Work < ApplicationRecord
     # Disable this validation since we want to force a SQL UPDATE.
     # rubocop:disable Rails/SkipsModelValidations
     now_utc = Time.now.utc
-    WorkActivityNotification.joins(:work_activity).where("user_id=? and work_id=?", user_id, id).in_batches(of: 1000).update_all(read_at: now_utc)
+
+    WorkActivityNotification.joins(:work_activity)
+                            .where(user_id:)
+                            .where(work_activity: { work_id: id })
+                            .in_batches(of: 1000)
+                            .update_all(read_at: now_utc)
+
     # rubocop:enable Rails/SkipsModelValidations
   end
 

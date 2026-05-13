@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_07_152610) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_08_175643) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -26,7 +26,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_152610) do
 
   create_table "active_storage_blobs", force: :cascade do |t|
     t.bigint "byte_size", null: false
-    t.string "checksum", null: false
+    t.string "checksum"
     t.string "content_type"
     t.datetime "created_at", precision: nil, null: false
     t.string "filename", null: false

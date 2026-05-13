@@ -9,6 +9,9 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  # While tests run files are not watched, reloading is not necessary.
+  config.enable_reloading = false
+
   # Compile and load CSS when running tests if we're running in browser
   if ENV["RUN_IN_BROWSER"]
     config.assets.compile = true
@@ -39,6 +42,9 @@ Rails.application.configure do
   # Disable request forgery protection in test environment.
   config.action_controller.allow_forgery_protection = false
 
+  # Store uploaded files on the local file system in a temporary directory.
+  config.active_storage.service = :test
+
   config.action_mailer.perform_caching = false
 
   # Tell Action Mailer not to deliver emails to the real world.
@@ -68,4 +74,11 @@ Rails.application.configure do
 
   routes.default_url_options[:host] = "www.example.com"
   routes.default_url_options[:port] = 80
+
+  # Raise error when a before_action's only/except options reference missing actions.
+  # NOTE: This must be disabled for test suites
+  # Example:
+  #   AbstractController::ActionNotFound (The new_submission_save action could not be found for the :rescue_aasm_error
+  #     callback on WorksWizardController, but it is listed in the controller's :only option.
+  config.action_controller.raise_on_missing_callback_actions = false
 end
