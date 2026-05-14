@@ -7,27 +7,34 @@ class WorkActivityNotification < ApplicationRecord
   after_create do
     if send_message?
       mailer = NotificationMailer.with(user:, work_activity:)
-      work = work_activity.work
-      delay = wait_time
-      from_state = check_from_state(work)
-
-      if work.state == "draft" && from_state == :none # draft event
-        new_submission_message = mailer.new_submission_message
-        new_submission_message.deliver_later(wait: delay) unless Rails.env.development?
-      elsif work.state == "draft" && from_state == :awaiting_approval # revert_to_draft event
-        reject_message = mailer.reject_message
-        reject_message.deliver_later(wait: delay) unless Rails.env.development?
-      elsif work.state == "awaiting_approval" && from_state == :draft # complete_submission
-        review_message = mailer.review_message
-        review_message.deliver_later(wait: delay) unless Rails.env.development?
-      else
+      if work_activity.activity_type == WorkActivity::MESSAGE
         message = mailer.build_message
-        message.deliver_later(wait: delay) unless Rails.env.development?
+        message.deliver_later unless Rails.env.development?
+      else
+        message = build_state_transition_message(mailer)
+        message.deliver_later(wait: wait_time) unless Rails.env.development?
       end
     end
   end
 
   private
+
+    def build_state_transition_message(mailer)
+      work = work_activity.work
+      from_state = check_from_state(work)
+
+      if work.state == "draft" && from_state == :none # draft event
+        mailer.new_submission_message
+      elsif work.state == "draft" && from_state == :awaiting_approval # revert_to_draft event
+        mailer.reject_message
+      elsif work.state == "awaiting_approval" && from_state == :draft # complete_submission
+        mailer.review_message
+      elsif work.state == "approved" && from_state == :awaiting_approval # approve_submission
+        mailer.publish_message
+      else # some other system transition that we don't have a specific message for, just send the generic message
+        mailer.build_message
+      end
+    end
 
     def wait_time
       work = work_activity.work
