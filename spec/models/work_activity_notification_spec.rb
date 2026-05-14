@@ -114,20 +114,15 @@ describe WorkActivityNotification, type: :model do
 
     context "when the notification is for an approved submission" do
       let(:work) do
-        work = FactoryBot.create(:draft_work, group:)
-        work.state = "awaiting_approval"
-        work.save!
-        WorkActivity.add_work_activity(work.id, "marked as #{work.state.to_s.titleize}", user.id, activity_type: WorkActivity::SYSTEM)
-        work.state = "approved"
-        work.save!
-        WorkActivity.add_work_activity(work.id, "marked as #{work.state.to_s.titleize}", user.id, activity_type: WorkActivity::SYSTEM)
+        work = FactoryBot.create(:approved_work, group:)
+        UserWork.create(user_id: user.id, work_id: work.id, state: "awaiting_approval")
+        UserWork.create(user_id: user.id, work_id: work.id, state: "approved")
         work
       end
       let(:approve_delivery) { instance_double(ActionMailer::Parameterized::MessageDelivery) }
 
       before do
-        pending "there is no separate approval message yet"
-        allow(notification_mailer).to receive(:approve_message).and_return(approve_delivery)
+        allow(notification_mailer).to receive(:publish_message).and_return(approve_delivery)
         allow(approve_delivery).to receive(:deliver_later)
       end
 

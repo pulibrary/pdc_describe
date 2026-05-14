@@ -29,7 +29,9 @@ class WorkActivityNotification < ApplicationRecord
         mailer.reject_message
       elsif work.state == "awaiting_approval" && from_state == :draft # complete_submission
         mailer.review_message
-      else
+      elsif work.state == "approved" && from_state == :awaiting_approval # approve_submission
+        mailer.publish_message
+      else # some other system transition that we don't have a specific message for, just send the generic message
         mailer.build_message
       end
     end
