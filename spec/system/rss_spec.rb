@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 require "rails_helper"
 
+# approved draft withdrawn
 RSpec.describe "RSS feed of approved works, for harvesting and indexing", type: :system do
   let(:work1) { FactoryBot.create(:draft_work) }
   let(:work2) { FactoryBot.create(:draft_work) }
   let(:work3) { FactoryBot.create(:draft_work) }
   let(:work4) { FactoryBot.create(:awaiting_approval_work) }
+  let(:withdrawn_work) { FactoryBot.create(:withdrawn_work) }
   let(:super_admin) { FactoryBot.create(:super_admin_user) }
   let(:s3_file1) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work1 }
   let(:s3_file2) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work1 }
@@ -49,6 +51,9 @@ XML
 
     # Ensure work4 exists before running the tests, so that it will appear in the works/awaiting-approval.rss feed.
     work4
+
+    # Ensure withdrawn_work exists before running the tests, so that it will appear in the /works.rss feed.
+    withdrawn_work
   end
 
   ##
@@ -75,5 +80,11 @@ XML
     visit "/works/awaiting-approval.rss"
     doc = Nokogiri::XML(page.body)
     expect(doc.xpath("//item").size).to eq 1
+  end
+
+  it "provides a list of approved and withdrawn works" do
+    visit "/works.rss"
+    doc = Nokogiri::XML(page.body)
+    expect(doc.xpath("//item").size).to eq 2
   end
 end
