@@ -67,6 +67,13 @@ FactoryBot.define do
       resource { FactoryBot.build :resource, doi:, ark: }
     end
 
+    factory :withdrawn_work do
+      group { Group.research_data }
+      state { "withdrawn" }
+      created_by_user_id { FactoryBot.create(:user).id }
+      resource { FactoryBot.build :resource, doi:, ark: }
+    end
+
     factory :shakespeare_and_company_work do
       group { Group.research_data }
       resource do
