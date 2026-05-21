@@ -129,17 +129,24 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
         expect(page).not_to have_button("Revert Dataset to Draft")
         expect(page).to have_button("Complete")
         expect(page).to have_content("marked as Draft")
+        fill_in "new-message", with: "@#{user.uid.first}"
+        sleep 1 # This is needed to allow the triggeredAutocomplete plugin to process the @mention and update the UI accordingly
+        find("#ui-id-1").click
+        expect(find("#new-message").value).to eq("@#{user.uid} ")
         fill_in "new-message", with: "@#{user.uid} sending a message after reverting to draft"
-        expect { click_on "Message" }
-          .to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }.by(1)
-          .and change { WorkActivityNotification.count }.by(2)
-          .and have_enqueued_job(ActionMailer::MailDeliveryJob).with { |mailer_class, build_command, action, params|
-                 expect(mailer_class).to eq "NotificationMailer"
-                 expect(build_command).to eq "build_message"
-                 expect(action).to eq "deliver_now"
-                 expect(params[:params][:user].id).to be_in([user.id, work.created_by_user_id])
-               }.exactly(2).times
-        expect(page).to have_content "sending a message after reverting to draft"
+        expect(find("#new-message").value).to eq("@#{user.uid} sending a message after reverting to draft")
+        expect do
+          click_on "Message"
+          expect(page).to have_content "sending a message after reverting to draft"
+        end.to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }
+          .by(1).and change { WorkActivityNotification.count }
+          .by(2).and have_enqueued_job(ActionMailer::MailDeliveryJob).with { |mailer_class, build_command, action, params|
+                       expect(mailer_class).to eq "NotificationMailer"
+                       expect(build_command).to eq "build_message"
+                       expect(action).to eq "deliver_now"
+                       expect(params[:params][:user].id).to be_in([user.id,
+                                                                   work.created_by_user_id])
+                     }.exactly(2).times
       end
     end
 
