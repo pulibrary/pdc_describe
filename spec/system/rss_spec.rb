@@ -46,7 +46,7 @@ XML
     work2.approve!(super_admin)
 
     # Ensure work3 exists before running the tests, but leave it in draft state.
-    # It should NOT appear in the RSS feed.
+    # It should appear in the RSS feed.
     work3
 
     # Ensure work4 exists before running the tests, so that it will appear in the works/awaiting-approval.rss feed.
@@ -57,12 +57,12 @@ XML
   end
 
   ##
-  # Note that we do not require sign in for getting a list of approved works
+  # Note that we do not require sign in for getting a list of works
   # or the JSON representation of a work
-  it "provides a list of approved works, with links to their datacite records" do
+  it "provides a list of works, with links to their datacite records" do
     visit "/works.rss"
     doc = Nokogiri::XML(page.body)
-    expect(doc.xpath("//item").size).to eq 2
+    expect(doc.xpath("//item").size).to eq 6
     urls = doc.xpath("//item/url/text()").map(&:to_s)
     expect(urls.include?(work_url(work1, format: "json"))).to eq true
     expect(urls.include?(work_url(work2, format: "json"))).to eq true
@@ -76,15 +76,40 @@ XML
     expect(page).to have_content "You need to sign in"
   end
 
+    # We are trying to accomplish fetching the JSON for a work that is not approved
+
+    # We are trying to accomplish fetching the JSON for a work that has been withdrawn
+
+  context "when a work is not yet approved" do
+    it "still appears in the RSS feed" do
+      visit "/works.rss"
+      doc = Nokogiri::XML(page.body)
+      expect(doc.xpath("//item").size).to eq 6
+    end
+  end
+
+  context "when a work is approved" do
+    it "is in the RSS feed" do
+      visit "/works.rss"
+      doc = Nokogiri::XML(page.body)
+      expect(doc.xpath("//item").size).to eq 6
+    end
+  end
+
+  context "When a work is withdrawn" do
+    it "still appears in the RSS feed" do
+      visit "/works.rss"
+      doc = Nokogiri::XML(page.body)
+      expect(doc.xpath("//item").size).to eq 6
+    end
+
+    it "can be harvested" do
+    end
+  end
+
   it "provides a list of awaiting approval works" do
     visit "/works/awaiting-approval.rss"
     doc = Nokogiri::XML(page.body)
     expect(doc.xpath("//item").size).to eq 1
-  end
-
-  it "provides a list of approved and withdrawn works" do
-    visit "/works.rss"
-    doc = Nokogiri::XML(page.body)
-    expect(doc.xpath("//item").size).to eq 2
   end
 end
