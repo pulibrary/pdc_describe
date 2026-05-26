@@ -9,7 +9,7 @@
     "ejs": "^5.0.2",
     "esbuild": "^0.28.0",
     "ip-address": "^10.2.0",
-    "postcss": "^8.5.14",
+    "postcss": "^8.5.15",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-preset-env": "^10.6.1",
     "turbolinks": "^5.2.0"
