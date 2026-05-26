@@ -365,25 +365,6 @@
       });
     });
 
-    // For now we add all the users as a plain Javascript array.
-    // If the user list gets to be too long we might want to fetch this data incrementally
-    // as the user types the @mention, but for now this is OK.
-    var userList = [ <%= User.all_uids_string.html_safe %> ];
-
-    // triggeredAutocomplete (https://github.com/Hawkers/triggeredAutocomplete) is a plug-in
-    // that sits on top of jQuery UI autocomplete and provides the @mention functionaly to
-    // reference other users via their netid in a message.
-    //
-    // Notice that https://github.com/Hawkers/triggeredAutocomplete also supports passing an
-    // array of objects with structure {value: x, label: y} to display a more user friendly
-    // label rather than the netid, but this approach carries another set of complications
-    // (e.g. how to handle spaces, how to edit)
-    $('#new-message').triggeredAutocomplete({
-      hidden: '#hidden_inputbox',
-      source: userList,
-      trigger: "@"
-    });
-
     // Toggles citation display between APA and BibTeX
     var setupCitationToggle = function() {
       $("#show-bibtex-citation-button").click(function(_x) {
