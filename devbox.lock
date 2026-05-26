@@ -66,50 +66,30 @@
       }
     },
     "chromedriver@latest": {
-      "last_modified": "2026-03-14T16:50:54Z",
-      "resolved": "github:NixOS/nixpkgs/e80236013dc8b77aa49ca90e7a12d86f5d8d64c9#chromedriver",
+      "last_modified": "2026-05-13T11:46:26Z",
+      "resolved": "github:NixOS/nixpkgs/eef00dfd8a712b34af845f9350bac681b1228bd1#chromedriver",
       "source": "devbox-search",
-      "version": "146.0.7680.80",
+      "version": "148.0.7778.168",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/s77irfmp92dpbjwmp3v3vxdwcakvm8ph-chromedriver-146.0.7680.80",
+              "path": "/nix/store/mi559ws4xh5by3xk1glx9gqbfcx0bbdv-chromedriver-148.0.7778.168",
               "default": true
             }
           ],
-          "store_path": "/nix/store/s77irfmp92dpbjwmp3v3vxdwcakvm8ph-chromedriver-146.0.7680.80"
-        },
-        "aarch64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/wqsapvw27wscsg3yd9dkz9722q1v5nwi-chromedriver-unwrapped-146.0.7680.80",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/wqsapvw27wscsg3yd9dkz9722q1v5nwi-chromedriver-unwrapped-146.0.7680.80"
+          "store_path": "/nix/store/mi559ws4xh5by3xk1glx9gqbfcx0bbdv-chromedriver-148.0.7778.168"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/s4j5dvagmg5pmnfhjhily1i89mhrnc5s-chromedriver-146.0.7680.80",
+              "path": "/nix/store/39q1f83qp2lhk2chyly1s9k14l4bi7x7-chromedriver-148.0.7778.168",
               "default": true
             }
           ],
-          "store_path": "/nix/store/s4j5dvagmg5pmnfhjhily1i89mhrnc5s-chromedriver-146.0.7680.80"
-        },
-        "x86_64-linux": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/xxfa7amv8g29gba9jbj0hvllqw95h6qh-chromedriver-unwrapped-146.0.7680.80",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/xxfa7amv8g29gba9jbj0hvllqw95h6qh-chromedriver-unwrapped-146.0.7680.80"
+          "store_path": "/nix/store/39q1f83qp2lhk2chyly1s9k14l4bi7x7-chromedriver-148.0.7778.168"
         }
       }
     },
@@ -607,7 +587,18 @@
     },
     "libyaml.dev": {
       "resolved": "github:NixOS/nixpkgs/d1c15b7d5806069da59e819999d70e1cec0760bf?narHash=sha256-b9uG8yN50DRQ6A7JdZBfzq718ryYrlmGgqkRm9OOwCE%3D#libyaml.dev",
-      "source": "nixpkg"
+      "source": "nixpkg",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "dev",
+              "path": "/nix/store/amiqglvn5097pai4c5sl137kqprxhn5r-libyaml-0.2.5-dev",
+              "default": true
+            }
+          ]
+        }
+      }
     },
     "libyaml@0.2.5": {
       "last_modified": "2026-03-02T11:03:52Z",
@@ -1062,7 +1053,17 @@
     },
     "stdenv": {
       "resolved": "github:NixOS/nixpkgs/d1c15b7d5806069da59e819999d70e1cec0760bf?narHash=sha256-b9uG8yN50DRQ6A7JdZBfzq718ryYrlmGgqkRm9OOwCE%3D#stdenv",
-      "source": "nixpkg"
+      "source": "nixpkg",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "path": "/nix/store/kadgci668drg4iadff84lqr2dxx1x838-stdenv-darwin",
+              "default": true
+            }
+          ]
+        }
+      }
     },
     "xmlsec@latest": {
       "last_modified": "2026-02-23T15:40:43Z",

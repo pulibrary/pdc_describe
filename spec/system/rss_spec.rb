@@ -106,4 +106,10 @@ XML
     it "can be harvested" do
     end
   end
+
+  it "provides a list of approved and withdrawn works" do
+    visit "/works.rss"
+    doc = Nokogiri::XML(page.body)
+    expect(doc.xpath("//item").size).to eq 2
+  end
 end
