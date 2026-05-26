@@ -297,7 +297,7 @@ class WorksController < ApplicationController
     # Note that only approved works can be fetched for indexing.
     def public_request?
       return true if rss_index_request?
-      return true if json_show_request? && work_approved?
+      return true if json_show_request?
       false
     end
 
