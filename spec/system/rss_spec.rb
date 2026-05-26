@@ -6,7 +6,6 @@ RSpec.describe "RSS feed of approved works, for harvesting and indexing", type: 
   let(:approved_work1) { FactoryBot.create(:draft_work) }
   let(:approved_work2) { FactoryBot.create(:draft_work) }
   let(:draft_work) { FactoryBot.create(:draft_work) }
-  let(:work4) { FactoryBot.create(:awaiting_approval_work) }
   let(:withdrawn_work) { FactoryBot.create(:withdrawn_work) }
   let(:super_admin) { FactoryBot.create(:super_admin_user) }
   let(:s3_file1) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: approved_work1 }
@@ -49,9 +48,6 @@ XML
     # It should appear in the RSS feed.
     draft_work
 
-    # Ensure work4 exists before running the tests, so that it will appear in the works/awaiting-approval.rss feed.
-    work4
-
     # Ensure withdrawn_work exists before running the tests, so that it will appear in the /works.rss feed.
     withdrawn_work
   end
@@ -62,7 +58,7 @@ XML
   it "provides a list of works, with links to their datacite records" do
     visit "/works.rss"
     doc = Nokogiri::XML(page.body)
-    expect(doc.xpath("//item").size).to eq 6
+    expect(doc.xpath("//item").size).to eq 5
     urls = doc.xpath("//item/url/text()").map(&:to_s)
     expect(urls.include?(work_url(approved_work1, format: "json"))).to eq true
     expect(urls.include?(work_url(approved_work2, format: "json"))).to eq true
@@ -84,7 +80,7 @@ XML
     it "still appears in the RSS feed" do
       visit "/works.rss"
       doc = Nokogiri::XML(page.body)
-      expect(doc.xpath("//item").size).to eq 6
+      expect(doc.xpath("//item").size).to eq 5
     end
   end
 
@@ -92,7 +88,7 @@ XML
     it "is in the RSS feed" do
       visit "/works.rss"
       doc = Nokogiri::XML(page.body)
-      expect(doc.xpath("//item").size).to eq 6
+      expect(doc.xpath("//item").size).to eq 5
     end
   end
 
@@ -100,7 +96,7 @@ XML
     it "still appears in the RSS feed" do
       visit "/works.rss"
       doc = Nokogiri::XML(page.body)
-      expect(doc.xpath("//item").size).to eq 6
+      expect(doc.xpath("//item").size).to eq 5
     end
 
     it "can be harvested" do
