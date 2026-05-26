@@ -30,7 +30,7 @@ class WorksController < ApplicationController
   before_action :authenticate_user!, unless: :public_request?
 
   # This method allows any user to visit /works.rss
-  # and a list is generated of all approved works in an RSS format
+  # and a list is generated of all works in an RSS format
   # so that the works are harvestable by PDC Discovery.
   def index
     if rss_index_request?
@@ -475,9 +475,10 @@ class WorksController < ApplicationController
       }
     end
 
+    # Include all works in the RSS feed so that each dataset is harvestable
+    # so that PDC Discovery has landing pages regardless of the Work state.
     def rss_index
-      # Only include approved works in the RSS feed
-      @approved_works = Work.all.select(&:approved?)
+      @works = Work.all
       respond_to do |format|
         format.rss { render layout: false }
       end
