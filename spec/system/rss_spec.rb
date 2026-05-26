@@ -3,14 +3,14 @@ require "rails_helper"
 
 # approved draft withdrawn
 RSpec.describe "RSS feed of approved works, for harvesting and indexing", type: :system do
-  let(:work1) { FactoryBot.create(:draft_work) }
+  let(:approved_work1) { FactoryBot.create(:draft_work) }
   let(:work2) { FactoryBot.create(:draft_work) }
   let(:work3) { FactoryBot.create(:draft_work) }
   let(:work4) { FactoryBot.create(:awaiting_approval_work) }
   let(:withdrawn_work) { FactoryBot.create(:withdrawn_work) }
   let(:super_admin) { FactoryBot.create(:super_admin_user) }
-  let(:s3_file1) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work1 }
-  let(:s3_file2) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: work1 }
+  let(:s3_file1) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: approved_work1 }
+  let(:s3_file2) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: approved_work1 }
   let(:list_objects_response) do
     <<-XML
 <?xml version="1.0" encoding="UTF-8"?>
@@ -34,13 +34,13 @@ XML
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
 
-    allow(work1).to receive(:publish).and_return(true)
+    allow(approved_work1).to receive(:publish).and_return(true)
     allow(work2).to receive(:publish).and_return(true)
     stub_s3(data: [FactoryBot.build(:s3_readme), s3_file1])
 
     # Works 1 & 2 are approved, so they should show up in the RSS feed
-    work1.complete_submission!(super_admin)
-    work1.approve!(super_admin)
+    approved_work1.complete_submission!(super_admin)
+    approved_work1.approve!(super_admin)
 
     work2.complete_submission!(super_admin)
     work2.approve!(super_admin)
@@ -64,12 +64,12 @@ XML
     doc = Nokogiri::XML(page.body)
     expect(doc.xpath("//item").size).to eq 6
     urls = doc.xpath("//item/url/text()").map(&:to_s)
-    expect(urls.include?(work_url(work1, format: "json"))).to eq true
+    expect(urls.include?(work_url(approved_work1, format: "json"))).to eq true
     expect(urls.include?(work_url(work2, format: "json"))).to eq true
 
     # Fetching the JSON for an approved work doesn't require authentication
-    visit "/works/#{work1.id}.json"
-    expect(JSON.parse(page.body)["resource"]["titles"][0]["title"]).to eq work1.title
+    visit "/works/#{approved_work1.id}.json"
+    expect(JSON.parse(page.body)["resource"]["titles"][0]["title"]).to eq approved_work1.title
 
     # Fetching the JSON for a work that is not yet approved doesn't work
     visit "/works/#{work3.id}.json"
