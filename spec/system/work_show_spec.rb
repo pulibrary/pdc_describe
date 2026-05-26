@@ -112,6 +112,40 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     end
   end
 
+  describe "messaging on a Work awaiting approval" do
+    let(:work) { FactoryBot.create(:awaiting_approval_work) }
+    let(:user) { FactoryBot.create :user }
+
+    before do
+      sign_in(user)
+      visit work_path(work)
+    end
+
+    it "Allows user lookup with an @ symbol" do
+      fill_in "new-message", with: "@zzzz"
+      expect(page).to have_content "No users found"
+      fill_in "new-message", with: "@#{user.uid[0..-2]}"
+      expect(page).not_to have_content "No users found"
+      within ".match-list" do
+        expect(page).to have_content user.uid
+        find("#ui-id-0").click
+      end
+      expect(find("#new-message").value).to eq("@#{user.uid} ")
+      fill_in "new-message", with: "goat @#{user.uid[0..-2]}"
+      within ".match-list" do
+        expect(page).to have_content user.uid
+        find("#ui-id-0").click
+      end
+      expect(find("#new-message").value).to eq("goat @#{user.uid} ")
+      fill_in "new-message", with: "goat @#{user.family_name}"
+      within ".match-list" do
+        expect(page).to have_content user.uid
+        find("#ui-id-0").click
+      end
+      expect(find("#new-message").value).to eq("goat @#{user.uid} ")
+    end
+  end
+
   describe "reverting a Work awaiting approval" do
     let(:work) { FactoryBot.create(:awaiting_approval_work) }
 
@@ -129,10 +163,6 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
         expect(page).not_to have_button("Revert Dataset to Draft")
         expect(page).to have_button("Complete")
         expect(page).to have_content("marked as Draft")
-        fill_in "new-message", with: "@#{user.uid.first}"
-        sleep 1 # This is needed to allow the triggeredAutocomplete plugin to process the @mention and update the UI accordingly
-        find("#ui-id-1").click
-        expect(find("#new-message").value).to eq("@#{user.uid} ")
         fill_in "new-message", with: "@#{user.uid} sending a message after reverting to draft"
         expect(find("#new-message").value).to eq("@#{user.uid} sending a message after reverting to draft")
         expect do
