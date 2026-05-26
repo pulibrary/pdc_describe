@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe "RSS feed of approved works, for harvesting and indexing", type: :system do
   let(:approved_work1) { FactoryBot.create(:draft_work) }
   let(:approved_work2) { FactoryBot.create(:draft_work) }
-  let(:work3) { FactoryBot.create(:draft_work) }
+  let(:draft_work) { FactoryBot.create(:draft_work) }
   let(:work4) { FactoryBot.create(:awaiting_approval_work) }
   let(:withdrawn_work) { FactoryBot.create(:withdrawn_work) }
   let(:super_admin) { FactoryBot.create(:super_admin_user) }
@@ -45,9 +45,9 @@ XML
     approved_work2.complete_submission!(super_admin)
     approved_work2.approve!(super_admin)
 
-    # Ensure work3 exists before running the tests, but leave it in draft state.
+    # Ensure draft_work exists before running the tests, but leave it in draft state.
     # It should appear in the RSS feed.
-    work3
+    draft_work
 
     # Ensure work4 exists before running the tests, so that it will appear in the works/awaiting-approval.rss feed.
     work4
@@ -72,7 +72,7 @@ XML
     expect(JSON.parse(page.body)["resource"]["titles"][0]["title"]).to eq approved_work1.title
 
     # Fetching the JSON for a work that is not yet approved doesn't work
-    visit "/works/#{work3.id}.json"
+    visit "/works/#{draft_work.id}.json"
     expect(page).to have_content "You need to sign in"
   end
 
