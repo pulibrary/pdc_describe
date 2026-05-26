@@ -76,9 +76,9 @@ XML
     expect(page).to have_content "You need to sign in"
   end
 
-    # We are trying to accomplish fetching the JSON for a work that is not approved
+  # We are trying to accomplish fetching the JSON for a work that is not approved
 
-    # We are trying to accomplish fetching the JSON for a work that has been withdrawn
+  # We are trying to accomplish fetching the JSON for a work that has been withdrawn
 
   context "when a work is not yet approved" do
     it "still appears in the RSS feed" do
