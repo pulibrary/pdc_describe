@@ -16,15 +16,18 @@
   },
   "version": "0.1.0",
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^10.0.1",
     "command-line-args": "^5.2.1",
-    "eslint": "^8.57.1",
-    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint": "^10.4.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-vue": "^10.9.1",
+    "globals": "^17.6.0",
     "postcss-import": "^15.1.0",
     "prettier": "^3.8.3",
     "vite": "^8.0.0",
-    "vite-plugin-ruby": "^5.2.0"
+    "vite-plugin-ruby": "^5.2.0",
+    "vue-eslint-parser": "^10.4.0"
   },
   "scripts": {
     "lint": "yarn run eslint 'app/assets/javascripts/**' 'app/javascript/**'"

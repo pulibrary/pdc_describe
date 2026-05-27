@@ -98,7 +98,7 @@ $(() => {
     // Remove the filename from the list of values we submit to the server.
     $('.deleted-file-tracker').each((_index, element) => {
       if (element.value === row.filename) {
-        element.value = ''; // eslint-disable-line no-param-reassign
+        element.value = '';
       }
     });
     return false;
