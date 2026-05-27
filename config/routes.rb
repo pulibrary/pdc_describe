@@ -11,6 +11,8 @@ Rails.application.routes.draw do
     mount Sidekiq::Web => "/sidekiq" # mount Sidekiq::Web in your Rails app
   end
 
+  get "/users/lookup", to: "user_lookup#search", as: :user_lookup
+
   # This route is to handle user ids that are in the form abc@something.com because
   # Rails (understandably) does not like the ".com" in the URL
   get "users/:id.:format/edit", to: "users#edit"
