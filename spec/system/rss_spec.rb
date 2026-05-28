@@ -65,9 +65,12 @@ XML
       expect(doc.xpath("//item").size).to eq 4
     end
 
-    it "can be harvested" do
+    it "can be harvested but there is only a DOI" do
       visit "/works/#{draft_work.id}.json"
-      expect(JSON.parse(page.body)["resource"]["titles"][0]["title"]).to eq draft_work.title
+      # make sure to test that only the DOI is included in the JSON document
+      expect(JSON.parse(page.body)).to eq({ "resource" => { "doi" => draft_work.doi } })
+      # make sure to test that the title is not in the JSON document
+      expect(JSON.parse(page.body)["resource"]["titles"]).to be_nil
     end
   end
 
@@ -93,7 +96,8 @@ XML
 
     it "can be harvested" do
       visit "/works/#{withdrawn_work.id}.json"
-      expect(JSON.parse(page.body)["resource"]["titles"][0]["title"]).to eq withdrawn_work.title
+      expect(JSON.parse(page.body)).to eq({ "resource" => { "doi" => withdrawn_work.doi } })
+      expect(JSON.parse(page.body)["resource"]["titles"]).to be_nil
     end
   end
 end
