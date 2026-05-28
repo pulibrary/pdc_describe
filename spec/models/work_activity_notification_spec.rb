@@ -19,8 +19,9 @@ describe WorkActivityNotification, type: :model do
     end
 
     it "enqueues an e-mail message to be delivered for the notification" do
-      described_class.create(user:, work_activity:)
+      work_activity_notification = described_class.create(user:, work_activity:)
       expect(message_delivery).to have_received(:deliver_later)
+      expect(work_activity_notification.email_sent).to eq({ "type" => "system_transition", "email" => user.email })
     end
 
     context "when the notification is for a Draft submission" do
@@ -33,18 +34,20 @@ describe WorkActivityNotification, type: :model do
       end
 
       it "enqueues an e-mail the news submission message to be delivered for the notification" do
-        described_class.create(user:, work_activity:)
+        work_activity_notification = described_class.create(user:, work_activity:)
         expect(message_delivery).not_to have_received(:deliver_later)
         expect(new_delivery).to have_received(:deliver_later)
+        expect(work_activity_notification.email_sent).to eq({ "type" => "new_submission", "email" => user.email })
       end
 
       context "when the notification is a user message" do
         let(:work_activity) { FactoryBot.create(:work_activity_message, work:, message: "new submission created") }
 
         it "enqueues an e-mail message to be delivered for the notification" do
-          described_class.create(user:, work_activity:)
+          work_activity_notification = described_class.create(user:, work_activity:)
           expect(message_delivery).to have_received(:deliver_later)
           expect(new_delivery).not_to have_received(:deliver_later)
+          expect(work_activity_notification.email_sent).to eq({ "type" => "message", "email" => user.email })
         end
       end
     end
@@ -63,19 +66,21 @@ describe WorkActivityNotification, type: :model do
         allow(await_delivery).to receive(:deliver_later)
       end
 
-      it "enqueues an e-mail the news submission message to be delivered for the notification" do
-        described_class.create(user:, work_activity:)
+      it "enqueues an e-mail the awaiting approval message to be delivered for the notification" do
+        work_activity_notification = described_class.create(user:, work_activity:)
         expect(message_delivery).not_to have_received(:deliver_later)
         expect(await_delivery).to have_received(:deliver_later)
+        expect(work_activity_notification.email_sent).to eq({ "type" => "review", "email" => user.email })
       end
 
       context "when the notification is a user message" do
         let(:work_activity) { FactoryBot.create(:work_activity_message, work:, message: "new submission created") }
 
         it "enqueues an e-mail message to be delivered for the notification" do
-          described_class.create(user:, work_activity:)
+          work_activity_notification = described_class.create(user:, work_activity:)
           expect(message_delivery).to have_received(:deliver_later)
           expect(await_delivery).not_to have_received(:deliver_later)
+          expect(work_activity_notification.email_sent).to eq({ "type" => "message", "email" => user.email })
         end
       end
     end
@@ -96,18 +101,20 @@ describe WorkActivityNotification, type: :model do
       end
 
       it "enqueues an e-mail the news submission message to be delivered for the notification" do
-        described_class.create(user:, work_activity:)
+        work_activity_notification = described_class.create(user:, work_activity:)
         expect(message_delivery).not_to have_received(:deliver_later)
         expect(reject_delivery).to have_received(:deliver_later)
+        expect(work_activity_notification.email_sent).to eq({ "type" => "reject", "email" => user.email })
       end
 
       context "when the notification is a user message" do
         let(:work_activity) { FactoryBot.create(:work_activity_message, work:, message: "new submission created") }
 
         it "enqueues an e-mail message to be delivered for the notification" do
-          described_class.create(user:, work_activity:)
+          work_activity_notification = described_class.create(user:, work_activity:)
           expect(message_delivery).to have_received(:deliver_later)
           expect(reject_delivery).not_to have_received(:deliver_later)
+          expect(work_activity_notification.email_sent).to eq({ "type" => "message", "email" => user.email })
         end
       end
     end
@@ -127,18 +134,20 @@ describe WorkActivityNotification, type: :model do
       end
 
       it "enqueues an e-mail the news submission message to be delivered for the notification" do
-        described_class.create(user:, work_activity:)
+        work_activity_notification = described_class.create(user:, work_activity:)
         expect(message_delivery).not_to have_received(:deliver_later)
         expect(approve_delivery).to have_received(:deliver_later)
+        expect(work_activity_notification.email_sent).to eq({ "type" => "publish", "email" => user.email })
       end
 
       context "when the notification is a user message" do
         let(:work_activity) { FactoryBot.create(:work_activity_message, work:, message: "new submission created") }
 
         it "enqueues an e-mail message to be delivered for the notification" do
-          described_class.create(user:, work_activity:)
+          work_activity_notification = described_class.create(user:, work_activity:)
           expect(message_delivery).to have_received(:deliver_later)
           expect(approve_delivery).not_to have_received(:deliver_later)
+          expect(work_activity_notification.email_sent).to eq({ "type" => "message", "email" => user.email })
         end
       end
     end
@@ -149,16 +158,18 @@ describe WorkActivityNotification, type: :model do
       end
 
       it "does not enqueue an e-mail message to be delivered for the notification" do
-        described_class.create(user:, work_activity:)
+        work_activity_notification = described_class.create(user:, work_activity:)
         expect(message_delivery).not_to have_received(:deliver_later)
+        expect(work_activity_notification.email_sent).to eq({ "type" => "unsent", "email" => user.email })
       end
 
       context "a message notification" do
         let(:work_activity) { FactoryBot.create(:work_activity_message, work:, message: "direct message to @#{user.uid}") }
 
         it "does enqueue an e-mail message to be delivered for the notification" do
-          described_class.create(user:, work_activity:)
+          work_activity_notification = described_class.create(user:, work_activity:)
           expect(message_delivery).to have_received(:deliver_later)
+          expect(work_activity_notification.email_sent).to eq({ "type" => "message", "email" => user.email })
         end
       end
 
@@ -166,8 +177,9 @@ describe WorkActivityNotification, type: :model do
         let(:work_activity) { FactoryBot.create(:work_activity_message, work:) }
 
         it "does not enqueue an e-mail message to be delivered for the notification" do
-          described_class.create(user:, work_activity:)
+          work_activity_notification = described_class.create(user:, work_activity:)
           expect(message_delivery).not_to have_received(:deliver_later)
+          expect(work_activity_notification.email_sent).to eq({ "type" => "unsent", "email" => user.email })
         end
       end
     end
@@ -176,16 +188,18 @@ describe WorkActivityNotification, type: :model do
       let(:user) { FactoryBot.create(:user, email_messages_enabled: false) }
 
       it "does not enqueue any e-mail messages" do
-        described_class.create(user:, work_activity:)
+        work_activity_notification = described_class.create(user:, work_activity:)
         expect(message_delivery).not_to have_received(:deliver_later)
+        expect(work_activity_notification.email_sent).to eq({ "type" => "unsent", "email" => user.email })
       end
 
       context "a message notification" do
         let(:work_activity) { FactoryBot.create(:work_activity_message, work:, message: "direct message to @#{user.uid}") }
 
         it "does enqueue an e-mail message to be delivered for the notification" do
-          described_class.create(user:, work_activity:)
+          work_activity_notification = described_class.create(user:, work_activity:)
           expect(message_delivery).to have_received(:deliver_later)
+          expect(work_activity_notification.email_sent).to eq({ "type" => "message", "email" => user.email })
         end
       end
 
@@ -193,8 +207,9 @@ describe WorkActivityNotification, type: :model do
         let(:work_activity) { FactoryBot.create(:work_activity_message, work:) }
 
         it "does not enqueue an e-mail message to be delivered for the notification" do
-          described_class.create(user:, work_activity:)
+          work_activity_notification = described_class.create(user:, work_activity:)
           expect(message_delivery).not_to have_received(:deliver_later)
+          expect(work_activity_notification.email_sent).to eq({ "type" => "unsent", "email" => user.email })
         end
       end
     end
@@ -211,8 +226,9 @@ describe WorkActivityNotification, type: :model do
         let(:work_activity) { FactoryBot.create(:work_activity_message, work:, message: "direct message to @#{user.uid}") }
 
         it "does enqueue an e-mail message to be delivered for the notification" do
-          described_class.create(user:, work_activity:)
+          work_activity_notification = described_class.create(user:, work_activity:)
           expect(message_delivery).to have_received(:deliver_later)
+          expect(work_activity_notification.email_sent).to eq({ "type" => "message", "email" => user.email })
         end
       end
 
@@ -220,8 +236,9 @@ describe WorkActivityNotification, type: :model do
         let(:work_activity) { FactoryBot.create(:work_activity_message, work:) }
 
         it "does enqueue an e-mail message to be delivered for the notification" do
-          described_class.create(user:, work_activity:)
+          work_activity_notification = described_class.create(user:, work_activity:)
           expect(message_delivery).to have_received(:deliver_later)
+          expect(work_activity_notification.email_sent).to eq({ "type" => "message", "email" => user.email })
         end
 
         context "when the group is disabled" do
@@ -230,8 +247,9 @@ describe WorkActivityNotification, type: :model do
           end
 
           it "does not enqueue an e-mail message to be delivered for the notification" do
-            described_class.create(user:, work_activity:)
+            work_activity_notification = described_class.create(user:, work_activity:)
             expect(message_delivery).not_to have_received(:deliver_later)
+            expect(work_activity_notification.email_sent).to eq({ "type" => "unsent", "email" => user.email })
           end
         end
 
@@ -242,14 +260,16 @@ describe WorkActivityNotification, type: :model do
           end
 
           it "does enqueue an e-mail message to be delivered for the notification" do
-            described_class.create(user:, work_activity:)
+            work_activity_notification = described_class.create(user:, work_activity:)
             expect(message_delivery).to have_received(:deliver_later)
+            expect(work_activity_notification.email_sent).to eq({ "type" => "message", "email" => user.email })
           end
 
           it "does not enqueue an e-mail message to be delivered for the notification when the subcommunity is disabled" do
             group.disable_messages_for(user:, subcommunity: "NTSXU")
-            described_class.create(user:, work_activity:)
+            work_activity_notification = described_class.create(user:, work_activity:)
             expect(message_delivery).not_to have_received(:deliver_later)
+            expect(work_activity_notification.email_sent).to eq({ "type" => "unsent", "email" => user.email })
           end
         end
 
@@ -260,21 +280,24 @@ describe WorkActivityNotification, type: :model do
           end
 
           it "does enqueue an e-mail message to be delivered for the notification" do
-            described_class.create(user:, work_activity:)
+            work_activity_notification = described_class.create(user:, work_activity:)
             expect(message_delivery).to have_received(:deliver_later)
+            expect(work_activity_notification.email_sent).to eq({ "type" => "message", "email" => user.email })
           end
 
           it "does not enqueue an e-mail message to be delivered for the notification when the subcommunities are disabled" do
             group.disable_messages_for(user:, subcommunity: "NTSXU")
             group.disable_messages_for(user:, subcommunity: "MAST-U")
-            described_class.create(user:, work_activity:)
+            work_activity_notification = described_class.create(user:, work_activity:)
             expect(message_delivery).not_to have_received(:deliver_later)
+            expect(work_activity_notification.email_sent).to eq({ "type" => "unsent", "email" => user.email })
           end
 
           it "does enqueue an e-mail message to be delivered for the notification when only one subcommunity is disabled" do
             group.disable_messages_for(user:, subcommunity: "MAST-U")
-            described_class.create(user:, work_activity:)
+            work_activity_notification = described_class.create(user:, work_activity:)
             expect(message_delivery).to have_received(:deliver_later)
+            expect(work_activity_notification.email_sent).to eq({ "type" => "message", "email" => user.email })
           end
         end
       end
