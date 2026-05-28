@@ -125,7 +125,7 @@ class Work < ApplicationRecord
 
   before_save do |work|
     # Ensure that the metadata JSONB postgres field is persisted properly
-    work.metadata = JSON.parse(work.resource.to_json)
+    work.metadata = work.resource.as_json.except("datacite_serialization")
   end
 
   after_save do |work|
@@ -449,18 +449,32 @@ class Work < ApplicationRecord
   #   Resources, clearing the in-memory cache
   # @return [String]
   def as_json(*args)
-    files = files_as_json(*args)
+    if state == "approved"
+      full_metadata_as_json(*args)
+    else
+      unpublished_metadata_json(*args)
+    end
+  end
 
-    # to_json returns a string of serialized JSON.
-    # as_json returns the corresponding hash.
+  # these are for approved works and what they return on the JSON document
+  def full_metadata_as_json(*args)
+    files = files_as_json(*args)
     {
-      "resource" => resource.as_json,
+      "resource" => resource.as_json.except("datacite_serialization"),
       "files" => files,
       "group" => group.as_json.except("id"),
       "embargo_date" => embargo_date_as_json,
       "created_at" => format_date_for_solr(created_at),
       "updated_at" => format_date_for_solr(updated_at),
       "date_approved" => date_approved
+    }
+  end
+
+  # this method returns only the DOI, for now, for draft and withdrawn works
+  # so that only that information is visible when harvested.
+  def unpublished_metadata_json(*_args)
+    {
+      "resource" => { "doi" => resource.doi }
     }
   end
 
