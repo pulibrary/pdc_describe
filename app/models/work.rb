@@ -125,7 +125,7 @@ class Work < ApplicationRecord
 
   before_save do |work|
     # Ensure that the metadata JSONB postgres field is persisted properly
-    work.metadata = JSON.parse(work.resource.to_json)
+    work.metadata = work.resource.as_json.except("datacite_serialization")
   end
 
   after_save do |work|
@@ -460,7 +460,7 @@ class Work < ApplicationRecord
   def full_metadata_as_json(*args)
     files = files_as_json(*args)
     {
-      "resource" => resource.as_json,
+      "resource" => resource.as_json.except("datacite_serialization"),
       "files" => files,
       "group" => group.as_json.except("id"),
       "embargo_date" => embargo_date_as_json,

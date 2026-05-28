@@ -17,6 +17,7 @@ RSpec.describe WorksController do
   let(:curator) { FactoryBot.create(:user, groups_to_admin: [group]) }
   let(:resource) { FactoryBot.build :resource }
   let(:work) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
+  let(:approved_work) { FactoryBot.create(:approved_work, doi: "10.34770/123-abc", created_by_user_id: user.id) }
   let(:user) { work.created_by_user }
   let(:pppl_user) { FactoryBot.create(:pppl_submitter) }
   let(:super_admin) { FactoryBot.create :super_admin_user }
@@ -36,15 +37,26 @@ RSpec.describe WorksController do
       expect(response.content_type).to eq "application/rss+xml; charset=utf-8"
     end
 
-    it "renders the work json" do
+    it "renders the approved work json" do
+      sign_in user
+      stub_s3
+      get :show, params: { id: approved_work.id, format: "json" }
+      expect(response.content_type).to eq "application/json; charset=utf-8"
+      work_json = JSON.parse(response.body)
+      expect(work_json["resource"]).to_not be nil
+      expect(work_json["files"]).to_not be nil
+      expect(work_json["group"]).to_not be nil
+    end
+
+    it "renders the draft work json" do
       sign_in user
       stub_s3
       get :show, params: { id: work.id, format: "json" }
       expect(response.content_type).to eq "application/json; charset=utf-8"
       work_json = JSON.parse(response.body)
       expect(work_json["resource"]).to_not be nil
-      expect(work_json["files"]).to_not be nil
-      expect(work_json["group"]).to_not be nil
+      expect(work_json["files"]).to be nil
+      expect(work_json["group"]).to be nil
     end
 
     it "renders the new form" do

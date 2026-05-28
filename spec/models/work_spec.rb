@@ -37,8 +37,10 @@ RSpec.describe Work, type: :model do
     let(:work) { FactoryBot.create(:tokamak_work, embargo_date:) }
     before do
       allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
+      stub_ark
     end
     it "captures everything needed for PDC Describe in JSON" do
+      work.state = "approved"
       expect(JSON.parse(work.to_json)).to eq(
         {
           "resource" => {
