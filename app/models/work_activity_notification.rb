@@ -7,13 +7,22 @@ class WorkActivityNotification < ApplicationRecord
   after_create do
     if send_message?
       mailer = NotificationMailer.with(user:, work_activity:)
+      # messages sent from the work
       if work_activity.activity_type == WorkActivity::MESSAGE
         update_email_sent("message")
         message = mailer.build_message
         message.deliver_later unless Rails.env.development?
-      else
+
+      # state transition notifications
+      elsif work_activity.activity_type == WorkActivity::NOTIFICATION
         message = build_state_transition_message(mailer)
         message.deliver_later(wait: wait_time) unless Rails.env.development?
+
+      # Error publishing DOI or Curator self assigned and assigned
+      else
+        update_email_sent("system")
+        message = mailer.build_message
+        message.deliver_later
       end
     else
       update_email_sent("unsent")
