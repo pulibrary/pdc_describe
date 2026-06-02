@@ -5,7 +5,7 @@ describe WorkActivityNotification, type: :model do
   let(:user) { FactoryBot.create :user }
   let(:group) { Group.default }
   let(:work) { FactoryBot.create(:work, group:) }
-  let(:work_activity) { FactoryBot.create(:work_activity, work:) }
+  let(:work_activity) { FactoryBot.create(:work_activity_notification, work:) }
   let(:notification_mailer) { instance_double(NotificationMailer) }
   let(:message_delivery) { instance_double(ActionMailer::Parameterized::MessageDelivery) }
   let(:reject_delivery) { instance_double(ActionMailer::Parameterized::MessageDelivery) }

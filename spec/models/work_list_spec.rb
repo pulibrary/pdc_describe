@@ -29,7 +29,7 @@ RSpec.describe WorkList, type: :model do
       FactoryBot.create(:draft_work, created_by_user_id: pppl_user.id, group_id: Group.plasma_laboratory.id)
       # Create the dataset for `rd_user` and @mention `user`
       ds = FactoryBot.create(:draft_work, created_by_user_id: rd_user.id)
-      WorkActivity.add_work_activity(ds.id, "Tagging @#{user.uid} in this dataset", rd_user.id, activity_type: WorkActivity::SYSTEM)
+      WorkActivity.add_work_activity(ds.id, "Tagging @#{user.uid} in this dataset", rd_user.id, activity_type: WorkActivity::MESSAGE)
     end
 
     it "for a typical user retrieves only the datasets created by the user or where the user is tagged" do
@@ -56,7 +56,7 @@ RSpec.describe WorkList, type: :model do
       FactoryBot.create(:approved_work, created_by_user_id: pppl_user.id, group_id: Group.plasma_laboratory.id)
       # Create the dataset for `rd_user` and @mention `user`
       ds = FactoryBot.create(:approved_work, created_by_user_id: rd_user.id)
-      WorkActivity.add_work_activity(ds.id, "Tagging @#{user.uid} in this dataset", rd_user.id, activity_type: WorkActivity::SYSTEM)
+      WorkActivity.add_work_activity(ds.id, "Tagging @#{user.uid} in this dataset", rd_user.id, activity_type: WorkActivity::MESSAGE)
     end
 
     it "for a typical user retrieves only the datasets created by the user or where the user is tagged" do
@@ -86,7 +86,7 @@ RSpec.describe WorkList, type: :model do
       # Create the dataset for `rd_user` and @mention `user`
       ds = FactoryBot.create(:approved_work, created_by_user_id: rd_user.id)
       ds.withdraw!(rd_user)
-      WorkActivity.add_work_activity(ds.id, "Tagging @#{user.uid} in this dataset", rd_user.id, activity_type: WorkActivity::SYSTEM)
+      WorkActivity.add_work_activity(ds.id, "Tagging @#{user.uid} in this dataset", rd_user.id, activity_type: WorkActivity::MESSAGE)
     end
 
     it "for a typical user retrieves only the datasets created by the user or where the user is tagged" do
