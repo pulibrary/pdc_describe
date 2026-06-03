@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 module WorkStateTransition
-  class WithdrawnNotification < BaseNotification
+  class ResubmissionNotification < BaseNotification
   end
 end
