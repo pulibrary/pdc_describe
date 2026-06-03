@@ -28,7 +28,7 @@ class WorkStateTransitionNotification
   end
 
   def send
-    class_for_transition.add_work_activity(id, current_user_id, user_tags)
+    class_for_transition.add_work_activity(id, current_user_id)
   end
 
     private
@@ -57,17 +57,6 @@ class WorkStateTransitionNotification
         end
       end
       # rubocop:enable Metrics/MethodLength
-
-      def user_tags
-        @user_tags = begin
-                      groups_users_for_tags = ["@#{group.code}"]
-                      unless group_administrators.include?(depositor)
-                        groups_users_for_tags << "@#{depositor.uid}"
-                      end
-
-                      groups_users_for_tags.join(", ")
-                    end
-      end
 
       # Make sure we use the official "datacommons" URL for production (and not pdc-describe-prod)
       def data_commons_url(work)

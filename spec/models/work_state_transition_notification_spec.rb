@@ -7,33 +7,35 @@ describe WorkStateTransitionNotification, type: :model do
   let(:transition_notification) { described_class.new(work, user.id) }
 
   describe "#send" do
-    let(:to_state) { :draft }
-    let(:from_state) { :none }
     before do
       aasm = work.aasm
       allow(aasm).to receive(:from_state).and_return(from_state)
       allow(aasm).to receive(:to_state).and_return(to_state)
     end
 
-    it "creates WorkActivityNotifications for each user" do
-      expect do
-        transition_notification.send
-      end.to change(WorkActivityNotification, :count)
-        .by(2).and change(WorkActivity, :count).by(1)
+    context "when the work is first submitted" do
+      let(:to_state) { :draft }
+      let(:from_state) { :none }
 
-      group_notification = WorkActivityNotification.first
-      user_notification = WorkActivityNotification.last
-      activity = user_notification.work_activity
-      expect(user_notification.work_activity).to eq(group_notification.work_activity)
-      expect(activity.message).to include("has been created")
-      expect(activity.activity_type).to eq(WorkActivity::NOTIFICATION)
-      expect(activity.work_id).to eq(work.id)
-      expect(group_notification.user_id).to eq(user.id)
-      expect(group_notification.email_sent).to eq({ "type" => "new_submission", "email" => user.email })
-      expect(user_notification.email_sent).to eq({ "type" => "new_submission", "email" => work.created_by_user.email })
-      expect(user_notification.user_id).to eq(work.created_by_user_id)
+      it "creates WorkActivityNotifications for each user" do
+        expect do
+          transition_notification.send
+        end.to change(WorkActivityNotification, :count)
+          .by(2).and change(WorkActivity, :count).by(1)
+
+        group_notification = WorkActivityNotification.first
+        user_notification = WorkActivityNotification.last
+        activity = user_notification.work_activity
+        expect(user_notification.work_activity).to eq(group_notification.work_activity)
+        expect(activity.message).to include("has been created")
+        expect(activity.activity_type).to eq(WorkActivity::NOTIFICATION)
+        expect(activity.work_id).to eq(work.id)
+        expect(group_notification.user_id).to eq(user.id)
+        expect(group_notification.email_sent).to eq({ "type" => "state_transition", "email" => user.email })
+        expect(user_notification.email_sent).to eq({ "type" => "new_submission", "email" => work.created_by_user.email })
+        expect(user_notification.user_id).to eq(work.created_by_user_id)
+      end
     end
-
     context "when the work is submitted for review" do
       let(:to_state) { :awaiting_approval }
       let(:from_state) { :draft }
@@ -109,7 +111,7 @@ describe WorkStateTransitionNotification, type: :model do
       let(:to_state) { :withdrawn }
       let(:from_state) { :awaiting_approval }
 
-      it "creates WorkActivityNotifications for each user" do
+      it "creates a work activity to note the transition" do
         expect do
           transition_notification.send
         end.to change(WorkActivityNotification, :count)
@@ -117,6 +119,40 @@ describe WorkStateTransitionNotification, type: :model do
 
         activity = WorkActivity.last
         expect(activity.message).to include("withdrawn")
+        expect(activity.activity_type).to eq(WorkActivity::NOTIFICATION)
+        expect(activity.work_id).to eq(work.id)
+      end
+    end
+
+    context "when the work is returned to draft after being withdrawn" do
+      let(:to_state) { :draft }
+      let(:from_state) { :withdrawn }
+
+      it "creates a work activity to note the transition" do
+        expect do
+          transition_notification.send
+        end.to change(WorkActivityNotification, :count)
+          .by(0).and change(WorkActivity, :count).by(1)
+
+        activity = WorkActivity.last
+        expect(activity.message).to eq("resubmitted from withdrawn")
+        expect(activity.activity_type).to eq(WorkActivity::NOTIFICATION)
+        expect(activity.work_id).to eq(work.id)
+      end
+    end
+
+    context "when the work is deleted after being withdrawn" do
+      let(:to_state) { :deletion_marker }
+      let(:from_state) { :withdrawn }
+
+      it "creates a work activity to note the transition" do
+        expect do
+          transition_notification.send
+        end.to change(WorkActivityNotification, :count)
+          .by(0).and change(WorkActivity, :count).by(1)
+
+        activity = WorkActivity.last
+        expect(activity.message).to eq("deletion marker")
         expect(activity.activity_type).to eq(WorkActivity::NOTIFICATION)
         expect(activity.work_id).to eq(work.id)
       end
