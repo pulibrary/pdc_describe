@@ -25,32 +25,38 @@ class WorkStateTransitionNotification
 
     raise(NotImplementedError, "Invalid user ID provided.") if current_user_id.nil?
     @current_user_id = current_user_id
-    @notification = notification_for_transition
   end
 
   def send
-    return if notification.nil?
-
-    WorkActivity.add_work_activity(id, notification, current_user_id, activity_type: WorkActivity::NOTIFICATION)
+    class_for_transition.add_work_activity(id, current_user_id, user_tags)
   end
 
     private
 
-      def notification_for_transition
+      # rubocop:disable Metrics/MethodLength
+      # I want the factory to be all in one method
+      def class_for_transition
         case to_state
         when :awaiting_approval
-          "#{user_tags} [#{work_title}](#{work_url}) is ready for review."
+          WorkStateTransition::AwaitingApproval
         when :approved
-          "#{user_tags} [#{work_title}](#{work_url}) has been approved."
+          WorkStateTransition::Approved
         when :draft
           case from_state
           when :none
-            "#{user_tags} [#{work_title}](#{work_url}) has been created."
+            WorkStateTransition::NewSubmission
           when :awaiting_approval
-            "#{user_tags} #{User.find(@current_user_id).full_name} at #{Time.now.utc} returned the following submission to you for revision: #{work_title}"
+            WorkStateTransition::ReturnedToDraft
+          when :withdrawn
+            WorkStateTransition::Resubmission
           end
+        when :withdrawn
+          WorkStateTransition::Withdrawn
+        when :deletion_marker
+          WorkStateTransition::DeletionMarker
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def user_tags
         @user_tags = begin

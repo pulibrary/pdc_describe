@@ -6,6 +6,15 @@ class WorkActivityNotification < ApplicationRecord
 
   after_create do
     if send_message?
+      send_messages
+    else
+      update_email_sent("unsent")
+    end
+  end
+
+  private
+
+    def send_messages
       mailer = NotificationMailer.with(user:, work_activity:)
       # messages sent from the work
       if work_activity.activity_type == WorkActivity::MESSAGE
@@ -15,8 +24,8 @@ class WorkActivityNotification < ApplicationRecord
 
       # state transition notifications
       elsif work_activity.activity_type == WorkActivity::NOTIFICATION
-        message = build_state_transition_message(mailer)
-        message.deliver_later(wait: wait_time) unless Rails.env.development?
+        update_email_sent("state_transition")
+        mailer.build_message.deliver_later(wait: wait_time) unless Rails.env.development?
 
       # Error publishing DOI or Curator self assigned and assigned
       else
@@ -24,37 +33,7 @@ class WorkActivityNotification < ApplicationRecord
         message = mailer.build_message
         message.deliver_later
       end
-    else
-      update_email_sent("unsent")
     end
-  end
-
-  private
-
-    # this method is a bit long but it is handling a lot of different cases and I think it's clearer to have it all in one place rather than trying to break it up into multiple methods
-    # rubocop:disable Metrics/MethodLength
-    def build_state_transition_message(mailer)
-      work = work_activity.work
-      from_state = check_from_state(work)
-
-      if work.state == "draft" && from_state == :none # draft event
-        update_email_sent("new_submission")
-        mailer.new_submission_message
-      elsif work.state == "draft" && from_state == :awaiting_approval # revert_to_draft event
-        update_email_sent("reject")
-        mailer.reject_message
-      elsif work.state == "awaiting_approval" && from_state == :draft # complete_submission
-        update_email_sent("review")
-        mailer.review_message
-      elsif work.state == "approved" && from_state == :awaiting_approval # approve_submission
-        update_email_sent("publish")
-        mailer.publish_message
-      else # some other system transition that we don't have a specific message for, just send the generic message
-        update_email_sent("system_transition")
-        mailer.build_message
-      end
-    end
-    # rubocop:enable Metrics/MethodLength
 
     def update_email_sent(type)
       self.email_sent = { type:, email: user.email }

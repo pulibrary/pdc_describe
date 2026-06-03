@@ -19,9 +19,9 @@ describe WorkActivityNotification, type: :model do
     end
 
     it "enqueues an e-mail message to be delivered for the notification" do
-      work_activity_notification = described_class.create(user:, work_activity:)
+      work_activity_notification = WorkStateTransition::WithdrawnNotification.create(user:, work_activity:)
       expect(message_delivery).to have_received(:deliver_later)
-      expect(work_activity_notification.email_sent).to eq({ "type" => "system_transition", "email" => user.email })
+      expect(work_activity_notification.email_sent).to eq({ "type" => "state_transition", "email" => user.email })
     end
 
     context "when the notification is for a Draft submission" do
@@ -34,7 +34,7 @@ describe WorkActivityNotification, type: :model do
       end
 
       it "enqueues an e-mail the news submission message to be delivered for the notification" do
-        work_activity_notification = described_class.create(user:, work_activity:)
+        work_activity_notification = WorkStateTransition::NewSubmissionNotification.create(user:, work_activity:)
         expect(message_delivery).not_to have_received(:deliver_later)
         expect(new_delivery).to have_received(:deliver_later)
         expect(work_activity_notification.email_sent).to eq({ "type" => "new_submission", "email" => user.email })
@@ -67,7 +67,7 @@ describe WorkActivityNotification, type: :model do
       end
 
       it "enqueues an e-mail the awaiting approval message to be delivered for the notification" do
-        work_activity_notification = described_class.create(user:, work_activity:)
+        work_activity_notification = WorkStateTransition::AwaitingApprovalNotification.create(user:, work_activity:)
         expect(message_delivery).not_to have_received(:deliver_later)
         expect(await_delivery).to have_received(:deliver_later)
         expect(work_activity_notification.email_sent).to eq({ "type" => "review", "email" => user.email })
@@ -101,7 +101,7 @@ describe WorkActivityNotification, type: :model do
       end
 
       it "enqueues an e-mail the news submission message to be delivered for the notification" do
-        work_activity_notification = described_class.create(user:, work_activity:)
+        work_activity_notification = WorkStateTransition::ReturnedToDraftNotification.create(user:, work_activity:)
         expect(message_delivery).not_to have_received(:deliver_later)
         expect(reject_delivery).to have_received(:deliver_later)
         expect(work_activity_notification.email_sent).to eq({ "type" => "reject", "email" => user.email })
@@ -134,7 +134,7 @@ describe WorkActivityNotification, type: :model do
       end
 
       it "enqueues an e-mail the news submission message to be delivered for the notification" do
-        work_activity_notification = described_class.create(user:, work_activity:)
+        work_activity_notification = WorkStateTransition::ApprovedNotification.create(user:, work_activity:)
         expect(message_delivery).not_to have_received(:deliver_later)
         expect(approve_delivery).to have_received(:deliver_later)
         expect(work_activity_notification.email_sent).to eq({ "type" => "publish", "email" => user.email })

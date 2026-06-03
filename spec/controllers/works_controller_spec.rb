@@ -745,6 +745,7 @@ RSpec.describe WorksController do
         let(:fake_s3_service) { stub_s3(data:) }
         before do
           fake_s3_service
+          allow(Work).to receive(:find).with(work1.id).and_return(work1)
           allow(Work).to receive(:find).with(work1.id.to_s).and_return(work1)
           work1.complete_submission!(user)
           allow(fake_s3_service).to receive(:client_s3_files).and_return([])

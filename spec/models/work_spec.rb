@@ -549,10 +549,10 @@ RSpec.describe Work, type: :model do
       user_notification = notification.message
       expect(user_notification).to include("@#{curator_user.default_group.code}")
       expect(user_notification).to include("@#{user.uid}")
+      expect(user_notification).to include(Rails.application.routes.url_helpers.work_url(draft_work))
       notifications = WorkActivityNotification.where(work_activity_id: notification.id)
       expect(notifications.first.user_id).to eq(curator_user.id)
       expect(notifications.last.user_id).to eq(draft_work.created_by_user_id)
-      expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(draft_work))
     end
 
     context "when deploying the server without a DataCite user configured" do
@@ -663,6 +663,8 @@ RSpec.describe Work, type: :model do
       notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last
       curator_notification = notification.message
       expect(curator_notification).to include("@#{Group.research_data.code}")
+      expect(curator_notification).to include("ready for review")
+      expect(curator_notification).to include(Rails.application.routes.url_helpers.work_url(awaiting_approval_work))
       notifications = WorkActivityNotification.where(work_activity_id: notification.id)
       expect(notifications.first.user_id).to eq(curator.id)
       expect(notifications.last.user_id).to eq(awaiting_approval_work.created_by_user_id)
