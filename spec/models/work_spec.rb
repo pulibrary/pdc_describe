@@ -543,16 +543,20 @@ RSpec.describe Work, type: :model do
       expect { draft_work }
         .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
         .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
+        .and change { WorkActivityNotification.count }.by(2)
         .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
       expect(WorkActivity.where(activity_type: "SYSTEM").first.message).to eq("marked as Draft")
-      notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last
-      user_notification = notification.message
-      expect(user_notification).to include("@#{curator_user.default_group.code}")
-      expect(user_notification).to include("@#{user.uid}")
-      expect(user_notification).to include(Rails.application.routes.url_helpers.work_url(draft_work))
-      notifications = WorkActivityNotification.where(work_activity_id: notification.id)
-      expect(notifications.first.user_id).to eq(curator_user.id)
-      expect(notifications.last.user_id).to eq(draft_work.created_by_user_id)
+      activity = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last
+      message = activity.message
+      expect(message).to include("has been created")
+      expect(message).to include(Rails.application.routes.url_helpers.work_url(draft_work))
+      notifications = WorkActivityNotification.where(work_activity_id: activity.id)
+      curator_notification = notifications.first
+      user_notification = notifications.last
+      expect(curator_notification.user_id).to eq(curator_user.id)
+      expect(curator_notification.email_sent).to eq({ "email" => curator_user.email, "type" => "state_transition" })
+      expect(user_notification.user_id).to eq(draft_work.created_by_user_id)
+      expect(user_notification.email_sent).to eq({ "email" => user.email, "type" => "new_submission" })
     end
 
     context "when deploying the server without a DataCite user configured" do
