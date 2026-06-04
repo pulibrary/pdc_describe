@@ -62,7 +62,7 @@ class NotificationMailer < ApplicationMailer
     @subject = "[pdc-describe] Submission Published"
     @message = @work_activity.message
     @message_html = @work_activity.to_html
-    @url = data_commons_url(@work_activity.work)
+    @doi_url = @work_activity.work.doi_url
 
     mail(to: @user.email, subject: @subject)
   end
