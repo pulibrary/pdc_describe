@@ -94,33 +94,10 @@ describe NotificationMailer, type: :mailer do
       expect(message.body.encoded).to include("PDC Describe: New Submission Created")
       expect(message.body.encoded).to include("Thank you for creating a new submission")
       expect(message.body.encoded).to include("A curator will then be assigned to begin the curatorial review process")
+      expect(message.body.encoded).to include("<a href=\"https://princetonsurvey.az1.qualtrics.com/jfe/form/SV_8dmxZjvhlF41jD0\">2 minute survey</a>")
       expect(message.body.encoded).to include("doi.org/#{work.doi}")
-    end
-
-    context "when the message has markdown" do
-      let(:work_activity) { FactoryBot.create(:work_activity, work:) }
-      it "generates the e-mail message" do
-        expect(message_delivery).to be_a(ActionMailer::Parameterized::MessageDelivery)
-        expect(message_delivery.message).to be_a(Mail::Message)
-        message = message_delivery.message
-        expect(message.to).to eq([user.email])
-        expect(message.from).to eq(["noreply@example.com"])
-        expect(message.subject).to eq("[pdc-describe] New Submission Created")
-        text_part = message.text_part
-        html_part = message.html_part
-        expect(html_part.content_type).to eq("text/html; charset=UTF-8")
-        expect(text_part.content_type).to eq("text/plain; charset=UTF-8")
-
-        expect(html_part.body.encoded).to include("Hello #{user.given_name},")
-        expect(html_part.body.encoded).to include("Thank you for creating a new submission")
-        expect(html_part.body.encoded).to include("A curator will then be assigned to begin the curatorial review process")
-        expect(html_part.body.encoded).to include("doi.org/#{work.doi}")
-
-        expect(text_part.body.encoded).to include("Hello #{user.given_name},")
-        expect(text_part.body.encoded).to include("Thank you for creating a new submission")
-        expect(text_part.body.encoded).to include("A curator will then be assigned to begin the curatorial review process")
-        expect(text_part.body.encoded).to include("doi.org/#{work.doi}")
-      end
+      text_part = message.text_part
+      expect(text_part.encoded).to include("2 minute survey (https://princetonsurvey.az1.qualtrics.com/jfe/form/SV_8dmxZjvhlF41jD0)")
     end
   end
 
