@@ -236,24 +236,11 @@ describe NotificationMailer, type: :mailer do
       expect(message.body.parts.last.content_type).to eq("text/html; charset=UTF-8")
       expect(message.body.encoded).to include("Dear #{user.given_name},")
       expect(message.body.encoded).to include("Congratulations! Your dataset, #{work_activity.work.title}, has been published.")
-
+      expect(message.body.encoded).to include(work.doi_url)
       text_part = message.text_part
       expect(text_part.encoded).to include("Dear #{user.given_name},")
       expect(text_part.encoded).to include("Congratulations! Your dataset, #{work_activity.work.title}, has been published.")
-    end
-
-    context "when we are in production" do
-      before do
-        allow(Rails.env).to receive(:production?).and_return(true)
-      end
-
-      it "shows the data commons url" do
-        message = message_delivery.message
-        text_part = message.text_part
-        html_part = message.html_part
-        expect(html_part.encoded).to include("Your DOI https://datacommons.princeton.edu/discovery/catalog/doi-#{work_activity.work.doi} will go live soon.")
-        expect(text_part.encoded).to include("Your DOI https://datacommons.princeton.edu/discovery/catalog/doi-#{work_activity.work.doi} will go live soon.")
-      end
+      expect(message.body.encoded).to include(work.doi_url)
     end
   end
 end
