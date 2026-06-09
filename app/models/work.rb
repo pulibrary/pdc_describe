@@ -470,11 +470,12 @@ class Work < ApplicationRecord
     }
   end
 
-  # this method returns only the DOI, for now, for draft and withdrawn works
+  # this method returns only the DOI and the work state, for now, for draft and withdrawn works
   # so that only that information is visible when harvested.
   def unpublished_metadata_json(*_args)
     {
-      "resource" => { "doi" => resource.doi }
+      "resource" => { "doi" => resource.doi },
+      "state" => state
     }
   end
 
