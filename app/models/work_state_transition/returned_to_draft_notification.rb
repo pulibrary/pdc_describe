@@ -6,7 +6,7 @@ module WorkStateTransition
       def send_messages
         update_email_sent("reject")
         mailer = NotificationMailer.with(user:, work_activity:)
-        mailer.reject_message.deliver_later(wait: wait_time)
+        mailer.reject_message.deliver_later
       end
   end
 end

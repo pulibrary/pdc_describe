@@ -449,7 +449,7 @@ class Work < ApplicationRecord
   #   Resources, clearing the in-memory cache
   # @return [String]
   def as_json(*args)
-    if state == "approved"
+    if state == "approved" || (args.first && args.first[:force_post_curation])
       full_metadata_as_json(*args)
     else
       unpublished_metadata_json(*args)
@@ -664,7 +664,6 @@ class Work < ApplicationRecord
       return [] if embargoed?
 
       force_post_curation = args.any? { |arg| arg[:force_post_curation] == true }
-
       # Pre-curation files are not accessible externally,
       # so we are not interested in listing them in JSON.
       post_curation_uploads(force_post_curation:).map do |upload|
