@@ -8,6 +8,7 @@ require "open-uri"
 # The wizard flow is shown in the [mermaid diagram here](https://github.com/pulibrary/pdc_describe/blob/main/docs/wizard_flow.md).
 #
 class WorksWizardNewSubmissionController < ApplicationController
+  around_action :rescue_aasm_error, only: [:new_submission_save]
   before_action :load_work
   before_action :can_edit
 

@@ -13,6 +13,7 @@ module PdcDescribe
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.1
+    config.action_controller.raise_on_missing_callback_actions = false
 
     if Rails.env.production? || Rails.env.staging?
       config.relative_url_root = "/describe"

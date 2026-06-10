@@ -6,7 +6,7 @@ module WorkStateTransition
       def send_messages
         update_email_sent("review")
         mailer = NotificationMailer.with(user:, work_activity:)
-        mailer.review_message.deliver_later(wait: wait_time)
+        mailer.review_message.deliver_later
       end
   end
 end
