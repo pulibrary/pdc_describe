@@ -11,12 +11,15 @@ RSpec.describe "Authz for submitters", type: :system, js: true do
     let(:title2) { "Title Two" }
     let(:title3) { "Title Three" }
     let(:file1) { FactoryBot.build :s3_file, filename: "anyfile.txt", last_modified: Time.parse("2022-04-21T18:29:40.000Z") }
+    let(:update_url) { "https://#{Rails.configuration.datacite.host}/dois/10.34770/doc-1" }
 
     before do
       Group.create_defaults
 
       stub_s3 data: [FactoryBot.build(:s3_readme), file1]
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+      response = File.read(Pathname.new(fixture_paths.first).join("doi_update_response.json").to_s)
+      stub_request(:put, update_url).to_return(status: 200, body: response, headers: { "Content-Type" => "application/json" })
     end
 
     it "should not be able to edit someone else's work" do

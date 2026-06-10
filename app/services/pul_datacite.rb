@@ -33,11 +33,29 @@ class PULDatacite
     end
   end
 
+  def register_doi(user)
+    return Rails.logger.info("Registering hard-coded test DOI during development.") if PULDatacite.publish_test_doi?
+
+    if work.doi&.starts_with?(Rails.configuration.datacite.prefix)
+      result = datacite_connection.update(id: work.doi, attributes: register_doi_attributes)
+      if result.failure?
+        resolved_user = curator_or_current_uid(user)
+        message = "@#{resolved_user} Error registering DOI. #{result.failure.status} / #{result.failure.reason_phrase}"
+        WorkActivity.add_work_activity(work.id, message, user.id, activity_type: WorkActivity::DATACITE_ERROR)
+      end
+    elsif work.ark.blank? # we can not update the url anywhere
+      Honeybadger.notify("Registering for a DOI we do not own and no ARK is present: #{work.doi}")
+    end
+  rescue Faraday::ConnectionFailed
+    sleep 1
+    retry
+  end
+
   def publish_doi(user)
     return Rails.logger.info("Publishing hard-coded test DOI during development.") if PULDatacite.publish_test_doi?
 
     if work.doi&.starts_with?(Rails.configuration.datacite.prefix)
-      result = datacite_connection.update(id: work.doi, attributes: doi_attributes)
+      result = datacite_connection.update(id: work.doi, attributes: publish_doi_attributes)
       if result.failure?
         resolved_user = curator_or_current_uid(user)
         message = "@#{resolved_user} Error publishing DOI. #{result.failure.status} / #{result.failure.reason_phrase}"
@@ -77,9 +95,17 @@ class PULDatacite
       Base64.encode64(unencoded)
     end
 
-    def doi_attributes
+    def publish_doi_attributes
       {
         "event" => "publish",
+        "xml" => doi_attribute_xml,
+        "url" => doi_attribute_url
+      }
+    end
+
+    def register_doi_attributes
+      {
+        "event" => "register",
         "xml" => doi_attribute_xml,
         "url" => doi_attribute_url
       }
