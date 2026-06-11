@@ -32,11 +32,14 @@ RSpec.describe "Form submission for a legacy dataset", type: :system do
   end
   let(:description) { "Download the README.txt for a detailed description of this dataset's content." }
   let(:ark) { "http://arks.princeton.edu/ark:/88435/dsp01d791sj97j" }
+  let(:update_url) { "https://#{Rails.configuration.datacite.host}/dois/10.34770/doc-1" }
 
   before do
     stub_ark
     stub_s3
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+    response = File.read(Pathname.new(fixture_paths.first).join("doi_update_response.json").to_s)
+    stub_request(:put, update_url).to_return(status: 200, body: response, headers: { "Content-Type" => "application/json" })
   end
 
   context "when using the wizard mode and creating a new work" do

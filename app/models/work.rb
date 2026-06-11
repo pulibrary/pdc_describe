@@ -183,6 +183,9 @@ class Work < ApplicationRecord
     return if resource.doi.present?
     resource.doi = datacite_service.draft_doi
     save!
+    # force a reload of the datacite service so it has the doi as part of it's metadata for the register
+    @datacite_service = nil
+    datacite_service.register_doi(created_by_user)
   end
 
   # Return the DOI formatted as a URL, so it can be used as a link on display pages
