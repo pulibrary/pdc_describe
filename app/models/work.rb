@@ -477,8 +477,8 @@ class Work < ApplicationRecord
   # so that only that information is visible when harvested.
   def unpublished_metadata_json(*_args)
     {
-      "resource" => { "doi" => resource.doi },
-      "state" => state
+      "resource" => { "doi" => resource.doi,
+                      "state" => state }
     }
   end
 
