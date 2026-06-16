@@ -75,18 +75,18 @@
 <div class="row">
   <div class="col-8">
     <% if @work.editable_in_current_state?(current_user)  %>
-      <%= link_to("Edit", @work_decorator.edit_path, class: "btn btn-primary") %>
+      <%= link_to("Edit", @work.presenter(current_user:).edit_path, class: "btn btn-primary") %>
     <% end %>
-    <% if @work_decorator.show_approve_button? %>
+    <% if @work.presenter(current_user:).show_approve_button? %>
       <%= button_to("Approve Dataset", approve_work_path(@work), class: "btn btn-secondary", method: :post, id: "approve-button") %>
     <% end %>
-    <% if @work_decorator.show_revert_button? %>
+    <% if @work.presenter(current_user:).show_revert_button? %>
       <%= button_to("Revert Dataset to Draft", revert_work_path(@work), class: "btn btn-secondary", method: :post) %>
     <% end %>
-    <% if @work_decorator.show_complete_button? %>
+    <% if @work.presenter(current_user:).show_complete_button? %>
       <%= button_to("Complete", work_validate_path(@work), class: "btn btn-secondary", method: :post) %>
     <% end %>
-    <% if @work_decorator.show_migrate_button? %>
+    <% if @work.presenter(current_user:).show_migrate_button? %>
       <%= button_to("Migrate Dataspace Files", work_migrate_content_path(@work), class: "btn btn-secondary", method: :post) %>
     <% end %>
     <%= link_to "My Dashboard", user_path(current_user), class: "btn btn-secondary" %>
@@ -120,10 +120,10 @@
 
       <dt>Curator</dt>
       <dd>
-        <% if @work_decorator.can_curate %>
+        <% if @work.presenter(current_user:).can_curate %>
           <select id="curator_select">
             <option value="no-one">(no one)</option>
-            <% @work_decorator.group.administrators.each do |user| %>
+            <% @work.presenter(current_user:).group.administrators.each do |user| %>
               <option value="<%= user.id %>" <%= @work.curator_user_id == user.id ? "selected" : "" %>><%= user.full_name_safe %></option>
             <% end %>
           </select>
@@ -151,7 +151,7 @@
       <dd><%= @work.created_by_user.uid %></dd>
 
       <dt>Description</dt>
-      <dd style="white-space: pre-wrap;"><%= @work.presenter.description&.html_safe %></dd>
+      <dd style="white-space: pre-wrap;"><%= @work.presenter(current_user:).description&.html_safe %></dd>
 
       <% if @work.resource.keywords.count > 0 %>
         <dt>Keywords</dt>
@@ -230,7 +230,7 @@
       <% if @work.resource.related_objects.count > 0 %>
         <dt>Related Objects</dt>
         <dd>
-          <% @work.presenter.related_objects_link_list.each do |related_object| %>
+          <% @work.presenter(current_user:).related_objects_link_list.each do |related_object| %>
             <span class="related_object">
             <%= related_object.relation_type.titleize %>
             <% if related_object.link.blank? %>
