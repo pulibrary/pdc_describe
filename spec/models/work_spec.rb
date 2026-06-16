@@ -124,6 +124,19 @@ RSpec.describe Work, type: :model do
     expect(work.doi_attribute_url).to eq "https://datacommons.princeton.edu/discovery/doi/10.34770/123-abc"
   end
 
+  context "In production" do
+    before do
+      allow(Rails.configuration.datacite).to receive(:datacommons_url).and_return("https://datacommons.princeton.edu/discovery")
+    end
+
+    it "calculates the urls that PDC discovery will use" do
+      # this is the actual PDC Discovery URL
+      expect(work.pdc_discovery_url).to eq "https://datacommons.princeton.edu/discovery/catalog/doi-10-34770-123-abc"
+      # this also works, but will cause PDC Discovery to search by the DOI
+      expect(work.doi_attribute_url).to eq "https://datacommons.princeton.edu/discovery/doi/10.34770/123-abc"
+    end
+  end
+
   describe "#editable_by?" do
     subject(:work) { FactoryBot.create(:tokamak_work) }
     let(:submitter) { work.created_by_user }
@@ -1134,7 +1147,7 @@ RSpec.describe Work, type: :model do
     end
 
     it "does not allow two of the same dois to be created" do
-      stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-zzz").to_return(status: 200, body: "", headers: {})
+      stub_request(:get, "https://handle.test.datacite.org/10.34770/123-zzz").to_return(status: 200, body: "", headers: {})
       original_work = FactoryBot.create(:none_work, doi: "10.34770/123-zzz", user_entered_doi: true)
       work = FactoryBot.build(:none_work, doi: "10.34770/123-zzz", user_entered_doi: true)
       expect(original_work).to be_valid

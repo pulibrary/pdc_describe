@@ -36,7 +36,7 @@ module WorkStateTransition
     def self.data_commons_url(work_id)
       url = if Rails.env.production?
               path = Rails.application.routes.url_helpers.work_path(work_id)
-              "https://datacommons.princeton.edu#{path}"
+              "#{Rails.configuration.datacite.data_commons_url}#{path}"
             else
               Rails.application.routes.url_helpers.work_url(work_id)
             end

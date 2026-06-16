@@ -32,7 +32,7 @@ RSpec.describe WorkPresenter do
       expect(ro1).to be_instance_of RelatedObjectLink
       expect(ro1.identifier).to eq related_doi.related_identifier
       expect(ro1.relation_type).to eq "IsCitedBy"
-      expect(ro1.link).to eq "https://doi.org/#{related_doi.related_identifier}"
+      expect(ro1.link).to eq "https://handle.test.datacite.org/#{related_doi.related_identifier}"
 
       ro2 = work_presenter.related_objects_link_list[1]
       expect(ro2.identifier).to eq related_arxiv.related_identifier
@@ -43,6 +43,31 @@ RSpec.describe WorkPresenter do
       expect(ro3.identifier).to eq related_isbn.related_identifier
       expect(ro3.relation_type).to eq "IsCitedBy"
       expect(ro3.link).to eq ""
+    end
+
+    context "In production" do
+      before do
+        allow(Rails.configuration.datacite).to receive(:datacommons_url).and_return("https://datacommons.princeton.edu/discovery")
+        allow(Rails.configuration.datacite).to receive(:doi_url).and_return("https://doi.org/")
+      end
+
+      it "formats identifiers in related objects as URLs so they can be links" do
+        ro1 = work_presenter.related_objects_link_list[0]
+        expect(ro1).to be_instance_of RelatedObjectLink
+        expect(ro1.identifier).to eq related_doi.related_identifier
+        expect(ro1.relation_type).to eq "IsCitedBy"
+        expect(ro1.link).to eq "https://doi.org/#{related_doi.related_identifier}"
+
+        ro2 = work_presenter.related_objects_link_list[1]
+        expect(ro2.identifier).to eq related_arxiv.related_identifier
+        expect(ro2.relation_type).to eq "IsCitedBy"
+        expect(ro2.link).to eq "https://arxiv.org/abs/#{related_arxiv.related_identifier}"
+
+        ro3 = work_presenter.related_objects_link_list[2]
+        expect(ro3.identifier).to eq related_isbn.related_identifier
+        expect(ro3.relation_type).to eq "IsCitedBy"
+        expect(ro3.link).to eq ""
+      end
     end
   end
 end

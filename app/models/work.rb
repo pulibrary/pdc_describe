@@ -191,7 +191,7 @@ class Work < ApplicationRecord
   # Return the DOI formatted as a URL, so it can be used as a link on display pages
   # @return [String] A url formatted version of the DOI
   def doi_url
-    return "https://doi.org/#{doi}" unless doi.starts_with?("https://doi.org")
+    return "#{Rails.configuration.datacite.doi_url}#{doi}" unless doi.starts_with?("https://doi.org") || doi.starts_with?(Rails.configuration.datacite.doi_url)
     doi
   end
 
@@ -549,7 +549,7 @@ class Work < ApplicationRecord
 
   # This is the solr id / work show page in PDC Discovery
   def pdc_discovery_url
-    "https://datacommons.princeton.edu/discovery/catalog/doi-#{doi.tr('/', '-').tr('.', '-')}"
+    "#{Rails.configuration.datacite.data_commons_url}/catalog/doi-#{doi.tr('/', '-').tr('.', '-')}"
   end
 
   # Determine whether or not the Work is under active embargo
