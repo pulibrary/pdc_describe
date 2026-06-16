@@ -13,7 +13,7 @@
       <% else %>
         <div id="pdc-discovery-label">Looking for data? Go to</div>
         <nav id="menu" class="col-sm" role="menu">
-          <%= link_to "Princeton Data Commons: Discovery","https://datacommons.princeton.edu/discovery/", :class => "btn btn-primary about", :role => "menuitem" %>
+          <%= link_to "Princeton Data Commons: Discovery","#{Rails.configuration.datacite.data_commons_url}/", :class => "btn btn-primary about", :role => "menuitem" %>
           <%= link_to "How to Submit", "#{root_url}#how-to-submit", :class => "btn btn-primary how-to-submit", :role => "menuitem" %>
           <%= link_to "Need Help?", "#{root_url}help", :class =>"btn btn-secondary help", :role => "menuitem" %>
         </nav>

@@ -66,8 +66,8 @@ describe NotificationMailer, type: :mailer do
         message = message_delivery.message
         text_part = message.text_part
         html_part = message.html_part
-        expect(html_part.encoded).to include("To view the notification, please browse <a href='https://datacommons.princeton.edu/works/#{work.id}'>here<a>.")
-        expect(text_part.encoded).to include("To view the notification, please browse to https://datacommons.princeton.edu/works/#{work.id}.")
+        expect(html_part.encoded).to include("To view the notification, please browse <a href='https://datacommons.princeton.edu/describe/works/#{work.id}'>here<a>.")
+        expect(text_part.encoded).to include("To view the notification, please browse to https://datacommons.princeton.edu/describe/works/#{work.id}.")
       end
     end
   end
@@ -95,7 +95,7 @@ describe NotificationMailer, type: :mailer do
       expect(message.body.encoded).to include("Thank you for creating a new submission")
       expect(message.body.encoded).to include("A curator will then be assigned to begin the curatorial review process")
       expect(message.body.encoded).to include("<a href=\"https://princetonsurvey.az1.qualtrics.com/jfe/form/SV_8dmxZjvhlF41jD0\">2 minute survey</a>")
-      expect(message.body.encoded).to include("doi.org/#{work.doi}")
+      expect(message.body.encoded).to include("https://handle.test.datacite.org/#{work.doi}")
       text_part = message.text_part
       expect(text_part.encoded).to include("2 minute survey (https://princetonsurvey.az1.qualtrics.com/jfe/form/SV_8dmxZjvhlF41jD0)")
     end
