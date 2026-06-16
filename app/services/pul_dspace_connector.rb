@@ -72,8 +72,8 @@ class PULDspaceConnector
   def doi
     return "" if ark.nil?
     @doi ||= begin
-               doi_url = metadata["dc.identifier.uri"].select { |value| value.starts_with?("https://doi.org/") }&.first
-               doi_url&.gsub("https://doi.org/", "")
+               doi_url = metadata["dc.identifier.uri"].select { |value| value.starts_with?("https://doi.org/") || value.starts_with?(Rails.configuration.datacite.doi_url) }&.first
+               doi_url&.gsub("https://doi.org/", "")&.gsub(Rails.configuration.datacite.doi_url, "")
              end
   end
 

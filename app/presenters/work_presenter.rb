@@ -33,7 +33,7 @@ class WorkPresenter
   # For now, only format links for DOI and arXiv identifiers
   def format_link(id, id_type)
     return id if id.starts_with?("http")
-    return "https://doi.org/#{id}" if id_type == "DOI"
+    return "#{Rails.configuration.datacite.doi_url}#{id}" if id_type == "DOI"
     return "https://arxiv.org/abs/#{id}" if id_type == "arXiv"
     ""
   end

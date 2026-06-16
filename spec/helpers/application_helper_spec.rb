@@ -42,7 +42,17 @@ RSpec.describe ApplicationHelper do
     let(:output) { test_controller.doi_url(doi_value) }
 
     it "builds a URL" do
-      expect(output).to eq("https://doi.org/test-doi")
+      expect(output).to eq("https://handle.test.datacite.org/test-doi")
+    end
+
+    context "In production" do
+      before do
+        allow(Rails.configuration.datacite).to receive(:doi_url).and_return("https://doi.org/")
+      end
+
+      it "builds a URL" do
+        expect(output).to eq("https://doi.org/test-doi")
+      end
     end
 
     context "when the ark value is blank" do

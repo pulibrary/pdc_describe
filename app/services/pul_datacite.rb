@@ -72,7 +72,7 @@ class PULDatacite
   # This is the url that should be used for ARK and DOI redirection. It will search the
   # index for the DOI and redirect the use appropriately.
   def doi_attribute_url
-    "https://datacommons.princeton.edu/discovery/doi/#{work.doi}"
+    "#{Rails.configuration.datacite.data_commons_url}/doi/#{work.doi}"
   end
 
   def curator_or_current_uid(user)

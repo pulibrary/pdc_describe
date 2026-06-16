@@ -23,10 +23,11 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     related_objects_displayed = page.find_all(:css, ".related_object")
     expect(related_objects_displayed.size).to eq 5
     expect(page).to have_link(href: "https://www.biorxiv.org/content/10.1101/545517v1")
+    # this is a related object so the doi remains the regular doi.org
     expect(page).to have_link(href: "https://doi.org/10.7554/eLife.52482")
 
     # These are the RelatedObjects created by FactoryBot
-    expect(page).to have_link(related_doi.related_identifier, href: "https://doi.org/#{related_doi.related_identifier}")
+    expect(page).to have_link(related_doi.related_identifier, href: "https://handle.test.datacite.org/#{related_doi.related_identifier}")
     expect(page).to have_link(related_arxiv.related_identifier, href: "https://arxiv.org/abs/#{related_arxiv.related_identifier}")
     # ISBNs, and other identifiers that don't have an obvious place to link to, should not have links
     expect(page).not_to have_link(related_isbn.related_identifier)
