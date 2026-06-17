@@ -50,9 +50,7 @@ class WorksWizardController < ApplicationController
 
   # Allow user to upload files directly
   # GET /works/1/file_upload
-  def file_upload
-    @work_decorator = WorkDecorator.new(@work, current_user)
-  end
+  def file_upload; end
 
   # POST /works/1/upload-files-wizard (called via Uppy)
   def upload_files

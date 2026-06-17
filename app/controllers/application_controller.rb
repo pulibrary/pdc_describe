@@ -87,8 +87,7 @@ class ApplicationController < ActionController::Base
     end
 
     def prepare_decorators_for_work_form(work)
-      @work_decorator = WorkDecorator.new(work, current_user)
-      @form_resource_decorator = FormResourceDecorator.new(work, current_user)
+      @form_resource_decorator = FormResourcePresenter.new(work, current_user)
     end
 
     def rescue_aasm_error

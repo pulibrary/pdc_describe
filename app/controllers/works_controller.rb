@@ -52,8 +52,7 @@ class WorksController < ApplicationController
   def new
     group = Group.find_by(code: params[:group_code]) || current_user.default_group
     @work = Work.new(created_by_user_id: current_user.id, group:)
-    @work_decorator = WorkDecorator.new(@work, current_user)
-    @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+    @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
   end
 
   # only non wizard mode
@@ -67,8 +66,7 @@ class WorksController < ApplicationController
       upload_service.update_precurated_file_list(added_files_param, deleted_files_param)
       redirect_to work_url(@work), notice: "Work was successfully created."
     else
-      @work_decorator = WorkDecorator.new(@work, current_user)
-      @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+      @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
       # return 200 so the loadbalancer doesn't capture the error
       render :new
     end
@@ -80,12 +78,12 @@ class WorksController < ApplicationController
   def show
     @work = Work.find(params[:id])
     UpdateSnapshotJob.perform_later(work_id: @work.id, last_snapshot_id: work.upload_snapshots.first&.id)
-    @work_decorator = WorkDecorator.new(@work, current_user)
+    @work_presenter = work.presenter(current_user:)
 
     respond_to do |format|
       format.html do
         # Ensure that the Work belongs to a Group
-        group = @work_decorator.group
+        group = @work_presenter.group
         raise(Work::InvalidGroupError, "The Work #{@work.id} does not belong to any Group") unless group
 
         @can_curate = current_user.can_admin?(group)
@@ -121,12 +119,11 @@ class WorksController < ApplicationController
   # only non wizard mode
   def edit
     @work = Work.find(params[:id])
-    @work_decorator = WorkDecorator.new(@work, current_user)
     if validate_modification_permissions(work: @work,
                                          uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
                                          current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
       @uploads = @work.uploads
-      @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+      @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
     end
   end
 
@@ -346,14 +343,14 @@ class WorksController < ApplicationController
     def handle_error_for_create(generic_error)
       if @work.persisted?
         Honeybadger.notify("Failed to create the new Dataset #{@work.id}: #{generic_error.message}")
-        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+        @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
         redirect_to edit_work_url(id: @work.id), notice: "Failed to create the new Dataset #{@work.id}: #{generic_error.message}", params:
       else
         Honeybadger.notify("Failed to create a new Dataset #{@work.id}: #{generic_error.message}")
         new_params = {}
         new_params[:wizard] = wizard_mode? if wizard_mode?
         new_params[:migrate] = migrating? if migrating?
-        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+        @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
         redirect_to new_work_url(params: new_params), notice: "Failed to create a new Dataset: #{generic_error.message}", params: new_params
       end
     end
@@ -366,14 +363,14 @@ class WorksController < ApplicationController
         new_params = {}
         new_params[:wizard] = wizard_mode? if wizard_mode?
         new_params[:migrate] = migrating? if migrating?
-        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+        @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
         redirect_to new_work_url(params: new_params), notice: transition_error_message, params: new_params
       end
     end
 
     # @note No testing coverage but not a route, not called
     def error_action
-      @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+      @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
       if action_name == "create"
         :new
       elsif action_name == "validate"
@@ -381,7 +378,6 @@ class WorksController < ApplicationController
       elsif action_name == "new_submission"
         :new_submission
       else
-        @work_decorator = WorkDecorator.new(@work, current_user)
         :show
       end
     end
@@ -420,8 +416,7 @@ class WorksController < ApplicationController
       else
         # This is needed for rendering HTML views with validation errors
         @uploads = @work.uploads
-        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
-        @work_decorator = WorkDecorator.new(@work, current_user)
+        @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
 
         # return 200 so the loadbalancer doesn't capture the error
         render :edit

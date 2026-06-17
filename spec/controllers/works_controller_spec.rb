@@ -576,8 +576,8 @@ RSpec.describe WorksController do
       it "renders the workshow page" do
         get :show, params: { id: work.id }
         expect(response).to render_template("show")
-        expect(assigns[:work_decorator].changes).to eq([])
-        expect(assigns[:work_decorator].messages).to eq([])
+        expect(assigns[:work_presenter].changes).to eq([])
+        expect(assigns[:work_presenter].messages).to eq([])
       end
 
       context "when the work has changes and messages" do
@@ -589,8 +589,8 @@ RSpec.describe WorksController do
         it "renders the workshow page" do
           get :show, params: { id: work.id }
           expect(response).to render_template("show")
-          expect(assigns[:work_decorator].changes.map(&:message)).to eq(["Hello System"])
-          expect(assigns[:work_decorator].messages.map(&:message)).to eq(["Hello World"])
+          expect(assigns[:work_presenter].changes.map(&:message)).to eq(["Hello System"])
+          expect(assigns[:work_presenter].messages.map(&:message)).to eq(["Hello World"])
         end
       end
     end
