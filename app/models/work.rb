@@ -454,6 +454,8 @@ class Work < ApplicationRecord
   def as_json(*args)
     if state == "approved" || (args.first && args.first[:force_post_curation])
       full_metadata_as_json(*args)
+    elsif state == "withdrawn"
+      withdrawn_metadata_json(*args)
     else
       unpublished_metadata_json(*args)
     end
@@ -478,6 +480,20 @@ class Work < ApplicationRecord
   def unpublished_metadata_json(*_args)
     {
       "resource" => { "doi" => resource.doi,
+                      "state" => state }
+    }
+  end
+
+  # this method returns minimal metadata for withdrawn works
+  # so that only that information is visible when harvested.
+  def withdrawn_metadata_json(*_args)
+    {
+      "resource" => { "doi" => resource.doi,
+                      "creators" => resource.creators,
+                      "titles" => resource.main_title,
+                      "year" => resource.publication_year,
+                      "version" => resource.version_number,
+                      "resource_type" => resource.resource_type,
                       "state" => state }
     }
   end
