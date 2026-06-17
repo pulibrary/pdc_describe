@@ -2,6 +2,10 @@
 require "rails_helper"
 
 describe "Application landing page", type: :system do
+  it "has a link to PDC Discovery in the body of the page" do
+    visit "/"
+    expect(page).to have_link("Princeton Data Commons: Discovery", href: "https://datacommons.princeton.edu/discovery/")
+  end
   it "has a footer with latest deploy information" do
     visit "/"
     expect(page).to have_content "last updated"
@@ -9,7 +13,7 @@ describe "Application landing page", type: :system do
 
   it "has a header with links to helpful info" do
     visit "/"
-    expect(page).to have_link "How to Submit", href: /how-to-submit/
+    expect(page).to have_link "Policies and Guidelines", href: "https://datacommons.princeton.edu/discovery/policies"
     expect(page).to have_link "Accessibility", href: "https://accessibility.princeton.edu/help"
   end
 
