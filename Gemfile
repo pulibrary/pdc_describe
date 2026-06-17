@@ -31,6 +31,7 @@ gem "sass-rails"
 gem "turbolinks", "~> 5"
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem "jbuilder", "~> 2.7"
+gem "listen", "~> 3.3"
 # Use Redis adapter to run Action Cable in production
 gem "nokogiri", ">= 1.19.3"
 gem "redis", "~> 4.0"
@@ -90,7 +91,6 @@ group :development do
   gem "web-console", ">= 4.1.0"
   # Display performance information such as SQL time and flame graphs for each request in your browser.
   # Can be configured to work on production as well see: https://github.com/MiniProfiler/rack-mini-profiler/blob/master/README.md
-  gem "listen", "~> 3.3"
   gem "rack-mini-profiler", "~> 2.0"
 end
 
