@@ -96,7 +96,7 @@ XML
 
     it "can be harvested" do
       visit "/works/#{withdrawn_work.id}.json"
-      expect(JSON.parse(page.body)["resource"]["titles"]).to eq withdrawn_work.title
+      expect(JSON.parse(page.body)["resource"]["titles"]).to eq [{"title" => withdrawn_work.title, "title_type" => nil}]
     end
   end
 end
