@@ -481,7 +481,9 @@ class Work < ApplicationRecord
   def unpublished_metadata_json(*_args)
     {
       "resource" => { "doi" => resource.doi,
-                      "state" => state }
+                      # TODO: we should remove this state once PDC Discovery is looking at the external state.
+                      "state" => state },
+      "state" => state
     }
   end
 
@@ -495,7 +497,9 @@ class Work < ApplicationRecord
                       "year" => resource.publication_year.as_json,
                       "version" => resource.version_number.as_json,
                       "resource_type" => resource.resource_type.as_json,
-                      "state" => state }
+                      # TODO: we should remove this state once PDC Discovery is looking at the external state.
+                      "state" => state },
+      "state" => state
     }
   end
 
