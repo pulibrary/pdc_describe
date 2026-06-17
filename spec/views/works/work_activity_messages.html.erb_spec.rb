@@ -4,6 +4,7 @@ require "rails_helper"
 describe "Messages" do
   let(:user) { FactoryBot.create :user }
   let(:work) { FactoryBot.create :draft_work }
+  let(:work_decorator) { WorkDecorator.new(work, user) }
   let(:partial) { "works/work_activity_messages" }
   let(:older) do
     WorkActivity.add_work_activity(work.id, "older", user.id,
@@ -16,6 +17,7 @@ describe "Messages" do
 
   it "handles no messages" do
     assign(:work, work)
+    assign(:work_decorator, work_decorator)
     render(partial:)
     expect(rendered).to include("No messages")
   end
@@ -23,6 +25,7 @@ describe "Messages" do
   it "handles unknown user" do
     assign(:work, work)
     WorkActivity.add_work_activity(work.id, "message!", nil, activity_type: WorkActivity::MESSAGE)
+    assign(:work_decorator, work_decorator)
     render(partial:)
     expect(rendered).to include("Unknown user outside the system")
   end
@@ -31,6 +34,7 @@ describe "Messages" do
     work.submission_notes = "submission note!"
     assign(:work, work)
     WorkActivity.add_work_activity(work.id, "message!", user.id, activity_type: WorkActivity::MESSAGE)
+    assign(:work_decorator, work_decorator)
     render(partial:)
     expect(rendered).to include("submission note!")
   end
@@ -38,6 +42,7 @@ describe "Messages" do
   it "handles message" do
     assign(:work, work)
     WorkActivity.add_work_activity(work.id, "message!", user.id, activity_type: WorkActivity::MESSAGE)
+    assign(:work_decorator, work_decorator)
     render(partial:)
     expect(rendered).to include("message!")
     expect(rendered).to include("(@#{user.uid})")
@@ -46,6 +51,7 @@ describe "Messages" do
   it "handles notification" do
     assign(:work, work)
     WorkActivity.add_work_activity(work.id, "notification!", user.id, activity_type: WorkActivity::NOTIFICATION)
+    assign(:work_decorator, work_decorator)
     render(partial:)
     expect(rendered).to include("notification!")
     expect(rendered).to include("(@#{user.uid})")
@@ -55,6 +61,7 @@ describe "Messages" do
     assign(:work, work)
     newer
     older
+    assign(:work_decorator, work_decorator)
     render(partial:)
     expect(rendered).to match(/newer.*older/m)
   end
@@ -63,6 +70,7 @@ describe "Messages" do
     assign(:work, work)
     older
     newer
+    assign(:work_decorator, work_decorator)
     render(partial:)
     expect(rendered).to match(/newer.*older/m)
   end

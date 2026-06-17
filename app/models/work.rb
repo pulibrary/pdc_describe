@@ -545,9 +545,8 @@ class Work < ApplicationRecord
     WorkPresenter
   end
 
-  def presenter(current_user:)
-    # we are assuming the current user is not changing while this object is active
-    @presenter ||= self.class.presenter_class.new(work: self, current_user:)
+  def presenter
+    self.class.presenter_class.new(work: self)
   end
 
   def changes

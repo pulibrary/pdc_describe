@@ -2,20 +2,11 @@
 require "rails_helper"
 
 RSpec.describe WorkPresenter do
-  subject(:work_presenter) { described_class.new(work:, current_user:) }
+  subject(:work_presenter) { described_class.new(work:) }
 
   let(:description) { "This tests the link http://library.princeton.edu. It also has a summary." }
   let(:resource) { FactoryBot.build(:resource, doi: "10.34770/123-abc", description:) }
   let(:work) { FactoryBot.create(:draft_work, resource:) }
-  let(:current_user) { work.created_by_user }
-
-  it "delegates methods" do
-    expect(work_presenter.group).to eq(work.group)
-    expect(work_presenter.resource).to eq(work.resource)
-    expect(work_presenter.migrated).to be_falsey
-    work.resource.migrated = true
-    expect(work_presenter.migrated).to be_truthy
-  end
 
   describe "#description" do
     it "autolinks URLs within the description metadata" do
@@ -76,43 +67,6 @@ RSpec.describe WorkPresenter do
         expect(ro3.identifier).to eq related_isbn.related_identifier
         expect(ro3.relation_type).to eq "IsCitedBy"
         expect(ro3.link).to eq ""
-      end
-    end
-  end
-
-  describe "#show_complete_button?" do
-    let(:group) { Group.default }
-    let(:current_user) { FactoryBot.create(:user) }
-    let(:depositor) { FactoryBot.create(:user) }
-    let(:work) { FactoryBot.create(:draft_work, created_by_user_id: depositor.id, group: current_user.default_group) }
-
-    before do
-      Group.create_defaults
-      current_user
-    end
-
-    context "when the work is not in the draft state" do
-      let(:work) { FactoryBot.create(:approved_work, created_by_user_id: depositor.id, group: current_user.default_group) }
-
-      it "does not allow the current user to mark the item complete" do
-        expect(work_presenter.group).to eq(work.group)
-        expect(work_presenter.show_complete_button?).to be false
-      end
-    end
-
-    context "when the work belongs to a group" do
-      context "and the current user is an admin for the group" do
-        let(:current_user) { FactoryBot.create(:user, groups_to_admin: [group]) }
-
-        it "allows the current user to mark the item complete" do
-          expect(work_presenter.group).to eq(work.group)
-          expect(work_presenter.show_complete_button?).to be true
-        end
-      end
-
-      it "does not allow the current user to mark the item complete" do
-        expect(work_presenter.group).to eq(work.group)
-        expect(work_presenter.show_complete_button?).to be false
       end
     end
   end

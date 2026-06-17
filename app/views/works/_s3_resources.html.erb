@@ -30,7 +30,7 @@
     var work = '<%= @work %>';
     let fileListUrl;
     if (work) {
-      fileListUrl = '<%= @work.presenter(current_user:).file_list_path %>';
+      fileListUrl = '<%= @work_decorator.file_list_path %>';
     } else {
       fileListUrl = '<%= root_path %>';
     }
@@ -109,7 +109,7 @@
                   // (Note: Interpolation in the client is interpreted after the server-side Ruby builds the download path)
                   let downloadUrl;
                   if (work) {
-                    downloadUrl = `<%= @work.presenter(current_user:).download_path %>?filename=${data}`;
+                    downloadUrl = `<%= @work_decorator.download_path %>?filename=${data}`;
                   } else {
                     downloadUrl = '<%= root_path %>';
                   }

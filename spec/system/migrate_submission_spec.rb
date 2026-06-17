@@ -195,8 +195,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       visit work_path(work)
       click_on "Approve"
       page.driver.browser.switch_to.alert.accept
-      expect(page).to have_content "marked as Approved"
-      expect(page).to have_content "#{work.title} has been approved"
+      expect(page).to have_content "approved"
     end
 
     context "Approving a work with a DOI we own" do

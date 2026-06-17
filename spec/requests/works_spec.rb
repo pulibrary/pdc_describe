@@ -32,10 +32,9 @@ RSpec.describe "/works", type: :request do
 
       context "when the work does not have a valid group" do
         let(:work) do
-          stubbed = instance_double(Work, id: 1, group: Group.research_data)
+          stubbed = instance_double(Work)
           allow(stubbed).to receive(:s3_object_key).and_return("test-key")
           allow(stubbed).to receive(:reload_snapshots)
-          allow(stubbed).to receive(:presenter).and_return(WorkPresenter.new(work: stubbed, current_user: user))
           stubbed_resource = instance_double(PDCMetadata::Resource)
           allow(stubbed).to receive(:resource).and_return(stubbed_resource)
           allow(stubbed).to receive(:upload_snapshots).and_return([])
