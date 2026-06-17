@@ -68,7 +68,7 @@ XML
     it "can be harvested but there is only a DOI" do
       visit "/works/#{draft_work.id}.json"
       # make sure to test that only the DOI and the work state is included in the JSON document
-      expect(JSON.parse(page.body)).to eq({ "resource" => { "doi" => draft_work.doi, "state" => draft_work.state } })
+      expect(JSON.parse(page.body)).to eq({ "resource" => { "doi" => draft_work.doi, "state" => draft_work.state }, "state" => draft_work.state })
       # make sure to test that the title is not in the JSON document
       expect(JSON.parse(page.body)["resource"]["titles"]).to be_nil
     end

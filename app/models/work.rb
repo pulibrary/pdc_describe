@@ -494,8 +494,8 @@ class Work < ApplicationRecord
       "resource" => { "doi" => resource.doi,
                       "creators" => resource.creators.as_json,
                       "titles" => resource.titles.as_json,
-                      "year" => resource.publication_year.as_json,
-                      "version" => resource.version_number.as_json,
+                      "publication_year" => resource.publication_year.as_json,
+                      "version_number" => resource.version_number.as_json,
                       "resource_type" => resource.resource_type.as_json,
                       # TODO: we should remove this state once PDC Discovery is looking at the external state.
                       "state" => state },
