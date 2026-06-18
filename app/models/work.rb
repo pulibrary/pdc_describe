@@ -471,7 +471,8 @@ class Work < ApplicationRecord
       "embargo_date" => embargo_date_as_json,
       "created_at" => format_date_for_solr(created_at),
       "updated_at" => format_date_for_solr(updated_at),
-      "date_approved" => date_approved
+      "date_approved" => date_approved,
+      "state" => state
     }
   end
 
@@ -480,7 +481,9 @@ class Work < ApplicationRecord
   def unpublished_metadata_json(*_args)
     {
       "resource" => { "doi" => resource.doi,
-                      "state" => state }
+                      # TODO: we should remove this state once PDC Discovery is looking at the external state.
+                      "state" => state },
+      "state" => state
     }
   end
 
@@ -489,12 +492,14 @@ class Work < ApplicationRecord
   def withdrawn_metadata_json(*_args)
     {
       "resource" => { "doi" => resource.doi,
-                      "creators" => resource.creators,
-                      "titles" => resource.main_title,
-                      "year" => resource.publication_year,
-                      "version" => resource.version_number,
-                      "resource_type" => resource.resource_type,
-                      "state" => state }
+                      "creators" => resource.creators.as_json,
+                      "titles" => resource.titles.as_json,
+                      "publication_year" => resource.publication_year.as_json,
+                      "version_number" => resource.version_number.as_json,
+                      "resource_type" => resource.resource_type.as_json,
+                      # TODO: we should remove this state once PDC Discovery is looking at the external state.
+                      "state" => state },
+      "state" => state
     }
   end
 
