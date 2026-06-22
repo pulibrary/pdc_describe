@@ -12,7 +12,8 @@ class WorkStateTransitionNotification
     @depositor = work.created_by_user
     @group = work.group
     @group_administrators = group.administrators.to_a
-    @work_url = data_commons_url(work)
+    # NOTE: This defaults to: "https://datacommons.princeton.edu/discovery"
+    @work_url = describe_data_commons_url(work)
 
     # Troubleshooting https://github.com/pulibrary/pdc_describe/issues/1783
     if @work_url.include?("/describe/describe/")
