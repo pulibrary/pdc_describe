@@ -107,7 +107,7 @@ class WorksController < ApplicationController
 
   def resolve_doi
     @work = Work.find_by_doi(params[:doi])
-    redirect_to @work
+    redirect_to(@work.draft? ? @work.pdc_discovery_url : @work)
   end
 
   def resolve_ark

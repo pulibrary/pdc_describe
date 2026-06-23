@@ -638,6 +638,12 @@ RSpec.describe WorksController do
           expect(response).to redirect_to(work_path(work))
         end
 
+        it "redirects draft works to the PDC discovery landing page" do
+          draft_work = FactoryBot.create(:draft_work, doi: "10.34770/123-abc")
+          get :resolve_doi, params: { doi: draft_work.doi }
+          expect(response).to redirect_to(draft_work.pdc_discovery_url)
+        end
+
         context "when passing only a segment of the DOI" do
           it "redirects to the Work show view if missing prefix" do
             stub_s3
