@@ -69,6 +69,7 @@ RSpec.describe Work, type: :model do
             "subcommunities" => [],
             "migrated" => false
           },
+          "state" => "approved",
           "files" => [],
           "group" => {
             "title" => "Princeton Plasma Physics Lab (PPPL)",
