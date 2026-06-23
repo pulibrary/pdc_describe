@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class FormResourceDecorator
+class FormResourcePresenter
   attr_reader :resource, :current_user, :work
 
   SKIPPED_ROLES = ["DISTRIBUTOR", "FUNDER", "HOSTING_INSTITUTION", "REGISTRATION_AGENCY", "REGISTRATION_AUTHORITY", "RESEARCH GROUP"].freeze

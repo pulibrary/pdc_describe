@@ -62,7 +62,7 @@ class WorkStateTransitionNotification
       def data_commons_url(work)
         url = if Rails.env.production?
                 path = Rails.application.routes.url_helpers.work_path(work)
-                "https://datacommons.princeton.edu#{path}"
+                "#{Rails.configuration.datacite.data_commons_url}#{path}"
               else
                 Rails.application.routes.url_helpers.work_url(work)
               end

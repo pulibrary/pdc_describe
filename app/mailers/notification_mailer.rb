@@ -9,6 +9,7 @@ class NotificationMailer < ApplicationMailer
 
     @subject = "[pdc-describe] New Notification"
     @url = data_commons_url(@work_activity.work)
+    @work_url = describe_url(@work_activity.work)
     @doi_url = @work_activity.work.doi_url
     @message = @work_activity.message
     @message_html = @work_activity.to_html
@@ -71,7 +72,18 @@ class NotificationMailer < ApplicationMailer
     url = if Rails.env.production?
             path = work_path(work)
 
-            "https://datacommons.princeton.edu#{path}"
+            "#{Rails.configuration.datacite.data_commons_url}#{path}"
+          else
+            work_url(work)
+          end
+    check_url(url)
+  end
+
+  def describe_url(work)
+    url = if Rails.env.production?
+            path = work_path(work)
+
+            "#{Rails.configuration.datacite.describe_data_commons_url}#{path}"
           else
             work_url(work)
           end

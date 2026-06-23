@@ -48,7 +48,7 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
 
   context "happy path" do
     before do
-      stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
+      stub_request(:get, "https://handle.test.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
       stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
     end
 
@@ -109,8 +109,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
     let(:fake_s3_service) { stub_s3 }
 
     before do
-      stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
-      stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-ab").to_return(status: 404, body: "", headers: {})
+      stub_request(:get, "https://handle.test.datacite.org/10.34770/123-abc").to_return(status: 200, body: "", headers: {})
+      stub_request(:get, "https://handle.test.datacite.org/10.34770/123-ab").to_return(status: 404, body: "", headers: {})
       fake_s3_service
       work2
     end
@@ -195,7 +195,8 @@ RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_
       visit work_path(work)
       click_on "Approve"
       page.driver.browser.switch_to.alert.accept
-      expect(page).to have_content "approved"
+      expect(page).to have_content "marked as Approved"
+      expect(page).to have_content "#{work.title} has been approved"
     end
 
     context "Approving a work with a DOI we own" do

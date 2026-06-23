@@ -30,7 +30,7 @@ module ApplicationHelper
 
   def doi_url(doi_value)
     return nil if doi_value.blank?
-    "https://doi.org/#{doi_value}"
+    "#{Rails.configuration.datacite.doi_url}#{doi_value}"
   end
 
   # Renders citation information APA-ish and BibTeX.
