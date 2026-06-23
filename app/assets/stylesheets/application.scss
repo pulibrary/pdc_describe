@@ -390,3 +390,10 @@ table.dataTable {
 .user-edit-long-field {
   width: 400px;
 }
+
+
+#user-list-table td {
+  vertical-align: top;
+  padding: 5px;
+  border: #CCCCCC 1px solid;
+}

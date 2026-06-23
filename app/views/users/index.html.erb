@@ -8,6 +8,10 @@
       <th>Family name</th>
       <th>Full name</th>
       <th>ORCID</th>
+      <th>Email messages enabled?</th>
+      <th>Group messages enabled?</th>
+      <th>PPPL subcommunity messages enabled?</th>
+
     </tr>
   </thead>
   <tbody>
@@ -19,11 +23,24 @@
           &nbsp;(you)
         <% end %>
       </td>
-
       <td><%= user.given_name_safe %></td>
       <td><%= user.family_name %></td>
       <td><%= user.full_name %></td>
       <td><%= user.orcid %></td>
+      <td><%= user.email_messages_enabled? %></td>
+      <td>
+      <ul>
+        <li><%= Group.research_data.title if user.group_messaging_options.any? { |element| element.id == Group.research_data.id && element.enabled } %></li>
+        <li><%= Group.plasma_laboratory.title if user.group_messaging_options.any? { |element| element.id == Group.plasma_laboratory.id && element.enabled == true } %></li>
+      </ul>
+      <td>
+        <ul>
+          <% user.group_messaging_options.select { |element| element.subcommunity.present? && element.enabled }.each do |group| %>
+          <li><%= group.subcommunity %></li>
+          <% end %>
+        </ul>
+      </td> 
+      
     </tr>
     <% end %>
 </tbody>
