@@ -1,3 +1,4 @@
+<% if current_user.super_admin? || current_user.moderator? %>
 <h1>Users</h1>
 
 <div class="alert alert-warning">
@@ -35,8 +36,8 @@
       <td><%= user.email_messages_enabled? %></td>
       <td>
       <ul>
-        <li><%= Group.research_data.title if user.group_messaging_options.any? { |element| element.id == Group.research_data.id && element.enabled } %></li>
-        <li><%= Group.plasma_laboratory.title if user.group_messaging_options.any? { |element| element.id == Group.plasma_laboratory.id && element.enabled == true } %></li>
+        <%= "<li>#{Group.research_data.title}</li>".html_safe if user.group_messaging_options.any? { |element| element.group_id == Group.research_data.id && element.enabled == true } %>
+        <%= "<li>#{Group.plasma_laboratory.title}</li>".html_safe if user.group_messaging_options.any? { |element| element.group_id == Group.plasma_laboratory.id && element.enabled == true } %>
       </ul>
       <td>
         <ul>
@@ -50,3 +51,5 @@
     <% end %>
 </tbody>
 </table>
+
+<% end %>
