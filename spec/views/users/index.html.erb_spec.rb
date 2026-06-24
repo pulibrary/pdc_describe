@@ -18,10 +18,10 @@ describe "/users", type: :system do
     let(:princeton_submitter_2) { FactoryBot.create :princeton_submitter }
     before do
       login_as super_admin
-      login_as research_data_moderator
-      login_as pppl_moderator
-      login_as princeton_submitter_1
-      login_as princeton_submitter_2
+      research_data_moderator
+      pppl_moderator
+      princeton_submitter_1
+      princeton_submitter_2
     end
 
     context "for logged-in submitters" do
@@ -35,11 +35,11 @@ describe "/users", type: :system do
       end
     end
 
-    context "for logged-in admin users with all info" do
+    context "for logged-in admin users" do
       before do
         login_as super_admin
       end
-      it "renders the Users page" do
+      it "renders the Users page with all info" do
         visit "/users"
         expect(page).to have_text("Users")
         expect(page).to have_text("A user who is the curator of a work will receive email notifications about that work from the system, regardless of their email notification settings.")

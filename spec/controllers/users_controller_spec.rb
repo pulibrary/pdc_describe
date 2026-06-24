@@ -3,6 +3,7 @@ require "rails_helper"
 
 RSpec.describe UsersController do
   let(:user) { FactoryBot.create(:user) }
+  let(:research_data_moderator) { FactoryBot.create(:research_data_moderator) }
   let(:user_other) { FactoryBot.create(:user) }
   let(:user_external) { FactoryBot.create(:external_user) }
   let(:user_external_2) { FactoryBot.create(:external_user_2) }
@@ -139,16 +140,25 @@ RSpec.describe UsersController do
     let(:format) { :html }
 
     before do
-      sign_in user_other
+      sign_in user
       user
+      user_other
       get :index
     end
 
-    it "accesses all Users" do
-      expect(response).to render_template("index")
-      expect(response.body).to include(user.uid)
-      expect(response.body).to include(user_other.uid)
-    end
+    context "when authenticated but unauthorized to view All Users page" do 
+      before do
+        sign_in user
+        user_other
+        get :index
+      end
+      it "accesses all Users" do
+        expect(response).to render_template("index")
+        expect(response.body).not_to include(user_other.uid)
+      end
+    end 
+
+    
 
     context "when a HealthMonitor Redis error is raised" do
       before do
@@ -163,5 +173,19 @@ RSpec.describe UsersController do
         expect(response).to redirect_to(root_path)
       end
     end
+
+    context "when authenticated and authorized to view All Users page" do 
+      before do
+        sign_in research_data_moderator
+        user
+        user_other
+        get :index
+      end
+      it "accesses all Users" do
+        expect(response).to render_template("index")
+        expect(response.body).to include(user.uid)
+        expect(response.body).to include(user_other.uid)
+      end
+    end 
   end
 end
