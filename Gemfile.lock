@@ -278,6 +278,9 @@ GEM
     ffi (1.17.3)
     ffi (1.17.3-x86_64-darwin)
     ffi (1.17.3-x86_64-linux-gnu)
+    flipflop (2.8.0)
+      activesupport (>= 4.0)
+      terminal-table (>= 1.8)
     foreman (0.88.1)
     friendly_id (5.4.2)
       activerecord (>= 4.0.0)
@@ -609,6 +612,8 @@ GEM
     temple (0.10.4)
     term-ansicolor (1.11.2)
       tins (~> 1.0)
+    terminal-table (4.0.0)
+      unicode-display_width (>= 1.1.1, < 4)
     thin (2.0.1)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
@@ -709,6 +714,7 @@ DEPENDENCIES
   factory_bot_rails
   faraday
   ffaker
+  flipflop
   foreman
   friendly_id (~> 5.4.0)
   health-monitor-rails (= 12.6.0)
