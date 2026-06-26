@@ -5,14 +5,18 @@
   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" role="menu">
     <%= link_to "My Dashboard", user_path(current_user), class: "dropdown-item my-dashboard", role: "menuitem" %>
     <%= link_to "My Profile", edit_user_path(current_user), class: "dropdown-item my-profile", role: "menuitem" %>
-    <% if current_user.moderator? %>
+
+    <% if current_user.moderator? && Flipflop.create_dataset? %>
       <%= link_to "Create Dataset", new_work_path, class: "dropdown-item", role: "menuitem" %>
-      <% if current_user.can_admin?(Group.research_data) %>
+
+      <% if current_user.can_admin?(Group.research_data) && Flipflop.migrate_prds_dataset? %>
         <%= link_to "Migrate PRDS Dataset", new_work_path(migrate: true, group_code: Group.research_data.code), class: "dropdown-item", role: "menuitem" %>
       <% end %>
-      <% if current_user.can_admin?(Group.plasma_laboratory) %>
+
+      <% if current_user.can_admin?(Group.plasma_laboratory) && Flipflop.migrate_pppl_dataset? %>
         <%= link_to "Migrate PPPL Dataset", new_work_path(migrate: true, group_code: Group.plasma_laboratory.code), class: "dropdown-item", role: "menuitem" %>
       <% end %>
+
     <% end %>
     <%= link_to "Notifications", work_activity_notifications_path, class: "dropdown-item my-profile", role: "menuitem" %>
     <%= link_to "Log Out", main_app.destroy_user_session_path, class: 'dropdown-item log-out', role: "menuitem" %>
