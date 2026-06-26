@@ -1,7 +1,4 @@
-@import "./variables/typography.scss";
-
 #footer {
-  font-family: "Open Sans", sans-serif;
   padding: 0px;
   border-top: #cecece solid 15px;
   border-bottom: #cecece solid 3px;
@@ -12,31 +9,6 @@
     justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
-
-    .pul-accessible {
-      a {
-        color: #000000;
-        text-decoration: none;
-        margin: 0px 0px 0px 10px;
-
-        &:hover {
-          text-decoration: underline;
-        }
-
-        &::after {
-          background-image: asset_url("open-icon.svg");
-          background-position: center center;
-          background-repeat: no-repeat;
-          background-size: contain;
-          content: "";
-          display: inline-block;
-          height: 12px;
-          margin-left: 8px;
-          position: relative;
-          width: 12px;
-        }
-      }
-    }
 
     img {
       display: block;
@@ -53,24 +25,43 @@
       }
 
       @media all and (min-width: 765px) {
-        flex-basis: calc(25% - 2rem);
+        flex-basis: calc(20% - 2rem);
+      }
+    }
+
+    .footer-links {
+      li {
+        list-style: none;
+      }
+      a {
+        color: black;
+      }
+      a.pul-accessible {
+        &::after {
+          background-image: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiLz48cG9seWxpbmUgcG9pbnRzPSIxNSAzIDIxIDMgMjEgOSIvPjxsaW5lIHgxPSIxMCIgeDI9IjIxIiB5MT0iMTQiIHkyPSIzIi8+PC9zdmc+");
+          background-position: center center;
+          background-repeat: no-repeat;
+          background-size: contain;
+          content: "";
+          display: inline-block;
+          height: 12px;
+          margin-left: 8px;
+          position: relative;
+          width: 12px;
+        }
+      }
+      ul {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
       }
     }
   }
 }
 
 #copyright {
-  font-family: "Open Sans", sans-serif;
   background-color: #cecece;
   width: 100%;
   padding-right: 10px;
   text-align: right;
   font-size: 10px;
-}
-
-.deployment-version {
-  font-family: "Open Sans", sans-serif;
-  text-align: right;
-  font-size: 14px;
-  padding: 5px;
 }
