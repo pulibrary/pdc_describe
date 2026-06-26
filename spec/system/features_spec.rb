@@ -14,6 +14,4 @@ describe "features", type: :system, js: true do
     visit "/features"
     expect(page).not_to have_content("Create a dataset")
   end
-
-
 end
