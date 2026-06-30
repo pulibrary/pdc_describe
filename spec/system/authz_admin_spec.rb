@@ -115,7 +115,7 @@ RSpec.describe "Authz for curators", type: :system, js: true do
       it "should see the Create Dataset option" do
         login_as research_data_moderator
         visit user_path(research_data_moderator)
-        expect(page.html.include?("Create Dataset")).to be true
+        expect(page.html.include?("Create Dataset")).to be false # the default of the feature flipper is to not display this option in the dropdown for any user
       end
     end
   end

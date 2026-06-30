@@ -1,4 +1,10 @@
+<% if current_user.super_admin? || current_user.moderator? %>
 <h1>Users</h1>
+
+<div class="alert alert-warning">
+<h2>Please note</h2>
+<p>A user who is the curator of a work will receive email notifications about that work from the system, regardless of their email notification settings.</p>
+</div>
 
 <table id="user-list-table">
   <thead>
@@ -8,6 +14,10 @@
       <th>Family name</th>
       <th>Full name</th>
       <th>ORCID</th>
+      <th>Email messages enabled?</th>
+      <th>Group messages enabled?</th>
+      <th>PPPL subcommunity messages enabled?</th>
+
     </tr>
   </thead>
   <tbody>
@@ -19,12 +29,27 @@
           &nbsp;(you)
         <% end %>
       </td>
-
       <td><%= user.given_name_safe %></td>
       <td><%= user.family_name %></td>
       <td><%= user.full_name %></td>
       <td><%= user.orcid %></td>
+      <td><%= user.email_messages_enabled? %></td>
+      <td>
+      <ul>
+        <%= "<li>#{Group.research_data.title}</li>".html_safe if user.group_messaging_options.any? { |element| element.group_id == Group.research_data.id && element.enabled == true } %>
+        <%= "<li>#{Group.plasma_laboratory.title}</li>".html_safe if user.group_messaging_options.any? { |element| element.group_id == Group.plasma_laboratory.id && element.enabled == true } %>
+      </ul>
+      <td>
+        <ul>
+          <% user.group_messaging_options.select { |element| element.subcommunity.present? && element.enabled }.each do |group| %>
+          <li><%= group.subcommunity %></li>
+          <% end %>
+        </ul>
+      </td> 
+      
     </tr>
     <% end %>
 </tbody>
 </table>
+
+<% end %>
