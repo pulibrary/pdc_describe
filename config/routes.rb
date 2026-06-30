@@ -3,6 +3,7 @@
 require "sidekiq/web"
 
 Rails.application.routes.draw do
+  mount Flipflop::Engine => "/features"
   resources :work_activity_notifications, only: [:index, :show]
 
   mount HealthMonitor::Engine, at: "/"
