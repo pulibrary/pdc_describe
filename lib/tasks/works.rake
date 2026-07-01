@@ -260,4 +260,13 @@ namespace :works do
       end
     end
   end
+
+  desc "registering all existing draft works"
+  task register_draft: :environment do
+    puts "registering #{Work.where(state: "draft").count} draft works"
+    Work.where(state: "draft").each do |work|
+      service = PULDatacite.new(work)
+      service.register_doi(work.created_by_user)
+    end
+  end
 end
