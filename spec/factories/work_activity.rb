@@ -14,4 +14,11 @@ FactoryBot.define do
     created_by_user_id { FactoryBot.create(:user).id }
     work_id { FactoryBot.create(:draft_work).id }
   end
+
+  factory :work_activity_notification, class: "WorkActivity" do
+    message { "test work activity message" }
+    activity_type { WorkActivity::NOTIFICATION }
+    created_by_user_id { FactoryBot.create(:user).id }
+    work_id { FactoryBot.create(:draft_work).id }
+  end
 end

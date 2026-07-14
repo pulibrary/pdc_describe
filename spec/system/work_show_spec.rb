@@ -23,10 +23,11 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     related_objects_displayed = page.find_all(:css, ".related_object")
     expect(related_objects_displayed.size).to eq 5
     expect(page).to have_link(href: "https://www.biorxiv.org/content/10.1101/545517v1")
+    # this is a related object so the doi remains the regular doi.org
     expect(page).to have_link(href: "https://doi.org/10.7554/eLife.52482")
 
     # These are the RelatedObjects created by FactoryBot
-    expect(page).to have_link(related_doi.related_identifier, href: "https://doi.org/#{related_doi.related_identifier}")
+    expect(page).to have_link(related_doi.related_identifier, href: "https://handle.test.datacite.org/#{related_doi.related_identifier}")
     expect(page).to have_link(related_arxiv.related_identifier, href: "https://arxiv.org/abs/#{related_arxiv.related_identifier}")
     # ISBNs, and other identifiers that don't have an obvious place to link to, should not have links
     expect(page).not_to have_link(related_isbn.related_identifier)
@@ -112,6 +113,40 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     end
   end
 
+  describe "messaging on a Work awaiting approval" do
+    let(:work) { FactoryBot.create(:awaiting_approval_work) }
+    let(:user) { FactoryBot.create :user }
+
+    before do
+      sign_in(user)
+      visit work_path(work)
+    end
+
+    it "Allows user lookup with an @ symbol" do
+      fill_in "new-message", with: "@zzzz"
+      expect(page).to have_content "No users found"
+      fill_in "new-message", with: "@#{user.uid[0..-2]}"
+      expect(page).not_to have_content "No users found"
+      within ".match-list" do
+        expect(page).to have_content user.uid
+        find("#ui-id-0").click
+      end
+      expect(find("#new-message").value).to eq("@#{user.uid} ")
+      fill_in "new-message", with: "goat @#{user.uid[0..-2]}"
+      within ".match-list" do
+        expect(page).to have_content user.uid
+        find("#ui-id-0").click
+      end
+      expect(find("#new-message").value).to eq("goat @#{user.uid} ")
+      fill_in "new-message", with: "goat @#{user.family_name}"
+      within ".match-list" do
+        expect(page).to have_content user.uid
+        find("#ui-id-0").click
+      end
+      expect(find("#new-message").value).to eq("goat @#{user.uid} ")
+    end
+  end
+
   describe "reverting a Work awaiting approval" do
     let(:work) { FactoryBot.create(:awaiting_approval_work) }
 
@@ -129,6 +164,20 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
         expect(page).not_to have_button("Revert Dataset to Draft")
         expect(page).to have_button("Complete")
         expect(page).to have_content("marked as Draft")
+        fill_in "new-message", with: "@#{user.uid} sending a message after reverting to draft"
+        expect(find("#new-message").value).to eq("@#{user.uid} sending a message after reverting to draft")
+        expect do
+          click_on "Message"
+          expect(page).to have_content "sending a message after reverting to draft"
+        end.to change { WorkActivity.where(activity_type: WorkActivity::MESSAGE).count }
+          .by(1).and change { WorkActivityNotification.count }
+          .by(2).and have_enqueued_job(ActionMailer::MailDeliveryJob).with { |mailer_class, build_command, action, params|
+                       expect(mailer_class).to eq "NotificationMailer"
+                       expect(build_command).to eq "build_message"
+                       expect(action).to eq "deliver_now"
+                       expect(params[:params][:user].id).to be_in([user.id,
+                                                                   work.created_by_user_id])
+                     }.exactly(2).times
       end
     end
 

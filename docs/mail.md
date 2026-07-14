@@ -130,6 +130,7 @@ sequenceDiagram
     activity-->>basic: Notify group and researcher
     basic->>curators: approved 📫
     basic->>researcher: approved 📫
+    basic->>depositor: approved 📫
 ```
 
 ### Work rejected by a curator

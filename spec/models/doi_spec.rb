@@ -158,7 +158,16 @@ RSpec.describe "DOI", type: :model do
   describe "Displaying DOIs" do
     let(:work) { FactoryBot.create :draft_work }
     it "formats it as a URL for display purposes" do
-      expect(work.doi_url).to eq "https://doi.org/#{work.doi}"
+      expect(work.doi_url).to eq "https://handle.test.datacite.org/#{work.doi}"
+    end
+    context "In production" do
+      before do
+        allow(Rails.configuration.datacite).to receive(:doi_url).and_return("https://doi.org/")
+      end
+
+      it "formats it as a URL for display purposes" do
+        expect(work.doi_url).to eq "https://doi.org/#{work.doi}"
+      end
     end
   end
 end

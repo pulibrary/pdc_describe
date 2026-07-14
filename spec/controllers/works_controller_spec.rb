@@ -8,15 +8,20 @@ RSpec.describe WorksController do
     stub_ark
     Group.create_defaults
     user
+
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+    response = File.read(Pathname.new(fixture_paths.first).join("doi_update_response.json").to_s)
+    stub_request(:put, update_url).to_return(status: 200, body: response, headers: { "Content-Type" => "application/json" })
 
     stub_request(:get, /#{Regexp.escape('https://example-bucket.s3.amazonaws.com/us_covid_20')}.*\.csv/).to_return(status: 200, body: "", headers: {})
   end
 
+  let(:update_url) { "https://#{Rails.configuration.datacite.host}/dois/10.34770/doc-1" }
   let(:group) { Group.first }
   let(:curator) { FactoryBot.create(:user, groups_to_admin: [group]) }
   let(:resource) { FactoryBot.build :resource }
   let(:work) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
+  let(:approved_work) { FactoryBot.create(:approved_work, doi: "10.34770/123-abc", created_by_user_id: user.id) }
   let(:user) { work.created_by_user }
   let(:pppl_user) { FactoryBot.create(:pppl_submitter) }
   let(:super_admin) { FactoryBot.create :super_admin_user }
@@ -36,15 +41,26 @@ RSpec.describe WorksController do
       expect(response.content_type).to eq "application/rss+xml; charset=utf-8"
     end
 
-    it "renders the work json" do
+    it "renders the approved work json" do
+      sign_in user
+      stub_s3
+      get :show, params: { id: approved_work.id, format: "json" }
+      expect(response.content_type).to eq "application/json; charset=utf-8"
+      work_json = JSON.parse(response.body)
+      expect(work_json["resource"]).to_not be nil
+      expect(work_json["files"]).to_not be nil
+      expect(work_json["group"]).to_not be nil
+    end
+
+    it "renders the draft work json" do
       sign_in user
       stub_s3
       get :show, params: { id: work.id, format: "json" }
       expect(response.content_type).to eq "application/json; charset=utf-8"
       work_json = JSON.parse(response.body)
       expect(work_json["resource"]).to_not be nil
-      expect(work_json["files"]).to_not be nil
-      expect(work_json["group"]).to_not be nil
+      expect(work_json["files"]).to be nil
+      expect(work_json["group"]).to be nil
     end
 
     it "renders the new form" do
@@ -560,8 +576,8 @@ RSpec.describe WorksController do
       it "renders the workshow page" do
         get :show, params: { id: work.id }
         expect(response).to render_template("show")
-        expect(assigns[:work_decorator].changes).to eq([])
-        expect(assigns[:work_decorator].messages).to eq([])
+        expect(assigns[:work_presenter].changes).to eq([])
+        expect(assigns[:work_presenter].messages).to eq([])
       end
 
       context "when the work has changes and messages" do
@@ -573,8 +589,8 @@ RSpec.describe WorksController do
         it "renders the workshow page" do
           get :show, params: { id: work.id }
           expect(response).to render_template("show")
-          expect(assigns[:work_decorator].changes.map(&:message)).to eq(["Hello System"])
-          expect(assigns[:work_decorator].messages.map(&:message)).to eq(["Hello World"])
+          expect(assigns[:work_presenter].changes.map(&:message)).to eq(["Hello System"])
+          expect(assigns[:work_presenter].messages.map(&:message)).to eq(["Hello World"])
         end
       end
     end
@@ -620,6 +636,12 @@ RSpec.describe WorksController do
           stub_s3
           get :resolve_doi, params: { doi: work.doi }
           expect(response).to redirect_to(work_path(work))
+        end
+
+        it "redirects draft works to the PDC discovery landing page" do
+          draft_work = FactoryBot.create(:draft_work, doi: "10.34770/123-abc")
+          get :resolve_doi, params: { doi: draft_work.doi }
+          expect(response).to redirect_to(draft_work.pdc_discovery_url)
         end
 
         context "when passing only a segment of the DOI" do
@@ -733,6 +755,7 @@ RSpec.describe WorksController do
         let(:fake_s3_service) { stub_s3(data:) }
         before do
           fake_s3_service
+          allow(Work).to receive(:find).with(work1.id).and_return(work1)
           allow(Work).to receive(:find).with(work1.id.to_s).and_return(work1)
           work1.complete_submission!(user)
           allow(fake_s3_service).to receive(:client_s3_files).and_return([])

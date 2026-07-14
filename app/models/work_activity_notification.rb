@@ -6,28 +6,39 @@ class WorkActivityNotification < ApplicationRecord
 
   after_create do
     if send_message?
-      mailer = NotificationMailer.with(user:, work_activity:)
-      work = work_activity.work
-      delay = wait_time
-      from_state = check_from_state(work)
-
-      if work.state == "draft" && from_state == :none # draft event
-        new_submission_message = mailer.new_submission_message
-        new_submission_message.deliver_later(wait: delay) unless Rails.env.development?
-      elsif work.state == "draft" && from_state == :awaiting_approval # revert_to_draft event
-        reject_message = mailer.reject_message
-        reject_message.deliver_later(wait: delay) unless Rails.env.development?
-      elsif work.state == "awaiting_approval" && from_state == :draft # complete_submission
-        review_message = mailer.review_message
-        review_message.deliver_later(wait: delay) unless Rails.env.development?
-      else
-        message = mailer.build_message
-        message.deliver_later(wait: delay) unless Rails.env.development?
-      end
+      send_messages
+    else
+      update_email_sent("unsent")
     end
   end
 
   private
+
+    def send_messages
+      mailer = NotificationMailer.with(user:, work_activity:)
+      # messages sent from the work
+      if work_activity.activity_type == WorkActivity::MESSAGE
+        update_email_sent("message")
+        message = mailer.build_message
+        message.deliver_later unless Rails.env.development?
+
+      # state transition notifications
+      elsif work_activity.activity_type == WorkActivity::NOTIFICATION
+        update_email_sent("state_transition")
+        mailer.build_message.deliver_later(wait: wait_time) unless Rails.env.development?
+
+      # Error publishing DOI or Curator self assigned and assigned
+      else
+        update_email_sent("system")
+        message = mailer.build_message
+        message.deliver_later
+      end
+    end
+
+    def update_email_sent(type)
+      self.email_sent = { type:, email: user.email }
+      save
+    end
 
     def wait_time
       work = work_activity.work

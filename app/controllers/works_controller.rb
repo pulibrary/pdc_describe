@@ -30,7 +30,7 @@ class WorksController < ApplicationController
   before_action :authenticate_user!, unless: :public_request?
 
   # This method allows any user to visit /works.rss
-  # and a list is generated of all approved works in an RSS format
+  # and a list is generated of all works in an RSS format
   # so that the works are harvestable by PDC Discovery.
   def index
     if rss_index_request?
@@ -48,27 +48,11 @@ class WorksController < ApplicationController
     end
   end
 
-  # This method allows any user to visit /works/awaiting-approval.rss
-  # and a list is generated for works with a draft DOI in an RSS format
-  # so that the works are harvestable by PDC Discovery.
-  # In order to support landing pages for not yet approved works in PDC Discovery
-  # (see https://github.com/pulibrary/pdc_describe/issues/2204).
-  def awaiting_approval
-    if rss_awaiting_approval_request?
-      rss_awaiting_approval_index
-    else
-      # If a user who is not a super admin attempts to visit /awaiting_approval they will be redirected to the root_path and receive a flash notice that they do not have access to that page.
-      flash[:notice] = "You do not have access to this page."
-      redirect_to root_path
-    end
-  end
-
   # only non wizard mode
   def new
     group = Group.find_by(code: params[:group_code]) || current_user.default_group
     @work = Work.new(created_by_user_id: current_user.id, group:)
-    @work_decorator = WorkDecorator.new(@work, current_user)
-    @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+    @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
   end
 
   # only non wizard mode
@@ -82,8 +66,7 @@ class WorksController < ApplicationController
       upload_service.update_precurated_file_list(added_files_param, deleted_files_param)
       redirect_to work_url(@work), notice: "Work was successfully created."
     else
-      @work_decorator = WorkDecorator.new(@work, current_user)
-      @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+      @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
       # return 200 so the loadbalancer doesn't capture the error
       render :new
     end
@@ -95,12 +78,12 @@ class WorksController < ApplicationController
   def show
     @work = Work.find(params[:id])
     UpdateSnapshotJob.perform_later(work_id: @work.id, last_snapshot_id: work.upload_snapshots.first&.id)
-    @work_decorator = WorkDecorator.new(@work, current_user)
+    @work_presenter = work.presenter(current_user:)
 
     respond_to do |format|
       format.html do
         # Ensure that the Work belongs to a Group
-        group = @work_decorator.group
+        group = @work_presenter.group
         raise(Work::InvalidGroupError, "The Work #{@work.id} does not belong to any Group") unless group
 
         @can_curate = current_user.can_admin?(group)
@@ -124,7 +107,12 @@ class WorksController < ApplicationController
 
   def resolve_doi
     @work = Work.find_by_doi(params[:doi])
-    redirect_to @work
+
+    if @work.draft?
+      redirect_to @work.pdc_discovery_url
+    else
+      redirect_to @work
+    end
   end
 
   def resolve_ark
@@ -136,12 +124,11 @@ class WorksController < ApplicationController
   # only non wizard mode
   def edit
     @work = Work.find(params[:id])
-    @work_decorator = WorkDecorator.new(@work, current_user)
     if validate_modification_permissions(work: @work,
                                          uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
                                          current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
       @uploads = @work.uploads
-      @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+      @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
     end
   end
 
@@ -292,12 +279,6 @@ class WorksController < ApplicationController
       action_name == "index" && request.format.symbol == :rss
     end
 
-    # Determine whether or not the request is for the Work#awaiting_approval action in RSS response format.
-    # This is to enable PDC Discovery to index work whose DOIs are not yet published content via the RSS feed.
-    def rss_awaiting_approval_request?
-      action_name == "awaiting_approval" && request.format.symbol == :rss
-    end
-
     # Determine whether or not the request is for the :show action in the JSON
     # response format
     # @return [Boolean]
@@ -318,8 +299,7 @@ class WorksController < ApplicationController
     # Note that only approved works can be fetched for indexing.
     def public_request?
       return true if rss_index_request?
-      return true if rss_awaiting_approval_request?
-      return true if json_show_request? && work_approved?
+      return true if json_show_request?
       false
     end
 
@@ -368,14 +348,14 @@ class WorksController < ApplicationController
     def handle_error_for_create(generic_error)
       if @work.persisted?
         Honeybadger.notify("Failed to create the new Dataset #{@work.id}: #{generic_error.message}")
-        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+        @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
         redirect_to edit_work_url(id: @work.id), notice: "Failed to create the new Dataset #{@work.id}: #{generic_error.message}", params:
       else
         Honeybadger.notify("Failed to create a new Dataset #{@work.id}: #{generic_error.message}")
         new_params = {}
         new_params[:wizard] = wizard_mode? if wizard_mode?
         new_params[:migrate] = migrating? if migrating?
-        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+        @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
         redirect_to new_work_url(params: new_params), notice: "Failed to create a new Dataset: #{generic_error.message}", params: new_params
       end
     end
@@ -388,14 +368,14 @@ class WorksController < ApplicationController
         new_params = {}
         new_params[:wizard] = wizard_mode? if wizard_mode?
         new_params[:migrate] = migrating? if migrating?
-        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+        @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
         redirect_to new_work_url(params: new_params), notice: transition_error_message, params: new_params
       end
     end
 
     # @note No testing coverage but not a route, not called
     def error_action
-      @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
+      @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
       if action_name == "create"
         :new
       elsif action_name == "validate"
@@ -403,7 +383,6 @@ class WorksController < ApplicationController
       elsif action_name == "new_submission"
         :new_submission
       else
-        @work_decorator = WorkDecorator.new(@work, current_user)
         :show
       end
     end
@@ -442,8 +421,7 @@ class WorksController < ApplicationController
       else
         # This is needed for rendering HTML views with validation errors
         @uploads = @work.uploads
-        @form_resource_decorator = FormResourceDecorator.new(@work, current_user)
-        @work_decorator = WorkDecorator.new(@work, current_user)
+        @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
 
         # return 200 so the loadbalancer doesn't capture the error
         render :edit
@@ -475,17 +453,10 @@ class WorksController < ApplicationController
       }
     end
 
+    # Include all works in the RSS feed so that each dataset is harvestable
+    # so that PDC Discovery has landing pages regardless of the Work state.
     def rss_index
-      # Only include approved works in the RSS feed
-      @approved_works = Work.all.select(&:approved?)
-      respond_to do |format|
-        format.rss { render layout: false }
-      end
-    end
-
-    def rss_awaiting_approval_index
-      # Only include works with draft DOIs in the RSS feed
-      @awaiting_approval_works = Work.all.select(&:awaiting_approval?)
+      @works = Work.all
       respond_to do |format|
         format.rss { render layout: false }
       end

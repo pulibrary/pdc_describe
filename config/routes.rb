@@ -3,6 +3,7 @@
 require "sidekiq/web"
 
 Rails.application.routes.draw do
+  mount Flipflop::Engine => "/features"
   resources :work_activity_notifications, only: [:index, :show]
 
   mount HealthMonitor::Engine, at: "/"
@@ -10,6 +11,8 @@ Rails.application.routes.draw do
   authenticate :user, ->(user) { user.super_admin? } do
     mount Sidekiq::Web => "/sidekiq" # mount Sidekiq::Web in your Rails app
   end
+
+  get "/users/lookup", to: "user_lookup#search", as: :user_lookup
 
   # This route is to handle user ids that are in the form abc@something.com because
   # Rails (understandably) does not like the ".com" in the URL
@@ -79,7 +82,6 @@ Rails.application.routes.draw do
   get "works/:id/download", controller: "work_downloader", action: "download", as: :work_download
   post "works/:id/migrate_content", controller: "work_migration", action: "migrate", as: :work_migrate_content
   get "works/:id/bibtex" => "works#bibtex", as: :work_bibtex
-  get "works/awaiting-approval" => "works#awaiting_approval", as: :awaiting_approval
   resources :works
   get "/doi/*doi", to: "works#resolve_doi", as: :resolve_doi, format: false
   get "/ark/*ark", to: "works#resolve_ark", as: :resolve_ark, format: false

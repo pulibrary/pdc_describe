@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_07_152610) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_25_185151) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -26,7 +26,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_152610) do
 
   create_table "active_storage_blobs", force: :cascade do |t|
     t.bigint "byte_size", null: false
-    t.string "checksum", null: false
+    t.string "checksum"
     t.string "content_type"
     t.datetime "created_at", precision: nil, null: false
     t.string "filename", null: false
@@ -40,6 +40,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_152610) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "flipflop_features", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.boolean "enabled", default: false, null: false
+    t.string "key", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "group_options", force: :cascade do |t|
@@ -143,6 +150,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_152610) do
 
   create_table "work_activity_notifications", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.jsonb "email_sent", default: {"type" => "unknown"}
     t.datetime "read_at", precision: nil
     t.datetime "updated_at", null: false
     t.integer "user_id"

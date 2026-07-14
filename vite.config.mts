@@ -1,22 +1,23 @@
-import { defineConfig } from 'vite'
-import RubyPlugin from 'vite-plugin-ruby'
+import { defineConfig } from 'vite';
+import RubyPlugin from 'vite-plugin-ruby';
+import vue from '@vitejs/plugin-vue';
 
 export default ({ command, mode }) => {
-  let minifySetting
+  const isDevelopment = mode === 'development';
 
-  if (mode === "development") {
-    minifySetting = false
-  } else {
-    minifySetting = "esbuild" 
-  }
-
-  return {
+  return defineConfig({
     build: {
-      minify: minifySetting,
-      skipCompatibilityCheck: true
+      minify: isDevelopment ? false : 'esbuild',
+      skipCompatibilityCheck: true,
+    },
+    resolve: {
+      alias: {
+        vue: 'vue/dist/vue.esm-bundler',
+      },
     },
     plugins: [
       RubyPlugin(),
+      vue(),
     ],
-  }
-}
+  });
+};

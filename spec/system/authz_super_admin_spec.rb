@@ -10,9 +10,12 @@ RSpec.describe "Authz for super admins", type: :system, js: true do
     let(:title1) { "Title One" }
     let(:title2) { "Title Two" }
     let(:title3) { "Title Three" }
+    let(:update_url) { "https://#{Rails.configuration.datacite.host}/dois/10.34770/doc-1" }
 
     before do
       stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+      response = File.read(Pathname.new(fixture_paths.first).join("doi_update_response.json").to_s)
+      stub_request(:put, update_url).to_return(status: 200, body: response, headers: { "Content-Type" => "application/json" })
     end
 
     it "should be able to access the Works index" do

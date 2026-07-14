@@ -27,9 +27,12 @@ RSpec.describe Work, type: :model do
   end
   let(:s3_file) { FactoryBot.build :s3_file, filename: "us_covid_2019.csv", work: }
   let(:readme) { FactoryBot.build(:s3_readme) }
+  let(:update_url) { "https://#{Rails.configuration.datacite.host}/dois/10.34770/doc-1" }
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+    response = File.read(Pathname.new(fixture_paths.first).join("doi_update_response.json").to_s)
+    stub_request(:put, update_url).to_return(status: 200, body: response, headers: { "Content-Type" => "application/json" })
   end
 
   context "fixed time" do
@@ -37,8 +40,10 @@ RSpec.describe Work, type: :model do
     let(:work) { FactoryBot.create(:tokamak_work, embargo_date:) }
     before do
       allow(Time).to receive(:now).and_return(Time.parse("2022-01-01T00:00:00.000Z"))
+      stub_ark
     end
     it "captures everything needed for PDC Describe in JSON" do
+      work.state = "approved"
       expect(JSON.parse(work.to_json)).to eq(
         {
           "resource" => {
@@ -64,6 +69,7 @@ RSpec.describe Work, type: :model do
             "subcommunities" => [],
             "migrated" => false
           },
+          "state" => "approved",
           "files" => [],
           "group" => {
             "title" => "Princeton Plasma Physics Lab (PPPL)",
@@ -91,8 +97,10 @@ RSpec.describe Work, type: :model do
   it "drafts a doi only once" do
     work = Work.new(group:, resource: FactoryBot.build(:resource, doi: ""))
     work.draft_doi
-    work.draft_doi # Doing this multiple times on purpose to make sure the api is only called once
+    work.draft_doi # Doing this multiple times on purpose to make sure the api is only called twice
+    # once to draft and once to register
     expect(a_request(:post, "https://#{Rails.configuration.datacite.host}/dois")).to have_been_made.once
+    expect(a_request(:put, update_url)).to have_been_made.once
   end
 
   it "prevents datasets with no users" do
@@ -115,6 +123,19 @@ RSpec.describe Work, type: :model do
     expect(work.pdc_discovery_url).to eq "https://datacommons.princeton.edu/discovery/catalog/doi-10-34770-123-abc"
     # this also works, but will cause PDC Discovery to search by the DOI
     expect(work.doi_attribute_url).to eq "https://datacommons.princeton.edu/discovery/doi/10.34770/123-abc"
+  end
+
+  context "In production" do
+    before do
+      allow(Rails.configuration.datacite).to receive(:datacommons_url).and_return("https://datacommons.princeton.edu/discovery")
+    end
+
+    it "calculates the urls that PDC discovery will use" do
+      # this is the actual PDC Discovery URL
+      expect(work.pdc_discovery_url).to eq "https://datacommons.princeton.edu/discovery/catalog/doi-10-34770-123-abc"
+      # this also works, but will cause PDC Discovery to search by the DOI
+      expect(work.doi_attribute_url).to eq "https://datacommons.princeton.edu/discovery/doi/10.34770/123-abc"
+    end
   end
 
   describe "#editable_by?" do
@@ -541,16 +562,20 @@ RSpec.describe Work, type: :model do
       expect { draft_work }
         .to change { WorkActivity.where(activity_type: WorkActivity::SYSTEM).count }.by(1)
         .and change { WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).count }.by(1)
+        .and change { WorkActivityNotification.count }.by(2)
         .and have_enqueued_job(ActionMailer::MailDeliveryJob).twice
       expect(WorkActivity.where(activity_type: "SYSTEM").first.message).to eq("marked as Draft")
-      notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last
-      user_notification = notification.message
-      expect(user_notification).to include("@#{curator_user.default_group.code}")
-      expect(user_notification).to include("@#{user.uid}")
-      notifications = WorkActivityNotification.where(work_activity_id: notification.id)
-      expect(notifications.first.user_id).to eq(curator_user.id)
-      expect(notifications.last.user_id).to eq(draft_work.created_by_user_id)
-      expect(user_notification). to include(Rails.application.routes.url_helpers.work_url(draft_work))
+      activity = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last
+      message = activity.message
+      expect(message).to include("has been created")
+      expect(message).to include(Rails.application.routes.url_helpers.work_url(draft_work))
+      notifications = WorkActivityNotification.where(work_activity_id: activity.id)
+      curator_notification = notifications.first
+      user_notification = notifications.last
+      expect(curator_notification.user_id).to eq(curator_user.id)
+      expect(curator_notification.email_sent).to eq({ "email" => curator_user.email, "type" => "state_transition" })
+      expect(user_notification.user_id).to eq(draft_work.created_by_user_id)
+      expect(user_notification.email_sent).to eq({ "email" => user.email, "type" => "new_submission" })
     end
 
     context "when deploying the server without a DataCite user configured" do
@@ -661,6 +686,8 @@ RSpec.describe Work, type: :model do
       notification = WorkActivity.where(activity_type: WorkActivity::NOTIFICATION).last
       curator_notification = notification.message
       expect(curator_notification).to include("@#{Group.research_data.code}")
+      expect(curator_notification).to include("ready for review")
+      expect(curator_notification).to include(Rails.application.routes.url_helpers.work_url(awaiting_approval_work))
       notifications = WorkActivityNotification.where(work_activity_id: notification.id)
       expect(notifications.first.user_id).to eq(curator.id)
       expect(notifications.last.user_id).to eq(awaiting_approval_work.created_by_user_id)
@@ -1121,7 +1148,7 @@ RSpec.describe Work, type: :model do
     end
 
     it "does not allow two of the same dois to be created" do
-      stub_request(:get, "https://handle.stage.datacite.org/10.34770/123-zzz").to_return(status: 200, body: "", headers: {})
+      stub_request(:get, "https://handle.test.datacite.org/10.34770/123-zzz").to_return(status: 200, body: "", headers: {})
       original_work = FactoryBot.create(:none_work, doi: "10.34770/123-zzz", user_entered_doi: true)
       work = FactoryBot.build(:none_work, doi: "10.34770/123-zzz", user_entered_doi: true)
       expect(original_work).to be_valid

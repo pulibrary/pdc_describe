@@ -26,6 +26,10 @@ every :day, at: "12:05am", roles: [:cron] do
   rake "embargo:release"
 end
 
+every :day, at: "11:45pm", roles: [:cron] do
+  rake "works:preservation_audit"
+end
+
 every :day, at: "12:05am", roles: [:one] do
   restart_passenger "na"
 end

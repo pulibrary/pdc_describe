@@ -184,7 +184,7 @@ class EditGroupUtils {
       const canDelete = true;
       const isYou = false;
       const isSuperAdmin = false;
-      // eslint-disable-next-line max-len
+
       this.addUserHtml(
         this.elList,
         this.uid,

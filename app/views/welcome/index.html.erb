@@ -19,6 +19,8 @@
     <p>Princeton Data Commons Describe is the submission portal for our data repository.
       Here you will find everything you need to know to successfully submit your research
       data and code to the Princeton Data Commons.</p>
+      <div id="pdc-discovery-label">Looking for data? Go to</div> <%= link_to "Princeton Data Commons: Discovery","https://datacommons.princeton.edu/discovery/", :class => "btn btn-secondary about" %>
+
     <h1 class="welcome-headers">Who can submit to this repository?</h1>
     <p>All faculty, staff, and students of Princeton University are welcome to submit their
       <span class="strong">digital research data and code</span> to Princeton Data Commons.  (Want to submit a manuscript,
@@ -55,7 +57,7 @@
             and <a href="https://datacommons.princeton.edu/discovery/policies">Distribution</a>:
             Be sure your intended submission is
             eligible for PDC, that you are authorized to grant permission for redistribution, and that you are prepared
-            to pay any applicable costs. If you are unsure about any of these points, please <span style="color: #0062ad">contact PRDS</span>
+            to pay any applicable costs. If you are unsure about any of these points, please <%= mail_to "prds@princeton.edu", "contact PRDS" %>
              before submitting.</li>
         </ul>
       </li>
@@ -80,7 +82,7 @@
           <li>Fill out all required metadata (e.g., title, creators, description, license) and additional metadata fields (e.g.,
             keywords) as completely as possible.</li>
           <li>Upload a README file to reiterate and supplement the metadata (see
-            <a href="https://researchdata.princeton.edu/research-lifecycle-guide/readmes-research-data">more guidance on READMEs</a>).</li>
+            <a href="https://researchdata.princeton.edu/research-lifecycle-guide/data-acquisition/data-documentation-metadata/readmes-research-data">more guidance on READMEs</a>).</li>
           <li>Upload your data/code files that are under 100MB directly into the web form when prompted.</li>
           <li>If your submission is over 100MB or you had trouble uploading, the data will be
             <a href="https://researchdata.princeton.edu/research-lifecycle-guide/publishing-and-preservation/princeton-research-data-repository/using">transferred via Globus</a>.

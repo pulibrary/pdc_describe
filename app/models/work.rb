@@ -125,7 +125,7 @@ class Work < ApplicationRecord
 
   before_save do |work|
     # Ensure that the metadata JSONB postgres field is persisted properly
-    work.metadata = JSON.parse(work.resource.to_json)
+    work.metadata = work.resource.as_json.except("datacite_serialization")
   end
 
   after_save do |work|
@@ -183,12 +183,15 @@ class Work < ApplicationRecord
     return if resource.doi.present?
     resource.doi = datacite_service.draft_doi
     save!
+    # force a reload of the datacite service so it has the doi as part of it's metadata for the register
+    @datacite_service = nil
+    datacite_service.register_doi(created_by_user)
   end
 
   # Return the DOI formatted as a URL, so it can be used as a link on display pages
   # @return [String] A url formatted version of the DOI
   def doi_url
-    return "https://doi.org/#{doi}" unless doi.starts_with?("https://doi.org")
+    return "#{Rails.configuration.datacite.doi_url}#{doi}" unless doi.starts_with?("https://doi.org") || doi.starts_with?(Rails.configuration.datacite.doi_url)
     doi
   end
 
@@ -311,7 +314,13 @@ class Work < ApplicationRecord
     # Disable this validation since we want to force a SQL UPDATE.
     # rubocop:disable Rails/SkipsModelValidations
     now_utc = Time.now.utc
-    WorkActivityNotification.joins(:work_activity).where("user_id=? and work_id=?", user_id, id).in_batches(of: 1000).update_all(read_at: now_utc)
+
+    WorkActivityNotification.joins(:work_activity)
+                            .where(user_id:)
+                            .where(work_activity: { work_id: id })
+                            .in_batches(of: 1000)
+                            .update_all(read_at: now_utc)
+
     # rubocop:enable Rails/SkipsModelValidations
   end
 
@@ -443,18 +452,54 @@ class Work < ApplicationRecord
   #   Resources, clearing the in-memory cache
   # @return [String]
   def as_json(*args)
-    files = files_as_json(*args)
+    if state == "approved" || (args.first && args.first[:force_post_curation])
+      full_metadata_as_json(*args)
+    elsif state == "withdrawn"
+      withdrawn_metadata_json(*args)
+    else
+      unpublished_metadata_json(*args)
+    end
+  end
 
-    # to_json returns a string of serialized JSON.
-    # as_json returns the corresponding hash.
+  # these are for approved works and what they return on the JSON document
+  def full_metadata_as_json(*args)
+    files = files_as_json(*args)
     {
-      "resource" => resource.as_json,
+      "resource" => resource.as_json.except("datacite_serialization"),
       "files" => files,
       "group" => group.as_json.except("id"),
       "embargo_date" => embargo_date_as_json,
       "created_at" => format_date_for_solr(created_at),
       "updated_at" => format_date_for_solr(updated_at),
-      "date_approved" => date_approved
+      "date_approved" => date_approved,
+      "state" => state
+    }
+  end
+
+  # this method returns only the DOI and the work state, for now, for draft and withdrawn works
+  # so that only that information is visible when harvested.
+  def unpublished_metadata_json(*_args)
+    {
+      "resource" => { "doi" => resource.doi,
+                      # TODO: we should remove this state once PDC Discovery is looking at the external state.
+                      "state" => state },
+      "state" => state
+    }
+  end
+
+  # this method returns minimal metadata for withdrawn works
+  # so that only that information is visible when harvested.
+  def withdrawn_metadata_json(*_args)
+    {
+      "resource" => { "doi" => resource.doi,
+                      "creators" => resource.creators.as_json,
+                      "titles" => resource.titles.as_json,
+                      "publication_year" => resource.publication_year.as_json,
+                      "version_number" => resource.version_number.as_json,
+                      "resource_type" => resource.resource_type.as_json,
+                      # TODO: we should remove this state once PDC Discovery is looking at the external state.
+                      "state" => state },
+      "state" => state
     }
   end
 
@@ -505,8 +550,9 @@ class Work < ApplicationRecord
     WorkPresenter
   end
 
-  def presenter
-    self.class.presenter_class.new(work: self)
+  def presenter(current_user:)
+    # we are assuming the current user is not changing while this object is active
+    @presenter ||= self.class.presenter_class.new(work: self, current_user:)
   end
 
   def changes
@@ -525,7 +571,7 @@ class Work < ApplicationRecord
 
   # This is the solr id / work show page in PDC Discovery
   def pdc_discovery_url
-    "https://datacommons.princeton.edu/discovery/catalog/doi-#{doi.tr('/', '-').tr('.', '-')}"
+    "#{Rails.configuration.datacite.data_commons_url}/catalog/doi-#{doi.tr('/', '-').tr('.', '-')}"
   end
 
   # Determine whether or not the Work is under active embargo
@@ -643,7 +689,6 @@ class Work < ApplicationRecord
       return [] if embargoed?
 
       force_post_curation = args.any? { |arg| arg[:force_post_curation] == true }
-
       # Pre-curation files are not accessible externally,
       # so we are not interested in listing them in JSON.
       post_curation_uploads(force_post_curation:).map do |upload|

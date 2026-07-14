@@ -23,9 +23,11 @@
 #pdc-discovery-label {
   float: left;
   margin: 0 auto;
-  height: 40px;
   line-height: 40px;
   text-align: center;
+  font-style: italic;
+  margin-left: 1rem;
+  padding-right: 5px;
 }
 
 .welcome-headers,
@@ -387,4 +389,10 @@ table.dataTable {
 
 .user-edit-long-field {
   width: 400px;
+}
+
+#user-list-table td {
+  vertical-align: top;
+  padding: 5px;
+  border: #cccccc 1px solid;
 }
