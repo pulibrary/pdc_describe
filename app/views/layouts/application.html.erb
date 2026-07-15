@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <% if Rails.env.production? %>
+      <%= render partial: 'shared/analytics' %>
+    <% end %>
 
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
 
@@ -38,6 +41,9 @@
   </head>
 
   <body>
+    <% if Rails.env.production? %>
+      <%= render partial: 'shared/analytics_noscript' %>
+    <% end %>
     <%= render partial: 'shared/header' %>
     <div class="container">
       <% if flash[:notice] %>
