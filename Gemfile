@@ -12,7 +12,6 @@ gem "cocina-models" #
 gem "csv"
 gem "datacite-mapping"
 gem "dogstatsd-ruby"
-gem "flipflop"
 gem "health-monitor-rails", "12.6.0"
 gem "honeybadger"
 gem "io-wait", "0.2.1"

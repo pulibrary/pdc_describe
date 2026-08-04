@@ -34,5 +34,15 @@ RSpec.describe WorkEmbargoReleaseService do
                                                         target_bucket: "example-bucket-post", target_key: key2, work_id: work.id)
       expect(activity.message).to eq("2 files were released from embargo to the post-curation bucket")
     end
+
+    context "when the move fails" do
+      it "notifies Honeybadger and returns false" do
+        fake_s3_service
+        allow(S3MoveService).to receive(:new).and_return(fake_s3_move)
+        allow(fake_s3_move).to receive(:move).and_raise(StandardError.new("move failed"))
+        expect(Honeybadger).to receive(:notify).with(instance_of(StandardError), hash_including(name: "WorkEmbargoReleaseService"))
+        expect(work_embargo_service.move).to eq(false)
+      end
+    end
   end
 end

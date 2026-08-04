@@ -27,5 +27,9 @@ class WorkEmbargoReleaseService
       snapshot.mark_complete(file.key, etag)
     end
     true
+  rescue StandardError => e
+    Honeybadger.notify(e, {message: "Error moving embargoed files to post-curation for #{Rails.application.routes.url_helpers.work_path(work)}",
+                           name: "WorkEmbargoReleaseService"})
+    false
   end
 end
