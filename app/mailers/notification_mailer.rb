@@ -23,7 +23,7 @@ class NotificationMailer < ApplicationMailer
     @work_title = @work_activity.work.title.nil? ? "Untitled Work" : @work_activity.work.title
 
     @subject = "[pdc-describe] New Submission Created"
-    @url = data_commons_url(@work_activity.work)
+    @url = describe_url(@work_activity.work)
     @doi_url = @work_activity.work.doi_url
 
     mail(to: @user.email, subject: @subject)
@@ -35,7 +35,7 @@ class NotificationMailer < ApplicationMailer
     @work_title = @work_activity.work.title.nil? ? "Untitled Work" : @work_activity.work.title
 
     @subject = "[pdc-describe] Submission Ready for Review"
-    @url = data_commons_url(@work_activity.work)
+    @url = describe_url(@work_activity.work)
 
     mail(to: @user.email, subject: @subject)
   end
@@ -49,7 +49,7 @@ class NotificationMailer < ApplicationMailer
     @subject = "[pdc-describe] Submission Returned"
     @message = @work_activity.message
     @message_html = @work_activity.to_html
-    @url = data_commons_url(@work_activity.work)
+    @url = describe_url(@work_activity.work)
 
     mail(to: @user.email, subject: @subject)
   end
