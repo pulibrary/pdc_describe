@@ -42,5 +42,18 @@ module WorkStateTransition
             end
       url
     end
+
+
+    def self.describe_url(work_id)
+      url = if Rails.env.production?
+            path = Rails.application.routes.url_helpers.work_path(work_id)
+
+            "#{Rails.configuration.datacite.describe_data_commons_url}#{path}"
+          else
+            Rails.application.routes.url_helpers.work_url(work_id)
+          end
+      url
+    end
+
   end
 end
