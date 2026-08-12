@@ -34,5 +34,5 @@
   "scripts": {
     "lint": "yarn run eslint 'app/assets/javascripts/**' 'app/javascript/**'"
   },
-  "packageManager": "yarn@4.15.0"
+  "packageManager": "yarn@4.18.0"
 }
