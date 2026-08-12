@@ -3,7 +3,7 @@ module WorkStateTransition
   class NewSubmission < Base
     def self.add_work_activity(work_id, current_user_id)
       work_title = Work.find(work_id).title
-      work_url = data_commons_url(work_id)
+      work_url = describe_url(work_id)
       message = "[#{work_title}](#{work_url}) has been created."
       activity = NewSubmission.new(work_id:, activity_type: WorkActivity::NOTIFICATION, message:, created_by_user_id: current_user_id)
       activity.save!
