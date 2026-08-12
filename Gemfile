@@ -13,7 +13,7 @@ gem "csv"
 gem "datacite-mapping"
 gem "dogstatsd-ruby"
 gem "flipflop"
-gem "health-monitor-rails", "12.6.0"
+gem "health-monitor-rails", "~>12.0"
 gem "honeybadger"
 gem "io-wait", "0.2.1"
 gem "net-ftp"
@@ -23,7 +23,7 @@ gem "net-ssh", "~> 7.0"
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem "actioncable"
 gem "pg"
-gem "rails", "8.1.3"
+gem "rails", "~>8.0"
 # Use Puma as the app server
 gem "puma"
 # Use SCSS for stylesheets
