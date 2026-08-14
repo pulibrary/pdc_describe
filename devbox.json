@@ -22,9 +22,7 @@
   ],
   "env": {
     "DEVBOX": "1",
-    "BUNDLER_VERSION": "4.0.18",
-    "RAILS_ENV": "development",
-    "RACK_ENV": "development"
+    "BUNDLER_VERSION": "4.0.18"
   },
   "shell": {
     "init_hook": ["echo 'Environment Ready'"],

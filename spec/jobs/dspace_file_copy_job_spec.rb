@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 require "rails_helper"
-require "sidekiq/testing"
-Sidekiq::Testing.inline!
 
 RSpec.describe DspaceFileCopyJob, type: :job do
   include ActiveJob::TestHelper
