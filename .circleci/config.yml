@@ -14,11 +14,10 @@ commands:
             - pdc_describe-{{ checksum "Gemfile.lock" }}-{{ checksum "yarn.lock" }}
       - run:
           name: Install dependencies
-          command: bundle config set path './vendor/bundle' && bundle check && bundle install --jobs 4 --retry 3
+          command: bundle config set path 'vendor/bundle' && bundle install --jobs 4 --retry 3
       - save_cache:
           key: pdc_describe-{{ checksum "Gemfile.lock" }}-{{ checksum "yarn.lock" }}
-          paths:
-            - ./vendor/bundle
+
   yarn_install:
     description: "Install the supported release of Yarn and install the package dependencies"
     steps:
