@@ -1,76 +1,59 @@
 # frozen_string_literal: true
-source "https://gem.coop"
-git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+source "https://rubygems.org"
 
 gem "aasm"
+gem "actioncable"
 gem "addressable", ">= 2.9.0"
 gem "amazing_print"
 gem "aws-sdk-s3"
 # https://github.com/sul-dlss/cocina-models
 # Required by latest datacite library
-gem "cocina-models" #
+gem "bootsnap", ">= 1.4.4", require: false
+gem "cocina-models"
 gem "csv"
+gem "datacite", github: "sul-dlss/datacite-ruby", branch: "main"
 gem "datacite-mapping"
+gem "devise", ">= 5.0.4"
 gem "dogstatsd-ruby"
+gem "faraday"
 gem "flipflop"
+gem "friendly_id", "~> 5.4.0"
 gem "health-monitor-rails", "~>12.0"
 gem "honeybadger"
 gem "io-wait", "0.2.1"
+gem "jbuilder", "~> 2.7"
+gem "kramdown"
+gem "listen", "~> 3.3"
 gem "net-ftp"
 gem "net-imap"
 gem "net-pop"
+gem "net-smtp"
 gem "net-ssh", "~> 7.0"
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
-gem "actioncable"
-gem "pg"
-gem "rails", "~>8.0"
-# Use Puma as the app server
-gem "puma"
-# Use SCSS for stylesheets
-gem "sass-rails"
-# Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
-gem "turbolinks", "~> 5"
-# Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem "jbuilder", "~> 2.7"
-gem "listen", "~> 3.3"
-# Use Redis adapter to run Action Cable in production
 gem "nokogiri", ">= 1.19.3"
+gem "omniauth", "~> 2.1", ">= 2.1.2"
+gem "omniauth-cas", "~> 3.0"
+gem "pg"
+gem "puma"
+gem "rails", "~>8.0"
 gem "redis", "~> 4.0"
 gem "retryable"
+gem "rinku"
 gem "rolify"
 gem "rspec-rails"
+gem "sass-rails"
 gem "sidekiq", "< 9"
 gem "sqlite3", force_ruby_platform: true # requires bundler >= 2.3.18
+gem "turbolinks", "~> 5"
 gem "vite_rails"
 gem "whenever"
 
-# Reference: https://github.com/pulibrary/pul-the-hard-way/blob/main/services/cas.md
-gem "devise", ">= 5.0.4"
-gem "omniauth", "~> 2.1", ">= 2.1.2"
-gem "omniauth-cas", "~> 3.0"
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-# Use Active Storage variant
-# gem 'image_processing', '~> 1.2'
-
-# Reduces boot times through caching; required in config/boot.rb
-gem "bootsnap", ">= 1.4.4", require: false
-
-# EZID client from Duke since it has been upgraded to support Ruby 3.
 gem "ezid-client", git: "https://github.com/duke-libraries/ezid-client.git", ref: "dfcf7f49995560ed48df407560c4fe3fb6dbfa7b"
-
-gem "friendly_id", "~> 5.4.0"
-
-gem "faraday"
-
-gem "datacite", github: "sul-dlss/datacite-ruby", branch: "main"
-
-gem "kramdown"
-
-gem "net-smtp"
-gem "rinku"
 
 group :development, :test do
   gem "bcrypt_pbkdf"
+  gem "benchmark"
   gem "bixby"
   gem "byebug"
   gem "coveralls_reborn", "~> 0.28"
