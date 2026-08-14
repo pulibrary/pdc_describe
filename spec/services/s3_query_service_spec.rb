@@ -348,7 +348,7 @@ XML
 
     it "creates a directory" do
       s3_query_service.create_directory
-      assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}", headers: { "Content-Length" => 0 })
+      assert_requested(:put, "https://example-bucket.s3.amazonaws.com/#{s3_query_service.prefix}")
     end
 
     context "when an error is encountered" do
