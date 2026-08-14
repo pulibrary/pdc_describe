@@ -92,4 +92,3 @@ group :test do
   gem "sinatra"
   gem "webmock"
 end
-
