@@ -177,9 +177,9 @@ class DatasetCitation
 
       tokens << bibtex_field_author("author", @authors)
 
-      tokens << bibtex_field("title", @title, "{{", "}}")
+      tokens << bibtex_field("title", @title, "{", "}")
 
-      tokens << bibtex_field("publisher", @publisher, "{{", "}}")
+      tokens << bibtex_field("publisher", @publisher, "{", "}")
 
       tokens << bibtex_field("year", @years.first)
 

@@ -32,8 +32,8 @@ RSpec.describe DatasetCitation do
     it "returns correct format" do
       bibtex = "@electronic{menard_je_2018,\r\n" \
       "\tauthor      = {Menard, J.E.},\r\n" \
-      "\ttitle       = {{Compact steady-state tokamak}},\r\n" \
-      "\tpublisher   = {{Princeton University}},\r\n" \
+      "\ttitle       = {Compact steady-state tokamak},\r\n" \
+      "\tpublisher   = {Princeton University},\r\n" \
       "\tyear        = 2018,\r\n" \
       "\turl         = {http://doi.org/princeton/test123}\r\n" \
       "}"
@@ -82,8 +82,8 @@ RSpec.describe DatasetCitation do
     it "converts BibTeX to string" do
       bibtex = "@electronic{menard_je_2018,\r\n" \
       "\tauthor      = {Menard, J.E.},\r\n" \
-      "\ttitle       = {{Compact steady-state tokamak}},\r\n" \
-      "\tpublisher   = {{Princeton University}},\r\n" \
+      "\ttitle       = {Compact steady-state tokamak},\r\n" \
+      "\tpublisher   = {Princeton University},\r\n" \
       "\tyear        = 2018,\r\n" \
       "\turl         = {http://doi.org/princeton/test123}\r\n" \
       "}"
