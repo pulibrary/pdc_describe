@@ -72,7 +72,23 @@ class WorkPresenter
     work_download_path(@work.id)
   end
 
+  def apa_citation
+    citation.apa
+  end
+
+  def bibtex_citation
+    citation.bibtex
+  end
+
   private
+
+    def citation
+      @citation ||= DatasetCitation.new(creators, [work.resource.publication_year], work.resource.titles.first.title, work.resource.resource_type, work.resource.publisher, work.resource.doi)
+    end
+
+    def creators
+      @creators ||= work.resource.creators.map { |creator| "#{creator.family_name}, #{creator.given_name}" }
+    end
 
     # relation_type, identifier, link
     def format_related_object_links(related_object)

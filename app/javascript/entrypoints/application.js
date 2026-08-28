@@ -17,7 +17,10 @@ import WorksWizardPolicy from './works_wizard_policy';
 import WorksWizardReview from './works_wizard_review';
 import EditGroupUtils from './edit_group_utils';
 import MessageInput from '../vue_components/message_input.vue';
+import WorkCitation from '../vue_components/work_citation.vue';
 import { createApp } from 'vue';
+import 'lux-design-system/dist/style.css';
+import { LuxBadge, LuxCopyToClipboard, LuxTabWrapper, LuxTab } from 'lux-design-system';
 
 const app = createApp({});
 
@@ -35,8 +38,12 @@ function loadVueComponents() {
   console.log(`Found ${elements.length} elements with class 'vue-component'`);
   for (let i = 0; i < elements.length; i += 1) {
     createMyApp()
-      // .component('lux-badge', LuxBadge)
+      .component('lux-badge', LuxBadge)
+      .component('lux-copy-to-clipboard', LuxCopyToClipboard)
+      .component('lux-tab-wrapper', LuxTabWrapper)
+      .component('lux-tab', LuxTab)
       .component('message-input', MessageInput)
+      .component('work-citation', WorkCitation)
       .mount(elements[i]);
   }
 }

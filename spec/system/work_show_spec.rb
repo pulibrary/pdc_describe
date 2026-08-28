@@ -88,13 +88,22 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
     sign_in user
     visit work_path(work)
     apa_citation = "Taylor, Jenny A, Bratton, Benjamin P, Sichel, Sophie R, Blair, Kris M, " \
-    "Jacobs, Holly M, DeMeester, Kristen E, Kuru, Erkin, Gray, Joe, Biboy, Jacob, VanNieuwenhze, " \
-    "Michael S, Vollmer, Waldemar, Grimes, Catherine L, Shaevitz, Joshua W, & Salama, Nina R. (2019). " \
-    "Distinct cytoskeletal proteins define zones of enhanced cell wall synthesis in Helicobacter pylori " \
-    "[Dataset]. Princeton University."
+      "Jacobs, Holly M, DeMeester, Kristen E, Kuru, Erkin, Gray, Joe, Biboy, Jacob, VanNieuwenhze, " \
+      "Michael S, Vollmer, Waldemar, Grimes, Catherine L, Shaevitz, Joshua W, & Salama, Nina R. (2019). " \
+      "Distinct cytoskeletal proteins define zones of enhanced cell wall synthesis in Helicobacter pylori " \
+      "[Dataset]. Princeton University."
+    bibtex_citation = "@electronic{taylor_jenny_a_2019, author = {Taylor, Jenny A and " \
+      "Bratton, Benjamin P and Sichel, Sophie R and Blair, Kris M and Jacobs, Holly M and" \
+      " DeMeester, Kristen E and Kuru, Erkin and Gray, Joe and Biboy, Jacob and " \
+      "VanNieuwenhze, Michael S and Vollmer, Waldemar and Grimes, Catherine L and " \
+      "Shaevitz, Joshua W and Salama, Nina R}, " \
+      "title = {Distinct cytoskeletal proteins define zo nes of enhanced cell wall synthesis in H elicobacter pylori}, " \
+      "publisher = {Princeton University}, year = 2019, url = {10.34770/r2dz-ys12} }"
     expect(page).to have_content apa_citation
-    expect(page.html.include?('<button id="show-apa-citation-button"')).to be true
-    expect(page.html.include?('<button id="show-bibtex-citation-button"')).to be true
+    click_on "BibTeX"
+    expect(page).to have_content bibtex_citation
+    click_on "Text"
+    expect(page).to have_content apa_citation
   end
 
   context "as a moderator" do
