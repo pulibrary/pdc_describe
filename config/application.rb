@@ -32,6 +32,9 @@ module PdcDescribe
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
 
+    # We are not doing any image processing
+    config.active_storage.variant_processor = :disabled
+
     # Use semantic logger for Rails logging
     # See https://logger.reidmorrison.com/rails.html for more
     # We want a .log file, because that's fast, and a .json file,
