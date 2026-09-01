@@ -296,14 +296,13 @@
       </dd>
     </dl>
 
-
-    <div class="document-citation">
-    <header>Cite as:
-      <button id="show-apa-citation-button" type='button' class='cite-as-button btn btn-primary btn-xsm' title='Show citation'>Text</button>
-      <button id="show-bibtex-citation-button" type='button' class='cite-as-button btn btn-secondary btn-xsm' title='Show BibTeX citation'>BibTeX</button>
-    </header>
-    <%= render_cite_as @work %>
-  </div>
+    <div class="vue-component">
+      <work-citation
+        text-citation="<%= @work_presenter.apa_citation %>"
+        bibtex-citation="<%= @work_presenter.bibtex_citation %>"
+        bibtex-download-url="<%= work_bibtex_url(id: @work.id) %>"
+      ></work-citation>
+    </div>
 
     <section class="uploads">
       <h2 class="h2"><%= @work.approved? ? "Curated Files" : "Uncurated Files" %></h2>
@@ -364,47 +363,6 @@
         }
       });
     });
-
-    // Toggles citation display between APA and BibTeX
-    var setupCitationToggle = function() {
-      $("#show-bibtex-citation-button").click(function(_x) {
-        // Show the BibTex citation
-        $(".citation-bibtex-container").removeClass("hidden-element");
-        $(".citation-apa-container").addClass("hidden-element");
-        // Toogle the button
-        $("#show-bibtex-citation-button").addClass("btn-primary");
-        $("#show-bibtex-citation-button").removeClass("btn-secondary");
-        $("#show-apa-citation-button").addClass("btn-secondary");
-        $("#show-apa-citation-button").removeClass("btn-primary");
-        // Clear focus from the button.
-        document.activeElement.blur();
-        return false;
-      });
-
-      $("#show-apa-citation-button").click(function(_x) {
-        // Show the APA citation
-        $(".citation-apa-container").removeClass("hidden-element");
-        $(".citation-bibtex-container").addClass("hidden-element");
-        // Toogle the checkbox
-        $("#show-apa-citation-button").addClass("btn-primary");
-        $("#show-apa-citation-button").removeClass("btn-secondary");
-        $("#show-bibtex-citation-button").addClass("btn-secondary");
-        $("#show-bibtex-citation-button").removeClass("btn-primary");
-        // Clear focus from the button.
-        document.activeElement.blur();
-        return false;
-      });
-    }
-
-    var setupDownloadCitation = function() {
-      $("#download-bibtex").click(function (e) {
-        e.preventDefault();
-        window.location.href= this.dataset["url"];
-      });
-    }
-    // Buttons related to citation information
-    setupCitationToggle();
-    setupDownloadCitation();
 
   });
 </script>
