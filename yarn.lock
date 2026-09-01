@@ -2286,9 +2286,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lux-design-system@npm:^7.11.5":
-  version: 7.11.5
-  resolution: "lux-design-system@npm:7.11.5"
+"lux-design-system@npm:^7.12.0":
+  version: 7.12.0
+  resolution: "lux-design-system@npm:7.12.0"
   dependencies:
     core-js: "npm:^3.8.3"
     register-service-worker: "npm:^1.7.2"
@@ -2296,7 +2296,7 @@ __metadata:
     v-calendar: "npm:^3.1.2"
     vue-draggable-plus: "npm:^0.3.5"
     vue3-cookies: "npm:^1.0.6"
-  checksum: 10c0/d0f410497d2086a21c2f6ee929342fede31d3a971c9703799a457a82f734e0f4014c7acdf46a85ad1b8c0be0b7995dcec580973c5e5f5cd0336c079b84056d73
+  checksum: 10c0/5739e65518b364b823fe9a06684c822a8c7d439b432e2825dcdb750eb96ac4746af2067228b0ebabf724790116d18120b3b1d5e9fb7c53ddfb6888aa6ce982b0
   languageName: node
   linkType: hard
 
@@ -2501,7 +2501,7 @@ __metadata:
     eslint-plugin-vue: "npm:^10.9.1"
     globals: "npm:^17.6.0"
     ip-address: "npm:^10.4.0"
-    lux-design-system: "npm:^7.11.5"
+    lux-design-system: "npm:^7.12.0"
     postcss: "npm:^8.5.18"
     postcss-flexbugs-fixes: "npm:^5.0.2"
     postcss-import: "npm:^15.1.0"
