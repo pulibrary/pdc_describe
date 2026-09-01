@@ -1305,10 +1305,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"array-back@npm:^3.0.1, array-back@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "array-back@npm:3.1.0"
-  checksum: 10c0/bb1fe86aa8b39c21e73c68c7abf8b05ed939b8951a3b17527217f6a2a84e00e4cfa4fdec823081689c5e216709bf1f214a4f5feeee6726eaff83897fa1a7b8ee
+"array-back@npm:^6.2.3":
+  version: 6.2.3
+  resolution: "array-back@npm:6.2.3"
+  checksum: 10c0/921bd7857112b8fbe3bc72f3498ca7c1c1652406e966a2468dcb8f67672c43e8b58e734138141c22fc21c357e59eaccc44b7727738a666f1056fc1f646b335df
   languageName: node
   linkType: hard
 
@@ -1414,15 +1414,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"command-line-args@npm:^5.2.1":
-  version: 5.2.1
-  resolution: "command-line-args@npm:5.2.1"
+"command-line-args@npm:^6.0.2":
+  version: 6.0.2
+  resolution: "command-line-args@npm:6.0.2"
   dependencies:
-    array-back: "npm:^3.1.0"
-    find-replace: "npm:^3.0.0"
+    array-back: "npm:^6.2.3"
+    find-replace: "npm:^5.0.2"
     lodash.camelcase: "npm:^4.3.0"
-    typical: "npm:^4.0.0"
-  checksum: 10c0/a4f6a23a1e420441bd1e44dee24efd12d2e49af7efe6e21eb32fca4e843ca3d5501ddebad86a4e9d99aa626dd6dcb64c04a43695388be54e3a803dbc326cc89f
+    typical: "npm:^7.3.0"
+  peerDependencies:
+    "@75lb/nature": "*"
+  peerDependenciesMeta:
+    "@75lb/nature":
+      optional: true
+  checksum: 10c0/4d66a1c4ae86bd86d9934ae85410bdedbe8796a060ad4e7cf7b9ec8275044f114b30965436a2c9a91f86d7a4279fb1ae825019f5861ddf048f275c6a0f24aa02
   languageName: node
   linkType: hard
 
@@ -1914,12 +1919,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"find-replace@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "find-replace@npm:3.0.0"
-  dependencies:
-    array-back: "npm:^3.0.1"
-  checksum: 10c0/fcd1bf7960388c8193c2861bcdc760c18ac14edb4bde062a961915d9a25727b2e8aabf0229e90cc09c753fd557e5a3e5ae61e49cadbe727be89a9e8e49ce7668
+"find-replace@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "find-replace@npm:5.0.2"
+  peerDependencies:
+    "@75lb/nature": "*"
+  peerDependenciesMeta:
+    "@75lb/nature":
+      optional: true
+  checksum: 10c0/25db7167e8767b0683251a985af82e29b0ac26003fe2cd6ddd86e4f2c83fc10d97a81c6f6686034d8c2b9ee88bc53547bf86cc103479a7323342da5ace9f6504
   languageName: node
   linkType: hard
 
@@ -2493,7 +2501,7 @@ __metadata:
     "@rails/ujs": "npm:^7.1.3-4"
     "@vitejs/plugin-vue": "npm:^6.0.7"
     brace-expansion: "npm:^5.0.9"
-    command-line-args: "npm:^5.2.1"
+    command-line-args: "npm:^6.0.2"
     ejs: "npm:^5.0.2"
     esbuild: "npm:^0.28.1"
     eslint: "npm:^10.4.0"
@@ -3179,10 +3187,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typical@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "typical@npm:4.0.0"
-  checksum: 10c0/f300b198fb9fe743859b75ec761d53c382723dc178bbce4957d9cb754f2878a44ce17dc0b6a5156c52be1065449271f63754ba594dac225b80ce3aa39f9241ed
+"typical@npm:^7.3.0":
+  version: 7.3.0
+  resolution: "typical@npm:7.3.0"
+  checksum: 10c0/bee697a88e1dd0447bc1cf7f6e875eaa2b0fb2cccb338b7b261e315f7df84a66402864bfc326d6b3117c50475afd1d49eda03d846a6299ad25f211035bfab3b1
   languageName: node
   linkType: hard
 

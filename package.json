@@ -21,7 +21,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
-    "command-line-args": "^5.2.1",
+    "command-line-args": "^6.0.2",
     "eslint": "^10.4.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.9.1",
