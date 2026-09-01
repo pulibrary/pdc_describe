@@ -35,6 +35,7 @@ gem "omniauth-cas", "~> 3.0"
 gem "pg"
 gem "puma"
 gem "rails", "~>8.0"
+gem "rails_semantic_logger"
 gem "redis", "~> 4.0"
 gem "retryable"
 gem "rinku"
@@ -42,7 +43,6 @@ gem "rolify"
 gem "rspec-rails"
 gem "sass-rails"
 gem "sidekiq", "< 9"
-gem "sqlite3", force_ruby_platform: true # requires bundler >= 2.3.18
 gem "turbolinks", "~> 5"
 gem "vite_rails"
 gem "whenever"
@@ -77,6 +77,7 @@ group :development do
   # Display performance information such as SQL time and flame graphs for each request in your browser.
   # Can be configured to work on production as well see: https://github.com/MiniProfiler/rack-mini-profiler/blob/master/README.md
   gem "rack-mini-profiler", "~> 2.0"
+  gem "sqlite3", force_ruby_platform: true # requires bundler >= 2.3.18
 end
 
 group :test do
