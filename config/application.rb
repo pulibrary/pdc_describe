@@ -41,7 +41,7 @@ module PdcDescribe
       appenders.add(file_name: "log/#{Rails.env}.log", formatter: :color)
       appenders.add(file_name: "log/#{Rails.env}.json", formatter: :json) if environments_needing_signoz.include?(Rails.env)
     end
-    
+
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
     Rails.application.routes.default_url_options = {
