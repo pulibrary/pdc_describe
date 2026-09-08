@@ -1,4 +1,3 @@
-import CopytoClipboard from './copy_to_clipboard.es6';
 import EditRequiredFields from './edit_required_fields.es6';
 import WorkOrcid from './work_orcid.es6';
 import WorkRoR from './work_ror.es6';
@@ -15,7 +14,6 @@ export default class PdcUiLoader {
   }
 
   setup_fileupload_validation() {
-    new CopytoClipboard().attach_copy();
     new EditRequiredFields().attach_validations();
     new EditTableActions().attach_actions('creators-table');
     new EmailChangeAll().attach_change();

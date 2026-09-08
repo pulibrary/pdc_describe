@@ -68,7 +68,10 @@ RSpec.describe "Creating and updating works", type: :system, js: true do
   it "copies DOI to the clipboard" do
     sign_in user
     visit work_path(work)
-    expect(page.html.include?('<button id="copy-doi"')).to be true
+    within(".doi-link") do
+      expect(page).to have_content("10.34770/r2dz-ys12")
+      expect(page).to have_button("copy")
+    end
 
     # A test as follows would be preferrable
     #
