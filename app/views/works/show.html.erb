@@ -96,7 +96,7 @@
   </div>
 </div>
 
-<div class="row">
+<div class="row  vue-component">
   <div class="col-8" data-class="col-12" id="left-of-messages">
     <h1><%= @work.title %></h1>
     <% if @work.embargoed? %>
@@ -139,11 +139,11 @@
       <% if @work.resource.doi %>
         <dt>DOI</dt>
         <dd>
+          <div class="doi-link">
           <span><%= link_to(@work.resource.doi, doi_url(@work.resource.doi), target: '_blank', rel: 'noopener noreferrer') %></span>
-          <button id="copy-doi" class="btn btn-sm" data-url="<%= doi_url(@work.resource.doi) %>" title="Copy DOI URL to the clipboard">
-            <i id="copy-doi-icon" class="bi bi-clipboard" title="Copy DOI URL to the clipboard"></i>
-            <span id="copy-doi-label" class="copy-doi-label-normal">COPY</span>
-          </button>
+          <lux-copy-to-clipboard id="copy-doi" clipboard-value="<%= doi_url(@work.resource.doi) %>" tooltip-text="Copy DOI URL to the clipboard" copied-tooltip-text="Copied">
+          </lux-copy-to-clipboard>
+          </div>
         </dd>
       <% end %>
 
@@ -296,13 +296,11 @@
       </dd>
     </dl>
 
-    <div class="vue-component">
-      <work-citation
-        text-citation="<%= @work_presenter.apa_citation %>"
-        bibtex-citation="<%= @work_presenter.bibtex_citation %>"
-        bibtex-download-url="<%= work_bibtex_url(id: @work.id) %>"
-      ></work-citation>
-    </div>
+    <work-citation
+      text-citation="<%= @work_presenter.apa_citation %>"
+      bibtex-citation="<%= @work_presenter.bibtex_citation %>"
+      bibtex-download-url="<%= work_bibtex_url(id: @work.id) %>"
+    ></work-citation>
 
     <section class="uploads">
       <h2 class="h2"><%= @work.approved? ? "Curated Files" : "Uncurated Files" %></h2>

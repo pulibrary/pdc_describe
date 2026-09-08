@@ -61,6 +61,7 @@ describe "application accessibility", type: :system, js: true do
       work = FactoryBot.create(:distinct_cytoskeletal_proteins_work)
 
       visit work_path(work)
+      expect(page).not_to have_content "Your browser does not support Clipboard API"
       expect(page).to be_axe_clean
         .according_to(:wcag2a, :wcag2aa, :wcag21a, :wcag21aa, :section508)
         .skipping(:'color-contrast') # false positives
