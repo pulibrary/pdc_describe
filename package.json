@@ -9,7 +9,7 @@
     "brace-expansion": "^5.0.9",
     "ejs": "^5.0.2",
     "esbuild": "^0.28.1",
-    "ip-address": "^10.4.0",
+    "ip-address": "^10.5.1",
     "lux-design-system": "^7.13.0",
     "postcss": "^8.5.18",
     "postcss-flexbugs-fixes": "^5.0.2",
