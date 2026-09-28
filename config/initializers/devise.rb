@@ -293,6 +293,11 @@ Devise.setup do |config|
   OmniAuth.config.allowed_request_methods = [:get, :post]
   OmniAuth.config.request_validation_phase = OmniAuth::AuthenticityTokenProtection.new(allow_if: ->(_env) { true })
 
+  # ==> For Entra ID
+  config.omniauth :entra_id, client_id: ENV.fetch("ENTRA_CLIENT_ID", "entra-id-client-id"),
+                            client_secret: ENV.fetch("ENTRA_CLIENT_SECRET", "entra-id-client-secret"),
+                            tenant_id: ENV.fetch("ENTRA_TENANT_ID", "entra-id-tenant-id")
+
   # ==> Mountable engine configurations
   # When using Devise inside an engine, let's call it `MyEngine`, and this engine
   # is mountable, there are some extra configurations to be taken into account.
