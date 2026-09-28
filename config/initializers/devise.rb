@@ -295,8 +295,8 @@ Devise.setup do |config|
 
   # ==> For Entra ID
   config.omniauth :entra_id, client_id: ENV.fetch("ENTRA_CLIENT_ID", "entra-id-client-id"),
-                            client_secret: ENV.fetch("ENTRA_CLIENT_SECRET", "entra-id-client-secret"),
-                            tenant_id: ENV.fetch("ENTRA_TENANT_ID", "entra-id-tenant-id")
+                             client_secret: ENV.fetch("ENTRA_CLIENT_SECRET", "entra-id-client-secret"),
+                             tenant_id: ENV.fetch("ENTRA_TENANT_ID", "entra-id-tenant-id")
 
   # ==> Mountable engine configurations
   # When using Devise inside an engine, let's call it `MyEngine`, and this engine
