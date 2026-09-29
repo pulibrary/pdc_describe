@@ -50,6 +50,11 @@ This project uses [devbox](https://www.jetify.com/devbox) to manage system depen
 6. Run tests:
 * Faster: `bundle exec rspec spec`
 * Run in browser: `RUN_IN_BROWSER=true bundle exec rspec spec`
+  1. In theory autobuild settings in vite.config.mts should cause Vite to build the assets when you run the test automatically. This may not happen.
+     If you get errors in the tests related to your Vue.js components not running you can run the vite test server
+     ```
+     bin/vite dev --mode=test
+     ```
 
 #### Troubleshooting sqlite
 If you are having trouble installing sqlite3 on an M-series mac, try making a file called `.bundle/config` and put this into it (this assumes you're using homebrew) [Source](https://github.com/sparklemotion/sqlite3-ruby/blob/main/INSTALLATION.md):
@@ -73,6 +78,11 @@ To stop database services:
 ### Starting the development server
 1. `bundle exec rails s -p 3000`
 2. Access application at [http://localhost:3000/](http://localhost:3000/)
+   1. In theory autobuild settings in vite.config.mts should cause Vite to build the assets when you run the test automatically. This may not happen.
+      If you get errors in the console related loading the javascript (`Failed to load resource: the server responded with a status of 502 (Bad Gateway) application.js`), you can run the vite dev server
+      ```
+      bin/vite dev
+      ```
 
 ### Give yourself admin privs in your local dev instance
 1. Login at [http://localhost:3000/](http://localhost:3000/) so a `User` exists.
