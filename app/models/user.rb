@@ -39,6 +39,16 @@ class User < ApplicationRecord
     user
   end
 
+  def self.from_entra(access_token)
+    user = User.find_by(email: access_token.info.email) # uid from entra is not the same as the netid, so we cannot use it to find the user. We need to find the user by email instead.
+    if user.nil?
+      user = new_from_entra(access_token)
+    elsif user.provider.blank?
+      user.update_with_entra(access_token)
+    end
+    user
+  end
+
   # Create a new user with some basic information from CAS.
   def self.new_from_cas(access_token)
     user = User.new
@@ -49,6 +59,20 @@ class User < ApplicationRecord
     user.family_name = access_token.extra.sn || access_token.uid # Tubman
     user.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
     user.default_group_id = Group.default_for_department(access_token.extra.departmentnumber)&.id
+    user.save!
+    user
+  end
+
+  # Create a new user with some basic information from Entra.
+  def self.new_from_entra(access_token)
+    user = User.new
+    user.provider = access_token.provider
+    user.uid = safe_uid(access_token.uid) # this is a long token string, not the netid. How do we handle this?
+    user.email = User.email_from_access_token_entra(access_token)
+    user.given_name = access_token.info.first_name || access_token.uid # Harriet
+    user.family_name = access_token.info.last_name || access_token.uid # Tubman
+    user.full_name = access_token.info.name || access_token.uid # "Harriet Tubman"
+    # user.default_group_id = Group.default_for_department(access_token.extra.departmentnumber)&.id # Department number is not available in Entra, so we cannot set a default group based on that.
     user.save!
     user
   end
@@ -68,6 +92,16 @@ class User < ApplicationRecord
     end
   end
 
+  def self.email_from_access_token_entra(access_token)
+    if !access_token.info.email.nil?
+      # For Entra accounts the email comes on the `info.email` field
+      access_token.info.email
+    elsif User.looks_like_email_address?(access_token.extra.raw_info.preferred_username)
+      # For Entra Guest Access Accounts (GAP) the email comes in the `info.given_name`
+      access_token.extra.raw_info.preferred_username
+    end
+  end
+
   def self.looks_like_email_address?(value)
     URI::MailTo::EMAIL_REGEXP.match?(value)
   end
@@ -82,6 +116,16 @@ class User < ApplicationRecord
     self.family_name = access_token.extra.sn || access_token.uid # Tubman
     self.full_name = access_token.extra.displayname || access_token.uid # "Harriet Tubman"
     self.default_group_id ||= Group.default_for_department(access_token.extra.departmentnumber)&.id
+    save!
+  end
+
+  def update_with_entra(access_token)
+    self.provider = access_token.info.provider
+    self.email = User.email_from_access_token_entra(access_token)
+    self.given_name = access_token.info.first_name || access_token.uid # Harriet
+    self.family_name = access_token.info.last_name || access_token.uid # Tubman
+    self.full_name = access_token.info.name || access_token.uid # "Harriet Tubman"
+    # self.default_group_id ||= Group.default_for_department(access_token.info.department_number)&.id
     save!
   end
 
