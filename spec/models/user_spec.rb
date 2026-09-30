@@ -6,10 +6,13 @@ RSpec.describe User, type: :model do
   before { Group.create_defaults }
 
   let(:access_token) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu" }) }
+  let(:access_token_entra) { OmniAuth::AuthHash.new(provider: "entra", uid: "entra_user_id", info: { provider: "entra", first_name: "Entira", last_name: "User", full_name: "Entira User", email: "entra_user@example.edu" }) }
   let(:access_token_pppl) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu", departmentnumber: "31000" }) }
   let(:access_token_super_admin) { OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" }) }
   let(:access_token_guest) { OmniAuth::AuthHash.new(provider: "cas", uid: "test.user@example.com", extra: { mail: "test.user@example.com@princeton.edu" }) }
+  let(:access_token_entra_guest) { OmniAuth::AuthHash.new(provider: "entra", uid: "test.user@example.com", info: { email: "test.user@example.com@princeton.edu" }) }
   let(:access_token_gap) { OmniAuth::AuthHash.new(provider: "cas", uid: "gap.user@gmail.com", extra: { givenname: "gap.user@gmail.com" }) }
+  let(:access_token_entra_gap) { OmniAuth::AuthHash.new(provider: "entra", uid: "gap.user@gmail.com", extra: { raw_info: { preferred_username: "gap.user@gmail.com" } }, info: {}) }
 
   let(:access_token_full_extras) do
     OmniAuth::AuthHash.new(provider: "cas", uid: "test123",
@@ -27,6 +30,7 @@ RSpec.describe User, type: :model do
   let(:normal_user) { described_class.from_cas(access_token) }
   let(:pppl_user) { described_class.from_cas(access_token_pppl) }
   let(:super_admin_user) { described_class.new_super_admin("fake1") }
+  let(:entra_user) { described_class.from_entra(access_token_entra) }
 
   let(:rd_group) { Group.where(code: "RD").first }
   let(:pppl_group) { Group.where(code: "PPPL").first }
@@ -90,6 +94,58 @@ RSpec.describe User, type: :model do
         user = described_class.from_cas(access_token_gap)
         expect(user.email).to eq "gap.user@gmail.com"
         expect(user.uid).to eq "gap_user_gmail_com"
+      end
+    end
+  end
+
+  describe "#from_entra" do
+    context "entra enabled" do
+      let(:test_strategy) { Flipflop::FeatureSet.current.test! }
+      before do
+        test_strategy.switch!(:entra_login, true)
+      end
+      after do
+        test_strategy.switch!(:entra_login, false)
+      end
+
+      it "sets the entra info on new" do
+        user = described_class.from_entra(access_token_entra)
+        expect(user.email).to eq "entra_user@example.edu"
+        expect(user.given_name).to eq "Entira"
+        expect(user.family_name).to eq "User"
+        expect(user.full_name).to eq "Entira User"
+      end
+
+      it "updates an existing user with entra info" do
+        # Create a user without entra info
+        described_class.where(uid: "entra_user_id").delete_all
+        user = described_class.new(uid: "entra_user_id", email: "entra_user@example.edu")
+        user.save!
+
+        # Update the user with entra info
+        user = described_class.from_entra(access_token_entra)
+        expect(user.email).to eq "entra_user@example.edu"
+        expect(user.given_name).to eq "Entira"
+        expect(user.family_name).to eq "User"
+        expect(user.full_name).to eq "Entira User"
+      end
+
+      context "a guest entra user" do
+        it "redirects to home page with success notice" do
+          user = described_class.from_entra(access_token_entra_guest)
+          expect(user.email).to eq "test.user@example.com@princeton.edu"
+          expect(user.uid).to eq "test_user_example_com"
+        end
+      end
+
+      context "GAP accounts" do
+        it "process GAP account correctly" do
+          # GAP accounts don't have the email on the email field,
+          # instead it comes buried in the givenname
+          user = described_class.from_entra(access_token_entra_gap)
+          expect(user.email).to eq "gap.user@gmail.com"
+          expect(user.uid).to eq "gap_user_gmail_com"
+        end
       end
     end
   end
