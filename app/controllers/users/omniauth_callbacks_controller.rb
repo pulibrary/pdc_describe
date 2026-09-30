@@ -26,4 +26,37 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       end
     end
   end
+
+  def failure
+    notify_entra_login_failure
+    super
+  end
+
+  private
+
+    def notify_entra_login_failure
+      return unless failed_strategy&.name == "entra_id"
+
+      Honeybadger.notify(
+        "Entra ID login failed: #{failure_message}",
+        context: {
+          provider: "entra_id",
+          error_type: omniauth_error_type,
+          error: omniauth_error_message
+        }
+      )
+    end
+
+    def omniauth_error_type
+      header("omniauth.error.type")
+    end
+
+    def omniauth_error_message
+      exception = header("omniauth.error")
+      exception.message if exception.respond_to?(:message)
+    end
+
+    def header(key)
+      request.respond_to?(:get_header) ? request.get_header(key) : request.env[key]
+    end
 end
