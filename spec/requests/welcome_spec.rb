@@ -39,7 +39,7 @@ RSpec.describe "Home Page", type: :request do
 
         it "show the login button" do
           get root_path
-          expect(response.body.include?(" Entra Login button here")).to be true
+          expect(response.body.include?("Log In")).to be true
         end
       end
     end

@@ -13,4 +13,17 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       end
     end
   end
+
+  def entra_id
+    @user = User.from_entra(request.env["omniauth.auth"])
+    if @user.nil?
+      redirect_to root_path
+      flash[:notice] = "You are not authorized"
+    else
+      sign_in_and_redirect @user, event: :authentication # this will throw if @user is not activated
+      if is_navigational_format?
+        set_flash_message(:notice, :success, kind: "from Entra ID")
+      end
+    end
+  end
 end
