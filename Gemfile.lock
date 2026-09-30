@@ -794,7 +794,7 @@ DEPENDENCIES
   nokogiri (>= 1.19.3)
   omniauth (~> 2.1, >= 2.1.2)
   omniauth-cas (~> 3.0)
-  omniauth-entra-id
+  omniauth-entra-id (~> 3.1)
   pg
   pry-byebug
   pry-rails

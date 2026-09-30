@@ -132,4 +132,36 @@ RSpec.describe Users::OmniauthCallbacksController do
       end
     end
   end
+
+  describe "GET #entra_id" do
+    let(:test_strategy) { Flipflop::FeatureSet.current.test! }
+    let(:entra_user) { FactoryBot.create(:user) }
+
+    before do
+      request.env["omniauth.auth"] = OmniAuth::AuthHash.new(provider: "entra_id", uid: "oid", info: { email: "who@princeton.edu" })
+    end
+
+    it "redirects home when Entra login is disabled" do
+      test_strategy.switch!(:entra_login, false)
+      get :entra_id
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to eq("Entra ID login is not enabled")
+    end
+
+    it "signs in a user when Entra login is enabled" do
+      test_strategy.switch!(:entra_login, true)
+      allow(User).to receive(:from_entra).and_return(entra_user)
+      get :entra_id
+      expect(response).to redirect_to(root_path)
+      expect(flash[:notice]).to eq("Successfully authenticated from Entra ID account.")
+    end
+
+    it "rejects an auth hash that does not map to a user" do
+      test_strategy.switch!(:entra_login, true)
+      allow(User).to receive(:from_entra).and_return(nil)
+      get :entra_id
+      expect(response).to redirect_to(root_path)
+      expect(flash[:notice]).to eq("You are not authorized")
+    end
+  end
 end
