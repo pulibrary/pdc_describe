@@ -6,7 +6,9 @@ RSpec.describe User, type: :model do
   before { Group.create_defaults }
 
   let(:access_token) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu" }) }
-  let(:access_token_entra) { OmniAuth::AuthHash.new(provider: "entra", uid: "entra_user_id", info: { provider: "entra", first_name: "Entira", last_name: "User", full_name: "Entira User", email: "entra_user@example.edu" }) }
+  let(:access_token_entra) do
+    OmniAuth::AuthHash.new(provider: "entra", uid: "entra_user_id", info: { provider: "entra", first_name: "Entira", last_name: "User", full_name: "Entira User", email: "entra_user@example.edu" })
+  end
   let(:access_token_pppl) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu", departmentnumber: "31000" }) }
   let(:access_token_super_admin) { OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" }) }
   let(:access_token_guest) { OmniAuth::AuthHash.new(provider: "cas", uid: "test.user@example.com", extra: { mail: "test.user@example.com@princeton.edu" }) }
