@@ -26,6 +26,22 @@ RSpec.describe "Home Page", type: :request do
         get root_path
         expect(response.body.include?("Log In")).to be true
       end
+
+      context "Entra enabled" do
+        let(:test_strategy) { Flipflop::FeatureSet.current.test! }
+
+        before do
+          test_strategy.switch!(:entra_login, true)
+        end
+        after do
+          test_strategy.switch!(:entra_login, false)
+        end
+
+        it "show the login button" do
+          get root_path
+          expect(response.body.include?(" Entra Login button here")).to be true
+        end
+      end
     end
   end
 end

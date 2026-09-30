@@ -25,4 +25,5 @@ Flipflop.configure do
   feature :migrate_pppl_dataset, default: false, description: "Display the Migrate the PPPL dataset option menu and route to the page."
   feature :migrate_prds_dataset, default: false, description: "Display the Migrate the PRDS dataset option menu and route to the page."
   feature :create_dataset, default: false, description: "Display the Create dataset option menu and route to the page."
+  feature :entra_login, default: false, description: "Utilize EntraID for login"
 end
