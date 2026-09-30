@@ -13,7 +13,11 @@
         <% if current_user %>
         <%= render 'shared/user_actions' %>
         <% else %>
-        <%= button_to "Log In", user_cas_omniauth_authorize_path, class: "btn btn-primary log-in", style: "background-color: #3f76ca" %>
+          <% if Flipflop.entra_login? %>
+            <p> Entra Login button here </p>
+          <% else %>
+            <%= button_to "Log In", user_cas_omniauth_authorize_path, class: "btn btn-primary log-in", style: "background-color: #3f76ca" %>
+          <% end %>  
         <% end %>
       </nav>
     </div>
