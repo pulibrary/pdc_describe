@@ -66,15 +66,25 @@ class User < ApplicationRecord
   # Create a new user with some basic information from Entra.
   def self.new_from_entra(access_token)
     user = User.new
+    email = email_from_access_token_entra(access_token)
+    uid = uid_from_email(email)
     user.provider = access_token.provider
-    user.uid = safe_uid(access_token.uid) # this is a long token string, not the netid. How do we handle this?
-    user.email = User.email_from_access_token_entra(access_token)
-    user.given_name = access_token.info.first_name || access_token.uid # Harriet
-    user.family_name = access_token.info.last_name || access_token.uid # Tubman
-    user.full_name = access_token.info.name || access_token.uid # "Harriet Tubman"
+    user.uid = uid
+    user.email = email
+    user.given_name = access_token.info.first_name || uid # Harriet
+    user.family_name = access_token.info.last_name || uid # Tubman
+    user.full_name = access_token.info.name || uid # "Harriet Tubman"
     # user.default_group_id = Group.default_for_department(access_token.extra.departmentnumber)&.id # Department number is not available in Entra, so we cannot set a default group based on that.
     user.save!
     user
+  end
+
+  def self.uid_from_email(email)
+    if email.end_with?("@princeton.edu") && email.split("@princeton.edu").first.present?
+      safe_uid(email.split("@princeton.edu").first)
+    else
+      safe_uid(email)
+    end
   end
 
   def self.safe_uid(uid)

@@ -116,6 +116,19 @@ RSpec.describe User, type: :model do
         expect(user.given_name).to eq "Entira"
         expect(user.family_name).to eq "User"
         expect(user.full_name).to eq "Entira User"
+        expect(user.uid).to eq "entra_user_example_edu"
+      end
+
+      context "when the email is a princeton.edu email" do
+        it "sets the uid to the local part of the email" do
+          access_token_entra.info.email = "entra_user@princeton.edu"
+          user = described_class.from_entra(access_token_entra)
+          expect(user.email).to eq "entra_user@princeton.edu"
+          expect(user.given_name).to eq "Entira"
+          expect(user.family_name).to eq "User"
+          expect(user.full_name).to eq "Entira User"
+          expect(user.uid).to eq "entra_user"
+        end
       end
 
       it "updates an existing user with entra info" do
