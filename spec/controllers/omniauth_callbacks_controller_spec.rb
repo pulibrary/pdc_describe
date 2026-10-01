@@ -63,6 +63,49 @@ RSpec.describe Users::OmniauthCallbacksController do
     end
   end
 
+  describe "GET #failure" do
+    around do |example|
+      Rails.application.routes.draw do
+        get "failure" => "users/omniauth_callbacks#failure"
+        get "sign_in" => "welcome#index", as: :new_user_session
+      end
+      example.run
+    ensure
+      Rails.application.reload_routes!
+    end
+
+    before { allow(Honeybadger).to receive(:notify) }
+
+    it "logs an Entra ID login error to Honeybadger" do
+      request.env["omniauth.error.strategy"] = instance_double(OmniAuth::Strategy, name: "entra_id")
+      request.env["omniauth.error.type"] = :invalid_credentials
+      request.env["omniauth.error"] = StandardError.new("token exchange failed")
+
+      get :failure
+
+      expect(Honeybadger).to have_received(:notify).with(
+        "Entra ID login failed: Invalid credentials",
+        context: {
+          provider: "entra_id",
+          error_type: :invalid_credentials,
+          error: "token exchange failed"
+        }
+      )
+      expect(response).to redirect_to(new_user_session_path)
+      expect(flash[:alert]).to eq('Could not authenticate you EntraId because "Invalid credentials".')
+    end
+
+    it "does not notify Honeybadger for a CAS login failure" do
+      request.env["omniauth.error.strategy"] = instance_double(OmniAuth::Strategy, name: "cas")
+      request.env["omniauth.error.type"] = :invalid_ticket
+
+      get :failure
+
+      expect(Honeybadger).not_to have_received(:notify)
+      expect(response).to redirect_to(new_user_session_path)
+    end
+  end
+
   context "invalid user" do
     it "redirects to home page with warning notice" do
       allow(User).to receive(:from_cas) { nil }
