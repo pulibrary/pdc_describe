@@ -232,14 +232,23 @@ We utilize rolling deployments to production.  When a new release is ready to de
 ### Manually releasing an embargo
 If you need to release an embargo manually you can do it via the command line.
 
-First launch the Rails console: `bundle exec rails console` and run the following commands (make sure to use the `id` of the work that you are interested and an `embargo_date` in the past)
+First launch the Rails console: `bundle exec rails console` and run the following commands (make sure to use the `id` of the work that you are interested )
 
 ```
-work = Work.find(568)
-work.embargo_date = "2025-08-26"
+work = Work.find(<id>)
+work.embargo_date =  work.embargo_date = Time.zone.now.to_date-1
 work.save!
 ```
 
-Then, run the rake task `bundle exec rake embargo:release` to make sure the files are moved from the embargo AWS bucket to the post-curation bucket.
+Then, run the rake task to make sure the files are moved from the embargo AWS bucket to the post-curation bucket.
+```
+bundle exec rake embargo:release
+```
 
-After you have done this the files for the work will be picked up by PDC Discovery next time it indexes the data (typically once an hour)
+When you run the rake task you should see `Releasing embargo for work <id>`
+
+After you have done this the files for the work will be picked up by PDC Discovery next time it indexes the data (typically once an hour).  
+If there is a rush you can ssh onto pdc-discovery-prod1 and run following (changing the id).
+```
+bundle exec rake index:single_index[https://datacommons.princeton.edu/describe/works/<id>.json]
+```
