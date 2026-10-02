@@ -7,14 +7,30 @@ RSpec.describe User, type: :model do
 
   let(:access_token) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu" }) }
   let(:access_token_entra) do
-    OmniAuth::AuthHash.new(provider: "entra", uid: "entra_user_id", info: { provider: "entra", first_name: "Entira", last_name: "User", full_name: "Entira User", email: "entra_user@example.edu" })
+    OmniAuth::AuthHash.new(provider: "entra_id", uid: "<some really large random string>", credentials: nil,
+                           info: { provider: "entra", first_name: "Entira", last_name: "User", full_name: "Entira User", email: "entira.user@example.edu" },
+                           extra: { raw_info: { app_displayname: "pdc-describe-dev", email: "entira.user@example.edu", family_name: "User", given_name: "Entira", name: "Entira User",
+                                                preferred_username: "entra_user@example.edu", unique_name: "entra_user@example.edu",
+                                                # rest of the keys are present
+                                                #  They are set to values I do not understand,
+                                                #  so we don't care about them for this test
+                                                acct: nil, acr: nil, acrs: nil, aio: nil, amr: nil, appid: nil, appidacr: nil, aud: nil, exp: nil,
+                                                iat: nil, idtyp: nil, ipaddr: nil, iss: nil, nbf: nil, oid: nil, onprem_sid: nil, platf: nil,
+                                                puid: nil, rh: nil, roles: nil, scp: nil, sid: nil, sub: nil, tenant_region_scope: nil, tid: nil,
+                                                upn: nil, uti: nil, ver: nil, wids: nil, xms_acd: nil, xms_act_fct: nil, xms_ftd: nil, xms_idrel: nil,
+                                                xms_pftexp: nil, xms_st: nil, xms_sub_fct: nil, xms_tcdt: nil, xms_tnt_fct: nil } })
   end
   let(:access_token_pppl) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu", departmentnumber: "31000" }) }
   let(:access_token_super_admin) { OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" }) }
   let(:access_token_guest) { OmniAuth::AuthHash.new(provider: "cas", uid: "test.user@example.com", extra: { mail: "test.user@example.com@princeton.edu" }) }
-  let(:access_token_entra_guest) { OmniAuth::AuthHash.new(provider: "entra", uid: "test.user@example.com", info: { email: "test.user@example.com@princeton.edu" }) }
+  let(:access_token_entra_guest) do
+    OmniAuth::AuthHash.new(provider: "entra", uid: "test.user@example.com", info: { email: "test.user@example.com@princeton.edu" },
+                           extra: { raw_info: { preferred_username: "test.user@example.com@princeton.edu", unique_name: "test.user@example.com@princeton.edu" } })
+  end
   let(:access_token_gap) { OmniAuth::AuthHash.new(provider: "cas", uid: "gap.user@gmail.com", extra: { givenname: "gap.user@gmail.com" }) }
-  let(:access_token_entra_gap) { OmniAuth::AuthHash.new(provider: "entra", uid: "gap.user@gmail.com", extra: { raw_info: { preferred_username: "gap.user@gmail.com" } }, info: {}) }
+  let(:access_token_entra_gap) do
+    OmniAuth::AuthHash.new(provider: "entra", uid: "gap.user@gmail.com", extra: { raw_info: { preferred_username: "gap.user@gmail.com", unique_name: "gap.user@gmail.com" } }, info: {})
+  end
 
   let(:access_token_full_extras) do
     OmniAuth::AuthHash.new(provider: "cas", uid: "test123",
@@ -112,7 +128,7 @@ RSpec.describe User, type: :model do
 
       it "sets the entra info on new" do
         user = described_class.from_entra(access_token_entra)
-        expect(user.email).to eq "entra_user@example.edu"
+        expect(user.email).to eq "entira.user@example.edu"
         expect(user.given_name).to eq "Entira"
         expect(user.family_name).to eq "User"
         expect(user.full_name).to eq "Entira User"
@@ -121,9 +137,9 @@ RSpec.describe User, type: :model do
 
       context "when the email is a princeton.edu email" do
         it "sets the uid to the local part of the email" do
-          access_token_entra.info.email = "entra_user@princeton.edu"
+          access_token_entra.extra.raw_info.unique_name = "entra_user@princeton.edu"
           user = described_class.from_entra(access_token_entra)
-          expect(user.email).to eq "entra_user@princeton.edu"
+          expect(user.email).to eq "entira.user@example.edu"
           expect(user.given_name).to eq "Entira"
           expect(user.family_name).to eq "User"
           expect(user.full_name).to eq "Entira User"
@@ -139,7 +155,7 @@ RSpec.describe User, type: :model do
 
         # Update the user with entra info
         user = described_class.from_entra(access_token_entra)
-        expect(user.email).to eq "entra_user@example.edu"
+        expect(user.email).to eq "entira.user@example.edu"
         expect(user.given_name).to eq "Entira"
         expect(user.family_name).to eq "User"
         expect(user.full_name).to eq "Entira User"

@@ -40,7 +40,8 @@ class User < ApplicationRecord
   end
 
   def self.from_entra(access_token)
-    user = User.find_by(email: access_token.info.email) # uid from entra is not the same as the netid, so we cannot use it to find the user. We need to find the user by email instead.
+    uid = uid_from_access_token(access_token)
+    user = User.find_by(uid:)
     if user.nil?
       user = new_from_entra(access_token)
     elsif user.provider.blank?
@@ -67,7 +68,7 @@ class User < ApplicationRecord
   def self.new_from_entra(access_token)
     user = User.new
     email = email_from_access_token_entra(access_token)
-    uid = uid_from_email(email)
+    uid = uid_from_access_token(access_token)
     user.provider = access_token.provider
     user.uid = uid
     user.email = email
@@ -79,11 +80,12 @@ class User < ApplicationRecord
     user
   end
 
-  def self.uid_from_email(email)
-    if email.end_with?("@princeton.edu") && email.split("@princeton.edu").first.present?
-      safe_uid(email.split("@princeton.edu").first)
+  def self.uid_from_access_token(access_token)
+    unique_name = access_token.extra.raw_info.unique_name
+    if unique_name.end_with?("@princeton.edu") && unique_name.split("@princeton.edu").first.present?
+      safe_uid(unique_name.split("@princeton.edu").first)
     else
-      safe_uid(email)
+      safe_uid(unique_name)
     end
   end
 
