@@ -15,6 +15,11 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   def entra_id
+    unless Flipflop.entra_login?
+      redirect_to root_path, alert: "Entra ID login is not enabled"
+      return
+    end
+
     @user = User.from_entra(request.env["omniauth.auth"])
     if @user.nil?
       redirect_to root_path
