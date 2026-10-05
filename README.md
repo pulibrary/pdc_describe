@@ -236,7 +236,7 @@ First launch the Rails console: `bundle exec rails console` and run the followin
 
 ```
 work = Work.find(<id>)
-work.embargo_date =  work.embargo_date = Time.zone.now.to_date-1
+work.embargo_date = Time.zone.now.to_date-1
 work.save!
 ```
 
