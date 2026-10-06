@@ -26,6 +26,11 @@ class WorkEmbargoReleaseService
 
       snapshot.mark_complete(file.key, etag)
     end
+    rescue => e
+        Honeybadger.notify(e, context: { work_id: work.id })
+        mailer = NotificationMailer.with(work:)
+        mailer.failed_embargo_release.deliver_now
+    end
     true
   end
 end
