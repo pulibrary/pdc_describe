@@ -68,6 +68,16 @@ class NotificationMailer < ApplicationMailer
     mail(to: @user.email, subject: @subject)
   end
 
+  def failed_embargo_release
+    @work = params[:work]
+    @error = params[:error]
+    @subject = "[pdc-describe] Embargo Release Failed"
+    @url = describe_url(@work)
+    @message = "An error occurred while releasing the embargo for work #{@work.id}"
+
+    mail(to: "prds@princeton.edu", subject: @subject)
+  end
+
   def data_commons_url(work)
     url = if Rails.env.production?
             path = work_path(work)

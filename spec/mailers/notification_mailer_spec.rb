@@ -220,4 +220,20 @@ describe NotificationMailer, type: :mailer do
       expect(message.body.encoded).to include(work.doi_url)
     end
   end
+
+  describe "#failed_embargo_release" do
+    let(:work) { FactoryBot.create(:draft_work, doi: "10.34770/123-abc") }
+    let(:error) { StandardError.new("An error occurred while releasing the embargo for work #{work.id}") }
+    let(:message_delivery) { NotificationMailer.with(work:, error:).failed_embargo_release }
+
+    it "generates the e-mail message" do
+      expect(message_delivery).to be_a(ActionMailer::Parameterized::MessageDelivery)
+      expect(message_delivery.message).to be_a(Mail::Message)
+      message = message_delivery.message
+      expect(message.to).to eq(["prds@princeton.edu"])
+      expect(message.from).to eq(["noreply@example.com"])
+      expect(message.subject).to eq("[pdc-describe] Embargo Release Failed")
+      expect(message.body.encoded).to include("An error occurred while releasing the embargo for work")
+    end
+  end
 end
