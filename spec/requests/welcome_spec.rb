@@ -37,9 +37,10 @@ RSpec.describe "Home Page", type: :request do
           test_strategy.switch!(:entra_login, false)
         end
 
-        it "show the login button" do
+        it "shows the Entra login button" do
           get root_path
-          expect(response.body.include?("Log In")).to be true
+          expect(response.body).to include(user_entra_id_omniauth_authorize_path)
+          expect(response.body).not_to include(user_cas_omniauth_authorize_path)
         end
       end
     end
