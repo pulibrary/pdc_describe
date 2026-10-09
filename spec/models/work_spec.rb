@@ -1431,7 +1431,7 @@ RSpec.describe Work, type: :model do
     let(:embargo_date) { Time.zone.yesterday }
     let(:future_embargo_date) { Time.zone.tomorrow }
 
-    it "finds only approved released from embargo yesterday" do
+    it "returns approved works whose embargo date is yesterday" do
       FactoryBot.create(:draft_work, embargo_date:)
       approved_embargoed_work1 = FactoryBot.create(:approved_work, embargo_date:)
       approved_embargoed_work2 = FactoryBot.create(:approved_work, embargo_date:)
