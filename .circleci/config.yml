@@ -65,8 +65,8 @@ jobs:
       - attach_workspace:
           at: *root
       - run:
-          name: Run rubocop
-          command: bundle exec rubocop
+          name: Run standardrb
+          command: bundle exec standardrb
 
   eslint:
     # We don't actually need any of the ruby environment to lint JS... but use what we have for now.

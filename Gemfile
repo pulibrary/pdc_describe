@@ -55,7 +55,12 @@ gem "ezid-client", git: "https://github.com/duke-libraries/ezid-client.git", ref
 group :development, :test do
   gem "bcrypt_pbkdf"
   gem "benchmark"
-  gem "bixby"
+  gem "rubocop-capybara"
+  gem "rubocop-factory_bot"
+  gem "rubocop-rspec"
+  gem "rubocop-rspec_rails"
+  gem "standard"
+  gem "standard-rails"
   gem "byebug"
   gem "coveralls_reborn", "~> 0.28"
   gem "ed25519"
