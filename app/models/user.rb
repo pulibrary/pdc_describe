@@ -81,11 +81,11 @@ class User < ApplicationRecord
   end
 
   def self.uid_from_access_token(access_token)
-    unique_name = access_token.extra.raw_info.unique_name
-    if unique_name.end_with?("@princeton.edu") && unique_name.split("@princeton.edu").first.present?
-      safe_uid(unique_name.split("@princeton.edu").first)
+    user_name = access_token.extra.raw_info.preferred_username
+    if user_name.end_with?("@princeton.edu") && user_name.split("@princeton.edu").first.present?
+      safe_uid(user_name.split("@princeton.edu").first)
     else
-      safe_uid(unique_name)
+      safe_uid(user_name)
     end
   end
 

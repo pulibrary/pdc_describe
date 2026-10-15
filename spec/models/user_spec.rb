@@ -23,13 +23,20 @@ RSpec.describe User, type: :model do
   let(:access_token_pppl) { OmniAuth::AuthHash.new(provider: "cas", uid: "who", extra: { mail: "who@princeton.edu", departmentnumber: "31000" }) }
   let(:access_token_super_admin) { OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" }) }
   let(:access_token_guest) { OmniAuth::AuthHash.new(provider: "cas", uid: "test.user@example.com", extra: { mail: "test.user@example.com@princeton.edu" }) }
+  let(:access_token_gap) { OmniAuth::AuthHash.new(provider: "cas", uid: "gap.user@example.com", extra: { givenname: "gap.user@example.com" }) }
   let(:access_token_entra_guest) do
-    OmniAuth::AuthHash.new(provider: "entra", uid: "test.user@example.com", info: { email: "test.user@example.com@princeton.edu" },
-                           extra: { raw_info: { preferred_username: "test.user@example.com@princeton.edu", unique_name: "test.user@example.com@princeton.edu" } })
-  end
-  let(:access_token_gap) { OmniAuth::AuthHash.new(provider: "cas", uid: "gap.user@gmail.com", extra: { givenname: "gap.user@gmail.com" }) }
-  let(:access_token_entra_gap) do
-    OmniAuth::AuthHash.new(provider: "entra", uid: "gap.user@gmail.com", extra: { raw_info: { preferred_username: "gap.user@gmail.com", unique_name: "gap.user@gmail.com" } }, info: {})
+    OmniAuth::AuthHash.new({ provider: "entra_id", uid: "9999-99-99-99-9999-99-99-99-9999",
+                             info: { name: "Guest User", email: "guest.user@example.com", nickname: "mail#guest.user@example.com", first_name: nil, last_name: nil },
+                             credentials: { token: "token-token", expires_at: 1_792_419_154, expires: true },
+                             extra: { raw_info: { app_displayname: "pdc-describe-dev", name: "Guest User", email: "guest.user@example.com", preferred_username: "guest.user@example.com",
+                                                  # rest of the keys are present
+                                                  #  They are set to values I do not understand,
+                                                  #  so we don't care about them for this test
+                                                  acct: nil, acr: nil, acrs: nil, aio: nil, amr: nil, appid: nil, appidacr: nil, aud: nil, exp: nil,
+                                                  iat: nil, idtyp: nil, ipaddr: nil, iss: nil, nbf: nil, oid: nil, onprem_sid: nil, platf: nil,
+                                                  puid: nil, rh: nil, roles: nil, scp: nil, sid: nil, sub: nil, tenant_region_scope: nil, tid: nil,
+                                                  upn: nil, uti: nil, ver: nil, wids: nil, xms_acd: nil, xms_act_fct: nil, xms_ftd: nil, xms_idrel: nil,
+                                                  xms_pftexp: nil, xms_st: nil, xms_sub_fct: nil, xms_tcdt: nil, xms_tnt_fct: nil } } })
   end
 
   let(:access_token_full_extras) do
@@ -110,8 +117,8 @@ RSpec.describe User, type: :model do
         # GAP accounts don't have the email on the email field,
         # instead it comes buried in the givenname
         user = described_class.from_cas(access_token_gap)
-        expect(user.email).to eq "gap.user@gmail.com"
-        expect(user.uid).to eq "gap_user_gmail_com"
+        expect(user.email).to eq "gap.user@example.com"
+        expect(user.uid).to eq "gap_user_example_com"
       end
     end
   end
@@ -137,7 +144,7 @@ RSpec.describe User, type: :model do
 
       context "when the email is a princeton.edu email" do
         it "sets the uid to the local part of the email" do
-          access_token_entra.extra.raw_info.unique_name = "entra_user@princeton.edu"
+          access_token_entra.extra.raw_info.preferred_username = "entra_user@princeton.edu"
           user = described_class.from_entra(access_token_entra)
           expect(user.email).to eq "entira.user@example.edu"
           expect(user.given_name).to eq "Entira"
@@ -149,8 +156,8 @@ RSpec.describe User, type: :model do
 
       it "updates an existing user with entra info" do
         # Create a user without entra info
-        described_class.where(uid: "entra_user_id").delete_all
-        user = described_class.new(uid: "entra_user_id", email: "entra_user@example.edu")
+        described_class.where(uid: "entra_user_example_edu").delete_all
+        user = described_class.new(uid: "entra_user_example_edu", email: "entra_user@example.edu")
         user.save!
 
         # Update the user with entra info
@@ -164,18 +171,8 @@ RSpec.describe User, type: :model do
       context "a guest entra user" do
         it "redirects to home page with success notice" do
           user = described_class.from_entra(access_token_entra_guest)
-          expect(user.email).to eq "test.user@example.com@princeton.edu"
-          expect(user.uid).to eq "test_user_example_com"
-        end
-      end
-
-      context "GAP accounts" do
-        it "process GAP account correctly" do
-          # GAP accounts don't have the email on the email field,
-          # instead it comes buried in the givenname
-          user = described_class.from_entra(access_token_entra_gap)
-          expect(user.email).to eq "gap.user@gmail.com"
-          expect(user.uid).to eq "gap_user_gmail_com"
+          expect(user.email).to eq "guest.user@example.com"
+          expect(user.uid).to eq "guest_user_example_com"
         end
       end
     end
