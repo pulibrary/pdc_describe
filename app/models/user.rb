@@ -81,6 +81,7 @@ class User < ApplicationRecord
   end
 
   def self.uid_from_access_token(access_token)
+    Rails.logger.warn "Access token info: #{access_token.inspect}"
     unique_name = access_token.extra.raw_info.unique_name
     if unique_name.end_with?("@princeton.edu") && unique_name.split("@princeton.edu").first.present?
       safe_uid(unique_name.split("@princeton.edu").first)

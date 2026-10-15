@@ -24,7 +24,8 @@ RSpec.describe User, type: :model do
   let(:access_token_super_admin) { OmniAuth::AuthHash.new(provider: "cas", uid: "fake1", extra: { mail: "fake@princeton.edu" }) }
   let(:access_token_guest) { OmniAuth::AuthHash.new(provider: "cas", uid: "test.user@example.com", extra: { mail: "test.user@example.com@princeton.edu" }) }
   let(:access_token_entra_guest) do
-    OmniAuth::AuthHash.new(provider: "entra", uid: "test.user@example.com", info: { email: "test.user@example.com@princeton.edu" },
+    info = OmniAuth::AuthHash::InfoHash.new(email: "testuser@example.com", first_name: nil, last_name: nil, name: "Test User", nickname: "mail#testuser@email.com")
+    OmniAuth::AuthHash.new(provider: "entra", uid: "test.user@example.com", info: info,
                            extra: { raw_info: { preferred_username: "test.user@example.com@princeton.edu", unique_name: "test.user@example.com@princeton.edu" } })
   end
   let(:access_token_gap) { OmniAuth::AuthHash.new(provider: "cas", uid: "gap.user@gmail.com", extra: { givenname: "gap.user@gmail.com" }) }
