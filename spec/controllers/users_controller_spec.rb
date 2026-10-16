@@ -154,7 +154,8 @@ RSpec.describe UsersController do
       end
       it "accesses all Users" do
         expect(response).to render_template("index")
-        expect(response.body).not_to include(user_other.uid)
+        expect(response.body).not_to include('id="user-list-table"')
+        expect(response.body).not_to include(user_path(user_other))
       end
     end
 
@@ -181,8 +182,9 @@ RSpec.describe UsersController do
       end
       it "accesses all Users" do
         expect(response).to render_template("index")
-        expect(response.body).to include(user.uid)
-        expect(response.body).to include(user_other.uid)
+        expect(response.body).to include('id="user-list-table"')
+        expect(response.body).to include(user_path(user))
+        expect(response.body).to include(user_path(user_other))
       end
     end
   end

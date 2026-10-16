@@ -294,9 +294,9 @@ Devise.setup do |config|
   OmniAuth.config.request_validation_phase = OmniAuth::AuthenticityTokenProtection.new(allow_if: ->(_env) { true })
 
   # ==> For Entra ID
-  config.omniauth :entra_id, client_id: ENV.fetch("ENTRA_CLIENT_ID", "entra-id-client-id"),
-                             client_secret: ENV.fetch("ENTRA_CLIENT_SECRET", "entra-id-client-secret"),
-                             tenant_id: ENV.fetch("ENTRA_TENANT_ID", "entra-id-tenant-id")
+  # Credentials are read when the strategy builds its OAuth client.
+  require Rails.root.join("lib", "omniauth", "strategies", "entra_graph")
+  config.omniauth :entra_id, strategy_class: OmniAuth::Strategies::EntraGraph
 
   # ==> Mountable engine configurations
   # When using Devise inside an engine, let's call it `MyEngine`, and this engine
