@@ -1,0 +1,5 @@
+plugins:
+  - standard-rails
+
+extend_config:
+  - .rubocop.yml
