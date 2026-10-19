@@ -111,107 +111,107 @@ module PDCMetadata
 
       private
 
-        def rights(rights_info)
-          return if rights_info.nil?
-          PDCMetadata::Rights.find(rights_info["identifier"])
+      def rights(rights_info)
+        return if rights_info.nil?
+        PDCMetadata::Rights.find(rights_info["identifier"])
+      end
+
+      def set_basics(resource, hash)
+        resource.description = hash["description"]
+        resource.publisher = hash["publisher"]
+        resource.publication_year = hash["publication_year"]
+
+        resource.rights_many = (hash["rights_many"] || []).map { |rights_info| rights(rights_info) }.compact
+        if resource.rights_many.count == 0 && hash["rights"]
+          # Special case to handle works created with a single-value `rights` field
+          # instead of the new multi-value `rights_many` field.
+          resource.rights_many = [rights(hash["rights"])].compact
         end
 
-        def set_basics(resource, hash)
-          resource.description = hash["description"]
-          resource.publisher = hash["publisher"]
-          resource.publication_year = hash["publication_year"]
+        resource.domains = hash["domains"] || []
+        resource.migrated = hash["migrated"] || false
+      end
 
-          resource.rights_many = (hash["rights_many"] || []).map { |rights_info| rights(rights_info) }.compact
-          if resource.rights_many.count == 0 && hash["rights"]
-            # Special case to handle works created with a single-value `rights` field
-            # instead of the new multi-value `rights_many` field.
-            resource.rights_many = [rights(hash["rights"])].compact
-          end
+      def set_curator_controlled_metadata(resource, hash)
+        resource.doi = hash["doi"]
+        resource.ark = hash["ark"]
+        resource.version_number = hash["version_number"]
+        resource.collection_tags = hash["collection_tags"] || []
+        resource.resource_type = hash["resource_type"]
 
-          resource.domains = hash["domains"] || []
-          resource.migrated = hash["migrated"] || false
+        # TODO: Older records have a different format.
+        # When we migrate these, then this can be removed.
+        resource_type_general = hash["resource_type_general"]
+        unless resource_type_general.blank? || Datacite::Mapping::ResourceTypeGeneral.find_by_value(resource_type_general)
+          resource_type_general = ::Datacite::Mapping::ResourceTypeGeneral.find do |obj|
+            ::PDCMetadata.fuzzy_match(obj, resource_type_general)
+          end.value
         end
+        resource.resource_type_general = resource_type_general
+      end
 
-        def set_curator_controlled_metadata(resource, hash)
-          resource.doi = hash["doi"]
-          resource.ark = hash["ark"]
-          resource.version_number = hash["version_number"]
-          resource.collection_tags = hash["collection_tags"] || []
-          resource.resource_type = hash["resource_type"]
+      def set_additional_metadata(resource, hash)
+        resource.keywords = hash["keywords"] || []
+        resource.communities = hash["communities"] || []
+        resource.subcommunities = hash["subcommunities"] || []
+      end
 
-          # TODO: Older records have a different format.
-          # When we migrate these, then this can be removed.
-          resource_type_general = hash["resource_type_general"]
-          unless resource_type_general.blank? || Datacite::Mapping::ResourceTypeGeneral.find_by_value(resource_type_general)
-            resource_type_general = ::Datacite::Mapping::ResourceTypeGeneral.find do |obj|
-              ::PDCMetadata.fuzzy_match(obj, resource_type_general)
-            end.value
-          end
-          resource.resource_type_general = resource_type_general
+      def set_titles(resource, hash)
+        titles = hash["titles"] || []
+
+        titles.each do |title|
+          resource.titles << PDCMetadata::Title.new(title: title["title"], title_type: title["title_type"])
         end
+      end
 
-        def set_additional_metadata(resource, hash)
-          resource.keywords = hash["keywords"] || []
-          resource.communities = hash["communities"] || []
-          resource.subcommunities = hash["subcommunities"] || []
+      def set_related_objects(resource, hash)
+        related_objects = hash["related_objects"] || []
+
+        related_objects.each do |related_object|
+          next if related_object["related_identifier"].blank? && related_object["related_identifier_type"].blank?
+          resource.related_objects << PDCMetadata::RelatedObject.new(
+                                        related_identifier: related_object["related_identifier"],
+                                        related_identifier_type: related_object["related_identifier_type"],
+                                        relation_type: related_object["relation_type"]
+                                      )
         end
+      end
 
-        def set_titles(resource, hash)
-          titles = hash["titles"] || []
+      def set_creators(resource, hash)
+        creators = hash["creators"] || []
 
-          titles.each do |title|
-            resource.titles << PDCMetadata::Title.new(title: title["title"], title_type: title["title_type"])
-          end
+        creators.each do |creator|
+          resource.creators << Creator.from_hash(creator)
         end
+        resource.creators.sort_by!(&:sequence)
+      end
 
-        def set_related_objects(resource, hash)
-          related_objects = hash["related_objects"] || []
+      def set_individual_contributors(resource, hash)
+        individual_contributors = hash["contributors"] || []
 
-          related_objects.each do |related_object|
-            next if related_object["related_identifier"].blank? && related_object["related_identifier_type"].blank?
-            resource.related_objects << PDCMetadata::RelatedObject.new(
-                                          related_identifier: related_object["related_identifier"],
-                                          related_identifier_type: related_object["related_identifier_type"],
-                                          relation_type: related_object["relation_type"]
-                                        )
-          end
+        individual_contributors.each do |contributor|
+          resource.individual_contributors << Creator.individual_contributor_from_hash(contributor)
         end
+        resource.individual_contributors.sort_by!(&:sequence)
+      end
 
-        def set_creators(resource, hash)
-          creators = hash["creators"] || []
+      def set_organizational_contributors(resource, hash)
+        organizational_contributors = hash["organizational_contributors"] || []
 
-          creators.each do |creator|
-            resource.creators << Creator.from_hash(creator)
-          end
-          resource.creators.sort_by!(&:sequence)
+        organizational_contributors.each do |contributor|
+          resource.organizational_contributors << Creator.organizational_contributor_from_hash(contributor)
         end
+      end
 
-        def set_individual_contributors(resource, hash)
-          individual_contributors = hash["contributors"] || []
+      def set_funders(resource, hash)
+        funders = hash["funders"] || []
 
-          individual_contributors.each do |contributor|
-            resource.individual_contributors << Creator.individual_contributor_from_hash(contributor)
-          end
-          resource.individual_contributors.sort_by!(&:sequence)
+        funders.each do |funder|
+          resource.funders << Funder.funder_from_hash(funder)
         end
-
-        def set_organizational_contributors(resource, hash)
-          organizational_contributors = hash["organizational_contributors"] || []
-
-          organizational_contributors.each do |contributor|
-            resource.organizational_contributors << Creator.organizational_contributor_from_hash(contributor)
-          end
-        end
-
-        def set_funders(resource, hash)
-          funders = hash["funders"] || []
-
-          funders.each do |funder|
-            resource.funders << Funder.funder_from_hash(funder)
-          end
-          # TODO: Make funders reorderable
-          # resource.funders.sort_by!(&:sequence)
-        end
+        # TODO: Make funders reorderable
+        # resource.funders.sort_by!(&:sequence)
+      end
     end
   end
   # rubocop:enable Metrics/ClassLength

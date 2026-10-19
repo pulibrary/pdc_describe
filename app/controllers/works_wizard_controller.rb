@@ -165,70 +165,70 @@ class WorksWizardController < ApplicationController
 
   private
 
-    # rubocop:disable Metrics/MethodLength
-    def edit_helper(view_name, redirect_url)
-      if validate_modification_permissions(work: @work,
-                                           uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
-                                           current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
-        prepare_decorators_for_work_form(@work)
-        check_for_stale_update(@work, params)
-        if WorkCompareService.update_work(work: @work, update_params:, current_user:)
-          if params[:save_only] == "true"
-            # Make sure we render the updated data
-            prepare_decorators_for_work_form(@work)
-            render view_name
-          else
-            redirect_to redirect_url
-          end
-        else
-          # return 200 so the loadbalancer doesn't capture the error
+  # rubocop:disable Metrics/MethodLength
+  def edit_helper(view_name, redirect_url)
+    if validate_modification_permissions(work: @work,
+                                         uneditable_message: "Can not update work: #{@work.id} is not editable by #{current_user.uid}",
+                                         current_state_message: "Can not update work: #{@work.id} is not editable in current state by #{current_user.uid}")
+      prepare_decorators_for_work_form(@work)
+      check_for_stale_update(@work, params)
+      if WorkCompareService.update_work(work: @work, update_params:, current_user:)
+        if params[:save_only] == "true"
+          # Make sure we render the updated data
+          prepare_decorators_for_work_form(@work)
           render view_name
+        else
+          redirect_to redirect_url
         end
-      end
-    end
-    # rubocop:enable Metrics/MethodLength
-
-    def load_work
-      @work = Work.find(params[:id])
-    end
-
-    # @note No testing coverage but not a route, not called
-    def patch_params
-      return {} unless params.key?(:patch)
-
-      params[:patch]
-    end
-
-    # @note No testing coverage but not a route, not called
-    def pre_curation_uploads_param
-      return if patch_params.nil?
-
-      patch_params[:pre_curation_uploads]
-    end
-
-    def deleted_files_param
-      deleted_count = (params.dig("work", "deleted_files_count") || "0").to_i
-      (1..deleted_count).map { |i| params.dig("work", "deleted_file_#{i}") }.select(&:present?)
-    end
-
-    # @note No testing coverage but not a route, not called
-    def readme_file_param
-      return if patch_params.nil?
-
-      patch_params[:readme_file]
-    end
-
-    def rescue_aasm_error
-      super
-    rescue StandardError => generic_error
-      redirect_to root_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."
-    end
-
-    def redirect_aasm_error(transition_error_message)
-      if @work.persisted?
-        redirect_to edit_work_wizard_path(id: @work.id), notice: transition_error_message, params:
       else
-        redirect_to work_create_new_submission_path(@work), notice: transition_error_message, params:
+        # return 200 so the loadbalancer doesn't capture the error
+        render view_name
       end
     end
+  end
+  # rubocop:enable Metrics/MethodLength
+
+  def load_work
+    @work = Work.find(params[:id])
+  end
+
+  # @note No testing coverage but not a route, not called
+  def patch_params
+    return {} unless params.key?(:patch)
+
+    params[:patch]
+  end
+
+  # @note No testing coverage but not a route, not called
+  def pre_curation_uploads_param
+    return if patch_params.nil?
+
+    patch_params[:pre_curation_uploads]
+  end
+
+  def deleted_files_param
+    deleted_count = (params.dig("work", "deleted_files_count") || "0").to_i
+    (1..deleted_count).map { |i| params.dig("work", "deleted_file_#{i}") }.select(&:present?)
+  end
+
+  # @note No testing coverage but not a route, not called
+  def readme_file_param
+    return if patch_params.nil?
+
+    patch_params[:readme_file]
+  end
+
+  def rescue_aasm_error
+    super
+  rescue StandardError => generic_error
+    redirect_to root_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."
+  end
+
+  def redirect_aasm_error(transition_error_message)
+    if @work.persisted?
+      redirect_to edit_work_wizard_path(id: @work.id), notice: transition_error_message, params:
+    else
+      redirect_to work_create_new_submission_path(@work), notice: transition_error_message, params:
+    end
+  end
 end

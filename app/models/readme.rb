@@ -35,27 +35,27 @@ class Readme
 
     private
 
-      def s3_readme_idx
-        @s3_readme_idx ||= file_names.find_index { |file_name| file_name.upcase.include?("README") }
-      end
+  def s3_readme_idx
+    @s3_readme_idx ||= file_names.find_index { |file_name| file_name.upcase.include?("README") }
+  end
 
-      def file_names
-        @file_names ||= work.pre_curation_uploads.map(&:filename_display)
-      end
+  def file_names
+    @file_names ||= work.pre_curation_uploads.map(&:filename_display)
+  end
 
-      def remove_old_readme
-        return if blank?
-        work.s3_query_service.delete_s3_object(work.pre_curation_uploads[s3_readme_idx].key)
-      end
+  def remove_old_readme
+    return if blank?
+    work.s3_query_service.delete_s3_object(work.pre_curation_uploads[s3_readme_idx].key)
+  end
 
-      def upload_readme(readme_file_param)
-        readme_name = readme_file_param.original_filename
-        size = readme_file_param.size
-        work.s3_query_service.upload_file(io: readme_file_param.to_io, filename: readme_name, size:)
-      end
+  def upload_readme(readme_file_param)
+    readme_name = readme_file_param.original_filename
+    size = readme_file_param.size
+    work.s3_query_service.upload_file(io: readme_file_param.to_io, filename: readme_name, size:)
+  end
 
-      def log_changes
-        work.s3_query_service.client_s3_files(reload: true)
-        work.reload_snapshots(user_id: current_user.id)
-      end
+  def log_changes
+    work.s3_query_service.client_s3_files(reload: true)
+    work.reload_snapshots(user_id: current_user.id)
+  end
 end

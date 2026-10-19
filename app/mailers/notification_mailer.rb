@@ -81,9 +81,9 @@ class NotificationMailer < ApplicationMailer
 
   def data_commons_url(work)
     url = if Rails.env.production?
-            path = work_path(work)
+      path = work_path(work)
 
-            "#{Rails.configuration.datacite.data_commons_url}#{path}"
+      "#{Rails.configuration.datacite.data_commons_url}#{path}"
           else
             work_url(work)
           end
@@ -92,9 +92,9 @@ class NotificationMailer < ApplicationMailer
 
   def describe_url(work)
     url = if Rails.env.production?
-            path = work_path(work)
+      path = work_path(work)
 
-            "#{Rails.configuration.datacite.describe_data_commons_url}#{path}"
+      "#{Rails.configuration.datacite.describe_data_commons_url}#{path}"
           else
             work_url(work)
           end

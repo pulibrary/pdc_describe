@@ -21,9 +21,9 @@ class WorkMigrationController < ApplicationController
 
   private
 
-    def run_migration(work)
-      dspace = PULDspaceMigrate.new(work, current_user)
-      dspace.migrate
-      flash[:notice] = dspace.migration_message
-    end
+  def run_migration(work)
+    dspace = PULDspaceMigrate.new(work, current_user)
+    dspace.migrate
+    flash[:notice] = dspace.migration_message
+  end
 end

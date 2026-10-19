@@ -17,7 +17,7 @@ class FormResourcePresenter
   def funders # @funders probably null for some reason
     @funders ||= begin
                    empty_row = if pppl? && resource.funders.empty?
-                                 PDCMetadata::Funder.new(PPPL_FUNDER_ROR, PPPL_FUNDER_NAME, PPPL_FUNDER_AWARD_NUMBER, nil)
+                     PDCMetadata::Funder.new(PPPL_FUNDER_ROR, PPPL_FUNDER_NAME, PPPL_FUNDER_AWARD_NUMBER, nil)
                                end
                    resource.funders + [empty_row]
                  end
@@ -52,15 +52,15 @@ class FormResourcePresenter
 
   private
 
-    def item_or_nil_array(item)
-      if item.empty?
-        [nil]
-      else
-        item
-      end
+  def item_or_nil_array(item)
+    if item.empty?
+      [nil]
+    else
+      item
     end
+  end
 
-    def pppl?
-      work.group == Group.plasma_laboratory
-    end
+  def pppl?
+    work.group == Group.plasma_laboratory
+  end
 end

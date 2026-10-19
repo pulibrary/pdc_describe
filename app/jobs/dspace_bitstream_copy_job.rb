@@ -25,68 +25,68 @@ class DspaceBitstreamCopyJob < ApplicationJob
 
   private
 
-    def migrate_file(dspace_file, migration_snapshot_id)
-      # Allow a restart if there is an error with one file
-      snapshot = MigrationUploadSnapshot.find(migration_snapshot_id)
-      return if file_complete?(snapshot, dspace_file)
+  def migrate_file(dspace_file, migration_snapshot_id)
+    # Allow a restart if there is an error with one file
+    snapshot = MigrationUploadSnapshot.find(migration_snapshot_id)
+    return if file_complete?(snapshot, dspace_file)
 
-      downloaded_file = download_dspace_file(dspace_file, migration_snapshot_id)
-      return if downloaded_file.nil?
-      aws_connector = PULDspaceAwsConnector.new(@work, @work.doi)
-      result = aws_connector.upload_to_s3([dspace_file]).first
-      update_migration_status(migration_snapshot_id) do |migration_snapshot|
-        if result[:error].present?
-          migration_snapshot.mark_error(result[:file], result[:error])
-        else
-          # update the checksum here
-          migration_snapshot.mark_complete(result[:file])
-        end
-      end
-      File.delete(downloaded_file.filename) if File.exist?(downloaded_file.filename)
-    end
-
-    def download_dspace_file(dspace_file, migration_snapshot_id)
-      dspace_connector = PULDspaceConnector.new(@work)
-      downloaded_file = dspace_connector.download_bitstreams([dspace_file]).first
-      if downloaded_file.is_a?(Hash)
-        update_migration_status(migration_snapshot_id) do |migration_snapshot|
-          migration_snapshot.mark_error(downloaded_file[:file], downloaded_file[:error])
-        end
-        nil
+    downloaded_file = download_dspace_file(dspace_file, migration_snapshot_id)
+    return if downloaded_file.nil?
+    aws_connector = PULDspaceAwsConnector.new(@work, @work.doi)
+    result = aws_connector.upload_to_s3([dspace_file]).first
+    update_migration_status(migration_snapshot_id) do |migration_snapshot|
+      if result[:error].present?
+        migration_snapshot.mark_error(result[:file], result[:error])
       else
-        downloaded_file
+        # update the checksum here
+        migration_snapshot.mark_complete(result[:file])
       end
     end
+    File.delete(downloaded_file.filename) if File.exist?(downloaded_file.filename)
+  end
 
-    def update_migration_status(migration_snapshot_id)
-      migration_snapshot = MigrationUploadSnapshot.find(migration_snapshot_id)
-      migration_snapshot.with_lock do
-        migration_snapshot.reload
-        yield migration_snapshot
-        migration_snapshot.save!
+  def download_dspace_file(dspace_file, migration_snapshot_id)
+    dspace_connector = PULDspaceConnector.new(@work)
+    downloaded_file = dspace_connector.download_bitstreams([dspace_file]).first
+    if downloaded_file.is_a?(Hash)
+      update_migration_status(migration_snapshot_id) do |migration_snapshot|
+        migration_snapshot.mark_error(downloaded_file[:file], downloaded_file[:error])
       end
+      nil
+    else
+      downloaded_file
     end
+  end
 
-    def file_complete?(migration_snapshot, dspace_file)
-      s3_file = dspace_file.clone
-      s3_file.filename = s3_file.filename_display
-      migration_snapshot.complete?(s3_file)
+  def update_migration_status(migration_snapshot_id)
+    migration_snapshot = MigrationUploadSnapshot.find(migration_snapshot_id)
+    migration_snapshot.with_lock do
+      migration_snapshot.reload
+      yield migration_snapshot
+      migration_snapshot.save!
     end
+  end
 
-    # If any files were renamed, upload a text file containing
-    # the original file names and what they were renamed to.
-    def upload_rename_mapping(frms)
-      return unless frms.rename_needed?
+  def file_complete?(migration_snapshot, dspace_file)
+    s3_file = dspace_file.clone
+    s3_file.filename = s3_file.filename_display
+    migration_snapshot.complete?(s3_file)
+  end
 
-      filename = "renamed_files.txt"
-      io = StringIO.new
-      io.write frms.renaming_document
-      io.rewind
-      size = io.size
-      checksum = Digest::MD5.new
-      checksum.update(io.read)
-      base64 = checksum.base64digest
-      io.rewind
-      @work.s3_query_service.upload_file(io:, filename:, size:, md5_digest: base64)
-    end
+  # If any files were renamed, upload a text file containing
+  # the original file names and what they were renamed to.
+  def upload_rename_mapping(frms)
+    return unless frms.rename_needed?
+
+    filename = "renamed_files.txt"
+    io = StringIO.new
+    io.write frms.renaming_document
+    io.rewind
+    size = io.size
+    checksum = Digest::MD5.new
+    checksum.update(io.read)
+    base64 = checksum.base64digest
+    io.rewind
+    @work.s3_query_service.upload_file(io:, filename:, size:, md5_digest: base64)
+  end
 end

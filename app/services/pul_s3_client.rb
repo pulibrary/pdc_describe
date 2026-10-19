@@ -110,40 +110,40 @@ class PULS3Client
 
   private
 
-    def upload_multipart_file(target_key:, size:, io:)
-      multi = client.create_multipart_upload(bucket: bucket_name, key: target_key)
-      part_num = 0
-      start_byte = 0
-      parts = []
-      while start_byte < size
-        part_num += 1
-        parts << upload_part(part_num, io, multi)
-        start_byte += part_size
-      end
-      @last_response = client.complete_multipart_upload(bucket: bucket_name, key: target_key, upload_id: multi.upload_id, multipart_upload: { parts: })
-      true
-    rescue Aws::Errors::ServiceError => aws_service_error
-      message = "An error was encountered when requesting to multipart upload to AWS S3 Object to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}"
-      Rails.logger.error(message)
-      raise aws_service_error
+  def upload_multipart_file(target_key:, size:, io:)
+    multi = client.create_multipart_upload(bucket: bucket_name, key: target_key)
+    part_num = 0
+    start_byte = 0
+    parts = []
+    while start_byte < size
+      part_num += 1
+      parts << upload_part(part_num, io, multi)
+      start_byte += part_size
     end
+    @last_response = client.complete_multipart_upload(bucket: bucket_name, key: target_key, upload_id: multi.upload_id, multipart_upload: { parts: })
+    true
+  rescue Aws::Errors::ServiceError => aws_service_error
+    message = "An error was encountered when requesting to multipart upload to AWS S3 Object to #{target_key} in the bucket #{target_bucket}: #{aws_service_error}"
+    Rails.logger.error(message)
+    raise aws_service_error
+  end
 
-    def upload_part(part_num, io, multi_upload)
-      result = {}
-      Tempfile.open("mutlipart-upload") do |file|
-        IO.copy_stream(io, file, part_size)
-        file.rewind
-        checksum = md5(io: file)
-        resp = client.upload_part(body: file, bucket: bucket_name, key: multi_upload.key, part_number: part_num, upload_id: multi_upload.upload_id, content_md5: checksum)
-        result = { etag: resp.etag, part_number: part_num }
-      end
-      result
+  def upload_part(part_num, io, multi_upload)
+    result = {}
+    Tempfile.open("mutlipart-upload") do |file|
+      IO.copy_stream(io, file, part_size)
+      file.rewind
+      checksum = md5(io: file)
+      resp = client.upload_part(body: file, bucket: bucket_name, key: multi_upload.key, part_number: part_num, upload_id: multi_upload.upload_id, content_md5: checksum)
+      result = { etag: resp.etag, part_number: part_num }
     end
+    result
+  end
 
-    def md5(io:)
-      md5 = Digest::MD5.new
-      io.each(10_000) { |block| md5.update block }
-      io.rewind
-      md5.base64digest
-    end
+  def md5(io:)
+    md5 = Digest::MD5.new
+    io.each(10_000) { |block| md5.update block }
+    io.rewind
+    md5.base64digest
+  end
 end

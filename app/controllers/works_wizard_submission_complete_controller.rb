@@ -12,7 +12,7 @@ class WorksWizardSubmissionCompleteController < ApplicationController
   def show
     @work = Work.find(params[:id])
     @email = if @work.group == Group.plasma_laboratory
-               "publications@pppl.gov"
+      "publications@pppl.gov"
              else
                "prds@princeton.edu"
              end

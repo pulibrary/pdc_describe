@@ -282,7 +282,7 @@ class User < ApplicationRecord
   # Returns the list of groups where the user can submit datasets
   def submitter_groups
     @submitter_groups = if super_admin?
-                          Group.all.to_a
+      Group.all.to_a
                         else
                           (Group.with_role(:submitter, self) + Group.with_role(:group_admin, self)).uniq
                         end
@@ -291,7 +291,7 @@ class User < ApplicationRecord
   # Returns the list of groups where the user is an administrator
   def admin_groups
     @admin_groups ||= if super_admin?
-                        Group.all.to_a
+      Group.all.to_a
                       else
                         Group.with_role(:group_admin, self)
                       end

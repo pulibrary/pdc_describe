@@ -178,48 +178,48 @@ class S3QueryService
 
   private
 
-    def clear_s3_responses(bucket_name:, prefix:)
-      key = "#{bucket_name} #{prefix}"
-      @s3_responses[key] = nil
-    end
+  def clear_s3_responses(bucket_name:, prefix:)
+    key = "#{bucket_name} #{prefix}"
+    @s3_responses[key] = nil
+  end
 
-    def s3_responses(bucket_name:, prefix:)
-      key = "#{bucket_name} #{prefix}"
-      responses = @s3_responses[key]
-      if responses.nil?
-        resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: })
-        responses = [resp]
-        while resp.is_truncated
-          resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix:, continuation_token: resp.next_continuation_token })
-          responses << resp
-        end
-        @s3_responses[key] = responses
+  def s3_responses(bucket_name:, prefix:)
+    key = "#{bucket_name} #{prefix}"
+    responses = @s3_responses[key]
+    if responses.nil?
+      resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix: })
+      responses = [resp]
+      while resp.is_truncated
+        resp = client.list_objects_v2({ bucket: bucket_name, max_keys: 1000, prefix:, continuation_token: resp.next_continuation_token })
+        responses << resp
       end
-      responses
+      @s3_responses[key] = responses
     end
+    responses
+  end
 
-    def get_s3_objects(bucket_name:, prefix:)
-      start = Time.zone.now
-      responses = s3_responses(bucket_name:, prefix:)
-      objects = responses.reduce([]) do |all_objects, resp|
-        resp_hash = resp.to_h
-        resp_objects = parse_objects(resp_hash)
-        all_objects + resp_objects
-      end
-      elapsed = Time.zone.now - start
-      Rails.logger.info("Loading S3 objects. Bucket: #{bucket_name}. Prefix: #{prefix}. Elapsed: #{elapsed} seconds")
-      objects
-    end
-
-    def parse_objects(resp)
-      objects = []
+  def get_s3_objects(bucket_name:, prefix:)
+    start = Time.zone.now
+    responses = s3_responses(bucket_name:, prefix:)
+    objects = responses.reduce([]) do |all_objects, resp|
       resp_hash = resp.to_h
-      response_objects = resp_hash[:contents]
-      response_objects&.each do |object|
-        s3_file = S3File.new(work: model, filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
-        objects << s3_file
-      end
-      objects
+      resp_objects = parse_objects(resp_hash)
+      all_objects + resp_objects
     end
+    elapsed = Time.zone.now - start
+    Rails.logger.info("Loading S3 objects. Bucket: #{bucket_name}. Prefix: #{prefix}. Elapsed: #{elapsed} seconds")
+    objects
+  end
+
+  def parse_objects(resp)
+    objects = []
+    resp_hash = resp.to_h
+    response_objects = resp_hash[:contents]
+    response_objects&.each do |object|
+      s3_file = S3File.new(work: model, filename: object[:key], last_modified: object[:last_modified], size: object[:size], checksum: object[:etag])
+      objects << s3_file
+    end
+    objects
+  end
 end
 # rubocop:enable Metrics/ClassLength

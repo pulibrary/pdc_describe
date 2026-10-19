@@ -34,18 +34,18 @@ class WorkCompareService
 
   private
 
-    def resource_compare_service
-      @resource_compare_service ||= ResourceCompareService.new(@before.resource, @after.resource)
+  def resource_compare_service
+    @resource_compare_service ||= ResourceCompareService.new(@before.resource, @after.resource)
+  end
+
+  def compare_works
+    # Compare the group
+    if @before.group != @after.group
+      before_value = @before.group
+      after_value = @after.group
+      @differences[:group] = [{ action: :changed, from: before_value.title, to: after_value.title }]
     end
 
-    def compare_works
-      # Compare the group
-      if @before.group != @after.group
-        before_value = @before.group
-        after_value = @after.group
-        @differences[:group] = [{ action: :changed, from: before_value.title, to: after_value.title }]
-      end
-
-      @differences = @differences.merge(resource_compare_service.differences)
-    end
+    @differences = @differences.merge(resource_compare_service.differences)
+  end
 end

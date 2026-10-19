@@ -13,21 +13,21 @@ class WorkActivityNotificationsController < ApplicationController
 
   private
 
-    # Use callbacks to share common setup or constraints between actions.
-    def set_activity_notification
-      @work_activity_notification = WorkActivityNotification.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_activity_notification
+    @work_activity_notification = WorkActivityNotification.find(params[:id])
+  end
 
-    def user
-      @user ||= if user_param
-                  User.find_by(uid: user_param) || current_user
-                else
-                  current_user
-                end
-    end
+  def user
+    @user ||= if user_param
+      User.find_by(uid: user_param) || current_user
+              else
+                current_user
+              end
+  end
 
-    def user_param
-      return nil unless current_user.super_admin?
-      @user_param ||= params[:user]
-    end
+  def user_param
+    return nil unless current_user.super_admin?
+    @user_param ||= params[:user]
+  end
 end

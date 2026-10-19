@@ -144,49 +144,49 @@ class DatasetCitation
 
   private
 
-    def apa_author
-      apa_author = ""
-      case @authors.count
-      when 0
-        # do nothing
-      when 1
-        apa_author += @authors.first
-      when 2
-        apa_author += @authors.join(" & ")
-      else
-        apa_author += @authors[0..-2].join(", ") + ", & " + @authors[-1]
-      end
-      apa_author
+  def apa_author
+    apa_author = ""
+    case @authors.count
+    when 0
+      # do nothing
+    when 1
+      apa_author += @authors.first
+    when 2
+      apa_author += @authors.join(" & ")
+    else
+      apa_author += @authors[0..-2].join(", ") + ", & " + @authors[-1]
     end
+    apa_author
+  end
 
-    def apa_year
-      apa_year = ""
-      case @years.count
-      when 0
-        # do nothing
-      when 1
-        apa_year += "(#{@years.first})"
-      else
-        apa_year += "(#{@years.join('-')})"
-      end
-      apa_year
+  def apa_year
+    apa_year = ""
+    case @years.count
+    when 0
+      # do nothing
+    when 1
+      apa_year += "(#{@years.first})"
+    else
+      apa_year += "(#{@years.join('-')})"
     end
+    apa_year
+  end
 
-    def bibtex_checks
-      tokens = []
+  def bibtex_checks
+    tokens = []
 
-      tokens << bibtex_field_author("author", @authors)
+    tokens << bibtex_field_author("author", @authors)
 
-      tokens << bibtex_field("title", @title, "{", "}")
+    tokens << bibtex_field("title", @title, "{", "}")
 
-      tokens << bibtex_field("publisher", @publisher, "{", "}")
+    tokens << bibtex_field("publisher", @publisher, "{", "}")
 
-      tokens << bibtex_field("year", @years.first)
+    tokens << bibtex_field("year", @years.first)
 
-      tokens << bibtex_field("url", @doi, "{", "}")
+    tokens << bibtex_field("url", @doi, "{", "}")
 
-      tokens.compact # remove nil values
-    end
+    tokens.compact # remove nil values
+  end
 end
 # rubocop:enable Metrics/ParameterLists
 # rubocop:enable Metrics/ClassLength

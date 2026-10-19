@@ -33,7 +33,7 @@ class WorkUpdateMetadataService
     new_subcommunities = []
     sc.each do |subcommunity|
       new_subcommunities << if subcommunity == renamed_subcommunity[:old]
-                              renamed_subcommunity[:new]
+        renamed_subcommunity[:new]
                             else
                               subcommunity
                             end

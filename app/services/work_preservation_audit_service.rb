@@ -32,25 +32,25 @@ class WorkPreservationAuditService
 
   private
 
-    def list_works
-      approve_activities = WorkActivity.where(message: "marked as Approved", activity_type: WorkActivity::SYSTEM, created_at: date.all_day)
-      approve_activities.map(&:work)
-    end
+  def list_works
+    approve_activities = WorkActivity.where(message: "marked as Approved", activity_type: WorkActivity::SYSTEM, created_at: date.all_day)
+    approve_activities.map(&:work)
+  end
 
-    def check_work(work)
-      s3service = S3QueryService.new(work, PULS3Client::PRESERVATION)
-      status = s3service.directory_empty(bucket: s3service.bucket_name, key: s3service.prefix)
-      { work:, empty: status }
-    end
+  def check_work(work)
+    s3service = S3QueryService.new(work, PULS3Client::PRESERVATION)
+    status = s3service.directory_empty(bucket: s3service.bucket_name, key: s3service.prefix)
+    { work:, empty: status }
+  end
 
-    def error_message(empty_works)
-      return unless empty_works.count > 0
+  def error_message(empty_works)
+    return unless empty_works.count > 0
 
-      error_links = empty_works.map { |work| work_link(work) }
-      "Works Missing from preservation: #{error_links.join(', ')}"
-    end
+    error_links = empty_works.map { |work| work_link(work) }
+    "Works Missing from preservation: #{error_links.join(', ')}"
+  end
 
-    def work_link(work)
-      "<a href=\"#{work_url(work)}\">#{work.title} (#{work.doi})</a>"
-    end
+  def work_link(work)
+    "<a href=\"#{work_url(work)}\">#{work.title} (#{work.doi})</a>"
+  end
 end

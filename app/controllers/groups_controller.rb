@@ -64,22 +64,22 @@ class GroupsController < ApplicationController
 
   private
 
-    def check_and_render
-      if @group.errors.count > 0 && @group.errors.first.message == "Unauthorized"
-        render status: :unauthorized, json: { message: "Unauthorized" }
-      elsif @group.errors.count > 0
-        render status: :bad_request, json: { message: @group.errors.first.message }
-      else
-        render status: :ok, json: { message: "OK" }
-      end
+  def check_and_render
+    if @group.errors.count > 0 && @group.errors.first.message == "Unauthorized"
+      render status: :unauthorized, json: { message: "Unauthorized" }
+    elsif @group.errors.count > 0
+      render status: :bad_request, json: { message: @group.errors.first.message }
+    else
+      render status: :ok, json: { message: "OK" }
     end
+  end
 
-    # Only allow trusted parameters through.
-    def group_params
-      params.require(:group).permit([:title, :description])
-    end
+  # Only allow trusted parameters through.
+  def group_params
+    params.require(:group).permit([:title, :description])
+  end
 
-    def can_edit?
-      current_user.can_admin? @group
-    end
+  def can_edit?
+    current_user.can_admin? @group
+  end
 end

@@ -117,125 +117,125 @@ module PDCSerialization
 
       private
 
-        def creators_from_work_resource(creators)
-          creators.sort_by(&:sequence).map do |creator|
-            ::Datacite::Mapping::Creator.new(
-              name: creator.value,
-              given_name: creator.given_name,
-              family_name: creator.family_name,
-              identifier: name_identifier_from_identifier(creator.identifier),
-              affiliations: creator.affiliations&.map { |affiliation| ::Datacite::Mapping::Affiliation.new(**affiliation.datacite_attributes) }
-            )
-          end
-        end
-
-        def individual_contributors_from_work_resource(contributors)
-          contributors.sort_by(&:sequence).map do |contributor|
-            ::Datacite::Mapping::Contributor.new(
-              name: contributor.value,
-              identifier: name_identifier_from_identifier(contributor.identifier),
-              affiliations: nil,
-              type: datacite_contributor_type(contributor.type)
-            )
-          end
-        end
-
-        def organizational_contributors_from_work_resource(contributors)
-          contributors.map do |contributor|
-            ::Datacite::Mapping::Contributor.new(
-              name: contributor.value,
-              identifier: name_identifier_from_identifier(contributor.identifier),
-              affiliations: nil,
-              type: datacite_contributor_type(contributor.type)
-            )
-          end
-        end
-
-        ##
-        # We are deliberately not differentiating between "abstract", "methods" and other kinds of descriptions.
-        # We are instead putting all description into the same field and classifying it as "OTHER".
-        def descriptions_from_work_resource(description)
-          return [] if description.blank?
-          [] << ::Datacite::Mapping::Description.new(type: ::Datacite::Mapping::DescriptionType::OTHER, value: description)
-        end
-
-        def name_identifier_from_identifier(identifier)
-          return nil if identifier.nil?
-          ::Datacite::Mapping::NameIdentifier.new(
-            scheme: identifier.scheme,
-            scheme_uri: identifier.scheme_uri,
-            value: identifier.value
+      def creators_from_work_resource(creators)
+        creators.sort_by(&:sequence).map do |creator|
+          ::Datacite::Mapping::Creator.new(
+            name: creator.value,
+            given_name: creator.given_name,
+            family_name: creator.family_name,
+            identifier: name_identifier_from_identifier(creator.identifier),
+            affiliations: creator.affiliations&.map { |affiliation| ::Datacite::Mapping::Affiliation.new(**affiliation.datacite_attributes) }
           )
         end
+      end
 
-        def titles_from_work_resource(titles)
-          titles.map do |title|
-            if title.main?
-              ::Datacite::Mapping::Title.new(value: title.title)
-            else
-              title_type = ::Datacite::Mapping::TitleType.find_by_value(title.title_type)
-              ::Datacite::Mapping::Title.new(value: title.title, type: title_type) if title_type
-            end
-          end.compact
+      def individual_contributors_from_work_resource(contributors)
+        contributors.sort_by(&:sequence).map do |contributor|
+          ::Datacite::Mapping::Contributor.new(
+            name: contributor.value,
+            identifier: name_identifier_from_identifier(contributor.identifier),
+            affiliations: nil,
+            type: datacite_contributor_type(contributor.type)
+          )
         end
+      end
 
-        ##
-        # Add related identifiers from various locations in the metadata.
-        # @param [PDCMetadata::Resource] resource
-        # @return [<::Datacite::Mapping::RelatedIdentifier>]
-        def related_identifiers_from_work_resource(resource)
-          related_identifiers = []
-          related_identifiers = related_identifiers.union(extract_ark_as_related_identfier(resource))
-          related_identifiers = related_identifiers.union(extract_related_objects(resource))
-          related_identifiers
+      def organizational_contributors_from_work_resource(contributors)
+        contributors.map do |contributor|
+          ::Datacite::Mapping::Contributor.new(
+            name: contributor.value,
+            identifier: name_identifier_from_identifier(contributor.identifier),
+            affiliations: nil,
+            type: datacite_contributor_type(contributor.type)
+          )
         end
+      end
 
-        def extract_ark_as_related_identfier(resource)
-          related_ids = []
-          if resource.ark.present?
-            related_ids << ::Datacite::Mapping::RelatedIdentifier.new(
-              relation_type: ::Datacite::Mapping::RelationType::IS_IDENTICAL_TO,
-              value: resource.ark,
-              identifier_type: ::Datacite::Mapping::RelatedIdentifierType::ARK
-            )
+      ##
+      # We are deliberately not differentiating between "abstract", "methods" and other kinds of descriptions.
+      # We are instead putting all description into the same field and classifying it as "OTHER".
+      def descriptions_from_work_resource(description)
+        return [] if description.blank?
+        [] << ::Datacite::Mapping::Description.new(type: ::Datacite::Mapping::DescriptionType::OTHER, value: description)
+      end
+
+      def name_identifier_from_identifier(identifier)
+        return nil if identifier.nil?
+        ::Datacite::Mapping::NameIdentifier.new(
+          scheme: identifier.scheme,
+          scheme_uri: identifier.scheme_uri,
+          value: identifier.value
+        )
+      end
+
+      def titles_from_work_resource(titles)
+        titles.map do |title|
+          if title.main?
+            ::Datacite::Mapping::Title.new(value: title.title)
+          else
+            title_type = ::Datacite::Mapping::TitleType.find_by_value(title.title_type)
+            ::Datacite::Mapping::Title.new(value: title.title, type: title_type) if title_type
           end
-          related_ids
-        end
+        end.compact
+      end
 
-        def extract_related_objects(resource)
-          related_objects = []
-          resource.related_objects.each do |ro|
-            related_objects << ::Datacite::Mapping::RelatedIdentifier.new(
-              relation_type: ::Datacite::Mapping::RelationType.find_by_value(ro.relation_type),
-              value: ro.related_identifier,
-              identifier_type: ::Datacite::Mapping::RelatedIdentifierType.find_by_value(ro.related_identifier_type)
-            )
-          end
-          related_objects
-        end
+      ##
+      # Add related identifiers from various locations in the metadata.
+      # @param [PDCMetadata::Resource] resource
+      # @return [<::Datacite::Mapping::RelatedIdentifier>]
+      def related_identifiers_from_work_resource(resource)
+        related_identifiers = []
+        related_identifiers = related_identifiers.union(extract_ark_as_related_identfier(resource))
+        related_identifiers = related_identifiers.union(extract_related_objects(resource))
+        related_identifiers
+      end
 
-        def rights_from_work_resource(resource)
-          rights = []
-          if resource.rights_many.present?
-            resource.rights_many.each do |r|
-              rights << ::Datacite::Mapping::Rights.new(value: r.name, uri: r.uri, identifier: r.identifier)
-            end
-          end
-          rights
+      def extract_ark_as_related_identfier(resource)
+        related_ids = []
+        if resource.ark.present?
+          related_ids << ::Datacite::Mapping::RelatedIdentifier.new(
+            relation_type: ::Datacite::Mapping::RelationType::IS_IDENTICAL_TO,
+            value: resource.ark,
+            identifier_type: ::Datacite::Mapping::RelatedIdentifierType::ARK
+          )
         end
+        related_ids
+      end
 
-        def funding_references_from_work_resource(resource)
-          type_ror = ::Datacite::Mapping::FunderIdentifierType::ROR
-          resource.funders.map do |funder|
-            award = if funder.award_number.present?
-                      ::Datacite::Mapping::AwardNumber.new(uri: funder.award_uri, value: funder.award_number)
-                    end
-            funder_identifier = if funder.ror.present?
-                                  ::Datacite::Mapping::FunderIdentifier.new(type: type_ror, value: funder.ror)
-                                end
-            ::Datacite::Mapping::FundingReference.new(name: funder.funder_name, award_number: award, identifier: funder_identifier)
+      def extract_related_objects(resource)
+        related_objects = []
+        resource.related_objects.each do |ro|
+          related_objects << ::Datacite::Mapping::RelatedIdentifier.new(
+            relation_type: ::Datacite::Mapping::RelationType.find_by_value(ro.relation_type),
+            value: ro.related_identifier,
+            identifier_type: ::Datacite::Mapping::RelatedIdentifierType.find_by_value(ro.related_identifier_type)
+          )
+        end
+        related_objects
+      end
+
+      def rights_from_work_resource(resource)
+        rights = []
+        if resource.rights_many.present?
+          resource.rights_many.each do |r|
+            rights << ::Datacite::Mapping::Rights.new(value: r.name, uri: r.uri, identifier: r.identifier)
           end
         end
+        rights
+      end
+
+      def funding_references_from_work_resource(resource)
+        type_ror = ::Datacite::Mapping::FunderIdentifierType::ROR
+        resource.funders.map do |funder|
+          award = if funder.award_number.present?
+            ::Datacite::Mapping::AwardNumber.new(uri: funder.award_uri, value: funder.award_number)
+                  end
+          funder_identifier = if funder.ror.present?
+            ::Datacite::Mapping::FunderIdentifier.new(type: type_ror, value: funder.ror)
+                              end
+          ::Datacite::Mapping::FundingReference.new(name: funder.funder_name, award_number: award, identifier: funder_identifier)
+        end
+      end
       end
   end
   # rubocop:enable Metrics/ClassLength

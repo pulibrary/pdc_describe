@@ -260,206 +260,206 @@ class WorksController < ApplicationController
 
   private
 
-    # Extract the Work ID parameter
-    # @return [String]
-    def work_id_param
-      params[:id]
-    end
+  # Extract the Work ID parameter
+  # @return [String]
+  def work_id_param
+    params[:id]
+  end
 
-    # Find the Work requested by ID
-    # @return [Work]
-    def work
-      Work.find(work_id_param)
-    end
+  # Find the Work requested by ID
+  # @return [Work]
+  def work
+    Work.find(work_id_param)
+  end
 
-    # Determine whether or not the request is for the :index action in the RSS
-    # response format
-    # This is to enable PDC Discovery to index approved content via the RSS feed
-    def rss_index_request?
-      action_name == "index" && request.format.symbol == :rss
-    end
+  # Determine whether or not the request is for the :index action in the RSS
+  # response format
+  # This is to enable PDC Discovery to index approved content via the RSS feed
+  def rss_index_request?
+    action_name == "index" && request.format.symbol == :rss
+  end
 
-    # Determine whether or not the request is for the :show action in the JSON
-    # response format
-    # @return [Boolean]
-    def json_show_request?
-      action_name == "show" && request.format.symbol == :json
-    end
+  # Determine whether or not the request is for the :show action in the JSON
+  # response format
+  # @return [Boolean]
+  def json_show_request?
+    action_name == "show" && request.format.symbol == :json
+  end
 
-    # Determine whether or not the requested Work has been approved
-    # @return [Boolean]
-    def work_approved?
-      work&.state == "approved"
-    end
+  # Determine whether or not the requested Work has been approved
+  # @return [Boolean]
+  def work_approved?
+    work&.state == "approved"
+  end
 
-    ##
-    # Public requests are requests that do not require authentication.
-    # This is to enable PDC Discovery to index approved content via the RSS feed
-    # and .json calls to individual works without needing to log in as a user.
-    # Note that only approved works can be fetched for indexing.
-    def public_request?
-      return true if rss_index_request?
-      return true if json_show_request?
-      false
-    end
+  ##
+  # Public requests are requests that do not require authentication.
+  # This is to enable PDC Discovery to index approved content via the RSS feed
+  # and .json calls to individual works without needing to log in as a user.
+  # Note that only approved works can be fetched for indexing.
+  def public_request?
+    return true if rss_index_request?
+    return true if json_show_request?
+    false
+  end
 
-    def work_params
-      params[:work] || {}
-    end
+  def work_params
+    params[:work] || {}
+  end
 
-    # @note No testing coverage but not a route, not called
-    def patch_params
-      return {} unless params.key?(:patch)
+  # @note No testing coverage but not a route, not called
+  def patch_params
+    return {} unless params.key?(:patch)
 
-      params[:patch]
-    end
+    params[:patch]
+  end
 
-    # @note No testing coverage but not a route, not called
-    def pre_curation_uploads_param
-      return if patch_params.nil?
+  # @note No testing coverage but not a route, not called
+  def pre_curation_uploads_param
+    return if patch_params.nil?
 
-      patch_params[:pre_curation_uploads]
-    end
+    patch_params[:pre_curation_uploads]
+  end
 
-    # @note No testing coverage but not a route, not called
-    def readme_file_param
-      return if patch_params.nil?
+  # @note No testing coverage but not a route, not called
+  def readme_file_param
+    return if patch_params.nil?
 
-      patch_params[:readme_file]
-    end
+    patch_params[:readme_file]
+  end
 
-    # @note No testing coverage but not a route, not called
-    def rescue_aasm_error
-      super
-    rescue StandardError => generic_error
-      if action_name == "create"
-        handle_error_for_create(generic_error)
-      else
-        redirect_to error_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."
-      end
-    end
-
-    rescue_from StandardError do |generic_error|
-      Honeybadger.notify("We apologize, an error was encountered: #{generic_error.message}.")
+  # @note No testing coverage but not a route, not called
+  def rescue_aasm_error
+    super
+  rescue StandardError => generic_error
+    if action_name == "create"
+      handle_error_for_create(generic_error)
+    else
       redirect_to error_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."
     end
+  end
 
-    # @note No testing coverage but not a route, not called
-    def handle_error_for_create(generic_error)
-      if @work.persisted?
-        Honeybadger.notify("Failed to create the new Dataset #{@work.id}: #{generic_error.message}")
-        @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
-        redirect_to edit_work_url(id: @work.id), notice: "Failed to create the new Dataset #{@work.id}: #{generic_error.message}", params:
-      else
-        Honeybadger.notify("Failed to create a new Dataset #{@work.id}: #{generic_error.message}")
-        new_params = {}
-        new_params[:wizard] = wizard_mode? if wizard_mode?
-        new_params[:migrate] = migrating? if migrating?
-        @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
-        redirect_to new_work_url(params: new_params), notice: "Failed to create a new Dataset: #{generic_error.message}", params: new_params
-      end
-    end
+  rescue_from StandardError do |generic_error|
+    Honeybadger.notify("We apologize, an error was encountered: #{generic_error.message}.")
+    redirect_to error_url, notice: "We apologize, an error was encountered: #{generic_error.message}. Please contact the PDC Describe administrators."
+  end
 
-    # @note No testing coverage but not a route, not called
-    def redirect_aasm_error(transition_error_message)
-      if @work.persisted?
-        redirect_to edit_work_url(id: @work.id), notice: transition_error_message, params:
-      else
-        new_params = {}
-        new_params[:wizard] = wizard_mode? if wizard_mode?
-        new_params[:migrate] = migrating? if migrating?
-        @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
-        redirect_to new_work_url(params: new_params), notice: transition_error_message, params: new_params
-      end
-    end
-
-    # @note No testing coverage but not a route, not called
-    def error_action
+  # @note No testing coverage but not a route, not called
+  def handle_error_for_create(generic_error)
+    if @work.persisted?
+      Honeybadger.notify("Failed to create the new Dataset #{@work.id}: #{generic_error.message}")
       @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
-      if action_name == "create"
-        :new
-      elsif action_name == "validate"
-        :edit
-      elsif action_name == "new_submission"
-        :new_submission
-      else
-        :show
-      end
+      redirect_to edit_work_url(id: @work.id), notice: "Failed to create the new Dataset #{@work.id}: #{generic_error.message}", params:
+    else
+      Honeybadger.notify("Failed to create a new Dataset #{@work.id}: #{generic_error.message}")
+      new_params = {}
+      new_params[:wizard] = wizard_mode? if wizard_mode?
+      new_params[:migrate] = migrating? if migrating?
+      @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
+      redirect_to new_work_url(params: new_params), notice: "Failed to create a new Dataset: #{generic_error.message}", params: new_params
+    end
+  end
+
+  # @note No testing coverage but not a route, not called
+  def redirect_aasm_error(transition_error_message)
+    if @work.persisted?
+      redirect_to edit_work_url(id: @work.id), notice: transition_error_message, params:
+    else
+      new_params = {}
+      new_params[:wizard] = wizard_mode? if wizard_mode?
+      new_params[:migrate] = migrating? if migrating?
+      @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
+      redirect_to new_work_url(params: new_params), notice: transition_error_message, params: new_params
+    end
+  end
+
+  # @note No testing coverage but not a route, not called
+  def error_action
+    @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
+    if action_name == "create"
+      :new
+    elsif action_name == "validate"
+      :edit
+    elsif action_name == "new_submission"
+      :new_submission
+    else
+      :show
+    end
+  end
+
+  def wizard_mode?
+    params[:wizard] == "true"
+  end
+
+  def update_work
+    check_for_stale_update(@work, params)
+    upload_service = WorkUploadsEditService.new(@work, current_user)
+    if @work.approved?
+      upload_keys = deleted_files_param || []
+      deleted_uploads = upload_service.find_post_curation_uploads(upload_keys:)
+
+      return head(:forbidden) unless deleted_uploads.empty?
+    else
+      @work = upload_service.update_precurated_file_list(added_files_param, deleted_files_param)
     end
 
-    def wizard_mode?
-      params[:wizard] == "true"
+    process_updates
+  end
+
+  def added_files_param
+    Array(work_params[:pre_curation_uploads_added])
+  end
+
+  def deleted_files_param
+    deleted_count = (work_params["deleted_files_count"] || "0").to_i
+    (1..deleted_count).map { |i| work_params["deleted_file_#{i}"] }.select(&:present?)
+  end
+
+  def process_updates
+    if WorkCompareService.update_work(work: @work, update_params:, current_user:)
+      redirect_to work_url(@work), notice: "Work was successfully updated."
+    else
+      # This is needed for rendering HTML views with validation errors
+      @uploads = @work.uploads
+      @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
+
+      # return 200 so the loadbalancer doesn't capture the error
+      render :edit
     end
+  end
 
-    def update_work
-      check_for_stale_update(@work, params)
-      upload_service = WorkUploadsEditService.new(@work, current_user)
-      if @work.approved?
-        upload_keys = deleted_files_param || []
-        deleted_uploads = upload_service.find_post_curation_uploads(upload_keys:)
+  def migrated?
+    return false unless params.key?(:submit)
 
-        return head(:forbidden) unless deleted_uploads.empty?
-      else
-        @work = upload_service.update_precurated_file_list(added_files_param, deleted_files_param)
-      end
+    params[:submit] == "Migrate"
+  end
 
-      process_updates
+  # Returns a hash object that can be serialized into something that DataTables
+  # can consume. The `data` elements includes the work's file list all other
+  # properties are used for displaying different data elements related but not
+  # directly on the DataTable object (e.g. the total file size)
+  def file_list_ajax_response(work)
+    files = []
+    total_size = 0
+    unless work.nil?
+      files = work.file_list
+      total_size = work.total_file_size_from_list(files)
     end
+    {
+      data: files,
+      total_size:,
+      total_size_display: ActiveSupport::NumberHelper.number_to_human_size(total_size),
+      total_file_count: files.count
+    }
+  end
 
-    def added_files_param
-      Array(work_params[:pre_curation_uploads_added])
+  # Include all works in the RSS feed so that each dataset is harvestable
+  # so that PDC Discovery has landing pages regardless of the Work state.
+  def rss_index
+    @works = Work.all
+    respond_to do |format|
+      format.rss { render layout: false }
     end
-
-    def deleted_files_param
-      deleted_count = (work_params["deleted_files_count"] || "0").to_i
-      (1..deleted_count).map { |i| work_params["deleted_file_#{i}"] }.select(&:present?)
-    end
-
-    def process_updates
-      if WorkCompareService.update_work(work: @work, update_params:, current_user:)
-        redirect_to work_url(@work), notice: "Work was successfully updated."
-      else
-        # This is needed for rendering HTML views with validation errors
-        @uploads = @work.uploads
-        @form_resource_decorator = FormResourcePresenter.new(@work, current_user)
-
-        # return 200 so the loadbalancer doesn't capture the error
-        render :edit
-      end
-    end
-
-    def migrated?
-      return false unless params.key?(:submit)
-
-      params[:submit] == "Migrate"
-    end
-
-    # Returns a hash object that can be serialized into something that DataTables
-    # can consume. The `data` elements includes the work's file list all other
-    # properties are used for displaying different data elements related but not
-    # directly on the DataTable object (e.g. the total file size)
-    def file_list_ajax_response(work)
-      files = []
-      total_size = 0
-      unless work.nil?
-        files = work.file_list
-        total_size = work.total_file_size_from_list(files)
-      end
-      {
-        data: files,
-        total_size:,
-        total_size_display: ActiveSupport::NumberHelper.number_to_human_size(total_size),
-        total_file_count: files.count
-      }
-    end
-
-    # Include all works in the RSS feed so that each dataset is harvestable
-    # so that PDC Discovery has landing pages regardless of the Work state.
-    def rss_index
-      @works = Work.all
-      respond_to do |format|
-        format.rss { render layout: false }
-      end
-    end
+  end
 end
 # rubocop:enable Metrics/ClassLength

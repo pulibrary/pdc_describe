@@ -80,61 +80,61 @@ class PULDspaceConnector
 
   private
 
-    def get_data(url_path)
-      return {} if ark.nil?
+  def get_data(url_path)
+    return {} if ark.nil?
 
-      url = "#{Rails.configuration.dspace.base_url}#{url_path}"
-      uri = URI(url)
-      http = request_http(url)
-      req = Net::HTTP::Get.new uri
-      response = http.request req
-      if response.code != "200"
-        Honeybadger.notify("Error retreiving dspace data from #{url} #{response.code} #{response.body}")
-        return nil
-      end
-      JSON.parse(response.body)
+    url = "#{Rails.configuration.dspace.base_url}#{url_path}"
+    uri = URI(url)
+    http = request_http(url)
+    req = Net::HTTP::Get.new uri
+    response = http.request req
+    if response.code != "200"
+      Honeybadger.notify("Error retreiving dspace data from #{url} #{response.code} #{response.body}")
+      return nil
     end
+    JSON.parse(response.body)
+  end
 
-    def download_bitstream(retrieval_url, filename)
-      path = File.join(Rails.configuration.dspace.download_file_path, "dspace_download", work.id.to_s)
-      FileUtils.mkdir_p path
-      download_file(retrieval_url, filename)
-      filename
-    end
+  def download_bitstream(retrieval_url, filename)
+    path = File.join(Rails.configuration.dspace.download_file_path, "dspace_download", work.id.to_s)
+    FileUtils.mkdir_p path
+    download_file(retrieval_url, filename)
+    filename
+  end
 
-    def download_file(url, filename)
-      stdout_and_stderr_str, status = Open3.capture2e("wget -c '#{url}' -O '#{filename}'")
-      unless status.success?
-        Honeybadger.notify("Error dowloading file #{url} for work id #{work.id} to #{filename}! Error: #{stdout_and_stderr_str}")
-      end
+  def download_file(url, filename)
+    stdout_and_stderr_str, status = Open3.capture2e("wget -c '#{url}' -O '#{filename}'")
+    unless status.success?
+      Honeybadger.notify("Error dowloading file #{url} for work id #{work.id} to #{filename}! Error: #{stdout_and_stderr_str}")
     end
+  end
 
-    def checksum_file(filename, original_checksum)
-      checksum = Digest::MD5.file(filename)
-      base64 = checksum.base64digest
-      if base64 != original_checksum
-        msg = "Mismatching checksum #{filename} #{original_checksum} for work: #{work.id} doi: #{work.doi} ark: #{work.ark}"
-        Rails.logger.error msg
-        Honeybadger.notify(msg)
-        false
-      else
-        Rails.logger.debug { "Matching checksums for #{filename}" }
-        true
-      end
+  def checksum_file(filename, original_checksum)
+    checksum = Digest::MD5.file(filename)
+    base64 = checksum.base64digest
+    if base64 != original_checksum
+      msg = "Mismatching checksum #{filename} #{original_checksum} for work: #{work.id} doi: #{work.doi} ark: #{work.ark}"
+      Rails.logger.error msg
+      Honeybadger.notify(msg)
+      false
+    else
+      Rails.logger.debug { "Matching checksums for #{filename}" }
+      true
     end
+  end
 
-    def base64digest(hexdigest)
-      [[hexdigest].pack("H*")].pack("m0")
-    end
+  def base64digest(hexdigest)
+    [[hexdigest].pack("H*")].pack("m0")
+  end
 
-    def request_http(url)
-      uri = URI(url)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-      http
-    end
+  def request_http(url)
+    uri = URI(url)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http
+  end
 
-    def original_bitstreams
-      bitstreams.select { |bitstream| bitstream["bundleName"] == "ORIGINAL" }
-    end
+  def original_bitstreams
+    bitstreams.select { |bitstream| bitstream["bundleName"] == "ORIGINAL" }
+  end
 end

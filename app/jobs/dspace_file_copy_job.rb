@@ -22,20 +22,20 @@ class DspaceFileCopyJob < ApplicationJob
 
   private
 
-    def dspace_bucket_name
-      @dspace_bucket_name ||= Rails.configuration.s3.dspace[:bucket]
+  def dspace_bucket_name
+    @dspace_bucket_name ||= Rails.configuration.s3.dspace[:bucket]
+  end
+
+  def update_migration(migration_snapshot_id, s3_key, s3_size, work)
+    migration_snapshot = MigrationUploadSnapshot.find(migration_snapshot_id)
+    migration_snapshot.with_lock do
+      migration_snapshot.reload
+      migration_snapshot.mark_complete(S3File.new(filename: s3_key, last_modified: DateTime.now, size: s3_size, checksum: "", work:))
+      migration_snapshot.save!
     end
 
-    def update_migration(migration_snapshot_id, s3_key, s3_size, work)
-      migration_snapshot = MigrationUploadSnapshot.find(migration_snapshot_id)
-      migration_snapshot.with_lock do
-        migration_snapshot.reload
-        migration_snapshot.mark_complete(S3File.new(filename: s3_key, last_modified: DateTime.now, size: s3_size, checksum: "", work:))
-        migration_snapshot.save!
-      end
-
-    rescue ActiveRecord::StatementInvalid
-      ActiveRecord::Base.connection_pool.release_connection
-      retry
-    end
+  rescue ActiveRecord::StatementInvalid
+    ActiveRecord::Base.connection_pool.release_connection
+    retry
+  end
 end

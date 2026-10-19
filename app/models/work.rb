@@ -263,7 +263,7 @@ class Work < ApplicationRecord
     end
 
     message = if curator_user_id.to_i == current_user.id
-                "Self-assigned @#{current_user.uid} as curator for work #{work_url}"
+      "Self-assigned @#{current_user.uid} as curator for work #{work_url}"
               else
                 "Set curator to @#{new_curator.uid} for work #{work_url}"
               end
@@ -620,105 +620,105 @@ class Work < ApplicationRecord
 
   protected
 
-    def work_validator
-      @work_validator ||= WorkValidator.new(self)
-    end
+  def work_validator
+    @work_validator ||= WorkValidator.new(self)
+  end
 
-    # This must be protected, NOT private for ActiveRecord to work properly with this attribute.
-    #   Protected will still keep others from setting the metatdata, but allows ActiveRecord the access it needs
-    def metadata=(metadata)
-      super
-      @resource = PDCMetadata::Resource.new_from_jsonb(metadata)
-    end
+  # This must be protected, NOT private for ActiveRecord to work properly with this attribute.
+  #   Protected will still keep others from setting the metatdata, but allows ActiveRecord the access it needs
+  def metadata=(metadata)
+    super
+    @resource = PDCMetadata::Resource.new_from_jsonb(metadata)
+  end
 
   private
 
-    def publish(user)
-      datacite_service.publish_doi(user)
-      update_ark_information
-      publish_precurated_files(user)
-      save!
-    end
+  def publish(user)
+    datacite_service.publish_doi(user)
+    update_ark_information
+    publish_precurated_files(user)
+    save!
+  end
 
-    # Update EZID (our provider of ARKs) with the new information for this work.
-    def update_ark_information
-      # We only want to update the ark url under certain conditions.
-      # Set this value in config/update_ark_url.yml
-      if Rails.configuration.update_ark_url
-        if ark.present?
-          Ark.update(ark, datacite_service.doi_attribute_url)
-        end
+  # Update EZID (our provider of ARKs) with the new information for this work.
+  def update_ark_information
+    # We only want to update the ark url under certain conditions.
+    # Set this value in config/update_ark_url.yml
+    if Rails.configuration.update_ark_url
+      if ark.present?
+        Ark.update(ark, datacite_service.doi_attribute_url)
       end
     end
+  end
 
-    def track_state_change(user, state = aasm.to_state)
-      uw = UserWork.new(user_id: user.id, work_id: id, state:)
-      uw.save!
-      WorkActivity.add_work_activity(id, "marked as #{state.to_s.titleize}", user.id, activity_type: WorkActivity::SYSTEM)
-      WorkStateTransitionNotification.new(self, user.id).send
+  def track_state_change(user, state = aasm.to_state)
+    uw = UserWork.new(user_id: user.id, work_id: id, state:)
+    uw.save!
+    WorkActivity.add_work_activity(id, "marked as #{state.to_s.titleize}", user.id, activity_type: WorkActivity::SYSTEM)
+    WorkStateTransitionNotification.new(self, user.id).send
+  end
+
+  # Request S3 Bucket Objects associated with this Work
+  # @return [Array<S3File>]
+  def s3_resources
+    data_profile = s3_query_service.data_profile
+    data_profile.fetch(:objects, [])
+  end
+  alias pre_curation_s3_resources s3_resources
+
+  def s3_object_persisted?(s3_file)
+    uploads_keys = uploads.map(&:key)
+    uploads_keys.include?(s3_file.key)
+  end
+
+  def publish_precurated_files(user)
+    WorkPublishService.new(work: self, current_user: user).publish
+  end
+
+  def latest_snapshot
+    return upload_snapshots.first unless upload_snapshots.empty?
+
+    UploadSnapshot.new(work: self, files: [])
+  end
+
+  def datacite_service
+    @datacite_service ||= PULDatacite.new(self)
+  end
+
+  def files_as_json(*args)
+    return [] if embargoed?
+
+    force_post_curation = args.any? { |arg| arg[:force_post_curation] == true }
+    # Pre-curation files are not accessible externally,
+    # so we are not interested in listing them in JSON.
+    post_curation_uploads(force_post_curation:).map do |upload|
+      {
+        "filename": upload.filename,
+        "size": upload.size,
+        "display_size": upload.display_size,
+        "url": upload.globus_url
+      }
     end
+  end
 
-    # Request S3 Bucket Objects associated with this Work
-    # @return [Array<S3File>]
-    def s3_resources
-      data_profile = s3_query_service.data_profile
-      data_profile.fetch(:objects, [])
+  def embargo_date_as_json
+    if embargo_date.present?
+      embargo_datetime = embargo_date.to_datetime
+      embargo_date_iso8601 = embargo_datetime.iso8601
+      # Apache Solr timestamps require the following format:
+      # 1972-05-20T17:33:18Z
+      # https://solr.apache.org/guide/solr/latest/indexing-guide/date-formatting-math.html
+      embargo_date_iso8601.gsub(/\+.+$/, "Z")
     end
-    alias pre_curation_s3_resources s3_resources
+  end
 
-    def s3_object_persisted?(s3_file)
-      uploads_keys = uploads.map(&:key)
-      uploads_keys.include?(s3_file.key)
+  def log_performance(start, message)
+    elapsed = Time.zone.now - start
+    if elapsed > 20
+      Rails.logger.warn("PERFORMANCE: #{message}. Elapsed: #{elapsed} seconds")
+    else
+      Rails.logger.info("PERFORMANCE: #{message}. Elapsed: #{elapsed} seconds")
     end
-
-    def publish_precurated_files(user)
-      WorkPublishService.new(work: self, current_user: user).publish
-    end
-
-    def latest_snapshot
-      return upload_snapshots.first unless upload_snapshots.empty?
-
-      UploadSnapshot.new(work: self, files: [])
-    end
-
-    def datacite_service
-      @datacite_service ||= PULDatacite.new(self)
-    end
-
-    def files_as_json(*args)
-      return [] if embargoed?
-
-      force_post_curation = args.any? { |arg| arg[:force_post_curation] == true }
-      # Pre-curation files are not accessible externally,
-      # so we are not interested in listing them in JSON.
-      post_curation_uploads(force_post_curation:).map do |upload|
-        {
-          "filename": upload.filename,
-          "size": upload.size,
-          "display_size": upload.display_size,
-          "url": upload.globus_url
-        }
-      end
-    end
-
-    def embargo_date_as_json
-      if embargo_date.present?
-        embargo_datetime = embargo_date.to_datetime
-        embargo_date_iso8601 = embargo_datetime.iso8601
-        # Apache Solr timestamps require the following format:
-        # 1972-05-20T17:33:18Z
-        # https://solr.apache.org/guide/solr/latest/indexing-guide/date-formatting-math.html
-        embargo_date_iso8601.gsub(/\+.+$/, "Z")
-      end
-    end
-
-    def log_performance(start, message)
-      elapsed = Time.zone.now - start
-      if elapsed > 20
-        Rails.logger.warn("PERFORMANCE: #{message}. Elapsed: #{elapsed} seconds")
-      else
-        Rails.logger.info("PERFORMANCE: #{message}. Elapsed: #{elapsed} seconds")
-      end
-    end
+  end
 end
 # rubocop:enable Metrics/ClassLength

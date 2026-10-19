@@ -72,15 +72,15 @@ class MigrationUploadSnapshot < UploadSnapshot
 
   private
 
-    def find_file(filename)
-      index = files.index { |file| file["filename"] == filename && (file["migrate_status"] == "started" || file["migrate_status"] == "error") }
-      if index.nil?
-        Honeybadger.notify("Migrated a file that was not part of the orginal Migration: #{id} for work #{work_id}: #{filename}")
-      end
-      index
+  def find_file(filename)
+    index = files.index { |file| file["filename"] == filename && (file["migrate_status"] == "started" || file["migrate_status"] == "error") }
+    if index.nil?
+      Honeybadger.notify("Migrated a file that was not part of the orginal Migration: #{id} for work #{work_id}: #{filename}")
     end
+    index
+  end
 
-    def find_complete_file(filename, checksum)
-      files.index { |file| (file["filename"] == filename) && (file["checksum"] == checksum) && (file["migrate_status"] == "complete") }
-    end
+  def find_complete_file(filename, checksum)
+    files.index { |file| (file["filename"] == filename) && (file["checksum"] == checksum) && (file["migrate_status"] == "complete") }
+  end
 end

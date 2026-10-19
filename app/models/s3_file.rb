@@ -10,7 +10,7 @@ class S3File
 
   def self.from_json(json_string)
     json = if json_string.is_a? String
-             JSON.parse(json_string)
+      JSON.parse(json_string)
            else
              json_string
            end
@@ -87,19 +87,19 @@ class S3File
 
   private
 
-    # Filename without the DOI/work-id/ in the path (but we preserve other path information if there is any)
-    def filename_short(work, filename)
-      prefix = "#{work.doi}/#{work.id}/"
-      if filename.start_with?(prefix)
-        filename[prefix.length..]
-      else
-        filename
-      end
+  # Filename without the DOI/work-id/ in the path (but we preserve other path information if there is any)
+  def filename_short(work, filename)
+    prefix = "#{work.doi}/#{work.id}/"
+    if filename.start_with?(prefix)
+      filename[prefix.length..]
+    else
+      filename
     end
+  end
 
-    def filename_as_id(filename)
-      # The full filename and path but only with alphanumeric characters
-      # everything else becomes as dash.
-      filename.gsub(/[^A-Za-z\d]/, "-")
-    end
+  def filename_as_id(filename)
+    # The full filename and path but only with alphanumeric characters
+    # everything else becomes as dash.
+    filename.gsub(/[^A-Za-z\d]/, "-")
+  end
 end

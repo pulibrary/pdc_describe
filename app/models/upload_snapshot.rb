@@ -82,11 +82,11 @@ class UploadSnapshot < ApplicationRecord
 
   private
 
-    def existing_files_sorted
-      @existing_files_sorted ||= files.sort_by { |file| file["filename"] }
-    end
+  def existing_files_sorted
+    @existing_files_sorted ||= files.sort_by { |file| file["filename"] }
+  end
 
-    def uploads
-      work.uploads
-    end
+  def uploads
+    work.uploads
+  end
 end

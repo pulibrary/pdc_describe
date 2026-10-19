@@ -26,42 +26,42 @@ class WorkPublishService
 
   private
 
-    def target_bucket
-      if work.embargoed?
-        PULS3Client.embargo_config[:bucket]
-      else
-        PULS3Client.post_curation_config[:bucket]
-      end
+  def target_bucket
+    if work.embargoed?
+      PULS3Client.embargo_config[:bucket]
+    else
+      PULS3Client.post_curation_config[:bucket]
+    end
+  end
+
+  def target_mode
+    if work.embargoed?
+      PULS3Client::EMBARGO
+    else
+      PULS3Client::POSTCURATION
+    end
+  end
+
+  def publish_files(current_user)
+    source_bucket = PULS3Client.pre_curation_config[:bucket]
+
+    files_and_directories = pul_s3_client.client_s3_files(reload: true, bucket_name: source_bucket)
+
+    files = files_and_directories.reject(&:is_folder)
+    directories = files_and_directories.select(&:is_folder)
+
+    snapshot = ApprovedUploadSnapshot.new(work:)
+    snapshot.store_files(files, current_user:)
+    snapshot.save
+
+    files.each do |file|
+      ApprovedFileMoveJob.perform_later(work_id: work.id, source_bucket:, source_key: file.key, target_bucket:,
+                                        target_key: file.key, size: file.size, snapshot_id: snapshot.id)
     end
 
-    def target_mode
-      if work.embargoed?
-        PULS3Client::EMBARGO
-      else
-        PULS3Client::POSTCURATION
-      end
+    directories.each do |dir|
+      EmptyDirectoryDeleteJob.set(wait: 10.seconds).perform_later(work_id: work.id, source_bucket:, source_key: dir.key)
     end
-
-    def publish_files(current_user)
-      source_bucket = PULS3Client.pre_curation_config[:bucket]
-
-      files_and_directories = pul_s3_client.client_s3_files(reload: true, bucket_name: source_bucket)
-
-      files = files_and_directories.reject(&:is_folder)
-      directories = files_and_directories.select(&:is_folder)
-
-      snapshot = ApprovedUploadSnapshot.new(work:)
-      snapshot.store_files(files, current_user:)
-      snapshot.save
-
-      files.each do |file|
-        ApprovedFileMoveJob.perform_later(work_id: work.id, source_bucket:, source_key: file.key, target_bucket:,
-                                          target_key: file.key, size: file.size, snapshot_id: snapshot.id)
-      end
-
-      directories.each do |dir|
-        EmptyDirectoryDeleteJob.set(wait: 10.seconds).perform_later(work_id: work.id, source_bucket:, source_key: dir.key)
-      end
-      true
-    end
+    true
+  end
 end

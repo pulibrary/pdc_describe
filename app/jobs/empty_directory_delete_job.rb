@@ -22,15 +22,15 @@ class EmptyDirectoryDeleteJob < ApplicationJob
 
   private
 
-    def cleanup(work, service, source_bucket)
-      # Once the last directory has been deleted...
-      if service.client_s3_files(reload: true, bucket_name: source_bucket).count == 0
-        # delete the source directory...
-        service.delete_s3_object(work.s3_object_key, bucket: source_bucket)
+  def cleanup(work, service, source_bucket)
+    # Once the last directory has been deleted...
+    if service.client_s3_files(reload: true, bucket_name: source_bucket).count == 0
+      # delete the source directory...
+      service.delete_s3_object(work.s3_object_key, bucket: source_bucket)
 
-        # ...and create the preservation files
-        work_preservation = WorkPreservationService.new(work_id: work.id, path: "#{work.doi}/#{work.id}")
-        work_preservation.preserve!
-      end
+      # ...and create the preservation files
+      work_preservation = WorkPreservationService.new(work_id: work.id, path: "#{work.doi}/#{work.id}")
+      work_preservation.preserve!
     end
+  end
 end

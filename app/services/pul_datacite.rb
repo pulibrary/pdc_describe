@@ -78,7 +78,7 @@ class PULDatacite
 
   def curator_or_current_uid(user)
     persisted = if work.curator.nil?
-                  user
+      user
                 else
                   work.curator
                 end
@@ -87,28 +87,28 @@ class PULDatacite
 
   private
 
-    def doi_attribute_resource
-      PDCMetadata::Resource.new_from_jsonb(metadata)
-    end
+  def doi_attribute_resource
+    PDCMetadata::Resource.new_from_jsonb(metadata)
+  end
 
-    def doi_attribute_xml
-      unencoded = doi_attribute_resource.to_xml
-      Base64.encode64(unencoded)
-    end
+  def doi_attribute_xml
+    unencoded = doi_attribute_resource.to_xml
+    Base64.encode64(unencoded)
+  end
 
-    def publish_doi_attributes
-      {
-        "event" => "publish",
-        "xml" => doi_attribute_xml,
-        "url" => doi_attribute_url
-      }
-    end
+  def publish_doi_attributes
+    {
+      "event" => "publish",
+      "xml" => doi_attribute_xml,
+      "url" => doi_attribute_url
+    }
+  end
 
-    def register_doi_attributes
-      {
-        "event" => "register",
-        "xml" => doi_attribute_xml,
-        "url" => doi_attribute_url
-      }
-    end
+  def register_doi_attributes
+    {
+      "event" => "register",
+      "xml" => doi_attribute_xml,
+      "url" => doi_attribute_url
+    }
+  end
 end

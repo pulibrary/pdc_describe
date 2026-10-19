@@ -116,7 +116,7 @@ class WorkActivity < ApplicationRecord
   def renderer
     @renderer ||= begin
                     klass = if activity_type == CHANGES
-                              MetadataChanges
+                      MetadataChanges
                             elsif activity_type == FILE_CHANGES
                               FileChanges
                             elsif activity_type == MIGRATION_COMPLETE
@@ -185,17 +185,17 @@ class WorkActivity < ApplicationRecord
 
       # Messages should consistently be Arrays of Hashes, but this might require a migration from legacy field records
       messages = if message_json.is_a?(Array)
-                   message_json
+        message_json
                  else
                    Array.wrap(message_json)
                  end
 
       elements = messages.map do |message|
         markup = if message.is_a?(Hash)
-                   message.keys.map do |field|
-                     mapped = message[field].map { |value| change_value_html(value) }
-                     "<details class='message-html'><summary class='show-changes'>#{field&.titleize}</summary>#{mapped.join}</details>"
-                   end
+          message.keys.map do |field|
+            mapped = message[field].map { |value| change_value_html(value) }
+            "<details class='message-html'><summary class='show-changes'>#{field&.titleize}</summary>#{mapped.join}</details>"
+          end
                  else
                    # For handling cases where WorkActivity#message only contains Strings, or Arrays of Strings
                    [
@@ -284,7 +284,7 @@ class WorkActivity < ApplicationRecord
           else
             user = User.find_by(uid:)
             user_info = if user
-                          user.given_name_safe
+              user.given_name_safe
                         else
                           uid
                         end

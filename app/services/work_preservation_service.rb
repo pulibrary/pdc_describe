@@ -45,70 +45,70 @@ class WorkPreservationService
 
   private
 
-    def local?
-      @localhost
-    end
+  def local?
+    @localhost
+  end
 
-    def target_location
-      if local?
-        "file://" + File.join(Dir.pwd, preservation_directory)
-      else
-        "s3://#{bucket_name}/#{preservation_directory}"
-      end
+  def target_location
+    if local?
+      "file://" + File.join(Dir.pwd, preservation_directory)
+    else
+      "s3://#{bucket_name}/#{preservation_directory}"
     end
+  end
 
-    def metadata_io
-      StringIO.new(preservation_metadata)
-    end
+  def metadata_io
+    StringIO.new(preservation_metadata)
+  end
 
-    def datacite_io
-      StringIO.new(@work.to_xml)
-    end
+  def datacite_io
+    StringIO.new(@work.to_xml)
+  end
 
-    def provenance_io
-      StringIO.new(@work.work_activity.to_json)
-    end
+  def provenance_io
+    StringIO.new(@work.work_activity.to_json)
+  end
 
-    def preservation_directory
-      Pathname.new(@path).join("#{PRESERVATION_DIRECTORY}/")
-    end
+  def preservation_directory
+    Pathname.new(@path).join("#{PRESERVATION_DIRECTORY}/")
+  end
 
-    def s3_query_service
-      @s3_query_service ||= S3QueryService.new(@work, PULS3Client::PRESERVATION)
-    end
+  def s3_query_service
+    @s3_query_service ||= S3QueryService.new(@work, PULS3Client::PRESERVATION)
+  end
 
-    def bucket_name
-      s3_query_service.bucket_name
-    end
+  def bucket_name
+    s3_query_service.bucket_name
+  end
 
-    def create_preservation_directory
-      if local?
-        FileUtils.mkdir_p preservation_directory.to_s
-      else
-        s3_query_service.client.put_object({ bucket: bucket_name, key: preservation_directory.to_s, content_length: 0 })
-      end
+  def create_preservation_directory
+    if local?
+      FileUtils.mkdir_p preservation_directory.to_s
+    else
+      s3_query_service.client.put_object({ bucket: bucket_name, key: preservation_directory.to_s, content_length: 0 })
     end
+  end
 
-    def preserve_file(io:, filename:)
-      if local?
-        save_local_file(io:, filename:)
-      else
-        upload_file(io:, filename:)
-      end
+  def preserve_file(io:, filename:)
+    if local?
+      save_local_file(io:, filename:)
+    else
+      upload_file(io:, filename:)
     end
+  end
 
-    def upload_file(io:, filename:)
-      s3client = PULS3Client.new(PULS3Client::PRESERVATION)
-      key = preservation_directory.join(filename).to_s
-      s3client.upload_file(io:, target_key: key, size: io.length)
-      key
-    end
+  def upload_file(io:, filename:)
+    s3client = PULS3Client.new(PULS3Client::PRESERVATION)
+    key = preservation_directory.join(filename).to_s
+    s3client.upload_file(io:, target_key: key, size: io.length)
+    key
+  end
 
-    def save_local_file(io:, filename:)
-      full_filename = preservation_directory.join(filename).to_s
-      File.open(full_filename, "w") do |file|
-        file.puts(io.read)
-      end
-      full_filename
+  def save_local_file(io:, filename:)
+    full_filename = preservation_directory.join(filename).to_s
+    File.open(full_filename, "w") do |file|
+      file.puts(io.read)
     end
+    full_filename
+  end
 end

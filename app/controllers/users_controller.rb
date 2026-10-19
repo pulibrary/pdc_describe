@@ -60,56 +60,56 @@ class UsersController < ApplicationController
 
   private
 
-    # Use callbacks to share common setup or constraints between actions.
-    def set_user
-      user_id = user_id_from_url
-      @user = User.friendly.find(user_id)
-      redirect_to action: action_name, id: @user.friendly_id, status: :moved_permanently unless @user.friendly_id == user_id
+  # Use callbacks to share common setup or constraints between actions.
+  def set_user
+    user_id = user_id_from_url
+    @user = User.friendly.find(user_id)
+    redirect_to action: action_name, id: @user.friendly_id, status: :moved_permanently unless @user.friendly_id == user_id
+  end
+
+  def user_id_from_url
+    # For external users UID is in the form `user-name@gmail.com`, however, Rails eats the ".com" from
+    # the UID and dumps it into the `format` param. Here we make sure the ".com" is preserved when the
+    # UID looks to be an external user id.
+    external_uid = params[:id].include?("@")
+    if external_uid && params["format"] == "com"
+      "#{params[:id]}.#{params['format']}"
+    else
+      params[:id]
     end
+  end
 
-    def user_id_from_url
-      # For external users UID is in the form `user-name@gmail.com`, however, Rails eats the ".com" from
-      # the UID and dumps it into the `format` param. Here we make sure the ".com" is preserved when the
-      # UID looks to be an external user id.
-      external_uid = params[:id].include?("@")
-      if external_uid && params["format"] == "com"
-        "#{params[:id]}.#{params['format']}"
-      else
-        params[:id]
-      end
-    end
+  # Only allow a list of trusted parameters through.
+  def user_params
+    @user_params ||= params.require(:user).permit([
+                                                    :given_name, :full_name, :family_name, :orcid, :email_messages_enabled,
+                                                    :email, :default_group_id, groups_with_messaging: {}
+                                                  ])
+  end
 
-    # Only allow a list of trusted parameters through.
-    def user_params
-      @user_params ||= params.require(:user).permit([
-                                                      :given_name, :full_name, :family_name, :orcid, :email_messages_enabled,
-                                                      :email, :default_group_id, groups_with_messaging: {}
-                                                    ])
-    end
+  def can_edit?
+    current_user.id == @user.id or current_user.super_admin?
+  end
 
-    def can_edit?
-      current_user.id == @user.id or current_user.super_admin?
-    end
+  def parameter_enables_messaging?(form_value)
+    form_value.to_s == GROUP_MESSAGING_ENABLED
+  end
 
-    def parameter_enables_messaging?(form_value)
-      form_value.to_s == GROUP_MESSAGING_ENABLED
-    end
+  def update_groups_with_messaging
+    if user_params.key?(:groups_with_messaging)
+      extracted = user_params.extract!(:groups_with_messaging)
+      groups_with_messaging = extracted[:groups_with_messaging]
 
-    def update_groups_with_messaging
-      if user_params.key?(:groups_with_messaging)
-        extracted = user_params.extract!(:groups_with_messaging)
-        groups_with_messaging = extracted[:groups_with_messaging]
+      groups_with_messaging.each_pair do |id, param|
+        group_id, subcommunity = id.split("_")
+        selected_group = Group.find_by(id: group_id)
 
-        groups_with_messaging.each_pair do |id, param|
-          group_id, subcommunity = id.split("_")
-          selected_group = Group.find_by(id: group_id)
-
-          if parameter_enables_messaging?(param)
-            selected_group.enable_messages_for(user: @user, subcommunity:)
-          else
-            selected_group.disable_messages_for(user: @user, subcommunity:)
-          end
+        if parameter_enables_messaging?(param)
+          selected_group.enable_messages_for(user: @user, subcommunity:)
+        else
+          selected_group.disable_messages_for(user: @user, subcommunity:)
         end
       end
     end
+  end
 end

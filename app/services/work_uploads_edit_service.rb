@@ -44,41 +44,41 @@ class WorkUploadsEditService
 
   private
 
-    def delete_uploads(deleted_files)
-      return if deleted_files.empty?
+  def delete_uploads(deleted_files)
+    return if deleted_files.empty?
 
-      deleted_files.each do |filename|
-        s3_service.delete_s3_object(filename)
+    deleted_files.each do |filename|
+      s3_service.delete_s3_object(filename)
+    end
+  end
+
+  def add_uploads(added_files)
+    return if added_files.empty?
+
+    # Update the upload snapshot to reflect the files the user wants to add...
+    last_snapshot = work.upload_snapshots.first
+    snapshot = BackgroundUploadSnapshot.new(work:)
+    snapshot.store_files(added_files, pre_existing_files: last_snapshot&.files, current_user: @current_user)
+    snapshot.save
+
+    # ...adds the file to AWS directly and mark them as complete in the snapshot
+    added_files.map do |file|
+      if upload_file(file)
+        snapshot.mark_complete(file.original_filename, work.s3_query_service.last_response.etag.delete('"'))
+        snapshot.save!
+        File.delete(file.path) # delete the local copy
       end
     end
+  end
 
-    def add_uploads(added_files)
-      return if added_files.empty?
-
-      # Update the upload snapshot to reflect the files the user wants to add...
-      last_snapshot = work.upload_snapshots.first
-      snapshot = BackgroundUploadSnapshot.new(work:)
-      snapshot.store_files(added_files, pre_existing_files: last_snapshot&.files, current_user: @current_user)
-      snapshot.save
-
-      # ...adds the file to AWS directly and mark them as complete in the snapshot
-      added_files.map do |file|
-        if upload_file(file)
-          snapshot.mark_complete(file.original_filename, work.s3_query_service.last_response.etag.delete('"'))
-          snapshot.save!
-          File.delete(file.path) # delete the local copy
-        end
-      end
+  def upload_file(file)
+    key = work.s3_query_service.upload_file(io: file.to_io, filename: file.original_filename, size: file.size)
+    if key.blank?
+      Rails.logger.error("Error uploading #{file.original_filename} to work #{work.id}")
+      Honeybadger.notify("Error uploading #{file.original_filename} to work #{work.id}")
+      false
+    else
+      true
     end
-
-    def upload_file(file)
-      key = work.s3_query_service.upload_file(io: file.to_io, filename: file.original_filename, size: file.size)
-      if key.blank?
-        Rails.logger.error("Error uploading #{file.original_filename} to work #{work.id}")
-        Honeybadger.notify("Error uploading #{file.original_filename} to work #{work.id}")
-        false
-      else
-        true
-      end
-    end
+  end
 end

@@ -42,13 +42,13 @@ class WorksWizardNewSubmissionController < ApplicationController
 
   private
 
-    def load_work
-      @work = Work.find(params[:id])
-    end
+  def load_work
+    @work = Work.find(params[:id])
+  end
 
-    def can_edit
-      return if @work.editable_by?(current_user)
+  def can_edit
+    return if @work.editable_by?(current_user)
 
-      redirect_to user_path(current_user), notice: "You do not have permission to modify the work."
-    end
+    redirect_to user_path(current_user), notice: "You do not have permission to modify the work."
+  end
 end

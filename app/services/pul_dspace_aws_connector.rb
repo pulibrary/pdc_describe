@@ -33,7 +33,7 @@ class PULDspaceAwsConnector
 
   private
 
-    def dspace_bucket_name
-      @dspace_bucket_name ||= Rails.configuration.s3.dspace[:bucket]
-    end
+  def dspace_bucket_name
+    @dspace_bucket_name ||= Rails.configuration.s3.dspace[:bucket]
+  end
 end

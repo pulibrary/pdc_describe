@@ -11,9 +11,9 @@ module RedisConfig
 
     private
 
-      def config_yaml
-        YAML.safe_load(ERB.new(IO.read(Rails.root.join("config", "redis.yml"))).result, aliases: true)[Rails.env]
-      end
+  def config_yaml
+    YAML.safe_load(ERB.new(IO.read(Rails.root.join("config", "redis.yml"))).result, aliases: true)[Rails.env]
+  end
 
-      module_function :config, :url, :config_yaml
+  module_function :config, :url, :config_yaml
 end

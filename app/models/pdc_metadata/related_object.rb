@@ -55,20 +55,20 @@ module PDCMetadata
 
     private
 
-      def valid_related_identifier_type?
-        @valid_related_identifier_type ||= valid_type_values.include?(related_identifier_type)
-      end
+    def valid_related_identifier_type?
+      @valid_related_identifier_type ||= valid_type_values.include?(related_identifier_type)
+    end
 
-      def valid_relation_type?
-        @valid_relation_type ||= valid_relationship_types.include?(relation_type)
-      end
+    def valid_relation_type?
+      @valid_relation_type ||= valid_relationship_types.include?(relation_type)
+    end
 
-      def valid_type_values
-        @valid_type_values ||= Datacite::Mapping::RelatedIdentifierType.map(&:value)
-      end
+    def valid_type_values
+      @valid_type_values ||= Datacite::Mapping::RelatedIdentifierType.map(&:value)
+    end
 
-      def valid_relationship_types
-        @valid_relationship_types ||= Datacite::Mapping::RelationType.map(&:value)
-      end
+    def valid_relationship_types
+      @valid_relationship_types ||= Datacite::Mapping::RelationType.map(&:value)
+    end
   end
 end

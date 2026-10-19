@@ -33,39 +33,39 @@ class WorkStateTransitionNotification
 
     private
 
-      # rubocop:disable Metrics/MethodLength
-      # I want the factory to be all in one method
-      def class_for_transition
-        case to_state
-        when :awaiting_approval
-          WorkStateTransition::AwaitingApproval
-        when :approved
-          WorkStateTransition::Approved
-        when :draft
-          case from_state
-          when :none
-            WorkStateTransition::NewSubmission
-          when :awaiting_approval
-            WorkStateTransition::ReturnedToDraft
-          when :withdrawn
-            WorkStateTransition::Resubmission
-          end
-        when :withdrawn
-          WorkStateTransition::Withdrawn
-        when :deletion_marker
-          WorkStateTransition::DeletionMarker
-        end
+  # rubocop:disable Metrics/MethodLength
+  # I want the factory to be all in one method
+  def class_for_transition
+    case to_state
+    when :awaiting_approval
+      WorkStateTransition::AwaitingApproval
+    when :approved
+      WorkStateTransition::Approved
+    when :draft
+      case from_state
+      when :none
+        WorkStateTransition::NewSubmission
+      when :awaiting_approval
+        WorkStateTransition::ReturnedToDraft
+      when :withdrawn
+        WorkStateTransition::Resubmission
       end
-      # rubocop:enable Metrics/MethodLength
+    when :withdrawn
+      WorkStateTransition::Withdrawn
+    when :deletion_marker
+      WorkStateTransition::DeletionMarker
+    end
+  end
+  # rubocop:enable Metrics/MethodLength
 
-      # Make sure we use the official "datacommons" URL for production (and not pdc-describe-prod)
-      def data_commons_url(work)
-        url = if Rails.env.production?
-                path = Rails.application.routes.url_helpers.work_path(work)
-                "#{Rails.configuration.datacite.data_commons_url}#{path}"
-              else
-                Rails.application.routes.url_helpers.work_url(work)
-              end
-        url
-      end
+  # Make sure we use the official "datacommons" URL for production (and not pdc-describe-prod)
+  def data_commons_url(work)
+    url = if Rails.env.production?
+      path = Rails.application.routes.url_helpers.work_path(work)
+      "#{Rails.configuration.datacite.data_commons_url}#{path}"
+          else
+            Rails.application.routes.url_helpers.work_url(work)
+          end
+    url
+  end
 end

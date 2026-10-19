@@ -21,8 +21,8 @@ class PULCache < HealthMonitor::Providers::Cache
 
   private
 
-    def key
-      random = rand(99_999)
-      @key ||= ["health", request.try(:remote_ip), random].join(":")
-    end
+  def key
+    random = rand(99_999)
+    @key ||= ["health", request.try(:remote_ip), random].join(":")
+  end
 end

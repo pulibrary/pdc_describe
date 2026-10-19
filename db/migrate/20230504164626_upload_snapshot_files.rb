@@ -19,13 +19,13 @@ class UploadSnapshotFiles < ActiveRecord::Migration[6.1]
     add_column :upload_snapshots, :filename, :string
     add_column :upload_snapshots, :checksum, :string
 
-      # migrate any files to the old filename and checksum format
-      UploadSnapshot.all.each do |snapshot|
-        snapshot.filename = snapshot.files.first[:filename]
-        snapshot.checksum = snapshot.files.first[:checksum]
-        snapshot.save!
-      end
+    # migrate any files to the old filename and checksum format
+    UploadSnapshot.all.each do |snapshot|
+      snapshot.filename = snapshot.files.first[:filename]
+      snapshot.checksum = snapshot.files.first[:checksum]
+      snapshot.save!
+    end
     
-      remove_column :upload_snapshots, :files
+    remove_column :upload_snapshots, :files
   end
 end

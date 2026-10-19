@@ -22,32 +22,32 @@ class S3MoveService
 
   private
 
-    def copy_file
-      resp = service.copy_file(source_key: copy_source, target_bucket:, target_key:, size:)
-      unless resp.successful?
-        raise "Error copying #{copy_source} to #{target_bucket}/#{target_key} Response #{resp.to_json}"
-      end
-      etag(resp)
-    rescue Aws::S3::Errors::NoSuchKey => error
-      if service.check_file(bucket: target_bucket, key: target_key)
-        Rails.logger.warn("Trying to move a file that was already moved... #{copy_source} can not copy to #{target_bucket}/#{target_key}")
-      else
-        raise "Missing source file #{copy_source} can not copy to #{target_bucket}/#{target_key} Error: #{error}"
-      end
+  def copy_file
+    resp = service.copy_file(source_key: copy_source, target_bucket:, target_key:, size:)
+    unless resp.successful?
+      raise "Error copying #{copy_source} to #{target_bucket}/#{target_key} Response #{resp.to_json}"
     end
+    etag(resp)
+  rescue Aws::S3::Errors::NoSuchKey => error
+    if service.check_file(bucket: target_bucket, key: target_key)
+      Rails.logger.warn("Trying to move a file that was already moved... #{copy_source} can not copy to #{target_bucket}/#{target_key}")
+    else
+      raise "Missing source file #{copy_source} can not copy to #{target_bucket}/#{target_key} Error: #{error}"
+    end
+  end
 
-    def check_file
-      status = service.check_file(bucket: target_bucket, key: target_key)
-      unless status
-        raise "File check was not valid #{copy_source} to #{target_bucket}/#{target_key} Response #{status.to_json}"
-      end
+  def check_file
+    status = service.check_file(bucket: target_bucket, key: target_key)
+    unless status
+      raise "File check was not valid #{copy_source} to #{target_bucket}/#{target_key} Response #{status.to_json}"
     end
+  end
 
-    def etag(resp)
-      if resp.respond_to? :copy_object_result
-        resp.copy_object_result.etag
-      else
-        resp.etag
-      end.delete('"')
-    end
+  def etag(resp)
+    if resp.respond_to? :copy_object_result
+      resp.copy_object_result.etag
+    else
+      resp.etag
+    end.delete('"')
+  end
 end

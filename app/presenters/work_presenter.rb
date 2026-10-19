@@ -83,30 +83,30 @@ class WorkPresenter
 
   private
 
-    def citation
-      @citation ||= DatasetCitation.new(creators, [work.resource.publication_year], work.resource.titles.first.title, work.resource.resource_type, work.resource.publisher, work.resource.doi)
-    end
+  def citation
+    @citation ||= DatasetCitation.new(creators, [work.resource.publication_year], work.resource.titles.first.title, work.resource.resource_type, work.resource.publisher, work.resource.doi)
+  end
 
-    def creators
-      @creators ||= work.resource.creators.map { |creator| "#{creator.family_name}, #{creator.given_name}" }
-    end
+  def creators
+    @creators ||= work.resource.creators.map { |creator| "#{creator.family_name}, #{creator.given_name}" }
+  end
 
-    # relation_type, identifier, link
-    def format_related_object_links(related_object)
-      rol = RelatedObjectLink.new
-      rol.identifier = related_object.related_identifier
-      rol.relation_type = related_object.relation_type
-      rol.link = format_link(related_object.related_identifier, related_object.related_identifier_type)
-      rol
-    end
+  # relation_type, identifier, link
+  def format_related_object_links(related_object)
+    rol = RelatedObjectLink.new
+    rol.identifier = related_object.related_identifier
+    rol.relation_type = related_object.relation_type
+    rol.link = format_link(related_object.related_identifier, related_object.related_identifier_type)
+    rol
+  end
 
-    # Turn an identifier into a link. This will vary for different kinds of related objects.
-    # A DOI URL is not the same as an arXiv URL, for example.
-    # For now, only format links for DOI and arXiv identifiers
-    def format_link(id, id_type)
-      return id if id.starts_with?("http")
-      return "#{Rails.configuration.datacite.doi_url}#{id}" if id_type == "DOI"
-      return "https://arxiv.org/abs/#{id}" if id_type == "arXiv"
-      ""
-    end
+  # Turn an identifier into a link. This will vary for different kinds of related objects.
+  # A DOI URL is not the same as an arXiv URL, for example.
+  # For now, only format links for DOI and arXiv identifiers
+  def format_link(id, id_type)
+    return id if id.starts_with?("http")
+    return "#{Rails.configuration.datacite.doi_url}#{id}" if id_type == "DOI"
+    return "https://arxiv.org/abs/#{id}" if id_type == "arXiv"
+    ""
+  end
 end
