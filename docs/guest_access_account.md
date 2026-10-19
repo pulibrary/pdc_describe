@@ -10,6 +10,8 @@ Use just your email (no @princeton.edu).  It takes a long time for the user to b
 
 ## Entra Guest Account
 
+There is a [knowledge base article about this](https://princeton.service-now.com/service?id=kb_article&sys_id=KB0015077)
+
 ### Invite a guest user
 You can create a guest user via [Entra Users](https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/AllUsers/menuId/)
 <img width="1143" height="202" alt="Screenshot 2026-10-19 at 1 31 21 PM" src="https://github.com/user-attachments/assets/1c619590-9124-471e-a92d-9ca557b761c6" />
