@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class EmbargoUploadSnapshot < BackgroundUploadSnapshot
   def finalize_upload
     new_files.each do |file|

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class ReportsController < ApplicationController
   def dataset_list
     if current_user.super_admin? || current_user.moderator?

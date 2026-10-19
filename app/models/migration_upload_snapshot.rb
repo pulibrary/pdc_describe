@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class MigrationUploadSnapshot < UploadSnapshot
   def store_files(s3_files, pre_existing_files: [])
     self.files = s3_files.map { |file| { "filename" => file.filename_display, "checksum" => file.checksum, "migrate_status" => "started" } }

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class GroupOption < ApplicationRecord
   EMAIL_MESSAGES = 0
 

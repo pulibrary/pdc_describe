@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Class for representing a Rights statement
 module PDCMetadata
   class Rights

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative "redis_config"
 require "pul_redis"
 require "pul_cache"

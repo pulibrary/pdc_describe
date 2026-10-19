@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class UserLookupController < ApplicationController
   def search
     term = params[:term]

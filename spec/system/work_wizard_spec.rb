@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "rails_helper"
 
 describe "walk the wizard hitting all the buttons", type: :system, js: true do

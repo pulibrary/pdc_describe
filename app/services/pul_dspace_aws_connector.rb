@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class PULDspaceAwsConnector
   attr_reader :work, :ark, :dspace_doi, :migration_snapshot
 

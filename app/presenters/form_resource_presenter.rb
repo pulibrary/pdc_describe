@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class FormResourcePresenter
   attr_reader :resource, :current_user, :work
 

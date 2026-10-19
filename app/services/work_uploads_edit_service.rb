@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class WorkUploadsEditService
   attr_reader :work, :s3_service, :current_user
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class BackgroundUploadSnapshot < UploadSnapshot
   def store_files(uploaded_files, pre_existing_files: [], current_user: nil)
     save # needed so I can point to this snapshot in the files to distinguish new files from existing ones froma past snapshot

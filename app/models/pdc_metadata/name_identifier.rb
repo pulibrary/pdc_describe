@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Class for storing a named identifier for the creator in our local representation.  This identifier can be a person or organization.
 # **Please Note:**
 # The class name NameIdentifier is being utilized becuase it matches with the DataCite Schema: https://support.datacite.org/docs/datacite-metadata-schema-v44-mandatory-properties#24-nameidentifier

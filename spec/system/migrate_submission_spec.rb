@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "Form submission for a legacy dataset", type: :system, mock_ezid_api: true, js: true do

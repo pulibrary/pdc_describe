@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class UsersController < ApplicationController
   # Constants set by the <form> <input> parameters transmitted using POST/PATCH/PUT requests
   GROUP_MESSAGING_DISABLED = "0"

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class PULDspaceConnector
   attr_reader :work, :ark, :download_base
 

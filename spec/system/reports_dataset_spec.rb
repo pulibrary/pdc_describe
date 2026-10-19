@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "rails_helper"
 RSpec.describe "Reports page", type: :system, js: true do
   describe "Reports page" do

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class WorkActivityNotificationsController < ApplicationController
   before_action :set_activity_notification, only: %i[show]
 

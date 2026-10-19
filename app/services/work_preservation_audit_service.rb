@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class WorkAuditError < ::StandardError; end
 
 # A service to create and store the preservation data for a given work.

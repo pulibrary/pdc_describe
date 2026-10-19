@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class UpdateSnapshotJob < ApplicationJob
   queue_as :low
 

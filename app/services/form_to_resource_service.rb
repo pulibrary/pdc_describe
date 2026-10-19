@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class FormToResourceService
   class << self
     # Convert params into a resource

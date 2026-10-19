@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class WorkPresenter
   include Rails.application.routes.url_helpers
 

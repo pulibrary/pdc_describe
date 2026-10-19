@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Class for storing a creator in our local representation
 module PDCMetadata
   # value: "Miller, Elizabeth"

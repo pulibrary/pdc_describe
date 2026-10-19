@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "rails_helper"
 ##
 # A non-authenticated user cannot get to any edit screens, they always get redirected back

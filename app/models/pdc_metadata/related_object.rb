@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Class for storing a related object
 module PDCMetadata
   # let(:related_identifier) { "https://www.biorxiv.org/content/10.1101/545517v1" }

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "rails_helper"
 ##
 # A group admin is a user who has admin rights on a given group

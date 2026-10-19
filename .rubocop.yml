@@ -1,9 +1,28 @@
+# Loads Standard's rules for `bundle exec rubocop`.
+# standardrb configures these in process; the rubocop CLI only sees YAML.
+# https://github.com/standardrb/standard#running-standards-rules-via-rubocop
+inherit_from: .rubocop-extensions.yml
+
+inherit_gem:
+  standard: config/base.yml
+  standard-custom: config/base.yml
+  standard-performance: config/base.yml
+  standard-rails: config/base.yml
+
 plugins:
-  - rubocop-capybara
-  - rubocop-factory_bot
+  - standard-custom
+  - standard-performance
+  - rubocop-performance
   - rubocop-rails
-  - rubocop-rspec
-  - rubocop-rspec_rails
 
 AllCops:
-  NewCops: enable
+  DisabledByDefault: true
+  TargetRubyVersion: 3.4
+  NewCops: disable
+  Exclude:
+    - .git/**/*
+    - node_modules/**/*
+    - vendor/**/*
+    - bin/*
+    - db/schema.rb
+    - tmp/**/*
