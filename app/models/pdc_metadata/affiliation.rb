@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Class for storing an affiliation in our local representation
 module PDCMetadata
   # value:      "datacite"

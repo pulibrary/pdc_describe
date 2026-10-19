@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class CreateUploadSnapshots < ActiveRecord::Migration[6.1]
   def change
     create_table :upload_snapshots do |t|

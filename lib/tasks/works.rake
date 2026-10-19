@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 namespace :works do
   desc "Transfers DOI value from Work.doi to Work.resource.doi"
   task transfer_doi_fix: :environment do

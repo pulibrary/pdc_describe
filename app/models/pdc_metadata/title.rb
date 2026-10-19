@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Class for storing a title in our local representation
 module PDCMetadata
   # value:      "100 años de soledad"

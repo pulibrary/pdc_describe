@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class Readme
   attr_reader :work, :current_user
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class PULDspaceMigrate
   attr_reader :work, :ark, :file_keys, :directory_keys, :current_user,
               :aws_connector, :migration_snapshot, :dspace_files, :aws_files_and_directories

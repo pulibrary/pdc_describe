@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module PDCSerialization
   # The common use for this class is:
   #

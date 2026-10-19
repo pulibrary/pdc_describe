@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class WorkValidator
   include Rails.application.routes.url_helpers
   attr_reader :work

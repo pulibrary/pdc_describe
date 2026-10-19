@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class ApprovedFileMoveJob < ApplicationJob
   queue_as :default
   retry_on ActiveRecord::RecordNotFound

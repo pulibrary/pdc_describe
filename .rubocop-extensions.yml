@@ -1,0 +1,5 @@
+plugins:
+  - rubocop-capybara
+  - rubocop-factory_bot
+  - rubocop-rspec
+  - rubocop-rspec_rails

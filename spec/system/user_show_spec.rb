@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "rails_helper"
 RSpec.describe "User dashboard", type: :system, js: true do
   describe "Sort by last edited uses the proper value" do

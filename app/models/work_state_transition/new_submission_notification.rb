@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module WorkStateTransition
   class NewSubmissionNotification < BaseNotification
     private

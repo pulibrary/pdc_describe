@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module WorkStateTransition
   class NewSubmission < Base
     def self.add_work_activity(work_id, current_user_id)

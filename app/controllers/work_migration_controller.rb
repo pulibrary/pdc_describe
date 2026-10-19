@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class WorkMigrationController < ApplicationController
   # @note No testing coverage for RuntimeError but depends on Dspaces
   def migrate

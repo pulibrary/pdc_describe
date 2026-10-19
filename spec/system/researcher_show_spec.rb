@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "rails_helper"
 RSpec.describe "Researcher List View", type: :system, js: true do
   describe "Researcher List" do

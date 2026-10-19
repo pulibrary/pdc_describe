@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class S3File
   include Rails.application.routes.url_helpers
   include ActionView::Helpers::NumberHelper

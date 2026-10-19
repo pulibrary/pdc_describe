@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "rails_helper"
 ##
 # A submitter is a logged in user with no permissions other than being able to deposit.

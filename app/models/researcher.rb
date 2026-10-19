@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class Researcher < ApplicationRecord
   def self.new_researcher(first_name, last_name, orcid)
     researcher = Researcher.where(orcid:).first

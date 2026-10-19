@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class WorkDownloaderController < ApplicationController
   def download
     work = Work.find(params[:id])

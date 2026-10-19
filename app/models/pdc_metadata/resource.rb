@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module PDCMetadata
   # Represents a PUL Datacite resource
   # https://support.datacite.org/docs/datacite-metadata-schema-v44-properties-overview

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 namespace :researchers do
   desc "Creates researchers records from user records"
   task create_from_users: :environment do

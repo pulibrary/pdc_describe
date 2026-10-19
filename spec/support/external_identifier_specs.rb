@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "sinatra/base"
 
 # This sets up a little local server to respond to ORCID or ROR ajax requests

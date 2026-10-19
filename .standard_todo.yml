@@ -2,1203 +2,874 @@
 # Remove from this list as you refactor files.
 ---
 ignore:
-  - Capfile:
-      - Layout/EmptyLineAfterMagicComment
-      - Lint/DuplicateRequire
-  - Gemfile:
-      - Layout/EmptyLineAfterMagicComment
-  - Rakefile:
-      - Layout/EmptyLineAfterMagicComment
-  - app/channels/application_cable/channel.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/channels/application_cable/connection.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/controllers/application_controller.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/controllers/errors_controller.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/controllers/groups_controller.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Style/EmptyMethod
-      - Style/SingleLineMethods
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Layout/SpaceInsideHashLiteralBraces
-  - app/controllers/reports_controller.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/controllers/researchers_controller.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-  - app/controllers/user_lookup_controller.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/MultilineMethodCallIndentation
-      - Layout/SpaceInsideHashLiteralBraces
-  - app/controllers/users/omniauth_callbacks_controller.rb:
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/controllers/users_controller.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Style/StringLiteralsInInterpolation
-      - Layout/ArrayAlignment
-      - Layout/FirstArrayElementIndentation
-  - app/controllers/welcome_controller.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Style/EmptyMethod
-      - Style/SingleLineMethods
-  - app/controllers/work_activity_notifications_controller.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Style/EmptyMethod
-      - Style/SingleLineMethods
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Layout/ElseAlignment
-      - Layout/EndAlignment
-  - app/controllers/work_downloader_controller.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/controllers/work_migration_controller.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/controllers/works_controller.rb:
-      - Layout/EmptyLinesAfterModuleInclusion
-      - Layout/ArgumentAlignment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Style/RescueStandardError
-      - Rails/CompactBlank
-  - app/controllers/works_wizard_controller.rb:
-      - Layout/EmptyLinesAfterModuleInclusion
-      - Layout/ArrayAlignment
-      - Layout/ArgumentAlignment
-      - Style/EmptyMethod
-      - Style/SingleLineMethods
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Rails/CompactBlank
-      - Style/RescueStandardError
-  - app/controllers/works_wizard_new_submission_controller.rb:
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/controllers/works_wizard_policy_controller.rb:
-      - Style/EmptyMethod
-      - Style/SingleLineMethods
-  - app/controllers/works_wizard_submission_complete_controller.rb:
-      - Layout/IndentationWidth
-      - Layout/ElseAlignment
-      - Layout/EndAlignment
-  - app/helpers/application_helper.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Style/Alias
-  - app/jobs/application_job.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/jobs/approved_file_move_job.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/jobs/dspace_bitstream_copy_job.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/jobs/dspace_file_copy_job.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/ArgumentAlignment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Layout/EmptyLinesAroundExceptionHandlingKeywords
-  - app/jobs/empty_directory_delete_job.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/jobs/update_snapshot_job.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/lib/diff_tools.rb:
-      - Style/RedundantLineContinuation
-  - app/mailers/application_mailer.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/mailers/notification_mailer.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/ElseAlignment
-      - Layout/EndAlignment
-  - app/models/application_record.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/approved_upload_snapshot.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Style/StringLiteralsInInterpolation
-      - Layout/ArgumentAlignment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Style/HashSyntax
-  - app/models/ark.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Style/RescueStandardError
-      - Lint/DeprecatedConstants
-      - Rails/Output
-  - app/models/background_upload_snapshot.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Style/HashSyntax
-      - Performance/InefficientHashSearch
-      - Rails/Pluck
-      - Style/StringLiteralsInInterpolation
-  - app/models/dataset_citation.rb:
-      - Style/SlicingWithRange
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Style/StringLiteralsInInterpolation
-  - app/models/embargo_release_snapshot.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Style/StringLiteralsInInterpolation
-      - Layout/ArgumentAlignment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Style/HashSyntax
-  - app/models/embargo_upload_snapshot.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Style/StringLiteralsInInterpolation
-      - Layout/ArgumentAlignment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Style/HashSyntax
-  - app/models/group.rb:
-      - Layout/ArrayAlignment
-      - Style/RedundantReturn
-  - app/models/group_option.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-  - app/models/migration_upload_snapshot.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Performance/InefficientHashSearch
-      - Rails/Pluck
-      - Layout/ArgumentAlignment
-      - Style/StringLiteralsInInterpolation
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/models/orcid.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/pdc_metadata/affiliation.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/pdc_metadata/creator.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Style/TernaryParentheses
-      - Style/RedundantParentheses
-      - Layout/ArgumentAlignment
-      - Style/StringLiteralsInInterpolation
-      - Metrics/ParameterLists
-  - app/models/pdc_metadata/name_identifier.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/pdc_metadata/related_object.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/models/pdc_metadata/resource.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Metrics/MethodLength
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Layout/ArgumentAlignment
-  - app/models/pdc_metadata/rights.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/pdc_metadata/title.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/pdc_serialization/datacite.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Rails/FilePath
-      - Layout/AccessModifierIndentation
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Style/RedundantAssignment
-      - Layout/EndAlignment
-  - app/models/readme.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/AccessModifierIndentation
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/models/related_object_link.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/researcher.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-  - app/models/role.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/ArgumentAlignment
-      - Layout/SpaceInsideHashLiteralBraces
-  - app/models/s3_file.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Style/Alias
-      - Layout/IndentationWidth
-      - Layout/ElseAlignment
-      - Layout/EndAlignment
-      - Layout/ArgumentAlignment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/IndentationConsistency
-  - app/models/upload_snapshot.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Rails/Pluck
-      - Style/UnpackFirst
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/models/user.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/EmptyLinesAfterModuleInclusion
-      - Style/StringLiteralsInInterpolation
-      - Metrics/MethodLength
-      - Layout/IndentationWidth
-      - Layout/ElseAlignment
-      - Layout/EndAlignment
-  - app/models/version_footer.rb:
-      - Layout/SpaceInsideHashLiteralBraces
-      - Style/RescueStandardError
-      - Layout/IndentationWidth
-      - Layout/ElseAlignment
-      - Rails/EnvLocal
-      - Layout/EndAlignment
-      - Style/RedundantRegexpEscape
-      - Lint/DuplicateRegexpCharacterClassElement
-      - Rails/FilePath
-      - Lint/CopDirectiveSyntax
-  - app/models/work.rb:
-      - Style/Alias
-      - Layout/IndentationWidth
-      - Layout/ElseAlignment
-      - Layout/EndAlignment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/MultilineMethodCallIndentation
-      - Lint/SymbolConversion
-      - Layout/FirstHashElementIndentation
-      - Metrics/MethodLength
-      - Layout/ArgumentAlignment
-      - Lint/CopDirectiveSyntax
-      - Style/StringLiteralsInInterpolation
-      - Layout/IndentationConsistency
-  - app/models/work_activity.rb:
-      - Style/RedundantRegexpCharacterClass
-      - Rails/Pluck
-      - Style/SlicingWithRange
-      - Layout/IndentationWidth
-      - Layout/ElseAlignment
-      - Layout/EndAlignment
-      - Layout/EmptyLinesAroundBeginBody
-      - Layout/BeginEndAlignment
-      - Style/RedundantArrayFlatten
-      - Style/StringLiteralsInInterpolation
-  - app/models/work_activity_notification.rb:
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Layout/SpaceInsideHashLiteralBraces
-  - app/models/work_list.rb:
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Layout/MultilineMethodCallIndentation
-  - app/models/work_state_transition/approved.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/work_state_transition/approved_notification.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/models/work_state_transition/awaiting_approval.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/work_state_transition/awaiting_approval_notification.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/models/work_state_transition/base.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Style/RedundantAssignment
-      - Layout/IndentationWidth
-      - Layout/ElseAlignment
-      - Layout/EndAlignment
-  - app/models/work_state_transition/base_notification.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/work_state_transition/deletion_marker.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/work_state_transition/deletion_marker_notification.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/work_state_transition/new_submission.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/work_state_transition/new_submission_notification.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/models/work_state_transition/resubmission.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/work_state_transition/resubmission_notification.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/work_state_transition/returned_to_draft.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/work_state_transition/returned_to_draft_notification.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/models/work_state_transition/withdrawn.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/work_state_transition/withdrawn_notification.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - app/models/work_state_transition_notification.rb:
-      - Layout/ArgumentAlignment
-      - Layout/AccessModifierIndentation
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Style/RedundantAssignment
-      - Layout/ElseAlignment
-      - Layout/EndAlignment
-  - app/presenters/form_resource_presenter.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/EndAlignment
-      - Layout/BeginEndAlignment
-      - Layout/IndentationConsistency
-  - app/presenters/work_presenter.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/services/file_rename_mapping_service.rb:
-      - Rails/Pluck
-  - app/services/form_to_resource_service.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/services/pul_cache.rb:
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/services/pul_datacite.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Rails/EnvLocal
-      - Layout/ArgumentAlignment
-      - Layout/IndentationWidth
-      - Layout/ElseAlignment
-      - Layout/EndAlignment
-      - Layout/IndentationConsistency
-  - app/services/pul_dspace_aws_connector.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/services/pul_dspace_connector.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Style/StringLiteralsInInterpolation
-      - Layout/BeginEndAlignment
-      - Layout/ArgumentAlignment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/services/pul_dspace_migrate.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/ArgumentAlignment
-      - Style/StringLiteralsInInterpolation
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/LineLength
-  - app/services/pul_redis.rb:
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/services/pul_s3_client.rb:
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Layout/SpaceInsideHashLiteralBraces
-  - app/services/resource_compare_service.rb:
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Layout/SpaceInsideHashLiteralBraces
-  - app/services/s3_move_service.rb:
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/services/s3_query_service.rb:
-      - Lint/DuplicateMethods
-      - Layout/FirstHashElementIndentation
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/ArgumentAlignment
-      - Style/IfWithBooleanLiteralBranches
-      - Style/RedundantConditional
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/services/work_compare_service.rb:
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Layout/SpaceInsideHashLiteralBraces
-  - app/services/work_embargo_release_service.rb:
-      - Layout/SpaceInsideHashLiteralBraces
-  - app/services/work_metadata_service.rb:
-      - Layout/AccessModifierIndentation
-  - app/services/work_preservation_audit_service.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Layout/SpaceInsideHashLiteralBraces
-      - Style/StringLiteralsInInterpolation
-  - app/services/work_preservation_service.rb:
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Layout/SpaceInsideHashLiteralBraces
-  - app/services/work_publish_service.rb:
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Layout/ArgumentAlignment
-  - app/services/work_update_metadata_service.rb:
-      - Rails/FindEach
-      - Rails/Output
-      - Layout/IndentationWidth
-      - Layout/ElseAlignment
-      - Layout/EndAlignment
-  - app/services/work_uploads_edit_service.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - app/services/work_validator.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/EmptyLinesAfterModuleInclusion
-      - Layout/ArgumentAlignment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Style/StringLiteralsInInterpolation
-      - Style/RedundantRegexpEscape
-  - app/views/users/_user.json.jbuilder:
-      - Layout/EmptyLineAfterMagicComment
-  - app/views/users/show.json.jbuilder:
-      - Layout/EmptyLineAfterMagicComment
-  - app/views/work_activity_notifications/_activity_notification.json.jbuilder:
-      - Layout/EmptyLineAfterMagicComment
-  - app/views/work_activity_notifications/index.json.jbuilder:
-      - Layout/EmptyLineAfterMagicComment
-  - app/views/work_activity_notifications/show.json.jbuilder:
-      - Layout/EmptyLineAfterMagicComment
-  - app/views/works/index.rss.builder:
-      - Layout/EmptyLineAfterMagicComment
-  - config.ru:
-      - Layout/EmptyLineAfterMagicComment
-  - config/application.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/boot.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/ci.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/deploy/production.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/deploy/production_primary.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/deploy/production_secondary.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/deploy/staging.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/environment.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/environments/development.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Rails/FilePath
-      - Layout/SpaceInsideHashLiteralBraces
-  - config/environments/production.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/ExtraSpacing
-      - Style/GlobalStdStream
-  - config/environments/staging.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/ExtraSpacing
-      - Style/GlobalStdStream
-  - config/environments/test.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/features.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/application_controller_renderer.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/assets.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/backtrace_silencers.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/content_security_policy.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/cookies_serializer.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/devise.rb:
-      - Layout/ArgumentAlignment
-  - config/initializers/filter_parameter_logging.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/health_monitor.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/inflections.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/load_datacite.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/load_dspace.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/load_globus.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/load_group_defaults.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/load_provenance_message_writers.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/load_s3.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/load_superadmins.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/load_update_ark_url.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/mime_types.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/new_framework_defaults_7_2.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/new_framework_defaults_8_1.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/number_to_human_size_converter.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - config/initializers/permissions_policy.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/redis_config.rb:
-      - Layout/AccessModifierIndentation
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-      - Rails/RootPathnameMethods
-      - Rails/FilePath
-  - config/initializers/rolify.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/initializers/sidekiq_config.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-  - config/initializers/wrap_parameters.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/lando_env.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Rails/EnvLocal
-      - Style/RescueStandardError
-  - config/puma.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/routes.rb:
-      - Layout/SpaceInsideHashLiteralBraces
-      - Style/HashSyntax
-  - config/schedule.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - config/spring.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - db/migrate/20220331183450_devise_create_users.rb:
-      - Layout/ExtraSpacing
-      - Layout/EmptyLines
-  - db/migrate/20220414155700_create_user_collections.rb:
-      - Layout/IndentationWidth
-      - Layout/EndAlignment
-  - db/migrate/20220418132700_create_works.rb:
-      - Layout/IndentationWidth
-      - Layout/EndAlignment
-  - db/migrate/20220418133000_create_user_works.rb:
-      - Layout/IndentationWidth
-      - Layout/EndAlignment
-  - db/migrate/20220418134000_add_work_to_dataset.rb:
-      - Layout/IndentationWidth
-      - Layout/EndAlignment
-  - db/migrate/20220420154900_add_fields_to_users.rb:
-      - Layout/IndentationWidth
-      - Layout/EndAlignment
-  - db/migrate/20220602105600_add_notes_to_work.rb:
-      - Layout/IndentationWidth
-      - Layout/EndAlignment
-  - db/migrate/20220706143945_add_created_by_user_id_to_work_activities.rb:
-      - Layout/LeadingEmptyLines
-      - Layout/IndentationWidth
-      - Layout/EndAlignment
-  - db/migrate/20220711145035_create_active_storage_tables.active_storage.rb:
-      - Layout/ExtraSpacing
-      - Layout/SpaceInsideArrayLiteralBrackets
-      - Layout/SpaceInsidePercentLiteralDelimiters
-  - db/migrate/20220711160345_create_work_activity_notifications.rb:
-      - Layout/IndentationWidth
-      - Layout/EndAlignment
-  - db/migrate/20220815180808_rename_work_data_cite.rb:
-      - Rails/ReversibleMigration
-  - db/migrate/20220816121418_work_remove_title.rb:
-      - Rails/ReversibleMigration
-  - db/migrate/20220818110918_work_remove_dublin_core.rb:
-      - Layout/IndentationWidth
-      - Rails/ReversibleMigration
-      - Layout/EndAlignment
-  - db/migrate/20220823094818_work_remove_doi_ark.rb:
-      - Rails/ReversibleMigration
-  - db/migrate/20220829184502_work_metadata_jsonb.rb:
-      - Style/StringLiterals
-  - db/migrate/20220830120250_rolify_create_roles.rb:
-      - Style/HashSyntax
-      - Layout/TrailingWhitespace
-      - Layout/SpaceInsideArrayLiteralBrackets
-  - db/migrate/20220831154828_drop_datasets_table.rb:
-      - Layout/EmptyLineBetweenDefs
-  - db/migrate/20220901124949_remove_user_collection.rb:
-      - Rails/ReversibleMigration
-  - db/migrate/20221031150209_create_collection_options.rb:
-      - Rails/CreateTableWithTimestamps
-  - db/migrate/20230303165757_create_upload_snapshots.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - db/migrate/20230504164626_upload_snapshot_files.rb:
-      - Style/StringLiterals
-      - Rails/FindEach
-      - Layout/IndentationConsistency
-      - Layout/TrailingWhitespace
-  - db/migrate/20230516133007_role_collection_to_group.rb:
-      - Rails/FindEach
-  - db/migrate/20230516194040_collection_to_group_options.rb:
-      - Layout/EmptyLineBetweenDefs
-  - db/migrate/20230518155600_group_rename.rb:
-      - Layout/EmptyLineBetweenDefs
-  - db/migrate/20230524181606_user_display_name_to_given_name.rb:
-      - Layout/EmptyLineBetweenDefs
-  - db/migrate/20230719173219_add_type_to_upload_snapshot.rb:
-      - Style/StringLiterals
-      - Rails/FindEach
-      - Style/ConditionalAssignment
-      - Layout/EmptyLineBetweenDefs
-  - db/migrate/20230810125820_add_enabled_and_subcommunity_to_group_option.rb:
-      - Style/StringLiterals
-      - Layout/EmptyLineBetweenDefs
-  - db/migrate/20231025155725_provenance_note_format.rb:
-      - Rails/FindEach
-      - Layout/SpaceInsideHashLiteralBraces
-  - db/migrate/20240705120614_safe_uid.rb:
-      - Rails/FindEach
-  - db/migrate/20241021194327_deparment_community.rb:
-      - Rails/FindEach
-      - Layout/SpaceInsideBlockBraces
-      - Style/TernaryParentheses
-  - db/migrate/20260508175641_add_service_name_to_active_storage_blobs.active_storage.rb:
-      - Lint/AssignmentInCondition
-  - db/migrate/20260508175642_create_active_storage_variant_records.active_storage.rb:
-      - Layout/SpaceInsidePercentLiteralDelimiters
-      - Layout/EmptyLinesAroundAccessModifier
-      - Layout/IndentationWidth
-      - Layout/IndentationConsistency
-  - db/migrate/20260528112839_add_sent_flag_to_work_activity_notification.rb:
-      - Style/StringLiterals
-      - Layout/EmptyLineBetweenDefs
-  - lib/tasks/embargo.rake:
-      - Layout/EmptyLineAfterMagicComment
-  - lib/tasks/orcid.rake:
-      - Layout/EmptyLineAfterMagicComment
-  - lib/tasks/researchers.rake:
-      - Layout/EmptyLineAfterMagicComment
-      - Rails/FindEach
-  - lib/tasks/servers.rake:
-      - Layout/EmptyLineAfterMagicComment
-  - lib/tasks/users.rake:
-      - Layout/EmptyLineAfterMagicComment
-      - Rails/FindEach
-  - lib/tasks/works.rake:
-      - Layout/EmptyLineAfterMagicComment
-      - Rails/FindEach
-      - Layout/SpaceInsideHashLiteralBraces
-      - Style/TernaryParentheses
-      - Style/StringLiteralsInInterpolation
-  - spec/controllers/groups_controller_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-      - RSpecRails/HaveHttpStatus
-  - spec/controllers/omniauth_callbacks_controller_spec.rb:
-      - Style/HashSyntax
-  - spec/controllers/reports_controller_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/controllers/user_lookup_controller_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/LineContinuationSpacing
-  - spec/controllers/users_controller_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-      - RSpecRails/HaveHttpStatus
-  - spec/controllers/welcome_controller_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - spec/controllers/works_controller_spec.rb:
-      - Layout/EmptyLinesAfterModuleInclusion
-      - Layout/SpaceInsideHashLiteralBraces
-      - Style/StringLiteralsInInterpolation
-      - RSpecRails/HaveHttpStatus
-      - Style/HashSyntax
-      - Layout/ArrayAlignment
-      - Rails/Pluck
-      - Performance/InefficientHashSearch
-      - Layout/SpaceAroundMethodCallOperator
-      - Layout/LineLength
-      - Layout/MultilineMethodCallIndentation
-  - spec/controllers/works_migration_controller_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/ArgumentAlignment
-  - spec/controllers/works_wizard_controller_spec.rb:
-      - Layout/EmptyLinesAfterModuleInclusion
-      - Style/StringLiteralsInInterpolation
-      - Style/HashSyntax
-      - Layout/SpaceInsideHashLiteralBraces
-      - RSpecRails/HaveHttpStatus
-      - Lint/SymbolConversion
-      - Style/RedundantRegexpEscape
-      - Layout/ArrayAlignment
-      - Layout/FirstArrayElementIndentation
-  - spec/controllers/works_wizard_new_submission_controller_spec.rb:
-      - Layout/SpaceInsideHashLiteralBraces
-      - RSpecRails/HaveHttpStatus
-      - Style/HashSyntax
-  - spec/controllers/works_wizard_policy_controller_spec.rb:
-      - RSpecRails/HaveHttpStatus
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/controllers/works_wizard_submission_complete_controller_spec.rb:
-      - Layout/SpaceInsideHashLiteralBraces
-      - RSpecRails/HaveHttpStatus
-  - spec/controllers/works_wizard_update_additonal_controller_spec.rb:
-      - Layout/EmptyLinesAfterModuleInclusion
-      - Style/StringLiteralsInInterpolation
-      - Style/HashSyntax
-      - Layout/SpaceInsideHashLiteralBraces
-      - RSpecRails/HaveHttpStatus
-  - spec/factories/related_object.rb:
-      - Style/StringLiteralsInInterpolation
-  - spec/factories/researcher.rb:
-      - Style/StringLiteralsInInterpolation
-  - spec/factories/s3_file.rb:
-      - Layout/ArgumentAlignment
-  - spec/factories/work.rb:
-      - Style/StringLiteralsInInterpolation
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/FirstHashElementIndentation
-      - Rails/RootPathnameMethods
-      - Rails/FilePath
-      - RSpecRails/FileFixture
-  - spec/helpers/application_helper_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Lint/ConstantDefinitionInBlock
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/jobs/approved_file_copy_job_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/EmptyLinesAfterModuleInclusion
-      - Layout/ArgumentAlignment
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/jobs/dspace_bitstream_copy_job_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/ArgumentAlignment
-  - spec/jobs/dspace_file_copy_job_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceAroundOperators
-      - Layout/ExtraSpacing
-      - Lint/SymbolConversion
-      - Layout/ArgumentAlignment
-  - spec/jobs/update_snapshot_job_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/mailers/notification_mailer_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/models/ark_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Lint/DeprecatedConstants
-  - spec/models/background_upload_snapshot_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/ArrayAlignment
-      - Layout/LineLength
-      - Layout/LineContinuationSpacing
-  - spec/models/doi_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/ArgumentAlignment
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/models/group_option_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/models/group_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/models/migration_upload_snapshot_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/ArrayAlignment
-      - Layout/HeredocIndentation
-      - Layout/ClosingHeredocIndentation
-      - Style/QuotedSymbols
-      - Lint/SymbolConversion
-      - Layout/ArgumentAlignment
-  - spec/models/orcid_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/models/pdc_metadata/affiliation_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/models/pdc_metadata/creator_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/models/pdc_metadata/name_identifier_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/models/pdc_metadata/related_object_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/models/pdc_metadata/resource_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/models/pdc_serialization/datacite_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/ArgumentAlignment
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/models/readme_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/FirstHashElementIndentation
-      - Rails/FilePath
-      - RSpecRails/FileFixture
-  - spec/models/role_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/models/s3_file_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/models/upload_snapshot_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/ArrayAlignment
-  - spec/models/user_spec.rb:
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/ArgumentAlignment
-  - spec/models/work_activity_notification_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/models/work_activity_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/LineLength
-  - spec/models/work_list_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/models/work_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-      - RSpecRails/ReceivePerformLater
-      - Lint/DeprecatedConstants
-      - Layout/SpaceAroundMethodCallOperator
-      - Lint/SymbolConversion
-      - Layout/ArgumentAlignment
-      - Layout/MultilineMethodCallIndentation
-      - Layout/ArrayAlignment
-  - spec/models/work_state_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Style/StringLiteralsInInterpolation
-      - Layout/MultilineMethodCallIndentation
-  - spec/models/work_state_transition_notification_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/presenters/work_presenter_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - spec/rails_helper.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/ArrayAlignment
-      - Layout/FirstArrayElementIndentation
-      - Rails/RootPathnameMethods
-      - Rails/FilePath
-  - spec/requests/health_check.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/requests/sidekiq_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/requests/users_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - RSpecRails/HaveHttpStatus
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/requests/welcome_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/requests/work_activity_notifications_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/requests/work_downloader_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/requests/works_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/EmptyLinesAfterModuleInclusion
-      - RSpecRails/HaveHttpStatus
-      - Layout/SpaceInsideHashLiteralBraces
-      - Style/HashSyntax
-      - Rails/Pluck
-  - spec/routing/users_routing_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/routing/work_activity_notifications_routing_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/routing/works_routing_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/routing/works_wizard_routing_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/services/file_rename_mapping_service_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - spec/services/file_rename_service_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - spec/services/form_to_resource_service_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/services/pul_datacite_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - spec/services/pul_dspace_aws_connector_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Rails/RootPathnameMethods
-      - Rails/FilePath
-      - RSpecRails/FileFixture
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/services/pul_dspace_connector_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Rails/RootPathnameMethods
-      - Rails/FilePath
-      - RSpecRails/FileFixture
-      - Lint/SymbolConversion
-      - Layout/ArgumentAlignment
-  - spec/services/pul_dspace_migrate_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Rails/RootPathnameMethods
-      - Rails/FilePath
-      - RSpecRails/FileFixture
-      - Lint/SymbolConversion
-      - Layout/MultilineMethodCallIndentation
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/ArrayAlignment
-      - Layout/LineLength
-      - Layout/ArgumentAlignment
-  - spec/services/pul_s3_client_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Rails/RootPathnameMethods
-      - Rails/FilePath
-      - RSpecRails/FileFixture
-      - Lint/SymbolConversion
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/ArrayAlignment
-      - Layout/LineLength
-  - spec/services/resource_compare_service_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceAroundMethodCallOperator
-      - Layout/SpaceInsideHashLiteralBraces
-      - Lint/SymbolConversion
-      - Lint/ConstantDefinitionInBlock
-  - spec/services/s3_move_service_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/ArgumentAlignment
-      - Lint/SymbolConversion
-  - spec/services/s3_query_service_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/HeredocIndentation
-      - Layout/ClosingHeredocIndentation
-      - Style/QuotedSymbols
-      - Lint/SymbolConversion
-      - Layout/SpaceInsideHashLiteralBraces
-      - Rails/RootPathnameMethods
-      - Rails/FilePath
-      - RSpecRails/FileFixture
-      - Layout/LineLength
-      - Layout/ArgumentAlignment
-  - spec/services/work_compare_service_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceAroundMethodCallOperator
-  - spec/services/work_embargo_release_service_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/MultilineMethodCallIndentation
-      - Layout/ArrayAlignment
-      - Layout/FirstArrayElementIndentation
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/ArgumentAlignment
-  - spec/services/work_embargo_service_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/MultilineMethodCallIndentation
-      - Layout/ArrayAlignment
-      - Layout/FirstArrayElementIndentation
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/services/work_preservation_audit_service_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - spec/services/work_preservation_service_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - spec/services/work_publish_service_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Lint/SymbolConversion
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/ArrayAlignment
-      - Layout/FirstArrayElementIndentation
-      - Layout/ArgumentAlignment
-  - spec/services/work_update_metadata_service_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/EmptyLinesAfterModuleInclusion
-  - spec/services/work_upload_edit_service_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/EmptyLinesAfterModuleInclusion
-      - Layout/ArgumentAlignment
-  - spec/services/work_validator_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - spec/support/datacite_specs.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/ArgumentAlignment
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/support/external_identifier_specs.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Lint/SymbolConversion
-      - Layout/SpaceInsideHashLiteralBraces
-      - Style/StringLiteralsInInterpolation
-  - spec/support/s3_query_service_specs.rb:
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/ArgumentAlignment
-  - spec/support/wait_for_ajax.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - spec/system/accessibility_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Style/QuotedSymbols
-  - spec/system/authz_admin_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-      - Lint/BooleanSymbol
-  - spec/system/authz_submitter_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-      - Rails/FilePath
-      - RSpecRails/FileFixture
-  - spec/system/authz_super_admin_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-      - Rails/FilePath
-      - RSpecRails/FileFixture
-  - spec/system/authz_unauthenticated_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/system/curator_controlled_metadata_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/system/external_ids_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-      - Rails/FilePath
-      - RSpecRails/FileFixture
-  - spec/system/features_spec.rb:
-      - RSpecRails/InferredSpecType
-  - spec/system/front_page_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/system/group_edit_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - spec/system/migrate_submission_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Rails/RootPathnameMethods
-      - Rails/FilePath
-      - RSpecRails/FileFixture
-      - Lint/SymbolConversion
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/system/pppl_work_create_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-      - Rails/FilePath
-      - RSpecRails/FileFixture
-  - spec/system/provenance_note_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/system/reports_dataset_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/system/researcher_show_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/system/root_spec.rb:
-      - RSpecRails/InferredSpecType
-  - spec/system/rss_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/HeredocIndentation
-      - Layout/ClosingHeredocIndentation
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/system/user_edit_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/system/user_show_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/system/work_activity_notification_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/system/work_approve_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/system/work_comment_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/system/work_create_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-      - Rails/FilePath
-      - RSpecRails/FileFixture
-      - Layout/LineLength
-  - spec/system/work_edit_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Rails/FilePath
-      - RSpecRails/FileFixture
-  - spec/system/work_show_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/ArrayAlignment
-  - spec/system/work_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/system/work_upload_s3_objects_spec.rb:
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/system/work_wizard_reverse_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-  - spec/system/work_wizard_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - RSpecRails/InferredSpecType
-      - Layout/SpaceAroundMethodCallOperator
-  - spec/views/_header.html.erb_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - spec/views/users/index.html.erb_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - spec/views/welcome/about.html.erb_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - spec/views/welcome/help.html.erb_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - spec/views/welcome/index.html.erb_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-  - spec/views/works/work_activity_messages.html.erb_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - spec/views/works/work_activity_provenance.html.erb_spec.rb:
-      - Layout/EmptyLineAfterMagicComment
-      - Layout/SpaceInsideHashLiteralBraces
-      - Layout/ArgumentAlignment
-  - test/application_system_test_case.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - test/channels/application_cable/connection_test.rb:
-      - Layout/EmptyLineAfterMagicComment
-  - test/test_helper.rb:
-      - Layout/EmptyLineAfterMagicComment
+- Capfile:
+  - Lint/DuplicateRequire
+- app/controllers/application_controller.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/controllers/groups_controller.rb:
+  - Style/EmptyMethod
+  - Style/SingleLineMethods
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Layout/SpaceInsideHashLiteralBraces
+- app/controllers/reports_controller.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/controllers/researchers_controller.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+- app/controllers/user_lookup_controller.rb:
+  - Layout/MultilineMethodCallIndentation
+  - Layout/SpaceInsideHashLiteralBraces
+- app/controllers/users/omniauth_callbacks_controller.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/controllers/users_controller.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Style/StringLiteralsInInterpolation
+  - Layout/ArrayAlignment
+  - Layout/FirstArrayElementIndentation
+- app/controllers/welcome_controller.rb:
+  - Style/EmptyMethod
+  - Style/SingleLineMethods
+- app/controllers/work_activity_notifications_controller.rb:
+  - Style/EmptyMethod
+  - Style/SingleLineMethods
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Layout/ElseAlignment
+  - Layout/EndAlignment
+- app/controllers/work_migration_controller.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/controllers/works_controller.rb:
+  - Layout/EmptyLinesAfterModuleInclusion
+  - Layout/ArgumentAlignment
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Style/RescueStandardError
+  - Rails/CompactBlank
+- app/controllers/works_wizard_controller.rb:
+  - Layout/EmptyLinesAfterModuleInclusion
+  - Layout/ArrayAlignment
+  - Layout/ArgumentAlignment
+  - Style/EmptyMethod
+  - Style/SingleLineMethods
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Rails/CompactBlank
+  - Style/RescueStandardError
+- app/controllers/works_wizard_new_submission_controller.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/controllers/works_wizard_policy_controller.rb:
+  - Style/EmptyMethod
+  - Style/SingleLineMethods
+- app/controllers/works_wizard_submission_complete_controller.rb:
+  - Layout/IndentationWidth
+  - Layout/ElseAlignment
+  - Layout/EndAlignment
+- app/helpers/application_helper.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - Style/Alias
+- app/jobs/dspace_bitstream_copy_job.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/jobs/dspace_file_copy_job.rb:
+  - Layout/ArgumentAlignment
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Layout/EmptyLinesAroundExceptionHandlingKeywords
+- app/jobs/empty_directory_delete_job.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/lib/diff_tools.rb:
+  - Style/RedundantLineContinuation
+- app/mailers/notification_mailer.rb:
+  - Layout/IndentationWidth
+  - Layout/ElseAlignment
+  - Layout/EndAlignment
+- app/models/approved_upload_snapshot.rb:
+  - Style/StringLiteralsInInterpolation
+  - Layout/ArgumentAlignment
+  - Layout/SpaceInsideHashLiteralBraces
+  - Style/HashSyntax
+- app/models/ark.rb:
+  - Style/RescueStandardError
+  - Lint/DeprecatedConstants
+  - Rails/Output
+- app/models/background_upload_snapshot.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - Style/HashSyntax
+  - Performance/InefficientHashSearch
+  - Rails/Pluck
+  - Style/StringLiteralsInInterpolation
+- app/models/dataset_citation.rb:
+  - Style/SlicingWithRange
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Style/StringLiteralsInInterpolation
+- app/models/embargo_release_snapshot.rb:
+  - Style/StringLiteralsInInterpolation
+  - Layout/ArgumentAlignment
+  - Layout/SpaceInsideHashLiteralBraces
+  - Style/HashSyntax
+- app/models/embargo_upload_snapshot.rb:
+  - Style/StringLiteralsInInterpolation
+  - Layout/ArgumentAlignment
+  - Layout/SpaceInsideHashLiteralBraces
+  - Style/HashSyntax
+- app/models/group.rb:
+  - Layout/ArrayAlignment
+  - Style/RedundantReturn
+- app/models/group_option.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+- app/models/migration_upload_snapshot.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - Performance/InefficientHashSearch
+  - Rails/Pluck
+  - Layout/ArgumentAlignment
+  - Style/StringLiteralsInInterpolation
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/models/pdc_metadata/creator.rb:
+  - Style/TernaryParentheses
+  - Style/RedundantParentheses
+  - Layout/ArgumentAlignment
+  - Style/StringLiteralsInInterpolation
+  - Metrics/ParameterLists
+- app/models/pdc_metadata/related_object.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/models/pdc_metadata/resource.rb:
+  - Metrics/MethodLength
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Layout/ArgumentAlignment
+- app/models/pdc_serialization/datacite.rb:
+  - Rails/FilePath
+  - Layout/AccessModifierIndentation
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Style/RedundantAssignment
+  - Layout/EndAlignment
+- app/models/readme.rb:
+  - Layout/AccessModifierIndentation
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/models/researcher.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+- app/models/role.rb:
+  - Layout/ArgumentAlignment
+  - Layout/SpaceInsideHashLiteralBraces
+- app/models/s3_file.rb:
+  - Style/Alias
+  - Layout/IndentationWidth
+  - Layout/ElseAlignment
+  - Layout/EndAlignment
+  - Layout/ArgumentAlignment
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/IndentationConsistency
+- app/models/upload_snapshot.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - Rails/Pluck
+  - Style/UnpackFirst
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/models/user.rb:
+  - Layout/EmptyLinesAfterModuleInclusion
+  - Style/StringLiteralsInInterpolation
+  - Metrics/MethodLength
+  - Layout/IndentationWidth
+  - Layout/ElseAlignment
+  - Layout/EndAlignment
+- app/models/version_footer.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - Style/RescueStandardError
+  - Layout/IndentationWidth
+  - Layout/ElseAlignment
+  - Rails/EnvLocal
+  - Layout/EndAlignment
+  - Style/RedundantRegexpEscape
+  - Lint/DuplicateRegexpCharacterClassElement
+  - Rails/FilePath
+  - Lint/CopDirectiveSyntax
+- app/models/work.rb:
+  - Style/Alias
+  - Layout/IndentationWidth
+  - Layout/ElseAlignment
+  - Layout/EndAlignment
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/MultilineMethodCallIndentation
+  - Lint/SymbolConversion
+  - Layout/FirstHashElementIndentation
+  - Metrics/MethodLength
+  - Layout/ArgumentAlignment
+  - Lint/CopDirectiveSyntax
+  - Style/StringLiteralsInInterpolation
+  - Layout/IndentationConsistency
+- app/models/work_activity.rb:
+  - Style/RedundantRegexpCharacterClass
+  - Rails/Pluck
+  - Style/SlicingWithRange
+  - Layout/IndentationWidth
+  - Layout/ElseAlignment
+  - Layout/EndAlignment
+  - Layout/EmptyLinesAroundBeginBody
+  - Layout/BeginEndAlignment
+  - Style/RedundantArrayFlatten
+  - Style/StringLiteralsInInterpolation
+- app/models/work_activity_notification.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Layout/SpaceInsideHashLiteralBraces
+- app/models/work_list.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Layout/MultilineMethodCallIndentation
+- app/models/work_state_transition/approved_notification.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/models/work_state_transition/awaiting_approval_notification.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/models/work_state_transition/base.rb:
+  - Style/RedundantAssignment
+  - Layout/IndentationWidth
+  - Layout/ElseAlignment
+  - Layout/EndAlignment
+- app/models/work_state_transition/new_submission_notification.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/models/work_state_transition/returned_to_draft_notification.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/models/work_state_transition_notification.rb:
+  - Layout/ArgumentAlignment
+  - Layout/AccessModifierIndentation
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Style/RedundantAssignment
+  - Layout/ElseAlignment
+  - Layout/EndAlignment
+- app/presenters/form_resource_presenter.rb:
+  - Layout/IndentationWidth
+  - Layout/EndAlignment
+  - Layout/BeginEndAlignment
+  - Layout/IndentationConsistency
+- app/presenters/work_presenter.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/services/file_rename_mapping_service.rb:
+  - Rails/Pluck
+- app/services/form_to_resource_service.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/services/pul_cache.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/services/pul_datacite.rb:
+  - Rails/EnvLocal
+  - Layout/ArgumentAlignment
+  - Layout/IndentationWidth
+  - Layout/ElseAlignment
+  - Layout/EndAlignment
+  - Layout/IndentationConsistency
+- app/services/pul_dspace_aws_connector.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/services/pul_dspace_connector.rb:
+  - Style/StringLiteralsInInterpolation
+  - Layout/BeginEndAlignment
+  - Layout/ArgumentAlignment
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/services/pul_dspace_migrate.rb:
+  - Layout/ArgumentAlignment
+  - Style/StringLiteralsInInterpolation
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/LineLength
+- app/services/pul_redis.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/services/pul_s3_client.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Layout/SpaceInsideHashLiteralBraces
+- app/services/resource_compare_service.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Layout/SpaceInsideHashLiteralBraces
+- app/services/s3_move_service.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/services/s3_query_service.rb:
+  - Lint/DuplicateMethods
+  - Layout/FirstHashElementIndentation
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/ArgumentAlignment
+  - Style/IfWithBooleanLiteralBranches
+  - Style/RedundantConditional
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/services/work_compare_service.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Layout/SpaceInsideHashLiteralBraces
+- app/services/work_embargo_release_service.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+- app/services/work_metadata_service.rb:
+  - Layout/AccessModifierIndentation
+- app/services/work_preservation_audit_service.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Layout/SpaceInsideHashLiteralBraces
+  - Style/StringLiteralsInInterpolation
+- app/services/work_preservation_service.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Layout/SpaceInsideHashLiteralBraces
+- app/services/work_publish_service.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Layout/ArgumentAlignment
+- app/services/work_update_metadata_service.rb:
+  - Rails/FindEach
+  - Rails/Output
+  - Layout/IndentationWidth
+  - Layout/ElseAlignment
+  - Layout/EndAlignment
+- app/services/work_uploads_edit_service.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- app/services/work_validator.rb:
+  - Layout/EmptyLinesAfterModuleInclusion
+  - Layout/ArgumentAlignment
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Style/StringLiteralsInInterpolation
+  - Style/RedundantRegexpEscape
+- config/environments/development.rb:
+  - Rails/FilePath
+  - Layout/SpaceInsideHashLiteralBraces
+- config/environments/production.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/ExtraSpacing
+  - Style/GlobalStdStream
+- config/environments/staging.rb:
+  - Layout/ExtraSpacing
+  - Style/GlobalStdStream
+- config/initializers/devise.rb:
+  - Layout/ArgumentAlignment
+- config/initializers/number_to_human_size_converter.rb:
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- config/initializers/redis_config.rb:
+  - Layout/AccessModifierIndentation
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+  - Rails/RootPathnameMethods
+  - Rails/FilePath
+- config/initializers/sidekiq_config.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+- config/lando_env.rb:
+  - Rails/EnvLocal
+  - Style/RescueStandardError
+- config/routes.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - Style/HashSyntax
+- db/migrate/20220331183450_devise_create_users.rb:
+  - Layout/ExtraSpacing
+  - Layout/EmptyLines
+- db/migrate/20220414155700_create_user_collections.rb:
+  - Layout/IndentationWidth
+  - Layout/EndAlignment
+- db/migrate/20220418132700_create_works.rb:
+  - Layout/IndentationWidth
+  - Layout/EndAlignment
+- db/migrate/20220418133000_create_user_works.rb:
+  - Layout/IndentationWidth
+  - Layout/EndAlignment
+- db/migrate/20220418134000_add_work_to_dataset.rb:
+  - Layout/IndentationWidth
+  - Layout/EndAlignment
+- db/migrate/20220420154900_add_fields_to_users.rb:
+  - Layout/IndentationWidth
+  - Layout/EndAlignment
+- db/migrate/20220602105600_add_notes_to_work.rb:
+  - Layout/IndentationWidth
+  - Layout/EndAlignment
+- db/migrate/20220706143945_add_created_by_user_id_to_work_activities.rb:
+  - Layout/LeadingEmptyLines
+  - Layout/IndentationWidth
+  - Layout/EndAlignment
+- db/migrate/20220711145035_create_active_storage_tables.active_storage.rb:
+  - Layout/ExtraSpacing
+  - Layout/SpaceInsideArrayLiteralBrackets
+  - Layout/SpaceInsidePercentLiteralDelimiters
+- db/migrate/20220711160345_create_work_activity_notifications.rb:
+  - Layout/IndentationWidth
+  - Layout/EndAlignment
+- db/migrate/20220815180808_rename_work_data_cite.rb:
+  - Rails/ReversibleMigration
+- db/migrate/20220816121418_work_remove_title.rb:
+  - Rails/ReversibleMigration
+- db/migrate/20220818110918_work_remove_dublin_core.rb:
+  - Layout/IndentationWidth
+  - Rails/ReversibleMigration
+  - Layout/EndAlignment
+- db/migrate/20220823094818_work_remove_doi_ark.rb:
+  - Rails/ReversibleMigration
+- db/migrate/20220829184502_work_metadata_jsonb.rb:
+  - Style/StringLiterals
+- db/migrate/20220830120250_rolify_create_roles.rb:
+  - Style/HashSyntax
+  - Layout/TrailingWhitespace
+  - Layout/SpaceInsideArrayLiteralBrackets
+- db/migrate/20220831154828_drop_datasets_table.rb:
+  - Layout/EmptyLineBetweenDefs
+- db/migrate/20220901124949_remove_user_collection.rb:
+  - Rails/ReversibleMigration
+- db/migrate/20221031150209_create_collection_options.rb:
+  - Rails/CreateTableWithTimestamps
+- db/migrate/20230504164626_upload_snapshot_files.rb:
+  - Style/StringLiterals
+  - Rails/FindEach
+  - Layout/IndentationConsistency
+  - Layout/TrailingWhitespace
+- db/migrate/20230516133007_role_collection_to_group.rb:
+  - Rails/FindEach
+- db/migrate/20230516194040_collection_to_group_options.rb:
+  - Layout/EmptyLineBetweenDefs
+- db/migrate/20230518155600_group_rename.rb:
+  - Layout/EmptyLineBetweenDefs
+- db/migrate/20230524181606_user_display_name_to_given_name.rb:
+  - Layout/EmptyLineBetweenDefs
+- db/migrate/20230719173219_add_type_to_upload_snapshot.rb:
+  - Style/StringLiterals
+  - Rails/FindEach
+  - Style/ConditionalAssignment
+  - Layout/EmptyLineBetweenDefs
+- db/migrate/20230810125820_add_enabled_and_subcommunity_to_group_option.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLineBetweenDefs
+- db/migrate/20231025155725_provenance_note_format.rb:
+  - Rails/FindEach
+  - Layout/SpaceInsideHashLiteralBraces
+- db/migrate/20240705120614_safe_uid.rb:
+  - Rails/FindEach
+- db/migrate/20241021194327_deparment_community.rb:
+  - Rails/FindEach
+  - Layout/SpaceInsideBlockBraces
+  - Style/TernaryParentheses
+- db/migrate/20260508175641_add_service_name_to_active_storage_blobs.active_storage.rb:
+  - Lint/AssignmentInCondition
+- db/migrate/20260508175642_create_active_storage_variant_records.active_storage.rb:
+  - Layout/SpaceInsidePercentLiteralDelimiters
+  - Layout/EmptyLinesAroundAccessModifier
+  - Layout/IndentationWidth
+  - Layout/IndentationConsistency
+- db/migrate/20260528112839_add_sent_flag_to_work_activity_notification.rb:
+  - Style/StringLiterals
+  - Layout/EmptyLineBetweenDefs
+- lib/tasks/researchers.rake:
+  - Rails/FindEach
+- lib/tasks/users.rake:
+  - Rails/FindEach
+- lib/tasks/works.rake:
+  - Rails/FindEach
+  - Layout/SpaceInsideHashLiteralBraces
+  - Style/TernaryParentheses
+  - Style/StringLiteralsInInterpolation
+- spec/controllers/groups_controller_spec.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - RSpecRails/HaveHttpStatus
+- spec/controllers/omniauth_callbacks_controller_spec.rb:
+  - Style/HashSyntax
+- spec/controllers/reports_controller_spec.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/controllers/user_lookup_controller_spec.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/LineContinuationSpacing
+- spec/controllers/users_controller_spec.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - RSpecRails/HaveHttpStatus
+- spec/controllers/works_controller_spec.rb:
+  - Layout/EmptyLinesAfterModuleInclusion
+  - Layout/SpaceInsideHashLiteralBraces
+  - Style/StringLiteralsInInterpolation
+  - RSpecRails/HaveHttpStatus
+  - Style/HashSyntax
+  - Layout/ArrayAlignment
+  - Rails/Pluck
+  - Performance/InefficientHashSearch
+  - Layout/SpaceAroundMethodCallOperator
+  - Layout/LineLength
+  - Layout/MultilineMethodCallIndentation
+- spec/controllers/works_migration_controller_spec.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/ArgumentAlignment
+- spec/controllers/works_wizard_controller_spec.rb:
+  - Layout/EmptyLinesAfterModuleInclusion
+  - Style/StringLiteralsInInterpolation
+  - Style/HashSyntax
+  - Layout/SpaceInsideHashLiteralBraces
+  - RSpecRails/HaveHttpStatus
+  - Lint/SymbolConversion
+  - Style/RedundantRegexpEscape
+  - Layout/ArrayAlignment
+  - Layout/FirstArrayElementIndentation
+- spec/controllers/works_wizard_new_submission_controller_spec.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - RSpecRails/HaveHttpStatus
+  - Style/HashSyntax
+- spec/controllers/works_wizard_policy_controller_spec.rb:
+  - RSpecRails/HaveHttpStatus
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/controllers/works_wizard_submission_complete_controller_spec.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - RSpecRails/HaveHttpStatus
+- spec/controllers/works_wizard_update_additonal_controller_spec.rb:
+  - Layout/EmptyLinesAfterModuleInclusion
+  - Style/StringLiteralsInInterpolation
+  - Style/HashSyntax
+  - Layout/SpaceInsideHashLiteralBraces
+  - RSpecRails/HaveHttpStatus
+- spec/factories/related_object.rb:
+  - Style/StringLiteralsInInterpolation
+- spec/factories/researcher.rb:
+  - Style/StringLiteralsInInterpolation
+- spec/factories/s3_file.rb:
+  - Layout/ArgumentAlignment
+- spec/factories/work.rb:
+  - Style/StringLiteralsInInterpolation
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/FirstHashElementIndentation
+  - Rails/RootPathnameMethods
+  - Rails/FilePath
+  - RSpecRails/FileFixture
+- spec/helpers/application_helper_spec.rb:
+  - Lint/ConstantDefinitionInBlock
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/jobs/approved_file_copy_job_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/EmptyLinesAfterModuleInclusion
+  - Layout/ArgumentAlignment
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/jobs/dspace_bitstream_copy_job_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/ArgumentAlignment
+- spec/jobs/dspace_file_copy_job_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceAroundOperators
+  - Layout/ExtraSpacing
+  - Lint/SymbolConversion
+  - Layout/ArgumentAlignment
+- spec/jobs/update_snapshot_job_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/mailers/notification_mailer_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/models/ark_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Lint/DeprecatedConstants
+- spec/models/background_upload_snapshot_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/ArrayAlignment
+  - Layout/LineLength
+  - Layout/LineContinuationSpacing
+- spec/models/doi_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/ArgumentAlignment
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/models/group_option_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/models/group_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/models/migration_upload_snapshot_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/ArrayAlignment
+  - Layout/HeredocIndentation
+  - Layout/ClosingHeredocIndentation
+  - Style/QuotedSymbols
+  - Lint/SymbolConversion
+  - Layout/ArgumentAlignment
+- spec/models/orcid_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/models/pdc_metadata/affiliation_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/models/pdc_metadata/creator_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/models/pdc_metadata/name_identifier_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/models/pdc_metadata/related_object_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/models/pdc_metadata/resource_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/models/pdc_serialization/datacite_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/ArgumentAlignment
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/models/readme_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/FirstHashElementIndentation
+  - Rails/FilePath
+  - RSpecRails/FileFixture
+- spec/models/role_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/models/s3_file_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/models/upload_snapshot_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/ArrayAlignment
+- spec/models/user_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/ArgumentAlignment
+- spec/models/work_activity_notification_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/models/work_activity_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/LineLength
+- spec/models/work_list_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/models/work_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+  - RSpecRails/ReceivePerformLater
+  - Lint/DeprecatedConstants
+  - Layout/SpaceAroundMethodCallOperator
+  - Lint/SymbolConversion
+  - Layout/ArgumentAlignment
+  - Layout/MultilineMethodCallIndentation
+  - Layout/ArrayAlignment
+- spec/models/work_state_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Style/StringLiteralsInInterpolation
+  - Layout/MultilineMethodCallIndentation
+- spec/models/work_state_transition_notification_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/rails_helper.rb:
+  - Layout/ArrayAlignment
+  - Layout/FirstArrayElementIndentation
+  - Rails/RootPathnameMethods
+  - Rails/FilePath
+- spec/requests/health_check.rb:
+  - RSpecRails/InferredSpecType
+- spec/requests/sidekiq_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/requests/users_spec.rb:
+  - RSpecRails/InferredSpecType
+  - RSpecRails/HaveHttpStatus
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/requests/welcome_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/requests/work_activity_notifications_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/requests/work_downloader_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/requests/works_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/EmptyLinesAfterModuleInclusion
+  - RSpecRails/HaveHttpStatus
+  - Layout/SpaceInsideHashLiteralBraces
+  - Style/HashSyntax
+  - Rails/Pluck
+- spec/routing/users_routing_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/routing/work_activity_notifications_routing_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/routing/works_routing_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/routing/works_wizard_routing_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/services/form_to_resource_service_spec.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/services/pul_dspace_aws_connector_spec.rb:
+  - Rails/RootPathnameMethods
+  - Rails/FilePath
+  - RSpecRails/FileFixture
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/services/pul_dspace_connector_spec.rb:
+  - Rails/RootPathnameMethods
+  - Rails/FilePath
+  - RSpecRails/FileFixture
+  - Lint/SymbolConversion
+  - Layout/ArgumentAlignment
+- spec/services/pul_dspace_migrate_spec.rb:
+  - Rails/RootPathnameMethods
+  - Rails/FilePath
+  - RSpecRails/FileFixture
+  - Lint/SymbolConversion
+  - Layout/MultilineMethodCallIndentation
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/ArrayAlignment
+  - Layout/LineLength
+  - Layout/ArgumentAlignment
+- spec/services/pul_s3_client_spec.rb:
+  - Rails/RootPathnameMethods
+  - Rails/FilePath
+  - RSpecRails/FileFixture
+  - Lint/SymbolConversion
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/ArrayAlignment
+  - Layout/LineLength
+- spec/services/resource_compare_service_spec.rb:
+  - Layout/SpaceAroundMethodCallOperator
+  - Layout/SpaceInsideHashLiteralBraces
+  - Lint/SymbolConversion
+  - Lint/ConstantDefinitionInBlock
+- spec/services/s3_move_service_spec.rb:
+  - Layout/ArgumentAlignment
+  - Lint/SymbolConversion
+- spec/services/s3_query_service_spec.rb:
+  - Layout/HeredocIndentation
+  - Layout/ClosingHeredocIndentation
+  - Style/QuotedSymbols
+  - Lint/SymbolConversion
+  - Layout/SpaceInsideHashLiteralBraces
+  - Rails/RootPathnameMethods
+  - Rails/FilePath
+  - RSpecRails/FileFixture
+  - Layout/LineLength
+  - Layout/ArgumentAlignment
+- spec/services/work_compare_service_spec.rb:
+  - Layout/SpaceAroundMethodCallOperator
+- spec/services/work_embargo_release_service_spec.rb:
+  - Layout/MultilineMethodCallIndentation
+  - Layout/ArrayAlignment
+  - Layout/FirstArrayElementIndentation
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/ArgumentAlignment
+- spec/services/work_embargo_service_spec.rb:
+  - Layout/MultilineMethodCallIndentation
+  - Layout/ArrayAlignment
+  - Layout/FirstArrayElementIndentation
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/services/work_publish_service_spec.rb:
+  - Lint/SymbolConversion
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/ArrayAlignment
+  - Layout/FirstArrayElementIndentation
+  - Layout/ArgumentAlignment
+- spec/services/work_update_metadata_service_spec.rb:
+  - Layout/EmptyLinesAfterModuleInclusion
+- spec/services/work_upload_edit_service_spec.rb:
+  - Layout/EmptyLinesAfterModuleInclusion
+  - Layout/ArgumentAlignment
+- spec/support/datacite_specs.rb:
+  - Layout/ArgumentAlignment
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/support/external_identifier_specs.rb:
+  - Lint/SymbolConversion
+  - Layout/SpaceInsideHashLiteralBraces
+  - Style/StringLiteralsInInterpolation
+- spec/support/s3_query_service_specs.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/ArgumentAlignment
+- spec/system/accessibility_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Style/QuotedSymbols
+- spec/system/authz_admin_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+  - Lint/BooleanSymbol
+- spec/system/authz_submitter_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+  - Rails/FilePath
+  - RSpecRails/FileFixture
+- spec/system/authz_super_admin_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+  - Rails/FilePath
+  - RSpecRails/FileFixture
+- spec/system/authz_unauthenticated_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/system/curator_controlled_metadata_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/system/external_ids_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+  - Rails/FilePath
+  - RSpecRails/FileFixture
+- spec/system/features_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/system/front_page_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/system/migrate_submission_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Rails/RootPathnameMethods
+  - Rails/FilePath
+  - RSpecRails/FileFixture
+  - Lint/SymbolConversion
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/system/pppl_work_create_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+  - Rails/FilePath
+  - RSpecRails/FileFixture
+- spec/system/provenance_note_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/system/reports_dataset_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/system/researcher_show_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/system/root_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/system/rss_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/HeredocIndentation
+  - Layout/ClosingHeredocIndentation
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/system/user_edit_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/system/user_show_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/system/work_activity_notification_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/system/work_approve_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/system/work_comment_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/system/work_create_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+  - Rails/FilePath
+  - RSpecRails/FileFixture
+  - Layout/LineLength
+- spec/system/work_edit_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Rails/FilePath
+  - RSpecRails/FileFixture
+- spec/system/work_show_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/ArrayAlignment
+- spec/system/work_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/system/work_upload_s3_objects_spec.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/system/work_wizard_reverse_spec.rb:
+  - RSpecRails/InferredSpecType
+- spec/system/work_wizard_spec.rb:
+  - RSpecRails/InferredSpecType
+  - Layout/SpaceAroundMethodCallOperator
+- spec/views/welcome/index.html.erb_spec.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+- spec/views/works/work_activity_provenance.html.erb_spec.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/ArgumentAlignment

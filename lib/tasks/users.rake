@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 namespace :users do
   desc "Creates user records for the users defined as the default group administrators and submitters"
   task setup_default: :environment do
