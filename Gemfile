@@ -19,7 +19,7 @@ gem "flipflop"
 gem "friendly_id", "~> 5.4.0"
 gem "health-monitor-rails", "~>12.0"
 gem "honeybadger"
-gem "io-wait", "0.2.1"
+gem "io-wait"
 gem "jbuilder", "~> 2.7"
 gem "kramdown"
 gem "listen", "~> 3.3"
@@ -66,7 +66,7 @@ group :development, :test do
   gem "equivalent-xml", "~> 0.6.0"
   gem "pry-byebug"
   gem "pry-rails"
-  gem "simplecov", "~> 0.22"
+  gem "simplecov"
   gem "tzinfo-data", platforms: [:windows]
   gem "yard"
 end
