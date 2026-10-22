@@ -193,11 +193,11 @@ GEM
     coderay (1.1.3)
     concurrent-ruby (1.3.8)
     connection_pool (3.0.2)
-    coveralls_reborn (0.29.1)
-      simplecov (~> 0.22.0)
-      term-ansicolor (~> 1.7)
-      thor (~> 1.2)
-      tins (~> 1.32)
+    coveralls_reborn (1.0.0)
+      simplecov (>= 1.0)
+      term-ansicolor (>= 1.11)
+      thor (>= 1.5)
+      tins (>= 1.54)
     crack (1.0.1)
       bigdecimal
       rexml
@@ -221,7 +221,6 @@ GEM
       responders
       warden (~> 1.2.3)
     diff-lcs (1.6.2)
-    docile (1.4.1)
     drb (2.2.3)
     dry-cli (1.4.1)
     dry-core (1.2.0)
@@ -301,7 +300,6 @@ GEM
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     io-console (0.9.4)
-    io-wait (1.0.0)
     irb (1.18.0)
       pp (>= 0.6.0)
       prism (>= 1.3.0)
@@ -637,12 +635,7 @@ GEM
       logger (>= 1.7.0)
       rack (>= 3.2.0)
       redis-client (>= 0.29.0)
-    simplecov (0.22.0)
-      docile (~> 1.1)
-      simplecov-html (~> 0.11)
-      simplecov_json_formatter (~> 0.1)
-    simplecov-html (0.13.2)
-    simplecov_json_formatter (0.1.4)
+    simplecov (1.3.2)
     simpleidn (0.3.0)
     sinatra (4.2.1)
       logger (>= 1.6.0)
@@ -785,7 +778,7 @@ DEPENDENCIES
   capistrano-rails (~> 1.4)
   capybara
   cocina-models
-  coveralls_reborn (~> 0.28)
+  coveralls_reborn
   csv
   database_cleaner-active_record
   datacite!
@@ -802,7 +795,6 @@ DEPENDENCIES
   friendly_id (~> 5.4.0)
   health-monitor-rails (~> 12.0)
   honeybadger
-  io-wait
   jbuilder (~> 2.7)
   kramdown
   listen (~> 3.3)
@@ -901,7 +893,7 @@ CHECKSUMS
   coderay (1.1.3) sha256=dc530018a4684512f8f38143cd2a096c9f02a1fc2459edcfe534787a7fc77d4b
   concurrent-ruby (1.3.8) sha256=b2f1be836e968ccc78ccfce277ea79c72a88633f22306782c16ff23fb415d1e1
   connection_pool (3.0.2) sha256=33fff5ba71a12d2aa26cb72b1db8bba2a1a01823559fb01d29eb74c286e62e0a
-  coveralls_reborn (0.29.1) sha256=60a3e0db8e9043daa3f0b2c4b4e753e3e064f4fe5ed643954e58147ebb3555dd
+  coveralls_reborn (1.0.0) sha256=0c1f548f84fe8b51ca423b3d614866d48b6bf9a78a4c7a0692604755b7bb8684
   crack (1.0.1) sha256=ff4a10390cd31d66440b7524eb1841874db86201d5b70032028553130b6d4c7e
   crass (1.0.8) sha256=7a0145c7a2c59f8e7923b3a69ce819c444823a00a5127d805298fea13be24efe
   csv (3.3.6) sha256=aba61e7e507a66f03d45cb1f3c4b6359861c3504038b422962875dce099e4456
@@ -914,7 +906,6 @@ CHECKSUMS
   deprecation (1.1.0) sha256=01707cea9a6ed2d7270377457941f43394a345e6dd8048e1be6d18ff2f2a01e1
   devise (5.0.4) sha256=d605f2b85854e74e56ee789e2d398702bc2d06e6bcd894717a670a3199c74cc1
   diff-lcs (1.6.2) sha256=9ae0d2cba7d4df3075fe8cd8602a8604993efc0dfa934cff568969efb1909962
-  docile (1.4.1) sha256=96159be799bfa73cdb721b840e9802126e4e03dfc26863db73647204c727f21e
   drb (2.2.3) sha256=0b00d6fdb50995fe4a45dea13663493c841112e4068656854646f418fda13373
   dry-cli (1.4.1) sha256=b8015bb76c708aa8705a36faf694973e75eeeffca39b89c8e172dc6f66a7d874
   dry-core (1.2.0) sha256=0cc5a7da88df397f153947eeeae42e876e999c1e30900f3c536fb173854e96a1
@@ -955,7 +946,6 @@ CHECKSUMS
   i18n (1.15.2) sha256=00f9eb62412fe593b2a65a97daa75300d37abb8f7202ec748e94b6d46a9dd1b5
   ice_nine (0.11.2) sha256=5d506a7d2723d5592dc121b9928e4931742730131f22a1a37649df1c1e2e63db
   io-console (0.9.4) sha256=a403304f32928ee85e56d457b4612ca43f2703b561a3258844992bd24085fbb1
-  io-wait (1.0.0) sha256=ccdfb600bd8322de0751ee230d88f7d66fcc2977bb4037d4b52fb487c1629f28
   irb (1.18.0) sha256=de9454a0703a54704b9811a5ef31a60c86949fbf4013fcf244fabc7c775248e3
   iso8601 (0.13.0) sha256=298c2b15b7be5fa95a1372813d36a2257656cd8e906dfbc1f5cb409851425aa2
   janeway-jsonpath (1.1.0) sha256=82f71dccbdc29bf788815bc3b66e7ab5ddee2bdeea3a3121512aca63cfbcd9a9
@@ -1084,9 +1074,7 @@ CHECKSUMS
   selenium-webdriver (4.51.0) sha256=09edf1b7fc360e0570bac609676f804ed527fe0b2f285e03233561e29b0ec105
   semantic_logger (5.1.0) sha256=9a8170fc0212ad47ef29e0760219cf416cb5b9973061981733234f7148b6d6ea
   sidekiq (8.1.7) sha256=91ad48c7e6c32e1846bf1d5b74c27948758049b93fed0cb539f8d586c7de3415
-  simplecov (0.22.0) sha256=fe2622c7834ff23b98066bb0a854284b2729a569ac659f82621fc22ef36213a5
-  simplecov-html (0.13.2) sha256=bd0b8e54e7c2d7685927e8d6286466359b6f16b18cb0df47b508e8d73c777246
-  simplecov_json_formatter (0.1.4) sha256=529418fbe8de1713ac2b2d612aa3daa56d316975d307244399fa4838c601b428
+  simplecov (1.3.2) sha256=2a22ec1759f1b8db60881a2e038758956fc69ef93ed669be0bde0678de6d0e85
   simpleidn (0.3.0) sha256=12ca730bed2f3db04d11e9bfd1bca3e11fb37f55b21eb2e9793fb5814bf54d03
   sinatra (4.2.1) sha256=b7aeb9b11d046b552972ade834f1f9be98b185fa8444480688e3627625377080
   snaky_hash (2.0.7) sha256=7d02c70012a3f932e48860cd024577908300c9aa615e0cb9b450aaa749cbcb4d
