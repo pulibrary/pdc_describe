@@ -18,8 +18,11 @@ commands:
             echo 'export BUNDLER_VERSION=4.0.23' >> $BASH_ENV
             gem install bundler -v 4.0.23
       - run:
-          name: Install dependencies
-          command: bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs 4 --retry 3
+          name: Set bundler path
+          command: bundle config set path 'vendor/bundle'
+      - run:
+          name: Bundle install
+          command: bundle check || bundle install --jobs 4 --retry 3
       - save_cache:
           key: pdc_describe-{{ checksum "Gemfile.lock" }}-{{ checksum "yarn.lock" }}
           paths:
@@ -45,7 +48,7 @@ jobs:
     working_directory: ~/pdc_describe
     docker:
       - &ruby_docker
-        image: cimg/ruby:3.4.8-browsers
+        image: cimg/ruby:4.0.7-browsers
         environment:
           RAILS_ENV: test
     steps:
@@ -72,7 +75,7 @@ jobs:
     # We don't actually need any of the ruby environment to lint JS... but use what we have for now.
     working_directory: ~/pdc_describe
     docker:
-      - image: cimg/ruby:3.4.8-browsers
+      - image: cimg/ruby:4.0.7-browsers
         environment:
           RAILS_ENV: test
     steps:
