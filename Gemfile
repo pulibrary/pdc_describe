@@ -76,12 +76,8 @@ group :development do
   gem "capistrano-rails", "~> 1.4", require: false
   gem "foreman"
   gem "mailcatcher"
-  # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
   gem "web-console", ">= 4.1.0"
-  # Display performance information such as SQL time and flame graphs for each request in your browser.
-  # Can be configured to work on production as well see: https://github.com/MiniProfiler/rack-mini-profiler/blob/master/README.md
-  gem "rack-mini-profiler", "~> 2.0"
-  gem "sqlite3", force_ruby_platform: true # requires bundler >= 2.3.18
+  gem "rack-mini-profiler"
 end
 
 group :test do

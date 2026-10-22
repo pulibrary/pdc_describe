@@ -812,7 +812,7 @@ DEPENDENCIES
   pry-byebug
   pry-rails
   puma
-  rack-mini-profiler (~> 2.0)
+  rack-mini-profiler
   rails (~> 8.0)
   rails-controller-testing
   rails_semantic_logger
@@ -832,7 +832,6 @@ DEPENDENCIES
   sidekiq (< 9)
   simplecov
   sinatra
-  sqlite3
   standard
   standard-rails
   turbolinks (~> 5)
