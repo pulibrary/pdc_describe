@@ -2,11 +2,11 @@
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
   "packages": [
     "ruby@4.0.7",
-    "nodejs@24",
-    "yarn-berry_4@4.13.0",
+    "nodejs@latest",
+    "yarn-berry_4@latest",
     "postgresql@14",
     "stdenv",
-    "libyaml@0.2.5",
+    "libyaml@latest",
     "pkg-config@latest",
     "gcc@latest",
     "gnumake@latest",
@@ -22,7 +22,7 @@
   ],
   "env": {
     "DEVBOX": "1",
-    "BUNDLER_VERSION": "4.0.18"
+    "BUNDLER_VERSION": "4.0.23"
   },
   "shell": {
     "init_hook": ["echo 'Environment Ready'"],
