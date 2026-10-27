@@ -1,26 +1,39 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
-  "packages": [
-    "ruby@4.0.7",
-    "nodejs@latest",
-    "yarn-berry_4@latest",
-    "postgresql@14",
-    "stdenv",
-    "libyaml@latest",
-    "pkg-config@latest",
-    "gcc@latest",
-    "gnumake@latest",
-    "autoconf@latest",
-    "jdk11@latest",
-    "jq@latest",
-    "git@latest",
-    "chromedriver@latest",
-    "libxml2@latest",
-    "xmlsec@latest",
-    "libyaml.dev",
-    "selenium-manager@latest"
-  ],
+  "packages": {
+    "ruby": "4.0.9",
+    "nodejs": "latest",
+    "yarn-berry_4": "latest",
+    "postgresql": "14",
+    "libyaml": "latest",
+    "pkg-config": "latest",
+    "gcc": "latest",
+    "gnumake": "latest",
+    "autoconf": "latest",
+    "jdk11": "latest",
+    "jq": "latest",
+    "git": "latest",
+    "chromedriver": "latest",
+    "libxml2": "latest",
+    "xmlsec": "latest",
+    "libyaml.dev": "",
+    "selenium-manager": "latest",
+    "openssl.dev": "",
+    "openssl": {
+      "version": "latest",
+      "outputs": ["out", "dev"]
+    },
+    "stdenv": "latest",
+    "corepack": "latest"
+  },
   "env": {
+    "DEVBOX_BIN": "$PWD/.devbox/nix/profile/default/bin",
+    "PATH": "$PWD/.devbox/nix/profile/default/bin:.binstubs:bin:$PATH",
+    "DEVBOX_COREPACK_ENABLED": "true",
+    "LD_LIBRARY_PATH": "$PWD/.devbox/nix/profile/default/lib",
+    "FONTCONFIG_PATH": "$PWD/.devbox/nix/profile/default/etc/fonts",
+    "BUNDLE_PATH": ".bundle",
+    "BUNDLE_BIN": ".binstubs",
     "DEVBOX": "1",
     "BUNDLER_VERSION": "4.0.23"
   },
@@ -29,7 +42,10 @@
     "scripts": {
       "setup": ["devbox run deps"],
       "deps": "gem install -N bundler -v $BUNDLER_VERSION && bundle install && yarn install",
-      "server": "bundle exec rails s"
+      "server": "bundle exec rails s",
+      "cap:staging": "bundle exec cap staging deploy",
+      "cap:prod": "bundle exec cap production deploy",
+      "fmt:devbox": "jq '.' devbox.json > devbox.json.tmp && mv devbox.json.tmp devbox.json"
     }
   }
 }
