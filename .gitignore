@@ -36,9 +36,7 @@
 /public/packs
 /public/packs-test
 /node_modules
-/yarn-error.log
-yarn-debug.log*
-.yarn-integrity
+/pnpm-debug.log*
 
 # Ignore simplecov coverage folder
 /coverage
@@ -57,4 +55,3 @@ node_modules
 test_results/**
 .yardoc/
 
-.yarn/install-state.gz
