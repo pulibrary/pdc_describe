@@ -74,6 +74,25 @@ XML
     end
   end
 
+  context "when a work is awaiting approval" do
+    let!(:awaiting_approval_work) { FactoryBot.create(:awaiting_approval_work) }
+
+    it "still appears in the RSS feed" do
+      visit "/works.rss"
+      doc = Nokogiri::XML(page.body)
+      expect(doc.xpath("//item").size).to eq 5
+      urls = doc.xpath("//item/url/text()").map(&:to_s)
+      expect(urls).to include(work_url(awaiting_approval_work, format: "json"))
+    end
+
+    it "is harvested as a pending publication" do
+      visit "/works/#{awaiting_approval_work.id}.json"
+      expect(awaiting_approval_work.state).to eq("awaiting_approval")
+      expect(JSON.parse(page.body)).to eq({ "resource" => { "doi" => awaiting_approval_work.doi, "state" => "draft" }, "state" => "draft" })
+      expect(JSON.parse(page.body)["resource"]["titles"]).to be_nil
+    end
+  end
+
   context "when a work is approved" do
     it "is in the RSS feed" do
       visit "/works.rss"

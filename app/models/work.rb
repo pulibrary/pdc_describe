@@ -476,14 +476,16 @@ class Work < ApplicationRecord
     }
   end
 
-  # this method returns only the DOI and the work state, for now, for draft and withdrawn works
-  # so that only that information is visible when harvested.
+  # Returns only the DOI and a harvest state so unpublished metadata stays hidden.
+  # PDC Discovery treats "draft" as "Publication Pending" and any other unpublished
+  # state as "Unknown state". Awaiting approval is still under review, so harvest it as draft.
+  # TODO: drop the nested resource state once PDC Discovery reads only the top-level state.
   def unpublished_metadata_json(*_args)
+    harvested_state = (state == "awaiting_approval") ? "draft" : state
     {
       "resource" => { "doi" => resource.doi,
-                      # TODO: we should remove this state once PDC Discovery is looking at the external state.
-                      "state" => state },
-      "state" => state
+                      "state" => harvested_state },
+      "state" => harvested_state
     }
   end
 
