@@ -33,7 +33,12 @@
     "vue-eslint-parser": "^10.4.1"
   },
   "scripts": {
-    "lint": "yarn run eslint 'app/assets/javascripts/**' 'app/javascript/**'"
+    "lint": "eslint 'app/assets/javascripts/**' 'app/javascript/**'"
   },
-  "packageManager": "yarn@4.18.1"
+  "packageManager": "pnpm@10.34.5",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
 }

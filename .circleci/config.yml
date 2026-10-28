@@ -11,7 +11,7 @@ commands:
       # Restore bundle cache
       - restore_cache:
           keys:
-            - pdc_describe-{{ checksum "Gemfile.lock" }}-{{ checksum "yarn.lock" }}
+            - pdc_describe-{{ checksum "Gemfile.lock" }}-{{ checksum "pnpm-lock.yaml" }}
       - run:
           name: Update bundler
           command: |
@@ -24,24 +24,27 @@ commands:
           name: Bundle install
           command: bundle check || bundle install --jobs 4 --retry 3
       - save_cache:
-          key: pdc_describe-{{ checksum "Gemfile.lock" }}-{{ checksum "yarn.lock" }}
+          key: pdc_describe-{{ checksum "Gemfile.lock" }}-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - ./vendor/bundle
-  yarn_install:
-    description: "Install the supported release of Yarn and install the package dependencies"
+  pnpm_install:
+    description: "Install the pnpm release declared in package.json and install the package dependencies"
     steps:
       - restore_cache:
-          name: Restore the Yarn package dependencies from the cache
+          name: Restore the pnpm package store from the cache
           keys:
-            - pdc_describe-yarn-{{ checksum "yarn.lock" }}
+            - pdc_describe-pnpm-{{ checksum "pnpm-lock.yaml" }}
       - run:
-          name: Install NPM Dependencies via Yarn
-          command: yarn install --immutable
+          name: Install NPM dependencies via pnpm
+          command: |
+            corepack enable
+            corepack prepare --activate
+            pnpm install --frozen-lockfile
       - save_cache:
-          name: Save Yarn Package Cache
-          key: pdc_describe-yarn-{{ checksum "yarn.lock" }}
+          name: Save pnpm package store
+          key: pdc_describe-pnpm-{{ checksum "pnpm-lock.yaml" }}
           paths:
-            - ~/.cache/yarn
+            - ~/.local/share/pnpm/store
 
 jobs:
   build:
@@ -55,7 +58,7 @@ jobs:
       - checkout
       - run: sudo apt update && sudo apt install postgresql-client libmsgpack-dev
       - bundle_install
-      - yarn_install
+      - pnpm_install
       - persist_to_workspace:
           root: &root "~/pdc_describe"
           paths: "*"
@@ -82,13 +85,13 @@ jobs:
       - attach_workspace:
           at: "~/pdc_describe"
       - bundle_install
-      - yarn_install
+      - pnpm_install
       - run:
           name: Run prettier
-          command: yarn run prettier --check .
+          command: pnpm exec prettier --check .
       - run:
           name: Run eslint
-          command: yarn lint
+          command: pnpm lint
 
   test:
     working_directory: *root

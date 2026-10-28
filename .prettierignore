@@ -3,7 +3,7 @@ docs/
 architecture-decisions/
 .prettierrc
 vendor/
-.yarn/
+pnpm-lock.yaml
 vite.config.mts
 spec/fixtures/**/*json
 spec/fixtures/**/*yaml

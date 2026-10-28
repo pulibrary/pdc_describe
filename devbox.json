@@ -3,7 +3,7 @@
   "packages": {
     "ruby": "4.0.9",
     "nodejs": "latest",
-    "yarn-berry_4": "latest",
+    "pnpm_10": "10.34.5",
     "postgresql": "14",
     "libyaml": "latest",
     "pkg-config": "latest",
@@ -41,7 +41,7 @@
     "init_hook": ["echo 'Environment Ready'"],
     "scripts": {
       "setup": ["devbox run deps"],
-      "deps": "gem install -N bundler -v $BUNDLER_VERSION && bundle install && yarn install",
+      "deps": "gem install -N bundler -v $BUNDLER_VERSION && bundle install && pnpm install --frozen-lockfile",
       "server": "bundle exec rails s",
       "cap:staging": "bundle exec cap staging deploy",
       "cap:prod": "bundle exec cap production deploy",
