@@ -71,6 +71,9 @@ jobs:
           name: Run standardrb
           command: bundle exec standardrb
       - run:
+          name: Run eslint
+          command: yarn run eslint 'app/assets/javascripts/**' 'app/javascript/**'
+      - run:
           name: Run prettier
           command: yarn run prettier --check .
 
