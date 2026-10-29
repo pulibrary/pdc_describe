@@ -60,7 +60,7 @@ jobs:
           root: &root "~/pdc_describe"
           paths: "*"
 
-  rubocop:
+  style_check:
     working_directory: *root
     docker:
       - *ruby_docker
@@ -70,25 +70,9 @@ jobs:
       - run:
           name: Run standardrb
           command: bundle exec standardrb
-
-  eslint:
-    # We don't actually need any of the ruby environment to lint JS... but use what we have for now.
-    working_directory: ~/pdc_describe
-    docker:
-      - image: cimg/ruby:4.0.9-browsers
-        environment:
-          RAILS_ENV: test
-    steps:
-      - attach_workspace:
-          at: "~/pdc_describe"
-      - bundle_install
-      - yarn_install
       - run:
           name: Run prettier
           command: yarn run prettier --check .
-      - run:
-          name: Run eslint
-          command: yarn lint
 
   test:
     working_directory: *root
@@ -122,9 +106,6 @@ workflows:
       - test:
           requires:
             - build
-      - rubocop:
-          requires:
-            - build
-      - eslint:
+      - style_check:
           requires:
             - build
