@@ -187,8 +187,8 @@
       }
     },
     "git@latest": {
-      "last_modified": "2026-10-20T14:23:57Z",
-      "resolved": "github:NixOS/nixpkgs/5adc50831c259f87faeb09ddf930d43597197473#git",
+      "last_modified": "2026-10-28T22:04:29Z",
+      "resolved": "github:NixOS/nixpkgs/e62746b0b472753ef019baceab6f1e2e52014980#git",
       "source": "devbox-search",
       "version": "2.56.0",
       "systems": {
@@ -196,51 +196,51 @@
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/x2rk286cipgncfxh6z0kw4xbvvly4mf4-git-2.56.0",
+              "path": "/nix/store/3yd3064192bxb2kbf87fr4lam7ncazcw-git-2.56.0",
               "default": true
             },
             {
               "name": "doc",
-              "path": "/nix/store/vggqbbd16rw61nkc0fxyh6rcrhvk1lcn-git-2.56.0-doc"
+              "path": "/nix/store/159hwqisk9nsymhk2w3df9z8dqk9j81c-git-2.56.0-doc"
             }
           ],
-          "store_path": "/nix/store/x2rk286cipgncfxh6z0kw4xbvvly4mf4-git-2.56.0"
+          "store_path": "/nix/store/3yd3064192bxb2kbf87fr4lam7ncazcw-git-2.56.0"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/8p1bb19zmwslpplximd5zbgyrq4l460d-git-2.56.0",
+              "path": "/nix/store/xqp1x3qm8j8hxqpddwzp9mg73wvrc4xb-git-2.56.0",
               "default": true
             },
             {
               "name": "debug",
-              "path": "/nix/store/k7drc9x7yancg3dcknkfy8vfk91k00qv-git-2.56.0-debug"
+              "path": "/nix/store/g2ckab3z3shck8y5mwxj5kw13wrxpycc-git-2.56.0-debug"
             },
             {
               "name": "doc",
-              "path": "/nix/store/v0308xxhhsv4cv7pklgd23d97f60kdhs-git-2.56.0-doc"
+              "path": "/nix/store/ddvy66njv88c3zgzgkvxfkm4r0za2rza-git-2.56.0-doc"
             }
           ],
-          "store_path": "/nix/store/8p1bb19zmwslpplximd5zbgyrq4l460d-git-2.56.0"
+          "store_path": "/nix/store/xqp1x3qm8j8hxqpddwzp9mg73wvrc4xb-git-2.56.0"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/2k05jnr38sryn0fnvlrmjrshxbphj3jp-git-2.56.0",
+              "path": "/nix/store/xgw813vgzl2q0696sq45adpj0xd690jq-git-2.56.0",
               "default": true
             },
             {
               "name": "debug",
-              "path": "/nix/store/90h1kbknq84vhkayllxjwglrcrzm6cqy-git-2.56.0-debug"
+              "path": "/nix/store/ikya2nngp99gs78x3i4fv7fmj4x182ar-git-2.56.0-debug"
             },
             {
               "name": "doc",
-              "path": "/nix/store/ncmk2y2ma16skz4cjpsvkr49hq6slc8f-git-2.56.0-doc"
+              "path": "/nix/store/mb5kkl4yar0i9m20f6bglah9l7a28fcs-git-2.56.0-doc"
             }
           ],
-          "store_path": "/nix/store/2k05jnr38sryn0fnvlrmjrshxbphj3jp-git-2.56.0"
+          "store_path": "/nix/store/xgw813vgzl2q0696sq45adpj0xd690jq-git-2.56.0"
         }
       }
     },
@@ -699,7 +699,18 @@
     },
     "openssl.dev": {
       "resolved": "github:NixOS/nixpkgs/5adc50831c259f87faeb09ddf930d43597197473?narHash=sha256-Q%2F8KLB6jNfpaUN1HAedE%2Fu%2FEt9feE%2FzYSsutBLKrCFk%3D#openssl.dev",
-      "source": "nixpkg"
+      "source": "nixpkg",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "dev",
+              "path": "/nix/store/0568rp7whq8ysn4k2a7jranag23grgqn-openssl-3.5.9-dev",
+              "default": true
+            }
+          ]
+        }
+      }
     },
     "openssl@latest": {
       "last_modified": "2026-10-24T11:44:37Z",
@@ -1093,7 +1104,17 @@
     "stdenv@latest": {
       "last_modified": "2023-02-24T09:01:09Z",
       "resolved": "github:NixOS/nixpkgs/7d0ed7f2e5aea07ab22ccb338d27fbe347ed2f11#stdenv",
-      "source": "devbox-search"
+      "source": "devbox-search",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "path": "/nix/store/rwq18lggifjff65sk8jymhsnc11jsqrd-stdenv-darwin",
+              "default": true
+            }
+          ]
+        }
+      }
     },
     "xmlsec@latest": {
       "last_modified": "2026-10-20T14:23:57Z",
