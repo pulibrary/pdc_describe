@@ -31,8 +31,7 @@ RSpec.describe Work, type: :model do
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
-    response = File.read(Pathname.new(fixture_paths.first).join("doi_update_response.json").to_s)
-    stub_request(:put, update_url).to_return(status: 200, body: response, headers: { "Content-Type" => "application/json" })
+    stub_pending_doi_registration
   end
 
   context "fixed time" do
@@ -633,6 +632,10 @@ RSpec.describe Work, type: :model do
 
   describe "#complete_submission" do
     let(:fake_s3_service) { stub_s3 data: [readme, s3_file] }
+
+    before do
+      stub_datacite_doi
+    end
     let(:awaiting_approval_work) do
       fake_s3_service
       work = FactoryBot.create :draft_work
@@ -643,6 +646,21 @@ RSpec.describe Work, type: :model do
     it "is awaiting approval" do
       expect(awaiting_approval_work.reload.state).to eq("awaiting_approval")
       expect(awaiting_approval_work.aasm.from_state).to eq(:draft)
+    end
+
+    it "registers the DOI with the Discovery resolver" do
+      client = stub_datacite_doi
+      fake_s3_service
+      work = FactoryBot.create(:draft_work, doi: "10.34770/123-abc")
+      work.complete_submission!(user)
+
+      expect(client).to have_received(:update).with(
+        id: "10.34770/123-abc",
+        attributes: hash_including(
+          "event" => "register",
+          "url" => "https://datacommons.princeton.edu/discovery/doi/10.34770/123-abc"
+        )
+      )
     end
 
     it "transitions from awaiting_approval to withdrawn" do

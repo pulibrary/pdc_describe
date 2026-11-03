@@ -8,8 +8,7 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
-    response = File.read(Pathname.new(fixture_paths.first).join("doi_update_response.json").to_s)
-    stub_request(:put, update_url).to_return(status: 200, body: response, headers: { "Content-Type" => "application/json" })
+    stub_pending_doi_registration
 
     stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
   end
@@ -47,7 +46,7 @@ RSpec.describe "External Identifiers", type: :system, mock_ezid_api: true, js: t
     expect(page).to have_content "awaiting_approval"
     expect(Ezid::Identifier).not_to have_received(:mint)
     expect(a_request(:post, "https://api.datacite.org/dois")).to have_been_made
-    expect(a_request(:put, update_url)).to have_been_made
+    expect(a_request(:put, update_url)).to have_been_made.twice
   end
 
   xit "Mints a DOI, but does not mint an ark at any point in the non wizard proccess" do

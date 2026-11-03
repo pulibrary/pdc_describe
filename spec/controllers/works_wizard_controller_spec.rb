@@ -9,6 +9,7 @@ RSpec.describe WorksWizardController do
     Group.create_defaults
     user
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+    stub_pending_doi_registration
 
     stub_request(:get, /#{Regexp.escape('https://example-bucket.s3.amazonaws.com/us_covid_20')}.*\.csv/).to_return(status: 200, body: "", headers: {})
   end
