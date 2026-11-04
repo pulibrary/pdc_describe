@@ -36,6 +36,13 @@ def stub_datacite(host: "api.datacite.org", body: datacite_register_body, fixtur
     .to_return(status: 200, body: response, headers: { "Content-Type" => "application/json" })
 end
 
+# Accept the register call made when a work is submitted, for any DOI.
+def stub_pending_doi_registration(host: Rails.configuration.datacite.host)
+  response = File.read(Pathname.new(fixture_paths.first).join("doi_update_response.json").to_s)
+  stub_request(:put, %r{https://#{Regexp.escape(host)}/dois/})
+    .to_return(status: 200, body: response, headers: { "Content-Type" => "application/json" })
+end
+
 def stub_datacite_update(doi:, body:, fixture:, host: "api.datacite.org")
   response = File.read(Pathname.new(fixture_paths.first).join(fixture).to_s)
   datacite_env(user: "foo", password: "bar", host:)

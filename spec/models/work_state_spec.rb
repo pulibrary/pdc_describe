@@ -6,6 +6,7 @@ RSpec.describe "Work state transions", type: :model do
   let(:message_delivery) { instance_double(ActionMailer::Parameterized::MessageDelivery) }
   before do
     stub_s3 data: [FactoryBot.build(:s3_readme), FactoryBot.build(:s3_file)]
+    stub_pending_doi_registration
   end
 
   {

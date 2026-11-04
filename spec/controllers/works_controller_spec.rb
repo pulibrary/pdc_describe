@@ -10,13 +10,11 @@ RSpec.describe WorksController do
     user
 
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
-    response = File.read(Pathname.new(fixture_paths.first).join("doi_update_response.json").to_s)
-    stub_request(:put, update_url).to_return(status: 200, body: response, headers: { "Content-Type" => "application/json" })
+    stub_pending_doi_registration
 
     stub_request(:get, /#{Regexp.escape('https://example-bucket.s3.amazonaws.com/us_covid_20')}.*\.csv/).to_return(status: 200, body: "", headers: {})
   end
 
-  let(:update_url) { "https://#{Rails.configuration.datacite.host}/dois/10.34770/doc-1" }
   let(:group) { Group.first }
   let(:curator) { FactoryBot.create(:user, groups_to_admin: [group]) }
   let(:resource) { FactoryBot.build :resource }
@@ -719,6 +717,9 @@ RSpec.describe WorksController do
         before do
           sign_in curator
           work.complete_submission!(user)
+          # Submission registers the DOI and memoizes the client. Drop it so
+          # approval uses the failing client below.
+          work.instance_variable_set(:@datacite_service, nil)
           stub_datacite_doi(result: Failure(Faraday::Response.new(Faraday::Env.new)))
         end
 

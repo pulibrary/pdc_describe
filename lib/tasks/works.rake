@@ -93,6 +93,17 @@ namespace :works do
     end
   end
 
+  desc "Register DOIs for draft and awaiting-approval works so doi.org resolves to Discovery"
+  task register_pending_dois: :environment do
+    prefix = Rails.configuration.datacite.prefix
+    Work.where(state: ["draft", "awaiting_approval"]).find_each do |work|
+      next unless work.doi&.start_with?(prefix)
+
+      work.register_submitted_doi(work.created_by_user)
+      puts "#{work.id} #{work.doi} register requested"
+    end
+  end
+
   desc "Creates the preservation objects for a given work and saves them in the preservation bucket configured"
   task :preserve, [:work_id, :path] => :environment do |_, args|
     work_id = args[:work_id].to_i

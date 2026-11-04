@@ -31,7 +31,10 @@ class Work < ApplicationRecord
       transitions from: :none, to: :draft, guard: :valid_to_draft
     end
 
-    event :complete_submission do
+    # Register again on submit. The draft transition mints the DOI before the
+    # metadata can pass DataCite validation, so that first register often fails
+    # and the DOI stays unresolved at doi.org.
+    event :complete_submission, after: :register_submitted_doi do
       transitions from: :draft, to: :awaiting_approval, guard: :valid_to_complete
     end
 
@@ -186,6 +189,12 @@ class Work < ApplicationRecord
     # force a reload of the datacite service so it has the doi as part of it's metadata for the register
     @datacite_service = nil
     datacite_service.register_doi(created_by_user)
+  end
+
+  # Point the DOI at the Discovery resolver. DataCite only resolves a DOI after
+  # a successful register event. Approval later publishes it.
+  def register_submitted_doi(user = nil)
+    datacite_service.register_doi(user || created_by_user)
   end
 
   # Return the DOI formatted as a URL, so it can be used as a link on display pages

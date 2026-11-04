@@ -31,6 +31,7 @@ XML
 
   before do
     stub_datacite(host: "api.datacite.org", body: datacite_register_body(prefix: "10.34770"))
+    stub_pending_doi_registration
 
     allow(approved_work).to receive(:publish).and_return(true)
     stub_s3(data: [FactoryBot.build(:s3_readme), s3_file1])
