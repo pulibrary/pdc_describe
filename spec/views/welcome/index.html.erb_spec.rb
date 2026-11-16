@@ -14,6 +14,22 @@ describe "/", type: :system do
     expect(page).to have_text("The review process typically takes 5-10 business days")
   end
 
+  context "entra message enabled" do
+    let(:test_strategy) { Flipflop::FeatureSet.current.test! }
+
+    before do
+      test_strategy.switch!(:entra_message, true)
+    end
+    after do
+      test_strategy.switch!(:entra_message, false)
+    end
+
+    it "renders the homepage" do
+      visit "/"
+      expect(page).to have_text("PDC Describe now uses the Princeton-branded Microsoft sign-in page")
+    end
+  end
+
   it "renders the homepage with admin menu for admin users" do
     sign_in super_admin_user
     visit "/"
