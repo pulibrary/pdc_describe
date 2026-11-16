@@ -23,7 +23,7 @@ module PDCMetadata
         Rights.new(identifier: "CC BY-NC-SA", uri: "https://creativecommons.org/licenses/by-nc-sa/4.0/", name: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International"),
         Rights.new(identifier: "CC BY-ND", uri: "https://creativecommons.org/licenses/by-nd/4.0/", name: "Creative Commons Attribution-NoDerivatives 4.0 International"),
         Rights.new(identifier: "CC BY-NC-ND", uri: "https://creativecommons.org/licenses/by-nc-nd/4.0/", name: "Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International"),
-        Rights.new(identifier: "CC0", uri: "https://creativecommons.org/publicdomain/zero/1.0/", name: "Creative Commons 1.0 Universal - Public Domain Dedication")
+        Rights.new(identifier: "CC0", uri: "https://creativecommons.org/publicdomain/zero/1.0/", name: "Creative Commons Zero 1.0 Universal - Public Domain Dedication")
       ]
     end
 
