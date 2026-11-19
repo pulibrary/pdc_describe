@@ -4,6 +4,7 @@ version: 2.1
 orbs:
   browser-tools: circleci/browser-tools@2.4.0
   coveralls: coveralls/coveralls@2.2.5
+  node: circleci/node@7.2
 commands:
   bundle_install:
     description: "Install correct version of bundler and load from cache or bundle install"
@@ -30,10 +31,19 @@ commands:
   yarn_install:
     description: "Install the supported release of Yarn and install the package dependencies"
     steps:
+      - node/install:
+          install-yarn: false
+          node-version: ""
       - restore_cache:
           name: Restore the Yarn package dependencies from the cache
           keys:
             - pdc_describe-yarn-{{ checksum "yarn.lock" }}
+      - run:
+          name: "Install yarn using corepack"
+          command: |
+            npm install -g corepack
+            corepack enable
+            corepack prepare yarn@stable --activate
       - run:
           name: Install NPM Dependencies via Yarn
           command: yarn install --immutable
@@ -48,7 +58,7 @@ jobs:
     working_directory: ~/pdc_describe
     docker:
       - &ruby_docker
-        image: cimg/ruby:4.0.9-browsers
+        image: cimg/ruby:4.0.10-browsers
         environment:
           RAILS_ENV: test
     steps:
