@@ -7,6 +7,7 @@ production:
   - rl3667 # Robert-Anthony Lee-Faison
   - jh6441 # Jaymee Hyppolite
   - jrg5 # James Griffin
+  - mjc12 # Matt Chandler
 staging:
   - kl37 # Kate Lynch
   - pp9425 # Precilla Prempeh
@@ -15,6 +16,7 @@ staging:
   - rl3667 # Robert-Anthony Lee-Faison
   - jh6441 # Jaymee Hyppolite
   - jrg5 # James Griffin
+  - mjc12 # Matt Chandler
 development:
   - kl37 # Kate Lynch
   - pp9425 # Precilla Prempeh
@@ -23,5 +25,6 @@ development:
   - rl3667 # Robert-Anthony Lee-Faison
   - jh6441 # Jaymee Hyppolite
   - jrg5 # James Griffin
+  - mjc12 # Matt Chandler
 test:
   - fake1 # Fake user for testing
